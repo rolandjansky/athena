@@ -69,6 +69,7 @@ def getFastCaloSimPileupOTSvc(name="ISF_FastCaloSimPileupOTSvc", **kwargs):
 def getFastCaloSimV2ParamSvc(name="ISF_FastCaloSimV2ParamSvc", **kwargs):
     from ISF_FastCaloSimServices.ISF_FastCaloSimJobProperties import ISF_FastCaloSimFlags
     kwargs.setdefault("ParamsInputFilename"              , ISF_FastCaloSimFlags.ParamsInputFilename())
+    kwargs.setdefault("RunOnGPU"                         ,ISF_FastCaloSimFlags.RunOnGPU())
     kwargs.setdefault("ParamsInputObject"                , 'SelPDGID')
     return CfgMgr.ISF__FastCaloSimV2ParamSvc(name, **kwargs )
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -36,9 +36,18 @@
 class BCM_RawData {
 
 public:
-
-  // public default constructor needed for I/O, but should not be called from an alg
-  BCM_RawData();
+  //'Rule of 5' : Default c'tor
+  BCM_RawData() = default;
+  //copy c'tor
+  BCM_RawData(const BCM_RawData &) = default;
+  //move c'tor
+  BCM_RawData(BCM_RawData &&) = default;
+  //assign
+  BCM_RawData & operator=(const BCM_RawData &) = default;
+  //move assign
+  BCM_RawData & operator=(BCM_RawData &&) = default;
+  //d'tor
+  ~BCM_RawData() = default;
 
   // constructor with parameters: word1, word2
   BCM_RawData(const unsigned int word1, const unsigned int word2);
@@ -64,26 +73,24 @@ public:
               const unsigned int LVL1ID,
               const unsigned int Error);
 
-  // destructor
-  virtual ~BCM_RawData();
-
+  
   // virtual methods
-  virtual int getWord1() const { return m_word1; }
-  virtual int getWord2() const { return m_word2; }
-  virtual int getChannel() const { return (m_word1 & 0xF); }                // Channel identifier       0-15
-  virtual int getPulse1Position() const { return ((m_word1>>4) & 0x3F); }   // Position of first pulse  0-63
-  virtual int getPulse1Width() const { return ((m_word1>>10) & 0x1F); }     // Width of first pulse     0-31
-  virtual int getPulse2Position() const { return ((m_word1>>15) & 0x3F); }  // Position of second pulse 0-63
-  virtual int getPulse2Width() const { return ((m_word1>>21) & 0x1F); }     // Width of second pulse    0-31
-  virtual int getLVL1A() const { return ((m_word1>>26) & 0x3F); }           // Level 1 accept,          0-63
-  virtual int getBCID() const { return (m_word2 & 0xFFF); }                 // Bunch Crossing ID        0-4096
-  virtual int getLVL1ID() const { return ((m_word2>>12) & 0xFFFF); }        // Level 1 ID               0-65535
-  virtual int getError() const { return ((m_word2>>28) & 0xF); }            // Error                    0-15
+  int getWord1() const { return m_word1; }
+  int getWord2() const { return m_word2; }
+  int getChannel() const { return (m_word1 & 0xF); }                // Channel identifier       0-15
+  int getPulse1Position() const { return ((m_word1>>4) & 0x3F); }   // Position of first pulse  0-63
+  int getPulse1Width() const { return ((m_word1>>10) & 0x1F); }     // Width of first pulse     0-31
+  int getPulse2Position() const { return ((m_word1>>15) & 0x3F); }  // Position of second pulse 0-63
+  int getPulse2Width() const { return ((m_word1>>21) & 0x1F); }     // Width of second pulse    0-31
+  int getLVL1A() const { return ((m_word1>>26) & 0x3F); }           // Level 1 accept,          0-63
+  int getBCID() const { return (m_word2 & 0xFFF); }                 // Bunch Crossing ID        0-4096
+  int getLVL1ID() const { return ((m_word2>>12) & 0xFFFF); }        // Level 1 ID               0-65535
+  int getError() const { return ((m_word2>>28) & 0xF); }            // Error                    0-15
 
 private:
 
-  unsigned int m_word1;
-  unsigned int m_word2;
+  unsigned int m_word1=0;
+  unsigned int m_word2=0;
 
 };
 

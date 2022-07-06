@@ -18,7 +18,8 @@
 
 namespace ZDC
 {
-int ZdcAnalysisTool::s_debugLevel = 0;
+std::atomic<int> ZdcAnalysisTool::s_debugLevel = 0;
+
 ZdcAnalysisTool::ZdcAnalysisTool(const std::string& name)
     : asg::AsgTool(name), m_name(name), m_init(false),
       m_writeAux(false), m_eventReady(false),
@@ -997,8 +998,8 @@ StatusCode ZdcAnalysisTool::recoZdcModules(const xAOD::ZdcModuleContainer& modul
             adcDelayHG = &(*(zdcModule->TTg1d1Link()))->adc();
         }
 
-        static std::vector<float> HGUndelADCSamples(m_numSample);
-        static std::vector<float> LGUndelADCSamples(m_numSample);
+        std::vector<float> HGUndelADCSamples(m_numSample);
+        std::vector<float> LGUndelADCSamples(m_numSample);
 
         std::copy(adcUndelayLG->begin(), adcUndelayLG->end(), LGUndelADCSamples.begin());
         std::copy(adcUndelayHG->begin(), adcUndelayHG->end(), HGUndelADCSamples.begin());

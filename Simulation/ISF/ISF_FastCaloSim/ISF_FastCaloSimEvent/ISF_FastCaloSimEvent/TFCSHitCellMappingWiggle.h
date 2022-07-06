@@ -9,6 +9,7 @@
 
 #ifdef USE_GPU
 #include "ISF_FastCaloGpu/LoadGpuFuncHist.h"
+#include "ISF_FastCaloGpu/FH_structs.h"
 #endif
 
 
@@ -47,6 +48,7 @@ public:
 
 #ifdef USE_GPU
   //construct the hist function and copy to GPU
+  //will not compile by default
   void    set_d_HistFuncs( FHs* hf_ptr ) { m_d_HistFuncs = hf_ptr; };
   const FHs*       d_HistFuncs() { return m_d_HistFuncs; };
   void             LoadHistFuncs();

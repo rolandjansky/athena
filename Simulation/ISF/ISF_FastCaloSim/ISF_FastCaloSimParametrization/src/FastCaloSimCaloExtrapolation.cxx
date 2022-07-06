@@ -224,7 +224,7 @@ std::unique_ptr<std::vector<Trk::HitInfo>> FastCaloSimCaloExtrapolation::caloHit
 
   /* uncomment if unstable particles used by FastCaloSim
   // beta calculated here for further use in validation
-  double mass = m_particleMasses.mass[pHypothesis];
+  double mass = Trk::ParticleMasses::mass[pHypothesis];
   double mom = isp.momentum().mag();
   double beta = mom/sqrt(mom*mom+mass*mass);
 

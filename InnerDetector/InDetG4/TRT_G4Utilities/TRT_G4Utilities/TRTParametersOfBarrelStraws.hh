@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -7,8 +7,6 @@
 #define TRTParametersOfBarrelStraws_hh
 
 #include "globals.hh"
-#include "AthenaKernel/MsgStreamMember.h"
-#include "CxxUtils/checker_macros.h"
 
 class TRTParameters;
 
@@ -21,14 +19,11 @@ class TRTParametersOfBarrelStraws
     TRTParametersOfBarrelStraws();
     ~TRTParametersOfBarrelStraws();
 
-    MsgStream& msg (MSG::Level lvl) { return m_msg << lvl; }
-    bool msgLevel (MSG::Level lvl)   { return m_msg.get().level() <= lvl; }
-
   private:
     TRTParametersOfBarrelStraws (const TRTParametersOfBarrelStraws&); 
     TRTParametersOfBarrelStraws& operator= (const TRTParametersOfBarrelStraws&); 
     void DefineParameters();
-    void PrintParameters(MsgStream& msg) const;
+    void PrintParameters() const;
 
     double m_outerRadiusOfStrawHole = 0.0;
     double m_lengthOfStrawHole = 0.0;
@@ -62,8 +57,6 @@ class TRTParametersOfBarrelStraws
     double m_lengthOfWire = 0.0;
 
     const TRTParameters* m_pParameters;
-
-    Athena::MsgStreamMember m_msg;
 };
 
 #endif

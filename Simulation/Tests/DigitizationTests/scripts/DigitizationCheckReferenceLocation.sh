@@ -21,6 +21,8 @@ elif [[ $ATLAS_RELEASE_BASE == *"21.3"* ]]; then
     DigitizationTestsVersion="21.3.X"
 elif [[ $ATLAS_RELEASE_BASE == *"22.0-mc20"* ]] || [[ $ATLAS_RELEASE_BASE == *"22.0.41."* ]]; then
     DigitizationTestsVersion="22.0-mc20"
+elif [[ $ATLAS_RELEASE_BASE == *"22.0"* ]]; then
+    DigitizationTestsVersion="22.0"
 fi
 
 export DigitizationTestsVersion

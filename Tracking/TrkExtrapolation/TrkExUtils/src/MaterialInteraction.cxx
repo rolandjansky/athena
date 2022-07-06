@@ -6,11 +6,8 @@
 // MaterialInteraction.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 #include "TrkExUtils/MaterialInteraction.h"
+#include <cmath>
 
-// static particle masses
-namespace {
-constexpr Trk::ParticleMasses s_particleMasses;
-}
 
 /** dE/dl ionization energy loss per path unit */
 double
@@ -42,10 +39,10 @@ Trk::MaterialInteraction::dEdl_ionization(double p,
 
   // kinetic variables
   // and the electron mass in MeV
-  double me = s_particleMasses.mass[Trk::electron];
-  double m = s_particleMasses.mass[particle];
+  double me = Trk::ParticleMasses::mass[Trk::electron];
+  double m = Trk::ParticleMasses::mass[particle];
   double mfrac = me / m;
-  double E = sqrt(p * p + m * m);
+  double E = std::sqrt(p * p + m * m);
   double beta = p / E;
   double gamma = E / m;
 
@@ -73,14 +70,14 @@ Trk::MaterialInteraction::dEdl_ionization(double p,
     // muons)
     double delta = 0.;
     if (gamma > 10.) {
-      double eplasma = 28.816e-6 * sqrt(1000. * mat->zOverAtimesRho());
-      delta = 2. * log(eplasma / I) + log(eta2) - 1.;
+      double eplasma = 28.816e-6 * std::sqrt(1000. * mat->zOverAtimesRho());
+      delta = 2. * std::log(eplasma / I) + std::log(eta2) - 1.;
     }
     // tmax - cut off energy
     double tMax = 2. * eta2 * me / (1. + 2. * gamma * mfrac + mfrac * mfrac);
     // divide by beta^2 for non-electrons
     kaz /= beta * beta;
-    Ionization = -kaz * (log(2. * me * eta2 * tMax / (I * I)) -
+    Ionization = -kaz * (std::log(2. * me * eta2 * tMax / (I * I)) -
                          2. * (beta * beta) - delta);
     //
     // the landau sigmaL is path length dependent - take what's given
@@ -88,7 +85,7 @@ Trk::MaterialInteraction::dEdl_ionization(double p,
     //    PDG formula 27.11 for MOP value from
     //    http://pdg.lbl.gov/2011/reviews/rpp2011-rev-passage-particles-matter.pdf
     //
-    const double MOP = -kaz * (log(2. * me * eta2 / I) + log(path * kaz / I) + 0.2 -
+    const double MOP = -kaz * (std::log(2. * me * eta2 / I) + std::log(path * kaz / I) + 0.2 -
                   (beta * beta) - delta);
     sigma = -(Ionization - MOP) * factor;
     kazL = kaz * factor;
@@ -109,8 +106,8 @@ Trk::MaterialInteraction::dEdl_radiation(double p,
     return 0.;
 
   // preparation of kinetic constants
-  const double m = s_particleMasses.mass[particle];
-  const double me = s_particleMasses.mass[Trk::electron];
+  const double m = Trk::ParticleMasses::mass[particle];
+  const double me = Trk::ParticleMasses::mass[Trk::electron];
   const double mfrac = me / m;
   const double E = sqrt(p * p + m * m);
 
@@ -127,7 +124,7 @@ Trk::MaterialInteraction::dEdl_radiation(double p,
     if (E < 1.e6) {
       Radiation += 0.5345 - 6.803e-5 * E - 2.278e-11 * E * E +
                    9.899e-18 * E * E * E;                    // E below 1 TeV
-      sigma += (0.1828 - 3.966e-3 * sqrt(E) + 2.151e-5 * E); // idem
+      sigma += (0.1828 - 3.966e-3 * std::sqrt(E) + 2.151e-5 * E); // idem
     } else {
       Radiation += 2.986 - 9.253e-5 * E;          // E above 1 TeV
       sigma += 17.73 + 2.409e-5 * (E - 1000000.); // idem
@@ -149,7 +146,7 @@ Trk::MaterialInteraction::sigmaMS(double dInX0, double p, double beta)
 
   // Highland formula - projected sigma_s
   double sig_ms =
-    13.6 * sqrt(dInX0) / (beta * p) * (1. + 0.038 * log(dInX0 / (beta * beta)));
+    13.6 * std::sqrt(dInX0) / (beta * p) * (1. + 0.038 * std::log(dInX0 / (beta * beta)));
   return sig_ms;
 }
 
@@ -169,9 +166,9 @@ Trk::MaterialInteraction::PDG_energyLoss_ionization(
   // kinetic variables
   // and the electron mass in MeV
 
-  double m = s_particleMasses.mass[particle];
-  double E = sqrt(p * p + m * m);
-  double me = s_particleMasses.mass[Trk::electron];
+  double m = Trk::ParticleMasses::mass[particle];
+  double E = std::sqrt(p * p + m * m);
+  double me = Trk::ParticleMasses::mass[Trk::electron];
   double beta = p / E;
   double gamma = E / m;
 
@@ -187,8 +184,8 @@ Trk::MaterialInteraction::PDG_energyLoss_ionization(
   // muons)
   double delta = 0.;
   if (gamma > 10.) {
-    double eplasma = 28.816e-6 * sqrt(1000. * mat->zOverAtimesRho());
-    delta = 2. * log(eplasma / I) + log(eta2) - 1.;
+    double eplasma = 28.816e-6 * std::sqrt(1000. * mat->zOverAtimesRho());
+    delta = 2. * std::log(eplasma / I) + std::log(eta2) - 1.;
   }
 
   // divide by beta^2 for non-electrons
@@ -200,7 +197,7 @@ Trk::MaterialInteraction::PDG_energyLoss_ionization(
   //    PDG formula 32.11 for MOP value from
   //    http://http://pdg.lbl.gov/2014/reviews/rpp2014-rev-passage-particles-matter.pdf
   //
-  const double MOP = -kazL * (log(2. * me * eta2 / I) + log(kazL / I) + 0.2 -
+  const double MOP = -kazL * (std::log(2. * me * eta2 / I) + std::log(kazL / I) + 0.2 -
                         (beta * beta) - delta);
   sigma = 0.424 * 4. * kazL; // 0.424: scale factor from sigma to FWHM
 

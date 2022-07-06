@@ -28,7 +28,7 @@ namespace ITk
 StripGmxInterface::StripGmxInterface(SCT_DetectorManager *detectorManager,
                                      SiCommonItems *commonItems,
                                      WaferTree *waferTree)
-  : AthMessaging(Athena::getMessageSvc(), "StripGmxInterface"),
+  : AthMessaging("StripGmxInterface"),
     m_detectorManager(detectorManager),
     m_commonItems(commonItems),
     m_waferTree(waferTree)

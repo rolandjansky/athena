@@ -3,15 +3,21 @@
 */
 
 #include "L1TopoSimulation.h"
+
+// Histogram Service
 #include "AthenaL1TopoHistSvc.h"
 
+// Trigger includes
+#include "TrigT1Interfaces/TrigT1CaloDefs.h"
+#include "TrigT1CaloEvent/EmTauROI_ClassDEF.h"
+
+
+// L1Topo includes
 #include "L1TopoConfig/L1TopoMenu.h"
 #include "L1TopoEvent/TopoInputEvent.h"
 #include "L1TopoCommon/Types.h"
 
 #include "L1TopoInterfaces/IL1TopoHistSvc.h"
-#include "TrigT1Interfaces/TrigT1CaloDefs.h"
-#include "TrigT1CaloEvent/EmTauROI_ClassDEF.h"
 
 #include "L1TopoRDO/BlockTypes.h"
 #include "L1TopoRDO/Header.h"
@@ -19,6 +25,7 @@
 #include "L1TopoRDO/L1TopoTOB.h"
 #include "L1TopoRDO/L1TopoRDOCollection.h"
 
+// xAOD
 #include "xAODTrigger/L1TopoSimResults.h"
 
 using namespace LVL1;

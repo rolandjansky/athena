@@ -11,7 +11,7 @@ def TMDBConfig(flags):
     # Read MuRcvRawChCnt from the input file (for POOL directly, for BS via converter)
     if flags.Input.Format is Format.POOL:
         from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
-        acc.merge(SGInputLoaderCfg(flags, Load=[('TileRawChannelContainer','MuRcvRawChCnt')]))
+        acc.merge(SGInputLoaderCfg(flags, ["TileRawChannelContainer/MuRcvRawChCnt"]))
     else:
         from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamReadCfg
         acc.merge(ByteStreamReadCfg(flags, ["TileRawChannelContainer/MuRcvRawChCnt"]))
@@ -178,6 +178,22 @@ def RecoMuonSegmentSequence(flags):
     acc.addEventAlgo(xAODMuonSegmentCnv)
     return acc
 
+
+
+def MuonRdoToMuonDigitToolCfg(flags, name="MuonRdoToMuonDigitTool", **kwargs ):
+    result = ComponentAccumulator()
+    kwargs.setdefault("DecodeSTGC_RDO", flags.Detector.GeometrysTGC)
+    kwargs.setdefault("DecodeMM_RDO", flags.Detector.GeometryMM)
+    from MuonConfig.MuonByteStreamCnvTestConfig import STgcRdoDecoderCfg, MMRdoDecoderCfg, MdtRdoDecoderCfg
+    kwargs.setdefault( "stgcRdoDecoderTool", result.popToolsAndMerge(STgcRdoDecoderCfg(flags))
+                         if flags.Detector.GeometrysTGC else "" )
+    kwargs.setdefault("mmRdoDecoderTool", result.popToolsAndMerge(MMRdoDecoderCfg(flags))
+                         if flags.Detector.GeometryMM else "" )    
+    kwargs.setdefault("mdtRdoDecoderTool", result.popToolsAndMerge(MdtRdoDecoderCfg(flags)))
+    the_tool = CompFactory.MuonRdoToMuonDigitTool (name, **kwargs)
+    result.setPrivateTools(the_tool)
+    return result
+
 def MuonRdo2DigitConfig(flags):
     acc = ComponentAccumulator()
 
@@ -204,12 +220,10 @@ def MuonRdo2DigitConfig(flags):
 
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
     acc.merge(MuonGeoModelCfg(flags))
-    MuonRdoToMuonDigitTool = CompFactory.MuonRdoToMuonDigitTool (DecodeMdtRDO = False,
-                                                                 DecodeRpcRDO = True,
+    MuonRdoToMuonDigitTool = acc.popToolsAndMerge(MuonRdoToMuonDigitToolCfg(flags,DecodeRpcRDO = True,
                                                                  DecodeTgcRDO = True,
                                                                  DecodeCscRDO = False,
-                                                                 DecodeSTGC_RDO = flags.Detector.GeometrysTGC,
-                                                                 DecodeMM_RDO = flags.Detector.GeometryMM,
+                                                                 DecodeMdtRDO = False,
                                                                  mdtRdoDecoderTool="",
                                                                  cscRdoDecoderTool="",
                                                                  cscCalibTool = "",
@@ -220,12 +234,9 @@ def MuonRdo2DigitConfig(flags):
                                                                  MmDigitContainer = "MM_DIGITS_L1",
                                                                  sTgcDigitContainer = "sTGC_DIGITS_L1",
                                                                  RpcDigitContainer = "RPC_DIGITS_L1",
-                                                                 TgcDigitContainer = "TGC_DIGITS_L1")
+                                                                 TgcDigitContainer = "TGC_DIGITS_L1"))
 
-    if not flags.Detector.GeometrysTGC:
-        MuonRdoToMuonDigitTool.stgcRdoDecoderTool=""
-    if not flags.Detector.GeometryMM:
-        MuonRdoToMuonDigitTool.mmRdoDecoderTool=""
+   
 
     acc.addPublicTool(MuonRdoToMuonDigitTool)
     rdo2digit = CompFactory.MuonRdoToMuonDigit( "MuonRdoToMuonDigit",
@@ -247,14 +258,14 @@ def NSWTriggerConfig(flags):
         from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
         acc.merge(SGInputLoaderCfg(flags, Load=rdoInputs))
 
-    PadTdsTool = CompFactory.NSWL1.PadTdsOfflineTool("NSWL1__PadTdsOfflineTool",DoNtuple=False, IsMC = flags.Input.isMC, sTGC_DigitContainerName="sTGC_DIGITS_L1")
-    PadTriggerLogicTool = CompFactory.NSWL1.PadTriggerLogicOfflineTool("NSWL1__PadTriggerLogicOfflineTool",DoNtuple=False)
+    PadTdsTool = CompFactory.NSWL1.PadTdsOfflineTool("NSWL1__PadTdsOfflineTool",DoNtuple=flags.Trigger.L1MuonSim.WritesTGCBranches, IsMC = flags.Input.isMC, sTGC_DigitContainerName="sTGC_DIGITS_L1")
+    PadTriggerLogicTool = CompFactory.NSWL1.PadTriggerLogicOfflineTool("NSWL1__PadTriggerLogicOfflineTool",DoNtuple=flags.Trigger.L1MuonSim.WritesTGCBranches)
     PadTriggerLookupTool = CompFactory.NSWL1.PadTriggerLookupTool("NSWL1__PadTriggerLookupTool")
-    StripTdsTool = CompFactory.NSWL1.StripTdsOfflineTool("NSWL1__StripTdsOfflineTool",DoNtuple=False,IsMC=flags.Input.isMC,sTGC_DigitContainerName="sTGC_DIGITS_L1")
-    StripClusterTool = CompFactory.NSWL1.StripClusterTool("NSWL1__StripClusterTool",DoNtuple=False,IsMC=flags.Input.isMC)
-    StripSegmentTool = CompFactory.NSWL1.StripSegmentTool("NSWL1__StripSegmentTool",DoNtuple=False)
+    StripTdsTool = CompFactory.NSWL1.StripTdsOfflineTool("NSWL1__StripTdsOfflineTool",DoNtuple=flags.Trigger.L1MuonSim.WritesTGCBranches,IsMC=flags.Input.isMC,sTGC_DigitContainerName="sTGC_DIGITS_L1")
+    StripClusterTool = CompFactory.NSWL1.StripClusterTool("NSWL1__StripClusterTool",DoNtuple=flags.Trigger.L1MuonSim.WritesTGCBranches,IsMC=flags.Input.isMC)
+    StripSegmentTool = CompFactory.NSWL1.StripSegmentTool("NSWL1__StripSegmentTool",DoNtuple=flags.Trigger.L1MuonSim.WritesTGCBranches)
     MMStripTdsTool = CompFactory.NSWL1.MMStripTdsOfflineTool("NSWL1__MMStripTdsOfflineTool",DoNtuple=False)
-    MMTriggerTool = CompFactory.NSWL1.MMTriggerTool("NSWL1__MMTriggerTool",DoNtuple=False, IsMC = flags.Input.isMC, MmDigitContainer="MM_DIGITS_L1")
+    MMTriggerTool = CompFactory.NSWL1.MMTriggerTool("NSWL1__MMTriggerTool",DoNtuple=flags.Trigger.L1MuonSim.WriteMMBranches, IsMC = flags.Input.isMC, MmDigitContainer="MM_DIGITS_L1")
     TriggerProcessorTool = CompFactory.NSWL1.TriggerProcessorTool("NSWL1__TriggerProcessorTool")
 
     dosTGC =  flags.Trigger.L1MuonSim.doPadTrigger or flags.Trigger.L1MuonSim.doStripTrigger
@@ -264,7 +275,7 @@ def NSWTriggerConfig(flags):
 
     nswAlg = CompFactory.NSWL1.NSWL1Simulation("NSWL1Simulation",
                                                UseLookup = False,
-                                               DoNtuple = False,
+                                               DoNtuple = flags.Trigger.L1MuonSim.WriteNSWDebugNtuple,
                                                DoMM = flags.Trigger.L1MuonSim.doMMTrigger,
                                                DoMMDiamonds = flags.Trigger.L1MuonSim.doMMTrigger,
                                                DosTGC = dosTGC,
@@ -301,6 +312,7 @@ def TGCTriggerConfig(flags):
     acc = ComponentAccumulator()
     tgcAlg = CompFactory.LVL1TGCTrigger.LVL1TGCTrigger("LVL1TGCTrigger",
                                                        InputData_perEvent  = "TGC_DIGITS_L1",
+                                                       InputRDO = "TGCRDO" if flags.Input.isMC else "TGCRDO_L1",
                                                        useRun3Config = True,
                                                        TileMuRcv_Input = "rerunTileMuRcvCnt",
                                                        TILEMU = True)
@@ -385,8 +397,6 @@ def Lvl1MuonSimulationCfg(flags):
 
 if __name__ == "__main__":
     import sys
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
     flags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.merge.RDO.e4993_s3214_r11315/RDO.17533168._000001.pool.root.1']
     flags.Common.isOnline=False

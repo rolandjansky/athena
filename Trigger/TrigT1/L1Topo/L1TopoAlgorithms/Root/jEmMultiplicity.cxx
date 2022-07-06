@@ -79,13 +79,17 @@ TCS::jEmMultiplicity::process( const TCS::InputTOBArray & input,
   for(jEmTOBArray::const_iterator jem = jems.begin();
       jem != jems.end();
       ++jem ) {
-    
-    // Dividing by 4 standing for converting eta from 0.025 to 0.1 granularity as it is defined in the menu as 0.1 gran.
-    bool passed = (*jem)->Et() > jEMThr.thrValue100MeV((*jem)->eta()/4);
+     
+     // Dividing by 4 standing for converting eta from 0.025 to 0.1 granularity as it is defined in the menu as 0.1 gran.
+     bool passed = (*jem)->Et() > jEMThr.thrValue100MeV((*jem)->eta()/4);
 
-    if (passed) {
-      counting++; 
-      fillHist2D( m_histAccept[0], (*jem)->eta(), (*jem)->EtDouble() );
+     if ( !isocut(TrigConf::Selection::wpToString(jEMThr.iso()), (*jem)->isolation()) ) {continue;}
+     if ( !isocut(TrigConf::Selection::wpToString(jEMThr.frac()), (*jem)->frac1()) ) {continue;}
+     if ( !isocut(TrigConf::Selection::wpToString(jEMThr.frac2()), (*jem)->frac2()) ) {continue;}
+
+     if (passed) {
+       counting++; 
+       fillHist2D( m_histAccept[0], (*jem)->eta(), (*jem)->EtDouble() );
     }
 
   }
@@ -94,7 +98,7 @@ TCS::jEmMultiplicity::process( const TCS::InputTOBArray & input,
   
   // Pass counting to TCS::Count object - output bits are composed there
   count.setSizeCount(counting);
-  
+ 
   return TCS::StatusCode::SUCCESS;
 
 }

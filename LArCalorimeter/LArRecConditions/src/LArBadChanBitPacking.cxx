@@ -36,6 +36,7 @@ LArBadChanBitPacking::LArBadChanBitPacking() :
   addBit( deadSCACellBit, "deadSCACell", independent);
   addBit( badFirstSampleBit, "badFirstSample", independent);
   addBit( unflaggedByLADIeSBit, "unflaggedByLADIeS", independent);
+  addBit( reflaggedByLADIeSBit, "reflaggedByLADIeS", independent);
 
   for (unsigned int i=0; i<m_enumVec.size(); i++) {
     m_nameMap[m_nameVec[i]] = m_enumVec[i].first;

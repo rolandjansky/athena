@@ -24,14 +24,24 @@ addTool("TrkExTools.AtlasExtrapolator.AtlasExtrapolator","AtlasExtrapolator")
 ################################################################################
 
 addTool( "MuonRecExample.MuonRecTools.MuonClusterOnTrackCreator", "MuonClusterOnTrackCreator" )
-
 addTool( "MuonRecExample.MuonRecTools.MdtDriftCircleOnTrackCreator", "MdtDriftCircleOnTrackCreator" )
+
+if setup_stgcs or setup_mm:
+    addTool("NSWCalibTools.NSWCalibToolsConfig.NSWCalibTool","NSWCalibTool")
+
+if setup_mm:
+    addTool("MuonRecExample.NSWTools.SimpleMMClusterBuilderTool","SimpleMMClusterBuilderTool")
+    addTool("MuonRecExample.MuonRecTools.MMClusterOnTrackCreator", "MMClusterOnTrackCreator")
+
+addTool( "MuonRecExample.MuonRecTools.MuonPRDSelectionTool", "MuonPRDSelectionTool" )
+
 addTool( "MuonRecExample.MuonRecTools.MdtTubeHitOnTrackCreator", "MdtTubeHitOnTrackCreator" )
 addTool( "MuGirlNS::StauBetaTofTool","StauBetaTofTool")
 addTool( "MuonRecExample.MuonRecTools.MdtDriftCircleOnTrackCreatorStau","MdtDriftCircleOnTrackCreatorStau")
 
-addTool( "Muon::MuonPRDSelectionTool","MuonPRDSelectionTool")
-addTool( "Muon::MuonPRDSelectionTool","MuonPRDSelectionToolStau",MdtDriftCircleOnTrackCreator="MdtDriftCircleOnTrackCreatorStau")
+addTool( "MuonRecExample.MuonRecTools.MuonPRDSelectionTool", "MuonPRDSelectionToolStau", 
+            MdtDriftCircleOnTrackCreator="MdtDriftCircleOnTrackCreatorStau")
+
 
 addTool( "MuonRecExample.MuonRecTools.AdjustableT0Tool", "AdjustableT0Tool" )
 
@@ -93,8 +103,6 @@ addTool( "MuonRecExample.MuonRecTools.MdtSegmentT0Fitter", "MdtSegmentT0Fitter" 
 
 addTool( "MuonRecExample.MuonRecTools.MdtMathSegmentFinder", "MdtMathSegmentFinder" )
 addTool( "MuonRecExample.MuonRecTools.MdtMathT0FitSegmentFinder", "MdtMathT0FitSegmentFinder" )
-if setup_mm:
-    addTool( "MuonRecExample.MuonRecTools.MMClusterOnTrackCreator", "MMClusterOnTrackCreator")
 
 addTool( "MuonRecExample.MuonRecTools.DCMathSegmentMaker", "DCMathSegmentMaker" )
 addTool( "MuonRecExample.MuonRecTools.DCMathT0FitSegmentMaker", "DCMathT0FitSegmentMaker" )
@@ -233,7 +241,6 @@ if setup_cscs:
 # Tools from MuonRecExample.NSWTools  (NSW - MicroMegas and STgc reconstruction tools)
 ################################################################################
 if setup_mm:
-    addTool("MuonRecExample.NSWTools.SimpleMMClusterBuilderTool","SimpleMMClusterBuilderTool")
     addTool("MuonRecExample.NSWTools.UTPCMMClusterBuilderTool","UTPCMMClusterBuilderTool")
     addTool("MuonRecExample.NSWTools.ProjectionMMClusterBuilderTool","ProjectionMMClusterBuilderTool")
     addTool("MuonRecExample.NSWTools.ConstraintAngleMMClusterBuilderTool","ConstraintAngleMMClusterBuilderTool")
@@ -243,8 +250,6 @@ if setup_stgcs:
     addTool("MuonRecExample.NSWTools.SimpleSTgcClusterBuilderTool","SimpleSTgcClusterBuilderTool")
     addTool("MuonRecExample.NSWTools.CaruanaSTgcClusterBuilderTool","CaruanaSTgcClusterBuilderTool")
     addTool("NSWCalibTools.NSWCalibToolsConfig.STgcCalibSmearingTool","STgcCalibSmearingTool")
-if setup_stgcs or setup_mm:
-    addTool("NSWCalibTools.NSWCalibToolsConfig.NSWCalibTool","NSWCalibTool")
 
 ################################################################################
 # Tools from MuonRecExample.MuPatTools

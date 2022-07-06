@@ -1,0 +1,1 @@
+These files are copied from https://gitlab.cern.ch/atlas-l1calo-online/bytestreamDecoder/-/tree/offline - should not be modified by humans in this repo, any changes should be made in the online software repo instead. 

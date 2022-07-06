@@ -28,6 +28,18 @@ def InDetTestPixelLayerToolCfg(flags, name = "InDetTestPixelLayerTool", **kwargs
   result.setPrivateTools( tool )
   return result
 
+def InDetTestPixelLayerToolInnerCfg(flags, name = "InDetTestPixelLayerToolInner", **kwargs):
+  kwargs.setdefault("CheckActiveAreas", False)
+  kwargs.setdefault("CheckDeadRegions", False)
+  kwargs.setdefault("CheckDisabledFEs", False)
+  kwargs.setdefault("OuterRadius", 100.) # To allow for extrapolation up to B-layer = next-to-innermost
+  return InDetTestPixelLayerToolCfg(flags, name, **kwargs)
+
+def InDetTrigTestPixelLayerToolInnerCfg(flags, name = "InDetTrigTestPixelLayerToolInner", **kwargs):
+  kwargs.setdefault("CheckActiveAreas", True)
+  kwargs.setdefault("PixelDetElStatus", "")
+  return InDetTestPixelLayerToolInnerCfg(flags, name, **kwargs)
+
 def ITkTestPixelLayerToolCfg(flags, name = "ITkTestPixelLayerTool", **kwargs):
   result = ComponentAccumulator()
   if 'PixelSummaryTool' not in kwargs :
@@ -43,7 +55,15 @@ def ITkTestPixelLayerToolCfg(flags, name = "ITkTestPixelLayerTool", **kwargs):
   kwargs.setdefault("CheckActiveAreas", flags.ITk.checkDeadPixelsOnTrack)
   kwargs.setdefault("CheckDeadRegions", flags.ITk.checkDeadPixelsOnTrack)
   kwargs.setdefault("CheckDisabledFEs", flags.ITk.checkDeadPixelsOnTrack)
+  kwargs.setdefault("OuterRadius", 350.) # Outer pixel detector radius, to allow for extrapolation up to outermost layer if needed
 
   tool = CompFactory.InDet.InDetTestPixelLayerTool( name, **kwargs)
   result.setPrivateTools( tool )
   return result
+
+def ITkTestPixelLayerToolInnerCfg(flags, name = "ITkTestPixelLayerInnerTool", **kwargs):
+  kwargs.setdefault("CheckActiveAreas", False)
+  kwargs.setdefault("CheckDeadRegions", False)
+  kwargs.setdefault("CheckDisabledFEs", False)
+  kwargs.setdefault("OuterRadius", 130.) # To allow for extrapolation up to next-to-innermost layer
+  return ITkTestPixelLayerToolCfg(flags, name, **kwargs)

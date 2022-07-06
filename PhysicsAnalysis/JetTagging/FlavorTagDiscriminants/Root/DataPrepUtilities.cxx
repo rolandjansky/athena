@@ -216,6 +216,7 @@ namespace FlavorTagDiscriminants {
     flip = FlipTagConfig::STANDARD;
     track_link_name = "BTagTrackToJetAssociator";
     track_link_type = TrackLinkType::TRACK_PARTICLE;
+    default_output_value = NAN;
   }
 
   // ________________________________________________________________________
@@ -574,7 +575,7 @@ namespace FlavorTagDiscriminants {
         {"(rnnip|dips[^_]*)_(.*)"_r, "$1flip_$2"},
         {"(JetFitter|SV1|JetFitterSecondaryVertex)_(.*)"_r, "$1Flip_$2"},
         {"(rnnip|dips[^_]*)"_r, "$1flip"},
-        {"^(DL1|DL1r|DL1rmu)$"_r, "$1Flip"},
+        {"^(DL1|DL1r[^_]*|DL1rmu|DL1d[^_]*)$"_r, "$1Flip"},
         {"pt|abs_eta"_r, "$&"},
         {"softMuon.*|smt.*"_r, "$&"}
       };

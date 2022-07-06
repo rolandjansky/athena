@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 from enum import Enum
@@ -9,8 +9,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from ..CommonSequences.FullScanDefs import  trkFSRoI
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from .JetRecoCommon import jetRecoDictToString
-from .JetRecoSequences import jetClusterSequence, jetCaloRecoSequences, jetTrackingRecoSequences, jetHICaloRecoSequences
-from .JetTrackingConfig import JetRoITrackingSequence
+from .JetRecoSequences import jetClusterSequence, jetCaloRecoSequences, jetTrackingRecoSequences, jetHICaloRecoSequences, JetRoITrackJetTagSequence, getJetViewAlg, getFastFtaggedJetCopyAlg
 
 # Hypo tool generators
 from TrigHLTJetHypo.TrigJetHypoToolConfig import trigJetHypoToolFromDict
@@ -40,11 +39,31 @@ def getCaloInputMaker():
 # Used for chains that use tracking
 def getTrackingInputMaker(trkopt):
     if trkopt=="ftf":
-        InputMakerAlg = conf2toConfigurable(CompFactory.InputMakerForRoI(
-            "IM_Jet_TrackingStep",
-            mergeUsingFeature = False,
-            RoITool = conf2toConfigurable(CompFactory.ViewCreatorInitialROITool()),
-            RoIs = trkFSRoI))
+
+        IDTrigConfig = getInDetTrigConfig( 'jet' )
+
+        log.debug( "jet FS tracking: useDynamicRoiZWidth: %s", IDTrigConfig.useDynamicRoiZWidth )
+        
+        roiUpdater = None
+        if IDTrigConfig.useDynamicRoiZWidth:
+            roiUpdater = CompFactory.RoiUpdaterTool( useBeamSpot=True )
+
+            log.info( roiUpdater )
+
+            InputMakerAlg = conf2toConfigurable(CompFactory.InputMakerForRoI( "IM_Jet_TrackingStep",
+                                                                              mergeUsingFeature = False,
+                                                                              RoITool = conf2toConfigurable( CompFactory.ViewCreatorFSROITool( name="RoiTool_FS", 
+                                                                                                                                               RoiUpdater=roiUpdater,
+                                                                                                                                               RoisWriteHandleKey=recordable( IDTrigConfig.roi ) ) ), 
+                                                                              RoIs = trkFSRoI ) )                                                
+        else: 
+            InputMakerAlg = conf2toConfigurable( CompFactory.InputMakerForRoI( "IM_Jet_TrackingStep",
+                                                                               mergeUsingFeature = False,
+                                                                               RoITool = conf2toConfigurable(CompFactory.ViewCreatorInitialROITool()),
+                                                                               RoIs = trkFSRoI) )
+
+
+
     elif trkopt=="roiftf":
         IDTrigConfig = getInDetTrigConfig( 'jetSuper' )
         InputMakerAlg = EventViewCreatorAlgorithm(
@@ -206,19 +225,30 @@ def jetFSTrackingHypoMenuSequence(configFlags, clustersKey, isPerf, **jetRecoDic
 # Presel jets to be reused, which makes ghost association impossible
 # Substitute DR association decorator
 
-def jetRoITrackingHypoMenuSequence(configFlags, jetsIn, isPresel=True, **jetRecoDict):
+def jetRoITrackJetTagHypoMenuSequence(configFlags, jetsIn, isPresel=True, **jetRecoDict):
     InputMakerAlg = getTrackingInputMaker(jetRecoDict['trkopt'])
-    # Get the track reconstruction sequence: jetTrkSeq is parOR of all needed track + f-tag reco algorithms
-    jetTrkSeq = RecoFragmentsPool.retrieve(
-        JetRoITrackingSequence, configFlags, jetsIn=jetsIn,trkopt=jetRecoDict["trkopt"], RoIs=InputMakerAlg.InViewRoIs)
-    InputMakerAlg.ViewNodeName = jetTrkSeq.name()
 
     jetDefString = jetRecoDictToString(jetRecoDict)
     log.debug("Generating jet tracking hypo menu sequence for reco %s",jetDefString)
-    jetAthMenuSeq = seqAND(f"jetRoITrackingHypo_{jetDefString}_MenuSequence",
-                       [InputMakerAlg]+[jetTrkSeq])
 
+    ftaggedJetsCopyAlg, ftaggedJetsIn = getFastFtaggedJetCopyAlg(configFlags,jetsIn=jetsIn,jetRecoDict=jetRecoDict)
+    ftaggedJetsIn=recordable(ftaggedJetsIn)
+
+    # Get the track reconstruction sequence: jetTrkFtagSeq is parOR of all needed track + f-tag reco algorithms
+    jetTrkFtagSeq = RecoFragmentsPool.retrieve(
+        JetRoITrackJetTagSequence, configFlags, jetsIn=ftaggedJetsIn,trkopt=jetRecoDict["trkopt"], RoIs=InputMakerAlg.InViewRoIs)
+    InputMakerAlg.ViewNodeName = jetTrkFtagSeq.name()
+
+    # Run the JetViewAlg sequence to filter out low pT jets
+    # Have to run it outside of JetRoITrackJetTagSequence (which runs in EventView), so that hypo recognises the filtered jets.
+    jetViewAlg, filtered_jetsIn = getJetViewAlg(configFlags,jetsIn=ftaggedJetsIn,**jetRecoDict)
+
+    # NOTE: Forcing non-parallel reco seq here else we get stalls from the EventView algs executing before the JetCopyAlg.
+    jetAthRecoSeq = seqAND(f"jetRoITrackJetTagHypo_{jetDefString}_RecoSequence",[ftaggedJetsCopyAlg,jetTrkFtagSeq,jetViewAlg])
+
+    jetAthMenuSeq = seqAND(f"jetRoITrackJetTagHypo_{jetDefString}_MenuSequence",
+                       [InputMakerAlg,jetAthRecoSeq])
 
     # Needs track-to-jet association here, maybe with dR decorator
     hypoType = JetHypoAlgType.ROIPRESEL if isPresel else JetHypoAlgType.STANDARD
-    return makeMenuSequence(jetAthMenuSeq,InputMakerAlg,jetsIn,jetDefString,hypoType)
+    return makeMenuSequence(jetAthMenuSeq,InputMakerAlg,filtered_jetsIn,jetDefString,hypoType)

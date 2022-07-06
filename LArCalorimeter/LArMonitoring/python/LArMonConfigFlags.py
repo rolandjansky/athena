@@ -32,4 +32,6 @@ def createLArMonConfigFlags():
     acf.addFlag('LArMon.doLArNoisyROMon', True)
     acf.addFlag('LArMon.doLArRODMon', True)
     acf.addFlag('LArMon.doLArNoiseCorrelationMon', False)
+    # and individual parameters
+    acf.addFlag('LArMon.doLArRawMonitorSignal', False)
     return acf

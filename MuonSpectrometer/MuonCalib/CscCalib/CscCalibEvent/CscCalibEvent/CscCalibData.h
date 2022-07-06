@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CSCCALIBEVENT_CSCCALIBDATA_H
@@ -32,7 +32,7 @@ public:
   CscCalibData() : m_idHash(0) {}
 
   /* full constructor */
-  CscCalibData(int hashId, std::vector<float> calibConst) :
+  CscCalibData(int hashId, const std::vector<float>& calibConst) :
 	m_idHash(hashId), m_calibConst(calibConst) {}
  
   /* destructor */
@@ -42,7 +42,7 @@ public:
   void set_idHash(const int idHash) { m_idHash = idHash; }
 
   /* set the calibration constants */
-  void set_calibConst (const std::vector<float> calibConst) { m_calibConst = calibConst; }
+  void set_calibConst (const std::vector<float>& calibConst) { m_calibConst = calibConst; }
 
   /* get the identifier hash */
   int idHash() { return m_idHash; }

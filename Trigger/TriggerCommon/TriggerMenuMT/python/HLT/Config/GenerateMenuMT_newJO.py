@@ -254,8 +254,6 @@ if __name__ == "__main__":
     assert "Electron" in sigMap, "Electrons missing"
     log.info("Generators laoding works ok")
 
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
 

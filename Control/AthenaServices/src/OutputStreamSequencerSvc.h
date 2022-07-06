@@ -71,7 +71,10 @@ public: // Non-static members
    bool         inUse() const;
   
    /// Are there concurrent events? (threads>1)
-   bool         inConcurrentEventsMode() const;
+   static bool  inConcurrentEventsMode();
+
+   /// Last incident type that was handled
+   const std::string& lastIncident()            { return m_lastIncident; }
 
 private: // data
    ServiceHandle<MetaDataSvc> m_metaDataSvc;
@@ -84,6 +87,9 @@ private: // data
 
    /// Recently constructed full file name (useful in single threaded processing)
    std::string  m_lastFileName;
+
+   /// Last incident type that was handled
+   std::string  m_lastIncident;
 
    /// EventRange ID for all slots
    std::vector<std::string>   m_rangeIDinSlot;

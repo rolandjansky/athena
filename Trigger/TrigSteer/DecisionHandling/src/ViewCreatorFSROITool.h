@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DESICIONHANDLING_VIEWCREATORFSROITOOL_H
@@ -8,6 +8,7 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "DecisionHandling/IViewCreatorROITool.h"
+#include "HLTSeeding/IRoiUpdaterTool.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
 /**
@@ -24,7 +25,7 @@ public:
 
   virtual ~ViewCreatorFSROITool() = default;
 
-   virtual StatusCode initialize() override;
+  virtual StatusCode initialize() override;
 
   /**
    * @brief Tool interface method.
@@ -36,6 +37,8 @@ public:
    **/
   SG::WriteHandleKey< TrigRoiDescriptorCollection > m_roisWriteHandleKey {this,"RoisWriteHandleKey","",
        "Name of the ROI collection produced by this tool."};
+
+  ToolHandle<IRoiUpdaterTool> m_roiupdater { this, "RoiUpdater", "", "Roi Updater" };
 
 };
 

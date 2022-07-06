@@ -13,6 +13,7 @@ Reco_tf.py --CA \
   --multithreaded="True" \
   --outputAODFile myAOD_ca.pool.root \
   --outputESDFile myESD_ca.pool.root \
+  --outputHISTFile myHIST_ca.root \
   --preExec "all:from AthenaConfiguration.AllConfigFlags import ConfigFlags; ConfigFlags.Jet.WriteToAOD=True; ConfigFlags.MET.WritetoAOD=True" \
   --imf="False" \
   --maxEvents 100
@@ -28,6 +29,7 @@ Reco_tf.py \
   --multithreaded="True" \
   --outputAODFile myAOD_def.pool.root \
   --outputESDFile myESD_def.pool.root \
+  --outputHISTFile myHIST_def.root \
   --preExec "all:from JetRec.JetRecFlags import jetFlags; jetFlags.writeJetsToAOD.set_Value_and_Lock(True); from METReconstruction.METRecoFlags import metFlags; metFlags.WriteMETAssocToOutput.set_Value_and_Lock(True);" \
   --imf="False" \
   --maxEvents 100
@@ -67,3 +69,8 @@ echo "============ comparexAODDigest.py myAOD_def.txt myAOD_ca.txt"
 comparexAODDigest.py myAOD_def.txt myAOD_ca.txt
 rc7=$?
 echo "art-result: ${rc7} comparexAODDigest.py myAOD_def.txt myAOD_ca.txt"
+
+echo "============ hist_diff.sh ca/myHIST_ca.root def/myHIST.root -i -x (TIME_execute|LAr/Coverage|MismatchEventNumbers|L1Calo/Overview/Errors)"
+hist_diff.sh ca/myHIST_ca.root def/myHIST_def.root -i -x "(TIME_execute|LAr/Coverage|MismatchEventNumbers|L1Calo/Overview/Errors)"
+rc8=$?
+echo "art-result: ${rc8} hist_diff.sh ca/myHIST_ca.root def/myHIST.root"

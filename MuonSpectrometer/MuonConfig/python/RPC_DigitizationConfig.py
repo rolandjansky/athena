@@ -140,6 +140,11 @@ def RPC_DigitizationBasicCfg(flags, **kwargs):
 def RPC_OverlayDigitizationBasicCfg(flags, **kwargs):
     """Return ComponentAccumulator with RPC Overlay digitization"""
     acc = MuonGeoModelCfg(flags, forceDisableAlignment=not flags.Overlay.DataOverlay)
+
+    if flags.Common.ProductionStep != ProductionStep.FastChain:
+        from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
+        acc.merge(SGInputLoaderCfg(flags, ["RPCSimHitCollection#RPC_Hits"]))
+
     if "DigitizationTool" not in kwargs:
         tool = acc.popToolsAndMerge(RPC_OverlayDigitizationToolCfg(flags))
         kwargs["DigitizationTool"] = tool

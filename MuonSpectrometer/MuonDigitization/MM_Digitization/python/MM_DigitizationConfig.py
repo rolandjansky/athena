@@ -19,6 +19,7 @@ def MM_LastXing():
     return 200
 
 def MM_DigitizationTool(name="MM_DigitizationTool",**kwargs):
+    kwargs.setdefault("CalibrationTool", "NSWCalibTool")
     if jobproperties.Digitization.doXingByXingPileUp():
         kwargs.setdefault("FirstXing", MM_FirstXing() ) # this should match the range for the MM in Digitization/share/MuonDigitization.py
         kwargs.setdefault("LastXing",  MM_LastXing() )  # this should match the range for the MM in Digitization/share/MuonDigitization.py

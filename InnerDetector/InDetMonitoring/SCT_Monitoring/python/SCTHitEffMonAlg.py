@@ -233,10 +233,6 @@ def SCTHitEffMonAlgConfig(inputFlags):
     return result
 
 if __name__ == "__main__": 
-    # Setup the Run III behavior
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
-
     # Setup logs
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import INFO

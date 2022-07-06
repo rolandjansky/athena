@@ -4,8 +4,6 @@
 # Created: Jun 2020, sss
 # Purpose: Configure CondProxyProvider.
 
-from __future__ import print_function
-
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
@@ -28,13 +26,10 @@ def CondProxyProviderCfg (flags, poolFiles):
     
 
 if __name__ == "__main__":
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.Enums import LHCPeriod
     ConfigFlags.Input.Files = []
     ConfigFlags.GeoModel.Run = LHCPeriod.Run2  # flags validation workaround
-    ConfigFlags.loadAllDynamicFlags()
 
     flags1 = ConfigFlags.clone()
     flags1.lock()

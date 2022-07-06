@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 def LArNoisyROMonConfig(inputFlags, inKey="", 
@@ -209,7 +209,7 @@ def LArNoisyROMonConfigCore(helper,algoinstance,inputFlags,
 
        # 1D plots of noisy events of various type
        darray.defineHistogram('LBStd;NoisyEvent',type='TH1I', path=hist_path,
-                                 title='Yield of events flagged as RNB-Standard - {0} ; Luminosity Block', 
+                                 title='Yield of events flagged as RNB-Standard - {0} ; Luminosity Block; Number of events', 
                                  xbins=lArDQGlobals.LB_Bins,xmin=lArDQGlobals.LB_Min,xmax=lArDQGlobals.LB_Max)
 
        darray.defineHistogram('LBSat;SaturatedNoisyEvent',type='TH1I', path=hist_path,
@@ -271,10 +271,6 @@ def LArNoisyROMonConfigCore(helper,algoinstance,inputFlags,
     
 
 if __name__=='__main__':
-
-    # Setup the Run III behavior
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
 
     # Setup logs
     from AthenaCommon.Constants import DEBUG

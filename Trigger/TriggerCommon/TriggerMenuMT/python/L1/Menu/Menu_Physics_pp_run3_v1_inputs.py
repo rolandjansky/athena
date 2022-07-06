@@ -32,7 +32,7 @@ def defineInputsMenu():
                 ('BCM_Comb',3), # 1x 3-bit BCM
                 'BCM6', 'BCM7', 'BCM8', # 2-hit BCM, for Run 3. 8 is not used
                 (None, 6),
-                'BMA0', 'BMA0',  # 2x BMA demonstrator
+                'BMA0', 'BMA1',  # 2x BMA demonstrator
                 'BPTX0','BPTX1', # 2x BPTX
                 'LUCID_A', 'LUCID_C', # 2x LUCID 
                 (None,4),
@@ -99,7 +99,7 @@ def defineInputsMenu():
 
             # eEM thresholds for production      
             'eEMSPARE4', 'eEMSPARE5', 'eEMSPARE6', 'eEMSPARE7', 
-        ]
+        ],
     })
 
     topoBoards["Topo1"]["connectors"].append({ # second optical connector
@@ -417,6 +417,10 @@ def defineInputsMenu():
             'MU14FCH', 'MU14FCHR', 'MU15VFCH', 'MU15VFCHR', 'MU18VFCH', 'MU20VFC',
             'MU4BO', 'MU4BOM', 'MU10BO', 'MU10BOM', 'MU12BOM',
             'MU8EOF', 'MU14EOF', 
+            # 57 bits for standard muon thresholds
+            (None,7),
+            # 64th bit for NSW monitoring
+            ('NSWMon', 1)
         ]
 
     })

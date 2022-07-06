@@ -91,11 +91,9 @@ if __name__ == "__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     from AthenaCommon.Logging import logging
-    from AthenaCommon.Configurable import Configurable
 
     from AthenaConfiguration.ComponentAccumulator import (
         ComponentAccumulator, printProperties)
-    Configurable.configurableRun3Behavior = 1
 
     ConfigFlags.Input.isMC = True
     ConfigFlags.Input.Files = defaultTestFiles.RDO_RUN2

@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file TestDCSConditions.h  Header file for TestDCSConditions class.
@@ -31,11 +31,10 @@ class SCT_DCSConditionsTestAlg : public AthReentrantAlgorithm {
   virtual ~SCT_DCSConditionsTestAlg() = default;
     
   // Standard Gaudi functions
-  virtual StatusCode initialize() override; //!< Gaudi initialiser
-  virtual StatusCode execute(const EventContext& ctx) const override;    //!< Gaudi executer
-  virtual StatusCode finalize() override;   //!< Gaudi finaliser
-  /** Make this algorithm clonable. */
-  virtual bool isClonable() const override { return true; };
+  virtual StatusCode initialize() override final; //!< Gaudi initialiser
+  virtual StatusCode execute(const EventContext& ctx) const override final;    //!< Gaudi executer
+  virtual StatusCode finalize() override final;   //!< Gaudi finaliser
+  virtual bool isReEntrant() const override final { return false; }
 
  private:
   ToolHandle<ISCT_DCSConditionsTool> m_DCSConditionsTool{this, "SCT_DCSConditionsTool", "SCT_DCSConditionsTool", "Tool to retrieve SCT DCS information"};

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHoughPatternTools/MuonLayerHoughTool.h"
@@ -51,13 +51,14 @@ namespace Muon {
             unsigned int i = 0;
             for (unsigned int tech = 0; tech < m_ntechnologies; ++tech) {
                 // check if technology is part of layout
-                if (tech == MuonStationIndex::CSC && !m_idHelperSvc->hasCSC())
+                using TechIdx = MuonStationIndex::TechnologyIndex;
+                if (tech == TechIdx::CSCI && !m_idHelperSvc->hasCSC())
                     continue;
-                else if (tech == MuonStationIndex::STGC && !m_idHelperSvc->hasSTgc())
+                else if (tech == TechIdx::STGC && !m_idHelperSvc->hasSTgc())
                     continue;
-                else if (tech == MuonStationIndex::MM && !m_idHelperSvc->hasMM())
+                else if (tech == TechIdx::MM && !m_idHelperSvc->hasMM())
                     continue;
-                std::string thisname = std::string(m_idHelperSvc->mdtIdHelper().technologyString(tech)) + postfix;
+                std::string thisname = std::string(m_idHelperSvc->mdtIdHelper().technologyString(tech)) + postfix;             
                 m_truthNames.emplace_back(thisname);
                 // since we need to access the elements of m_truthNames later on, we need to remember
                 // which technology is saved at which index of the vector
@@ -71,14 +72,9 @@ namespace Muon {
         if (!m_doTruth) { m_truthNames.clear(); }  // Nullify if not using collections
 
         ATH_CHECK(m_truthNames.initialize());
-        if (m_doNtuple && m_doTruth) {
-            ATH_CHECK(m_MuonTruthParticlesKey.initialize());
-            ATH_CHECK(m_MuonTruthSegmentsKey.initialize());
-        } else {
-            m_MuonTruthParticlesKey = "";
-            m_MuonTruthSegmentsKey = "";
-        }
-
+        ATH_CHECK(m_MuonTruthParticlesKey.initialize(m_doNtuple && m_doTruth));
+        ATH_CHECK(m_MuonTruthSegmentsKey.initialize(m_doNtuple && m_doTruth));
+     
         // initialize cuts, if only one cut, use make_pair to avoid compiler issues, format is (position, cut)
         m_selectors.resize(MuonStationIndex::ChIndexMax);
         m_selectors[MuonStationIndex::BIS] =

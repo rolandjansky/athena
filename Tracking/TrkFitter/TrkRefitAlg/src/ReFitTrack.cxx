@@ -121,8 +121,7 @@ StatusCode Trk::ReFitTrack::initialize()
   }
 
   // Configuration of the material effects
-  Trk::ParticleSwitcher particleSwitch;
-  m_ParticleHypothesis = particleSwitch.particle[m_matEffects];
+  m_ParticleHypothesis = Trk::ParticleSwitcher::particle[m_matEffects];
 
   ATH_CHECK( m_trackName.initialize() );
   ATH_CHECK( m_vxContainerName.initialize() );

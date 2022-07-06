@@ -24,8 +24,8 @@ namespace TCS {
 
       // destructor
       virtual ~gLJetNoSort();
-      virtual TCS::StatusCode initialize();
-      virtual TCS::StatusCode sort(const InputTOBArray & input, TOBArray & output);    
+      virtual TCS::StatusCode initialize() override;
+      virtual TCS::StatusCode sort(const InputTOBArray & input, TOBArray & output) override final;    
     
    private:
    

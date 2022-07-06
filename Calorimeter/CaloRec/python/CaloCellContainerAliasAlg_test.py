@@ -7,9 +7,6 @@
 # Brief: Test for CaloCellContainerAliasAlg.
 #
 
-from __future__ import print_function
-
-
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaPython.PyAthenaComps import Alg, StatusCode
@@ -53,8 +50,6 @@ def testCfg (configFlags):
     return result
 
 
-from AthenaCommon.Configurable import Configurable
-Configurable.configurableRun3Behavior=1
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.TestDefaults import defaultTestFiles
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <utility>
@@ -25,7 +25,7 @@ namespace Egamma{
     etvseta = Book2D("etvseta", "E_{T} vs #eta of "+ m_sParticleType +"; #eta ; E_{T} (GeV) ", 1000,-5.,5., 200, 0., 200);
   }
   
-  void KinematicsPlots::fill(const xAOD::IParticle& part, const xAOD::EventInfo& eventInfo) const{
+  void KinematicsPlots::fill(const xAOD::IParticle& part, const xAOD::EventInfo& eventInfo) {
 
     float weight = 1.;
     weight = eventInfo.beamSpotWeight();

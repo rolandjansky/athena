@@ -142,12 +142,14 @@ protected:
    /// map to record number of writes per object
    typedef std::map<std::string, unsigned int>  CounterMapType;
    CounterMapType  m_objectWriteCounter;
-   /// Vector of names of AlgTools that are executed by this stream
 
    /// pointer to AthenaOutputStreamTool
    ToolHandle<IAthenaOutputStreamTool> m_streamer;
    /// vector of AlgTools that that are executed by this stream
    ToolHandleArray<IAthenaOutputTool> m_helperTools;
+
+   // flag set by MetaDataStop if OutputSequencer is used with EndEvent
+   bool m_writeMetadataAndDisconnect =  false;
 
    // ------- Event Ranges handling in MT -------
    /// map of filenames assigned to active slots

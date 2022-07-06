@@ -28,6 +28,7 @@ public:
 
   StatusCode initialize() override final;
   StatusCode execute(const EventContext& ctx) const override final;
+  virtual bool isReEntrant() const override final { return false; }
 
 private:
   /*

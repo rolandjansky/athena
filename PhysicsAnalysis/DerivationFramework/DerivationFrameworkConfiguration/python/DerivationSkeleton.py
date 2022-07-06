@@ -6,11 +6,11 @@ from PyJobTransforms.CommonRunArgsToFlags import commonRunArgsToFlags
 from DerivationFrameworkConfiguration import DerivationConfigList
 from PyJobTransforms.TransformUtils import processPreExec, processPreInclude, processPostExec, processPostInclude
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
+from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
 
 #def defaultDerivationFlags(configFlags):
 #   """Fill default derivation flags"""
 #    # Not sure if anything will be needed here, leaving as a comment in case it is needed later
-
 
 def fromRunArgs(runArgs):
     from AthenaCommon.Configurable import Configurable
@@ -39,8 +39,12 @@ def fromRunArgs(runArgs):
     ConfigFlags.Input.Files = getattr(runArgs, f'input{allowedInputTypes[idx]}File')
 
     # Output formats
-    if hasattr(runArgs, 'requiredDerivedFormats'):
-        logDerivation.info('Will attempt to make the following derived formats: {0}'.format(runArgs.requiredDerivedFormats))
+    if hasattr(runArgs, 'formats'):
+        logDerivation.info('Will attempt to make the following derived formats: {0}'.format(runArgs.formats))
+        if 'PHYSVAL' in getattr(runArgs, 'formats'):
+            ConfigFlags.BTagging.SaveSV1Probabilities = True
+            ConfigFlags.BTagging.RunJetFitterNN = True
+            ConfigFlags.BTagging.RunFlipTaggers = True
     else:
         logDerivation.error('Derivation job started, but with no output formats specified - aborting')
         raise ValueError('No derived formats specified')
@@ -49,6 +53,8 @@ def fromRunArgs(runArgs):
             outputFileName = getattr(runArgs,runArg)
             flagString = 'Output.'+runArg.strip('output')+'Name'                   
             ConfigFlags.addFlag(flagString,outputFileName) 
+            if not ConfigFlags.Output.doWriteDAOD:
+                ConfigFlags.Output.doWriteDAOD = True
 
     # Pre-include
     processPreInclude(runArgs, ConfigFlags)
@@ -63,11 +69,12 @@ def fromRunArgs(runArgs):
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     cfg = MainServicesCfg(ConfigFlags)
 
-    # Pool file reading
+    # Pool file reading and writing
     cfg.merge(PoolReadCfg(ConfigFlags))
+    cfg.merge(PoolWriteCfg(ConfigFlags))
 
-    if hasattr(runArgs, 'requiredDerivedFormats'):
-        for formatName in runArgs.requiredDerivedFormats:
+    if hasattr(runArgs, 'formats'):
+        for formatName in runArgs.formats:
             derivationConfig = getattr(DerivationConfigList, f'{formatName}Cfg')
             cfg.merge(derivationConfig(ConfigFlags))
     else:

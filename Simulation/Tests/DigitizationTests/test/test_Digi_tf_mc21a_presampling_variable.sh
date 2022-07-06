@@ -3,6 +3,7 @@
 # art-description: Run a digitization example to compare configuration between ConfGetter and the new ComponentAccumulator approach.
 # art-type: grid
 # art-architecture:  '#x86_64-intel'
+# art-include: 22.0/Athena
 # art-include: master/Athena
 # art-output: mc21a_presampling.VarBS.CG.RDO.pool.root
 # art-output: mc21a_presampling.VarBS.CA.RDO.pool.root

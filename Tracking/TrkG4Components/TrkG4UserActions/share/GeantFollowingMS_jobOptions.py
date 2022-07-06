@@ -221,12 +221,12 @@ ToolSvc += TrackingVolumeDisplayer
 
 # PROPAGATOR DEFAULTS --------------------------------------------------------------------------------------
 
-TestEnergyLossUpdator  = []
+
 from TrkExTools.TrkExToolsConf import Trk__EnergyLossUpdator
-AtlasEnergyLossUpdator = Trk__EnergyLossUpdator(name="AtlasEnergyLossUpdator")
-ToolSvc  += AtlasEnergyLossUpdator
-ToolSvc.AtlasEnergyLossUpdator.DetailedEloss = True
-TestEnergyLossUpdator  += [AtlasEnergyLossUpdator]
+AtlasEnergyLossUpdater = Trk__EnergyLossUpdator(name="AtlasEnergyLossUpdater")
+ToolSvc  += AtlasEnergyLossUpdater
+ToolSvc.AtlasEnergyLossUpdater.DetailedEloss = True
+TestEnergyLossUpdater  += AtlasEnergyLossUpdater
 
 
 TestPropagators  = []
@@ -306,7 +306,7 @@ TestExtrapolator = Trk__Extrapolator('TestExtrapolator',\
                            Navigator = TestNavigator,\
                            MaterialEffectsUpdators = TestUpdators,\
                            Propagators = TestPropagators,\
-                           EnergyLossUpdators = TestEnergyLossUpdator,\
+                           EnergyLossUpdater = TestEnergyLossUpdater,\
                            STEP_Propagator = TestSTEP_Propagator.name(),\
                            SubPropagators = TestSubPropagators,\
                            SubMEUpdators = TestSubUpdators)

@@ -25,7 +25,7 @@ class MM_RdoToDigit : public AthReentrantAlgorithm {
 
  private:
 
-  StatusCode decodeMM( const Muon::MM_RawDataCollection *, MmDigitContainer *, MmDigitCollection*&, Identifier& ) const;
+  StatusCode decodeMM(const Muon::MM_RawDataCollection *, MmDigitContainer *, MmDigitCollection*&, Identifier& ) const;
 
   ToolHandle<Muon::IMM_RDO_Decoder> m_mmRdoDecoderTool{this, "mmRdoDecoderTool", "Muon::MM_RDO_Decoder", ""};
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};

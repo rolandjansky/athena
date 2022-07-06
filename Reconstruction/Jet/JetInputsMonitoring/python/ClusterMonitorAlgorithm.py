@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file ClusterMonitorAlgorithm.py
@@ -31,8 +31,18 @@ def ClusterMonitoringConfig(inputFlags):
     # base class configuration following the inputFlags. The returned object 
     # is the algorithm.
     # This uses the new Configurables object system.
+    
+    from AthenaMonitoring.AtlasReadyFilterConfig import AtlasReadyFilterCfg
+    from AthenaMonitoring.BadLBFilterToolConfig import LArBadLBFilterToolCfg
+    from AthenaMonitoring.EventFlagFilterToolConfig import EventFlagFilterToolCfg
+
     from AthenaConfiguration.ComponentFactory import CompFactory
-    clusterMonAlg = helper.addAlgorithm(CompFactory.ClusterMonitorAlgorithm,'ClusterMonAlg')
+    clusterMonAlg = helper.addAlgorithm(CompFactory.ClusterMonitorAlgorithm,'ClusterMonAlg',
+                                        addFilterTools = [AtlasReadyFilterCfg(inputFlags),
+                                                          LArBadLBFilterToolCfg(inputFlags),
+                                                          EventFlagFilterToolCfg(inputFlags,doLAr=True, doTile=False, doSCT=False, doCore=False)
+                                                          ])
+    
 
 
     ### STEP 3 ###
@@ -350,10 +360,6 @@ def ClusterMonitoringConfig(inputFlags):
     # return result
 
 if __name__=='__main__':
-    # Setup the Run III behavior
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
-
     # Setup logs
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import INFO

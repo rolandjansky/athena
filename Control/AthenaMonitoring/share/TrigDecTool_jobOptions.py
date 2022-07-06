@@ -15,15 +15,10 @@ if DQMonFlags.useTrigger():
          from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
          cfg = TriggerConfigGetter()
 
-   from AthenaCommon.Configurable import Configurable
-   Configurable.configurableRun3Behavior+=1
+   from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable, CAtoGlobalWrapper
    from TrigDecisionTool.TrigDecisionToolConfig import TrigDecisionToolCfg
-   tdtAcc = TrigDecisionToolCfg(ConfigFlags)
-   Configurable.configurableRun3Behavior-=1
-
-   from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable, appendCAtoAthena
+   tdtAcc = CAtoGlobalWrapper(TrigDecisionToolCfg, ConfigFlags)
    monTrigDecTool = conf2toConfigurable(tdtAcc.getPrimary())
-   appendCAtoAthena( tdtAcc )
    tdt_local_logger.info('Scheduled monitoring TDT %s', monTrigDecTool)
 
    tdt_local_logger.info('Scheduling the trigger translator')

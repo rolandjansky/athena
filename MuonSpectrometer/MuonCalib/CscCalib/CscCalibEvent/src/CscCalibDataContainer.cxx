@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CscCalibEvent/CscCalibDataContainer.h"
@@ -19,7 +19,7 @@ const CLID& CscCalibDataContainer::classID() {
 }
 
 /** Insert a CscCalibData. */
-void CscCalibDataContainer::push_back(CscCalibData* calibData) {
+void CscCalibDataContainer::push_back ATLAS_NOT_THREAD_SAFE (CscCalibData* calibData) {
 
   /** find the collection where to insert this CalibData */ 
   IdentifierHash channelHash = calibData->idHash(); 

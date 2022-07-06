@@ -79,11 +79,11 @@ fi
 cat > getGlobalTag.py << _EOF4_
 import sys
 from PyCool import cool
-sys.path.append('/afs/cern.ch/user/a/atlcond/utils/python/')
-from AtlCoolBKLib import resolveAlias
+sys.path.append('/afs/cern.ch/user/a/atlcond/utils22/')
+from CondUtilsLib.AtlCoolBKLib import resolveAlias
 resolver=resolveAlias()
 currentGlobal=resolver.getCurrent().replace("*","ST")
-print currentGlobal
+print(currentGlobal)
 _EOF4_
 
 globalTag=`python getGlobalTag.py | awk '{print($1)}'`
@@ -293,9 +293,9 @@ echo "  "
 echo " mergedb.log contains the log file of the various AtlCoolCopy operation to make local sqlite files"
 echo " " 
 echo "  After checking that everything is OK you can proceed with the database update"
-echo "  (1) ~atlcond/utils/AtlCoolMerge.py --online HVScaleCorr.db  CONDBR2 ATONR_COOL  ATLAS_COOLONL_LAR_W  <password>"
-echo "  (2) ~atlcond/utils/AtlCoolMerge.py larnoisesqlite.db CONDBR2 ATLAS_COOLWRITE ATLAS_COOLOFL_LAR_W <password>"
-echo "  (3) ~atlcond/utils/AtlCoolMerge.py --online caloSqlite_UPD1_online.db  CONDBR2 ATONR_COOL ATLAS_COOLONL_CALO_W <password>"
+echo "  (1) /afs/cern.ch/user/a/atlcond/utils22/AtlCoolMerge.py --online HVScaleCorr.db  CONDBR2 ATONR_COOL  ATLAS_COOLONL_LAR_W  <password>"
+echo "  (2) /afs/cern.ch/user/a/atlcond/utils22/AtlCoolMerge.py --online caloSqlite_UPD1_online.db  CONDBR2 ATONR_COOL ATLAS_COOLONL_CALO_W <password>"
+echo "  (3) /afs/cern.ch/user/a/atlcond/utilsflask/AtlCoolMerge.py --flask larnoisesqlite.db CONDBR2 ATONR_GPN ATLAS_COOLOFL_LAR_W <password>"
 
 echo "  (note that password are different for LAr online,offline, Calo online offline databases"
 exit

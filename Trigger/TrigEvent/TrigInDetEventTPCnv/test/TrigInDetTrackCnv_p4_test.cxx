@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file TrigInDetEventTPCnv/test/TrigInDetTrackCnv_p4_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -20,6 +18,7 @@
 #include "IdDictParser/IdDictParser.h"
 #include "TestTools/FLOATassert.h"
 #include "TestTools/leakcheck.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -140,7 +139,7 @@ void testit (const TrigInDetTrack& trans1)
 }
 
 
-void test1()
+void test1 ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test1\n";
 
@@ -197,7 +196,7 @@ void make_dd()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   ISvcLocator* pSvcLoc{nullptr};
   if (!Athena_test::initGaudi("TrigInDetEventTPCnv_test.txt", pSvcLoc)) {

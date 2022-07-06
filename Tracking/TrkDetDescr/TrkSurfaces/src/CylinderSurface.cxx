@@ -181,6 +181,10 @@ Trk::CylinderSurface::rotSymmetryAxis() const
   return (*m_rotSymmetryAxis);
 }
 
+#if defined(__GNUC__)
+[[gnu::flatten]]
+// Avoid out-of-line-eigen calls
+#endif
 void
 Trk::CylinderSurface::localToGlobal(const Amg::Vector2D& locpos,
                                     const Amg::Vector3D&,
@@ -210,9 +214,7 @@ Trk::CylinderSurface::globalToLocal(const Amg::Vector3D& glopos,
     inttol = 0.01;
   // do the transformation or not
   if (Trk::Surface::m_transforms) {
-    const Amg::Transform3D& surfaceTrans = transform();
-    Amg::Transform3D inverseTrans(surfaceTrans.inverse());
-    Amg::Vector3D loc3Dframe(inverseTrans * glopos);
+    Amg::Vector3D loc3Dframe(inverseTransformMultHelper(glopos));
     locpos = Amg::Vector2D(bounds().r() * loc3Dframe.phi(), loc3Dframe.z());
     radius = loc3Dframe.perp();
   } else {
@@ -230,7 +232,7 @@ Trk::CylinderSurface::isOnSurface(const Amg::Vector3D& glopo,
                                   double tol2) const
 {
   Amg::Vector3D loc3Dframe =
-    Trk::Surface::m_transforms ? (transform().inverse()) * glopo : glopo;
+    Trk::Surface::m_transforms ? inverseTransformMultHelper(glopo) : glopo;
   return (bchk ? bounds().inside3D(loc3Dframe,
                                    tol1 + s_onSurfaceTolerance,
                                    tol2 + s_onSurfaceTolerance)
@@ -248,7 +250,7 @@ Trk::CylinderSurface::straightLineIntersection(const Amg::Vector3D& pos,
   Amg::Vector3D point1 = pos;
   Amg::Vector3D direction = dir;
   if (needsTransform) {
-    Amg::Transform3D invTrans = transform().inverse();
+    Amg::Transform3D invTrans = inverseTransformHelper();
     point1 = invTrans * pos;
     direction = invTrans.linear() * dir;
   }

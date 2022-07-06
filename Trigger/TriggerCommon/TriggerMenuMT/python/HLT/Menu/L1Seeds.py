@@ -10,7 +10,6 @@ from TriggerMenuMT.L1.Config.TriggerTypeDef import TT
 rpcout_type = TT.muon | TT.phys
 rpcin_type  = TT.muon | TT.phys
 cl_type     = TT.calo | TT.phys
-mb_type     = TT.minb | TT.phys
 
 
 calo_exceptions = set([])
@@ -156,14 +155,6 @@ def getL1BSSeed(menul1items):
     l1_seeds = ','.join(l1items)
     return l1_seeds
 
-##############################
-def getL1MinBiasSeed(l1seed, l1object):
-    if ('EMPTY' in l1seed):
-        l1minbias_seeds = ','.join([ x for x in Lvl1ItemByTriggerType(l1object, mb_type, mb_type)])
-    else:
-        l1minbias_seeds = ','.join([ x for x in Lvl1ItemByTriggerType(l1object, mb_type, mb_type)])
-    return l1minbias_seeds
-
 def getL1JetBS():
     return 'L1_J15,L1_3J15,L1_3J10,L1_4J10'
 
@@ -190,17 +181,20 @@ def getEBnoL1PSSeed(l1items, l1seedname):
       l1EBitems = [
         'L1_MU5VF_3MU3V',
         'L1_EM15VH_MU8F','L1_EM22VHI','L1_2EM8VH_MU8F',
+        'L1_EM15VHI_2TAU12IM_J25_3J12', 'L1_EM15VHI_2TAU12IM_XE35', 'L1_EM15VHI_2TAU12IM', 'L1_EM20VH_3EM10VH',
         'L1_MU8F_TAU12IM_J25_2J12','L1_MU8F_TAU12IM_XE35','L1_MU8F_TAU20IM',
         'L1_4J15','L1_XE50','L1_2J15_XE55',
         'L1_TAU60','L1_TAU20IM_2TAU12IM_J25_2J20_3J12','L1_TAU20IM_2TAU12IM_XE35','L1_TAU20IM_2J20_XE45',
-        'L1_MU14FCH','L1_MU8F_3J20',
-        'L1_J40p0ETA25_2J15p31ETA49',
+        'L1_MU14FCH','L1_MU8F_3J20', 'L1_MU8F_2J20',
+        'L1_J40p0ETA25_2J15p31ETA49', 'L1_J75p31ETA49',
         'L1_3MU5VF','L1_MU8F_2J15_J20',
         'L1_J40p0ETA25_2J25_J20p31ETA49',
-        'L1_2MU5VF_3MU3V','L1_MU8VF_2MU5VF'
+        'L1_2MU5VF_3MU3V','L1_MU8VF_2MU5VF',
+        'L1_MJJ-500-NFF', 'L1_J45p0ETA21_3J15p0ETA25', 'L1_SC111-CJ15', 'L1_BPH-7M11-25DR99-2MU3VF',
+        'L1_HT190-J15s5pETA21', 'L1_TAU20IM_2TAU12IM_4J12p0ETA25', 'L1_DR-TAU20ITAU12I-J25'
         ]
     elif ('L1_PhysicsVeryHigh' in l1seedname):
-      l1EBitems = ['L1_XE60', 'L1_J400', 'L1_6J15']
+      l1EBitems = ['L1_XE300', 'L1_J400', 'L1_6J15']
     elif ('L1_EMPTY' in l1seedname):
       l1EBitems = ['L1_J12_EMPTY', 'L1_MU8VF_EMPTY', 'L1_TAU8_EMPTY', 'L1_TAU40_EMPTY', 'L1_EM7_EMPTY']
     elif ('L1_FIRSTEMPTY' in l1seedname):
@@ -479,9 +473,6 @@ def getSpecificL1Seeds(l1seedname, l1itemobject, menu_name):
     elif (l1seedname == 'L1_BS'):
         L1Seed = getL1BSSeed(l1items)
         
-    elif (l1seedname in ['L1_MinBias', 'L1_MinBias_EMPTY']):
-        L1Seed = getL1MinBiasSeed(l1seedname, l1itemobject)
-
 #    elif (l1seedname == 'L1_ALFA_Phys'):
 #        L1Seed = getL1_ALFA_Phys(l1items)
 #

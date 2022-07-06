@@ -135,7 +135,6 @@ StatusCode L1CaloL1TopoMonitorAlgorithm::fillHistograms( const EventContext& ctx
   SG::ReadHandle<xAOD::CMXJetTobContainer> cmxJetTob(m_cmxJetTobLocation,ctx);
   ATH_CHECK(cmxJetTob.isValid());
   SG::ReadHandle<xAOD::L1TopoRawDataContainer> l1TopoRawData{m_l1TopoKey,ctx};
-  ATH_CHECK(l1TopoRawData.isValid());
   if (!l1TopoRawData.isValid()) {
     ATH_MSG_DEBUG ("L1Topo DAQ raw data collection not valid");
     errors.push_back(static_cast<int>(SummaryErrors::NO_DAQ));

@@ -395,7 +395,6 @@ bool TGCSectorLogic::doTGCBIS78Coincidence(TGCRPhiCoincidenceOut* coincidenceOut
   std::shared_ptr<const BIS78TrigOut> pBIS78Out = m_bis78->getOutput(m_region,m_sectorId);
   if ( pBIS78Out.get() == 0 ) return false;
   int pt=0;
-  pBIS78Out->print(); // just for test
     
   pt = m_mapBIS78->TGCBIS78_pt(pBIS78Out.get(), 	
                                coincidenceOut->getRoI());

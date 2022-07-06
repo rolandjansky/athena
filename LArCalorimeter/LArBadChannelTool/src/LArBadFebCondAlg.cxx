@@ -18,9 +18,9 @@ StatusCode LArBadFebCondAlg::initialize() {
 }
 
 
-StatusCode LArBadFebCondAlg::execute() {
+StatusCode LArBadFebCondAlg::execute(const EventContext& ctx) const {
     
-  SG::WriteCondHandle<LArBadFebCont> writeHandle{m_BCOutputKey};
+  SG::WriteCondHandle<LArBadFebCont> writeHandle{m_BCOutputKey,ctx};
   
   if (writeHandle.isValid()) {
     msg(MSG::DEBUG) << "Found valid write handle" << endmsg;
@@ -32,7 +32,7 @@ StatusCode LArBadFebCondAlg::execute() {
 
   if(!m_BCInputKey.key().empty()) {
 
-    SG::ReadCondHandle<AthenaAttributeList> readHandle{m_BCInputKey};
+    SG::ReadCondHandle<AthenaAttributeList> readHandle{m_BCInputKey,ctx};
     const AthenaAttributeList* attrList{*readHandle};
     if (attrList==nullptr) {
       msg(MSG::ERROR) << "Failed to retrieve CondAttributeListCollection with key " << m_BCInputKey.key() << endmsg;

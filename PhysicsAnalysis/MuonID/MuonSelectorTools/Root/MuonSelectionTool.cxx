@@ -47,13 +47,15 @@ namespace {
 
 namespace CP {
 
-    MuonSelectionTool::MuonSelectionTool(const std::string& tool_name) : asg::AsgTool(tool_name), m_acceptInfo("MuonSelection") {}
+    MuonSelectionTool::MuonSelectionTool(const std::string& tool_name) : asg::AsgTool(tool_name), m_acceptInfo("MuonSelection"){}
 
     MuonSelectionTool::~MuonSelectionTool() = default;
 
     StatusCode MuonSelectionTool::initialize() {
         // Greet the user:
         ATH_MSG_INFO("Initialising...");
+        if(m_isRun3) ATH_MSG_INFO("MuonSelectionTool will assume run3 geometry is used");
+        else ATH_MSG_INFO("MuonSelectionTool will assume run2 geometry is used");
         ATH_MSG_INFO("Maximum eta: " << m_maxEta);
         ATH_MSG_INFO("Muon quality: " << m_quality);
         if (m_toroidOff) ATH_MSG_INFO("!! CONFIGURED FOR TOROID-OFF COLLISIONS !!");
@@ -96,6 +98,11 @@ namespace CP {
         if (m_quality == 5 && !m_useAllAuthors) {
             ATH_MSG_ERROR("Cannot use lowPt working point if allAuthors is not available!");
             return StatusCode::FAILURE;
+        }
+        
+        if(m_CaloScoreWP<1 || m_CaloScoreWP>4){
+          ATH_MSG_FATAL("CaloScoreWP property must be set to 1, 2, 3 or 4");
+          return StatusCode::FAILURE;
         }
 
         // Load Tight WP cut-map
@@ -265,7 +272,51 @@ namespace CP {
         ATH_MSG_VERBOSE("Muon pT [GeV]: " << mu.pt() * MeVtoGeV);
         ATH_MSG_VERBOSE("Muon eta: " << mu.eta());
         ATH_MSG_VERBOSE("Muon phi: " << mu.phi());
-
+        
+        static std::atomic<bool> isFirstRun3Check{true};
+        if(isFirstRun3Check)
+        {
+            int rn=getRunNumber(true);
+            if(!m_isRun3 && rn>=399999)
+            {
+              if(m_geoOnTheFly)
+              {
+                ATH_MSG_WARNING("muonSelectionTool configured for run2 geometry, but rununmber "<<rn<<" is run3! configure properly the isRun3Geo property; geometry set to run2 on the fly");
+              }
+              else if(m_forceGeometry)
+              {
+                ATH_MSG_WARNING("muonSelectionTool configured for run2 geometry, but rununmber "<<rn<<" is run3! Since ForceGeometry is set to True, we'll keep using the wrong geometry, but this is an expert option, make sure you know what you're doing");
+              }
+              else
+              {
+                ATH_MSG_FATAL("muonSelectionTool configured for run2 geometry, but rununmber "<<rn<<" is run3! configure properly the isRun3Geo property");
+                throw std::runtime_error("MuonSelectionTool() - wrong detector geometry");
+              }
+            }
+            if(m_isRun3 && rn<399999)
+            {
+              if(m_geoOnTheFly)
+              {
+                ATH_MSG_WARNING("muonSelectionTool configured for run3 geometry, but rununmber "<<rn<<" is run2! configure properly the isRun3Geo property; geometry set to run2 on the fly");
+              }
+              else if(m_forceGeometry)
+              {
+                ATH_MSG_WARNING("muonSelectionTool configured for run3 geometry, but rununmber "<<rn<<" is run3! Since ForceGeometry is set to True, we'll keep using the wrong geometry, but this is an expert option, make sure you know what you're doing");
+              }
+              else
+              {
+                ATH_MSG_FATAL("muonSelectionTool configured for run3 geometry, but rununmber "<<rn<<" is run2! configure properly the isRun3Geo property");
+                throw std::runtime_error("MuonSelectionTool() - wrong detector geometry");
+              }
+            }
+            if(isRun3())
+            {
+                
+                if(m_quality!=0 && m_quality!=1 && m_quality!=4) ATH_MSG_WARNING("muonSelectionTool currently only supports loose, medium and highpt (in the barrel) WPs for run 3 data/MC, all other WPs can currently only be used for tests using Expert mode");
+            }
+            isFirstRun3Check=false;
+        }
+        
         asg::AcceptData acceptData(&m_acceptInfo);
 
         // Do the eta cut:
@@ -361,6 +412,13 @@ namespace CP {
 
     xAOD::Muon::Quality MuonSelectionTool::getQuality(const xAOD::Muon& mu) const {
         ATH_MSG_VERBOSE("Evaluating muon quality...");
+        
+        //currently allow only medium, loose and highpt(barrel) when note in expert mode for run3
+        if(isRun3() && !m_developMode && m_quality!=1 && m_quality!=2 && m_quality!=4)
+        {
+          ATH_MSG_VERBOSE("tool configured with quality="<<m_quality<<" which is currently only supported in expert mode for run3");
+          return xAOD::Muon::VeryLoose;
+        }
 
         // SegmentTagged muons
         if (mu.muonType() == xAOD::Muon::SegmentTagged) {
@@ -388,16 +446,21 @@ namespace CP {
         // Combined muons
         hitSummary summary{};
         fillSummary(mu, summary);
-
+        
         ///---- FIX FOR CSC ----
-        if (std::abs(mu.eta()) > 2.0) {
+        if (!isRun3() && std::abs(mu.eta()) > 2.0) {
             ATH_MSG_VERBOSE("Recalculating number of precision layers for combined muon");
             summary.nprecisionLayers = 0;
             if (summary.innerSmallHits > 1 || summary.innerLargeHits > 1) summary.nprecisionLayers += 1;
             if (summary.middleSmallHits > 2 || summary.middleLargeHits > 2) summary.nprecisionLayers += 1;
             if (summary.outerSmallHits > 2 || summary.outerLargeHits > 2) summary.nprecisionLayers += 1;
         }
-
+        if (isRun3() && m_excludeNSWFromPrecisionLayers && std::abs(mu.eta()) > 1.3) {
+            summary.nprecisionLayers = 0;            
+            if (summary.middleSmallHits > 2 || summary.middleLargeHits > 2) summary.nprecisionLayers += 1;
+            if (summary.outerSmallHits > 2 || summary.outerLargeHits > 2) summary.nprecisionLayers += 1;
+            if (summary.extendedSmallHits > 2 || summary.extendedLargeHits > 2) summary.nprecisionLayers += 1;
+        }      
         if (mu.muonType() == xAOD::Muon::Combined) {
             ATH_MSG_VERBOSE("Muon is combined");
             if (mu.author() == xAOD::Muon::STACO) {
@@ -439,8 +502,9 @@ namespace CP {
 
                 // MEDIUM WP
                 if ((std::abs(qOverPsignif) < 7 || m_toroidOff) &&
-                    (summary.nprecisionLayers > 1 ||
-                     (summary.nprecisionLayers == 1 && summary.nprecisionHoleLayers < 2 && std::abs(mu.eta()) < 0.1))) {
+                    (summary.nprecisionLayers > 1 ||(summary.nprecisionLayers == 1 && summary.nprecisionHoleLayers < 2 && std::abs(mu.eta()) < 0.1))
+                    
+                   ) {
                     ATH_MSG_VERBOSE("Muon is medium");
                     return xAOD::Muon::Medium;
                 }
@@ -480,6 +544,11 @@ namespace CP {
         // SA muons
         if (mu.author() == xAOD::Muon::MuidSA) {
             ATH_MSG_VERBOSE("Muon is stand-alone");
+            
+            if(isRun3() && !m_developMode){
+                ATH_MSG_VERBOSE("Standalone muons currently only used when in expert mode for run3");
+                return xAOD::Muon::VeryLoose; //SA muons currently disabled for run3
+             }
 
             if (std::abs(mu.eta()) > 2.5) {
                 ATH_MSG_VERBOSE("number of precision layers = " << (int)summary.nprecisionLayers);
@@ -499,6 +568,11 @@ namespace CP {
         // SiliconAssociatedForward (SAF) muons
         if (mu.muonType() == xAOD::Muon::SiliconAssociatedForwardMuon) {
             ATH_MSG_VERBOSE("Muon is silicon-associated forward muon");
+            
+            if(isRun3() && !m_developMode){
+                ATH_MSG_VERBOSE("Silicon-associated forward muon muons currently only used when in expert mode for run3");
+                return xAOD::Muon::VeryLoose; //SAF muons currently disabled for run3
+            }
 
             const xAOD::TrackParticle* cbtrack = mu.trackParticle(xAOD::Muon::CombinedTrackParticle);
             const xAOD::TrackParticle* metrack = mu.trackParticle(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle);
@@ -604,7 +678,12 @@ namespace CP {
 
     bool MuonSelectionTool::passedLowPtEfficiencyCuts(const xAOD::Muon& mu, xAOD::Muon::Quality thisMu_quality) const {
         ATH_MSG_VERBOSE("Checking whether muon passes low-pT selection...");
-
+        
+        //LowPt Not supported in run3 for the time being
+        if(isRun3() && !m_developMode){
+            ATH_MSG_VERBOSE("LowPt WP currently not supported for run3 if not in expert mode");
+            return false;
+        }
         if (!m_useAllAuthors) {  // no allAuthors, always fail the WP
             ATH_MSG_VERBOSE("Do not have allAuthors variable - fail low-pT");
             return false;
@@ -729,6 +808,11 @@ namespace CP {
     }
 
     bool MuonSelectionTool::passedLowPtEfficiencyMVACut(const xAOD::Muon& mu) const {
+        //LowPt Not supported in run3 for the time being
+        if(isRun3() && !m_developMode){
+            ATH_MSG_VERBOSE("LowPt WP currently not supported for run3 if not in expert mode");
+            return false;
+        }
         if (!m_useMVALowPt) {
             ATH_MSG_DEBUG("Low pt MVA disabled. Return... ");
             return false;
@@ -831,6 +915,13 @@ namespace CP {
 
     bool MuonSelectionTool::passedHighPtCuts(const xAOD::Muon& mu) const {
         ATH_MSG_VERBOSE("Checking whether muon passes high-pT selection...");
+        
+        //highPt supported only in the barrel in run3 for the time being
+        if(isRun3() && !m_developMode && std::abs(mu.eta())>1.05)
+        {
+          ATH_MSG_VERBOSE("HighPt WP currently not supported in the endcap for Run3 if not in expert mode, will return false for muon with eta="<<mu.eta());
+          return false;
+        }
 
         // :: Request combined muons
         if (mu.muonType() != xAOD::Muon::Combined) {
@@ -851,10 +942,10 @@ namespace CP {
         }
 
         // :: Access MS hits information
-        // :: Access MS hits information
         hitSummary summary{};
         fillSummary(mu, summary);
-
+        
+        
         ATH_MSG_VERBOSE("number of precision layers: " << (int)summary.nprecisionLayers);
 
         //::: Apply MS Chamber Vetoes
@@ -876,7 +967,7 @@ namespace CP {
             float etaCB = CB_track->eta();
 
             //::: no unspoiled clusters in CSC
-            if (std::abs(etaMS) > 2.0 || std::abs(etaCB) > 2.0) {
+            if (!isRun3() && (std::abs(etaMS) > 2.0 || std::abs(etaCB) > 2.0)) {
                 if (summary.cscUnspoiledEtaHits == 0) {
                     ATH_MSG_VERBOSE("Muon has only spoiled CSC clusters - fail high-pT");
                     return false;
@@ -884,7 +975,7 @@ namespace CP {
             }
 
             // veto bad CSC giving troubles with scale factors
-            if (mu.eta() < -1.899 && std::abs(mu.phi()) < 0.211) {
+            if (!isRun3() && mu.eta() < -1.899 && std::abs(mu.phi()) < 0.211) {
                 ATH_MSG_VERBOSE("Muon is in eta/phi region vetoed due to disabled chambers in MC - fail high-pT");
                 return false;
             }
@@ -900,14 +991,15 @@ namespace CP {
                 ATH_MSG_VERBOSE("Muon is in BIS7/8 eta/phi region - fail high-pT");
                 return false;
             }
-
-            //::: BMG - only veto in 2017+2018 data and corresponding MC
-            if (getRunNumber(true) >= 324320) {
-                if (isBMG(etaMS, phiMS)) {
-                    ATH_MSG_VERBOSE("Muon is in BMG eta/phi region - fail high-pT");
-                    return false;
-                }
-            }
+            
+            //// tentatively removed for r22, to be rechecked
+            ////::: BMG - only veto in 2017+2018 data and corresponding MC
+            //if (getRunNumber(true) >= 324320) {
+                //if (isBMG(etaMS, phiMS)) {
+                    //ATH_MSG_VERBOSE("Muon is in BMG eta/phi region - fail high-pT");
+                    //return false;
+                //}
+            //}
 
             //::: BEE
             if (isBEE(etaMS, phiMS)) {
@@ -1109,7 +1201,7 @@ namespace CP {
         if (mu.muonType() == xAOD::Muon::Combined) { return mu.author() != xAOD::Muon::STACO; }
         // ::
         if (mu.muonType() == xAOD::Muon::CaloTagged && std::abs(mu.eta()) < 0.105)
-            return true;  // removed the passedCaloTagQuality(mu) until this is better understood in r22
+            return passedCaloTagQuality(mu);
         // ::
         if (mu.muonType() == xAOD::Muon::SegmentTagged && (std::abs(mu.eta()) < 0.105 || m_useSegmentTaggedLowPt)) return true;
         // ::
@@ -1180,22 +1272,34 @@ namespace CP {
         // Extract the relevant score variable (NN discriminant)
         float CaloMuonScore{-999.0};
         retrieveParam(mu, CaloMuonScore, xAOD::Muon::CaloMuonScore);
+        
+        if(m_CaloScoreWP==1) return (CaloMuonScore >= 0.92);
+        if(m_CaloScoreWP==2) return (CaloMuonScore >= 0.56);
+        else if(m_CaloScoreWP==3 || m_CaloScoreWP==4)
+        {
+          // Cut on the score variable
+          float pT = mu.pt() * MeVtoGeV;  // GeV
 
-        // Cut on the score variable
-        float pT = mu.pt() * MeVtoGeV;  // GeV
-
-        if (pT > 20.0)  // constant cut above 20 GeV
-            return (CaloMuonScore >= 0.7694);
-        else {
-            // pT-dependent cut below 20 GeV
-            // The pT-dependent cut is based on a fit of a third-degree polynomial, with coefficients as given below
-            constexpr float a = -1.80277888e-4, b = 5.01552713e-3, c = -4.62271761e-2, d = 1.12479350;
-            float cutValue = a * std::pow(pT, 3) + b * std::pow(pT, 2) + c * pT + d;
-            return (CaloMuonScore >= cutValue);
+          if (pT > 20.0)  // constant cut above 20 GeV
+              return (CaloMuonScore >= 0.77);
+          else {
+              // pT-dependent cut below 20 GeV
+              // The pT-dependent cut is based on a fit of a third-degree polynomial, with coefficients as given below
+              
+              if(m_CaloScoreWP==3) return (CaloMuonScore >= (-1.98e-4 * std::pow(pT, 3) -6.04e-3 * std::pow(pT, 2) -6.13e-2 * pT + 1.16));
+              if(m_CaloScoreWP==4) return (CaloMuonScore >= (-1.80e-4 * std::pow(pT, 3) +5.02e-3 * std::pow(pT, 2) -4.62e-2 * pT + 1.12));
+          }
         }
+        
+        return false;
     }
 
     bool MuonSelectionTool::passTight(const xAOD::Muon& mu, float rho, float oneOverPSig) const {
+      
+        if(isRun3() && !m_developMode){
+          ATH_MSG_VERBOSE("Tight WP is currently only supported in expert mode for run3");
+          return false;
+        }
         float symmetric_eta = std::abs(mu.eta());
         float pt = mu.pt() * MeVtoGeV;  // GeV
 
@@ -1276,7 +1380,7 @@ namespace CP {
         retrieveSummaryValue(muon, summary.extendedLargeHits, xAOD::MuonSummaryType::extendedLargeHits);
         retrieveSummaryValue(muon, summary.extendedSmallHoles, xAOD::MuonSummaryType::extendedSmallHoles);
         retrieveSummaryValue(muon, summary.isSmallGoodSectors, xAOD::MuonSummaryType::isSmallGoodSectors);
-        retrieveSummaryValue(muon, summary.cscUnspoiledEtaHits, xAOD::MuonSummaryType::cscUnspoiledEtaHits);
+        if(!isRun3()) retrieveSummaryValue(muon, summary.cscUnspoiledEtaHits, xAOD::MuonSummaryType::cscUnspoiledEtaHits);
     }
     void MuonSelectionTool::retrieveParam(const xAOD::Muon& muon, float& value, const xAOD::Muon::ParamDef param) const {
         if (!muon.parameter(value, param)) {
@@ -1364,24 +1468,43 @@ namespace CP {
         }
 
         if (!acc_rnd.isAvailable(*eventInfo)) {
-            if (needOnlyCorrectYear) {
-                if (eventInfo->runNumber() < 300000) {
-                    ATH_MSG_DEBUG("Random run number not available and this is mc16a, returning dummy 2016 run number.");
+            if (needOnlyCorrectYear) 
+            {
+                if (eventInfo->runNumber() < 300000) 
+                {
+                    ATH_MSG_DEBUG("Random run number not available and this is mc16a or mc20a, returning dummy 2016 run number.");
                     return 311071;
-                } else if (eventInfo->runNumber() < 310000) {
-                    ATH_MSG_DEBUG("Random run number not available and this is mc16c/d, returning dummy 2017 run number.");
+                } 
+                else if (eventInfo->runNumber() < 310000) 
+                {
+                    ATH_MSG_DEBUG("Random run number not available and this is mc16d or mc20d, returning dummy 2017 run number.");
                     return 340072;
-                } else {
-                    ATH_MSG_DEBUG("Random run number not available and this is mc16e, returning dummy 2018 run number.");
+                } 
+                else if (eventInfo->runNumber() < 320000)
+                {
+                    ATH_MSG_DEBUG("Random run number not available and this is mc16e or mc20e, returning dummy 2018 run number.");
                     return 351359;
                 }
-            } else {
-                ATH_MSG_WARNING(
-                    "Failed to find the RandomRunNumber decoration. Please call the apply() method from the PileupReweightingTool before "
-                    "applying the selection tool. Returning dummy 2017 run number.");
-                return 340072;
+                else if (eventInfo->runNumber() < 500000) //mc21 is 330000
+                {
+                    ATH_MSG_DEBUG("Random run number not available and this is mc21, for the time being we're returing a dummy run number.");
+                    return 399999;
+                }
+                else{
+                  ATH_MSG_FATAL("Random run number not available, fallback option of using runNumber failed since "<<eventInfo->runNumber()<<" cannot be recognised");
+                  throw std::runtime_error("MuonSelectionTool() - need RandomRunNumber decoration from PileupReweightingTool");
+                }
+            }//end of if (needOnlyCorrectYear) 
+            else 
+            {
+                ATH_MSG_FATAL("Failed to find the RandomRunNumber decoration. Please call the apply() method from the PileupReweightingTool before");
+                throw std::runtime_error("MuonSelectionTool() - need RandomRunNumber decoration from PileupReweightingTool");
             }
-        } else if (acc_rnd(*eventInfo) == 0) {
+        } //end of if (!acc_rnd.isAvailable(*eventInfo))
+        else if (acc_rnd(*eventInfo) == 0) 
+        {
+            static std::atomic<bool> firstPRWWarning{false};
+            if(firstPRWWarning) ATH_MSG_WARNING("Pile up tool has given runNumber 0. Returning dummy 2017 run number.");
             ATH_MSG_DEBUG("Pile up tool has given runNumber 0. Returning dummy 2017 run number.");
             return 340072;
         }

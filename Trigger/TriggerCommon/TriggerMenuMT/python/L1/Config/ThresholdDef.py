@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
-from ..Base.Thresholds import MuonThreshold, eEMThreshold, eEMVarThreshold, jEMThreshold, eTauThreshold, jTauThreshold, cTauThreshold, jJetThreshold, jLJetThreshold, gJetThreshold, gLJetThreshold, XEThreshold, TEThreshold, MBTSThreshold, MBTSSIThreshold, NimThreshold
+from ..Base.Thresholds import MuonThreshold, eEMThreshold, eEMVarThreshold, jEMThreshold, eTauThreshold, jTauThreshold, cTauThreshold, jJetThreshold, jLJetThreshold, gJetThreshold, gLJetThreshold, XEThreshold, TEThreshold, MBTSThreshold, MBTSSIThreshold, NimThreshold, NSWMonThreshold
 from .L1CaloThresholdMapping import get_threshold_cut
 
 # Max thresholds for SPARE triggers, corresponding to maximum value in L1Topo
@@ -112,6 +112,8 @@ class ThresholdDef:
         MuonThreshold( "MU14EOF"  ).setThrValue( thr=14 ).setTGCFlags("F").setRegion("EC,FW")  # forward muon, commissioning
         MuonThreshold( "MU8EOF"   ).setThrValue( thr=8  ).setTGCFlags("F").setRegion("EC,FW")  # forward muon, commissioning
         MuonThreshold( "MU3EOF"   ).setThrValue( thr=3, ba=4 ).setTGCFlags("F").setRegion("EC,FW")  # forward muon, commissioning
+
+        NSWMonThreshold('NSWMon')
 
         # eEM
         eEM_cuts = [5, 7, 9, 15, 18, 26]
@@ -298,7 +300,6 @@ class ThresholdDef:
             
         for i in range(3):
             NimThreshold('CAL%i' % i, 'CALREQ', mapping=i)
-
 
         ## MBTS
 

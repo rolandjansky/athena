@@ -42,6 +42,7 @@ def _createCfgFlags():
     acf.addFlag("Input.RunAndLumiOverrideList", [])
     # Job number
     acf.addFlag("Input.JobNumber", 1)
+    acf.addFlag('Input.FailOnUnknownCollections', False)
 
     acf.addFlag('Input.ProjectName', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("project_name", "data17_13TeV")) # former global.ProjectName
     acf.addFlag('Input.TriggerStream', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("stream", "") if prevFlags.Input.Format == Format.BS 
@@ -74,6 +75,7 @@ def _createCfgFlags():
     acf.addFlag('Scheduler.ShowDataFlow', True)
     acf.addFlag('Scheduler.ShowControlFlow', True)
     acf.addFlag('Scheduler.EnableVerboseViews', True)
+    acf.addFlag('Scheduler.AutoLoadUnmetDependencies', True)
 
     acf.addFlag('MP.WorkerTopDir', 'athenaMP_workers')
     acf.addFlag('MP.OutputReportFile', 'AthenaMPOutputs')
@@ -143,6 +145,7 @@ def _createCfgFlags():
     acf.addFlag('Output.doWriteESD', lambda prevFlags: bool(prevFlags.Output.ESDFileName)) # write out ESD file
     acf.addFlag('Output.doWriteAOD', lambda prevFlags: bool(prevFlags.Output.AODFileName)) # write out AOD file
     acf.addFlag('Output.doWriteBS',  False) # write out RDO ByteStream file
+    acf.addFlag('Output.doWriteDAOD',  False) # write out at least one DAOD file
 
     # Might move this elsewhere in the future.
     # Some flags from https://gitlab.cern.ch/atlas/athena/blob/master/Tracking/TrkDetDescr/TrkDetDescrSvc/python/TrkDetDescrJobProperties.py
@@ -225,7 +228,7 @@ def _createCfgFlags():
 
     def __trigger():
         from TriggerJobOpts.TriggerConfigFlags import createTriggerFlags
-        return createTriggerFlags()
+        return createTriggerFlags(acf.Common.Project!='AthAnalysis')
     _addFlagsCategory(acf, "Trigger", __trigger, 'TriggerJobOpts' )
 
     def __indet():

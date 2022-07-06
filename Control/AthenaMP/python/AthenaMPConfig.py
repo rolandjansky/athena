@@ -3,7 +3,7 @@
 from AthenaConfiguration.AllConfigFlags import ConfigFlags, GetFileMD
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import Format, ProductionStep
+from AthenaConfiguration.Enums import Format
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 
 from AthenaCommon.Logging import log as msg
@@ -59,7 +59,7 @@ def AthenaMPCfg(configFlags):
     mpevtloop.CollectSubprocessLogs = configFlags.MP.CollectSubprocessLogs
     mpevtloop.PollingInterval = configFlags.MP.PollingInterval
     mpevtloop.MemSamplingInterval = configFlags.MP.MemSamplingInterval
-    mpevtloop.IsPileup = True if configFlags.Common.ProductionStep in [ProductionStep.PileUpPresampling, ProductionStep.Overlay] else False
+    mpevtloop.IsPileup = configFlags.Digitization.PileUp
     mpevtloop.EventsBeforeFork = 0 if configFlags.MP.Strategy == 'EventService' else configFlags.MP.EventsBeforeFork
 
     # Configure Gaudi File Manager
@@ -113,6 +113,7 @@ def AthenaMPCfg(configFlags):
         if use_shared_writer:
             if any((configFlags.Output.doWriteESD,
                     configFlags.Output.doWriteAOD,
+                    configFlags.Output.doWriteDAOD,
                     configFlags.Output.doWriteRDO)) or configFlags.Output.HITSFileName!='':
                 AthenaSharedMemoryTool = CompFactory.AthenaSharedMemoryTool
 
@@ -220,26 +221,11 @@ def getChunkSize(configFlags) -> int:
 
 if __name__=="__main__":
 
-    # -----------------  Hello World Example ------------------
-    # ConfigFlags.Exec.MaxEvents=10
-    # ConfigFlags.Concurrency.NumProcs=2
-
-    # cfg=MainServicesCfg(ConfigFlags)
-
-    # from AthExHelloWorld.HelloWorldConfig import HelloWorldCfg
-    # cfg.merge(HelloWorldCfg())
-
-    # cfg.run()
-    # -----------------  Hello World Example ------------------
-
     # -----------------  Example with input file --------------
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.ESD
     ConfigFlags.Exec.MaxEvents=10
     ConfigFlags.Concurrency.NumProcs=2
-
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
 
     cfg=MainServicesCfg(ConfigFlags)
     from AthenaPoolCnvSvc.PoolReadConfig import EventSelectorAthenaPoolCfg

@@ -28,9 +28,11 @@ namespace TrigConf {
     Gaudi::Property<std::string> m_inputType{this, "InputType", "FILE",
       "FILE (json file), DB (Trigger DB)"};
 
-    Gaudi::Property<std::string> m_l1FileName{this, "JsonFileName", "",
+    Gaudi::Property<std::string> m_l1FileName{this, "L1JsonFileName", "",
       "file name of L1 json file, needed if InputType is FILE"};
 
+    Gaudi::Property<std::string> m_hltFileName{this, "HLTJsonFileName", "",
+      "file name of HLT json file, needed if InputType is FILE and a hashed SMK needs to be computed"};
 
     Gaudi::Property<std::string> m_dbConnection{this, "TriggerDB", "TRIGGERDB",
       "DB connection alias, needed if InputType is DB"};

@@ -30,6 +30,7 @@ case $ArtProcess in
         unset  ATHENA_NUM_PROC
 
 	AODMerge_tf.py --inputAODFile=art_core_*/Nightly_AOD_electron.pool.root --outputAOD_MRGFile=Nightly_AOD_electron.pool.root --preExec "from egammaValidation.egammaOnlyPreExec import setRunEgammaOnlyMergeFlags; setRunEgammaOnlyMergeFlags()" --postInclude "all:egammaValidation/egammaArtCaloCalPostInclude.py"
+
 	echo  "art-result: $? AODMerge"
 
 	set +e

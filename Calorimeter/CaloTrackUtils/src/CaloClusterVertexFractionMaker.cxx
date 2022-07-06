@@ -15,17 +15,12 @@
 #include "VxVertex/VxContainer.h"
 #include "VxVertex/VxTrackAtVertex.h"
 
-//#include "CaloEvent/CaloClusterMoment.h"
-//#include "CaloEvent/CaloCluster.h"
-//#include "CaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
 
 #include "Particle/TrackParticle.h"
 
 #include <cmath>
 
-// Amg
-// #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
 
@@ -37,15 +32,7 @@ CaloClusterVertexFractionMaker::CaloClusterVertexFractionMaker(const std::string
   m_dR2MatchMax(0.), // will be overwritten in initialize
   m_maxClusterEta(2.5),
   m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
-  m_vxContainerName("VxPrimaryCandidate"),
-  m_cylinderSurface_atCaloEntrance(nullptr),
-  m_discSurface_atCaloEntrance_positiveZ(nullptr),
-  m_discSurface_atCaloEntrance_negativeZ(nullptr),
-  m_numTracksPerVertex(nullptr),
-  m_trkParticlePt_atOrigin(nullptr),
-  m_trkParticleEta_atCaloEntrance(nullptr),
-  m_trkParticlePhi_atCaloEntrance(nullptr)
-
+  m_vxContainerName("VxPrimaryCandidate")
 {
   declareProperty ( "Extrapolator", m_extrapolator );
   declareProperty ( "VxContainerName", m_vxContainerName );
@@ -75,14 +62,9 @@ StatusCode CaloClusterVertexFractionMaker::initialize()
   Amg::Transform3D translateAlongPositiveZ = Amg::Transform3D(Amg::Vector3D(0.,0.,m_CALO_INNER_Z));
   Amg::Transform3D translateAlongNegativeZ = Amg::Transform3D(Amg::Vector3D(0.,0.,m_CALO_INNER_Z));
 
-  m_cylinderSurface_atCaloEntrance = new Trk::CylinderSurface(m_CALO_INNER_R, 8000.);
-  m_discSurface_atCaloEntrance_positiveZ = new Trk::DiscSurface(translateAlongPositiveZ, 0., 10000.);
-  m_discSurface_atCaloEntrance_negativeZ = new Trk::DiscSurface(translateAlongNegativeZ, 0., 10000.);
-
-  m_numTracksPerVertex = new std::vector<unsigned int>;
-  m_trkParticlePt_atOrigin = new std::vector<float>;
-  m_trkParticleEta_atCaloEntrance = new std::vector<float>;
-  m_trkParticlePhi_atCaloEntrance = new std::vector<float>;
+  m_cylinderSurface_atCaloEntrance = std::make_unique<Trk::CylinderSurface>(m_CALO_INNER_R, 8000.);
+  m_discSurface_atCaloEntrance_positiveZ = std::make_unique<Trk::DiscSurface>(translateAlongPositiveZ, 0., 10000.);
+  m_discSurface_atCaloEntrance_negativeZ = std::make_unique<Trk::DiscSurface>(translateAlongNegativeZ, 0., 10000.);
 
   return StatusCode::SUCCESS;
 }
@@ -105,7 +87,11 @@ CaloClusterVertexFractionMaker::execute(const EventContext& ctx,
   }
 
   // loop over vertices, extrapolate tracks to calo, remember num tracks per vertex (for cluster vertex fraction calculation later)
-  m_numTracksPerVertex->resize(primcontainer->size()-1, 0);
+  std::vector<unsigned int> numTracksPerVertex(primcontainer->size()-1, 0);
+  std::vector<float> trkParticlePt_atOrigin;
+  std::vector<float> trkParticleEta_atCaloEntrance;
+  std::vector<float> trkParticlePhi_atCaloEntrance;
+
   for (unsigned int v = 0 ; v < primcontainer->size()-1; ++v)
   {
     const std::vector<Trk::VxTrackAtVertex*>* vxTrackAtVertex = primcontainer->at(v)->vxTrackAtVertex();
@@ -119,8 +105,8 @@ CaloClusterVertexFractionMaker::execute(const EventContext& ctx,
         if (theTrackParticle != nullptr)
         {
           const Trk::TrackParameters* trackParameters_atCaloEntrance(nullptr);
-          m_numTracksPerVertex->at(v)++;
-          m_trkParticlePt_atOrigin->push_back (theTrackParticle->pt()/1.e3);
+          numTracksPerVertex.at(v)++;
+          trkParticlePt_atOrigin.push_back (theTrackParticle->pt()/1.e3);
 
           const Trk::TrackParameters* lastTrackParametersInID(nullptr);
           const std::vector< const Trk::TrackParameters * >& trackParametersVector = theTrackParticle->trackParameters();
@@ -164,16 +150,16 @@ CaloClusterVertexFractionMaker::execute(const EventContext& ctx,
                                             Trk::pion).release());
           }
           if (trackParameters_atCaloEntrance != nullptr) {
-            m_trkParticleEta_atCaloEntrance->push_back(trackParameters_atCaloEntrance->position().eta());
-            m_trkParticlePhi_atCaloEntrance->push_back(trackParameters_atCaloEntrance->position().phi());
+            trkParticleEta_atCaloEntrance.push_back(trackParameters_atCaloEntrance->position().eta());
+            trkParticlePhi_atCaloEntrance.push_back(trackParameters_atCaloEntrance->position().phi());
             ATH_MSG_DEBUG( "At calo entrance R(1150mm) " << *trackParameters_atCaloEntrance  );
             ATH_MSG_DEBUG( "TrkParticle eta/phi/pt[GeV] at calo " << trackParameters_atCaloEntrance->position().eta() << "\t"
                            << trackParameters_atCaloEntrance->position().phi() << "\t"
                            << trackParameters_atCaloEntrance->position().perp()/1.e3  );
             delete trackParameters_atCaloEntrance;
           } else {
-            m_trkParticleEta_atCaloEntrance->push_back(999.);
-            m_trkParticlePhi_atCaloEntrance->push_back(999.);
+            trkParticleEta_atCaloEntrance.push_back(999.);
+            trkParticlePhi_atCaloEntrance.push_back(999.);
           }
         }
       }
@@ -183,7 +169,7 @@ CaloClusterVertexFractionMaker::execute(const EventContext& ctx,
   double fabs_Dphi(9999.);
   double fabs_Deta(9999.);
   double dR2(9999.);
-  std::vector<float>* sumPtOfMatchedTracksPerVertex = new std::vector<float>(m_numTracksPerVertex->size(), 0.);
+  std::vector<float> sumPtOfMatchedTracksPerVertex(numTracksPerVertex.size(), 0.);
 
   for (xAOD::CaloClusterContainer::iterator clItr = caloClusterContainer->begin(); clItr != caloClusterContainer->end(); ++clItr)
   {
@@ -193,40 +179,40 @@ CaloClusterVertexFractionMaker::execute(const EventContext& ctx,
     if (std::fabs(theCluster->eta()) < 2.5)
     {
       //  Calculation of Cluster Vertex Fraction
-      std::vector<unsigned int>::iterator numTrksPerVertexItr  = m_numTracksPerVertex->begin();
-      std::vector<unsigned int>::iterator numTrksPerVertexItrE = m_numTracksPerVertex->end();
+      std::vector<unsigned int>::iterator numTrksPerVertexItr  = numTracksPerVertex.begin();
+      std::vector<unsigned int>::iterator numTrksPerVertexItrE = numTracksPerVertex.end();
       unsigned int vertexCounter(0);
       unsigned int totalTrackCounter(0);
       for ( ; numTrksPerVertexItr != numTrksPerVertexItrE ; ++numTrksPerVertexItr, vertexCounter++)
       {
-        sumPtOfMatchedTracksPerVertex->at(vertexCounter) = 0.;
+        sumPtOfMatchedTracksPerVertex.at(vertexCounter) = 0.;
         for (unsigned int track = 0; track < (*numTrksPerVertexItr); ++track, totalTrackCounter++)
         {
-          if (m_trkParticleEta_atCaloEntrance->at(totalTrackCounter) < 900.) // no need to check phi as well (not extrapolated eta is set to 999.)
+          if (trkParticleEta_atCaloEntrance.at(totalTrackCounter) < 900.) // no need to check phi as well (not extrapolated eta is set to 999.)
           {
-            fabs_Dphi = calculateDPhi(m_trkParticlePhi_atCaloEntrance->at(totalTrackCounter), theCluster->phi());
-            fabs_Deta = fabs(m_trkParticleEta_atCaloEntrance->at(totalTrackCounter) - theCluster->eta());
+            fabs_Dphi = calculateDPhi(trkParticlePhi_atCaloEntrance.at(totalTrackCounter), theCluster->phi());
+            fabs_Deta = fabs(trkParticleEta_atCaloEntrance.at(totalTrackCounter) - theCluster->eta());
             dR2 = fabs_Deta * fabs_Deta + fabs_Dphi * fabs_Dphi;
             if (dR2 < m_dR2MatchMax) {
-              sumPtOfMatchedTracksPerVertex->at(vertexCounter) += m_trkParticlePt_atOrigin->at(totalTrackCounter);
+              sumPtOfMatchedTracksPerVertex.at(vertexCounter) += trkParticlePt_atOrigin.at(totalTrackCounter);
             }
           }
         }
       }
       double totalSumPtOfMatchedTracksWhichWereAlsoUsedInAVertex(0.);
-      for (unsigned int mTpV = 0; mTpV < sumPtOfMatchedTracksPerVertex->size(); ++mTpV) {
-        totalSumPtOfMatchedTracksWhichWereAlsoUsedInAVertex += sumPtOfMatchedTracksPerVertex->at(mTpV);
-        //std::cout << "CaloClusterVertexFractionMakerAOD: " << mTpV << "\t" << sumPtOfMatchedTracksPerVertex->at(mTpV) << std::endl;
+      for (unsigned int mTpV = 0; mTpV < sumPtOfMatchedTracksPerVertex.size(); ++mTpV) {
+        totalSumPtOfMatchedTracksWhichWereAlsoUsedInAVertex += sumPtOfMatchedTracksPerVertex.at(mTpV);
+        //std::cout << "CaloClusterVertexFractionMakerAOD: " << mTpV << "\t" << sumPtOfMatchedTracksPerVertex.at(mTpV) << std::endl;
       }
 
       double cvf(-1.);
       double ncvf(-1.);
       if (totalSumPtOfMatchedTracksWhichWereAlsoUsedInAVertex > 0.)
       {
-        double sumPtInPrimary = sumPtOfMatchedTracksPerVertex->at(0);
-        cvf = sumPtOfMatchedTracksPerVertex->at(0)/totalSumPtOfMatchedTracksWhichWereAlsoUsedInAVertex;
-        std::sort(sumPtOfMatchedTracksPerVertex->begin(), sumPtOfMatchedTracksPerVertex->end());
-        double highestSumPt = sumPtOfMatchedTracksPerVertex->at(sumPtOfMatchedTracksPerVertex->size()-1);
+        double sumPtInPrimary = sumPtOfMatchedTracksPerVertex.at(0);
+        cvf = sumPtOfMatchedTracksPerVertex.at(0)/totalSumPtOfMatchedTracksWhichWereAlsoUsedInAVertex;
+        std::sort(sumPtOfMatchedTracksPerVertex.begin(), sumPtOfMatchedTracksPerVertex.end());
+        double highestSumPt = sumPtOfMatchedTracksPerVertex.at(sumPtOfMatchedTracksPerVertex.size()-1);
         if (highestSumPt > 0) ncvf = sumPtInPrimary/highestSumPt;
       }
       //std::cout << "CaloClusterVertexFractionMakerAOD: cvf " << cvf << "\tncvf " << ncvf << std::endl;
@@ -238,25 +224,6 @@ CaloClusterVertexFractionMaker::execute(const EventContext& ctx,
     }
   }
 
-  delete sumPtOfMatchedTracksPerVertex;
-
-  m_numTracksPerVertex->clear();
-  m_trkParticlePt_atOrigin->clear();
-  m_trkParticleEta_atCaloEntrance->clear();
-  m_trkParticlePhi_atCaloEntrance->clear();
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode CaloClusterVertexFractionMaker::finalize()
-{
-  delete m_cylinderSurface_atCaloEntrance;
-  delete m_discSurface_atCaloEntrance_positiveZ;
-  delete m_discSurface_atCaloEntrance_negativeZ;
-  delete m_numTracksPerVertex;
-  delete m_trkParticlePt_atOrigin;
-  delete m_trkParticleEta_atCaloEntrance;
-  delete m_trkParticlePhi_atCaloEntrance;
   return StatusCode::SUCCESS;
 }
 

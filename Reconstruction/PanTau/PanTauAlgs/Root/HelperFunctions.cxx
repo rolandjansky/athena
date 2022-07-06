@@ -14,7 +14,7 @@
 
 
 PanTau::TauConstituent* PanTau::HelperFunctions::getNeutralConstWithLargestAngle(const TLorentzVector& charged,
-										 const std::vector<PanTau::TauConstituent*>& neutral) {
+										 const std::vector<PanTau::TauConstituent*>& neutral) const {
   if(neutral.empty()) return 0;
   //loop through neutrals to find the one with largest angle
   unsigned int    idx_Neutral = -1;

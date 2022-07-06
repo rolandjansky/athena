@@ -78,7 +78,7 @@ class L1TdrStgcTriggerLogic : public AthMessaging {
          std::array<std::string_view, 10> sTGC_triggerPatternsPhiUpDown() const;
 
          bool hitPattern(const std::shared_ptr<PadOfflineData>  &firstPad, const std::shared_ptr<PadOfflineData> &otherPad, std::string &pattern) const;
-         bool hitPattern(const int &iEta0, const int &iPhi0, const int &iEta1, const int &iPhi1, std::string &pattern) const;
+         bool hitPattern(const int iEta0, const int iPhi0, const int iEta1, const int iPhi1, std::string &pattern) const;
          std::vector< SingleWedgePadTrigger > buildSingleWedgeTriggers(const std::vector<std::shared_ptr<PadOfflineData>> &pads,
                                                         const std::vector< size_t > &padIndicesLayer0,
                                                         const std::vector< size_t > &padIndicesLayer1,

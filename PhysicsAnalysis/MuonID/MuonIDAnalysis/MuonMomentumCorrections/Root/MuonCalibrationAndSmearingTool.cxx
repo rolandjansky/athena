@@ -254,7 +254,7 @@ namespace CP {
             regionMode = 1;
             m_useNsigmaForICombine = 0;
         }
-        ATH_MSG_DEBUG("Checking Initialization - Regions file: " << regionsPath);
+        ATH_MSG_INFO("Checking Initialization - Regions file: " << regionsPath);
 
         if (Regions(regionsPath, regionMode) == StatusCode::FAILURE) {
             ATH_MSG_ERROR("Unkown regions or regionMode");
@@ -571,6 +571,7 @@ namespace CP {
             return 0.0;
         }
         double p2 = corrM->GetBinContent(binEta, binPhi);
+        ATH_MSG_VERBOSE("p2 org: "<<p2);
 
         if (m_currentParameters->SagittaBias == MCAST::SystVariation::Up ||
             m_currentParameters->SagittaDataStat == MCAST::SystVariation::Up) {
@@ -579,6 +580,7 @@ namespace CP {
                    m_currentParameters->SagittaDataStat == MCAST::SystVariation::Down) {
             p2 = -0.5 * p2;
         }
+        ATH_MSG_VERBOSE("p2 after scale: "<<p2);
 
         // Extra scaling to cover for non-closure in the forward and transition region
         double deltas = m_extraRebiasSys;
@@ -606,6 +608,7 @@ namespace CP {
         // If eta dependant, set the p2 to 0, if it not in the given eta slices
         if ((m_currentParameters->SagittaEtaSlice == MCAST::SystVariation::Up) && lv.Eta() < 0) p2 = 0;
         if ((m_currentParameters->SagittaEtaSlice == MCAST::SystVariation::Down) && lv.Eta() > 0) p2 = 0;
+        ATH_MSG_VERBOSE("p2 before return: "<<p2);
 
         return p2;
     }
@@ -634,7 +637,7 @@ namespace CP {
         ATH_MSG_DEBUG("applySagittaBiasCorrection:: asking for iter " << iter << " max CB iter: " << m_SagittaIterations[0]
                                                                       << " max ID iter: " << m_SagittaIterations[1]
                                                                       << " max ME iter: " << m_SagittaIterations[2]);
-        if (m_doSagittaMCDistortion && isMC && iter == 0) stop = true;
+        if (m_doSagittaMCDistortion && isMC && iter == 0 && (m_saggitaMapsInputType != MCAST::SagittaInputHistType::SINGLE)) stop = true;
 
         // Special case for Bias
         if (isMC && (SystCase == MCAST::SagittaSysType::BIAS) && (m_saggitaMapsInputType == MCAST::SagittaInputHistType::SINGLE) &&
@@ -643,6 +646,8 @@ namespace CP {
         if (isMC && (SystCase == MCAST::SagittaSysType::DATASTAT) && (m_saggitaMapsInputType == MCAST::SagittaInputHistType::SINGLE) &&
             (iter >= 1))
             stop = true;
+
+        if (isMC && (SystCase == MCAST::SagittaSysType::BIAS) && (m_saggitaMapsInputType == MCAST::SagittaInputHistType::SINGLE) && (iter == 0))
 
         //
         // to be checked if this needs to be enforced only for m_saggitaMapsInputType==MCAST::SagittaInputHistType::SINGLE or also for
@@ -769,6 +774,8 @@ namespace CP {
             ATH_MSG_DEBUG("Charge == 0");
             return CorrectionCode::OutOfValidityRange;
         }
+
+
 
         if (SgCorrType == MCAST::SagittaCorType::CB) {
             if (muonInfo.ptcb == 0) return CorrectionCode::Ok;
@@ -939,7 +946,7 @@ namespace CP {
         }
 
         // In case one distrots the MC iterations are set to 1. Systamtics willl be calculated based on the full effect.
-        if (m_doSagittaMCDistortion && isMC) {
+        if (m_doSagittaMCDistortion && isMC && SystCase != MCAST::SagittaSysType::DATASTAT) {
             itersCB = 0;
             itersID = 0;
             itersME = 0;
@@ -1315,7 +1322,7 @@ namespace CP {
         ATH_MSG_VERBOSE("Checking Weights - weightMS: " << muonInfo.weightMS
                                                         << " - std::abs( weightMS - 1 ): " << std::abs(muonInfo.weightMS - 1));
         muonInfo.smearDeltaCB = muonInfo.smearDeltaID * muonInfo.weightID + muonInfo.smearDeltaMS * muonInfo.weightMS;
-
+        ATH_MSG_VERBOSE("Checking Weights - smearDeltaCB: " << muonInfo.smearDeltaCB);
         // Calibrate the pt of the muon:
         double res_idPt =
             GeVtoMeV * CalculatePt(MCAST::DetectorType::ID, muonInfo.smearDeltaID, muonInfo.smearDeltaMS, m_currentParameters->ScaleID,
@@ -1381,6 +1388,10 @@ namespace CP {
         // Override combined momentum for special cases
         if (std::abs(muonInfo.weightID - 1) < EPSILON) res_cbPt = res_idPt;
         if (std::abs(muonInfo.weightMS - 1) < EPSILON) res_cbPt = res_msPt;
+
+        // Override combined momentum for special cases
+        if (std::abs(res_msPt) == 0) res_cbPt = res_idPt;
+        if (std::abs(res_idPt) == 0) res_cbPt = res_msPt;
 
         // Using ToroidOff flag
         mu.auxdata<float>("InnerDetectorPt") = res_idPt;
@@ -2024,6 +2035,8 @@ namespace CP {
         if (std::abs(scaleCB_egLoss) != 1. && scaleCB_egLoss != 0.)
             ATH_MSG_ERROR("Unpredicted scaleCB_egLoss variation of Delta " << scaleCB_egLoss << " sigmas!");
 
+
+        ATH_MSG_VERBOSE("muonInfo.detRegion: "<<muonInfo.detRegion);
         if (m_scale_ID[muonInfo.detRegion] != -1) {
             if (m_Trel >= MCAST::Release::Rel17_2_Sum13) {
                 scaleID = scaleVarID > 0. ? m_scaleSystUp_ID[muonInfo.detRegion] : m_scaleSystDw_ID[muonInfo.detRegion];
@@ -2123,6 +2136,8 @@ namespace CP {
         }
         if (DetType == MCAST::DetectorType::CB) {
             if (m_doDirectCBCalib) {
+                ATH_MSG_VERBOSE("Checking s0_CB = " << enLossCorrCB);
+                ATH_MSG_VERBOSE("Checking s1_CB = " << scaleCB);
                 tmpDelta = 1 + muonInfo.smearDeltaCBDirect;
             } else if (int(inSmearID) != DEFAULT_INIT_VAL && int(inSmearMS) != DEFAULT_INIT_VAL) {
                 tmpDelta = 1. + inSmearID * muonInfo.weightID + inSmearMS * muonInfo.weightMS;
@@ -2657,6 +2672,7 @@ namespace CP {
                 R = (muonInfo.ptid - muonInfo.ptcb) / (muonInfo.ptcb - muonInfo.ptms); /* R~wMS/wID */
                 Rplus = 1 + R;
                 if (Rplus != 0 && R > 0) {
+                    ATH_MSG_DEBUG("Returning weight ID here");
                     muonInfo.weightID = 1 / Rplus;
                     muonInfo.weightMS = R / Rplus;
                     return;
@@ -2667,6 +2683,7 @@ namespace CP {
                 R = (muonInfo.ptms - muonInfo.ptcb) / (muonInfo.ptcb - muonInfo.ptid); /* R~wID/wMS */
                 Rplus = 1 + R;
                 if (Rplus != 0 && R > 0) {
+                    ATH_MSG_DEBUG("Returning weight ID here");
                     muonInfo.weightID = R / Rplus;
                     muonInfo.weightMS = 1 / Rplus;
                     return;
@@ -2674,10 +2691,22 @@ namespace CP {
             }
         }
 
+        ATH_MSG_DEBUG("Actually returning here");
+        ATH_MSG_DEBUG("Expected Res MS: "<<SigmaMS);
+
+
+
         double wMS = muonInfo.ptms / muonInfo.ptcb / std::pow(SigmaMS, 2);
         double wID = muonInfo.ptid / muonInfo.ptcb / std::pow(SigmaID, 2);
         muonInfo.weightID = wID / (wMS + wID);
         muonInfo.weightMS = wMS / (wMS + wID);
+
+        ATH_MSG_VERBOSE("mu.ID.calib_pt: "<<muonInfo.ptid);
+        ATH_MSG_VERBOSE("mu.ME.calib_pt: "<<muonInfo.ptms);
+        ATH_MSG_VERBOSE("mu.CB.calib_pt: "<<muonInfo.ptcb);
+        ATH_MSG_VERBOSE("mu.expectedPercentResME: "<<SigmaMS);
+        ATH_MSG_VERBOSE("mu.expectedPercentResID: "<<SigmaID);
+
         return;
     }
 
@@ -2887,15 +2916,15 @@ namespace CP {
         if (m_doMacroRegions) {
             for (std::map<int, int>::const_iterator it = m_MacroRegionIdxMap.begin(); it != m_MacroRegionIdxMap.end(); ++it) {
                 int bReg = it->first, mReg = it->second;
-                ATH_MSG_INFO("Base region n " << bReg);
-                ATH_MSG_INFO("phi_min=" << m_phi_min[bReg] << ", phi_max=" << m_phi_max[bReg]);
-                ATH_MSG_INFO("eta_min=" << m_eta_min[bReg] << ", eta_max=" << m_eta_max[bReg]);
-                ATH_MSG_INFO("included in Macro region N " << mReg << " with innerEta=" << m_MacroRegionInnerEta[mReg]);
+                ATH_MSG_VERBOSE("-------- Base region n " << bReg<<" ");
+                ATH_MSG_VERBOSE("phi_min=" << m_phi_min[bReg] << ", phi_max=" << m_phi_max[bReg]);
+                ATH_MSG_VERBOSE("eta_min=" << m_eta_min[bReg] << ", eta_max=" << m_eta_max[bReg]);
+                ATH_MSG_VERBOSE("included in Macro region N " << mReg << " with innerEta=" << m_MacroRegionInnerEta[mReg]);
             }
         } else {
             for (int bReg = 0; bReg < m_nb_regions; ++bReg) {
-                ATH_MSG_INFO("Base region n " << bReg << ": phi_min=" << m_phi_min[bReg] << ", phi_max=" << m_phi_max[bReg]);
-                ATH_MSG_INFO("eta_min=" << m_eta_min[bReg] << ", eta_max=" << m_eta_max[bReg]);
+                ATH_MSG_VERBOSE("Base region n " << bReg << ": phi_min=" << m_phi_min[bReg] << ", phi_max=" << m_phi_max[bReg]);
+                ATH_MSG_VERBOSE("eta_min=" << m_eta_min[bReg] << ", eta_max=" << m_eta_max[bReg]);
             }
         }
     }
@@ -2953,19 +2982,23 @@ namespace CP {
             m_doMacroRegions = true;
             switch (doMacroRegionsFlag) {
                 case 1:
+                    ATH_MSG_VERBOSE("doing CollectMacroRegionsSL");
                     // Collects all the Large and Small sectors if they belong to the same eta bin
                     CollectMacroRegionsSL();
                     break;
                 case 2:
+                    ATH_MSG_VERBOSE("doing CollectMacroRegionsSL_SplitBAR");
                     // Large,Small sectors split plus Feet(12+14) and 11+15 sector split in Barrel
                     CollectMacroRegionsSL_SplitBAR();
                     break;
                 case 3:
+                    ATH_MSG_VERBOSE("doing CollectMacroRegionsSL_UpDn");
                     // Collects all the Large and Small, Up and Down sectors if they belong to the same eta bin
                     CollectMacroRegionsSL_UpDn();
                     break;
                 case 4:
                     // Collects all the Large and Small, Up and Down sectors if they belong to the same eta bin
+                    ATH_MSG_VERBOSE("doing CollectSectors");
                     CollectSectors();
                     break;
                 default: ATH_MSG_ERROR("doMacroRegionFlag=" << doMacroRegionsFlag << " not defined!"); return StatusCode::FAILURE;
@@ -2994,6 +3027,10 @@ namespace CP {
         if (ret_k == -1) {
             ATH_MSG_DEBUG("Region corresponding to Eta=" << eta << ", Phi=" << phi << " NOT FOUND!");
             return -1;
+        }
+        else
+        {
+            ATH_MSG_DEBUG("Region corresponding to Eta=" << eta << ", Phi=" << phi << " is: "<<ret_k);
         }
         if (m_doMacroRegions) { return m_MacroRegionIdxMap.find(ret_k)->second; }
         return ret_k;
@@ -3344,9 +3381,15 @@ namespace CP {
                 newSmear = (p1_ID_var * muonInfo.g3 +
                             p2_ID_TAN_var * muonInfo.g4 * muonInfo.ptid * std::sinh(muonInfo.eta) * std::sinh(muonInfo.eta));
             } else if (useTan && m_p2_ID_TAN[muonInfo.detRegion] != 0) {
+                ATH_MSG_VERBOSE("Case 1: Using p1ID = " <<p1_ID_var << " and p2IDTan = " << p2_ID_TAN_var);
                 newSmear = (p1_ID_var * muonInfo.g3 + p2_ID_TAN_var * muonInfo.g4 * muonInfo.ptid * std::sinh(muonInfo.eta));
             } else {
-                newSmear = (p1_ID_var * muonInfo.g3 + p2_ID_var * muonInfo.g4 * muonInfo.ptid);
+                float additional_weight = 1.;
+                if (std::abs(muonInfo.eta) > 2) additional_weight = sinh(muonInfo.eta);
+                ATH_MSG_VERBOSE("Case 2: Using p1ID = " <<p1_ID_var << " and p2IDTan = " << p2_ID_var);
+                ATH_MSG_VERBOSE("Case 2: Using g3 = " <<muonInfo.g3 << " and g4 = " << muonInfo.g4<<" ptid: "<<muonInfo.ptid);
+                newSmear = (p1_ID_var * muonInfo.g3 + p2_ID_var * muonInfo.g4 * muonInfo.ptid * additional_weight);
+                ATH_MSG_VERBOSE("Case 2: newSmear = " <<newSmear);
             }
             return newSmear;
         }

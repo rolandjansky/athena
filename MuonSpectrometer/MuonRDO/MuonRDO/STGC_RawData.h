@@ -55,6 +55,15 @@ class STGC_RawData {
    bool isDead() const {return m_isDead;}
    bool timeAndChargeInCounts() const {return m_timeAndChargeInCounts;}
 
+   // Lower time bound of digits selected at the end of digitization.
+   // As of June 2022, the main event is assigned to relative_BCID=3, which is set to correspond
+   // to the time interval [-12.5ns, +12.5ns]. The digits within the BC window [-3, +4] are kept. 
+   // Therefore the lower time bound is -87.5 ns.
+   static constexpr double s_lowerTimeBound{-87.5};
+
+   // BC window
+   static constexpr int s_BCWindow{8};
+
   // A Simple constant to convert time to TDC counts in the absence of time calibration.
   // This constant should be used only to preserve backward compatibility, since it doesn't have 
   // physical meaning and the value is arbitrary. The value is chosen to be greater than 

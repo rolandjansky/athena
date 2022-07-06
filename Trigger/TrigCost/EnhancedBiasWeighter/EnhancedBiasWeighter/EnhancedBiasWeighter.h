@@ -184,7 +184,6 @@ class EnhancedBiasWeighter: public asg::AsgTool, public virtual IEnhancedBiasWei
 
     Gaudi::Property<uint32_t> m_runNumber{this, "RunNumber", 0, "Run we're processing (if data), needed at initialize to locate and read in extra configuration."};
     Gaudi::Property<bool> m_errorOnMissingEBWeights{this, "ErrorOnMissingEBWeights", false, "If true, Throws error if EB weights are missing."};
-    Gaudi::Property<bool> m_calculateWeightingData{this, "CalculateWeightingData", true, "If true, read from COOL, CONDBR2 and XMLs. If false, read directly from decorated TRIG1 dAOD."};
     Gaudi::Property<bool> m_enforceEBGRL{this, "EnforceEBGRL", true, "Each Enhanced Bias run has a 'good run list' style veto on some LB. If this flag is true, events in these LB get weight 0"};
     Gaudi::Property<bool> m_useBunchCrossingData{this, "UseBunchCrossingData", true, "BunchCrossing data requires CONDBR2 access. Can be disabled here if this is a problem."};
     Gaudi::Property<bool> m_isMC{this, "IsMC", false,  "MC mode? If so we need a cross section and filter efficiency"};

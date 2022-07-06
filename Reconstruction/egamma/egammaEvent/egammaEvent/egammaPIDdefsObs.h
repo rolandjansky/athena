@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAEVENT_EGAMMAPIDDEFS_H
@@ -269,86 +269,86 @@ namespace egammaPIDObs {
   //
   /** @brief cuts of hadronic leakage*/
   const unsigned int HADLEAKETA_ELECTRON = 
-    0x1 << ClusterEtaRange_Electron        | 
-    0x1 << ClusterHadronicLeakage_Electron;
+    0x1u << ClusterEtaRange_Electron        | 
+    0x1u << ClusterHadronicLeakage_Electron;
   /** @brief cuts in strips (with ClusterStripsDEmaxs1)*/
   const unsigned int CALOSTRIPS_ELECTRON =
-    0x1 << ClusterStripsEratio_Electron     |
-    0x1 << ClusterStripsDeltaEmax2_Electron |
-    0x1 << ClusterStripsDeltaE_Electron     |
-    0x1 << ClusterStripsWtot_Electron       |
-    0x1 << ClusterStripsFracm_Electron      |
-    0x1 << ClusterStripsWeta1c_Electron     |
-    0x1 << ClusterStripsDEmaxs1_Electron    ;
+    0x1u << ClusterStripsEratio_Electron     |
+    0x1u << ClusterStripsDeltaEmax2_Electron |
+    0x1u << ClusterStripsDeltaE_Electron     |
+    0x1u << ClusterStripsWtot_Electron       |
+    0x1u << ClusterStripsFracm_Electron      |
+    0x1u << ClusterStripsWeta1c_Electron     |
+    0x1u << ClusterStripsDEmaxs1_Electron    ;
   const unsigned int CALOSTRIPS_LOOSE_ELECTRON =
-    0x1 << ClusterStripsWtot_Electron       |
-    0x1 << ClusterStripsDEmaxs1_Electron    ;
+    0x1u << ClusterStripsWtot_Electron       |
+    0x1u << ClusterStripsDEmaxs1_Electron    ;
   /** @brief cuts in middle sampling*/
   const unsigned int CALOMIDDLE_ELECTRON =    
-    0x1 << ClusterMiddleEnergy_Electron     |
-    0x1 << ClusterMiddleEratio37_Electron   |
-    0x1 << ClusterMiddleWidth_Electron     ;
+    0x1u << ClusterMiddleEnergy_Electron     |
+    0x1u << ClusterMiddleEratio37_Electron   |
+    0x1u << ClusterMiddleWidth_Electron     ;
   const unsigned int CALOBACK_ELECTRON = 
-    0x1 << ClusterBackEnergyFraction_Electron;
+    0x1u << ClusterBackEnergyFraction_Electron;
 
   /** @brief calorimeter isolation*/
   const unsigned int CALORIMETRICISOLATION_ELECTRON = 
-    0x1 << ClusterIsolation_Electron ;
+    0x1u << ClusterIsolation_Electron ;
 
   /** @brief all cuts in calorimeter (except isolation)*/
   const unsigned int CALO_ELECTRON = HADLEAKETA_ELECTRON | CALOSTRIPS_ELECTRON | CALOMIDDLE_ELECTRON | CALOBACK_ELECTRON;
 
   /** @brief Track quality cuts except b-layer for electrons*/
   const unsigned int TRACKINGNOBLAYER_ELECTRON =     
-    0x1 << TrackPixel_Electron   |
-    0x1 << TrackSi_Electron      |
-    0x1 << TrackA0_Electron;
+    0x1u << TrackPixel_Electron   |
+    0x1u << TrackSi_Electron      |
+    0x1u << TrackA0_Electron;
   /** @brief Track quality cuts except b-layer for electrons*/
   const unsigned int TRACKINGLOOSE_ELECTRON =     
-    0x1 << TrackPixel_Electron   |
-    0x1 << TrackSi_Electron;
+    0x1u << TrackPixel_Electron   |
+    0x1u << TrackSi_Electron;
   /** @brief Track quality cuts for electrons*/
   const unsigned int TRACKING_ELECTRON = 
     TRACKINGNOBLAYER_ELECTRON |  
-    0x1 << TrackBlayer_Electron;
+    0x1u << TrackBlayer_Electron;
   /** @brief Track cluster matching in eta for electrons*/
   const unsigned int TRACKMATCHDETA_ELECTRON =
-    0x1 << TrackMatchEta_Electron;
+    0x1u << TrackMatchEta_Electron;
   /** @brief Track cluster matching in eta, phi for electrons*/
   const unsigned int TRACKMATCHNOEOVERP_ELECTRON =
-    0x1 << TrackMatchEta_Electron      |
-    0x1 << TrackMatchPhi_Electron;
+    0x1u << TrackMatchEta_Electron      |
+    0x1u << TrackMatchPhi_Electron;
   /** @brief Track cluster matching in eta, phi, E/p for electrons*/
   const unsigned int TRACKMATCH_ELECTRON =
-    0x1 << TrackMatchEta_Electron      |
-    0x1 << TrackMatchPhi_Electron      |
-    0x1 << TrackMatchEoverP_Electron  ;
+    0x1u << TrackMatchEta_Electron      |
+    0x1u << TrackMatchPhi_Electron      |
+    0x1u << TrackMatchEoverP_Electron  ;
   /** @brief Tight Track cluster matching */
   const unsigned int TRACKMATCHTIGHT_ELECTRON =
-    0x1 << TrackMatchEtaTight_Electron      |
-    0x1 << TrackA0Tight_Electron;
+    0x1u << TrackMatchEtaTight_Electron      |
+    0x1u << TrackA0Tight_Electron;
   /** @brief Track cluster matching in eta tight for electrons*/
   const unsigned int TRACKMATCHDETATIGHT_ELECTRON = 
-    0x1 << TrackMatchEtaTight_Electron;
+    0x1u << TrackMatchEtaTight_Electron;
   /** @brief Tight conversion matching */
   const unsigned int CONVMATCH_ELECTRON =
-    0x1 << ConversionMatch_Electron;
+    0x1u << ConversionMatch_Electron;
 
   /** @brief TRT hits and TR ratio for electrons*/
   const unsigned int TRT_ELECTRON = 
-    0x1 << TrackTRThits_Electron   |
-    0x1 << TrackTRTratio_Electron;
+    0x1u << TrackTRThits_Electron   |
+    0x1u << TrackTRTratio_Electron;
 
   /** @brief TR ratio for electrons*/
   const unsigned int TRT_RATIO_ELECTRON = 
-    0x1 << TrackTRTratio_Electron;
+    0x1u << TrackTRTratio_Electron;
 
   /** @brief isolation by tracker */
   const unsigned int TRACKINGISOLATION_ELECTRON = 
-    0x1 << TrackIsolation_Electron;
+    0x1u << TrackIsolation_Electron;
   /** @brief isolation for electrons is combination of calo and tracker */
   const unsigned int ISOLATION_ELECTRON = 
-    0x1 << Isolation_Electron ;
+    0x1u << Isolation_Electron ;
   /** @brief isolation for electrons is combination of calo and tracker */
   const unsigned int CALOTRACKISOLATION_ELECTRON = 
     CALORIMETRICISOLATION_ELECTRON | TRACKINGISOLATION_ELECTRON;
@@ -437,8 +437,8 @@ namespace egammaPIDObs {
   const unsigned int ElectronTight_WithoutTrackMatch = 
     CALO_ELECTRON | 
     TRACKING_ELECTRON | 
-    0x1 << TrackMatchEoverP_Electron | 
-    0x1 << TrackA0Tight_Electron |
+    0x1u << TrackMatchEoverP_Electron | 
+    0x1u << TrackA0Tight_Electron |
     CONVMATCH_ELECTRON | 
     TRT_ELECTRON ;
 
@@ -446,8 +446,8 @@ namespace egammaPIDObs {
   const unsigned int ElectronTight_WithoutTrackMatch_NoConvCut = 
     CALO_ELECTRON | 
     TRACKING_ELECTRON | 
-    0x1 << TrackMatchEoverP_Electron | 
-    0x1 << TrackA0Tight_Electron |
+    0x1u << TrackMatchEoverP_Electron | 
+    0x1u << TrackA0Tight_Electron |
     TRT_ELECTRON ;
 
   /** @brief Tight_WithTrackMatch electron selection with isolation requirement */
@@ -484,8 +484,8 @@ namespace egammaPIDObs {
     CALO_ELECTRON | 
     TRACKING_ELECTRON | 
     TRACKMATCHDETA_ELECTRON |
-    0x1 << TrackMatchEoverP_Electron | 
-    0x1 << TrackA0Tight_Electron |
+    0x1u << TrackMatchEoverP_Electron | 
+    0x1u << TrackA0Tight_Electron |
     CONVMATCH_ELECTRON | 
     TRT_ELECTRON ;
 
@@ -496,7 +496,7 @@ namespace egammaPIDObs {
     TRACKING_ELECTRON | 
     TRACKMATCHDETA_ELECTRON |
     TRACKMATCHTIGHT_ELECTRON |
-    0x1 << TrackMatchEoverP_Electron | 
+    0x1u << TrackMatchEoverP_Electron | 
     CONVMATCH_ELECTRON | 
     TRT_ELECTRON ;
 
@@ -516,62 +516,62 @@ namespace egammaPIDObs {
   //
   /** @brief cuts of hadronic leakage (for Loose selection)*/
   const unsigned int HADLEAKETA_PHOTONLOOSE = 
-    0x1 << ClusterEtaRange_PhotonLoose  | 
-    0x1 << ClusterHadronicLeakage_PhotonLoose;
+    0x1u << ClusterEtaRange_PhotonLoose  | 
+    0x1u << ClusterHadronicLeakage_PhotonLoose;
   /** @brief cuts of hadronic leakage*/
   const unsigned int HADLEAKETA_PHOTON = 
-    0x1 << ClusterEtaRange_Photon        | 
-    0x1 << ClusterHadronicLeakage_Photon;
+    0x1u << ClusterEtaRange_Photon        | 
+    0x1u << ClusterHadronicLeakage_Photon;
   /** @brief cuts in middle sampling (for Loose selection)*/
   const unsigned int CALOMIDDLE_PHOTONLOOSE=    
-    0x1 << ClusterMiddleEnergy_PhotonLoose     |
-    0x1 << ClusterMiddleEratio37_PhotonLoose   |
-    0x1 << ClusterMiddleEratio33_PhotonLoose   |
-    0x1 << ClusterMiddleWidth_PhotonLoose     ;
+    0x1u << ClusterMiddleEnergy_PhotonLoose     |
+    0x1u << ClusterMiddleEratio37_PhotonLoose   |
+    0x1u << ClusterMiddleEratio33_PhotonLoose   |
+    0x1u << ClusterMiddleWidth_PhotonLoose     ;
   /** @brief cuts in middle sampling*/
   const unsigned int CALOMIDDLE_PHOTON =    
-    0x1 << ClusterMiddleEnergy_Photon     |
-    0x1 << ClusterMiddleEratio37_Photon   |
-    0x1 << ClusterMiddleEratio33_Photon   |
-    0x1 << ClusterMiddleWidth_Photon     ;
+    0x1u << ClusterMiddleEnergy_Photon     |
+    0x1u << ClusterMiddleEratio37_Photon   |
+    0x1u << ClusterMiddleEratio33_Photon   |
+    0x1u << ClusterMiddleWidth_Photon     ;
  /** @brief cuts in strips (with ClusterStripsDEmaxs1)*/
   const unsigned int CALOSTRIPS_PHOTON =
-    0x1 << ClusterStripsEratio_Photon     |
-    0x1 << ClusterStripsDeltaEmax2_Photon |
-    0x1 << ClusterStripsDeltaE_Photon     |
-    0x1 << ClusterStripsWtot_Photon       |
-    0x1 << ClusterStripsFracm_Photon      |
-    0x1 << ClusterStripsWeta1c_Photon     |
-    0x1 << ClusterStripsDEmaxs1_Photon    ;
+    0x1u << ClusterStripsEratio_Photon     |
+    0x1u << ClusterStripsDeltaEmax2_Photon |
+    0x1u << ClusterStripsDeltaE_Photon     |
+    0x1u << ClusterStripsWtot_Photon       |
+    0x1u << ClusterStripsFracm_Photon      |
+    0x1u << ClusterStripsWeta1c_Photon     |
+    0x1u << ClusterStripsDEmaxs1_Photon    ;
 
  /** @brief cuts in strips (with ClusterStripsDEmaxs1)*/
   const unsigned int CALOSTRIPS_PHOTONMEDIUM =
-    0x1 << ClusterStripsDEmaxs1_Photon    ;
+    0x1u << ClusterStripsDEmaxs1_Photon    ;
 
   /** @brief calorimeter isolation*/
   const unsigned int CALORIMETRICISOLATION_PHOTON = 
-    0x1 << ClusterIsolation_Photon;
+    0x1u << ClusterIsolation_Photon;
   /** @brief all cuts in calorimeter (except isolation)*/
   const unsigned int CALO_PHOTON = 
     HADLEAKETA_PHOTON | CALOSTRIPS_PHOTON | CALOMIDDLE_PHOTON;
 
   /** @brief isolation by tracker */
   const unsigned int TRACKINGISOLATION_PHOTON = 
-    0x1 << TrackIsolation_Photon;
+    0x1u << TrackIsolation_Photon;
   /** @brief isolation for photons is combination of calo and tracker */
   const unsigned int ISOLATION_PHOTON = 
-    0x1 << Isolation_Photon ;
+    0x1u << Isolation_Photon ;
   /** @brief isolation for photons is combination of calo and tracker */
   const unsigned int CALOTRACKISOLATION_PHOTON = 
     CALORIMETRICISOLATION_PHOTON | TRACKINGISOLATION_PHOTON;
 
   /** @brief Track cluster matching E/p for photons*/
   const unsigned int TRACKMATCH_PHOTON =
-    0x1 << TrackMatchEoverP_Photon  ;
+    0x1u << TrackMatchEoverP_Photon  ;
 
   /** @brief Ambigiuty resolve for photons */
   const unsigned int AMBIGUITYRESOLVE_PHOTON =
-    0x1 << AmbiguityResolution_Photon;
+    0x1u << AmbiguityResolution_Photon;
 
   /** @brief Loose photon selection with Ambiguity resolver*/
   const unsigned int PhotonLooseAR = 
@@ -708,21 +708,21 @@ namespace egammaPIDObs {
   /** @brief */
   
   const unsigned int BADCLUSELECTRON = 
-    0x1 << MaskedCellCore |
-    0x1 << MissingFEBCellCore |
-    0x1 << MissingFEBCellEdgeS1 |
-    0x1 << MissingFEBCellEdgeS2 |
-    0x1 << DeadHVS1S2S3Core | 
-    0x1 << DeadHVS1S2S3Edge ; 
+    0x1u << MaskedCellCore |
+    0x1u << MissingFEBCellCore |
+    0x1u << MissingFEBCellEdgeS1 |
+    0x1u << MissingFEBCellEdgeS2 |
+    0x1u << DeadHVS1S2S3Core | 
+    0x1u << DeadHVS1S2S3Edge ; 
   
  const unsigned int BADCLUSPHOTON = 
-    0x1 << MaskedCellCore |
-    0x1 << MissingFEBCellCore |
-    0x1 << MissingFEBCellEdgeS1 |
-    0x1 << MissingFEBCellEdgeS2 |
-    0x1 << DeadHVS1S2S3Core | 
-    0x1 << DeadHVS1S2S3Edge |
-    0x1 << BadS1Core; 
+    0x1u << MaskedCellCore |
+    0x1u << MissingFEBCellCore |
+    0x1u << MissingFEBCellEdgeS1 |
+    0x1u << MissingFEBCellEdgeS2 |
+    0x1u << DeadHVS1S2S3Core | 
+    0x1u << DeadHVS1S2S3Edge |
+    0x1u << BadS1Core; 
   
 
 
@@ -752,17 +752,17 @@ namespace egammaPIDObs {
 
   /** @brief old cuts in strips (without ClusterStripsDEmaxs1)*/
   const unsigned int CALOSTRIPSOLD_ELECTRON =
-    0x1 << ClusterStripsEratio_Electron     |
-    0x1 << ClusterStripsDeltaEmax2_Electron |
-    0x1 << ClusterStripsDeltaE_Electron     |
-    0x1 << ClusterStripsWtot_Electron       |
-    0x1 << ClusterStripsFracm_Electron      |
-    0x1 << ClusterStripsWeta1c_Electron     ;
+    0x1u << ClusterStripsEratio_Electron     |
+    0x1u << ClusterStripsDeltaEmax2_Electron |
+    0x1u << ClusterStripsDeltaE_Electron     |
+    0x1u << ClusterStripsWtot_Electron       |
+    0x1u << ClusterStripsFracm_Electron      |
+    0x1u << ClusterStripsWeta1c_Electron     ;
 
   /** @brief TRT hits and TR ratio (@90% eff) for electrons*/
   const unsigned int TRT90_ELECTRON = 
-    0x1 << TrackTRThits_Electron   |
-    0x1 << TrackTRTratio90_Electron;
+    0x1u << TrackTRThits_Electron   |
+    0x1u << TrackTRTratio90_Electron;
 
   /** @brief "old" all cuts in calorimeter (except isolation) without ClusterStripsDEmaxs1 */
   const unsigned int CALONOISOOLD_ELECTRON = HADLEAKETA_ELECTRON | CALOSTRIPSOLD_ELECTRON | CALOMIDDLE_ELECTRON ;
@@ -801,12 +801,12 @@ namespace egammaPIDObs {
   // for photons
   /** @brief old cuts in strips (without ClusterStripsDEmaxs1)*/
   const unsigned int CALOSTRIPSOLD_PHOTON =
-    0x1 << ClusterStripsEratio_Photon     |
-    0x1 << ClusterStripsDeltaEmax2_Photon |
-    0x1 << ClusterStripsDeltaE_Photon     |
-    0x1 << ClusterStripsWtot_Photon       |
-    0x1 << ClusterStripsFracm_Photon      |
-    0x1 << ClusterStripsWeta1c_Photon     ;
+    0x1u << ClusterStripsEratio_Photon     |
+    0x1u << ClusterStripsDeltaEmax2_Photon |
+    0x1u << ClusterStripsDeltaE_Photon     |
+    0x1u << ClusterStripsWtot_Photon       |
+    0x1u << ClusterStripsFracm_Photon      |
+    0x1u << ClusterStripsWeta1c_Photon     ;
 
   /** @brief "old" all cuts in calorimeter (except isolation) without ClusterStripsDEmaxs1 */
   const unsigned int CALONOISOOLD_PHOTON = 
@@ -882,31 +882,31 @@ namespace egammaPIDObs {
   //
   /** @brief cuts of hadronic leakage*/
   const unsigned int HADLEAKETA = 
-    0x1 << ClusterEtaRange        | 
-    0x1 << ClusterHadronicLeakage;
+    0x1u << ClusterEtaRange        | 
+    0x1u << ClusterHadronicLeakage;
   /** @brief old cuts in strips (without ClusterStripsDEmaxs1)*/
   const unsigned int CALOSTRIPSOLD=
-    0x1 << ClusterStripsEratio     |
-    0x1 << ClusterStripsDeltaEmax2 |
-    0x1 << ClusterStripsDeltaE     |
-    0x1 << ClusterStripsWtot       |
-    0x1 << ClusterStripsFracm      |
-    0x1 << ClusterStripsWeta1c     ;
+    0x1u << ClusterStripsEratio     |
+    0x1u << ClusterStripsDeltaEmax2 |
+    0x1u << ClusterStripsDeltaE     |
+    0x1u << ClusterStripsWtot       |
+    0x1u << ClusterStripsFracm      |
+    0x1u << ClusterStripsWeta1c     ;
   /** @brief cuts in strips (with ClusterStripsDEmaxs1)*/
   const unsigned int CALOSTRIPS=
-    0x1 << ClusterStripsEratio     |
-    0x1 << ClusterStripsDeltaEmax2 |
-    0x1 << ClusterStripsDeltaE     |
-    0x1 << ClusterStripsWtot       |
-    0x1 << ClusterStripsFracm      |
-    0x1 << ClusterStripsWeta1c     |
-    0x1 << ClusterStripsDEmaxs1    ;
+    0x1u << ClusterStripsEratio     |
+    0x1u << ClusterStripsDeltaEmax2 |
+    0x1u << ClusterStripsDeltaE     |
+    0x1u << ClusterStripsWtot       |
+    0x1u << ClusterStripsFracm      |
+    0x1u << ClusterStripsWeta1c     |
+    0x1u << ClusterStripsDEmaxs1    ;
   /** @brief cuts in middle sampling*/
   const unsigned int CALOMIDDLE=    
-    0x1 << ClusterMiddleEnergy     |
-    0x1 << ClusterMiddleEratio37   |
-    0x1 << ClusterMiddleEratio33   |
-    0x1 << ClusterMiddleWidth     ;
+    0x1u << ClusterMiddleEnergy     |
+    0x1u << ClusterMiddleEratio37   |
+    0x1u << ClusterMiddleEratio33   |
+    0x1u << ClusterMiddleWidth     ;
   /** @brief calorimeter isolation*/
   const unsigned int CALOISO = 0x1 << ClusterIsolation ;
   /** @brief "old" all cuts in calorimeter (except isolation) without ClusterStripsDEmaxs1 */
@@ -920,27 +920,27 @@ namespace egammaPIDObs {
 
   /** @brief */
   const unsigned int TRACKINGNOBLAYER =     
-    0x1 << TrackPixel   |
-    0x1 << TrackSi      |
-    0x1 << TrackA0     ;
+    0x1u << TrackPixel   |
+    0x1u << TrackSi      |
+    0x1u << TrackA0     ;
   const unsigned int TRACKING = TRACKINGNOBLAYER |  0x1 << TrackBlayer;
   const unsigned int TRACKMATCHDETA =
-    0x1 << TrackMatchEta;
+    0x1u << TrackMatchEta;
   const unsigned int TRACKMATCH =
-    0x1 << TrackMatchEta      |
-    0x1 << TrackMatchPhi      |
-    0x1 << TrackMatchEoverP  ;
+    0x1u << TrackMatchEta      |
+    0x1u << TrackMatchPhi      |
+    0x1u << TrackMatchEoverP  ;
   const unsigned int TRACKMATCHNOEOVERP =
-    0x1 << TrackMatchEta      |
-    0x1 << TrackMatchPhi     ;
+    0x1u << TrackMatchEta      |
+    0x1u << TrackMatchPhi     ;
   const unsigned int TRT = 
-    0x1 << TrackTRThits   |
-    0x1 << TrackTRTratio ;
+    0x1u << TrackTRThits   |
+    0x1u << TrackTRTratio ;
   const unsigned int TRT90 = 
-    0x1 << TrackTRThits   |
-    0x1 << TrackTRTratio90 ;
+    0x1u << TrackTRThits   |
+    0x1u << TrackTRTratio90 ;
   /** @brief isolation by tracker */
-  const unsigned int TRACKISO = 0x1 << TrackIsolation;
+  const unsigned int TRACKISO = 0x1u << TrackIsolation;
   /** @brief */
   const unsigned int ALLNOTRT= TRACKING | TRACKMATCH | CALO;
   /** @brief */

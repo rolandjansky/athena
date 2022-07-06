@@ -35,37 +35,32 @@ EnhancedBiasWeighter::EnhancedBiasWeighter( const std::string& name )
 StatusCode EnhancedBiasWeighter::initialize() 
 {
   ATH_MSG_INFO ("Initializing " << name() << "...");
-  ATH_CHECK( m_bunchCrossingKey.initialize( m_calculateWeightingData && m_useBunchCrossingData ) );
+  ATH_CHECK( m_bunchCrossingKey.initialize( m_useBunchCrossingData ) );
 
-  if (m_calculateWeightingData == true) {
+  if (m_isMC) {
 
-    if (m_isMC) {
+    if (m_mcCrossSection == 0 || m_mcFilterEfficiency == 0) {
+      ATH_MSG_FATAL("For MC rates, a cross section and filter efficiency must be supplied.");
+      return StatusCode::FAILURE;
+    }
+    m_deadtime = 1.; // No deadtime for MC
+    m_pairedBunches = FULL_RING; // Assume full-ring
+    const float mcCrossSectionInSqCm = 1e-33 * m_mcCrossSection; // Convert nb -> cm^2 
+    m_mcModifiedCrossSection = mcCrossSectionInSqCm * m_mcFilterEfficiency * m_mcKFactor;
+    ATH_MSG_INFO ("Running over MC with xsec:" << m_mcCrossSection << " nb, filter efficiency:" << m_mcFilterEfficiency << ", k-factor:" << m_mcKFactor);
 
-      if (m_mcCrossSection == 0 || m_mcFilterEfficiency == 0) {
-        ATH_MSG_FATAL("For MC rates, a cross section and filter efficiency must be supplied.");
-        return StatusCode::FAILURE;
-      }
-      m_deadtime = 1.; // No deadtime for MC
-      m_pairedBunches = FULL_RING; // Assume full-ring
-      const float mcCrossSectionInSqCm = 1e-33 * m_mcCrossSection; // Convert nb -> cm^2 
-      m_mcModifiedCrossSection = mcCrossSectionInSqCm * m_mcFilterEfficiency * m_mcKFactor;
-      ATH_MSG_INFO ("Running over MC with xsec:" << m_mcCrossSection << " nb, filter efficiency:" << m_mcFilterEfficiency << ", k-factor:" << m_mcKFactor);
+  } else { // isData
 
-    } else { // isData
+    if (m_runNumber == 0u) {
+      ATH_MSG_FATAL("calculateWeightingData is TRUE, but the RunNumber property has not been set. This must be set such that we can read in the correct data.");
+      return StatusCode::FAILURE;
+    }
+    ATH_MSG_INFO ("calculateWeightingData is TRUE. This job will read in EnhancedBias weighting data from CVMFS and COOL.");
+    ATH_CHECK( loadWeights() );
+    ATH_CHECK( loadLumi() );
 
-      if (m_runNumber == 0u) {
-        ATH_MSG_FATAL("calculateWeightingData is TRUE, but the RunNumber property has not been set. This must be set such that we can read in the correct data.");
-        return StatusCode::FAILURE;
-      }
-      ATH_MSG_INFO ("calculateWeightingData is TRUE. This job will read in EnhancedBias weighting data from CVMFS and COOL.");
-      ATH_CHECK( loadWeights() );
-      ATH_CHECK( loadLumi() );
+  } // end isData
 
-    } // end isData
-
-  } else {
-    ATH_MSG_INFO ("calculateWeightingData is FALSE. This job must be running over an EnhancedBias TRIG1 dAOD which has already been decorated with weighting data.");
-  }
 
   return StatusCode::SUCCESS;
 }
@@ -386,44 +381,35 @@ int32_t EnhancedBiasWeighter::getEventEBID(const EventContext& context) const
 
 double EnhancedBiasWeighter::getEBWeight(const xAOD::EventInfo* eventInfo) const
 {
-
   if (m_enforceEBGRL && !isGoodLB(eventInfo)) {
     return 0;
   }
 
   ATH_CHECK( trackAverages(eventInfo), 0 );
 
-  if (m_calculateWeightingData) {
+  if (m_isMC) {
 
-    if (m_isMC) {
-
-      if (m_mcIgnoreGeneratorWeights) {
-        return 1.;
-      }
-
-      const std::vector<float> weights = eventInfo->mcEventWeights();
-      if (weights.size() > 0) {
-        return weights[0];
-      }
+    if (m_mcIgnoreGeneratorWeights) {
       return 1.;
+    }
 
-    } else { // isData
+    const std::vector<float> weights = eventInfo->mcEventWeights();
+    if (weights.size() > 0) {
+      return weights[0];
+    }
+    return 1.;
 
-      int32_t ebID = getEventEBID(eventInfo);
-      const auto mapIterator = m_idToWeightMap.find(ebID);
-      if (mapIterator == m_idToWeightMap.end() ) {
-        ATH_MSG_ERROR( "Couldn't find enhanced bias weight for event with ID " << ebID);
-        return 0;
-      }
-      return mapIterator->second;
+  } else { // isData
 
-    } // isData
+    int32_t ebID = getEventEBID(eventInfo);
+    const auto mapIterator = m_idToWeightMap.find(ebID);
+    if (mapIterator == m_idToWeightMap.end() ) {
+      ATH_MSG_ERROR( "Couldn't find enhanced bias weight for event with ID " << ebID);
+      return 0;
+    }
+    return mapIterator->second;
 
-  } else {
-
-    return eventInfo->auxdata<double>("EnhancedBiasWeight");
-
-  }
+  } // isData
 }
 
 
@@ -436,31 +422,22 @@ double EnhancedBiasWeighter::getEBWeight(const EventContext& context) const
 
   ATH_CHECK( trackAverages(context), 0 );
 
-  if (m_calculateWeightingData) {
+  if (m_isMC) {
 
-    if (m_isMC) {
+    ATH_MSG_ERROR( "Cannot use EventContext based getEBWeight with MC. Needs full EventInfo.");
+    return 0.;
 
-      ATH_MSG_ERROR( "Cannot use EventContext based getEBWeight with MC. Needs full EventInfo.");
-      return 0.;
+  } else { // isData
 
-    } else { // isData
+    int32_t ebID = getEventEBID(context);
+    const auto mapIterator = m_idToWeightMap.find(ebID);
+    if (mapIterator == m_idToWeightMap.end() ) {
+      ATH_MSG_ERROR( "Couldn't find enhanced bias weight for event with ID " << ebID);
+      return 0;
+    }
+    return mapIterator->second;
 
-      int32_t ebID = getEventEBID(context);
-      const auto mapIterator = m_idToWeightMap.find(ebID);
-      if (mapIterator == m_idToWeightMap.end() ) {
-        ATH_MSG_ERROR( "Couldn't find enhanced bias weight for event with ID " << ebID);
-        return 0;
-      }
-      return mapIterator->second;
-
-    } // isData
-
-  } else {
-
-      ATH_MSG_ERROR( "Cannot use EventContext based getEBWeight unless calculating it. Needs full EventInfo.");
-      return 0.;
-
-  }
+  } // isData
 }
 
 
@@ -480,220 +457,165 @@ StatusCode EnhancedBiasWeighter::trackAverages(const xAOD::EventInfo* eventInfo)
 
 double EnhancedBiasWeighter::getEBLiveTime(const xAOD::EventInfo* eventInfo) const
 {
+    if (m_isMC) {
 
+      // Probability that a single pp interaction yields this MC process (ratio of xsec)
+      const double probOfProcess = m_mcModifiedCrossSection / m_inelasticCrossSection; 
+      // Probability that a single bunch-crossing yeild this MC process. Binomial statistics (1 - Prob(exactly 0 interactions, given mu interactions)).
+      const double probOfBunchCrossing = 1. - std::pow( 1. - probOfProcess, std::ceil(eventInfo->actualInteractionsPerCrossing()) );
+      const double bunchCrossingRate = m_pairedBunches * LHC_FREQUENCY;
+      // How much wall-time does this event represent? This is the reciprocal of the rate, which is the % per crossing scaled by the crossing rate.
+      ATH_MSG_DEBUG("MC livetime debug: probOfProcess:" << probOfProcess << " probOfBunchCrossing:" << probOfBunchCrossing << " bunchCrossingRate:" << bunchCrossingRate << " time:" << (1. / (probOfBunchCrossing * bunchCrossingRate)));
+      return 1. / (probOfBunchCrossing * bunchCrossingRate);
 
-  if (m_calculateWeightingData) {
+    } else {
 
-      if (m_isMC) {
+      uint32_t lumiBlock = eventInfo->lumiBlock();
+      std::lock_guard<std::mutex> scopeLock(m_mutex);
 
-        // Probability that a single pp interaction yields this MC process (ratio of xsec)
-        const double probOfProcess = m_mcModifiedCrossSection / m_inelasticCrossSection; 
-        // Probability that a single bunch-crossing yeild this MC process. Binomial statistics (1 - Prob(exactly 0 interactions, given mu interactions)).
-        const double probOfBunchCrossing = 1. - std::pow( 1. - probOfProcess, std::ceil(eventInfo->actualInteractionsPerCrossing()) );
-        const double bunchCrossingRate = m_pairedBunches * LHC_FREQUENCY;
-        // How much wall-time does this event represent? This is the reciprocal of the rate, which is the % per crossing scaled by the crossing rate.
-        ATH_MSG_DEBUG("MC livetime debug: probOfProcess:" << probOfProcess << " probOfBunchCrossing:" << probOfBunchCrossing << " bunchCrossingRate:" << bunchCrossingRate << " time:" << (1. / (probOfBunchCrossing * bunchCrossingRate)));
-        return 1. / (probOfBunchCrossing * bunchCrossingRate);
+      // Check the cache
+      const auto inCacheIterator = m_eventLivetime.find( lumiBlock );
+      if (inCacheIterator != m_eventLivetime.end()) return inCacheIterator->second;
 
-      } else {
+      // Else calculate
+      const auto mapIterator = m_eventsPerLB.find(lumiBlock);
+      if (mapIterator == m_eventsPerLB.end() ) {
+        if (m_errorOnMissingEBWeights) {
+          ATH_MSG_ERROR( "Couldn't find LB info for LB: " << lumiBlock );
+        }
+        return 0;
+      } 
+      const int32_t eventsInThisLB = mapIterator->second;
+      const double lbLength = m_readLumiBlock.getLumiBlockLength(lumiBlock, msg());
+      // This event is one in eventsInThisLB, so has an effective temporal contribution of:
+      double eventLivetime = 0;
+      if (eventsInThisLB > 0 && fabs(lbLength) > 1e-10) eventLivetime = (1. / static_cast<double>(eventsInThisLB)) * lbLength;
+      // Cache this (mutable)
+      m_eventLivetime[lumiBlock] = eventLivetime;
+      return eventLivetime;
 
-        uint32_t lumiBlock = eventInfo->lumiBlock();
-        std::lock_guard<std::mutex> scopeLock(m_mutex);
-
-        // Check the cache
-        const auto inCacheIterator = m_eventLivetime.find( lumiBlock );
-        if (inCacheIterator != m_eventLivetime.end()) return inCacheIterator->second;
-
-        // Else calculate
-        const auto mapIterator = m_eventsPerLB.find(lumiBlock);
-        if (mapIterator == m_eventsPerLB.end() ) {
-          if (m_errorOnMissingEBWeights) {
-            ATH_MSG_ERROR( "Couldn't find LB info for LB: " << lumiBlock );
-          }
-          return 0;
-        } 
-        const int32_t eventsInThisLB = mapIterator->second;
-        const double lbLength = m_readLumiBlock.getLumiBlockLength(lumiBlock, msg());
-        // This event is one in eventsInThisLB, so has an effective temporal contribution of:
-        double eventLivetime = 0;
-        if (eventsInThisLB > 0 && fabs(lbLength) > 1e-10) eventLivetime = (1. / static_cast<double>(eventsInThisLB)) * lbLength;
-        // Cache this (mutable)
-        m_eventLivetime[lumiBlock] = eventLivetime;
-        return eventLivetime;
-
-      } // isData
-
-  } else {
-
-    return eventInfo->auxdata<double>("EnhancedBiasLivetime");
-
-  }
+    } // isData
 }
 
 double EnhancedBiasWeighter::getEBLiveTime(const EventContext& context) const
 {
+    if (m_isMC) {
 
-
-  if (m_calculateWeightingData) {
-
-      if (m_isMC) {
-
-        ATH_MSG_ERROR( "Cannot use EventContext based getEBLiveTime with MC. Needs full EventInfo.");
-        return 0.;
-
-      } else {
-
-        uint32_t lumiBlock = context.eventID().lumi_block();
-        std::lock_guard<std::mutex> scopeLock(m_mutex);
-
-        // Check the cache
-        const auto inCacheIterator = m_eventLivetime.find( lumiBlock );
-        if (inCacheIterator != m_eventLivetime.end()) return inCacheIterator->second;
-
-        // Else calculate
-        const auto mapIterator = m_eventsPerLB.find(lumiBlock);
-        if (mapIterator == m_eventsPerLB.end() ) {
-          if (m_errorOnMissingEBWeights) {
-            ATH_MSG_ERROR( "Couldn't find LB info for LB: " << lumiBlock );
-          }
-          return 0.;
-        } 
-        const int32_t eventsInThisLB = mapIterator->second;
-        const double lbLength = m_readLumiBlock.getLumiBlockLength(lumiBlock, msg());
-        // This event is one in eventsInThisLB, so has an effective temporal contribution of:
-        double eventLivetime = 0;
-        if (eventsInThisLB > 0 && fabs(lbLength) > 1e-10) eventLivetime = (1. / static_cast<double>(eventsInThisLB)) * lbLength;
-        // Cache this (mutable)
-        m_eventLivetime[lumiBlock] = eventLivetime;
-        return eventLivetime;
-
-      } // isData
-
-  } else {
-
-      ATH_MSG_ERROR( "Cannot use EventContext based getEBLiveTime unless calculating it. Needs full EventInfo.");
+      ATH_MSG_ERROR( "Cannot use EventContext based getEBLiveTime with MC. Needs full EventInfo.");
       return 0.;
 
-  }
+    } else {
+
+      uint32_t lumiBlock = context.eventID().lumi_block();
+      std::lock_guard<std::mutex> scopeLock(m_mutex);
+
+      // Check the cache
+      const auto inCacheIterator = m_eventLivetime.find( lumiBlock );
+      if (inCacheIterator != m_eventLivetime.end()) return inCacheIterator->second;
+
+      // Else calculate
+      const auto mapIterator = m_eventsPerLB.find(lumiBlock);
+      if (mapIterator == m_eventsPerLB.end() ) {
+        if (m_errorOnMissingEBWeights) {
+          ATH_MSG_ERROR( "Couldn't find LB info for LB: " << lumiBlock );
+        }
+        return 0.;
+      } 
+      const int32_t eventsInThisLB = mapIterator->second;
+      const double lbLength = m_readLumiBlock.getLumiBlockLength(lumiBlock, msg());
+      // This event is one in eventsInThisLB, so has an effective temporal contribution of:
+      double eventLivetime = 0;
+      if (eventsInThisLB > 0 && fabs(lbLength) > 1e-10) eventLivetime = (1. / static_cast<double>(eventsInThisLB)) * lbLength;
+      // Cache this (mutable)
+      m_eventLivetime[lumiBlock] = eventLivetime;
+      return eventLivetime;
+
+    } // isData
+
 }
 
 double EnhancedBiasWeighter::getLBLength(const xAOD::EventInfo* eventInfo) const {
-  if (m_calculateWeightingData) {
-    if (m_isMC) {
-      ATH_MSG_ERROR( "getLBLength Does not work for MC.");
-      return 0.;
-    } else {
-      uint32_t lumiBlock = eventInfo->lumiBlock();
-      const double lbLength = m_readLumiBlock.getLumiBlockLength(lumiBlock, msg());
-      return lbLength;
-    } // isData
-  } else {
-    ATH_MSG_ERROR( "getLBLength Requires CalculateWeightingData=True");
+  if (m_isMC) {
+    ATH_MSG_ERROR( "getLBLength Does not work for MC.");
     return 0.;
-  }
+  } else {
+    uint32_t lumiBlock = eventInfo->lumiBlock();
+    const double lbLength = m_readLumiBlock.getLumiBlockLength(lumiBlock, msg());
+    return lbLength;
+  } // isData
 }
 
 
 
 double EnhancedBiasWeighter::getLBLength(const EventContext& context) const {
-  if (m_calculateWeightingData) {
-    if (m_isMC) {
-      ATH_MSG_ERROR( "getLBLength Does not work for MC.");
-      return 0.;
-    } else {
-      uint32_t lumiBlock = context.eventID().lumi_block();
-      const double lbLength = m_readLumiBlock.getLumiBlockLength(lumiBlock, msg());
-      return lbLength;
-    } // isData
-  } else {
-    ATH_MSG_ERROR( "getLBLength Requires CalculateWeightingData=True");
+  if (m_isMC) {
+    ATH_MSG_ERROR( "getLBLength Does not work for MC.");
     return 0.;
-  }
+  } else {
+    uint32_t lumiBlock = context.eventID().lumi_block();
+    const double lbLength = m_readLumiBlock.getLumiBlockLength(lumiBlock, msg());
+    return lbLength;
+  } // isData
 }
 
 
 bool EnhancedBiasWeighter::isUnbiasedEvent(const xAOD::EventInfo* eventInfo) const
 {
-  if (m_calculateWeightingData) {
+  if (m_isMC) {
+
+    return true;
+
+  } else { //isData
+
+    int32_t ebID = getEventEBID(eventInfo);
+    const auto mapIterator = m_idToUnbiasedMap.find(ebID);
+    if (mapIterator == m_idToUnbiasedMap.end() ) {
+      ATH_MSG_ERROR("Couldn't find isUnbiased information for event with ID " << ebID);
+      return false;
+    }
+    return mapIterator->second;
   
-    if (m_isMC) {
-
-      return true;
-
-    } else { //isData
-
-      int32_t ebID = getEventEBID(eventInfo);
-      const auto mapIterator = m_idToUnbiasedMap.find(ebID);
-      if (mapIterator == m_idToUnbiasedMap.end() ) {
-        ATH_MSG_ERROR("Couldn't find isUnbiased information for event with ID " << ebID);
-        return false;
-      }
-      return mapIterator->second;
-    
-    } // isData
-  
-  } else {
-
-    return static_cast<bool>( eventInfo->auxdata<char>("IsUnbiasedEventFlag") );
-
-  }
+  } // isData
 }
 
 bool EnhancedBiasWeighter::isGoodLB(const xAOD::EventInfo* eventInfo) const
 {
-  if (m_calculateWeightingData) {
+  if (m_isMC) {
+    
+    return true;
 
-    if (m_isMC) {
-      
-      return true;
+  } else { // isData
 
-    } else { // isData
+    uint32_t lumiBlock = eventInfo->lumiBlock();
 
-      uint32_t lumiBlock = eventInfo->lumiBlock();
+    const auto mapIterator = m_goodLB.find(lumiBlock);
+    if (mapIterator == m_goodLB.end() ) {
+      ATH_MSG_ERROR( "Couldn't find LB good/bad info for LB: " << lumiBlock );
+      return false;
+    }
+    return static_cast<bool>(mapIterator->second);
 
-      const auto mapIterator = m_goodLB.find(lumiBlock);
-      if (mapIterator == m_goodLB.end() ) {
-        ATH_MSG_ERROR( "Couldn't find LB good/bad info for LB: " << lumiBlock );
-        return false;
-      }
-      return static_cast<bool>(mapIterator->second);
-
-    } // isData
-
-  } else {
-
-    return static_cast<bool>( eventInfo->auxdata<char>("IsGoodLBFlag") );
-
-  }
+  } // isData
 }
 
 bool EnhancedBiasWeighter::isGoodLB(const EventContext& context) const
 {
-  if (m_calculateWeightingData) {
+  if (m_isMC) {
+    
+    return true;
 
-    if (m_isMC) {
-      
-      return true;
+  } else { // isData
 
-    } else { // isData
+    uint32_t lumiBlock = context.eventID().lumi_block();
 
-      uint32_t lumiBlock = context.eventID().lumi_block();
+    const auto mapIterator = m_goodLB.find(lumiBlock);
+    if (mapIterator == m_goodLB.end() ) {
+      ATH_MSG_ERROR( "Couldn't find LB good/bad info for LB: " << lumiBlock );
+      return false;
+    }
+    return static_cast<bool>(mapIterator->second);
 
-      const auto mapIterator = m_goodLB.find(lumiBlock);
-      if (mapIterator == m_goodLB.end() ) {
-        ATH_MSG_ERROR( "Couldn't find LB good/bad info for LB: " << lumiBlock );
-        return false;
-      }
-      return static_cast<bool>(mapIterator->second);
-
-    } // isData
-
-  } else {
-
-    ATH_MSG_ERROR( "Cannot use EventContext based isGoodLB unless calculating it. Needs full EventInfo.");
-    return false;
-
-  }
+  } // isData
 }
 
 bool EnhancedBiasWeighter::isMC() const {
@@ -706,59 +628,42 @@ uint32_t EnhancedBiasWeighter::getRunNumber() const {
 
 double EnhancedBiasWeighter::getLBLumi(const xAOD::EventInfo* eventInfo) const
 {
-  if (m_calculateWeightingData) {
+  if (m_isMC) {
 
-    if (m_isMC) {
+    const double mu = std::ceil( eventInfo->actualInteractionsPerCrossing() );
+    return (mu * LHC_FREQUENCY * m_pairedBunches) / m_inelasticCrossSection;
 
-      const double mu = std::ceil( eventInfo->actualInteractionsPerCrossing() );
-      return (mu * LHC_FREQUENCY * m_pairedBunches) / m_inelasticCrossSection;
+  } else { // isData
 
-    } else { // isData
+    uint32_t lumiBlock = eventInfo->lumiBlock();
+    const auto mapIterator = m_lumiPerLB.find(lumiBlock);
+    if (mapIterator == m_lumiPerLB.end() ) {
+      ATH_MSG_ERROR( "Couldn't find lumi info for LB: " << lumiBlock );
+      return 0.;
+    }
+    return mapIterator->second;
 
-      uint32_t lumiBlock = eventInfo->lumiBlock();
-      const auto mapIterator = m_lumiPerLB.find(lumiBlock);
-      if (mapIterator == m_lumiPerLB.end() ) {
-        ATH_MSG_ERROR( "Couldn't find lumi info for LB: " << lumiBlock );
-        return 0.;
-      }
-      return mapIterator->second;
-
-    } // isData
-
-  } else {
-
-    return eventInfo->auxdata<double>("LBLumi");
-
-  }
+  } // isData
 }
 
 double EnhancedBiasWeighter::getLBLumi(const EventContext& context) const
 {
-  if (m_calculateWeightingData) {
+  if (m_isMC) {
 
-    if (m_isMC) {
+    ATH_MSG_ERROR( "Cannot use EventContext based getLBLumi with MC. Needs full EventInfo.");
+    return 0.;
 
-      ATH_MSG_ERROR( "Cannot use EventContext based getLBLumi with MC. Needs full EventInfo.");
+  } else { // isData
+
+    uint32_t lumiBlock = context.eventID().lumi_block();
+    const auto mapIterator = m_lumiPerLB.find(lumiBlock);
+    if (mapIterator == m_lumiPerLB.end() ) {
+      ATH_MSG_ERROR( "Couldn't find lumi info for LB: " << lumiBlock );
       return 0.;
+    }
+    return mapIterator->second;
 
-    } else { // isData
-
-      uint32_t lumiBlock = context.eventID().lumi_block();
-      const auto mapIterator = m_lumiPerLB.find(lumiBlock);
-      if (mapIterator == m_lumiPerLB.end() ) {
-        ATH_MSG_ERROR( "Couldn't find lumi info for LB: " << lumiBlock );
-        return 0.;
-      }
-      return mapIterator->second;
-
-    } // isData
-
-  } else {
-
-    ATH_MSG_ERROR( "Cannot use EventContext based getLBLumi unless calculating it. Needs full EventInfo.");
-    return 0;
-
-  }
+  } // isData
 }
 
 double EnhancedBiasWeighter::getDeadtime() const
@@ -773,20 +678,13 @@ uint32_t EnhancedBiasWeighter::getPairedBunches() const
 
 StatusCode EnhancedBiasWeighter::getDistanceIntoTrain(const xAOD::EventInfo* eventInfo, uint32_t& distance) const
 {
-  if (m_calculateWeightingData) {
+  if (!m_useBunchCrossingData) return StatusCode::SUCCESS;
 
-    if (!m_useBunchCrossingData) return StatusCode::SUCCESS;
+  const EventContext& context = Gaudi::Hive::currentContext();
+  SG::ReadCondHandle<BunchCrossingCondData> bunchCrossingTool (m_bunchCrossingKey, context);
+  ATH_CHECK( bunchCrossingTool.isValid() );
+  distance = bunchCrossingTool->distanceFromFront( eventInfo->bcid(), BunchCrossingCondData::BunchDistanceType::BunchCrossings );
 
-    const EventContext& context = Gaudi::Hive::currentContext();
-    SG::ReadCondHandle<BunchCrossingCondData> bunchCrossingTool (m_bunchCrossingKey, context);
-    ATH_CHECK( bunchCrossingTool.isValid() );
-    distance = bunchCrossingTool->distanceFromFront( eventInfo->bcid(), BunchCrossingCondData::BunchDistanceType::BunchCrossings );
-
-  } else {
-
-    distance = eventInfo->auxdata<uint32_t>("BCIDDistanceFromFront");
-
-  }
   return StatusCode::SUCCESS;
 }
 
@@ -803,12 +701,6 @@ double EnhancedBiasWeighter::getAverageMu() const
 
 StatusCode EnhancedBiasWeighter::addBranches() const
 {
-
-  if (m_calculateWeightingData == false) {
-    ATH_MSG_FATAL( "Cannot decorate AOD with EnhancedBias data if loadEnhancedBiasData is FALSE ");
-    return StatusCode::FAILURE;
-  }
-
   // Set up the decorator
   SG::AuxElement::Decorator< double >   decoratorEBWeight("EnhancedBiasWeight"); 
   SG::AuxElement::Decorator< double >   decoratorEBLivetime("EnhancedBiasLivetime"); 

@@ -144,12 +144,12 @@ namespace Muon {
                                                                         "Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator",
                                                                         "IMdtDriftCircleOnTrackCreator full calibration"};
         ToolHandle<Muon::IMuonClusterOnTrackCreator> m_cscRotCreator{
-            this, "CscRotCreator", "Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator", "IMuonClusterOnTrackCreator for cscs"};
+            this, "CscRotCreator", "", "IMuonClusterOnTrackCreator for cscs"};
         ToolHandle<Muon::IMuonClusterOnTrackCreator> m_clusRotCreator{this, "ClusterRotCreator",
                                                                       "Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator",
                                                                       "IMuonClusterOnTrackCreator for trigger hits"};
         ToolHandle<Muon::IMuonClusterOnTrackCreator> m_mmClusRotCreator{this, "MmClusterRotCreator",
-                                                                        "Muon::MMClusterOnTrackCreator/MMClusterOnTrackCreator",
+                                                                        "",
                                                                         "MMClusterOnTrackCreator for Micromegas hits"};
         ToolHandle<Trk::IResidualPullCalculator> m_pullCalculator{this, "PullCalculator",
                                                                   "Trk::ResidualPullCalculator/ResidualPullCalculator"};

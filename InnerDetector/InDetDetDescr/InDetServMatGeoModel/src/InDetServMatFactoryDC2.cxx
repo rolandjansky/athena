@@ -5,7 +5,6 @@
 #include <utility>
 
 
-#include "AthenaKernel/getMessageSvc.h"
 #include "InDetServMatGeoModel/InDetServMatFactoryDC2.h"
 
 // Pixel, SCT and TRT factories
@@ -30,7 +29,7 @@
 #include "GaudiKernel/SystemOfUnits.h"
 
 InDetServMatFactoryDC2::InDetServMatFactoryDC2(StoreGateSvc *detStore,ServiceHandle<IRDBAccessSvc> pRDBAccess) :
-  AthMessaging(Athena::getMessageSvc(), "InDetServMatFactoryDC2"),
+  AthMessaging("InDetServMatFactoryDC2"),
   m_detStore(detStore),
   m_rdbAccess(std::move(pRDBAccess)),
   m_manager(nullptr)

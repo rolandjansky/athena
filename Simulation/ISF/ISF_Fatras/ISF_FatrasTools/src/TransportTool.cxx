@@ -34,6 +34,8 @@
 
 // AtlasDetDescr
 #include "AtlasDetDescr/AtlasRegion.h"
+#include "TrkEventPrimitives/ParticleHypothesis.h"
+
 
 #include <iostream>
 
@@ -226,7 +228,7 @@ ISF::ISFParticle* iFatras::TransportTool::process( const ISF::ISFParticle& isp, 
   int decayProc = 0;
 
   // beta calculated here for further use in validation
-  double mass = m_particleMasses.mass[pHypothesis];
+  double mass = Trk::ParticleMasses::mass[pHypothesis];
   double mom = isp.momentum().mag();
   double beta = mom/sqrt(mom*mom+mass*mass);
 

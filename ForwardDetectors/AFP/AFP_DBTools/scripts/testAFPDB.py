@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # file   testAFPDB.py
 # author Petr Balek <petr.balek@cern.ch> (with a lot of inspiration from Tomasz Bold)
@@ -65,9 +65,6 @@ def testAFPDBCfg(flags):
 if __name__ == "__main__":
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
-
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
 
     #flags.Input.Files = [] # can hardcode file
     # if you have issues wiht data dependencies and want to debug it

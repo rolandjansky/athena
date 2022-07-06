@@ -150,7 +150,7 @@ class Logic(object):
 
     def conditions(self, include_internal=False):
         cond = set([])
-        if self.condition is not None:
+        if hasattr(self,'condition') and self.condition is not None:
             from .CTPCondition import InternalTrigger
             if isinstance(self.condition, InternalTrigger):
                 if include_internal:

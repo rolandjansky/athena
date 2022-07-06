@@ -57,25 +57,14 @@ def METCfg(inputFlags):
     if inputFlags.MET.WritetoAOD:
         result.merge(addToAOD(inputFlags, outputList))
 
-    # Check if we're being called from the old-style (Run 2) config and adjust accordingly
-    import inspect
-    stack = inspect.stack()
-    if len(stack) >= 2 and stack[1].function == 'CAtoGlobalWrapper':
-        for el in result._allSequences:
-            el.name = "TopAlg"
-
     return result
 
 
 if __name__=="__main__":
-    # Setting needed for the ComponentAccumulator to do its thing
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=True
-
     # Set message levels
-    msgLvl = "DEBUG"
     from AthenaCommon.Logging import log
-    log.setLevel(msgLvl)
+    from AthenaCommon.Constants import DEBUG
+    log.setLevel(DEBUG)
 
     # Config flags steer the job at various levels
     from AthenaConfiguration.AllConfigFlags import ConfigFlags

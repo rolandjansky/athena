@@ -13,7 +13,7 @@
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
 LArAlignHelper::LArAlignHelper()
-  : AthMessaging(Athena::getMessageSvc(), "LArAlignHelper")
+  : AthMessaging("LArAlignHelper")
 {
 }
 

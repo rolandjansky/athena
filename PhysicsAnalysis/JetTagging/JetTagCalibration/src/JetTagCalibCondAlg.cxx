@@ -592,7 +592,7 @@ namespace Analysis {
                   ATH_MSG_VERBOSE("#BTAG# Smoothing histogram " << hname << " ...");
                   smoothAndNormalizeHistogram(h, hname);
                 }
-                writeCdo->addHisto(i,fname, std::move(std::unique_ptr<TH1>(h)));
+                writeCdo->addHisto(i,fname, std::unique_ptr<TH1>(h));
               }
           } else {
             ATH_MSG_WARNING("#BTAG# TObject can not be loaded. Error: histogram "<<hFullName

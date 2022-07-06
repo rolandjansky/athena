@@ -14,9 +14,3 @@ atlas_add_component( MuonMDT_Cabling
                      LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel StoreGateLib MuonIdHelpersLib 
                                     MuonCablingData AthenaPoolUtilities MuonCondSvcLib PathResolver MuonReadoutGeometry SGTools )
 
-
-atlas_install_python_modules( python/*.py )
-atlas_add_test( MdtCabling_Run2Data
-                  SCRIPT python -m MuonMDT_Cabling.MdtCablingTester
-                  PROPERTIES TIMEOUT 600
-                  POST_EXEC_SCRIPT nopost.sh)

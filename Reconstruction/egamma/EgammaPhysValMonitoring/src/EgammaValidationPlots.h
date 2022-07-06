@@ -13,8 +13,8 @@
 class EgammaValidationPlots:public PlotBase {
     public:
       EgammaValidationPlots(PlotBase* pParent, const std::string& sDir);
-      void fill(const xAOD::Electron& electron) const;
-      void fill(const xAOD::Photon& photon) const;
+      void fill(const xAOD::Electron& electron);
+      void fill(const xAOD::Photon& photon);
       
       // Reco only information
       Trk::ParamPlots                 m_oElectronAllPlots;

@@ -46,21 +46,21 @@ namespace MuonCombined {
                              const EventContext& ctx) const override;
 
     private:
-        std::unique_ptr<Trk::Track> buildCombinedTrack(const Trk::Track& indetTrack, const Trk::Track& spectrometerTrack,
-                                                       const Trk::Track* extrapolatedTrack, const EventContext& ctx) const;
+        std::unique_ptr<Trk::Track> buildCombinedTrack(const EventContext& ctx, const Trk::Track& indetTrack, const Trk::Track& spectrometerTrack,
+                                                       const Trk::Track* extrapolatedTrack) const;
 
-        bool combinedTrackQualityCheck(const Trk::Track& combinedTrack, const Trk::Track& indetTrack, const EventContext& ctx) const;
+        bool combinedTrackQualityCheck(const EventContext& ctx, const Trk::Track& combinedTrack, const Trk::Track& indetTrack) const;
 
-        std::unique_ptr<Trk::Track> evaluateMatchProperties(const Trk::Track* combinedTrack, CombinedFitTag& tag,
-                                                            const xAOD::TrackParticle& idTrackParticle, const EventContext& ctx) const;
+        std::unique_ptr<Trk::Track> evaluateMatchProperties(const EventContext& ctx, const Trk::Track* combinedTrack, CombinedFitTag& tag,
+                                                            const xAOD::TrackParticle& idTrackParticle) const;
 
-        bool extrapolatedNeedsRefit(const Trk::Track& combTrack, const Trk::Track* extrTrack, const EventContext& ctx) const;
+        bool extrapolatedNeedsRefit(const EventContext& ctx, const Trk::Track& combTrack, const Trk::Track* extrTrack) const;
 
         bool bestMatchChooser(const InDetCandidate& curCandidate, const CombinedFitTag& curTag, const Trk::Track& curTrack,
                               const Trk::Track* curMETrack, const InDetCandidate& bestCandidate, const CombinedFitTag& bestTag,
                               const Trk::Track& bestTrack, const Trk::Track* bestMETrack) const;
 
-        void dumpCaloEloss(const Trk::Track* track, const std::string& txt, const EventContext& ctx) const;
+        void dumpCaloEloss(const EventContext& ctx, const Trk::Track* track, const std::string& txt) const;
 
         ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 

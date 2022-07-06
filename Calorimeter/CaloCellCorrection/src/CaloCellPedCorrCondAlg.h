@@ -23,7 +23,7 @@ class CaloCellPedCorrCondAlg: public AthReentrantAlgorithm {
   StatusCode initialize() override final;
   StatusCode execute(const EventContext& ctx) const override final;
   StatusCode finalize() override final {return StatusCode::SUCCESS;}
-
+  virtual bool isReEntrant() const override final { return false; }
 
  private:
   //SG Keys and other properties:

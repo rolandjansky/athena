@@ -1,7 +1,8 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
-from AthenaConfiguration.Enums import BeamType, ProductionStep
+from AthenaConfiguration.Enums import BeamType, ProductionStep, LHCPeriod
+    
 import re
 
 # Some comments from Ed about existing flags
@@ -45,7 +46,7 @@ def createMuonConfigFlags():
     mcf.addFlag("Muon.doRPCClusterSegmentFinding", False) # Run cluster segment finding
     mcf.addFlag("Muon.prdToxAOD", False) # Run clusterization
     mcf.addFlag("Muon.rpcRawToxAOD", False) # Add RPC RDO to xAOD
-    mcf.addFlag("Muon.doMSVertex", False) # Run MS vertex (arXiv:1311.7070)
+    mcf.addFlag("Muon.doMSVertex", True) # Run MS vertex (arXiv:1311.7070)
     # mcf.addFlag("Muon.doDigitization", False) # TODO rename? Re-run muon digitization on-the-fly just before reconstruction. Needs DIGITS as input file.
     # mcf.addFlag("Muon.doSegmentsOnly", False) # Stop reconstruction after segment making. Typically used when making Calibration Ntuple. TODO surely redundant?
     
@@ -56,7 +57,7 @@ def createMuonConfigFlags():
     mcf.addFlag("Muon.useAlignmentCorrections",True) # Apply alignment corrections to MuonGeoModel. The corrections are read from a COOL database
     mcf.addFlag("Muon.useWireSagCorrections",False) # tApply wire sag corrections.
     
-    # makePRDs - surely this is top level and redundant with makeRIO?
+    mcf.addFlag("Muon.makePRDs",True) # Disable when e.g. re-running from ESD
     
     # MuonStandaloneFlags.py 
     mcf.addFlag("Muon.printSummary", False) # Print out a summary for each event at each reco stage
@@ -76,6 +77,8 @@ def createMuonConfigFlags():
     mcf.addFlag("Muon.useTrackSegmentMatching", True )
     mcf.addFlag("Muon.runCommissioningChain", lambda prevFlags: ( (prevFlags.Detector.EnableMM or prevFlags.Detector.EnablesTGC) \
                                                                  and prevFlags.Beam.Type is BeamType.Collisions) )
+    
+    mcf.addFlag("Muon.applyMMPassivation", lambda prevFlags: prevFlags.GeoModel.Run>=LHCPeriod.Run3 and not prevFlags.Common.isOnline )
     # CalibFlags
     mcf.addFlag("Muon.Calib.readMDTCalibFromBlob", True)  # Read mdt tube calibration from blob-folders
     mcf.addFlag("Muon.Calib.correctMdtRtForBField", lambda prevFlags : (prevFlags.Input.isMC is False and prevFlags.Beam.Type is BeamType.Collisions)) # Apply B-field correction to drift times only for collision data (as done in https://acode-browser1.usatlas.bnl.gov/lxr/source/athena/MuonSpectrometer/MuonCnv/MuonCnvExample/python/MuonCalibFlags.py#0028)

@@ -347,13 +347,12 @@ DetFlags.writeRIOPool.all_setOff()
 
 # temporary fix to ensure TRT will record hits if using FATRAS
 # this should eventually be removed when it is configured properly in ISF
-if hasattr(runArgs, 'simulator') and runArgs.simulator.find('ATLFASTIIF')>=0:
+if hasattr(runArgs, 'simulator') and (runArgs.simulator.find('ATLFASTIIF')>=0 or runArgs.simulator.find('ATLFAST3F')>=0):
     from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
     TrkDetFlags.TRT_BuildStrawLayers=True
-    fast_chain_log.info('Enabled TRT_BuildStrawLayers to get hits in ATLFASTIIF')
+    fast_chain_log.info('Enabled TRT_BuildStrawLayers to get hits in ATLFASTIIF or ATLFAST3F')
     # BCM should be off for FATRAS simulators
-    DetFlags.simulate.BCM_setOff()
-    DetFlags.digitize.BCM_setOff()
+    DetFlags.BCM_setOff()
 
 
 DetFlags.Print()
@@ -495,12 +494,8 @@ def HasInputFiles(runArgs, key):
     return False
 
 ## Low Pt minbias set-up
-bkgArgName="LowPtMinbiasHitsFile"
-if hasattr(runArgs, "inputLowPtMinbiasHitsFile"):
-    bkgArgName="inputLowPtMinbiasHitsFile"
-if HasInputFiles(runArgs, bkgArgName):
-    exec("bkgArg = runArgs."+bkgArgName)
-    digitizationFlags.LowPtMinBiasInputCols = makeBkgInputCol(bkgArg,
+if HasInputFiles(runArgs, "inputLowPtMinbiasHitsFile"):
+    digitizationFlags.LowPtMinBiasInputCols = makeBkgInputCol(runArgs.inputLowPtMinbiasHitsFile,
                                                               digitizationFlags.numberOfLowPtMinBias.get_Value(), True, fast_chain_log)
 if digitizationFlags.LowPtMinBiasInputCols.statusOn:
     digitizationFlags.doLowPtMinBias = True
@@ -508,15 +503,11 @@ else:
     digitizationFlags.doLowPtMinBias = False
 
 ## High Pt minbias set-up
-bkgArgName="HighPtMinbiasHitsFile"
-if hasattr(runArgs, "inputHighPtMinbiasHitsFile"):
-    bkgArgName="inputHighPtMinbiasHitsFile"
-if HasInputFiles(runArgs, bkgArgName):
-    exec("bkgArg = runArgs."+bkgArgName)
+if HasInputFiles(runArgs, "inputHighPtMinbiasHitsFile"):
     if(digitizationFlags.HighPtMinBiasInputColOffset.get_Value()<0):
         #Calculate a pseudo random offset into the collection from the jobNumber
-        digitizationFlags.HighPtMinBiasInputColOffset = getInputColOffset(bkgArg, runArgs.jobNumber, fast_chain_log)
-    digitizationFlags.HighPtMinBiasInputCols = makeBkgInputCol(bkgArg,
+        digitizationFlags.HighPtMinBiasInputColOffset = getInputColOffset(runArgs.inputHighPtMinbiasHitsFile, runArgs.jobNumber, fast_chain_log)
+    digitizationFlags.HighPtMinBiasInputCols = makeBkgInputCol(runArgs.inputHighPtMinbiasHitsFile,
                                                                digitizationFlags.numberOfHighPtMinBias.get_Value(), True, fast_chain_log,
                                                                digitizationFlags.HighPtMinBiasInputColOffset.get_Value())
 if digitizationFlags.HighPtMinBiasInputCols.statusOn:
@@ -525,12 +516,8 @@ else:
     digitizationFlags.doHighPtMinBias = False
 
 ## Cavern Background set-up
-bkgArgName="cavernHitsFile"
-if hasattr(runArgs, "inputCavernHitsFile"):
-    bkgArgName="inputCavernHitsFile"
-if HasInputFiles(runArgs, bkgArgName):
-    exec("bkgArg = runArgs."+bkgArgName)
-    digitizationFlags.cavernInputCols = makeBkgInputCol(bkgArg,
+if HasInputFiles(runArgs, "inputCavernHitsFile"):
+    digitizationFlags.cavernInputCols = makeBkgInputCol(runArgs.inputCavernHitsFile,
                                                         digitizationFlags.numberOfCavern.get_Value(), (not digitizationFlags.cavernIgnoresBeamInt.get_Value()), fast_chain_log)
 if digitizationFlags.cavernInputCols.statusOn:
     digitizationFlags.doCavern = True
@@ -538,12 +525,8 @@ else:
     digitizationFlags.doCavern = False
 
 ## Beam Halo set-up
-bkgArgName="beamHaloHitsFile"
-if hasattr(runArgs, "inputBeamHaloHitsFile"):
-    bkgArgName="inputBeamHaloHitsFile"
-if HasInputFiles(runArgs, bkgArgName):
-    exec("bkgArg = runArgs."+bkgArgName)
-    digitizationFlags.beamHaloInputCols = makeBkgInputCol(bkgArg,
+if HasInputFiles(runArgs, "inputBeamHaloHitsFile"):
+    digitizationFlags.beamHaloInputCols = makeBkgInputCol(runArgs.inputBeamHaloHitsFile,
                                                           digitizationFlags.numberOfBeamHalo.get_Value(), True, fast_chain_log)
 if digitizationFlags.beamHaloInputCols.statusOn:
     digitizationFlags.doBeamHalo = True
@@ -551,12 +534,8 @@ else:
     digitizationFlags.doBeamHalo = False
 
 ## Beam Gas set-up
-bkgArgName="beamGasHitsFile"
-if hasattr(runArgs, "inputBeamGasHitsFile"):
-    bkgArgName="inputBeamGasHitsFile"
-if HasInputFiles(runArgs, bkgArgName):
-    exec("bkgArg = runArgs."+bkgArgName)
-    digitizationFlags.beamGasInputCols = makeBkgInputCol(bkgArg,
+if HasInputFiles(runArgs, "inputBeamGasHitsFile"):
+    digitizationFlags.beamGasInputCols = makeBkgInputCol(runArgs.inputBeamGasHitsFile,
                                                          digitizationFlags.numberOfBeamGas.get_Value(), True, fast_chain_log)
 if digitizationFlags.beamGasInputCols.statusOn:
     digitizationFlags.doBeamGas = True
@@ -987,6 +966,12 @@ if hasattr(runArgs,"preDigiExec"):
 if hasattr(runArgs,"preDigiInclude"):
     for fragment in runArgs.preDigiInclude:
         include(fragment)
+
+# Add TruthJet containers
+if DetFlags.Truth_on():
+    digitizationFlags.experimentalDigi += ['PileUpAntiKt4TruthJets']
+    digitizationFlags.experimentalDigi += ['PileUpAntiKt6TruthJets']
+
 
 # Sync again
 syncDetFlagsAndDigitizationJobProperties()

@@ -20,6 +20,7 @@ public:
   virtual uint64_t getPattern(const xAOD::eFexTauRoI& eTau,
                               const ThrVec& menuThresholds,
                               const TrigConf::L1ThrExtraInfoBase& menuExtraInfo) const override;
+
 private:
   SG::ReadDecorHandleKey<xAOD::eFexTauRoIContainer> m_jTauLinkKey {
     this, "jTauLinkKey", "L1_cTauRoI.jTauLink",

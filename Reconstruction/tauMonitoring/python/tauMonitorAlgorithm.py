@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file tauMonitorAlgorithm.py
@@ -189,7 +189,7 @@ def tauMonitoringConfig(inputFlags):
 
 
             #potentialHigh Pt replacement
-            igroup.defineHistogram(namer('tauEtaEt15,tauPhiEt15','tauPhiVsEta_et15','',postfix), type='TH2F', title='Eta Vs Et;Eta;Phi', 
+            igroup.defineHistogram(namer('tauEtaEt15,tauPhiEt15','tauPhiVsEta_et15','',postfix), type='TH2F', title='Eta Vs phi (Et>15GeV);Eta;Phi', 
                xbins=30,xmin=-2.55,xmax=2.55,ybins=32,ymin=PHIMIN,ymax=PHIMAX)
 
             igroup.defineHistogram(namer('nTauCandidates', 'nTauCandidates',"",postfix), title='Number of tau candidates;Number of Taus per Event', 
@@ -257,6 +257,22 @@ def tauMonitoringConfig(inputFlags):
 
             igroup.defineHistogram(namer('NumTracksRNNMedium','NumTracks','Identification_RNNMedium',postfix), title='Number Of Tracks for Tau Candidates (RNNMedium);Number Of Tracks;Number Of Candidates',
                 xbins=21, xmin=-0.5, xmax=20.5,path=folder+"Identification/RNNMedium")
+
+            igroup.defineHistogram(namer('tauPhiRNNTight','phi','Identification_RNNTight',postfix), title='Phi of tau candidates ( RNNTight) ;Phi;Number of Candidates',
+                xbins=65, xmin=PHIMIN-0.098174/2., xmax=PHIMAX+0.098174/2., path=folder+"Identification/RNNTight" )
+
+            igroup.defineHistogram(namer('tauEtaRNNTight','eta','Identification_RNNTight',postfix), title='Eta of tau candidates ( RNNTight) ;Eta;Number of Candidates',
+                xbins=51, xmin=-2.55, xmax=2.55, path=folder+"Identification/RNNTight")
+
+            igroup.defineHistogram(namer('tauEtRNNTight','et','Identification_RNNTight',postfix), title='Et of tau candidates;Transverse Energy (GeV);Number of Candidates',
+                xbins=60, xmin=0., xmax=300.,path=folder+"Identification/RNNTight")
+
+            igroup.defineHistogram(namer('NumTracksRNNTight','NumTracks','Identification_RNNTight',postfix), title='Number Of Tracks for Tau Candidates (RNNTight);Number Of Tracks;Number Of Candidates',
+                xbins=21, xmin=-0.5, xmax=20.5,path=folder+"Identification/RNNTight")
+
+
+
+
             igroup.defineHistogram(namer('tauPhiEt15RNNLoose','phi','Identification_RNNLoose15GeV',postfix), title='Phi of tau candidates (Et>15, RNNLoose) ;Phi;Number of Candidates',
                 xbins=65, xmin=PHIMIN-0.098174/2., xmax=PHIMAX+0.098174/2., path=folder+"Identification/RNNLoose15GeV" )
 
@@ -583,10 +599,6 @@ def tauMonitoringConfig(inputFlags):
     # return result
 
 if __name__=='__main__':
-    # Setup the Run III behavior
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
-
     # Setup logs
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import INFO

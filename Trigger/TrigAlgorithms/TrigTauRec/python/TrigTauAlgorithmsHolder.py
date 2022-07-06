@@ -9,6 +9,7 @@
 ################################################################################
 
 from AthenaCommon.SystemOfUnits import mm, GeV
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 cached_instances = {}
 
@@ -108,10 +109,8 @@ def getMvaTESEvaluator():
 
     from AthenaCommon.AppMgr import ToolSvc
     from tauRecTools.tauRecToolsConf import MvaTESEvaluator
-    from TrigTauRec.TrigTauFlags import TrigTauFlags
     MvaTESEvaluator = MvaTESEvaluator(name = _name,
-                                      WeightFileName = TrigTauFlags.MvaTESConfig(),
-                                      UseEMoverLC = TrigTauFlags.UseEMoverLC())
+                                      WeightFileName = ConfigFlags.Trigger.Offline.Tau.MvaTESConfig)
 
     ToolSvc += MvaTESEvaluator
     cached_instances[_name] = MvaTESEvaluator
@@ -479,15 +478,9 @@ def getTauJetRNNEvaluator(LLP=False, OutputVarname="RNNJetScore",
     if _name in cached_instances:
         return cached_instances[_name]
 
-    from TrigTauRec.TrigTauFlags import TrigTauFlags
-    if not LLP:
-        NetworkFile0P = TrigTauFlags.JetRNNIDConfig()[0]
-        NetworkFile1P = TrigTauFlags.JetRNNIDConfig()[1]
-        NetworkFile3P = TrigTauFlags.JetRNNIDConfig()[2]
-    else:
-        NetworkFile0P = TrigTauFlags.JetRNNIDConfigLLP()[0]
-        NetworkFile1P = TrigTauFlags.JetRNNIDConfigLLP()[1]
-        NetworkFile3P = TrigTauFlags.JetRNNIDConfigLLP()[2]
+    (NetworkFile0P, NetworkFile1P, NetworkFile3P) = \
+        ConfigFlags.Trigger.Offline.Tau.TauJetRNNConfigLLP if LLP \
+        else ConfigFlags.Trigger.Offline.Tau.TauJetRNNConfig
 
     from AthenaCommon.AppMgr import ToolSvc
     from tauRecTools.tauRecToolsConf import TauJetRNNEvaluator
@@ -527,18 +520,17 @@ def getTauWPDecoratorJetRNN(LLP=False):
 
     from AthenaCommon.AppMgr import ToolSvc
     from tauRecTools.tauRecToolsConf import TauWPDecorator
-    from TrigTauRec.TrigTauFlags import TrigTauFlags
-    
+
     # currently the target efficiencies are the same for regular tau ID and LLP tau ID
     # if we need different WPs, we can define new flags
-    if not LLP:        
-        flatteningFile0Prong = TrigTauFlags.JetRNNIDWPConfig()[0]
-        flatteningFile1Prong = TrigTauFlags.JetRNNIDWPConfig()[1]
-        flatteningFile3Prong = TrigTauFlags.JetRNNIDWPConfig()[2]
-    else:
-        flatteningFile0Prong = TrigTauFlags.JetRNNIDWPConfigLLP()[0]
-        flatteningFile1Prong = TrigTauFlags.JetRNNIDWPConfigLLP()[1]
-        flatteningFile3Prong = TrigTauFlags.JetRNNIDWPConfigLLP()[2]
+
+    (flatteningFile0Prong, flatteningFile1Prong, flatteningFile3Prong) = \
+        ConfigFlags.Trigger.Offline.Tau.TauJetRNNWPConfigLLP if LLP \
+        else ConfigFlags.Trigger.Offline.Tau.TauJetRNNWPConfig
+
+    (targetEff0Prong, targetEff1Prong, targetEff3Prong) = \
+        ConfigFlags.Trigger.Offline.Tau.TauJetRNNLLPTargetEff if LLP \
+        else ConfigFlags.Trigger.Offline.Tau.TauJetRNNTargetEff
 
     TauWPDecorator = TauWPDecorator( name=_name,
                                      flatteningFile0Prong = flatteningFile0Prong,
@@ -547,9 +539,9 @@ def getTauWPDecoratorJetRNN(LLP=False):
                                      CutEnumVals =
                                      [ ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigVeryLoose, ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigLoose,
                                        ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigMedium, ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigTight ],
-                                     SigEff0P = [0.98, 0.90, 0.65, 0.50],
-                                     SigEff1P = [0.992, 0.99, 0.965, 0.94],
-                                     SigEff3P = [0.99, 0.98, 0.865, 0.80],
+                                     SigEff0P = targetEff0Prong,
+                                     SigEff1P = targetEff1Prong,
+                                     SigEff3P = targetEff3Prong,
                                      ScoreName = "RNNJetScore",
                                      NewScoreName = "RNNJetScoreSigTrans",
                                      DefineWPs = True )

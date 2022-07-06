@@ -14,7 +14,6 @@
 #include "MCTruth/TrackHelper.h"
 #include "MCTruth/TrackInformation.h"
 #include "MCTruthBase/AtlasTrajectory.h"
-#include "AthenaKernel/getMessageSvc.h"
 
 namespace G4UA
 {
@@ -24,7 +23,7 @@ namespace G4UA
   //---------------------------------------------------------------------------
   AthenaTrackingAction::AthenaTrackingAction(MSG::Level lvl,
                                              int secondarySavingLevel, int subDetVolLevel)
-    : AthMessaging(Athena::getMessageSvc(), "AthenaTrackingAction")
+    : AthMessaging("AthenaTrackingAction")
     , m_secondarySavingLevel(secondarySavingLevel)
     , m_subDetVolLevel(subDetVolLevel)
   {

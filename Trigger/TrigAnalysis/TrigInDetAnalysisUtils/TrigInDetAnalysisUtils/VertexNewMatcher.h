@@ -42,7 +42,7 @@ public:
     double n_matches = (double)track_matcher.size();
     double eff = n_matches/refTracks.size();
 
-    // 1-eff as BestMatcher uses lower than threshold, squared as BestMatcer takes d*d
+    // 1-eff as BestMatcher uses lower than threshold, squared as BestMatcher takes d*d
     return (1-eff)*(1-eff);
   };
   

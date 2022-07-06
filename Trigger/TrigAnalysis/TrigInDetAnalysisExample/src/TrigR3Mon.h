@@ -105,7 +105,7 @@ protected:
   std::string              m_releaseMetaData;
 
   bool m_buildNtuple;
-  bool m_mcTruth;
+  bool m_mcTruthIn;
 
   std::string m_analysis_config;
   std::string m_outputFileName;
@@ -127,7 +127,7 @@ protected:
   bool m_fileopen;
 
   /// is this the first event
-  bool m_first; 
+  mutable bool m_first; 
 
   /// use only the highest pt tracks
   bool m_useHighestPT;

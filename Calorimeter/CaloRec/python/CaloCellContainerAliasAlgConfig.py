@@ -1,10 +1,9 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # File: CaloRec/python/CaloCellContainerAliasAlgConfig.py
 # Created: Nov 2019, sss
 # Purpose: Configure CaloCellContainerAliasAlg.
 
-from __future__ import print_function
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
@@ -22,11 +21,8 @@ def CaloCellContainerAliasAlgCfg (flags, alias, cells = 'AllCalo'):
 
 
 if __name__ == "__main__":
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-    ConfigFlags.loadAllDynamicFlags()
 
     only = ['CaloCellContainerAliasAlg_myalias',
             ]

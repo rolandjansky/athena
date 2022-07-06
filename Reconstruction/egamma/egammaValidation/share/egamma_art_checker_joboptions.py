@@ -38,16 +38,16 @@ Tight_Photon = CfgMgr.AsgPhotonIsEMSelector(
     name="Tight_Photon",
     WorkingPoint="TightPhoton")
 
-IsoFixedCutTight = CfgMgr.CP__IsolationSelectionTool(
-    name="IsoFixedCutTight", 
+PhIsoTight = CfgMgr.CP__IsolationSelectionTool(
+    name="PhIsoTight",
     PhotonWP="FixedCutTight")
 
-IsoFixedCutTightCaloOnly = CfgMgr.CP__IsolationSelectionTool(
-    name="IsoFixedCutTightCaloOnly",
-    PhotonWP="FixedCutTightCaloOnly")
+PhIsoTightCaloOnly = CfgMgr.CP__IsolationSelectionTool(
+    name="PhIsoTightCaloOnly",
+    PhotonWP="TightCaloOnly")
 
-IsoFixedCutLoose = CfgMgr.CP__IsolationSelectionTool(
-    name="IsoFixedCutLoose",
+PhIsoLoose = CfgMgr.CP__IsolationSelectionTool(
+    name="PhIsoLoose",
     PhotonWP="FixedCutLoose")
 
 # Ouput Message Level
@@ -84,9 +84,9 @@ job += CfgMgr.EgammaMonitoring(
     TightLH=TightLH,
     Loose_Photon=Loose_Photon,
     Tight_Photon=Tight_Photon,
-    IsoFixedCutTight=IsoFixedCutTight,
-    IsoFixedCutLoose=IsoFixedCutLoose,
-    IsoFixedCutTightCaloOnly=IsoFixedCutTightCaloOnly,
+    IsoFixedCutTight=PhIsoTight,
+    IsoFixedCutLoose=PhIsoLoose,
+    IsoFixedCutTightCaloOnly=PhIsoTightCaloOnly,
 )
 
 

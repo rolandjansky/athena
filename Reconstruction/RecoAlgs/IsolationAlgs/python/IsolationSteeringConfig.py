@@ -38,18 +38,9 @@ def IsolationSteeringCfg(flags, name = 'IsolationSteering'):
         from IsolationAlgs.IsoOutputConfig import IsoOutputCfg
         acc.merge(IsoOutputCfg(flags))
 
-    # To use isolation CA within standard config
-    import inspect
-    stack = inspect.stack()
-    if len(stack) >= 2 and stack[1].function == 'CAtoGlobalWrapper':
-        for el in acc._allSequences:
-            el.name = "TopAlg"
-
     return acc
 
 if __name__ == "__main__":
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = True
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
     from AthenaConfiguration.ComponentAccumulator import printProperties
     from AthenaConfiguration.TestDefaults import defaultTestFiles

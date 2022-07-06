@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // class header include
@@ -74,14 +74,14 @@ namespace Simulation
     return StatusCode::SUCCESS;
   }
 
-  StatusCode GenEventBeamEffectBooster::initializeGenEvent(CLHEP::HepLorentzRotation& transform) const
+  StatusCode GenEventBeamEffectBooster::initializeGenEvent(CLHEP::HepLorentzRotation& transform, const EventContext& ctx) const
   {
     // Reset the transformation
     transform = CLHEP::HepLorentzRotation(); //TODO drop this
 
     // Prepare the random engine
-    m_randomEngine->setSeed( name(), Gaudi::Hive::currentContext() );
-    CLHEP::HepRandomEngine* randomEngine(*m_randomEngine);
+    m_randomEngine->setSeed( name(), ctx );
+    CLHEP::HepRandomEngine* randomEngine(m_randomEngine->getEngine(ctx));
 
     // Create beam 1 and 2 momenta, including divergence and crossing-angle effects
     const double px1 = m_pbeam1 * CLHEP::RandGaussZiggurat::shoot(randomEngine, m_xing_x_b2, m_sigma_px_b2);
@@ -136,11 +136,11 @@ namespace Simulation
   }
 
   /** modifies (displaces) the given GenEvent */
-  StatusCode GenEventBeamEffectBooster::manipulate(HepMC::GenEvent& ge) const
+  StatusCode GenEventBeamEffectBooster::manipulate(HepMC::GenEvent& ge, const EventContext& ctx) const
   {
     // Obtain the transformation
     CLHEP::HepLorentzRotation transform = CLHEP::HepLorentzRotation();
-    ATH_CHECK( initializeGenEvent(transform) );
+    ATH_CHECK( initializeGenEvent(transform, ctx) );
 
     for( auto particleIter: ge) {
       this->boostParticle(particleIter, transform);

@@ -14,11 +14,10 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
+
 #include <cmath>
 
 namespace {
-// static particle masses
-const Trk::ParticleMasses s_particleMasses{};
 // statics doubles
 constexpr double s_ka_BetheBloch = 30.7075 * Gaudi::Units::MeV;
 
@@ -49,8 +48,8 @@ dEdXBetheBloch(const Trk::MaterialProperties& mat,
   // 16 eV * Z**0.9 - bring to MeV
   double iPot = 16.e-6 * std::pow(mat.averageZ(), 0.9);
   // and the electron mass in MeV
-  double me = s_particleMasses.mass[Trk::electron];
-  double m = s_particleMasses.mass[particle];
+  double me = Trk::ParticleMasses::mass[Trk::electron];
+  double m = Trk::ParticleMasses::mass[particle];
   double eta2 = beta * gamma;
 
   // K/A*Z = 0.5 * 30.7075MeV/(g/mm2) * Z/A * rho[g/mm3]  / scale to mm by this
@@ -108,7 +107,7 @@ dEdXBetheHeitler(const Trk::MaterialProperties& mat,
   }
 
   double mfrac =
-    (s_particleMasses.mass[Trk::electron] / s_particleMasses.mass[particle]);
+    (Trk::ParticleMasses::mass[Trk::electron] / Trk::ParticleMasses::mass[particle]);
   mfrac *= mfrac;
 
   return initialE / mat.x0() * mfrac;
@@ -155,7 +154,7 @@ Trk::EnergyLossUpdator::dEdX(const MaterialProperties& mat,
   }
 
   // preparation of kinetic constants
-  double m = s_particleMasses.mass[particle];
+  double m = Trk::ParticleMasses::mass[particle];
   double E = std::sqrt(p * p + m * m);
   double beta = p / E;
   double gamma = E / m;
@@ -250,8 +249,8 @@ Trk::EnergyLossUpdator::energyLoss(const MaterialProperties& mat,
 
   // Code below will not be used if the parameterization of TrkUtils is used
 
-  double m = s_particleMasses.mass[particle];
-  double mfrac = s_particleMasses.mass[Trk::electron] / m;
+  double m = Trk::ParticleMasses::mass[particle];
+  double mfrac = Trk::ParticleMasses::mass[Trk::electron] / m;
   double mfrac2 = mfrac * mfrac;
   double E = std::sqrt(p * p + m * m);
   // relativistic properties

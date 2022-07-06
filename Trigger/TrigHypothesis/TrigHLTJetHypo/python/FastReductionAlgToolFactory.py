@@ -51,6 +51,7 @@ class FastReductionAlgToolFactory:
             'bdips': [CompFactory.TrigJetConditionConfig_bdips, 0],
             'clean': [CompFactory.TrigJetConditionConfig_clean, 0],
             'all': [CompFactory.TrigJetConditionConfig_acceptAll, 0],
+            'timing': [CompFactory.TrigJetConditionConfig_timing, 0],
             }
 
         for var in jetMoments:

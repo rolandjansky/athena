@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 """Define method to construct configured private Calo bad channels tool"""
 
@@ -31,8 +31,6 @@ def CaloBadChanToolCfg(flags, **kwargs):
 
 if __name__ == "__main__":
 
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = True
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     from AthenaCommon.Logging import log

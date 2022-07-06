@@ -43,6 +43,10 @@ def createEgammaConfigFlags():
                  lambda prevFlags: prevFlags.Egamma.doCentral or
                  prevFlags.Egamma.doForward)
 
+    # Slim GSF Trk::Tracks
+    egcf.addFlag("Egamma.slimGSFTrkTracks",
+                 lambda prevFlags: prevFlags.Egamma.doTracking)
+
     # The cluster corrections/calib
     egcf.addFlag("Egamma.Calib.ClusterCorrectionVersion",
                  'v12phiflip_noecorrnogap')

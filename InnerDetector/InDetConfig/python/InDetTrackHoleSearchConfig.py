@@ -44,6 +44,11 @@ def TrigHoleSearchToolCfg(flags, name="InDetTrigHoleSearchTool", **kwargs):
       result.addPublicTool(extrapolatorTool)
       kwargs.setdefault("Extrapolator", extrapolatorTool)
 
+  if 'BoundaryCheckTool' not in kwargs:
+    from InDetConfig.InDetBoundaryCheckToolConfig import InDetBoundaryCheckToolCfg
+    BoundaryCheckTool = result.popToolsAndMerge(InDetBoundaryCheckToolCfg(flags))
+    kwargs.setdefault('BoundaryCheckTool', BoundaryCheckTool)
+
   indet_hole_search_tool = CompFactory.InDet.InDetTrackHoleSearchTool(name, **kwargs)
   result.setPrivateTools(indet_hole_search_tool)
   return result
@@ -64,4 +69,16 @@ def ITkTrackHoleSearchToolCfg(flags, name='ITkHoleSearchTool', **kwargs):
   kwargs.setdefault("CountDeadModulesAfterLastHit", True)
 
   result.setPrivateTools(CompFactory.InDet.InDetTrackHoleSearchTool(name, **kwargs))
+  return result
+
+def AtlasTrackHoleSearchToolCfg(flags, name = 'AtlasHoleSearchTool', **kwargs):
+  result = ComponentAccumulator()
+
+  if 'Extrapolator' not in kwargs:
+      from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+      extrapolatorTool = result.popToolsAndMerge(AtlasExtrapolatorCfg(flags))
+      result.addPublicTool(extrapolatorTool)
+      kwargs.setdefault("Extrapolator", extrapolatorTool)
+
+  result.setPrivateTools(result.popToolsAndMerge(InDetTrackHoleSearchToolCfg(flags, name, **kwargs)))
   return result

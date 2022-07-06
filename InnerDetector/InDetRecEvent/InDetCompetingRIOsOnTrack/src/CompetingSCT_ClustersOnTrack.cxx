@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -45,7 +45,7 @@ m_globalPosition{},
 m_containedChildRots{childrots}
 {
   // initialize local position and error matrix
-  setLocalParametersAndErrorMatrix();
+  CompetingSCT_ClustersOnTrack::setLocalParametersAndErrorMatrix();
 
 }
 

@@ -19,7 +19,8 @@ def createTrigEgammaConfigFlags():
     flags.addFlag('Trigger.egamma.clusterCorrectionVersion', 'v12phiflip_noecorrnogap')
 
     # tune of MVA
-    flags.addFlag('Trigger.egamma.calibMVAVersion', 'egammaMVACalib/online/v6')
+    flags.addFlag('Trigger.egamma.Calib.precCaloMVAVersion'  , 'egammaMVACalib/online/v7')
+    flags.addFlag('Trigger.egamma.Calib.precEgammaMVAVersion', 'egammaMVACalib/online/v7')
 
     return flags
 

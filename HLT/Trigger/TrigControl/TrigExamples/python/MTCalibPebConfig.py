@@ -142,7 +142,7 @@ def l1_seq_cfg(flags, options=default_options):
     generateL1Menu(flags)
 
     # Need to set HLT menu file name here to avoid conflict when merging with HLT sequence CA
-    acc.getService("HLTConfigSvc").JsonFileName = _menu_file_name
+    acc.getService("HLTConfigSvc").HLTJsonFileName = _menu_file_name
 
     return acc
 
@@ -271,7 +271,7 @@ def hlt_result_cfg(flags, hypo_algs):
     # Give the menu json name to HLTConfigSvc
     from TrigConfigSvc.TrigConfigSvcCfg import HLTConfigSvcCfg
     hltConfigSvcCfg = HLTConfigSvcCfg(flags)
-    hltConfigSvcCfg.getService("HLTConfigSvc").JsonFileName = menu_json
+    hltConfigSvcCfg.getService("HLTConfigSvc").HLTJsonFileName = menu_json
     acc.merge(hltConfigSvcCfg)
 
     # Tool adding stream tags to HLT result

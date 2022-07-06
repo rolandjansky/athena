@@ -557,24 +557,10 @@ if rec.doWriteBS():
 # write the background word into EventInfo (Jamie Boyd)
 # need to go here for ordering reasons...
 if rec.doESD() and not rec.readESD() and rec.doBeamBackgroundFiller():
-    try:
-        from AthenaCommon.Configurable import Configurable
-        Configurable.configurableRun3Behavior=1
-        from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        from RecBackgroundAlgs.BackgroundAlgsConfig import BackgroundAlgsCfg
-        ca=BackgroundAlgsCfg(ConfigFlags)
-
-        for el in ca._allSequences:
-            el.name = "TopAlg"
-
-            appendCAtoAthena(ca)
-
-    except Exception:
-        treatException("Could not translate BackgroundAlgsCfg to old cfg")
-    finally:
-         Configurable.configurableRun3Behavior=0
-    pass
+    from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    from RecBackgroundAlgs.BackgroundAlgsConfig import BackgroundAlgsCfg
+    CAtoGlobalWrapper(BackgroundAlgsCfg, ConfigFlags)
 
 
 # ----------------------------------------------------------------------------
@@ -1280,8 +1266,10 @@ if rec.doWriteBS():
     ServiceMgr.ByteStreamCnvSvc.IsSimulation = True
 
     # LVL1
-    from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1ByteStreamEncodersRecExSetup
-    L1ByteStreamEncodersRecExSetup()  # Configure BS encoder for RoIBResult
+    from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+    from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1TriggerByteStreamEncoderCfg
+    CAtoGlobalWrapper(L1TriggerByteStreamEncoderCfg, ConfigFlags)  # BS encoder for RoIBResult
+
     StreamBSFileOutput.ItemList += [ "ROIB::RoIBResult#*" ]
 
     StreamBSFileOutput.ItemList += [ "DataVector<LVL1::TriggerTower>#TriggerTowers" ]

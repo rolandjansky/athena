@@ -11,3 +11,4 @@ atlas_install_scripts( python/compareTCTs.py python/UploadAMITag.py python/Uploa
 
 # Install digest reference files for easy access
 atlas_install_data( data/*.ref )
+atlas_install_data( data/*.txt )

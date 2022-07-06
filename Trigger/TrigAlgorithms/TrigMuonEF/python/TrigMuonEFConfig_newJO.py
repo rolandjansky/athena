@@ -14,9 +14,6 @@ def TrigMuonEFTrackIsolationToolCfg(flags, name = "TrigMuonTrackIsoTool", **kwar
     kwargs.setdefault('removeSelf',True)
     kwargs.setdefault('useAnnulus',False)
     kwargs.setdefault('useVarIso',True)
-    # Get the track selection tool
-    trkseltool = CompFactory.InDet.InDetTrackSelectionTool("TrigMuonIsoTrackSelTool")
-    kwargs.setdefault('TrackSelectionTool',trkseltool)
     isoTool = trackIsolation(name, **kwargs)
     acc.setPrivateTools(isoTool)
     return acc

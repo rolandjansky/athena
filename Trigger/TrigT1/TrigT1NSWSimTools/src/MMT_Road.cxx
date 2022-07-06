@@ -1,8 +1,6 @@
 #include "TrigT1NSWSimTools/MMT_Road.h"
-#include "AthenaKernel/getMessageSvc.h"
-#include <cmath>
 
-MMT_Road::MMT_Road(const char sector, const MuonGM::MuonDetectorManager* detManager, const micromegas_t &mm, int xthr, int uvthr, int iroadx, int iroadu, int iroadv): AthMessaging(Athena::getMessageSvc(), "MMT_Road") {
+MMT_Road::MMT_Road(const char sector, const MuonGM::MuonDetectorManager* detManager, const micromegas_t &mm, int xthr, int uvthr, int iroadx, int iroadu, int iroadv) {
   m_sector = sector;
   m_iroad  = iroadx;
   m_iroadx = iroadx;
@@ -12,8 +10,6 @@ MMT_Road::MMT_Road(const char sector, const MuonGM::MuonDetectorManager* detMana
   m_xthr = xthr;
   m_uvthr = uvthr;
 
-  if (iroadu == -1 && iroadv != -1) ATH_MSG_WARNING("iroadu = -1 but iroadv ain't");
-  if (iroadu != -1 && iroadv == -1) ATH_MSG_WARNING("iroadv = -1 but iroadu ain't");
   m_detManager = detManager;
   m_roadSize = mm.roadSize;
   m_roadSizeUpX = mm.nstrip_up_XX;
@@ -87,10 +83,8 @@ bool MMT_Road::containsNeighbors(const MMT_Hit &hit) const {
   double shigh = (R + (this->getRoadSize()*(iroad+1))*this->getPitch() + shift + this->getPitch()/2. + ohigh)/Z;
 
   double slope = hit.getRZSlope();
-  if (this->getSector() != hit.getSector()) {
-    ATH_MSG_DEBUG("Mismatch between road (" << this->getSector() << ") and hit (" << hit.getSector() << ") sectors");
-    return false;
-  }
+  if (this->getSector() != hit.getSector()) return false;
+
   if (slope > 0.) return (slope >= slow && slope < shigh);
   else return (slope >= shigh && slope < slow);
 }

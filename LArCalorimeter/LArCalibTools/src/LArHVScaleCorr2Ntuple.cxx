@@ -8,32 +8,30 @@
 #include "CaloIdentifier/CaloGain.h"
 
 LArHVScaleCorr2Ntuple::LArHVScaleCorr2Ntuple(const std::string& name, ISvcLocator* pSvcLocator): 
-  LArCond2NtupleBase(name, pSvcLocator),
-  m_contKey ("LArHVScaleCorr")
-{ 
-  declareProperty("ContainerKey",m_contKey);
-
-  m_ntTitle="HV Scale Correction";
+  LArCond2NtupleBase(name, pSvcLocator)
+{
+  m_ntTitle="HV Scale Correction"; 
   m_ntpath="/NTUPLES/FILE1/HVSCALE";
-
 }
 
-LArHVScaleCorr2Ntuple::~LArHVScaleCorr2Ntuple() 
-{}
+StatusCode LArHVScaleCorr2Ntuple::initialize() {
+   ATH_CHECK(m_contKey.initialize());
+   return LArCond2NtupleBase::initialize();
+}
 
 StatusCode LArHVScaleCorr2Ntuple::stop() {
  
-  const ILArHVScaleCorr* larHVScaleCorr;
-  StatusCode sc=m_detStore->retrieve(larHVScaleCorr,m_contKey);
-  if (sc!=StatusCode::SUCCESS) {
-    ATH_MSG_ERROR( "Unable to retrieve ILArHVScaleCorr with key " 
-	      << m_contKey << " from DetectorStore" );
-    return StatusCode::FAILURE;
-    } 
+ const EventContext& ctx = Gaudi::Hive::currentContext();
+ SG::ReadCondHandle<ILArHVScaleCorr> hvHdl(m_contKey, ctx);  
+ const ILArHVScaleCorr* larHVScaleCorr = hvHdl.cptr();
+ if(!larHVScaleCorr) {
+    ATH_MSG_WARNING("Could not retrieve the LArHVScaleCorr from CondStore with key: " << m_contKey.key());
+    return StatusCode::SUCCESS;
+ }
 
  NTuple::Item<float> corr;
 
- sc=m_nt->addItem("hvcorr",corr,-1000.,2.);
+ StatusCode sc=m_nt->addItem("hvcorr",corr,-1000.,2.);
  if (sc!=StatusCode::SUCCESS)
    {ATH_MSG_ERROR( "addItem 'corr' failed" );
     return StatusCode::FAILURE;

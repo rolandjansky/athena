@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -25,8 +25,7 @@ def MagneticFieldSvcCfg(flags, **kwargs):
       "name": "AtlasFieldMapCondAlg",
     }
     if flags.Common.isOnline:
-      # online has the map loaded at start and does not use DCS
-      afmArgs.update( LoadMapOnStart = True )
+      # online does not use DCS
       afmArgs.update( UseMapsFromCOOL = False )
     else:
       # UseMapsFromCOOL is default for standard running
@@ -60,8 +59,6 @@ def MagneticFieldSvcCfg(flags, **kwargs):
 if __name__=="__main__":
     # To run this, do e.g. 
     # python ../athena/MagneticField/MagFieldServices/python/MagFieldServicesConfig.py
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
 
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import VERBOSE
@@ -80,8 +77,6 @@ if __name__=="__main__":
     log.verbose(acc)
     cfg.merge(acc)
 
-
-          
     f=open("MagneticFieldSvc.pkl","wb")
     cfg.store(f)
     f.close()

@@ -157,19 +157,21 @@ namespace InDet
         for (unsigned int i = 0; i < vertex->nTrackParticles(); ++i){
           momentum += m_EMExtrapolationTool->getMomentumAtVertex(ctx,*vertex, i);
         }
-
-        vertex->auxdata<float>("px") = momentum.x();
-        vertex->auxdata<float>("py") = momentum.y();
-        vertex->auxdata<float>("pz") = momentum.z();
-
-        if (!m_EMExtrapolationTool->getEtaPhiAtCalo(ctx,vertex, &etaAtCalo, &phiAtCalo))
-        {
+        static const SG::AuxElement::Accessor<float> accx("px");
+        static const SG::AuxElement::Accessor<float> accy("py");
+        static const SG::AuxElement::Accessor<float> accz("pz");
+        accx(*vertex) = momentum.x();
+        accy(*vertex) = momentum.y();
+        accz(*vertex) = momentum.z();
+        if (!m_EMExtrapolationTool->getEtaPhiAtCalo(ctx, vertex, &etaAtCalo, &phiAtCalo)) {
           ATH_MSG_DEBUG("getEtaPhiAtCalo failed!");
         }
 
         // Decorate vertex with etaAtCalo, phiAtCalo
-        vertex->auxdata<float>("etaAtCalo") = etaAtCalo;
-        vertex->auxdata<float>("phiAtCalo") = phiAtCalo;
+        static const SG::AuxElement::Accessor<float> acceta("etaAtCalo");
+        static const SG::AuxElement::Accessor<float> accphi("phiAtCalo");
+        acceta(*vertex) = etaAtCalo;
+        accphi(*vertex) = phiAtCalo;
       }
     }
 

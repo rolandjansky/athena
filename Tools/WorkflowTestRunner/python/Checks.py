@@ -105,7 +105,9 @@ class FrozenTier0PolicyCheck(WorkflowCheck):
         self.logger.info(f"Running {test.ID} Frozen Tier0 Policy Check on {self.format} for {self.max_events} events")
 
         reference_path: Path = test.reference_path
-        diff_rules_file: Path = self.setup.diff_rules_path
+        diff_rules_path: Path = self.setup.diff_rules_path
+        diff_rules_filename: str = f"{test.ID}_{self.format}_diff-exclusion-list.txt"
+        diff_rules_file = None
 
         # Read references from CVMFS
         if self.setup.validation_only:
@@ -113,23 +115,36 @@ class FrozenTier0PolicyCheck(WorkflowCheck):
             reference_revision = references_map[f"{test.ID}"]
             cvmfs_path = Path(references_CVMFS_path)
             reference_path = cvmfs_path / self.setup.release_ID / test.ID / reference_revision
-            diff_rules_file = cvmfs_path / self.setup.release_ID / test.ID
+            diff_rules_path = cvmfs_path / self.setup.release_ID / test.ID
             if not reference_path.exists():
                 self.logger.error("CVMFS reference location does not exist!")
                 return False
 
         self.logger.info(f"Reading the reference file from location {reference_path}")
 
-        diff_rules_file /= f"{self.format}_diff-exclusion-list.txt"
-        if diff_rules_file.exists():
+        # try to get the exclusion list
+        if self.setup.diff_rules_path is None:
+            diff_rules_local_path = test.validation_path / diff_rules_filename
+            subprocess.Popen(["/bin/bash", "-c", f"cd {test.validation_path}; get_files -remove -data {diff_rules_filename}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+            if not diff_rules_local_path.exists():
+                self.logger.info(f"No '{diff_rules_local_path}' file in the release.")
+            else:
+                diff_rules_file = diff_rules_local_path
+
+        if diff_rules_file is None and diff_rules_path is not None:
+            diff_rules_file = diff_rules_path / diff_rules_filename
+
+        if diff_rules_file is not None and diff_rules_file.exists():
             self.logger.info(f"Reading the diff rules file from location {diff_rules_file}")
             exclusion_list = []
             with diff_rules_file.open() as f:
                 for line in f:
-                    exclusion_list.append(r"'{}'".format(line.rstrip()))
+                    stripped_line = line.rstrip()
+                    if stripped_line and stripped_line[0] != '#':
+                        exclusion_list.append(r"'{}'".format(stripped_line))
         else:
             self.logger.info("No diff rules file exists, using the default list")
-            exclusion_list = [r"'index_ref'", r"'(.*)_timings\.(.*)'", r"'(.*)_mems\.(.*)'", r"'(.*)TrigCostContainer(.*)'"]
+            exclusion_list = [r"'index_ref'", r"'(.*)_timings(.*)'", r"'(.*)_mems(.*)'"]
 
         file_name = f"my{self.format}.pool.root"
         reference_file = reference_path / file_name
@@ -137,7 +152,12 @@ class FrozenTier0PolicyCheck(WorkflowCheck):
         log_file = test.validation_path / f"diff-root-{test.ID}.{self.format}.log"
         exclusion_list = " ".join(exclusion_list)
 
-        comparison_command = f"acmd.py diff-root {reference_file} {validation_file} --nan-equal --error-mode resilient --ignore-leaves {exclusion_list} --entries {self.max_events} > {log_file} 2>&1"
+        # TODO: temporary due to issues with some tests
+        extra_args = ""
+        if test.type == WorkflowType.MCReco or test.type == WorkflowType.DataReco:
+            extra_args = "--order-trees"
+
+        comparison_command = f"acmd.py diff-root {reference_file} {validation_file} {extra_args} --nan-equal --mode semi-detailed --error-mode resilient --ignore-leaves {exclusion_list} --entries {self.max_events} > {log_file} 2>&1"
         output, error = subprocess.Popen(["/bin/bash", "-c", comparison_command], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
         output, error = output.decode("utf-8"), error.decode("utf-8")
 
@@ -184,7 +204,7 @@ class AODContentCheck(WorkflowCheck):
         self.logger.info(f"Running {test.ID} AOD content check")
 
         file_name = "myAOD.pool.root"
-        output_name = f"{self.setup.release_ID}_{test.ID}_AOD_content.txt"
+        output_name = f"{test.ID}_AOD_content.txt"
 
         validation_file = test.validation_path / file_name
         validation_output = test.validation_path / output_name
@@ -200,7 +220,7 @@ class AODContentCheck(WorkflowCheck):
         if self.setup.validation_only:
             # try to get the reference
             reference_path = test.validation_path
-            reference_output_name = f"{self.setup.release_ID}_{test.ID}_AOD_content.ref"
+            reference_output_name = f"{test.ID}_AOD_content.ref"
             reference_output = reference_path / reference_output_name
             subprocess.Popen(["/bin/bash", "-c", f"cd {reference_path}; get_files -remove -data {reference_output_name}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
             if not reference_output.exists():
@@ -261,7 +281,7 @@ class AODDigestCheck(WorkflowCheck):
         self.logger.info(f"Running {test.ID} AOD digest")
 
         file_name = "myAOD.pool.root"
-        output_name = f"{self.setup.release_ID}_{test.ID}_AOD_digest.txt"
+        output_name = f"{test.ID}_AOD_digest.txt"
 
         validation_file = test.validation_path / file_name
         validation_output = test.validation_path / output_name
@@ -278,7 +298,7 @@ class AODDigestCheck(WorkflowCheck):
         if self.setup.validation_only:
             # try to get the reference
             reference_path = test.validation_path
-            reference_output_name = f"{self.setup.release_ID}_{test.ID}_AOD_digest.ref"
+            reference_output_name = f"{test.ID}_AOD_digest.ref"
             reference_output = reference_path / reference_output_name
             subprocess.Popen(["/bin/bash", "-c", f"cd {reference_path}; get_files -remove -data {reference_output_name}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
             if not reference_output.exists():

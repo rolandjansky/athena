@@ -1,8 +1,10 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-#include "TrigCompositeUtils/HLTIdentifier.h"
 #include "DecisionSummaryMakerAlg.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
+#include "CxxUtils/phihelper.h"
 
 DecisionSummaryMakerAlg::DecisionSummaryMakerAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : AthReentrantAlgorithm(name, pSvcLocator) {}
@@ -25,6 +27,10 @@ StatusCode DecisionSummaryMakerAlg::initialize() {
   if (m_doCostMonitoring) {
     ATH_CHECK( m_trigCostSvcHandle.retrieve() );
   }
+  ATH_CHECK( m_prescaler.retrieve() );
+  if (!m_monTool.empty()) {
+    ATH_CHECK(m_monTool.retrieve());
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -41,6 +47,7 @@ StatusCode DecisionSummaryMakerAlg::execute(const EventContext& context) const {
   auto container = outputHandle.ptr();
 
   Decision* passRawOutput = newDecisionIn( container, summaryPassNodeName() );
+  Decision* passExpressOutput = newDecisionIn( container, summaryPassExpressNodeName() );
   Decision* prescaledOutput = newDecisionIn( container, summaryPrescaledNodeName() );
 
   DecisionIDContainer allPassingFinalIDs;
@@ -102,6 +109,9 @@ StatusCode DecisionSummaryMakerAlg::execute(const EventContext& context) const {
     }
   }
 
+  // Monitor RoI updates between initial and final RoI
+  monitorRoIs(passRawOutput);
+
   // Get the data from the HLTSeeding, this is where prescales were applied
   SG::ReadHandle<DecisionContainer> hltSeedingSummary( m_hltSeedingSummaryKey, context );
   const Decision* l1SeededChains = nullptr; // Activated by L1
@@ -143,6 +153,19 @@ StatusCode DecisionSummaryMakerAlg::execute(const EventContext& context) const {
     ATH_CHECK(m_trigCostSvcHandle->endEvent(context, costMonOutput, rosMonOutput));
   }
 
+  // Calculate and save express stream prescale decisions
+  // TODO: this involves pointless conversions set<uint> -> vector<HLT::Identifier> -> set<uint>, adapt IPrescalingTool to operate on set<uint>
+  HLT::IDVec allPassingFinalIDsVec{allPassingFinalIDs.begin(),allPassingFinalIDs.end()}; // Convert set to vector
+  HLT::IDVec expressIDsVec;
+  ATH_CHECK( m_prescaler->prescaleChains(context, allPassingFinalIDsVec, expressIDsVec, /*forExpressStream=*/ true) );
+  DecisionIDContainer expressIDs; // Convert vector to set
+  for (const HLT::Identifier& id : expressIDsVec) {
+    expressIDs.insert(id.numeric());
+  }
+  decisionIDs( passExpressOutput ).insert( decisionIDs( passExpressOutput ).end(),
+                                           expressIDs.begin(),
+                                           expressIDs.end() ); // Save this to the output
+
   // Set the algorithm's filter status. This controlls the running of finalisation algs which we only want to execute
   // in events which are accepted by one ore more chains.
   bool filterStatus = true;
@@ -152,4 +175,78 @@ StatusCode DecisionSummaryMakerAlg::execute(const EventContext& context) const {
   setFilterPassed(filterStatus, context );
 
   return StatusCode::SUCCESS;
+}
+
+void DecisionSummaryMakerAlg::monitorRoIs(const TrigCompositeUtils::Decision* terminusNode) const {
+  using namespace TrigCompositeUtils;
+  using RoILinkVec = std::vector<LinkInfo<TrigRoiDescriptorCollection>>;
+
+  auto printDecision = [this](const Decision* d){
+    ATH_MSG_INFO("The decision corresponds to chain(s):");
+    for (const DecisionID id : decisionIDs(d)) {
+      ATH_MSG_INFO("-- " << HLT::Identifier(id).name());
+    }
+  };
+  auto printDecisionAndRoI = [this,&printDecision](const Decision* d, const TrigRoiDescriptor& roi){
+    printDecision(d);
+    ATH_MSG_INFO("and final RoI: " << roi);
+  };
+
+  // Loop over all final RoIs
+  const RoILinkVec allFinalRoIs = findLinks<TrigRoiDescriptorCollection>(terminusNode, roiString(), TrigDefs::lastFeatureOfType);
+  for (const auto& finalRoILink : allFinalRoIs) {
+    // Get the final TrigRoiDescriptor reference
+    if (!finalRoILink.isValid() || *(finalRoILink.link)==nullptr) {
+      ATH_MSG_WARNING("Encountered invalid final RoI link");
+      printDecision(finalRoILink.source);
+      continue;
+    }
+    const TrigRoiDescriptor& finalRoI = **(finalRoILink.link);
+
+    // Skip full-scan
+    if (finalRoI.isFullscan()) {continue;}
+
+    // Get all initial RoIs associated with this final RoI (should be exactly one)
+    const RoILinkVec initialRoIs = findLinks<TrigRoiDescriptorCollection>(finalRoILink.source, initialRoIString(), TrigDefs::lastFeatureOfType);
+
+    // Warn if the number of initial RoIs differs from one
+    if (initialRoIs.empty()) {
+      ATH_MSG_WARNING("Encountered decision node with no " << initialRoIString() << " link");
+      printDecisionAndRoI(finalRoILink.source, finalRoI);
+      continue;
+    }
+    if (initialRoIs.size()>1) {
+      ATH_MSG_WARNING("Encountered decision node with multiple (" << initialRoIs.size() << ") "
+                      << initialRoIString() << " links");
+      printDecisionAndRoI(finalRoILink.source, finalRoI);
+    }
+
+    // Get the initial TrigRoiDescriptor reference
+    const auto& initialRoILink = initialRoIs.front();
+    if (!initialRoILink.isValid() || *(initialRoILink.link)==nullptr) {
+      ATH_MSG_WARNING("Encountered invalid initial RoI link");
+      printDecisionAndRoI(finalRoILink.source, finalRoI);
+      continue;
+    }
+    const TrigRoiDescriptor& initialRoI = **(initialRoILink.link);
+
+    // Skip full-scan
+    if (initialRoI.isFullscan()) {continue;}
+
+    // Fill the monitoring histograms
+    Monitored::Scalar dEta{"RoIsDEta", finalRoI.eta() - initialRoI.eta()};
+    Monitored::Scalar dPhi{"RoIsDPhi", CxxUtils::deltaPhi(finalRoI.phi(), initialRoI.phi())};
+    Monitored::Scalar dZed{"RoIsDZed", finalRoI.zed() - initialRoI.zed()};
+    Monitored::Group(m_monTool, dEta, dPhi, dZed);
+
+    // Print warnings on large updates
+    if (m_warnOnLargeRoIUpdates.value()) {
+      if (std::abs(dEta) > 1.0 || std::abs(dPhi) > 1.0 || std::abs(dZed) > 200) {
+        ATH_MSG_WARNING("Large RoI difference between initial and final RoI: "
+                        << "dEta=" << dEta << ", dPhi=" << dPhi << ", dZed=" << dZed
+                        << "initialRoI: " << initialRoI << ", finalRoI: " << finalRoI);
+        printDecision(finalRoILink.source);
+      }
+    }
+  }
 }

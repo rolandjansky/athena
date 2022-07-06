@@ -1,15 +1,13 @@
 #!/usr/bin/env python
 """Run a test on Tile conditions algorithms configuration on data offline
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 
 if __name__ == "__main__":
 
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import DEBUG

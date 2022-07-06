@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // T/P converter for TruthTrajectory.
@@ -13,12 +13,12 @@
 #include "GeneratorObjectsTPCnv/HepMcParticleLinkCnv_p2.h"
 
 namespace {
-  HepMcParticleLinkCnv_p2 particleLinkConverter;
+  const HepMcParticleLinkCnv_p2 particleLinkConverter;
 }
 
 void TruthTrajectoryCnv_p2::persToTrans( const Trk::TruthTrajectory_p2* pers,
                                          TruthTrajectory* trans,
-                                         MsgStream& msg )
+                                         MsgStream& msg ) const
 {
   trans->resize(pers->size());
   for(Trk::TruthTrajectory_p2::size_type i=0; i<trans->size(); i++) {
@@ -28,7 +28,7 @@ void TruthTrajectoryCnv_p2::persToTrans( const Trk::TruthTrajectory_p2* pers,
 
 void TruthTrajectoryCnv_p2::transToPers( const TruthTrajectory* trans,
                                          Trk::TruthTrajectory_p2* pers,
-                                         MsgStream& msg )
+                                         MsgStream& msg ) const
 {
   pers->resize(trans->size());
   for(TruthTrajectory::size_type i=0; i<trans->size(); i++) {

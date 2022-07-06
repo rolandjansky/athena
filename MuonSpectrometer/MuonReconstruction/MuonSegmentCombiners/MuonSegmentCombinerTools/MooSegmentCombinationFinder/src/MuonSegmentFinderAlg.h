@@ -81,12 +81,12 @@ private:
     ToolHandle<Muon::IMuonClusterOnTrackCreator> m_mmClusterCreator{
         this,
         "MMClusterCreator",
-        "Muon::MMClusterOnTrackCreator/MMClusterOnTrackCreator",
+        "",
     };  //<! pointer to mm cluster rio ontrack creator
     ToolHandle<Muon::IMuonClusterSegmentFinderTool> m_clusterSegMakerNSW{
         this,
         "MuonClusterSegmentFinderTool",
-        "Muon::MuonClusterSegmentFinderTool/MuonClusterSegmentFinderTool",
+        "",
     };
     ToolHandle<ICscSegmentFinder> m_csc2dSegmentFinder{
         this,

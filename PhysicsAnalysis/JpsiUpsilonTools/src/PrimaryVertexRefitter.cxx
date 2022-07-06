@@ -12,7 +12,6 @@
 // ****************************************************************************
 
 #include "JpsiUpsilonTools/PrimaryVertexRefitter.h"
-#include "TrkVertexFitterUtils/TrackToVertexIPEstimator.h"
 
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticle.h"
@@ -29,14 +28,10 @@ StatusCode PrimaryVertexRefitter::initialize() {
 
 }
 
-PrimaryVertexRefitter::PrimaryVertexRefitter(const std::string& t, const std::string& n, const IInterface* p)  : AthAlgTool(t,n,p),
-   m_ntrk_min(2),
-   m_trackToVertexIPEstimator("Trk::TrackToVertexIPEstimator")
+PrimaryVertexRefitter::PrimaryVertexRefitter(const std::string& t, const std::string& n, const IInterface* p)  : 
+AthAlgTool(t,n,p)
 {
   declareInterface<PrimaryVertexRefitter>(this);
-  declareProperty("MinimumNumberOfTracksInVertex", m_ntrk_min);              
-  declareProperty("TrackToVertexIPEstimator", m_trackToVertexIPEstimator);
-
 }
 
 PrimaryVertexRefitter::~PrimaryVertexRefitter() { }

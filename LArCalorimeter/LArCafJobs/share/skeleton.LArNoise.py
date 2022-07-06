@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 import sys
 from AthenaCommon.Logging import logging
@@ -133,23 +133,7 @@ ConfigFlags = getNewConfigFlags()
 ConfigFlags.Trigger.readBS = False
 ConfigFlags.Trigger.doID = False
 
-from TriggerJobOpts.T0TriggerGetter import T0TriggerGetter
-triggerGetter = T0TriggerGetter()
-
-#from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
-#cfg =  TriggerConfigGetter("ReadPool")
-
-#from TriggerJobOpts.Lvl1ResultBuilderGetter import Lvl1ResultBuilderGetter
-#lvl1 = Lvl1ResultBuilderGetter()
-
-# TDT
-#from AthenaCommon.AppMgr import ToolSvc
-#from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
-#tdt = Trig__TrigDecisionTool("TrigDecisionTool")
-#ToolSvc += tdt
-
-#from TrigDecisionMaker.TrigDecisionMakerConfig import WriteTrigDecision
-#trigDecWriter = WriteTrigDecision()
+# FIXME: obsolete/broken trigger configuration has been removed
 
 from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
 CaloNoiseCondAlg ('totalNoise')

@@ -280,8 +280,13 @@ def PixelDigitizationSplitNoMergePUToolCfg(flags, name="PixelDigitizationSplitNo
 def PixelOverlayDigitizationToolCfg(flags, name="PixelOverlayDigitizationTool", **kwargs):
     """Return ComponentAccumulator with PixelDigitizationTool configured for overlay"""
     kwargs.setdefault("OnlyUseContainerName", False)
-    kwargs.setdefault("RDOCollName", flags.Overlay.SigPrefix + "PixelRDOs")
-    kwargs.setdefault("SDOCollName", flags.Overlay.SigPrefix + "PixelSDO_Map")
+    #in the case of track overlay, only run digitization on the HS
+    if not flags.Overlay.doTrackOverlay:
+        kwargs.setdefault("RDOCollName", flags.Overlay.SigPrefix + "PixelRDOs")
+        kwargs.setdefault("SDOCollName", flags.Overlay.SigPrefix + "PixelSDO_Map")
+    else:
+        kwargs.setdefault("RDOCollName", "PixelRDOs")
+        kwargs.setdefault("SDOCollName", "PixelSDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 0)
     kwargs.setdefault("PileUpMergeSvc", '')
     return PixelDigitizationBasicToolCfg(flags, name, **kwargs)
@@ -321,6 +326,10 @@ def PixelDigitizationBasicCfg(flags, **kwargs):
 def PixelOverlayDigitizationBasicCfg(flags, **kwargs):
     """Return ComponentAccumulator with Pixel Overlay digitization"""
     acc = ComponentAccumulator()
+    if flags.Common.ProductionStep != ProductionStep.FastChain:
+        from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
+        acc.merge(SGInputLoaderCfg(flags, ["SiHitCollection#PixelHits"]))
+
     if "DigitizationTool" not in kwargs:
         tool = acc.popToolsAndMerge(PixelOverlayDigitizationToolCfg(flags))
         kwargs["DigitizationTool"] = tool

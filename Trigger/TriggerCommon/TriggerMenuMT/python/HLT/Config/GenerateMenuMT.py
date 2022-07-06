@@ -13,7 +13,7 @@ from TriggerMenuMT.HLT.Config.Utility.ChainMerging import mergeChainDefs
 from TriggerMenuMT.HLT.CommonSequences import EventBuildingSequences, TLABuildingSequences
 
 from TriggerMenuMT.HLT.Config.ControlFlow.HLTCFConfig import makeHLTTree
-from AthenaCommon.Configurable import Configurable
+from AthenaConfiguration.ComponentFactory import isRun3Cfg
 from TriggerMenuMT.HLT.Config.ControlFlow.HLTCFTools import NoCAmigration
 
 
@@ -157,7 +157,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
 
         return
 
-    def generateChains(self):
+    def generateChains(self, flags):
 
         all_chains = []
         combinations_in_menu = []
@@ -166,8 +166,8 @@ class GenerateMenuMT(object, metaclass=Singleton):
         
         for chainDict in self.chainDicts:
             log.debug("Next: getting chain configuration for chain %s ", chainDict['chainName'])
-            chainConfig,lengthOfChainConfigs = self.__generateChainConfig(chainDict)
-            if Configurable.configurableRun3Behavior: 
+            chainConfig,lengthOfChainConfigs = self.__generateChainConfig(flags, chainDict)
+            if isRun3Cfg():
                 # skip chain generation if no ChainConfig was found
                 if chainConfig is None:
                     continue
@@ -224,7 +224,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
         self.importSignaturesToGenerate()
 
         log.info("Will now generate the chain configuration for each chain")
-        self.generateChains()
+        self.generateChains(flags)
 
         log.info("Will now calculate the alignment parameters")
         #dict of signature: set it belongs to
@@ -332,7 +332,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
             pprint.pprint(self.chainsInMenu)
 
 
-    def __generateChainConfig(self, mainChainDict):
+    def __generateChainConfig(self, flags, mainChainDict):
         """
         # Assembles the chain configuration and returns a chain object with (name, L1see and list of ChainSteps)
         """
@@ -374,7 +374,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
                 raise Exception('Stopping the execution. Please correct the configuration.')
 
             log.debug("Chain %s \n chain configs: %s",chainPartDict['chainName'],chainPartConfig)
-            if Configurable.configurableRun3Behavior and \
+            if isRun3Cfg() and \
                 (chainPartConfig is None or (any(["_MissingCA" in step.name for step in chainPartConfig.steps]) \
                     and "_MissingCA" not in chainPartConfig.steps[-1].name )):      
                     # if a MissingCA step exist and it's not the last one, do not build the chain because it's incomplete              
@@ -403,7 +403,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
         # This part is to deal with combined chains between different signatures
         try:
             if len(listOfChainConfigs) == 0:
-                if Configurable.configurableRun3Behavior: 
+                if isRun3Cfg():
                     raise NoCAmigration("[__generateChainConfigs] chain {0} generation missed configuration".format(mainChainDict['chainName']))                               
                 raise Exception('[__generateChainConfigs] No Chain Configuration found for {0}'.format(mainChainDict['chainName']))                    
             else:
@@ -427,7 +427,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
             log.exception('[__generateChainConfigs] Full chain dictionary is\n %s ', mainChainDict)
             raise Exception('[__generateChainConfigs] Stopping menu generation. Please investigate the exception shown above.')
         except AttributeError:                    
-            if Configurable.configurableRun3Behavior: 
+            if isRun3Cfg():
                 log.warning(str(NoCAmigration("[__generateChainConfigs] addTopoInfo failed with CA configurables") )  )  
                 return None,[]                       
             raise Exception('[__generateChainConfigs] Stopping menu generation. Please investigate the exception shown above.')
@@ -444,11 +444,12 @@ class GenerateMenuMT(object, metaclass=Singleton):
                     TLABuildingSequences.addTLAStep(theChainConfig, mainChainDict)
             
                 log.debug('Configuring event building sequence %s for chain %s', eventBuildType, mainChainDict['chainName'])
-                EventBuildingSequences.addEventBuildingSequence(theChainConfig, eventBuildType, mainChainDict)
-            except TypeError:
-                if Configurable.configurableRun3Behavior: 
+                EventBuildingSequences.addEventBuildingSequence(flags, theChainConfig, eventBuildType, mainChainDict)
+            except TypeError as ex:
+                if isRun3Cfg():
                     log.warning(str(NoCAmigration("[__generateChainConfigs] EventBuilding/TLA sequences failed with CA configurables")) )                                  
                 else:
+                    log.error(ex)
                     raise Exception('[__generateChainConfigs] Stopping menu generation for EventBuilding/TLA sequences. Please investigate the exception shown above.')
             
 

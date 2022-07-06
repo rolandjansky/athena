@@ -1,6 +1,6 @@
 """Define methods to construct configured BCM Digitization tools and algs
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -123,6 +123,9 @@ def BCM_DigitizationBasicCfg(flags, **kwargs):
 def BCM_OverlayDigitizationBasicCfg(flags, name="BCM_OverlayDigitization", **kwargs):
     """Return ComponentAccumulator with BCM Overlay digitization"""
     acc = PixelReadoutGeometryCfg(flags)
+    if flags.Common.ProductionStep != ProductionStep.FastChain:
+        from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
+        acc.merge(SGInputLoaderCfg(flags, ["SiHitCollection#BCMHits"]))
 
     if "DigitizationTool" not in kwargs:
         tool = acc.popToolsAndMerge(BCM_OverlayDigitizationToolCfg(flags))

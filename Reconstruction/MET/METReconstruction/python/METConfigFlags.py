@@ -6,5 +6,6 @@ def createMETConfigFlags():
     metConfigFlags=AthConfigFlags()
     metConfigFlags.addFlag("MET.UseTracks",True)
     metConfigFlags.addFlag("MET.DoPFlow",True)
+    metConfigFlags.addFlag("MET.UseFELinks",True)
     metConfigFlags.addFlag("MET.WritetoAOD",False)
     return metConfigFlags

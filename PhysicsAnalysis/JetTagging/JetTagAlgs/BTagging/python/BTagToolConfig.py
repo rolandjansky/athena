@@ -58,16 +58,16 @@ def BTagToolCfg(ConfigFlags, TaggerList, PrimaryVertexCollectionName="", scheme 
           from JetTagTools.SV1TagConfig import SV1TagCfg
           sv1tool = acc.popToolsAndMerge(SV1TagCfg(ConfigFlags, 'SV1Tag', scheme))
           tagToolList.append(sv1tool)
+      
+      if 'SV1Flip' in TaggerList:
+          from JetTagTools.SV1TagConfig import SV1TagCfg
+          sv1fliptool = acc.popToolsAndMerge(SV1TagCfg(ConfigFlags, 'SV1FlipTag', scheme))
+          tagToolList.append(sv1fliptool)
 
       if 'JetFitterNN' in TaggerList:
           from JetTagTools.JetFitterTagConfig import JetFitterTagCfg
           jetfitterNNtool = acc.popToolsAndMerge(JetFitterTagCfg(ConfigFlags, 'JetFitterTagNN', scheme, runNN=ConfigFlags.BTagging.RunJetFitterNN))
           tagToolList.append(jetfitterNNtool)
-
-      if 'SoftMu' in TaggerList:
-          from JetTagTools.SoftMuonTagConfig import SoftMuonTagCfg
-          softmutool = acc.popToolsAndMerge(SoftMuonTagCfg(ConfigFlags, 'SoftMuonTag', scheme))
-          tagToolList.append(softmutool)
 
       if 'MultiSVbb1' in TaggerList:
           from JetTagTools.MultiSVTagConfig import MultiSVTagCfg

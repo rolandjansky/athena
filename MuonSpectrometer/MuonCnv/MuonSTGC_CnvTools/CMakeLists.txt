@@ -1,12 +1,10 @@
-################################################################################
-# Package: MuonTGC_CnvTools
-################################################################################
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( MuonSTGC_CnvTools )
 
-# External dependencies (some of these aren't currently needed, but they will once we add BS etc)
-find_package( tdaq-common COMPONENTS eformat_write DataWriter )
+# External dependencies:
+find_package( tdaq-common COMPONENTS eformat )
 
 atlas_add_library( MuonSTGC_CnvToolsLib
                    MuonSTGC_CnvTools/*.h
@@ -19,4 +17,4 @@ atlas_add_component( MuonSTGC_CnvTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test GaudiKernel AthenaBaseComps Identifier EventPrimitives MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonNSWCommonDecode MuonRDO MuonPrepRawData MuonTrigCoinData TrkSurfaces STgcClusterizationLib MuonCnvToolInterfacesLib MuonSTGC_CnvToolsLib )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test GaudiKernel AthenaBaseComps Identifier EventPrimitives MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonNSWCommonDecode MuonRDO MuonPrepRawData MuonTrigCoinData TrkSurfaces STgcClusterizationLib NSWCalibToolsLib MuonCnvToolInterfacesLib MuonSTGC_CnvToolsLib )

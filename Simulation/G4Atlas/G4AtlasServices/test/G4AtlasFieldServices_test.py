@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Run tests on G4AtlasFieldServices
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 """
 
@@ -9,12 +9,10 @@ if __name__ == '__main__':
   from AthenaConfiguration.MainServicesConfig import MainServicesCfg
   import os
 
-  # Set up logging and config behaviour
+  # Set up logging
   from AthenaCommon.Logging import log
   from AthenaCommon.Constants import DEBUG
-  from AthenaCommon.Configurable import Configurable
   log.setLevel(DEBUG)
-  Configurable.configurableRun3Behavior = 1
 
 
   #import config flags

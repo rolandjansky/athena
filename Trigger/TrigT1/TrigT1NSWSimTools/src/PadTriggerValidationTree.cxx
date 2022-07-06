@@ -144,7 +144,7 @@ namespace NSWL1{
         return success;
     }
     //------------------------------------------------------------------------------
-    void PadTriggerValidationTree::reset_ntuple_variables()
+    bool PadTriggerValidationTree::reset_ntuple_variables()
     {
         if(m_tree){
             m_nPadTriggers       = 0;
@@ -197,37 +197,15 @@ namespace NSWL1{
             // m_padEtaIdFromOldSimu->clear();
             // m_padPhiIdFromOldSimu->clear();
         }
+        return true;
     }
     //------------------------------------------------------------------------------
-    void PadTriggerValidationTree::clear_ntuple_variables()
-    {
-        m_nPadTriggers       = 0;
-        m_padTriggerIndex=nullptr;
-        m_padTriggerBCID     = nullptr;
-        m_padTriggerSectorID = nullptr;
-        m_padTriggerSectorType = nullptr;
-        m_padTriggerSideID   = nullptr;
-        m_padTriggerBandID   = nullptr;
-        m_padTriggerEta      = nullptr;
-        m_padTriggerPhi      = nullptr;
-        m_padTriggerEtaID    = nullptr;
-        m_padTriggerPhiID    = nullptr;
-        m_padTriggerMultipletID = nullptr;
-        m_padTriggerEtamax=nullptr;
-        m_padTriggerEtamin=nullptr;
-        m_padTriggerPhimin=nullptr;
-        m_padTriggerPhimax=nullptr;
-        m_padTriggerlocalminYInner=nullptr;
-        m_padTriggerlocalmaxYInner=nullptr;
-        m_padTriggerlocalminYOuter=nullptr;
-        m_padTriggerlocalmaxYOuter=nullptr;
-    }
-    //------------------------------------------------------------------------------
-    void PadTriggerValidationTree::fill_num_pad_triggers(size_t num) const {
+    bool PadTriggerValidationTree::fill_num_pad_triggers(size_t num) const {
         m_nPadTriggers = num;
+        return true;
     }
     //------------------------------------------------------------------------------
-    void PadTriggerValidationTree::fill_pad_trigger_basics(const std::vector<std::unique_ptr<PadTrigger>> &triggers) const {
+    bool PadTriggerValidationTree::fill_pad_trigger_basics(const std::vector<std::unique_ptr<PadTrigger>> &triggers) const {
         for(auto& trigger : triggers) {
             m_padTriggerBCID->push_back(trigger->bctag());
             m_padTriggerSectorID->push_back(trigger->sectorId());
@@ -259,5 +237,6 @@ namespace NSWL1{
             m_padTriggerPadPhiIndicesInner->push_back(trigger->trgPadPhiIndicesInner());
             m_padTriggerPadPhiIndicesOuter->push_back(trigger->trgPadPhiIndicesOuter());
         }
+        return true;
     }
 }

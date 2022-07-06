@@ -534,7 +534,7 @@ class POOL2EI(PyAthena.Alg):
             tMenu.HLTPSK = hltpsk
 
             def d2l(d):
-                menu = ["{}:{}".format(k, d[k]) for k in d]
+                menu = ["{}:{}".format(d[k], k) for k in d]
                 return ";".join(menu)
 
             if l1_menu is not None and len(l1_menu) > 0:

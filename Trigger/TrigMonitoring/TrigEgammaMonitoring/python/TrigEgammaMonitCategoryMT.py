@@ -1,95 +1,99 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
-
-
-
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #Categories currently used by offline Egamma TO monitoringMT tool
 
-
-
 monitoring_photon = [
-    'HLT_g20_tight_ringer_L1EM15VHI',
     'HLT_g20_tight_L1EM15VHI',
     'HLT_g20_tight_icaloloose_L1EM15VHI',
-    'HLT_g20_loose_L1EM15VHI',
-    'HLT_g20_loose_ringer_L1EM15VHI',
-    'HLT_g20_medium_ringer_L1EM15VHI',
-    'HLT_g20_medium_L1EM15VHI',
     'HLT_g22_tight_L1EM15VHI',
-    'HLT_g22_tight_L1eEM18M',
     'HLT_g35_medium_L1EM20VH',
     'HLT_g25_medium_L1EM20VH',
-    'HLT_g25_medium_L1eEM24L',
     'HLT_g50_loose_L1EM20VH',
     'HLT_g140_loose_L1EM22VHI',
-    'HLT_g300_etcut_L1EM22VHI',
+    'HLT_g300_etcut_L1EM22VHI'
         ]
 
 monitoring_electron = [
     'HLT_e300_etcut_L1EM22VHI',
-    'HLT_e60_etcut_L1EM22VHI',
-    'HLT_e26_etcut_L1EM22VHI'
             ]
 
 monitoringTP_electron = [
+    'HLT_e17_lhvloose_L1EM15VHI',
+    'HLT_e20_lhvloose_L1EM15VH',
+    'HLT_e20_lhloose_L1EM15VH',
+    'HLT_e20_lhmedium_L1EM15VH',
+    'HLT_e20_lhtight_L1EM15VH',
+    'HLT_e20_lhtight_ivarloose_L1EM15VH',
+    'HLT_e20_lhtight_ivarloose_L1EM15VHI'
+    'HLT_e140_lhloose_L1EM22VHI',
+    'HLT_e140_lhloose_noringer_L1EM22VHI',
     'HLT_e60_lhmedium_L1EM22VHI',
-    'HLT_e60_lhmedium_L1eEM26M',
-    'HLT_e26_lhtight_ivarloose_L1EM22VHI',
     'HLT_e26_lhtight_ivarloose_L1EM22VH',
-    'HLT_e26_dnnloose_L1EM22VHI',
-    'HLT_e26_dnnmedium_L1EM22VHI',
-    'HLT_e26_dnntight_L1EM22VHI',
-    'HLT_e26_lhtight_L1EM22VHI',
-    'HLT_e26_lhtight_L1eEM26',
-    'HLT_e26_lhtight_L1eEM26L',
-    'HLT_e26_lhtight_L1eEM26T',    
+    'HLT_e26_lhtight_L1EM22VHI',   
     'HLT_e26_lhtight_ivarmedium_L1EM22VHI',
-    'HLT_e26_lhtight_ivarloose_L1eEM26',
-    'HLT_e26_lhtight_ivarloose_L1eEM26M',
-    'HLT_e26_lhtight_ivarloose_L1eEM26T',
+    'HLT_e28_lhtight_ivarloose_L1EM22VHI'
         ]
-
 
 monitoring_tags = [
-    'HLT_e24_lhtight_ivarloose_L1EM22VHI'
+    'HLT_e26_lhtight_ivarloose_L1EM22VHI',
+    'HLT_e26_dnntight_ivarloose_L1EM22VHI'
 ]
 
-
-
-
 validation_photon = [
-        'HLT_g20_loose_L1EM15VHI',
+        'HLT_g20_tight_icaloloose_L1EM15VHI',
         'HLT_g20_medium_L1EM15VHI',
-        'HLT_g20_tight_L1EM15VHI',
-        'HLT_g20_tight_icalotight_L1EM15VHI',
-        'HLT_g20_tight_icalomedium_L1EM15VHI',
-        'HLT_g25_etcut_L1EM20VH',
-        'HLT_g25_loose_L1EM20VH',
-        'HLT_g120_loose_L1EM22VHI',
-        'HLT_g140_etcut_L1EM22VHI'
+        'HLT_g20_loose_L1EM15VHI',        
+        'HLT_g140_loose_L1EM22VHI',
+        'HLT_g140_loose_L1eEM26M',
+        'HLT_g300_etcut_L1EM22VHI',
+        'HLT_g25_tight_icaloloose_L1EM22VHI',
+        'HLT_g25_tight_icalotight_L1EM22VHI'
         ]
+
+validation_photon_ringer = [ #this chains will be monitored once photon ringer is updated 
+        'HLT_g20_tight_ringer_L1EM15VHI',
+        'HLT_g20_medium_ringer_L1EM15VHI',
+        'HLT_g20_loose_ringer_L1EM15VHI',
+        'HLT_g20_tight_L1EM15VHI',
+        'HLT_g20_medium_L1EM15VHI',
+        'HLT_g20_loose_L1EM15VHI',
+        ]
+
+
 
 validation_electron = [
         'HLT_e5_etcut_L1EM3',
         'HLT_e5_lhtight_noringer_L1EM3',
+        'HLT_e60_etcut_L1EM22VHI',
+        'HLT_e26_etcut_L1EM22VHI'
         ]
 
 validationTP_electron = [
-        'HLT_e12_lhvloose_L1EM10VH',
-        'HLT_e17_lhvloose_L1EM15VHI',
-        'HLT_e26_lhloose_L1EM15VH',
-        'HLT_e26_lhmedium_L1EM15VH',
-        'HLT_e26_lhtight_L1EM15VH',
-        'HLT_e26_lhtight_ivarloose_L1EM15VH',
-        'HLT_e26_lhtight_ivarmedium_L1EM15VH',
-        'HLT_e26_lhtight_ivartight_L1EM15VH',
+        'HLT_e26_lhtight_L1eEM26',
+        'HLT_e26_lhtight_L1eEM26L',
         'HLT_e26_lhtight_L1EM22VHI',
+        'HLT_e26_lhtight_ivarloose_L1EM15VH',
         'HLT_e26_lhtight_ivarloose_L1EM22VHI',
         'HLT_e26_lhtight_ivarmedium_L1EM22VHI',
-        'HLT_e26_lhtight_ivartight_L1EM22VHI',
-        'HLT_e60_lhmedium_nod0_L1EM22VHI',
-        'HLT_e140_lhloose_nod0_L1EM22VHI'
+        'HLT_e26_lhtight_ivarloose_L1eEM26',
+        'HLT_e26_lhtight_ivarloose_L1eEM26M',
+        'HLT_e26_lhtight_ivarloose_L1eEM26T',
+        'HLT_e28_lhtight_ivarloose_L1EM22VHI'
+        'HLT_e140_lhloose_L1EM22VHI',
+        'HLT_e140_lhloose_noringer_L1EM22VHI',
+        'HLT_e60_lhmedium_L1EM22VHI',
+        'HLT_e60_lhmedium_L1eEM26M',
         ]
+
+
+
+validationTP_electron_DNN = [ # will be added when new DNN is ready 
+        'HLT_e26_dnnloose_L1EM22VHI',
+        'HLT_e26_dnnmedium_L1EM22VHI',
+        'HLT_e26_dnntight_L1EM22VHI'
+        ]
+
+
 
 validation_jpsi = [
         'HLT_e9_lhtight_e4_etcut_Jpsiee_L1JPSI-1M5-EM7',
@@ -116,7 +120,6 @@ validation_Zee = [
 #
 single_electron_triggers = set(monitoring_electron + monitoringTP_electron + validation_electron + validationTP_electron)
 single_photon_triggers = set(monitoring_photon + validation_photon)
-
 
 
 #

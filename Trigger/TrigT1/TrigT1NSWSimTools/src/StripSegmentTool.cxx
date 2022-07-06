@@ -2,6 +2,8 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "GaudiKernel/ConcurrencyFlags.h"
+
 #include "TrigT1NSWSimTools/StripSegmentTool.h"
 
 namespace NSWL1 {
@@ -19,19 +21,25 @@ namespace NSWL1 {
     const IInterface* parent = this->parent();
     const INamedInterface* pnamed = dynamic_cast<const INamedInterface*>(parent);
     const std::string& algo_name = pnamed->name();
-    if ( m_doNtuple && algo_name=="NSWL1Simulation" ) {
-      ITHistSvc* tHistSvc;
-      ATH_CHECK(service("THistSvc", tHistSvc));
-      std::string ntuple_name = algo_name+"Tree";
-      m_tree = nullptr;
-      ATH_CHECK(tHistSvc->getTree(ntuple_name,m_tree));
-      ATH_CHECK(this->book_branches());
-    } else this->clear_ntuple_variables();
-    if( m_incidentSvc.retrieve().isFailure() ) {
-      ATH_MSG_FATAL("Failed to retrieve the Incident Service");
-      return StatusCode::FAILURE;
-    } else ATH_MSG_DEBUG("Incident Service successfully retrieved");
-    m_incidentSvc->addListener(this,IncidentType::BeginEvent);
+    if ( m_doNtuple ) {
+      if (Gaudi::Concurrency::ConcurrencyFlags::numConcurrentEvents() > 1) {
+        ATH_MSG_ERROR("DoNtuple is not possible in multi-threaded mode");
+        return StatusCode::FAILURE;
+      }
+
+      ATH_CHECK( m_incidentSvc.retrieve() );
+      m_incidentSvc->addListener(this,IncidentType::BeginEvent);
+
+      if ( algo_name=="NSWL1Simulation" ) {
+        ITHistSvc* tHistSvc;
+        ATH_CHECK(service("THistSvc", tHistSvc));
+        std::string ntuple_name = algo_name+"Tree";
+        m_tree = nullptr;
+        ATH_CHECK(tHistSvc->getTree(ntuple_name,m_tree));
+        ATH_CHECK(this->book_branches());
+      }
+    }
+
     ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_regSelTableKey.initialize());
     return StatusCode::SUCCESS;
@@ -43,7 +51,7 @@ namespace NSWL1 {
     }
   }
 
-  StatusCode StripSegmentTool::FetchDetectorEnvelope(std::pair<float, float> &rbounds, std::pair<float, float> &etabounds, std::pair<float, float> &zbounds) const {
+  StatusCode StripSegmentTool::FetchDetectorEnvelope(Envelope_t &env) const {
     const MuonGM::MuonDetectorManager* p_det;
     ATH_CHECK(detStore()->retrieve(p_det));
     SG::ReadCondHandle<IRegSelLUTCondData> rh_stgcLUT(m_regSelTableKey);
@@ -74,22 +82,25 @@ namespace NSWL1 {
     zmax=moduleList.at(0)->zMax();
 
     if(rmin<=0 || rmax<=0) ATH_MSG_WARNING("Unable to fetch NSW r/z boundaries");
-    rbounds= std::make_pair(rmin,rmax);
-    etabounds=std::make_pair(etamin,etamax);
-    zbounds=std::make_pair(zmin,zmax);
+    env.lower_r = rmin;
+    env.upper_r = rmax;
+    env.lower_eta = etamin;
+    env.upper_eta = etamax;
+    env.lower_z = zmin;
+    env.upper_z = zmax;
     ATH_MSG_DEBUG("rmin=" << rmin << " rmax=" << rmax << " zmin=" << zmin << " zmax=" << zmax << " etamin=" << etamin << " etamax=" << etamax);
     return StatusCode::SUCCESS;
   }
 
-  uint8_t StripSegmentTool::findRIdx(const float& val, const std::pair<float, float> &rbounds, const std::pair<float, float> &etabounds) const {
+  uint8_t StripSegmentTool::findRIdx(const float& val, const Envelope_t &env) const {
     unsigned int nSlices=(1<<m_rIndexBits); //256
     std::pair<float,float> range;
     switch(m_ridxScheme){
       case 0:
-        range=rbounds;
+        range=std::make_pair(env.lower_r, env.upper_r);
         break;
       case 1:
-        range=etabounds;
+        range=std::make_pair(env.lower_eta, env.upper_eta);
         break;
       default:
         break;
@@ -115,8 +126,8 @@ namespace NSWL1 {
 
   StatusCode StripSegmentTool::find_segments(std::vector< std::unique_ptr<StripClusterData> >& clusters,
                                              const std::unique_ptr<Muon::NSW_TrigRawDataContainer>& trgContainer) const {
-    std::pair<float, float> rbounds, etabounds, zbounds;
-    ATH_CHECK(FetchDetectorEnvelope(rbounds, etabounds, zbounds));
+    Envelope_t envelope;
+    ATH_CHECK(FetchDetectorEnvelope(envelope));
 
     if (clusters.empty()) {
       ATH_MSG_WARNING("Received event with no clusters. Skipping...");
@@ -142,7 +153,8 @@ namespace NSWL1 {
 
       bandId=cl->bandId();
 
-      std::string id_str=std::to_string(hash)+std::to_string(bandId);
+      
+      std::string id_str=std::to_string(hash)+"000"+std::to_string(bandId); // [1,32]*1000 + [0,90](could be extended in the future), the 1000 factor promise there's no confusion, such as '1'+'12" and '11'+'2'
       uint32_t hash_bandid=atoi(id_str.c_str());
 
       // use the clusters in 2 wedges, with the same bandId, to form the sector segment
@@ -193,7 +205,7 @@ namespace NSWL1 {
         glx1+=cl->globX()*cl->charge();
         gly1+=cl->globY()*cl->charge();
         charge1+=cl->charge();
-        sectorID = (cl->isSmall()) ? 2*cl->sectorId() : 2*cl->sectorId() -1;
+        sectorID = (cl->isSmall()) ? 2*cl->sectorId()-1 : 2*(cl->sectorId()-1);
         sectorSide = (cl->sideId() == 0) ? 'C' : 'A';
         bcID = cl->BCID();
       }
@@ -206,7 +218,7 @@ namespace NSWL1 {
         glx2+=cl->globX()*cl->charge();
         gly2+=cl->globY()*cl->charge();
         charge2+=cl->charge();
-        sectorID = (cl->isSmall()) ? 2*cl->sectorId() : 2*cl->sectorId() -1;
+        sectorID = (cl->isSmall()) ? 2*cl->sectorId()-1 : 2*(cl->sectorId()-1);
         sectorSide = (cl->sideId() == 0) ? 'C' : 'A';
         bcID = cl->BCID();
         if (( sectorID != trgRawData->sectorId() ) ||
@@ -239,19 +251,16 @@ namespace NSWL1 {
       //inf momentum track 
       theta_inf=v3_centr1.Theta();
       eta_inf=v3_centr1.Eta();
-      dtheta=(theta_inf-theta)*1000;//In Milliradian
+      dtheta=(theta-theta_inf)*1000;//In Milliradian
 
       ATH_MSG_DEBUG("StripSegmentTool: phi:" << phi << " theta:" << theta << " eta: " << eta << " theta_inf: " << theta_inf << " eta_inf: " << eta_inf << " dtheta: " << dtheta);
-
-      //However it needs to be kept an eye on... will be something in between 7 and 15 mrad needs to be decided
-      if(std::abs(dtheta)>15) return StatusCode::SUCCESS;
 
       //do not get confused. this one is trigger phiId
       int phiId=band.second[0].at(0)->phiId();
 
-      float rfar=zbounds.second*std::abs(std::tan(theta_inf));
+      float rfar=envelope.upper_z*std::abs(std::tan(theta_inf));
 
-      if( rfar >= rbounds.second || rfar < rbounds.first || std::abs(eta_inf) >= etabounds.second || std::abs(eta_inf) < etabounds.first){
+      if( rfar >= envelope.upper_r || rfar < envelope.lower_r || std::abs(eta_inf) >= envelope.upper_eta || std::abs(eta_inf) < envelope.lower_eta){
         ATH_MSG_WARNING("measured r/eta is out of detector envelope!");
         return StatusCode::SUCCESS;
       }
@@ -259,10 +268,10 @@ namespace NSWL1 {
       uint8_t rIndex=0;
       switch(m_ridxScheme) {
         case 0:
-          rIndex=findRIdx(rfar, rbounds, etabounds);
+          rIndex=findRIdx(rfar, envelope);
           break;
         case 1:
-          rIndex=findRIdx(std::abs(eta_inf), rbounds, etabounds);
+          rIndex=findRIdx(std::abs(eta_inf), envelope);
           break;
         default:
           break;
@@ -271,8 +280,6 @@ namespace NSWL1 {
       bool phiRes=true;
       bool lowRes=false;//we do not have a recipe  for a singlewedge trigger.  so lowres is always false for now
       uint8_t dtheta_int=findDtheta(dtheta);
-      auto rdo_segment= std::make_unique<Muon::NSW_TrigRawDataSegment>( dtheta_int,  (uint8_t)phiId, (rIndex), lowRes,  phiRes);
-      trgRawData->push_back(std::move(rdo_segment));
 
       if (m_doNtuple) {
         m_seg_wedge1_size->push_back(band.second[0].size());
@@ -290,7 +297,13 @@ namespace NSWL1 {
         m_seg_global_y->push_back(gly);
         m_seg_global_z->push_back(avg_z);
       }
+
+      //However it needs to be kept an eye on... will be something in between 7 and 15 mrad needs to be decided
+      if(std::abs(dtheta)>15) continue;
+      auto rdo_segment= std::make_unique<Muon::NSW_TrigRawDataSegment>( dtheta_int,  (uint8_t)phiId, (rIndex), lowRes,  phiRes);
+      trgRawData->push_back(std::move(rdo_segment));
       trgContainer->push_back(std::move(trgRawData));
+      
     }//end of clmap loop
     return StatusCode::SUCCESS;
   }

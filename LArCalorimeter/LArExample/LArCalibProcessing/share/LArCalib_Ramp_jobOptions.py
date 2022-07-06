@@ -712,6 +712,13 @@ if ( doLArCalibDataQuality  ) :
    theRampValidationAlg.ListOfDevFEBs="rampFebs.txt"
    theRampValidationAlg.ThinnedValContainer="ThinRampsVal"
    theRampValidationAlg.ThinnedRefContainer="ThinRampsRef"
+   ##in case of CalibBoard patching, please uncomment:
+   ## adding new patching
+   #theRampValidationAlg.PatchCBs=[0x3e198000]
+   ## block standard patching for this CB
+   #if CorrectBadChannels:
+   #   topSequence.LArRampPatcher.DoNotPatchCBs=[0x3e198000]
+
    topSequence+=theRampValidationAlg
 
    ## second instance of the validation tool to detect "bad" channel 

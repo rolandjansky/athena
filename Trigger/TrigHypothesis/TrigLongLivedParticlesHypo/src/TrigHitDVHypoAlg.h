@@ -53,6 +53,8 @@ private:
    // Property: jet seed cut
    Gaudi::Property<float> m_jetSeed_ptMin  {this, "jetSeed_ptMin",  50.0, "Minimum pT  for jet seed"};
    Gaudi::Property<float> m_jetSeed_etaMax {this, "jetSeed_etaMin",  2.0, "Maximum eta for jet seed"};
+   // Property: Name of the link to hitDV seed container to pass to ViewCreatorROITool
+   Gaudi::Property<std::string>  m_hitDVLinkName {this, "hitDVLinkName", "HitDVSeedLink", "Name of the link to HitDVContainer. Used by ViewCreatorROITool."};
 
    // seed type enum
    using SeedType = TrigHitDVHypoTool::SeedType;

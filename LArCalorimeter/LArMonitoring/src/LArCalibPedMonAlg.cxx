@@ -3,6 +3,7 @@
 */
 
 #include "LArCalibPedMonAlg.h"
+#include "StoreGate/ReadDecorHandle.h"
 
 /*---------------------------------------------------------*/
 LArCalibPedMonAlg::LArCalibPedMonAlg(const std::string& name,ISvcLocator* pSvcLocator )
@@ -75,7 +76,7 @@ StatusCode LArCalibPedMonAlg::fillHistograms( const EventContext& ctx ) const {
     fill(m_MonGroupName,nbchan);
   }
 
-  SG::ReadHandle<xAOD::EventInfo> thisEvent = GetEventInfo(ctx);
+  SG::ReadDecorHandle<xAOD::EventInfo,uint32_t> thisEvent(m_eventInfoKey, ctx);
   unsigned lumi_block = thisEvent->lumiBlock();
   bool lar_inerror = (thisEvent->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error);
   ATH_MSG_DEBUG( "LArFEBMonAlg Lumi block: "<<lumi_block);

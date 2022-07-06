@@ -2,6 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 
 
 def TrkEventCnvSuperToolCfg(flags):
@@ -12,5 +13,7 @@ def TrkEventCnvSuperToolCfg(flags):
         DoID=flags.Reco.EnableTracking,
         DoMuons=flags.Detector.EnableMuon,
     )
+    if (flags.Common.ProductionStep == ProductionStep.Overlay or flags.Output.doWriteRDO) and flags.Overlay.doTrackOverlay:
+        EventCnvSuperTool.DoTrackOverlay=True
     acc.addPublicTool(EventCnvSuperTool)
     return acc

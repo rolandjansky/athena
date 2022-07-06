@@ -12,7 +12,6 @@
 // STL includes
 
 // Framework includes
-#include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/GaudiException.h"
 
 // AnalysisUtils includes
@@ -20,11 +19,11 @@
 
 
 ParticleCandidateList::ParticleCandidateList()
-  : AthMessaging (Athena::getMessageSvc(), "ParticleCandidateList")
+  : AthMessaging ("ParticleCandidateList")
 {}
 
 ParticleCandidateList::ParticleCandidateList( const ParticleCandidateList& rhs)
-  : AthMessaging (Athena::getMessageSvc(), "ParticleCandidateList"),
+  : AthMessaging ("ParticleCandidateList"),
     m_list(rhs.m_list)
 {}
 

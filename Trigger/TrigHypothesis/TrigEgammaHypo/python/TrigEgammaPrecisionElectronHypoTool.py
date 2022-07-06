@@ -372,7 +372,7 @@ def TrigEgammaPrecisionElectronLHSelectorCfg( name='TrigEgammaPrecisionElectronL
         for pidname, configfilebase in SelectorConfigFiles.items():
             fullpidname = pidname if pidvar == '_default' else pidname + pidvar
             toolname = 'AsgElectronSelector_' + fullpidname
-            configfile = config['path'] + configfilebase + config['postfix'] + '.conf'
+            configfile = config['path'] + '/' + configfilebase + config['postfix'] + '.conf'
             skipdeltapcheck = True if 'nogsf' in pidvar else False
 
             log.debug( ' --> %s, config file: %s', fullpidname, configfile )

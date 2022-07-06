@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -30,7 +30,8 @@ void checkRebin_string() {
   VALUE( fillWillRebinHistogram(h.GetXaxis(), "c") ) EXPECTED( false );
   VALUE( fillWillRebinHistogram(h.GetXaxis(), "d") ) EXPECTED( true );
   h.Fill("d", 1.0); // adds more than one bin so we have free labels again
-  VALUE( fillWillRebinHistogram(h.GetXaxis(), "e") ) EXPECTED( false );
+  // But this should still be considered as rebinning (ADHI-4881)
+  VALUE( fillWillRebinHistogram(h.GetXaxis(), "e") ) EXPECTED( true );
 }
 
 

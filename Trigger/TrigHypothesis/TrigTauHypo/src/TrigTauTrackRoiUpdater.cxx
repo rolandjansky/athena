@@ -240,7 +240,7 @@ double TrigTauTrackRoiUpdater::getBDTscore(const xAOD::TauJet* tau, const Trk::T
   vars.CaloHad_pt = tau_emscale_ptHad;
   vars.CaloEM_pt = tau_emscale_ptEM;
 
-  double BDTval = m_reader->getResponse(BDTvars);
+  double BDTval = m_reader->getClassification(BDTvars);
 
   return BDTval;
 }

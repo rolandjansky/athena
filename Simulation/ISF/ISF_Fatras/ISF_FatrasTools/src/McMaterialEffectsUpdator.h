@@ -304,8 +304,6 @@ private:
   /** projection factor for the non-parametric scattering */
   double m_projectionFactor;
 
-  /** struct of Particle Masses */
-  Trk::ParticleMasses m_particleMasses;
 
   // ------------------------ Validation section
   // ------------------------------------

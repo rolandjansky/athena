@@ -851,6 +851,26 @@ def getInDetTestPixelLayerTool(name = "InDetTestPixelLayerTool", **kwargs) :
 def getInDetTrigTestPixelLayerTool(name = "InDetTrigTestPixelLayerTool", **kwargs) :
     return getInDetTestPixelLayerTool(name, **setDefaults( kwargs, PixelDetElStatus   = "") )
 
+@makePublicTool
+def getInDetTestPixelLayerToolInner(name='InDetTestPixelLayerToolInner', **kwargs):
+    kwargs = setDefaults(kwargs,
+                         CheckActiveAreas = False,
+                         CheckDeadRegions = False,
+                         CheckDisabledFEs = False,
+                         OuterRadius = 100.)  # To allow for extrapolation up to B-layer = next-to-innermost
+    return getInDetTestPixelLayerTool(name, **kwargs)
+
+@makePublicTool
+def getInDetTrigTestPixelLayerToolInner(name='InDetTrigTestPixelLayerToolInner', **kwargs):
+    kwargs = setDefaults(kwargs,
+                         CheckActiveAreas = True,
+                         PixelDetElStatus = "")
+
+    if 'Extrapolator' not in kwargs :
+        kwargs = setDefaults( kwargs, Extrapolator     = getInDetExtrapolator())
+
+    return getInDetTestPixelLayerToolInner(name, **kwargs)
+
 # # set up the propagator for outside ID (A.S. needed as a fix for 14.5.0 )
 # @makePublicTool
 # def getInDetStepPropagator(name='InDetStepPropagator',**kwargs) :
@@ -1175,31 +1195,6 @@ def getInDetPixelToTPIDTool(name = "InDetPixelToTPIDTool", **kwargs) :
     return InDet__PixelToTPIDTool(name = the_name, **kwargs)
 
 @makePublicTool
-def getInDetRecTestBLayerTool(name='InDetRecTestBLayerTool', **kwargs) :
-    the_name = makeName( name, kwargs)
-    from AthenaCommon.DetFlags    import DetFlags
-    if not DetFlags.haveRIO.pixel_on() :
-        return None
-
-    if 'Extrapolator' not in kwargs :
-        kwargs = setDefaults( kwargs, Extrapolator     = getInDetExtrapolator())
-
-    if 'PixelSummaryTool' not in kwargs :
-        kwargs = setDefaults( kwargs, PixelSummaryTool = getInDetPixelConditionsSummaryTool())
-
-    kwargs = setDefaults( kwargs
-                          ,PixelDetElStatus   = "PixelDetectorElementStatus"
-                          ,PixelReadoutManager = "PixelReadoutManager")
-
-    from InDetTestBLayer.InDetTestBLayerConf import InDet__InDetTestBLayerTool
-    return InDet__InDetTestBLayerTool(name=the_name, **kwargs)
-
-def getInDetTrigRecTestBLayerTool(name='InDetTrigRecTestBLayerTool', **kwargs) :
-    kwargs = setDefaults(kwargs,
-                         PixelDetElStatus = "")
-    return getInDetRecTestBLayerTool(name, **kwargs)
-
-@makePublicTool
 def getInDetTRTStrawStatusSummaryTool(name = "InDetTRT_StrawStatusSummaryTool", **kwargs) :
     the_name = makeName( name, kwargs)
     kwargs = setDefaults( kwargs, isGEANT4 = (globalflags.DataSource == 'geant4'))
@@ -1282,8 +1277,7 @@ def getInDetSummaryHelper(name='InDetSummaryHelper',**kwargs) :
     from InDetRecExample.InDetJobProperties import InDetFlags
     from AthenaCommon.DetFlags              import DetFlags
     kwargs = setDefaults( kwargs,
-                          TestBLayerTool  = None,         # we don't want to use those tools during pattern
-                          # TestBLayerTool  = InDetRecTestBLayerTool,
+                          TestPixelLayerTool  = None,         # we don't want to use those tools during pattern
                           RunningTIDE_Ambi = InDetFlags.doTIDE_Ambi(),
                           DoSharedHits    = False,
                           usePixel        = DetFlags.haveRIO.pixel_on(),
@@ -1301,8 +1295,8 @@ def getInDetSummaryHelperNoHoleSearch(name='InDetSummaryHelperNoHoleSearch',**kw
 
 def getInDetSummaryHelperSharedHits(name='InDetSummaryHelperSharedHits',**kwargs) :
 
-    if 'TestBLayerTool' not in kwargs :
-        kwargs = setDefaults( kwargs,          TestBLayerTool  = getInDetRecTestBLayerTool())
+    if 'TestPixelLayerTool' not in kwargs :
+        kwargs = setDefaults( kwargs,          TestPixelLayerTool  = getInDetTestPixelLayerToolInner())
 
     from InDetRecExample.InDetJobProperties import InDetFlags
     kwargs = setDefaults( kwargs,     DoSharedHits    = InDetFlags.doSharedHits())
@@ -1862,8 +1856,7 @@ def getTrackToVertexIPEstimator(name='TrackToVertexIPEstimator', **kwargs) :
 def getV0Tools(name='V0Tools', **kwargs) :
     the_name                    = makeName( name, kwargs)
     if 'Extrapolator' not in kwargs :
-        from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
-        kwargs=setDefaults(kwargs,Extrapolator = AtlasExtrapolator())
+        kwargs=setDefaults(kwargs,Extrapolator = getInDetExtrapolator()) # @TODO AtlasExtrapolator ?
     from TrkVertexAnalysisUtils.TrkVertexAnalysisUtilsConf import Trk__V0Tools
     return Trk__V0Tools(the_name, **kwargs)
 

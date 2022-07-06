@@ -1,8 +1,12 @@
 <lcgdict>
 
   <!-- Tools in this package -->
+  <class name="CP::MuonCalibTool" />
   <class name="CP::MuonCalibrationAndSmearingTool" />
   <class name="CP::MuonCalibrationPeriodTool" />
+  <class name="CP::MuonCalibIntSagittaTool" />
+  <class name="CP::MuonCalibIntHighpTSmearTool" />
+  <class name="CP::MuonCalibIntScaleSmearTool" />
 
   <!-- Suppress the unwanted classes found by ROOT 6. -->
   <!-- Hopefully we can remove these extra lines at one point... -->

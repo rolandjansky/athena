@@ -9,7 +9,6 @@
 //     email                : jacob.julian.kempster@cern.ch
 //  ***************************************************************************/
 
-
 #ifndef jFEXSim_H
 #define jFEXSim_H
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -61,6 +60,7 @@ namespace LVL1 {
     virtual std::vector<std::vector<std::vector<uint32_t>>> getSmallRJetTOBs() override;
     virtual std::vector<std::vector<std::vector<uint32_t>>> getLargeRJetTOBs() override;
     virtual std::vector<std::vector<std::vector<uint32_t>>> getTauTOBs() override;
+    virtual std::vector<std::vector<std::vector<uint32_t>>> getFwdElTOBs() override;
     virtual std::vector<std::vector<uint32_t>> getSumEtTOBs() override;
     virtual std::vector<std::vector<uint32_t>> getMetTOBs() override;
 
@@ -80,6 +80,7 @@ namespace LVL1 {
     std::vector<std::vector<std::vector<uint32_t>>> m_smallRJet_tobWords;
     std::vector<std::vector<std::vector<uint32_t>>> m_largeRJet_tobWords;
     std::vector<std::vector<std::vector<uint32_t>>> m_tau_tobWords;
+    std::vector<std::vector<std::vector<uint32_t>>> m_fwdEl_tobWords;
     std::vector<std::vector<uint32_t>> m_sumET_tobWords;
     std::vector<std::vector<uint32_t>> m_Met_tobWords;
     ToolHandle<IjFEXFPGA> m_jFEXFPGATool {this, "jFEXFPGATool", "LVL1::jFEXFPGA", "Tool that simulates the FPGA hardware"};

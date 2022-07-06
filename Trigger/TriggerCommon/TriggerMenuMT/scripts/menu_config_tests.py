@@ -67,7 +67,7 @@ class StructuredChainNames(MenuVerification):
 
     _SIGNATURE_TYPE_ORDER = {
         TriggerLevel.HLT: [
-            "e", "g", "mu", "tau", "j", "xe",  "ht"
+            "e", "g", "mu", "tau", "j", "xe",  "ht", "isotrk", "fslrt", "dedxtrk", "hitdvjet", "fsvsi", "distrk", "dispjet"
         ],
         TriggerLevel.L1: [
             "EM", "MU", "TAU", "J", "XE", "HT"

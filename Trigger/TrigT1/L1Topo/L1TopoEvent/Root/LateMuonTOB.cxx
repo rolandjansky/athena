@@ -15,7 +15,7 @@ TCS::LateMuonTOB::LateMuonTOB(uint32_t roiWord, const std::string& tobName) :
 {}
 
 // constructor with initial values
-TCS::LateMuonTOB::LateMuonTOB(unsigned int et, unsigned int isolation, int eta, int phi, uint32_t roiWord, const std::string& tobName) :
+TCS::LateMuonTOB::LateMuonTOB(unsigned int et, unsigned int isolation, int eta, unsigned int phi, uint32_t roiWord, const std::string& tobName) :
   BaseTOB( roiWord,tobName )
    , m_Et( sizeCheck(et, nBitsEt()) )
    , m_isolation( sizeCheck( isolation, nBitsIsolation()) )

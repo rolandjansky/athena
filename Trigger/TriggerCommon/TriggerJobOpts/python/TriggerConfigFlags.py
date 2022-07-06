@@ -6,12 +6,11 @@ from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from AthenaConfiguration.Enums import Format
 from AthenaCommon.SystemOfUnits import GeV
 from AthenaCommon.Logging import logging
-from TrigEDMConfig.Utils import getEDMVersionFromBS
 
 log=logging.getLogger('TriggerConfigFlags')
 
-def createTriggerFlags():
-    flags = AthConfigFlags()    
+def createTriggerFlags(doTriggerRecoFlags):
+    flags = AthConfigFlags()
 
     # enables L1 simulation
     flags.addFlag('Trigger.doLVL1', lambda prevFlags: prevFlags.Input.isMC)
@@ -31,6 +30,9 @@ def createTriggerFlags():
     # Enable L1Topo simulation to write inputs to txt
     flags.addFlag('Trigger.enableL1TopoDump', False)
 
+    # Enable L1Topo simulation to BW run
+    flags.addFlag('Trigger.enableL1TopoBWSimulation', False)
+
     # Enable Run-2 L1Calo simulation and/or decoding (possible even if enablePhase1 is True)
     flags.addFlag('Trigger.enableL1CaloLegacy', True)
 
@@ -45,6 +47,15 @@ def createTriggerFlags():
 
     # Enable NSW sTGC strip trigger
     flags.addFlag('Trigger.L1MuonSim.doStripTrigger', False)
+
+    # Enable Storing NSW Debug Ntuple
+    flags.addFlag('Trigger.L1MuonSim.WriteNSWDebugNtuple', False)
+
+    # Enable Storing MM branches in NSW Debug Ntuple
+    flags.addFlag('Trigger.L1MuonSim.WriteMMBranches', False)
+
+    # Enable Storing NSW Debug Ntuple
+    flags.addFlag('Trigger.L1MuonSim.WritesTGCBranches', False)
 
     # Enable the veto mode of the NSW-TGC coincidence
     flags.addFlag('Trigger.L1MuonSim.NSWVetoMode', False)
@@ -85,6 +96,12 @@ def createTriggerFlags():
             if not any(flags.Input.Files) and flags.Common.isOnline:
                 _log.info("Online reconstruction, no input file. Return default EDMVersion=%d", default_version)
                 return default_version
+            try:
+                from TrigEDMConfig.Utils import getEDMVersionFromBS
+            except ImportError:
+                log.error("Failed to import TrigEDMConfig, analysing ByteStream files is not possible in this release!")
+                raise
+
 
             version = getEDMVersionFromBS(flags.Input.Files[0])
 
@@ -117,7 +134,7 @@ def createTriggerFlags():
     flags.addFlag('Trigger.doEDMVersionConversion', False)
 
     # Flag to control the scheduling of online Run 3 trigger navigation compactification into a single collection (uses slimming framework).
-    flags.addFlag('Trigger.doOnlineNavigationCompactification', True) 
+    flags.addFlag('Trigger.doOnlineNavigationCompactification', True)
 
     # Flag to control the scheduling of offline Run 3 trigger navigation slimming in RAWtoESD, RAWtoAOD, AODtoDAOD or RAWtoALL transforms.
     flags.addFlag('Trigger.doNavigationSlimming', True)
@@ -156,7 +173,7 @@ def createTriggerFlags():
 
     # shortcut to check if job is running in a partition (i.e. partition name is not empty)
     flags.addFlag('Trigger.Online.isPartition', lambda prevFlags: len(prevFlags.Trigger.Online.partitionName)>0)
-    
+
     # write BS output file
     flags.addFlag('Trigger.writeBS', False)
 
@@ -204,12 +221,12 @@ def createTriggerFlags():
     flags.addFlag('Trigger.triggerConfig', lambda flags: 'INFILE' if flags.Trigger.InputContainsConfigMetadata else 'FILE')
 
     # name of the trigger menu
-    flags.addFlag('Trigger.triggerMenuSetup', 'Dev_pp_run3_v1_BulkMCProd_prescale')
+    flags.addFlag('Trigger.triggerMenuSetup', 'MC_pp_run3_v1_BulkMCProd_prescale')
 
     # modify the slection of chains that are run (default run all), see more in GenerateMenuMT_newJO
     flags.addFlag('Trigger.triggerMenuModifier', ['all'])
 
-    # name of the trigger menu
+    # debug output from control flow generation
     flags.addFlag('Trigger.generateMenuDiagnostics', False)
 
     # disable Consistent Prescale Sets, for testing only, useful when using selectChains (ATR-24744)
@@ -219,12 +236,23 @@ def createTriggerFlags():
     flags.addFlag('Trigger.endOfEventProcessing.Enabled', True)
 
     # trigger reconstruction
+    # Protection against import of packages not in the analysis release
+    # Signature and other trigger reco flags should be handled here
+    if doTriggerRecoFlags:
+        flags.join( createTriggerRecoFlags() )
+
+    return flags
+
+def createTriggerRecoFlags():
+    flags = AthConfigFlags()
 
     # enables the correction for pileup in cell energy calibration (should it be moved to some place where other calo flags are defined?)
     flags.addFlag('Trigger.calo.doOffsetCorrection', True )
 
-    from TriggerMenuMT.HLT.Egamma.TrigEgammaConfigFlags import createTrigEgammaConfigFlags
-    flags.addFlagsCategory('Trigger.egamma', createTrigEgammaConfigFlags)
+    def __egamma():
+        from TriggerMenuMT.HLT.Egamma.TrigEgammaConfigFlags import createTrigEgammaConfigFlags
+        return createTrigEgammaConfigFlags()
+    flags.addFlagsCategory('Trigger.egamma', __egamma )
 
     # muon offline reco flags varaint for trigger
     def __muonSA():
@@ -233,14 +261,14 @@ def createTriggerFlags():
         muonflags.Muon.useTGCPriorNextBC=True
         muonflags.Muon.MuonTrigger=True
         muonflags.Muon.SAMuonTrigger=True
-        return muonflags 
+        return muonflags
 
     def __muon():
         from MuonConfig.MuonConfigFlags import createMuonConfigFlags
         muonflags = createMuonConfigFlags()
         muonflags.Muon.useTGCPriorNextBC=True
         muonflags.Muon.MuonTrigger=True
-        return muonflags 
+        return muonflags
 
     def __muonCombined():
         from MuonCombinedConfig.MuonCombinedConfigFlags import createMuonCombinedConfigFlags
@@ -251,17 +279,20 @@ def createTriggerFlags():
         muonflags.MuonCombined.doMuGirl = False
         return muonflags
 
-
     flags.addFlagsCategory('Trigger.Offline.SA', __muonSA, prefix=True)
     flags.addFlagsCategory('Trigger.Offline', __muon, prefix=True)
     flags.addFlagsCategory('Trigger.Offline.Combined', __muonCombined, prefix=True)
 
-    from TrigTauRec.TrigTauConfigFlags import createTrigTauConfigFlags
-    flags.addFlagsCategory('Trigger.Offline.Tau', createTrigTauConfigFlags)
-    #TODO come back and use systematically the same 
+    def __tau():
+        from TrigTauRec.TrigTauConfigFlags import createTrigTauConfigFlags
+        return createTrigTauConfigFlags()
+    flags.addFlagsCategory('Trigger.Offline.Tau', __tau )
+    #TODO come back and use systematically the same
 
-    from TrigInDetConfig.TrigTrackingPassFlags import createTrigTrackingPassFlags
-    flags.addFlagsCategory( 'Trigger.InDetTracking', createTrigTrackingPassFlags )
+    def __idTrk():
+        from TrigInDetConfig.TrigTrackingPassFlags import createTrigTrackingPassFlags
+        return createTrigTrackingPassFlags()
+    flags.addFlagsCategory( 'Trigger.InDetTracking', __idTrk )
 
     # NB: Longer term it may be worth moving these into a PF set of config flags, but right now the only ones that exist do not seem to be used in the HLT.
     # When we use component accumulators for this in the HLT maybe we should revisit this
@@ -278,14 +309,14 @@ def createTriggerFlags():
     # Switch on MC20 EOverP maps for the jet slice
     flags.addFlag("Trigger.Jet.doMC20_EOverP", True)
 
-    # ATR-24619 - to be removed after validation
-    flags.addFlag("Trigger.usexAODFlowElements", False)
-
     # enable fast b-tagging for all fully calibrated HLT PFlow jets
     flags.addFlag("Trigger.Jet.fastbtagPFlow", True)
 
     # enables or disables the addition of VR track jet reconstruction sequence
     flags.addFlag("Trigger.Jet.doVRJets", False)
+
+    # use online-derived calibration for HLT PFlow jets
+    flags.addFlag("Trigger.Jet.useTriggerCalib", False)
 
     def __httFlags():
         """Additional function delays import"""
@@ -293,10 +324,8 @@ def createTriggerFlags():
         return createHTTConfigFlags()
     flags.addFlagsCategory("Trigger.HTT", __httFlags, prefix=True )
 
-
     return flags
 
-    
 if __name__ == "__main__":
     import unittest
 

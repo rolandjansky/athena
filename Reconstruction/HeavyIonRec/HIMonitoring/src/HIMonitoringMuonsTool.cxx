@@ -5,7 +5,7 @@
 
 
 #include "AthenaMonitoring/AthenaMonManager.h"
-#include "HIMonitoring/HIMonitoringMuonsTool.h"
+#include "HIMonitoringMuonsTool.h"
 #include "xAODHIEvent/HIEventShapeContainer.h"
 #include "xAODMuon/MuonContainer.h"
 

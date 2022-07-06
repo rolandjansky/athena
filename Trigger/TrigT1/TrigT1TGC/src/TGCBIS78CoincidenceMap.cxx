@@ -9,7 +9,6 @@
 #include <string>
 #include <iomanip>
 
-#include "AthenaKernel/getMessageSvc.h"
 #include "TrigT1TGC/TGCBIS78CoincidenceMap.h"
 #include "TrigT1TGC/BIS78TrigOut.h"
 #include "TrigT1TGC/TGCDatabaseManager.h"
@@ -21,7 +20,7 @@ namespace LVL1TGCTrigger {
 
 
   TGCBIS78CoincidenceMap::TGCBIS78CoincidenceMap(TGCArguments* tgcargs,const std::string& version)
-    :AthMessaging(Athena::getMessageSvc(), "TGCBIS78CoincidenceMap"),
+    :AthMessaging("TGCBIS78CoincidenceMap"),
      m_verName(version),
      m_condDbTool("TGCTriggerDbTool"),
      m_tgcArgs(tgcargs)
@@ -86,7 +85,7 @@ namespace LVL1TGCTrigger {
 					 const int sec,
 					 const int side) const
   {
-    if (side==0) return 0; // BIS78 only in A side
+    if (side!=0) return 0; // BIS78 only in A side
     if ((roi<0)||(roi>=N_ROI_IN_SSC)) return -1;
     if ((ssc<0)||(ssc>=N_Endcap_SSC)) return 0;
     if ((sec<0)||(sec>=N_EndcapSector)) return -1;

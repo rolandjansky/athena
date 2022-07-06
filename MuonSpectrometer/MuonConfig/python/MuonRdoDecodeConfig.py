@@ -127,6 +127,21 @@ def TgcPrepDataAllBCto3BCCfg(flags, name="TgcPrepDataAllTo3Replicator", **kwargs
     acc.addEventAlgo(CompFactory.Muon.TgcPrepDataReplicationAlg(name, **kwargs))
     return acc
 
+
+def StgcRdoToPrepDataToolCfg(flags, name="StgcRdoToPrepDataTool", **kwargs):
+    result = ComponentAccumulator()
+    kwargs.setdefault("PrdCacheKey" , MuonPrdCacheNames.sTgcCache if flags.Muon.MuonTrigger else "")
+
+    from MuonConfig.MuonRecToolsConfig import SimpleSTgcClusterBuilderToolCfg
+    kwargs.setdefault("ClusterBuilderTool",result.popToolsAndMerge(SimpleSTgcClusterBuilderToolCfg(flags)))
+    from MuonConfig.MuonCalibrationConfig import NSWCalibToolCfg
+    kwargs.setdefault("NSWCalibTool", result.popToolsAndMerge(NSWCalibToolCfg(flags)))    
+    the_tool = CompFactory.Muon.sTgcRdoToPrepDataToolMT(name, **kwargs)
+    result.setPrivateTools(the_tool)
+    return result
+
+
+
 def StgcRDODecodeCfg(flags, name="StgcRdoToStgcPrepData", **kwargs):
     acc = ComponentAccumulator()
 
@@ -135,7 +150,7 @@ def StgcRDODecodeCfg(flags, name="StgcRdoToStgcPrepData", **kwargs):
     acc.merge(MuonGeoModelCfg(flags))
 
     # Get the RDO -> PRD tool
-    kwargs.setdefault("DecodingTool", CompFactory.Muon.sTgcRdoToPrepDataToolMT(name="sTgcRdoToTgcPrepDataTool", PrdCacheKey = MuonPrdCacheNames.sTgcCache if flags.Muon.MuonTrigger else ""))
+    kwargs.setdefault("DecodingTool", acc.popToolsAndMerge(StgcRdoToPrepDataToolCfg(flags)))
     # add RegSelTool
     # from RegionSelector.RegSelToolConfig import regSelTool_STGC_Cfg
     # kwargs.setdefault("RegSel_STGC", acc.popToolsAndMerge(regSelTool_STGC_Cfg(flags)))
@@ -145,6 +160,20 @@ def StgcRDODecodeCfg(flags, name="StgcRdoToStgcPrepData", **kwargs):
     return acc
 
 
+
+
+def MMRdoToPrepDataToolCfg(flags, name="MmRdoToPrepDataTool", **kwargs):
+    result = ComponentAccumulator()
+    kwargs.setdefault("PrdCacheKey" , MuonPrdCacheNames.MmCache if flags.Muon.MuonTrigger else "")
+
+    from MuonConfig.MuonRecToolsConfig import SimpleMMClusterBuilderToolCfg
+    kwargs.setdefault("ClusterBuilderTool",result.popToolsAndMerge(SimpleMMClusterBuilderToolCfg(flags)))
+    from MuonConfig.MuonCalibrationConfig import NSWCalibToolCfg
+    kwargs.setdefault("NSWCalibTool", result.popToolsAndMerge(NSWCalibToolCfg(flags)))    
+    the_tool = CompFactory.Muon.MmRdoToPrepDataToolMT(name, **kwargs)
+    result.setPrivateTools(the_tool)
+    return result
+
 def MMRDODecodeCfg(flags, name="MM_RdoToMM_PrepData", **kwargs):
     acc = ComponentAccumulator()
 
@@ -153,7 +182,7 @@ def MMRDODecodeCfg(flags, name="MM_RdoToMM_PrepData", **kwargs):
     acc.merge(MuonGeoModelCfg(flags))
 
     # Get the RDO -> PRD tool
-    kwargs.setdefault("DecodingTool", CompFactory.Muon.MmRdoToPrepDataToolMT(name="MmRdoToPrepDataTool", PrdCacheKey = MuonPrdCacheNames.MmCache if flags.Muon.MuonTrigger else ""))
+    kwargs.setdefault("DecodingTool", acc.popToolsAndMerge(MMRdoToPrepDataToolCfg(flags)))
     if flags.Muon.MuonTrigger:
         kwargs.setdefault("PrintPrepData", False)
     # add RegSelTool
@@ -305,9 +334,6 @@ def MuonRDOtoPRDConvertorsCfg(flags):
 
 # This function runs the decoding on a data file
 def muonRdoDecodeTestData( forTrigger = False ):
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
-
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.RAW
@@ -360,8 +386,6 @@ def muonRdoDecodeTestData( forTrigger = False ):
 
 # This function runs the decoding on a MC file
 def muonRdoDecodeTestMC():
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7572_tid07644622_00/RDO.07644622._000001.pool.root.1"]

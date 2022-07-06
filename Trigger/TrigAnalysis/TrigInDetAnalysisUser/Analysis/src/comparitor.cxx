@@ -59,6 +59,9 @@ extern bool LINEF;
 extern bool LINES;
 
 
+extern int colours[6];
+extern int markers[6];
+
 
 void SetZeros( TH2D* h ) { 
   for ( int i=1 ; i<=h->GetNbinsX() ; i++ ) { 
@@ -265,6 +268,66 @@ private:
 };
 
 
+TH1F* d0rebin( TH1F* h ) { 
+
+  std::vector<double> limits;
+
+  for ( int i=1 ; i<h->GetNbinsX() ; i++ ) { 
+    limits.push_back( h->GetBinLowEdge(i) );
+  }
+
+  std::vector<double> alimits;
+  std::vector<double> nlimits;
+
+  double x = 0; 
+
+  for ( int i=0 ; x<20 ; i++ ) { 
+  
+    alimits.push_back(x);
+
+#if 0
+    if      ( x<0.5 ) x+=0.2;
+    else if ( x<1.0 ) x+=0.2;
+    else if ( x<1.5 ) x+=0.3;
+    else if ( x<2.0 ) x+=0.4;
+    else if ( x<2.5 ) x+=0.5;
+    else              x+=0.6;
+#else
+    if      ( x<0.5 ) x+=0.1;
+    else if ( x<1.0 ) x+=0.2;
+    else if ( x<1.5 ) x+=0.2;
+    else if ( x<2.0 ) x+=0.2;
+    else if ( x<2.5 ) x+=0.2;
+    else if ( x<3.0 ) x+=0.3;
+    else              x+=0.3;
+#endif
+
+  }
+
+  for ( size_t i=alimits.size() ; i-- ; ) {
+    if ( alimits[i]<=15 ) nlimits.push_back( -alimits[i] );
+  } 
+  
+  for ( size_t i=1 ; i<alimits.size() ; i++ ) { 
+    if ( alimits[i]<=15 )  nlimits.push_back( alimits[i] );
+  }
+
+  std::cout << "limits: " << limits.size() << " " << nlimits.size() << std::endl;
+
+  TH1F* hnew = new TH1F( "h", h->GetTitle(), nlimits.size()-1, &nlimits[0] ); 
+
+  for ( int i=1 ; i<=h->GetNbinsX() ; i++ ) { 
+    double d = h->GetBinCenter(i);
+    int j = hnew->FindBin( d );
+    hnew->SetBinContent( j, hnew->GetBinContent(j)+h->GetBinContent(i) ); 
+  }
+  
+  return hnew;
+}
+
+
+
+
 int usage(const std::string& name, int status, const std::string& err_msg="" ) { 
   if ( err_msg != "" ) std::cerr << err_msg << "\n" << std::endl;
   std::ostream& s = std::cout;
@@ -380,6 +443,80 @@ void zero( TH2* h ) {
     }
   }
 }
+
+
+/// zero the contents of a 2d histogram 
+void normy( TH2* h ) { 
+  int Nx = h->GetNbinsX();
+  int Ny = h->GetNbinsY();
+  for ( int i=1 ; i<=Nx ; i++ ) { 
+    double n = 0;
+    for ( int j=1 ; j<=Ny ; j++ ) n += h->GetBinContent(i,j);
+    if ( n>0 ) for ( int j=1 ; j<=Ny ; j++ ) h->SetBinContent( i, j, h->GetBinContent(i,j)/n );
+  }
+}
+
+
+/// get the auto x range of a 2d histogram 
+void autox( TH2* h ) {
+ 
+  int Nx = h->GetNbinsX();
+  int Ny = h->GetNbinsY();
+
+  double xhi = h->GetXaxis()->GetBinLowEdge(1);
+  double xlo = h->GetXaxis()->GetBinLowEdge( h->GetXaxis()->GetNbins() );
+
+  for ( int i=1 ; i<=Nx ; i++ ) { 
+    double x = h->GetXaxis()->GetBinLowEdge(i);
+    for ( int j=1 ; j<=Ny ; j++ ) { 
+      double n = h->GetBinContent(i,j);
+      if ( n!=0 ) { 
+	if ( x<xlo ) { 
+	  if ( i>1 ) xlo = h->GetXaxis()->GetBinLowEdge(i-1);
+	  else  xlo = x;
+	}
+	if ( x>xhi ) { 
+	  if ( i<h->GetXaxis()->GetNbins() ) xhi = h->GetXaxis()->GetBinLowEdge(i+1);
+	  else  xhi = x;
+	}
+      }
+    }
+  }
+  
+  h->GetXaxis()->SetRangeUser( xlo, xhi );
+}
+
+
+/// get the auto y range of a 2d histogram 
+void autoy( TH2* h ) {
+ 
+  int Nx = h->GetNbinsX();
+  int Ny = h->GetNbinsY();
+
+  double yhi = h->GetYaxis()->GetBinLowEdge(1);
+  double ylo = h->GetYaxis()->GetBinLowEdge( h->GetYaxis()->GetNbins() );
+
+  for ( int i=1 ; i<=Ny ; i++ ) { 
+    double y = h->GetYaxis()->GetBinLowEdge(i);
+    for ( int j=1 ; j<=Nx ; j++ ) { 
+      double n = h->GetBinContent(j,i);
+      if ( n!=0 ) { 
+	if ( y<ylo ) { 
+	  if ( i>1 ) ylo = h->GetYaxis()->GetBinLowEdge(i-1);
+	  else  ylo = y;
+	}
+	if ( y>yhi ) { 
+	  if ( i<h->GetYaxis()->GetNbins() ) yhi = h->GetYaxis()->GetBinLowEdge(i+1);
+	  else  yhi = y;
+	}
+      }
+    }
+  }
+  
+  h->GetYaxis()->SetRangeUser( ylo, yhi );
+}
+
+
 
 double chi2( TH1* h0, TH1* h1 ) { 
   double c2 = 0;
@@ -1216,6 +1353,12 @@ int main(int argc, char** argv) {
       if ( rc.isTagDefined("TagLabels") ) ctaglabels = rc.GetStringVector("TagLabels");
       if ( rc.isTagDefined("TagLabels") ) usrlabels = rc.GetStringVector("TagLabels");
     
+      if ( rc.isTagDefined("Styles") )  { 
+      	for ( size_t is=0 ; is<cstyles.size() && is<6 ; is++ ) { 
+      	  markers[is] = cstyles[is];
+      	}
+      }
+
 
       uselabels = true;
 
@@ -1397,6 +1540,23 @@ int main(int argc, char** argv) {
       const AxisInfo& xinfo = histo.xaxis(); 
       const AxisInfo& yinfo = histo.yaxis(); 
 
+      std::string hname  = histo.name();
+      std::string detail = histo.detail();
+      
+      double rebin = 1;
+      bool d0rebin_flag = false;
+
+      if ( contains( detail, "+d0rebin" ) ) d0rebin_flag = true; 
+      
+      if ( contains( detail, "+Rebin" ) ) { 
+	rebin = std::atof( detail.substr( detail.find("+Rebin")+6, detail.size() ).c_str() ); 
+      } 
+      
+      if ( contains( detail, "+rebin" ) ) { 
+	rebin = std::atof( detail.substr( detail.find("+rebin")+6, detail.size() ).c_str() ); 
+      } 
+      
+
       int npanel = nrowsp*(i/nrowsp) + i%nrowsp + 1 ;
       
       std::cout << "panel: panel: " << panel.name() << "\tsubpanel: " << npanel << std::endl;
@@ -1426,15 +1586,17 @@ int main(int argc, char** argv) {
       
       if ( contains(histo.name(),"eff") || contains(histo.name(),"Eff_") ) ypos = 0.19;
 
+      //      ypos = 0.19;
+
       ///  leave this code commented here for the time being ...
       ///      if ( histo.name()=="pT" || histo.name()=="pT_rec" ) ypos = 0.19;
-      
+
       if ( atlasstyle ) { 
 	xpos  = 0.18;
 	if ( ypos>0.5 ) ypos = 0.85; 
 	else            ypos = 0.18;
       }
-      
+
       if ( _ypos!=0 ) ypos = _ypos;
       
       double xpos_original = xpos;
@@ -1474,7 +1636,7 @@ int main(int argc, char** argv) {
       double deltay = (Nrows*0.055-0.005)/Nrows;
 
       double ylo = ypos;
-      double yhi = ypos;
+      double yhi = ypos-0.01;
       
       if ( ypos>0.5 ) ylo -= Nlines*deltay;
       else            yhi += Nlines*deltay;
@@ -1487,6 +1649,9 @@ int main(int argc, char** argv) {
       // specify different legends for efficiencies or residuals?
       
       /// legends ....
+
+      
+      if ( !contains(histo.name(),"eff") && !contains(histo.name(),"Eff_") ) ylo -= 0.02;
 
       Legend legend(     xpos, xpos+0.1, ylo, ylo+Nrows*0.06-0.005 );
       Legend legend_eff( xpos, xpos+0.1, ylo, ylo+Nrows*0.06-0.005 );
@@ -1571,12 +1736,21 @@ int main(int argc, char** argv) {
 	  std::cout << xinfo << std::endl;
 	  std::cout << yinfo << std::endl;
 
-	  SetZeros( h2test );
-          
 	  if ( yinfo.rangeset() ) { 
 	    h2test->GetYaxis()->SetRangeUser( yinfo.lo(), yinfo.hi() );
 	  }
 
+	  if ( yinfo.normset() ) normy( h2test );
+
+	  if ( xinfo.rangeset() ) { 
+	    h2test->GetXaxis()->SetRangeUser( xinfo.lo(), xinfo.hi() );
+	  }
+
+	  if ( xinfo.autoset() ) autox( h2test ); 
+	  if ( yinfo.autoset() ) autoy( h2test ); 
+
+	  SetZeros( h2test );
+         
 	  h2test->DrawCopy("colz");
 	  
 	  if ( histo.detail().find("logz")!=std::string::npos ) gPad->SetLogz(true);
@@ -1758,24 +1932,13 @@ int main(int argc, char** argv) {
 	  if ( fulldbg ) std::cout << __LINE__ << std::endl;
 	
 
-	  std::string hname = histo.name();
-
-	  double rebin = 1;
-
-	  if ( contains( hname, "+Rebin" ) ) { 
-	    rebin = std::atof( hname.substr( hname.find("+Rebin")+6, hname.size() ).c_str() ); 
-	    hname = hname.substr( 0, hname.find("+Rebin") ); 
-	  } 
-
-	  if ( contains( hname, "+rebin" ) ) { 
-	    rebin = std::atof( hname.substr( hname.find("+rebin")+6, hname.size() ).c_str() ); 
-	    hname = hname.substr( 0, hname.find("+rebin") ); 
-	  } 
-	      
-	  if ( rebin!=1 ) { 
-	    htest->Rebin(rebin);
-	    if ( href ) href->Rebin(rebin);
+	  if ( rebin!=1 ) {
+	    std::cout << "rebin: " << hname << "\t" << rebin << std::endl;
+	    if ( htest ) htest->Rebin(rebin);
+	    if ( href  ) href->Rebin(rebin);
+	    for ( int ip=0 ; ip<10 ; ip++ ) std::cout << std::endl; 
 	  }
+
 #if 0
 	  /// skip this for the time being - but leave the code in place
 	  if ( !contains( histo.name(), "rdz_vs_zed" ) && contains( histo.name(), "1d") ) {
@@ -1784,7 +1947,6 @@ int main(int argc, char** argv) {
 	    if ( href && href->GetNbinsX()>500 ) href->Rebin(10);
 	  }
 #endif
-
 
 
 	  if ( histo.name().find("zed_eff")!=std::string::npos ) { 
@@ -1839,35 +2001,24 @@ int main(int argc, char** argv) {
 
 	  if ( htest && contains( std::string(htest->GetName()), "eff" ) ) {
 
-	    double rebin = 0;
-	    
 	    std::string effhist = histo.name();
 	    
 	    /// rebin if requested ...
 	    
-	    if ( contains( effhist, "+Rebin" ) ) { 
-	        rebin = std::atof( effhist.substr( effhist.find("+Rebin")+6, effhist.size() ).c_str() ); 
-		effhist = effhist.substr( 0, effhist.find("+Rebin") ); 
-	    } 
+	    if ( rebin!=1 ) std::cout << effhist << "\trebin: " << rebin << std::endl; 
 
-	    if ( contains( effhist, "+rebin" ) ) { 
-	        rebin = std::atof( effhist.substr( effhist.find("+rebin")+6, effhist.size() ).c_str() ); 
-		effhist = effhist.substr( 0, effhist.find("+rebin") ); 
-	    } 
-	      
 	    htestnum = Get( *fftest, chains[j]+"/"+effhist+"_n", testrun, 0, &savedhistos ) ;
 	    htestden = Get( *fftest, chains[j]+"/"+effhist+"_d", testrun, 0, &savedhistos ) ;
-
-
-	    //    b.range( chains[j], htestnum );
-	    //    b.range( chains[j], htestden );
-	    //  }
 
 	    std::cout << "1: Bayesian error calculation " << htestnum << " " << htestden << "\tscale " << scale_eff << std::endl;
 
 	    if ( htestnum && htestden ) { 
-
-	      if ( rebin!=0 ) { 
+		  
+	      if ( d0rebin_flag ) {
+		htestnum = d0rebin( htestnum );
+		htestden = d0rebin( htestden );
+	      }
+	      else if ( rebin!=1 ) { 
 		htestnum = Rebin(htestnum, rebin );
 		htestden = Rebin(htestden, rebin );
 	      }
@@ -1932,8 +2083,19 @@ int main(int argc, char** argv) {
 
 	      std::cout << "2. Bayesian error calculation " << htestnum << " " << htestden << "\tscale " << scale_eff     << std::endl;
 	      std::cout << "3. Bayesian error calculation " << hrefnum  << " " << hrefden  << "\tscale " << scale_eff_ref << std::endl;
+
 	    
 	      if ( hrefnum && hrefden ) { 
+
+		if ( d0rebin_flag ) {
+		  hrefnum = d0rebin( hrefnum );
+		  hrefden = d0rebin( hrefden );
+		}
+		else if ( rebin!=1 ) { 
+		  hrefnum = Rebin(hrefnum, rebin );
+		  hrefden = Rebin(hrefden, rebin );
+		}
+		
 		Efficiency e( hrefnum, hrefden, "", scale_eff_ref );
 		/// leave for documentation purposes ...
 		// tgref = e.Bayes(scale_eff);
@@ -2168,10 +2330,7 @@ int main(int argc, char** argv) {
 
 	} 
        
-     
-
-
-	 
+      
 	std::cout << "movin' on ..." << std::endl;
 
 	std::cout << "chain: " << chains[j] << " \t marker colour: " << htest->GetMarkerColor() << std::endl;

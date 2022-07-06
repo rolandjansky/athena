@@ -3,7 +3,6 @@
  *
  * @file HGTD_RecTools/src/SinglePadClusterTool.cxx
  * @author Alexander Leopold <alexander.leopold@cern.ch>
- * @date August, 2021
  *
  * @brief
  *
@@ -32,7 +31,7 @@ StatusCode SinglePadClusterTool::initialize() {
 }
 
 std::unique_ptr<HGTD_ClusterCollection>
-SinglePadClusterTool::clusterize(const HGTD_RDOCollection& rdo_coll) const {
+SinglePadClusterTool::clusterize(const HGTD_RDO_Collection& rdo_coll) const {
 
   Identifier identifier = rdo_coll.identify();
   IdentifierHash id_hash = rdo_coll.identifierHash();

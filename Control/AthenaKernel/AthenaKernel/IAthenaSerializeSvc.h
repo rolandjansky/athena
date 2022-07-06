@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAKERNEL_IATHENASERIALIZESVC_H
@@ -10,12 +10,10 @@
 
 class Guid;
 
-static const InterfaceID IID_IAthenaSerializeSvc( "IAthenaSerializeSvc", 1, 0 );
-
 class IAthenaSerializeSvc : virtual public ::IService {
 public:
-   static const InterfaceID& interfaceID() { return IID_IAthenaSerializeSvc; }
- 
+   DeclareInterfaceID (IAthenaSerializeSvc, 1, 0);
+
    virtual void* serialize(const void* object, const std::string& name, size_t& nbytes) const = 0;
    virtual void* serialize(const void* object, const Guid& id, size_t& nbytes) const = 0;
    virtual void* serialize(const void* object, const RootType& cltype, size_t& nbytes) const = 0;

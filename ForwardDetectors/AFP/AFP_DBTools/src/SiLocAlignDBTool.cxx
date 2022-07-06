@@ -27,16 +27,16 @@ namespace AFP
   }
   
 
-  const SiLocAlignData SiLocAlignDBTool::alignment (const EventContext& ctx, const int stationID, const int layerID) const
+  nlohmann::json SiLocAlignDBTool::alignmentData(const EventContext& ctx) const
   { 
-    ATH_MSG_DEBUG("will get local alignment for run "<<ctx.eventID().run_number()<<", lb "<<ctx.eventID().lumi_block()<<", event "<<ctx.eventID().event_number()<<", station "<<stationID<<", layerID "<<layerID);
+    ATH_MSG_DEBUG("will get local alignment for run "<<ctx.eventID().run_number()<<", lb "<<ctx.eventID().lumi_block()<<", event "<<ctx.eventID().event_number());
 
     SG::ReadCondHandle<CondAttrListCollection> ch_loc( m_rch_loc, ctx );
     const CondAttrListCollection* attrLocList { *ch_loc};
     if ( attrLocList == nullptr )
     {
-        ATH_MSG_WARNING("local alignment data for key " << m_rch_loc.fullKey() << " not found, returning zeros");
-        return SiLocAlignData(stationID,layerID);
+        ATH_MSG_WARNING("local alignment data for key " << m_rch_loc.fullKey() << " not found, returning empty string");
+        return std::move(nlohmann::json::parse(""));
     }
     
     if(attrLocList->size()>1) ATH_MSG_INFO("there should be only one real channel in "<< m_rch_loc.fullKey() <<", there are "<<attrLocList->size()<<" real channels, only the first one will be used ");
@@ -45,9 +45,15 @@ namespace AFP
     const coral::AttributeList &atr = itr->second;
     std::string data = *(static_cast<const std::string *>((atr["data"]).addressOfData()));
 
-    nlohmann::json jsondata = nlohmann::json::parse(data);
+    return std::move(nlohmann::json::parse(data));
+  }
+  
+  
+  const SiLocAlignData SiLocAlignDBTool::alignment(const nlohmann::json& jsondata, const int stationID, const int layerID) const
+  {
+    ATH_MSG_DEBUG("will get local alignment for station "<<stationID<<", layerID "<<layerID);
     nlohmann::json channeldata=jsondata["data"];
-      
+    
     // first, try to guess the channel nr.
     int guess_ch=stationID*4+layerID;
       

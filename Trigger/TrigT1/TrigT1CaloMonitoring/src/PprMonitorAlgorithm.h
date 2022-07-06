@@ -18,9 +18,8 @@ public:PprMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator );
   struct MonitorTT { 
     const xAOD::TriggerTower_v2* tower;
     double phiScaled; /// phi for 2d maps with integer bins (taking into account granularity in eta)
-    double phi1d;     /// phi for 1d phi distributions (taking into account granularity in eta) 
-    int jepET;
     double maxADC;    /// max ADC timeslice
+    int jepET;
   };
 
 

@@ -133,7 +133,6 @@ namespace InDet
     double inline sqr(double a) {return a*a;} 
 
     const TRT_ID*              m_trtId;               // TRT ID helper (identifying barrel/wheels and global position)
-    Trk::ParticleMasses        m_particlemasses;      // Particle masses. (initalized in default constructor)
     unsigned int               m_minTRThits;          // Minimum number of TRT hits to give PID.
     float                      m_ptMinNN;             // Minimum track pt to calculate NN response for PID
     bool                       m_calculateNN;         // Decide whether to use NN PID

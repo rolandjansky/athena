@@ -27,6 +27,7 @@ from StripDigitization.StripDigitizationConfig import ITkStripDigitizationCfg
 from HGTD_Digitization.HGTD_DigitizationConfig import HGTD_DigitizationCfg
 from TileSimAlgs.TileDigitizationConfig import TileDigitizationCfg, TileTriggerDigitizationCfg
 from TRT_Digitization.TRT_DigitizationConfigNew import TRT_DigitizationCfg
+from AFP_Digitization.AFP_DigitizationConfigNew import AFP_DigitizationCfg
 from RunDependentSimComps.PileUpUtils import pileupInputCollections
 
 from AthenaCommon.Logging import logging
@@ -71,7 +72,7 @@ def DigitizationMainContentCfg(flags):
             from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoCnvAlgCfg
             acc.merge(EventInfoCnvAlgCfg(flags,
                                         inputKey="McEventInfo",
-                                        outputKey="HITs_EventInfo"))
+                                        outputKey="Input_EventInfo"))
 
         from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoUpdateFromContextAlgCfg
         acc.merge(EventInfoUpdateFromContextAlgCfg(flags))
@@ -147,11 +148,15 @@ def DigitizationMainContentCfg(flags):
         acc.merge(RPC_DigitizationDigitToRDOCfg(flags))
     if flags.Detector.EnableCSC:
         acc.merge(CSC_DigitizationDigitToRDOCfg(flags))
-    if flags.Detector.EnableMM:
-        acc.merge(MM_DigitizationDigitToRDOCfg(flags))
     if flags.Detector.EnablesTGC:
         acc.merge(sTGC_DigitizationDigitToRDOCfg(flags))
+    if flags.Detector.EnableMM:
+        acc.merge(MM_DigitizationDigitToRDOCfg(flags))
 
+    # AFP
+    if flags.Detector.EnableAFP:
+        acc.merge(AFP_DigitizationCfg(flags))
+    
     # Add MT-safe PerfMon
     if flags.PerfMon.doFastMonMT or flags.PerfMon.doFullMonMT:
         from PerfMonComps.PerfMonCompsConfig import PerfMonMTSvcCfg

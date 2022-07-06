@@ -6,7 +6,7 @@ from TrigCaloRec.TrigCaloRecConf import (TrigCaloClusterMaker,
 
 from TrigCaloRec.TrigCaloRecConf import HLTCaloCellMaker as _HLTCaloCellMaker
 
-from AthenaCommon.SystemOfUnits import GeV, MeV, deg
+from AthenaCommon.SystemOfUnits import MeV, deg
 
 from AthenaCommon.Logging import logging
 mlog = logging.getLogger ('TrigCaloRecConfig')
@@ -59,123 +59,6 @@ class TrigCaloClusterMakerBase (TrigCaloClusterMaker):
         monTool.defineHistogram('ENG_FRAC_MAX', path='EXPERT', type='TH1F', title="ENG_FRAC_MAX; ENG_FRAC_MAX ; Number of Clusters", xbins=50, xmin=0.0, xmax=1.1)
 
         self.MonTool = monTool
-
-
-class TrigCaloTowerMaker_eGamma (TrigCaloTowerMakerBase):
-    __slots__ = []
-    def __init__ (self, name='TrigCaloTowerMaker_eGamma'):
-        super(TrigCaloTowerMaker_eGamma, self).__init__(name)
-
-        from LArRecUtils.LArRecUtilsConf import LArTowerBuilderTool
-        lartowerbuilder = LArTowerBuilderTool("LArTowerBuilder",
-                                              CellContainerName = "RoIEMCalo",
-                                              IncludedCalos     = [ "LAREM" ]
-                                              )
-        self +=lartowerbuilder
-        self.TowerMakerTools=[ lartowerbuilder.getFullName() ]
-        self.NumberOfPhiTowers=256
-        self.NumberOfEtaTowers=200
-        self.EtaMin=-2.5
-        self.EtaMax=2.5
-        self.DeltaEta=0.5
-        self.DeltaPhi=0.5
-        
-
-
-class TrigCaloTowerMaker_jet (TrigCaloTowerMakerBase):
-    __slots__ = []
-    def __init__ (self, name='TrigCaloTowerMaker_jet'):
-        super(TrigCaloTowerMaker_jet, self).__init__(name)
-
-        # input to LArTowerBuilder:  cells in LArEM and LARHEC 
-        from LArRecUtils.LArRecUtilsConf import LArTowerBuilderTool,LArFCalTowerBuilderTool
-
-        larcmbtwrbldr = LArTowerBuilderTool("LArCmbTwrBldr",
-                                            CellContainerName = "RoIEMCalo",
-                                            IncludedCalos     = [ "LAREM", "LARHEC" ]
-                                            )
-
-        fcalcmbtwrbldr = LArFCalTowerBuilderTool("FCalCmbTwrBldr",
-                                                 CellContainerName = "RoIEMCalo",
-                                                 MinimumEt         = 0.*MeV,
-                                                 )
-
-        #input to  TileTowerBuilder:  cells in TILE
-        from TileRecUtils.TileRecUtilsConf import TileTowerBuilderTool
-        tilecmbtwrbldr = TileTowerBuilderTool("TileCmbTwrBldr",
-                                              CellContainerName = "RoIEMCalo",
-                                              DumpTowers        = False,
-                                              DumpWeightMap     = False
-                                              )
-        self +=larcmbtwrbldr
-        self +=fcalcmbtwrbldr
-        self +=tilecmbtwrbldr
-        self.NumberOfPhiTowers=64
-        self.NumberOfEtaTowers=100
-        self.EtaMin=-5.0
-        self.EtaMax=5.0
-        self.DeltaEta=1.2
-        self.DeltaPhi=1.2
-        self.TowerMakerTools = [ tilecmbtwrbldr.getFullName(), larcmbtwrbldr.getFullName(), fcalcmbtwrbldr.getFullName() ]
-        
-        
-class TrigCaloTowerMaker_tau (TrigCaloTowerMakerBase):
-    __slots__ = []
-    def __init__ (self, name='TrigCaloTowerMaker_tau'):
-        super(TrigCaloTowerMaker_tau, self).__init__(name)
-
-        #input to  LArTowerMBuilder:  Cells in LArEM 
-        from LArRecUtils.LArRecUtilsConf import LArTowerBuilderTool
-        lartowerbuilder = LArTowerBuilderTool("LArTowerBuilder",
-                                              CellContainerName = "RoIEMCalo",
-                                              IncludedCalos     = [ "LAREM" ],
-                                              )
-
-        self +=lartowerbuilder
-        self.NumberOfPhiTowers=256
-        self.NumberOfEtaTowers=200
-        self.EtaMin=-2.5
-        self.EtaMax=2.5
-        self.DeltaEta=0.8
-        self.DeltaPhi=0.8
-        self.TowerMakerTools=[lartowerbuilder.getFullName()]
-        
-
-class TrigCaloClusterMaker_slw (TrigCaloClusterMakerBase):
-    __slots__ = []
-    def __init__ (self, name='TrigCaloClusterMaker_slw', cells="cells", towers="calotowers"):
-        super(TrigCaloClusterMaker_slw, self).__init__(name)
-
-        from CaloRec.CaloRecMakers import make_CaloClusterBuilderSW
-        trigslw= make_CaloClusterBuilderSW ("trigslw",
-                                            tower_container = towers,
-                                            eta_size = 3,
-                                            phi_size = 5,
-                                            #eta_sizep = 3,
-                                            #phi_sizep = 3,
-                                            e_threshold = 2.5 * GeV,
-                                            FillClusterCells = False,
-                                            #nextra = 0,
-                                            #eta_SeedGrid = 5,
-                                            #phi_SeedGrid = 5,
-                                            eta_Duplicate = 5,
-                                            phi_Duplicate = 5
-                                            )
-        trigslw .CaloCellContainer=cells
-        self +=trigslw      
-        self.ClusterMakerTools=[ trigslw.getFullName() ]
-
-
-        from CaloClusterCorrection.CaloSwCorrections import make_CaloSwCorrections
-        for tool in make_CaloSwCorrections ("ele37"):
-            self += tool
-            self.ClusterCorrectionTools += [tool.getFullName()]
-            mlog.info("Adding tool %s", tool.getFullName())
-        for tool in make_CaloSwCorrections ("ele55"):
-            self += tool
-            self.ClusterCorrectionTools += [tool.getFullName()]
-            mlog.info("Adding tool %s", tool.getFullName())
-
 
 class TrigCaloClusterMaker_topo (TrigCaloClusterMakerBase):
     __slots__ = []
@@ -425,109 +308,6 @@ class TrigCaloClusterMaker_topo (TrigCaloClusterMakerBase):
 
         from CaloRec import CaloClusterTopoCoolFolder  # noqa: F401
 
-
-
-
-class TrigCaloClusterMaker_EMtopo (TrigCaloClusterMakerBase):
-    __slots__ = []
-    def __init__ (self, name='TrigCaloClusterMaker_EMtopo'):
-        super(TrigCaloClusterMaker_EMtopo, self).__init__(name)
-
-        from CaloRec.CaloRecConf import CaloTopoClusterMaker, CaloTopoClusterSplitter, CaloClusterMomentsMaker
-        from CaloRec.CaloTopoClusterFlags import jobproperties
-        emtopocluster = CaloTopoClusterMaker("EMTrigTopoCluster")
-        emtoposplitter = CaloTopoClusterSplitter("EMTrigTopoSplitter")
-        emtopomoments = CaloClusterMomentsMaker("EMTrigTopoMoments")
-        
-        emtopocluster.CellsNames=["RoIEMCalo"]
-        emtopocluster.CalorimeterNames=[ "LAREM" ]
-        #
-        # cells from the following samplings will be able to form seeds. By default 
-        # no sampling is excluded 
-        #
-        emtopocluster.SeedSamplingNames = [
-            "PreSamplerB", "EMB1", "EMB2", 
-            "PreSamplerE", "EME1", "EME2"  ]
-        
-        emtopocluster.NeighborOption                 = "all3D"
-        emtopocluster.CellThresholdOnEorAbsEinSigma     =    0.0
-        emtopocluster.NeighborThresholdOnEorAbsEinSigma =    2.0
-        emtopocluster.SeedThresholdOnEorAbsEinSigma     =    4.0
-        # note E or AbsE 
-        #
-        # the following cut must be set to TRUE in order to make double sided
-        # cuts on the seed and the cluster level ( neighbor and cell cuts are 
-        # always double sided)
-        #
-        emtopocluster.SeedCutsInAbsE                 = True
-        emtopocluster.ClusterEtorAbsEtCut            = 1*GeV
-        #
-        # the following Et thresholds are ignored in case UsePileUpNoise is TRUE
-        #
-        # emtopocluster.CellThresholdOnAbsEt           =    0.0*MeV  
-        # emtopocluster.NeighborThresholdOnAbsEt       =  100.0*MeV
-        # emtopocluster.SeedThresholdOnEtorAbsEt       =  200.0*MeV # note Et or AbsEt
-        
-        
-        #
-        # cells from the following samplings will be able to form local maxima. The 
-        # excluded samplings are PreSamplerB, EMB1, PreSamplerE, EME1,
-        # and all samplings from Tile, HEC and FCAL
-        #
-        emtoposplitter.SamplingNames = ["EMB2", "EME2"]
-        emtoposplitter.SecondarySamplingNames = ["EMB1", "EME1"]
-        emtoposplitter.ShareBorderCells = True
-        emtoposplitter.RestrictHECIWandFCalNeighbors  = False        
-        # the following options are not set, since these are the default values
-        # the following options are not set, since these are the default values
-        #
-        # emtoposplitter.NumberOfCellsCut              = 4
-        # emtoposplitter.EtDensityCut                  = 500*MeV/(600000*mm3) # this corresponds to 500 MeV in a typical EM Layer 2 cell
-        
-        emtopomoments.MaxAxisAngle = 20*deg
-        emtopomoments.TwoGaussianNoise = jobproperties.CaloTopoClusterFlags.doTwoGaussianNoise()
-        emtopomoments.MinBadLArQuality = 4000
-        emtopomoments.MomentsNames = ["FIRST_PHI" 
-                                      ,"FIRST_ETA"
-                                      ,"SECOND_R" 
-                                      ,"SECOND_LAMBDA"
-                                      ,"DELTA_PHI"
-                                      ,"DELTA_THETA"
-                                      ,"DELTA_ALPHA" 
-                                      ,"CENTER_X"
-                                      ,"CENTER_Y"
-                                      ,"CENTER_Z"
-                                      ,"CENTER_MAG"
-                                      ,"CENTER_LAMBDA"
-                                      ,"LATERAL"
-                                      ,"LONGITUDINAL"
-                                      ,"FIRST_ENG_DENS" 
-                                      ,"ENG_FRAC_EM" 
-                                      ,"ENG_FRAC_MAX" 
-                                      ,"ENG_FRAC_CORE" 
-                                      ,"FIRST_ENG_DENS" 
-                                      ,"SECOND_ENG_DENS" 
-                                      ,"ISOLATION"
-                                      ,"ENG_BAD_CELLS"
-                                      ,"N_BAD_CELLS"
-                                      ,"N_BAD_CELLS_CORR"
-                                      ,"BAD_CELLS_CORR_E"
-                                      ,"BADLARQ_FRAC"
-                                      ,"ENG_POS"
-                                      ,"SIGNIFICANCE"
-                                      ,"CELL_SIGNIFICANCE"
-                                      ,"CELL_SIG_SAMPLING"
-                                      ,"AVG_LAR_Q"
-                                      ,"AVG_TILE_Q"
-                                      ]          
-        
-        self.ClusterMakerTools = [emtopocluster.getFullName(), emtoposplitter.getFullName(), emtopomoments.getFullName()]
-        #self.ClusterMakerTools = [emtopocluster.getFullName(), emtoposplitter.getFullName()]
-        #self.ClusterCorrectionTools = [ emtopomoments.getFullName() ]
-        self += emtopocluster
-        self += emtoposplitter
-        self += emtopomoments
-
 class HLTCaloCellSeedLessMaker (_HLTCaloCellMaker):
     __slots__ = []
     def __init__(self, name="CaloCellSeedLessFS"):
@@ -535,8 +315,8 @@ class HLTCaloCellSeedLessMaker (_HLTCaloCellMaker):
         from TrigT2CaloCommon.CaloDef import setMinimalCaloSetup
         setMinimalCaloSetup()
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        self.ExtraInputs=[('TileEMScale','ConditionStore+TileEMScale'),('TileBadChannels','ConditionStore+TileBadChannels')]
-        self.ExtraInputs+=[( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTHEC' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TILE' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ), ( 'LArBadChannelCont', 'ConditionStore+LArBadChannel'), ( 'LArMCSym', 'ConditionStore+LArMCSym'), ('LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' ), ('LArFebRodMapping'  , 'ConditionStore+LArFebRodMap' ),('CaloDetDescrManager', 'ConditionStore+CaloDetDescrManager') ]
+        from TrigT2CaloCommon.TrigCaloDataAccessConfig import CaloDataAccessSvcDependencies
+        self.ExtraInputs=CaloDataAccessSvcDependencies
         self.CellsName="SeedLessFS"
         self.RoIs=''
         self.TrigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
@@ -545,8 +325,8 @@ class HLTCaloCellMaker (_HLTCaloCellMaker):
     __slots__ = []
     def __init__(self, name):
         super( HLTCaloCellMaker, self ).__init__(name)
-        self.ExtraInputs=[('TileEMScale','ConditionStore+TileEMScale'),('TileBadChannels','ConditionStore+TileBadChannels')]
-        self.ExtraInputs+=[( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTHEC' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TILE' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ), ( 'LArBadChannelCont', 'ConditionStore+LArBadChannel'), ( 'LArMCSym', 'ConditionStore+LArMCSym'), ('LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' ), ('LArFebRodMapping'  , 'ConditionStore+LArFebRodMap' ), ('CaloDetDescrManager', 'ConditionStore+CaloDetDescrManager')  ]
+        from TrigT2CaloCommon.TrigCaloDataAccessConfig import CaloDataAccessSvcDependencies
+        self.ExtraInputs=CaloDataAccessSvcDependencies
         from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
         monTool = GenericMonitoringTool('MonTool')
         maxNumberOfCells=1600.0
@@ -660,11 +440,7 @@ def hltCaloCellMakerCfg(flags, name=None, roisKey='UNSPECIFIED'):
                                              CellsName='CaloCellsFS' if "FS" in name else "CaloCells",
                                              TrigDataAccessMT = acc.getService('TrigCaloDataAccessSvc'),
                                              monitorCells = True,
-                                             ExtraInputs = CaloDataAccessSvcDependencies+
-                                                          [("TileEMScale", "ConditionStore+TileEMScale"),
-                                                           ("TileBadChannels", "ConditionStore+TileBadChannels"),
-                                                           ("LArOnOffIdMapping", "ConditionStore+LArOnOffIdMap"),
-                                                           ("LArFebRodMapping" , "ConditionStore+LArFebRodMap") ], # TODO check if this depends on data/MC
+                                             ExtraInputs = CaloDataAccessSvcDependencies,
                                              RoIs=roisKey)
     acc.addEventAlgo(cellMaker, primary=True)
     return acc

@@ -101,9 +101,6 @@ def setupMenu():
     return chains
 
 if __name__ == "__main__":
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=True
-
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaConfiguration.AccumulatorCache import AccumulatorDecorator
     from AthenaCommon.Logging import logging

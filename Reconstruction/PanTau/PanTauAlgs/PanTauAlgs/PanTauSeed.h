@@ -246,6 +246,7 @@ inline void                                                 PanTau::PanTauSeed::
 
 
 inline static void                                          PanTau::SetP4EEtaPhiM(TLorentzVector& hlv, double e, double eta, double phi, double m ){
+  // FIXME: what is wrong with eta=0?
   if( eta == 0. ) return;
   double pt = std::sqrt( e*e - m*m) / std::cosh( eta ); // not really safe.
   hlv.SetPtEtaPhiE(pt, eta, phi, e);
@@ -254,5 +255,3 @@ inline static void                                          PanTau::SetP4EEtaPhi
 
 
 #endif // PANTAUALGS_PANTAUSEED_H
-
-

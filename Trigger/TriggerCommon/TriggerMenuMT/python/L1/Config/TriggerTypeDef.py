@@ -8,14 +8,14 @@ class TT(object):
     Trigger type logic
     should also match StreamingDef.py definitions
     """
-    rand        = 1 << 0
-    zerobs      = 1 << 1  # trigger type for zero bias triggers
-    calo        = 1 << 2        
-    muon        = 1 << 3
-    lardemo     = 1 << 4
-    ftk = minb  = 1 << 5  # min-bias TT is needed for TM internal use (L1Seeds.py) 
-    nim = alfa  = 1 << 6
-    phys        = 1 << 7
+    rand        = 1 << 0  # Defined for all RDX items, but not used by any FEs
+    zerobs      = 1 << 1  # Used by LAr, Tile (and others?) -> data overlay
+    calo        = 1 << 2  # Used by LAr/LATOME for saturated pulse
+    muon        = 1 << 3  # Used by TGC
+    lardigital  = 1 << 4  # Used by LAr/LATOME
+    nsw         = 1 << 5  # Used on NSW FEs
+    nim = alfa  = 1 << 6  # Used by TGC Burst, and by ALFA in special runs
+    phys        = 1 << 7  # Used in conjunction with the other bits
 
     # Calibration requests
     #  From David B - for calibration events TriggerType

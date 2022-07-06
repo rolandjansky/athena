@@ -7,6 +7,7 @@
 
 //basic includes
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "CxxUtils/checker_macros.h"
 #include "Gaudi/Property.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ITHistSvc.h"
@@ -101,104 +102,107 @@ namespace NSWL1 {
     void clear_ntuple_variables();                    //!< clear the variables used in the analysis ntuple
     void fillNtuple(const histogramDigitVariables& histDigVars) const;
 
-    TTree* m_tree;                                          //!< ntuple for analysis
-    std::vector<unsigned int>* m_trigger_diamond_ntrig;
-    std::vector<int>* m_trigger_diamond_bc;
-    std::vector<char>* m_trigger_diamond_sector;
-    std::vector<int>* m_trigger_diamond_stationPhi;
-    std::vector<unsigned int>* m_trigger_diamond_totalCount;
-    std::vector<unsigned int>* m_trigger_diamond_realCount;
-    std::vector<int>* m_trigger_diamond_iX;
-    std::vector<int>* m_trigger_diamond_iU;
-    std::vector<int>* m_trigger_diamond_iV;
-    std::vector<unsigned int>* m_trigger_diamond_XbkgCount;
-    std::vector<unsigned int>* m_trigger_diamond_UVbkgCount;
-    std::vector<unsigned int>* m_trigger_diamond_XmuonCount;
-    std::vector<unsigned int>* m_trigger_diamond_UVmuonCount;
-    std::vector<double>* m_trigger_diamond_age;
-    std::vector<double>* m_trigger_diamond_mx;
-    std::vector<double>* m_trigger_diamond_my;
-    std::vector<double>* m_trigger_diamond_Uavg;
-    std::vector<double>* m_trigger_diamond_Vavg;
-    std::vector<double>* m_trigger_diamond_mxl;
-    std::vector<double>* m_trigger_diamond_theta;
-    std::vector<double>* m_trigger_diamond_eta;
-    std::vector<double>* m_trigger_diamond_dtheta;
-    std::vector<double>* m_trigger_diamond_phi;
-    std::vector<double>* m_trigger_diamond_phiShf;
-    std::vector<uint8_t>* m_trigger_diamond_TP_phi_id;
-    std::vector<uint8_t>* m_trigger_diamond_TP_R_id;
-    std::vector<uint8_t>* m_trigger_diamond_TP_dTheta_id;
+    /* None of the TTree filling is thread-safe and should really be refactored.
+     * But we check in initialize() that this is only used in single-threaded mode.
+     */
+    TTree* m_tree ATLAS_THREAD_SAFE;                                          //!< ntuple for analysis
+    std::vector<unsigned int>* m_trigger_diamond_ntrig ATLAS_THREAD_SAFE;
+    std::vector<int>* m_trigger_diamond_bc ATLAS_THREAD_SAFE;
+    std::vector<char>* m_trigger_diamond_sector ATLAS_THREAD_SAFE;
+    std::vector<int>* m_trigger_diamond_stationPhi ATLAS_THREAD_SAFE;
+    std::vector<unsigned int>* m_trigger_diamond_totalCount ATLAS_THREAD_SAFE;
+    std::vector<unsigned int>* m_trigger_diamond_realCount ATLAS_THREAD_SAFE;
+    std::vector<int>* m_trigger_diamond_iX ATLAS_THREAD_SAFE;
+    std::vector<int>* m_trigger_diamond_iU ATLAS_THREAD_SAFE;
+    std::vector<int>* m_trigger_diamond_iV ATLAS_THREAD_SAFE;
+    std::vector<unsigned int>* m_trigger_diamond_XbkgCount ATLAS_THREAD_SAFE;
+    std::vector<unsigned int>* m_trigger_diamond_UVbkgCount ATLAS_THREAD_SAFE;
+    std::vector<unsigned int>* m_trigger_diamond_XmuonCount ATLAS_THREAD_SAFE;
+    std::vector<unsigned int>* m_trigger_diamond_UVmuonCount ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_diamond_age ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_diamond_mx ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_diamond_my ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_diamond_Uavg ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_diamond_Vavg ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_diamond_mxl ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_diamond_theta ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_diamond_eta ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_diamond_dtheta ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_diamond_phi ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_diamond_phiShf ATLAS_THREAD_SAFE;
+    std::vector<uint8_t>* m_trigger_diamond_TP_phi_id ATLAS_THREAD_SAFE;
+    std::vector<uint8_t>* m_trigger_diamond_TP_R_id ATLAS_THREAD_SAFE;
+    std::vector<uint8_t>* m_trigger_diamond_TP_dTheta_id ATLAS_THREAD_SAFE;
 
-    std::vector<double>* m_trigger_RZslopes;
-    std::vector<double>* m_trigger_fitThe;
-    std::vector<double>* m_trigger_fitPhi;
-    std::vector<double>* m_trigger_fitDth;
-    std::vector<double>* m_trigger_trueEtaRange;
-    std::vector<double>* m_trigger_truePtRange;
-    std::vector<double>* m_trigger_fitEtaRange;
-    std::vector<double>* m_trigger_fitPtRange;
-    std::vector<double>* m_trigger_resThe;
-    std::vector<double>* m_trigger_resPhi;
-    std::vector<double>* m_trigger_resDth;
+    std::vector<double>* m_trigger_RZslopes ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_fitThe ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_fitPhi ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_fitDth ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_trueEtaRange ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_truePtRange ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_fitEtaRange ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_fitPtRange ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_resThe ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_resPhi ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_resDth ATLAS_THREAD_SAFE;
 
-    std::vector<double>* m_trigger_large_fitThe;
-    std::vector<double>* m_trigger_large_fitPhi;
-    std::vector<double>* m_trigger_large_fitDth;
-    std::vector<double>* m_trigger_large_trueEtaRange;
-    std::vector<double>* m_trigger_large_truePtRange;
-    std::vector<double>* m_trigger_large_trueThe;
-    std::vector<double>* m_trigger_large_truePhi;
-    std::vector<double>* m_trigger_large_trueDth;
-    std::vector<double>* m_trigger_large_fitEtaRange;
-    std::vector<double>* m_trigger_large_fitPtRange;
-    std::vector<double>* m_trigger_large_resThe;
-    std::vector<double>* m_trigger_large_resPhi;
-    std::vector<double>* m_trigger_large_resDth;
+    std::vector<double>* m_trigger_large_fitThe ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_large_fitPhi ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_large_fitDth ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_large_trueEtaRange ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_large_truePtRange ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_large_trueThe ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_large_truePhi ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_large_trueDth ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_large_fitEtaRange ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_large_fitPtRange ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_large_resThe ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_large_resPhi ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_large_resDth ATLAS_THREAD_SAFE;
 
-    std::vector<double>* m_trigger_small_fitThe;
-    std::vector<double>* m_trigger_small_fitPhi;
-    std::vector<double>* m_trigger_small_fitDth;
-    std::vector<double>* m_trigger_small_trueEtaRange;
-    std::vector<double>* m_trigger_small_truePtRange;
-    std::vector<double>* m_trigger_small_trueThe;
-    std::vector<double>* m_trigger_small_truePhi;
-    std::vector<double>* m_trigger_small_trueDth;
-    std::vector<double>* m_trigger_small_fitEtaRange;
-    std::vector<double>* m_trigger_small_fitPtRange;
-    std::vector<double>* m_trigger_small_resThe;
-    std::vector<double>* m_trigger_small_resPhi;
-    std::vector<double>* m_trigger_small_resDth;
+    std::vector<double>* m_trigger_small_fitThe ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_small_fitPhi ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_small_fitDth ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_small_trueEtaRange ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_small_truePtRange ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_small_trueThe ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_small_truePhi ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_small_trueDth ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_small_fitEtaRange ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_small_fitPtRange ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_small_resThe ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_small_resPhi ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_small_resDth ATLAS_THREAD_SAFE;
 
-    std::vector<int>* m_trigger_VMM;
-    std::vector<int>* m_trigger_plane;
-    std::vector<int>* m_trigger_station;
-    std::vector<int>* m_trigger_strip;
-    std::vector<double>* m_trigger_slope;
-    std::vector<double>* m_trigger_trueThe;
-    std::vector<double>* m_trigger_truePhi;
-    std::vector<double>* m_trigger_trueDth;
-    std::vector<double>* m_trigger_mxl;
-    std::vector<double>* m_trigger_mx;
-    std::vector<double>* m_trigger_my;
-    std::vector<double>* m_trigger_mu;
-    std::vector<double>* m_trigger_mv;
+    std::vector<int>* m_trigger_VMM ATLAS_THREAD_SAFE;
+    std::vector<int>* m_trigger_plane ATLAS_THREAD_SAFE;
+    std::vector<int>* m_trigger_station ATLAS_THREAD_SAFE;
+    std::vector<int>* m_trigger_strip ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_slope ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_trueThe ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_truePhi ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_trueDth ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_mxl ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_mx ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_my ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_mu ATLAS_THREAD_SAFE;
+    std::vector<double>* m_trigger_mv ATLAS_THREAD_SAFE;
 
-    std::vector<std::string> *m_NSWMM_dig_stationName;
-    std::vector<int> *m_NSWMM_dig_stationEta;
-    std::vector<int> *m_NSWMM_dig_stationPhi;
-    std::vector<int> *m_NSWMM_dig_multiplet;
-    std::vector<int> *m_NSWMM_dig_gas_gap;
-    std::vector<int> *m_NSWMM_dig_channel;
+    std::vector<std::string> *m_NSWMM_dig_stationName ATLAS_THREAD_SAFE;
+    std::vector<int> *m_NSWMM_dig_stationEta ATLAS_THREAD_SAFE;
+    std::vector<int> *m_NSWMM_dig_stationPhi ATLAS_THREAD_SAFE;
+    std::vector<int> *m_NSWMM_dig_multiplet ATLAS_THREAD_SAFE;
+    std::vector<int> *m_NSWMM_dig_gas_gap ATLAS_THREAD_SAFE;
+    std::vector<int> *m_NSWMM_dig_channel ATLAS_THREAD_SAFE;
 
-    std::vector< std::vector<float> >  *m_NSWMM_dig_time;
-    std::vector< std::vector<float> >  *m_NSWMM_dig_charge;
-    std::vector< std::vector<int> >    *m_NSWMM_dig_stripPosition;
-    std::vector< std::vector<double> > *m_NSWMM_dig_stripLposX;
-    std::vector< std::vector<double> > *m_NSWMM_dig_stripLposY;
-    std::vector< std::vector<double> > *m_NSWMM_dig_stripGposX;
-    std::vector< std::vector<double> > *m_NSWMM_dig_stripGposY;
-    std::vector< std::vector<double> > *m_NSWMM_dig_stripGposZ;
+    std::vector< std::vector<float> >  *m_NSWMM_dig_time ATLAS_THREAD_SAFE;
+    std::vector< std::vector<float> >  *m_NSWMM_dig_charge ATLAS_THREAD_SAFE;
+    std::vector< std::vector<int> >    *m_NSWMM_dig_stripPosition ATLAS_THREAD_SAFE;
+    std::vector< std::vector<double> > *m_NSWMM_dig_stripLposX ATLAS_THREAD_SAFE;
+    std::vector< std::vector<double> > *m_NSWMM_dig_stripLposY ATLAS_THREAD_SAFE;
+    std::vector< std::vector<double> > *m_NSWMM_dig_stripGposX ATLAS_THREAD_SAFE;
+    std::vector< std::vector<double> > *m_NSWMM_dig_stripGposY ATLAS_THREAD_SAFE;
+    std::vector< std::vector<double> > *m_NSWMM_dig_stripGposZ ATLAS_THREAD_SAFE;
   };  // end of MMTriggerTool class
 } // namespace NSWL1
 #endif

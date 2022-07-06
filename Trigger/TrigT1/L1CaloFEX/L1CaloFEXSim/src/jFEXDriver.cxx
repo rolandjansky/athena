@@ -2,7 +2,6 @@
     Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #undef NDEBUG
 
 #include "CaloEvent/CaloCellContainer.h"
@@ -22,7 +21,7 @@
 #include "L1CaloFEXSim/jFEXSmallRJetTOB.h"
 #include "L1CaloFEXSim/jFEXLargeRJetTOB.h"
 #include "L1CaloFEXSim/jFEXtauTOB.h"
-
+#include "L1CaloFEXSim/jFEXForwardElecTOB.h"
 
 #include "TROOT.h"
 #include "TH1.h"
@@ -45,6 +44,9 @@
 
 #include "xAODTrigger/jFexTauRoI.h"
 #include "xAODTrigger/jFexTauRoIContainer.h" 
+
+#include "xAODTrigger/jFexFwdElRoI.h"
+#include "xAODTrigger/jFexFwdElRoIContainer.h"
 
 #include <cassert>
 #include "SGTools/TestStore.h"
@@ -80,6 +82,7 @@ StatusCode jFEXDriver::initialize()
   ATH_CHECK( m_jFexSRJetEDMKey.initialize() );
   ATH_CHECK( m_jFexLRJetEDMKey.initialize() );
   ATH_CHECK( m_jFexTauEDMKey.initialize() );
+  ATH_CHECK( m_jFexFwdElEDMKey.initialize() );
   ATH_CHECK( m_jFEXOutputCollectionSGKey.initialize() );
   
     std::unique_ptr<TFile> jTowerFile(TFile::Open(PathResolver::find_calib_file(m_PileupWeigthFile).c_str()));
@@ -169,21 +172,22 @@ StatusCode jFEXDriver::execute() {
     ATH_CHECK(testSRJetEDM());
     ATH_CHECK(testLRJetEDM());
     ATH_CHECK(testTauEDM());
-
+    ATH_CHECK(testFwdElEDM());
+    
     // STEP 7 - Close and clean the event  
     m_jFEXSysSimTool->cleanup();
     m_jSuperCellTowerMapperTool->reset();
     m_jTowerBuilderTool->reset();
-
+    
     // STEP 8 - Write the completed jFEXOutputCollection into StoreGate (move the local copy in memory)
     std::unique_ptr<jFEXOutputCollection> local_jFEXOutputCollection = std::unique_ptr<jFEXOutputCollection>(my_jFEXOutputCollection);
     SG::WriteHandle<LVL1::jFEXOutputCollection> jFEXOutputCollectionSG(m_jFEXOutputCollectionSGKey);
     ATH_CHECK(jFEXOutputCollectionSG.record(std::move(local_jFEXOutputCollection)));
-
+    
     ATH_MSG_DEBUG("Executed " << name() << ", closing event number " << m_numberOfEvents );
-
+    
     m_numberOfEvents++;
-
+    
     return StatusCode::SUCCESS;
 }
 
@@ -266,5 +270,33 @@ StatusCode jFEXDriver::testTauEDM(){
 
     return StatusCode::SUCCESS;
 }
+
+StatusCode jFEXDriver::testFwdElEDM(){
+    
+  const xAOD::jFexFwdElRoI* myRoI = 0;
+  SG::ReadHandle<xAOD::jFexFwdElRoIContainer> myRoIContainer(m_jFexFwdElEDMKey);
+  if(!myRoIContainer.isValid()){
+    ATH_MSG_FATAL("Could not retrieve EDM Container " << m_jFexFwdElEDMKey.key());
+    return StatusCode::FAILURE;
+  }
+
+  ATH_MSG_DEBUG("----got container: " << myRoIContainer.key());
+
+  for(const auto& it : * myRoIContainer){
+    myRoI = it;
+    ATH_MSG_DEBUG("EDM jFex Number: "
+		  << +myRoI->jFexNumber() // returns an 8 bit unsigned integer referring to the jFEX number
+		  << " et: "
+		  << myRoI->et() // returns the et value of the EM cluster in MeV
+		  << " eta: "
+		  << myRoI->eta() // returns a floating point global eta 
+		  << " phi: "
+		  << myRoI->phi() // returns a floating point global phi
+		  );
+  }
+
+  return StatusCode::SUCCESS;
+}
+
 
 } // end of LVL1 namespace

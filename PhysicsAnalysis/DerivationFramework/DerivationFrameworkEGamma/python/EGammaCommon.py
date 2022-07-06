@@ -43,7 +43,7 @@ def makeEGammaDFCommon():
     isFullSim = False
     if isMC:
         simulationFlavour = af.fileinfos['metadata']['/Simulation/Parameters']['SimulationFlavour']
-        isFullSim = simulationFlavour in ('default', 'MC12G4', 'FullG4')
+        isFullSim = simulationFlavour in ('default', 'AtlasG4', 'MC12G4', 'FullG4', 'FullG4_QS')
 
     print("EGammaCommon: isMC = ", isMC)
     if isMC:

@@ -4,12 +4,11 @@
 
 #include "AthViews/DebugView.h"
 #include "AthViews/View.h"
-#include "AthenaKernel/getMessageSvc.h"
 
 
 DebugView::DebugView( std::string const& Name, bool AllowFallThrough, std::string const& storeName ) :
   SimpleView( Name, AllowFallThrough, storeName ),
-  AthMessaging( Athena::getMessageSvc(), Name )
+  AthMessaging( Name )
 {
 }
 

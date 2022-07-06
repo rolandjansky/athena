@@ -47,7 +47,7 @@ StatusCode MMHitsTestTool::processEvent() {
       CHECK(executeFillHistos(u));
       //Useful link on how to retrieve variables: http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/MuonSpectrometer/MuonValidation/MuonPRDTest/src/MMSimHitVariables.cxx
       //Get station names and make plots for each wedge
-      MicromegasHitIdHelper* hitHelper = MicromegasHitIdHelper::GetHelper();	
+      const MicromegasHitIdHelper* hitHelper = MicromegasHitIdHelper::GetHelper();
       int simId = (*i_hit).MMId();
       std::string sim_stationName = hitHelper->GetStationName(simId);
       //Declare station name strings

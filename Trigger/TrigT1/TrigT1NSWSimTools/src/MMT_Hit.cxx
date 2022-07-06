@@ -45,7 +45,7 @@ MMT_Hit::MMT_Hit(char wedge, hitData_entry entry, const MuonGM::MuonDetectorMana
   MMDetectorDescription* mm = aHelper.Get_MMDetector(wedge, std::abs(m_station_eta), m_station_phi, m_multiplet, side);
   MMReadoutParameters roP   = mm->GetReadoutParameters();
 
-  m_R = std::sqrt(std::pow(globalPos.x(),2) + std::pow(globalPos.y(),2));
+  m_R = globalPos.perp();
   m_Z = globalPos.z();
   m_Ri = m_strip*roP.stripPitch;
   m_RZslope = m_R / m_Z;

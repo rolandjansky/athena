@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """Set up to read and/or write bytestream files.
 
 This module configures the Athena components required to read from
@@ -15,13 +15,8 @@ file.
 
         component_accumulator.merge(byteStreamReadCfg(ConfigFlags))
 """
-import AthenaConfiguration.ComponentFactory
-import AthenaConfiguration.AllConfigFlags
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.TestDefaults import defaultTestFiles
-from AthenaConfiguration.MainServicesConfig import MainServicesCfg
-from AthenaCommon.Configurable import Configurable
-from AthenaCommon.Logging import logging
 from AthenaServices.MetaDataSvcConfig import MetaDataSvcCfg
 from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg
 from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
@@ -43,15 +38,14 @@ def ByteStreamReadCfg(flags, type_names=None):
         read from bytestream. Should be merged into main job configuration.
     """
     result = ComponentAccumulator()
-    comp_factory = AthenaConfiguration.ComponentFactory.CompFactory
 
-    bytestream_conversion = comp_factory.ByteStreamCnvSvc()
+    bytestream_conversion = CompFactory.ByteStreamCnvSvc()
     result.addService(bytestream_conversion)
 
     if flags.Common.isOnline and not any(flags.Input.Files) and not (flags.Trigger.doHLT or flags.Trigger.doLVL1):
-        bytestream_input = comp_factory.ByteStreamEmonInputSvc("ByteStreamInputSvc")
+        bytestream_input = CompFactory.ByteStreamEmonInputSvc("ByteStreamInputSvc")
     else:
-        bytestream_input = comp_factory.ByteStreamEventStorageInputSvc(
+        bytestream_input = CompFactory.ByteStreamEventStorageInputSvc(
             name="ByteStreamInputSvc",
             EventInfoKey="{}EventInfo".format(
                 flags.Overlay.BkgPrefix if flags.Overlay.DataOverlay else ""
@@ -60,7 +54,7 @@ def ByteStreamReadCfg(flags, type_names=None):
     result.addService(bytestream_input)
 
     if flags.Input.SecondaryFiles:
-        event_selector = comp_factory.EventSelectorByteStream(
+        event_selector = CompFactory.EventSelectorByteStream(
             name="SecondaryEventSelector",
             IsSecondary=True,
             Input=flags.Input.SecondaryFiles,
@@ -69,26 +63,24 @@ def ByteStreamReadCfg(flags, type_names=None):
         )
         result.addService(event_selector)
     else:
-        event_selector = comp_factory.EventSelectorByteStream(
+        event_selector = CompFactory.EventSelectorByteStream(
             name="EventSelector",
             Input=flags.Input.Files,
             SkipEvents=flags.Exec.SkipEvents,
             ByteStreamInputSvc=bytestream_input.name,
+            HelperTools = [CompFactory.xAODMaker.EventInfoSelectorTool()]
         )
-        event_selector.HelperTools += [
-            comp_factory.xAODMaker.EventInfoSelectorTool()
-        ]
         result.addService(event_selector)
         result.setAppProperty("EvtSel", event_selector.name)
 
-    event_persistency = comp_factory.EvtPersistencySvc(
+    event_persistency = CompFactory.EvtPersistencySvc(
         name="EventPersistencySvc", CnvServices=[bytestream_conversion.name]
     )
     result.addService(event_persistency)
 
-    result.addService(comp_factory.ROBDataProviderSvc())
+    result.addService(CompFactory.ROBDataProviderSvc())
 
-    address_provider = comp_factory.ByteStreamAddressProviderSvc(
+    address_provider = CompFactory.ByteStreamAddressProviderSvc(
         TypeNames=type_names if type_names else list(),
     )
     result.addService(address_provider)
@@ -97,12 +89,10 @@ def ByteStreamReadCfg(flags, type_names=None):
         MetaDataSvcCfg(flags, ["IOVDbMetaDataTool", "ByteStreamMetadataTool"])
     )
 
-    proxy = comp_factory.ProxyProviderSvc()
-    proxy.ProviderNames += [address_provider.name]
+    proxy = CompFactory.ProxyProviderSvc(ProviderNames = [address_provider.name])
     result.addService(proxy)
 
-    loader_type_names = [(t.split("/")[0], 'StoreGateSvc+'+t.split("/")[1]) for t in address_provider.TypeNames]
-    result.merge(SGInputLoaderCfg(flags, Load=loader_type_names))
+    result.merge(SGInputLoaderCfg(flags, address_provider.TypeNames))
 
     return result
 
@@ -128,10 +118,9 @@ def ByteStreamWriteCfg(flags, type_names=None):
     ), "Input is from multiple runs, do not know which one to use {}".format(
         all_runs
     )
-    comp_factory = AthenaConfiguration.ComponentFactory.CompFactory
-    result = ComponentAccumulator(comp_factory.AthSequencer('AthOutSeq', StopOverride=True))
+    result = ComponentAccumulator(CompFactory.AthSequencer('AthOutSeq', StopOverride=True))
 
-    event_storage_output = comp_factory.ByteStreamEventStorageOutputSvc(
+    event_storage_output = CompFactory.ByteStreamEventStorageOutputSvc(
         MaxFileMB=15000,
         MaxFileNE=15000000,  # event (beyond which it creates a new file)
         OutputDirectory="./",
@@ -142,7 +131,7 @@ def ByteStreamWriteCfg(flags, type_names=None):
     # release variable depends the way the env is configured
     # FileTag = release
 
-    bytestream_conversion = comp_factory.ByteStreamCnvSvc(
+    bytestream_conversion = CompFactory.ByteStreamCnvSvc(
         name="ByteStreamCnvSvc",
         ByteStreamOutputSvcList=[event_storage_output.getName()],
     )
@@ -151,7 +140,7 @@ def ByteStreamWriteCfg(flags, type_names=None):
     # ByteStreamCnvSvc::connectOutput() requires xAOD::EventInfo
     event_info_input = ('xAOD::EventInfo','StoreGateSvc+EventInfo')
 
-    output_stream = comp_factory.AthenaOutputStream(
+    output_stream = CompFactory.AthenaOutputStream(
         name="BSOutputStreamAlg",
         EvtConversionSvc=bytestream_conversion.name,
         OutputFile="ByteStreamEventStorageOutputSvc",
@@ -189,15 +178,13 @@ def TransientByteStreamCfg(flags, item_list=None, type_names=None, extra_inputs=
     """
 
     result = ComponentAccumulator()
-    comp_factory = AthenaConfiguration.ComponentFactory.CompFactory
 
-    rdp = comp_factory.ROBDataProviderSvc()
-    result.addService(rdp)
+    result.addService(CompFactory.ROBDataProviderSvc())
 
-    rdp_output = comp_factory.ByteStreamRDP_OutputSvc()
+    rdp_output = CompFactory.ByteStreamRDP_OutputSvc()
     result.addService(rdp_output)
 
-    bytestream_conversion = comp_factory.ByteStreamCnvSvc(
+    bytestream_conversion = CompFactory.ByteStreamCnvSvc(
         name="ByteStreamCnvSvc",
         ByteStreamOutputSvcList=[rdp_output.getName()],
     )
@@ -214,7 +201,7 @@ def TransientByteStreamCfg(flags, item_list=None, type_names=None, extra_inputs=
     elif event_info_input not in extra_inputs:
         extra_inputs.append(event_info_input)
 
-    output_stream = comp_factory.AthenaOutputStream(
+    output_stream = CompFactory.AthenaOutputStream(
         name="TransBSStreamAlg",
         EvtConversionSvc=bytestream_conversion.name,
         OutputFile="ByteStreamRDP_OutputSvc",
@@ -222,42 +209,45 @@ def TransientByteStreamCfg(flags, item_list=None, type_names=None, extra_inputs=
         ExtraInputs=extra_inputs,
         ExtraOutputs=extra_outputs
     )
-    result.addEventAlgo(output_stream, primary=True)
+    result.addEventAlgo(output_stream,
+                        primary=True)
 
-    address_provider = comp_factory.ByteStreamAddressProviderSvc(
+    address_provider = CompFactory.ByteStreamAddressProviderSvc(
         TypeNames=type_names if type_names else list(),
     )
     result.addService(address_provider)
 
-    proxy = comp_factory.ProxyProviderSvc()
-    proxy.ProviderNames += [address_provider.name]
-    result.addService(proxy)
+    result.addService(CompFactory.ProxyProviderSvc(
+        ProviderNames = [address_provider.name]))
 
-    loader_type_names = [(t.split("/")[0], 'StoreGateSvc+'+t.split("/")[1]) for t in address_provider.TypeNames]
-    result.merge(SGInputLoaderCfg(flags, Load=loader_type_names))
+    result.merge(SGInputLoaderCfg(flags, Load=address_provider.TypeNames))
 
     return result
 
 
-def main():
+if __name__ == "__main__":
     """Run a functional test if module is executed"""
+
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    from AthenaCommon.Logging import logging
+
     log = logging.getLogger('ByteStreamConfig')
-    Configurable.configurableRun3Behavior = True
 
-    config_flags = AthenaConfiguration.AllConfigFlags.ConfigFlags
-    config_flags.Input.Files = defaultTestFiles.RAW
-    config_flags.Output.doWriteBS = True
-    config_flags.lock()
+    ConfigFlags.Input.Files = defaultTestFiles.RAW
+    ConfigFlags.Output.doWriteBS = True
+    ConfigFlags.lock()
 
-    read = ByteStreamReadCfg(config_flags)
+    read = ByteStreamReadCfg(ConfigFlags)
     read.store(open("test.pkl", "wb"))
     print("All OK")
 
-    write = ByteStreamWriteCfg(config_flags)
+    write = ByteStreamWriteCfg(ConfigFlags)
     write.printConfig()
     log.info("Write setup OK")
 
-    acc = MainServicesCfg(config_flags)
+    acc = MainServicesCfg(ConfigFlags)
     acc.merge(read)
     acc.merge(write)
     acc.printConfig()
@@ -266,8 +256,5 @@ def main():
     with open('ByteStreamConfig.pkl', 'wb') as pkl:
         acc.store(pkl)
 
-    acc.run(10)
-
-
-if __name__ == "__main__":
-    main()
+    import sys
+    sys.exit(acc.run(10).isFailure())

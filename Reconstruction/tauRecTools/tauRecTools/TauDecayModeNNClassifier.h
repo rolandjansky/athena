@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAURECTOOLS_TAUDECAYMODENNCLASSIFIER_H
@@ -39,7 +39,6 @@ public:
 
   virtual StatusCode initialize() override;
   virtual StatusCode execute(xAOD::TauJet &xTau) const override;
-  virtual StatusCode finalize() override;
 
 private:
   /// properties of the tool

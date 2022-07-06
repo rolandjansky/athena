@@ -1,6 +1,6 @@
 /*
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
-*/ 
+*/
 /**
  * @file PixelConditionsAlgorithms/PixelConfigCondAlg.h
  * @author Soshi Tsuno <Soshi.Tsuno@cern.ch>
@@ -27,8 +27,9 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
   public:
     PixelConfigCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
 
-    virtual StatusCode initialize() override;
-    virtual StatusCode execute(const EventContext& ctx) const override;
+    virtual StatusCode initialize() override final;
+    virtual StatusCode execute(const EventContext& ctx) const override final;
+    virtual bool isReEntrant() const override final { return false; }
 
   private:
     // Key for basic pixel parameters
@@ -69,16 +70,16 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     //====================================================================================
     // Run-dependent SIMULATION(digitization) parameters:
     //
-    //   So far, they are year-granularity (3 entries!), thus they may be still 
+    //   So far, they are year-granularity (3 entries!), thus they may be still
     //   controlled via job option.
     //
-    // MC Project:               RUN1            RUN2 mc16a            RUN2 mc16d            RUN2 mc16e 
+    // MC Project:               RUN1            RUN2 mc16a            RUN2 mc16d            RUN2 mc16e
     // Year:                   - 2014             2015/2016                  2017                  2018
     // MC Run Number:         <222222                284500                300000                310000
     // Reference run#:            ---                303638                336506                357193
     // Luminosity(fb-1):                               17.3                  69.0                 119.4
-    //                                 
-    // Barrel:                             
+    //
+    // Barrel:
     //  ToT:         [   3,   3,   3] [  -1,   5,   5,   5] [  -1,   5,   5,   5] [  -1,   3,   5,   5]
     //  Latency:     [ 256, 256, 256] [  -1, 150, 256, 256] [  -1, 150, 256, 256] [  -1, 150, 256, 256]
     //  Duplicaiton: [   T,   T,   T] [ N/A,   F,   F,   F] [ N/A,   F,   F,   F] [ N/A,   F,   F,   F]
@@ -91,7 +92,7 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     //  BiasVoltage: [ 150, 150, 150] [  80, 350, 200, 150] [ 350, 350, 200, 150] [ 400, 400, 250, 250]
     //  Fluence(e14):[1.01,0.44,0.30] [0.80,1.61,0.71,0.48] [3.18,3.42,1.50,1.01] [5.50,5.19,2.28,1.53]
     //
-    // Endcap:                             
+    // Endcap:
     //  ToT:         [   3,   3,   3]      [   5,   5,   5]      [   5,   5,   5]      [   5,   5,   5]
     //  Latency:     [ 256, 256, 256]      [ 256, 256, 256]      [ 256, 256, 256]      [ 256, 256, 256]
     //  Duplicaiton: [   T,   T,   T]      [   F,   F,   F]      [   F,   F,   F]      [   F,   F,   F]
@@ -104,14 +105,14 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     //  BiasVoltage: [ 150, 150, 150]      [ 150, 150, 150]      [ 150, 150, 150]      [ 250, 250, 250]
     //  Fluence(e14):[ n/a, n/a, n/a]      [ n/a, n/a, n/a]      [ n/a, n/a, n/a]      [ n/a, n/a, n/a]
     //
-    // DBM:                           
+    // DBM:
     //  ToT:                    [N/A]      [  -1,  -1,  -1]      [  -1,  -1,  -1]      [  -1,  -1,  -1]
     //  CrossTalk:              [N/A]      [0.06,0.06,0.06]      [0.06,0.06,0.06]      [0.06,0.06,0.06]
     //  NoiseOcc.:              [N/A]      [5e-8,5e-8,5e-8]      [5e-8,5e-8,5e-8]      [5e-8,5e-8,5e-8]
     //  DisalbePix:             [N/A]      [9e-3,9e-3,9e-3]      [9e-3,9e-3,9e-3]      [9e-3,9e-3,9e-3]
     //  BiasVoltage:            [N/A]      [ 500, 500, 500]      [ 500, 500, 500]      [ 500, 500, 500]
     //
-    // IBL 3D:                           
+    // IBL 3D:
     //  Fluence(e14):           [N/A]                [0.50]                [0.50]                [50.0]
     //
     // See  https://twiki.cern.ch/twiki/bin/view/Atlas/PixelConditionsRUN2
@@ -123,8 +124,8 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     // MC Run Number:               330000                331000                332000
     // Reference run#:                 ---                   ---                   ---
     // Luminosity(fb-1):     (plan) 36fb-1                85fb-1                85fb-1
-    //                                 
-    // Barrel:                             
+    //
+    // Barrel:
     //  ToT:         [  -1,   3,   5,   5]
     //  Latency:     [  -1, 150, 256, 256]
     //  Duplicaiton: [ N/A,   F,   F,   F]
@@ -137,7 +138,7 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     //  BiasVoltage: [ 450, 450, 300, 300]
     //  Fluence(e14):[ 7.2, 6.8, 3.0, 2.0]
     //
-    // Endcap:                             
+    // Endcap:
     //  ToT:         [   5,   5,   5]
     //  Latency:     [ 256, 256, 256]
     //  Duplicaiton: [   F,   F,   F]
@@ -157,7 +158,7 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     //  DisalbePix:  [9e-3,9e-3,9e-3]
     //  BiasVoltage: [ 500, 500, 500]
     //
-    // IBL 3D:                           
+    // IBL 3D:
     //  Fluence(e14):[ 7.5]
     //
     //====================================================================================
@@ -672,8 +673,8 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     {this, "EndcapLorentzAngleCorrRUN1", {1.0,1.0,1.0}, "Scale factor for Lorentz angle of endcap pixel layers in RUN1"};
 
     //====================================================================================
-    // The following parameters are default values which will be overwritten by the one 
-    // from the conditions DB. Otherwise the DB is not retrieved nor available, these 
+    // The following parameters are default values which will be overwritten by the one
+    // from the conditions DB. Otherwise the DB is not retrieved nor available, these
     // values are used.
     //====================================================================================
     Gaudi::Property<std::vector<int>> m_BarrelAnalogThreshold
@@ -769,16 +770,16 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
 
     Gaudi::Property<double> m_distortionR1
     {this, "DistortionR1", 0.1/CLHEP::meter, "Fixed distortion parameters: radius of curvature"}; //corresponding to a sagitta of 50 um
-    
+
     Gaudi::Property<double> m_distortionR2
     {this, "DistortionR2", 0.1/CLHEP::meter, "Fixed distortion parameters: radius of curvature"}; //corresponding to a sagitta of 50 um
 
     Gaudi::Property<double> m_distortionTwist
-    {this, "DistortionTwist", 0.0005,"Fixed distortion parameters: twist angle (tan(theta))"}; 
+    {this, "DistortionTwist", 0.0005,"Fixed distortion parameters: twist angle (tan(theta))"};
 
     Gaudi::Property<double> m_distortionMeanR
     {this, "DistortionMean_R", 0.12/CLHEP::meter, "Random distortion parameters: Mean of radius of curvature"}; //Mean value from Survey
-    
+
     Gaudi::Property<double> m_distortionRMSR
     {this, "DistortionRMS_R", 0.08/CLHEP::meter, "Random distortion parameters: RMS of curvature radius"}; //RMS value from Survey
 
@@ -789,7 +790,7 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     {this, "DistortionRMS_twist", 0.0008,"Random distortion parameters: RMS of twist angle"}; //RMS value from Survey
 
     Gaudi::Property<bool> m_distortionWriteToFile
-    {this, "DistortionWriteToFile", false, "Record data in storegate"}; 
+    {this, "DistortionWriteToFile", false, "Record data in storegate"};
 
     Gaudi::Property<std::string> m_distortionFileName
     {this, "DistortionFileName", "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/TrackingCP/PixelDistortions/PixelDistortionsData_v2_BB.txt","Read distortions from this file"};

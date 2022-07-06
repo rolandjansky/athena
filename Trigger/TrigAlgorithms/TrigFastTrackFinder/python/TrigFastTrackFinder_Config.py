@@ -391,8 +391,6 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         if remapped_type=="cosmics":
           TrackMaker_FTF.CosmicTrack=True
 
-        self.useBeamSpotForRoiZwidth = config.useBeamSpotForRoiZwidth
-        
         ToolSvc += TrackMaker_FTF
         self.initialTrackMaker = TrackMaker_FTF
 

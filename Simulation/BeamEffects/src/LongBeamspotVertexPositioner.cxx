@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // class header include
@@ -78,12 +78,12 @@ namespace Simulation
   }
 
   /** computes the vertex displacement */
-  CLHEP::HepLorentzVector *LongBeamspotVertexPositioner::generate() const
+  CLHEP::HepLorentzVector *LongBeamspotVertexPositioner::generate(const EventContext& ctx) const
   {
     // Prepare the random engine
-    m_randomEngine->setSeed( name(), Gaudi::Hive::currentContext() );
-    CLHEP::HepRandomEngine* randomEngine(*m_randomEngine);
-    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+    m_randomEngine->setSeed( name(), ctx );
+    CLHEP::HepRandomEngine* randomEngine(m_randomEngine->getEngine(ctx));
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
     // See jira issue ATLASSIM-497 for an explanation of why calling
     // shoot outside the CLHEP::HepLorentzVector constructor is
     // necessary/preferable.

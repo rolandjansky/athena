@@ -1,8 +1,12 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
-from AthenaConfiguration.Enums import BeamType, LHCPeriod
+from AthenaConfiguration.Enums import BeamType, LHCPeriod, FlagEnum
 
+class TrackFitterType(FlagEnum):
+    DistributedKalmanFilter = 'DistributedKalmanFilter'
+    GlobalChi2Fitter = 'GlobalChi2Fitter'
+    GaussianSumFilter = 'GaussianSumFilter'
 
 def createInDetConfigFlags():
     icf = AthConfigFlags()
@@ -49,13 +53,11 @@ def createInDetConfigFlags():
     icf.addFlag("InDet.Tracking.doDigitalROTCreation", False)
     icf.addFlag("InDet.Tracking.holeSearchInGX2Fit", True)
     # control which fitter to be used: ('DistributedKalmanFilter', 'GlobalChi2Fitter', 'GaussianSumFilter')
-    icf.addFlag("InDet.Tracking.trackFitterType", "GlobalChi2Fitter")
+    icf.addFlag("InDet.Tracking.trackFitterType", TrackFitterType.GlobalChi2Fitter)
     # control which measurement updator to load as InDetUpdator
     # ("None"/"fast"/"smatrix"/"weight"/"amg")
     # "None" loads the default KalmanUpdator
     icf.addFlag("InDet.Tracking.kalmanUpdator", "smatrix")
-    # control which propagator to use ('RungeKutta'/'STEP')
-    icf.addFlag("InDet.Tracking.propagatorType", "RungeKutta")
     # control if the shared hits are recorded in TrackPatricles
     icf.addFlag("InDet.Tracking.doSharedHits", True)
     # Express track parameters wrt. to : 'BeamLine','BeamSpot','Vertex' (first primary vertex)
@@ -188,6 +190,7 @@ def createInDetConfigFlags():
     icf.addFlag("InDet.Tracking.doVtxBeamSpot", False)
     # Special configuration for low-mu runs
     icf.addFlag("InDet.Tracking.doLowMu", False)
+    icf.addFlag("InDet.Tracking.writeSeedValNtuple", False) # Turn writing of seed validation ntuple on and off
     icf.addFlag("InDet.Tracking.writeExtendedPRDInfo", False)
     # Special pass using truth information for pattern recognition, runs in parallel to/instead of the first pass
     icf.addFlag("InDet.Tracking.doPseudoTracking", False)
@@ -207,7 +210,7 @@ def createInDetConfigFlags():
         createDBMTrackingPassFlags, createRobustRecoTrackingPassFlags)
 
     # Set up for first tracking pass, updated for second passes
-    icf.addFlagsCategory("InDet.Tracking.ActivePass",
+    icf.addFlagsCategory("InDet.Tracking.MainPass",
                          createTrackingPassFlags, prefix=True)
     icf.addFlagsCategory("InDet.Tracking.HighPileupPass",
                          createHighPileupTrackingPassFlags, prefix=True)

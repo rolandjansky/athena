@@ -222,11 +222,13 @@ def L1ConfigSvcCfg( flags ):
             l1ConfigSvc.SMK = dbKeys['SMK']
 
         l1ConfigSvc.InputType = "FILE"
-        l1ConfigSvc.JsonFileName = getL1MenuFileName(flags)
-        log.info( "For run 3 style menu access configured LVL1ConfigSvc with InputType='FILE', JsonFileName=%s", l1ConfigSvc.JsonFileName )
+        l1ConfigSvc.L1JsonFileName = getL1MenuFileName(flags)
+        l1ConfigSvc.HLTJsonFileName = getHLTMenuFileName(flags)
+        log.info( "For run 3 style menu access configured LVL1ConfigSvc with InputType='FILE', L1JsonFileName=%s (and HLT, used to compute SMK:%s) ", l1ConfigSvc.L1JsonFileName, l1ConfigSvc.HLTJsonFileName )
     elif cfg["SOURCE"] == "DB":
         l1ConfigSvc.InputType = "DB"
-        l1ConfigSvc.JsonFileName = ""
+        l1ConfigSvc.L1JsonFileName = ""
+        l1ConfigSvc.HLTJsonFileName = ""
         l1ConfigSvc.TriggerDB = cfg["DBCONN"]
         l1ConfigSvc.SMK = cfg["SMK"]
         log.info( "For run 3 style menu access configured LVL1ConfigSvc with InputType='DB', SMK %d", cfg['SMK'] )
@@ -251,13 +253,16 @@ def HLTConfigSvcCfg( flags ):
             hltConfigSvc.SMK = dbKeys['SMK']
 
         hltConfigSvc.InputType = "FILE"
-        hltConfigSvc.JsonFileName = getHLTMenuFileName( flags )
+        hltConfigSvc.L1JsonFileName = getL1MenuFileName( flags )
+        hltConfigSvc.HLTJsonFileName = getHLTMenuFileName( flags )
         hltConfigSvc.MonitoringJsonFileName = getHLTMonitoringFileName( flags )
-        log.info( "Configured HLTConfigSvc with InputType='FILE', JsonFileName=%s and MonitoringJsonFileName=%s",
-          hltConfigSvc.JsonFileName, hltConfigSvc.MonitoringJsonFileName )
+        log.info( "Configured HLTConfigSvc with InputType='FILE', HLTJsonFileName=%s and MonitoringJsonFileName=%s (and L1, used to compute MC-SMK:%s)",
+          hltConfigSvc.HLTJsonFileName, hltConfigSvc.MonitoringJsonFileName, hltConfigSvc.L1JsonFileName)
     elif cfg["SOURCE"] == "DB":
         hltConfigSvc.InputType = "DB"
-        hltConfigSvc.JsonFileName = ""
+        hltConfigSvc.L1JsonFileName = ""
+        hltConfigSvc.HLTJsonFileName = ""
+        hltConfigSvc.MonitoringJsonFileName = ""
         hltConfigSvc.TriggerDB = cfg["DBCONN"]
         hltConfigSvc.SMK = cfg["SMK"]
         log.info( "For run 3 style menu access configured HLTConfigSvc with InputType='DB' and SMK %d", cfg['SMK'] )

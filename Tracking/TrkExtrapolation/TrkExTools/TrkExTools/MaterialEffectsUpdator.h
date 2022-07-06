@@ -11,7 +11,6 @@
 
 #include "TrkExInterfaces/IMaterialEffectsUpdator.h"
 // Trk
-#include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkExUtils/MaterialUpdateMode.h"
 #include "TrkParameters/TrackParameters.h"

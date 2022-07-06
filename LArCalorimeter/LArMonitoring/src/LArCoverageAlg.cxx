@@ -197,7 +197,7 @@ LArCoverageAlg::fillHistograms( const EventContext& ctx ) const
   const CaloNoise* noiseCDO=*noiseHdl;
 
   if(ctx.evt() == 0){ //first event
-    lb1 = (float)GetEventInfo(ctx)->lumiBlock();
+    lb1 = (float)ctx.eventID().lumi_block();
     fill(m_CaloNoiseToolGroupName,lb1,lb1_x);
   }
 

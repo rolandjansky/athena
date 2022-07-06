@@ -99,6 +99,8 @@ if __name__=="__main__":
     ConfigFlags.Input.Files=defaultTestFiles.RAW
     ConfigFlags.LAr.ROD.forceIter=True
 
+    ConfigFlags.lock()
+
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     
     cfg=MainServicesCfg(ConfigFlags)

@@ -52,6 +52,16 @@ void compare (const TgcRawData& p1,
   assert (p1.isOverlap() == p2.isOverlap());
   assert (p1.isVeto() == p2.isVeto());
   assert (p1.roi() == p2.roi());
+  assert (p1.innerflag() == p2.innerflag());
+  assert (p1.coinflag() == p2.coinflag());
+  assert (p1.nsweta() == p2.nsweta());
+  assert (p1.nswphi() == p2.nswphi());
+  assert (p1.nswsl() == p2.nswsl());
+  assert (p1.nswcand() == p2.nswcand());
+  assert (p1.nswdtheta() == p2.nswdtheta());
+  assert (p1.nswphires() == p2.nswphires());
+  assert (p1.nswlowres() == p2.nswlowres());
+  assert (p1.nswid() == p2.nswid());
 }
 
 

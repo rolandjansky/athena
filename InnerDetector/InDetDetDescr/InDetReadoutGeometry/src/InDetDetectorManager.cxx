@@ -11,7 +11,6 @@
 #include "GeoPrimitives/CLHEPtoEigenConverter.h" 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
-#include "AthenaKernel/getMessageSvc.h"
 
 #include <map>
 
@@ -19,7 +18,7 @@ namespace InDetDD
 {
 
     InDetDetectorManager::InDetDetectorManager(StoreGateSvc * detStore, const std::string & name)
-        : AthMessaging(Athena::getMessageSvc(), name+"DetectorManager"),
+        : AthMessaging(name+"DetectorManager"),
           m_alignfoldertype{none},m_detStore(detStore), 
           m_suppressWarnings(false)
     {

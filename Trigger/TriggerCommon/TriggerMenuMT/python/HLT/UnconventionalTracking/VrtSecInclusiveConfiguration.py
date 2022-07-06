@@ -19,12 +19,16 @@ def VrtSecInclusiveSequence(ConfigFlags):
     from TriggerMenuMT.HLT.Jet.JetMenuSequences import getTrackingInputMaker
     im_alg = getTrackingInputMaker("ftf")
 
+    from TrigInDetConfig.InDetTrigVertices import makeInDetTrigVertices
+    vtxAlgs = makeInDetTrigVertices( "jet", fscfg.tracks_FTF(), fscfg.vertex_jet, fscfg, adaptiveVertex=fscfg.adaptiveVertex_jet)
+    prmVtx = vtxAlgs[-1]
+
     from TrigVrtSecInclusive.TrigVrtSecInclusiveConfig import TrigVrtSecInclusiveCfg
     theVSI = TrigVrtSecInclusiveCfg("TrigVrtSecInclusive", fscfg.tracks_FTF(), lrtcfg.tracks_FTF(), fscfg.vertex, "HLT_TrigVSIVertex", "HLT_TrigVSITrkPair")
     theVSI.recordTrkPair = False
     vtx_reco_algs = [theVSI]
 
-    TrkSeq = parOR("UncTrkrecoSeqVSI", [im_alg, ft_reco_algs, vtx_reco_algs])
+    TrkSeq = parOR("UncTrkrecoSeqVSI", [im_alg, ft_reco_algs, prmVtx, vtx_reco_algs])
     sequenceOut = "HLT_TrigVSIVertex"
 
     return (TrkSeq, im_alg, sequenceOut)
@@ -43,6 +47,7 @@ def VrtSecInclusiveMenuSequence():
 
     from TrigEDMConfig.TriggerEDMRun3 import recordable
     theHypoAlg.verticesKey = recordable(sequenceOut)
+    theHypoAlg.isViewBased = False
 
     log.info("Building the Step dictinary for TrigVSI!")
     return MenuSequence( Sequence    = TrkSeq,

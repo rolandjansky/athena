@@ -183,9 +183,14 @@ Trk::PlaneSurface::operator==(const Trk::Surface& sf) const
   bool boundsEqual = bounds() == psf->bounds();
   return transfEqual && centerEqual && boundsEqual;
 }
-
+#if defined(__GNUC__)
+[[gnu::flatten]]
+// Avoid out-of-line Eigen calls
+#endif
 void
-Trk::PlaneSurface::localToGlobal(const Amg::Vector2D& locpos, const Amg::Vector3D&, Amg::Vector3D& glopos) const
+Trk::PlaneSurface::localToGlobal(const Amg::Vector2D& locpos,
+                                 const Amg::Vector3D&,
+                                 Amg::Vector3D& glopos) const
 {
   Amg::Vector3D loc3Dframe(locpos[Trk::locX], locpos[Trk::locY], 0.);
   glopos = transform() * loc3Dframe;
@@ -194,7 +199,7 @@ Trk::PlaneSurface::localToGlobal(const Amg::Vector2D& locpos, const Amg::Vector3
 bool
 Trk::PlaneSurface::globalToLocal(const Amg::Vector3D& glopos, const Amg::Vector3D&, Amg::Vector2D& locpos) const
 {
-  Amg::Vector3D loc3Dframe = (transform().inverse()) * glopos;
+  Amg::Vector3D loc3Dframe = inverseTransformMultHelper(glopos);
   locpos = Amg::Vector2D(loc3Dframe.x(), loc3Dframe.y());
   return (loc3Dframe.z() * loc3Dframe.z() <= s_onSurfaceTolerance * s_onSurfaceTolerance);
 }
@@ -221,7 +226,7 @@ void
 Trk::PlaneSurface::globalToLocalDirection(const Amg::Vector3D& glodir, Trk::LocalDirection& ldir) const
 {
   // bring the global direction into the surface frame
-  Amg::Vector3D d(transform().inverse().linear() * glodir);
+  Amg::Vector3D d(inverseTransformHelper().linear() * glodir);
   ldir = Trk::LocalDirection(std::atan2(d.z(), d.x()), std::atan2(d.z(), d.y()));
 }
 
@@ -230,7 +235,7 @@ Trk::PlaneSurface::isOnSurface(const Amg::Vector3D& glopo,
                                const Trk::BoundaryCheck& bchk, 
                                double tol1, double tol2) const
 {
-  Amg::Vector3D loc3Dframe = (transform().inverse()) * glopo;
+  Amg::Vector3D loc3Dframe = inverseTransformMultHelper(glopo);
   if (std::abs(loc3Dframe(2)) > (s_onSurfaceTolerance + tol1)){
     return false;
   }

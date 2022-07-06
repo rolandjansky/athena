@@ -181,8 +181,6 @@ namespace iFatras {
     /** Name of the random number stream */
     std::string                                      m_randomEngineName;                 
     
-    /** struct of Particle Masses */
-    Trk::ParticleMasses                              m_particleMasses;
     Trk::PdgToParticleHypothesis                     m_pdgToParticleHypothesis;
 
     /** Validation section */

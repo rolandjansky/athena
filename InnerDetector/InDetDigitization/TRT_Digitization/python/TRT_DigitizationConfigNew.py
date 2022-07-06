@@ -1,6 +1,6 @@
 """Define methods to construct configured TRT Digitization tools and algorithms
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -163,13 +163,19 @@ def TRT_OverlayDigitizationToolCfg(flags, name="TRT_OverlayDigitizationTool", **
     """Return ComponentAccumulator with configured Overlay TRT digitization tool"""
     acc = ComponentAccumulator()
     kwargs.setdefault("OnlyUseContainerName", False)
-    kwargs.setdefault("OutputObjectName", flags.Overlay.SigPrefix + "TRT_RDOs")
-    kwargs.setdefault("OutputSDOName", flags.Overlay.SigPrefix + "TRT_SDO_Map")
+    #in the case of track overlay, only run digitization on the HS
+    if not flags.Overlay.doTrackOverlay:
+        kwargs.setdefault("OutputObjectName", flags.Overlay.SigPrefix + "TRT_RDOs")
+        kwargs.setdefault("OutputSDOName", flags.Overlay.SigPrefix + "TRT_SDO_Map")
+        kwargs.setdefault("Override_isOverlay", 1)
+    else:
+        kwargs.setdefault("OutputObjectName", "TRT_RDOs")
+        kwargs.setdefault("OutputSDOName", "TRT_SDO_Map")
+        kwargs.setdefault("Override_isOverlay", 0)
     kwargs.setdefault("HardScatterSplittingMode", 0)
     kwargs.setdefault("Override_getT0FromData", 0)
     kwargs.setdefault("Override_noiseInSimhits", 0)
     kwargs.setdefault("Override_noiseInUnhitStraws", 0)
-    kwargs.setdefault("Override_isOverlay", 1)
     kwargs.setdefault("MergeSvc", '')
     tool = acc.popToolsAndMerge(TRT_DigitizationBasicToolCfg(flags, name, **kwargs))
     acc.setPrivateTools(tool)
@@ -201,6 +207,10 @@ def TRT_DigitizationBasicCfg(flags, **kwargs):
 def TRT_OverlayDigitizationBasicCfg(flags, **kwargs):
     """Return ComponentAccumulator with TRT Overlay digitization"""
     acc = ComponentAccumulator()
+    if flags.Common.ProductionStep != ProductionStep.FastChain:
+        from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
+        acc.merge(SGInputLoaderCfg(flags, ["TRTUncompressedHitCollection#TRTUncompressedHits"]))
+
     if "DigitizationTool" not in kwargs:
         tool = acc.popToolsAndMerge(TRT_OverlayDigitizationToolCfg(flags))
         kwargs["DigitizationTool"] = tool

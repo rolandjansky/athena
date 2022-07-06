@@ -24,7 +24,10 @@ TRT_hit make_hit(float phi, float R, bool isHT){
   return my_hit;
 }
 
-
+//hth_eta_match is used for matching hits to RoI eta
+bool hth_eta_match(float caleta, float trteta, float etaWindow){
+  return std::abs(caleta)<etaWindow or caleta*trteta>0.;
+}
 //---------------------------------------------------------------------------------
 
 
@@ -145,7 +148,9 @@ StatusCode TrigTRTHTHCounter::execute(const EventContext& ctx) const {
       if ((*trtItr)->highLevel()) hth = true;
 
       //hit needs to be stored
-      hit.push_back(make_hit(hphi,R,hth));
+      if(hth_eta_match((roiDescriptor)->eta(), heta, m_etaHalfWidth))
+          hit.push_back(make_hit(hphi,R,hth));
+
 
       //First, define coarse wedges in phi, and count the TRT hits in these wedges
       int countbin=0;	
@@ -154,9 +159,9 @@ StatusCode TrigTRTHTHCounter::execute(const EventContext& ctx) const {
 	float endValue = roiDescriptor->phi() + m_phiHalfWidth;
 	float increment = 2*coarseWedgeHalfWidth;
         for(float roibincenter = startValue; roibincenter < endValue; roibincenter += increment){
-        if (CxxUtils::deltaPhi(hphi,roibincenter)<=coarseWedgeHalfWidth) {
-	  if(hth) count_httrt_c.at(countbin) += 1.;
-	  count_tottrt_c.at(countbin) += 1.;
+          if (CxxUtils::deltaPhi(hphi,roibincenter)<=coarseWedgeHalfWidth && hth_eta_match((roiDescriptor)->eta(), heta, m_etaHalfWidth)) {
+	    if(hth) count_httrt_c.at(countbin) += 1.;
+	    count_tottrt_c.at(countbin) += 1.;
 	  break; //the hit has been assigned to one of the coarse wedges, so no need to continue the for loop							
 	}
 	countbin++;
@@ -274,4 +279,5 @@ StatusCode TrigTRTHTHCounter::execute(const EventContext& ctx) const {
 
   return StatusCode::SUCCESS;
 }
+
 

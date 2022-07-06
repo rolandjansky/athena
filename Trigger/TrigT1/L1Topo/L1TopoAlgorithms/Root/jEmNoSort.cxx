@@ -20,6 +20,9 @@ TCS::jEmNoSort::jEmNoSort(const std::string & name) :
 {
    defineParameter( "InputWidth", 64 ); // for FW
    defineParameter( "OutputWidth", 64 );
+   defineParameter( "IsoMin", 0 );
+   defineParameter( "Frac1Min", 0 );
+   defineParameter( "Frac2Min", 0 );
 }
 
 
@@ -29,6 +32,9 @@ TCS::jEmNoSort::~jEmNoSort()
 TCS::StatusCode
 TCS::jEmNoSort::initialize() {
    m_numberOfjEms = parameter("OutputWidth").value();
+   m_iso = parameter("IsoMin").value();
+   m_frac1 = parameter("Frac1Cut").value();
+   m_frac2 = parameter("Frac2Cut").value();
    return TCS::StatusCode::SUCCESS;
 }
 
@@ -41,7 +47,12 @@ TCS::jEmNoSort::sort(const InputTOBArray & input, TOBArray & output) {
 
    // fill output array with GenericTOBs builds from jets
    for(jEmTOBArray::const_iterator jet = jets.begin(); jet!= jets.end(); ++jet ) {
-       output.push_back( GenericTOB(**jet) );
+      // Isolation cuts
+      if ( !isocut(m_iso, (*jet)-> isolation()) ) continue; 
+      if ( !isocut(m_frac1, (*jet)-> frac1()) ) continue; 
+      if ( !isocut(m_frac2, (*jet)-> frac2()) ) continue; 
+
+      output.push_back( GenericTOB(**jet) );
    }
 
 

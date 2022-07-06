@@ -929,6 +929,9 @@ def make_peeker(meta_dict):
                 'TruthStrategy',
                 'SimBarcodeOffset',
                 'TRTRangeCut',
+                'SimulationFlavour',
+                'Simulator',
+                'PhysicsList',
             ]
             for item in list(meta_dict[filename]['/Simulation/Parameters']):
                 if item not in keys_to_keep:
@@ -939,6 +942,8 @@ def make_peeker(meta_dict):
                 'numberOfCollisions',
                 'intraTrainBunchSpacing',
                 'BeamIntensityPattern'
+                'physicsList',
+                'digiSteeringConf',
             ]
             for item in list(meta_dict[filename]['/Digitization/Parameters']):
                 if item not in keys_to_keep:

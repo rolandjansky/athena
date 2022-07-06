@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Framework includes
@@ -14,7 +14,7 @@
 
 void HepMcParticleLinkCnv_p2::persToTrans( const HepMcParticleLink_p2* persObj,
                                            HepMcParticleLink* transObj,
-                                           MsgStream &/*msg*/ )
+                                           MsgStream &/*msg*/ ) const
 {
   HepMcParticleLink::PositionFlag flag = HepMcParticleLink::IS_INDEX;
 
@@ -32,7 +32,7 @@ void HepMcParticleLinkCnv_p2::persToTrans( const HepMcParticleLink_p2* persObj,
 
 void HepMcParticleLinkCnv_p2::transToPers( const HepMcParticleLink* transObj,
                                            HepMcParticleLink_p2* persObj,
-                                           MsgStream &msg )
+                                           MsgStream &msg ) const
 {
   // In the case that the standard production workflow is being used
   // then the first event in the McEventCollection is the only one

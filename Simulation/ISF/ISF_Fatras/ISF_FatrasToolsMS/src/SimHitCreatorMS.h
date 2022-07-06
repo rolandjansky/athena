@@ -114,10 +114,10 @@ namespace iFatras
       ServiceHandle<IAtRndmGenSvc>         m_randomSvc;                //!< Random Svc  
       std::string                          m_randomEngineName;         //!< Name of the random number stream
       CLHEP::HepRandomEngine*              m_randomEngine;             //!< Random Engine 
-      MdtHitIdHelper*                      m_mdtHitIdHelper;
-      RpcHitIdHelper*                      m_rpcHitIdHelper;
-      CscHitIdHelper*                      m_cscHitIdHelper;
-      TgcHitIdHelper*                      m_tgcHitIdHelper;
+      const MdtHitIdHelper*                m_mdtHitIdHelper;
+      const RpcHitIdHelper*                m_rpcHitIdHelper;
+      const CscHitIdHelper*                m_cscHitIdHelper;
+      const TgcHitIdHelper*                m_tgcHitIdHelper;
       ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
       MM_SimIdToOfflineId*                 m_mmOffToSimId;
       sTgcSimIdToOfflineId*                m_stgcOffToSimId;

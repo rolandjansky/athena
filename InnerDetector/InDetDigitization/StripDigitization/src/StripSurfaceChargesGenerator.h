@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -140,31 +140,37 @@ class StripSurfaceChargesGenerator : public extends<AthAlgTool, ISurfaceChargesG
   bool m_SurfaceDriftFlag{false}; //!< surface drift ON/OFF
 
   // -- Histograms
-  TProfile* m_h_efieldz{nullptr};
-  TH1F* m_h_efield{nullptr};
-  TH1F* m_h_spess{nullptr};
-  TH1F* m_h_depD{nullptr};
-  TH2F* m_h_drift_electrode{nullptr};
-  TH1F* m_h_ztrap{nullptr};
-  TH1F* m_h_drift_time{nullptr};
-  TH1F* m_h_t_electrode{nullptr};
-  TH1F* m_h_zhit{nullptr};
-  TH1F* m_h_ztrap_tot{nullptr};
-  TH1F* m_h_no_ztrap{nullptr};
-  TH1F* m_h_trap_drift_t{nullptr};
-  TH1F* m_h_notrap_drift_t{nullptr};
-  TProfile* m_h_mob_Char{nullptr};
-  TProfile* m_h_vel{nullptr};
-  TProfile* m_h_drift1{nullptr};
-  TProfile* m_h_gen{nullptr};
-  TProfile* m_h_gen1{nullptr};
-  TProfile* m_h_gen2{nullptr};
-  TProfile* m_h_velocity_trap{nullptr};
-  TProfile* m_h_mobility_trap{nullptr};
-  TH1F* m_h_trap_pos{nullptr};
+  struct Hists {
+    StatusCode book (ITHistSvc& histSvc);
+    TProfile* m_h_efieldz{nullptr};
+    TH1F* m_h_efield{nullptr};
+    TH1F* m_h_spess{nullptr};
+    TH1F* m_h_depD{nullptr};
+    TH2F* m_h_drift_electrode{nullptr};
+    TH1F* m_h_ztrap{nullptr};
+    TH1F* m_h_drift_time{nullptr};
+    TH1F* m_h_t_electrode{nullptr};
+    TH1F* m_h_zhit{nullptr};
+    TH1F* m_h_ztrap_tot{nullptr};
+    TH1F* m_h_no_ztrap{nullptr};
+    TH1F* m_h_trap_drift_t{nullptr};
+    TH1F* m_h_notrap_drift_t{nullptr};
+    TProfile* m_h_mob_Char{nullptr};
+    TProfile* m_h_vel{nullptr};
+    TProfile* m_h_drift1{nullptr};
+    TProfile* m_h_gen{nullptr};
+    TProfile* m_h_gen1{nullptr};
+    TProfile* m_h_gen2{nullptr};
+    TProfile* m_h_velocity_trap{nullptr};
+    TProfile* m_h_mobility_trap{nullptr};
+    TH1F* m_h_trap_pos{nullptr};
+  };
+  std::unique_ptr<Hists> m_h;
 
   // For Induced Charge Module, M.Togawa
   std::unique_ptr<InducedChargeModel> m_InducedChargeModel;
+
+  Hists& getHists() const;
 };
 
 } // namespace ITk

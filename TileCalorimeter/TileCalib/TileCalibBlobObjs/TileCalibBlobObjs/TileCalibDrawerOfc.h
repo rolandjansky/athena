@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECALIBDRAWEROFC_H
@@ -217,6 +217,10 @@ inline int32_t TileCalibDrawerOfc::getNPhases() const {
 __attribute__((always_inline)) 
 inline unsigned int TileCalibDrawerOfc::getPhaseNumber(unsigned int channel, unsigned int adc, float& phase) const {
 
+  if (std::abs(phase) > 1e6F) {
+    // Bad phase is requested (probably, bad value is in the DB)
+    phase = 0.0F;
+  }
   int db_phase = (int) std::round(phase * (1 / PHASE_PRECISION)); // Phases are stored as int(10*phase) in DB
   const int32_t* beg = getPhaseStartAddress(channel, adc, 0);
   const int32_t* end = beg + std::abs(getNPhases());

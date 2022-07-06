@@ -19,7 +19,7 @@
 
 CaloMgrDetDescrCnv::CaloMgrDetDescrCnv(ISvcLocator* svcloc)
   : DetDescrConverter(ClassID_traits<CaloDetDescrManager>::ID(), svcloc)
-  , AthMessaging(Athena::getMessageSvc(), "CaloMgrDetDescrCnv")
+  , AthMessaging("CaloMgrDetDescrCnv")
 {
 }
 

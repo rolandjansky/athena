@@ -1,6 +1,7 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
+from AthenaCommon.Logging import logging
+log = logging.getLogger("InDetTrigTrackingCuts")
 
 class InDetTrigTrackingCuts :
   """
@@ -231,7 +232,7 @@ class InDetTrigTrackingCuts :
 
 
     if self.__indetflags.cutLevel() >= mxlevel:
-      print ('InDetTrigTrackingCuts INFO using cutLevel %d/%d' % (mxlevel,self.__indetflags.cutLevel()))
+      log.info('using cutLevel %d/%d', mxlevel, self.__indetflags.cutLevel())
 
     # --- SLHC setup
     if mode == "SLHC":

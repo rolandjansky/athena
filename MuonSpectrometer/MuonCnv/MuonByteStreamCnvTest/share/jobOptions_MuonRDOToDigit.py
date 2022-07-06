@@ -19,7 +19,9 @@ MuonRdoToMuonDigitTool = MuonRdoToMuonDigitTool (
                          mmRdoDecoderTool=("Muon::MM_RDO_Decoder" if MuonGeometryFlags.hasMM() else "")
                          )
 			 
-if MuonGeometryFlags.hasCSC(): MuonRdoToMuonDigitTool.cscCalibTool = getPublicTool("CscCalibTool")
+if MuonGeometryFlags.hasCSC (): MuonRdoToMuonDigitTool.cscCalibTool = getPublicTool("CscCalibTool")
+if MuonGeometryFlags.hasSTGC(): MuonRdoToMuonDigitTool.stgcRdoDecoderTool.CalibrationTool = getPublicTool("NSWCalibTool")
+if MuonGeometryFlags.hasMM  (): MuonRdoToMuonDigitTool.mmRdoDecoderTool  .CalibrationTool = getPublicTool("NSWCalibTool")
 
 ToolSvc += MuonRdoToMuonDigitTool
 

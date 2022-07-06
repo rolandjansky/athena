@@ -10,7 +10,6 @@
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloIdentifier/LArID_Exception.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "xAODEventInfo/EventInfo.h"
 #include "Identifier/HWIdentifier.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"

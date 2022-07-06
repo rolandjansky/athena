@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -46,6 +46,7 @@ namespace xAOD {
   const std::string TrigComposite_v1::s_comboHypoAlgNodeNameString{"CH"};
   const std::string TrigComposite_v1::s_summaryFilterNodeNameString{"SF"};
   const std::string TrigComposite_v1::s_summaryPassNodeNameString{"HLTPassRaw"};
+  const std::string TrigComposite_v1::s_summaryPassExpressNodeNameString{"HLTPassExpress"};
   const std::string TrigComposite_v1::s_summaryPrescaledNodeNameString{"HLTPrescaled"};
 
   bool TrigComposite_v1::s_throwOnCopyError = false; 

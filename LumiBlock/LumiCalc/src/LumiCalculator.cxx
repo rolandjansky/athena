@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LumiCalc/LumiCalculator.h"
@@ -284,7 +284,7 @@ TTree * LumiCalculator::getTree(){
 }
 
 //______________________________________________________________________________
-void  LumiCalculator::IntegrateLumi(const xAOD::LumiBlockRangeContainer * iovc, const std::string& triggerchain){
+void  LumiCalculator::IntegrateLumi ATLAS_NOT_THREAD_SAFE (const xAOD::LumiBlockRangeContainer * iovc, const std::string& triggerchain){
 
 
   CoolQuery * cq_lumi = NULL;

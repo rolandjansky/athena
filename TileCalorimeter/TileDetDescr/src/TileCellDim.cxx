@@ -10,14 +10,13 @@
 
 #include "TileDetDescr/TileCellDim.h"
 
-#include "AthenaKernel/getMessageSvc.h" // needed for 'Athena::getMessageSvc()'
 
 #include <stdexcept>
 #include <iostream>
 #include <cmath>
 
 TileCellDim::TileCellDim(unsigned int nRows) :
-  AthMessaging (Athena::getMessageSvc(), "TileDetDescrManager"),
+  AthMessaging ("TileDetDescrManager"),
   m_nRows(nRows),
   m_volume(0)
 {

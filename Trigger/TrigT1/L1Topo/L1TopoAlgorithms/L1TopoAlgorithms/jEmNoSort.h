@@ -24,12 +24,15 @@ namespace TCS {
 
       // destructor
       virtual ~jEmNoSort();
-      virtual TCS::StatusCode initialize();
-      virtual TCS::StatusCode sort(const InputTOBArray & input, TOBArray & output);    
+      virtual TCS::StatusCode initialize() override;
+      virtual TCS::StatusCode sort(const InputTOBArray & input, TOBArray & output) override final;    
     
    private:
    
       parType_t      m_numberOfjEms = { 0 };
+      parType_t      m_iso = { 0 };
+      parType_t      m_frac1 = { 0 };
+      parType_t      m_frac2 = { 0 };
        
    };
 

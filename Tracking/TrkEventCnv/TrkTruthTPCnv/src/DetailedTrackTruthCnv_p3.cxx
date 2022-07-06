@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // T/P converter for DetailedTrackTruth.
@@ -16,14 +16,14 @@
 #include "TrackTruthCollectionAccessor.h"
 
 namespace {
-  SubDetHitStatisticsCnv_p0 subDetHitStatConverter;
-  TruthTrajectoryCnv_p2 truthTrajConverter;
+  const SubDetHitStatisticsCnv_p0 subDetHitStatConverter;
+  const TruthTrajectoryCnv_p2 truthTrajConverter;
 }
 
 
 void DetailedTrackTruthCnv_p3::persToTrans( const Trk::DetailedTrackTruth_p3* pers,
                                             DetailedTrackTruth* trans,
-                                            MsgStream& msg )
+                                            MsgStream& msg ) const
 {
   msg<<MSG::DEBUG<<"DetailedTrackTruthCnv_p3::persToTrans()"<<endmsg;
 
@@ -37,7 +37,7 @@ void DetailedTrackTruthCnv_p3::persToTrans( const Trk::DetailedTrackTruth_p3* pe
 
 void DetailedTrackTruthCnv_p3::transToPers( const DetailedTrackTruth* trans,
                                             Trk::DetailedTrackTruth_p3* pers,
-                                            MsgStream& msg )
+                                            MsgStream& msg ) const
 {
   msg<<MSG::DEBUG<<"DetailedTrackTruthCnv_p3::transToPers()"<<endmsg;
 

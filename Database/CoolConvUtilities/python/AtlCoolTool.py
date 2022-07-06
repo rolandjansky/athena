@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -8,6 +8,8 @@ import time,calendar
 import CoolConvUtilities.AtlCoolLib as AtlCoolLib
 
 from zlib import crc32
+
+from posixpath import normpath
 
 def expandConnectString( connectString ):
     """
@@ -190,14 +192,15 @@ class AtlCoolTool:
         return self.db.databaseId()
 
     def cd(self,node='/'):
-        if (node==".."):
-            node=self.curdir[:self.curdir.rfind('/')]
-            if (node==""): node="/"
+        if node.startswith("/"):
+            npath=normpath(node)
         else:
-          if not node.startswith('/'): node=self.curdir+'/'+node
-          if (node.startswith('//')): node=node[1:]
-        if self.db.existsFolder(node) or self.db.existsFolderSet(node):
-            self.curdir=node
+            npath=normpath(self.curdir+"/"+node)
+            #Clean out possible double-slash at the beginning 
+            if npath.startswith("//"): npath=npath[1:]
+        
+        if self.db.existsFolder(npath) or self.db.existsFolderSet(npath):
+            self.curdir=npath
         else:
             raise Exception('Node %s does not exist' % node)
 
@@ -368,7 +371,12 @@ class AtlCoolTool:
             i+= " ["+spec[idx].name() + " (" + typename + ") : "
             if (typename.startswith("Blob")):
                 blob=payload[idx]
-                i+= "size=%i,chk=%i" % (blob.size(),crc32(blob.read()))
+                blobdata=blob.read()
+                if isinstance(blobdata,bytes):
+                    chksum=crc32(blobdata)
+                else:
+                    chksum=crc32(blobdata.encode())
+                i+= "size=%i,chk=%d" % (blob.size(),chksum)
             else:
                 i+= str(payload[idx])
             i+="]"

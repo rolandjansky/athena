@@ -1,7 +1,6 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
-from ..CommonSequences.FullScanDefs import caloFSRoI
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger(__name__)
 
@@ -16,33 +15,29 @@ from DecisionHandling.DecisionHandlingConf import InputMakerForRoI, ViewCreatorI
 from AthenaCommon.CFElements import seqAND
 
 
-# --------------------
-# LArNoiseBurst end-of-event configuration
-# --------------------
-def getLArNoiseBurstEndOfEvent():
+def getLArNoiseBurstRecoSequence():
+    from AthenaCommon.CFElements import parOR
+    noiseBurstRecoSeq = parOR('LArNoiseRecoSeq')
     from TriggerMenuMT.HLT.CommonSequences.CaloSequences import cellRecoSequence
+    cells_sequence, cells_name = RecoFragmentsPool.retrieve(cellRecoSequence, flags=ConfigFlags, RoIs='')
+    noiseBurstRecoSeq += cells_sequence
+    from TrigCaloHypo.TrigCaloHypoConfig import TrigLArNoiseBurstRecoAlgCfg
+    noiseBurstRecoSeq += TrigLArNoiseBurstRecoAlgCfg(CellContainerKey=cells_name)
+    
+    return noiseBurstRecoSeq
 
-    cells_sequence, _ = RecoFragmentsPool.retrieve(cellRecoSequence, flags=ConfigFlags, RoIs='')
-    return cells_sequence, ''
 
 # --------------------
 # LArNoiseBurst configuration
 # --------------------
-
 def getLArNoiseBurst(self):
 
     hypoAlg = CompFactory.TrigLArNoiseBurstAlg("NoiseBurstAlg")
     from TrigCaloHypo.TrigCaloHypoConfig import TrigLArNoiseBurstHypoToolGen
     from TrigT2CaloCommon.CaloDef import clusterFSInputMaker
-    from TriggerMenuMT.HLT.CommonSequences.CaloSequences import cellRecoSequence
-    noiseBurstInputMakerAlg= conf2toConfigurable(clusterFSInputMaker())
+    noiseBurstInputMakerAlg = conf2toConfigurable(clusterFSInputMaker())
 
-    from AthenaCommon.CFElements import parOR, seqAND
-    noiseBurstRecoSeq = parOR( "LArNoiseRecoSeq")
-    cells_sequence, cells_name = RecoFragmentsPool.retrieve(cellRecoSequence, flags=ConfigFlags, RoIs='')
-    noiseBurstRecoSeq += cells_sequence
-    from TrigCaloHypo.TrigCaloHypoConfig import TrigLArNoiseBurstRecoAlgCfg
-    noiseBurstRecoSeq += TrigLArNoiseBurstRecoAlgCfg(CellContainerKey=cells_name)
+    noiseBurstRecoSeq = getLArNoiseBurstRecoSequence()
 
     noiseBurstMenuSeq =  seqAND("LArNoiseMenuSeq", [noiseBurstInputMakerAlg, noiseBurstRecoSeq])
 
@@ -193,11 +188,10 @@ def IDCalibTriggerCfg(flags):
     from TrigTrackingHypo.IDCalibHypoConfig import createIDCalibHypoAlg
     theHypoAlg = createIDCalibHypoAlg("IDCalibHypo")
 
+    from TriggerMenuMT.HLT.UnconventionalTracking.CommonConfiguration import getCommonInDetFullScanSequence
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    ( TrkSeq, InputMakerAlg, sequenceOut ) = RecoFragmentsPool.retrieve(FTFTrackSequence,ConfigFlags)
-
-    from TrigEDMConfig.TriggerEDMRun3 import recordable
-    theHypoAlg.tracksKey = recordable(sequenceOut)
+    ( TrkSeq, InputMakerAlg, sequenceOut ) = RecoFragmentsPool.retrieve(getCommonInDetFullScanSequence,ConfigFlags)
+    theHypoAlg.tracksKey = sequenceOut
 
     from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
     from AthenaConfiguration.ComponentFactory import CompFactory
@@ -212,33 +206,11 @@ def IDCalibTriggerCfg(flags):
 
 # --------------------
 
-def FTFTrackSequence(ConfigFlags):
-
-    from TriggerMenuMT.HLT.Jet.JetMenuSequences import getTrackingInputMaker
-    InputMakerAlg=getTrackingInputMaker("ftf")
-
-    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
-    IDTrigConfig = getInDetTrigConfig( 'jet' )
-
-    from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTrackingNoView
-    TrkInputNoViewAlg = makeInDetTrigFastTrackingNoView( config=IDTrigConfig, rois=caloFSRoI )
-
-    from TrigInDetConfig.InDetTrigVertices import makeInDetTrigVertices
-    
-    vtxAlgs = makeInDetTrigVertices( "jet", IDTrigConfig.tracks_FTF(), IDTrigConfig.vertex_jet, IDTrigConfig, adaptiveVertex=IDTrigConfig.adaptiveVertex_jet)
-    prmVtx = vtxAlgs[-1]
-
-    TrkSeq =  [InputMakerAlg,TrkInputNoViewAlg, prmVtx]
-    sequenceOut = IDTrigConfig.tracks_FTF()
-
-    return (TrkSeq, InputMakerAlg, sequenceOut)
-
-# --------------------
-
 def IDCalibFTFCfg(flags):
 
+    from TriggerMenuMT.HLT.UnconventionalTracking.CommonConfiguration import getCommonInDetFullScanSequence
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    ( TrkSeq, InputMakerAlg, sequenceOut ) = RecoFragmentsPool.retrieve(FTFTrackSequence,ConfigFlags)
+    ( TrkSeq, InputMakerAlg, sequenceOut ) = RecoFragmentsPool.retrieve(getCommonInDetFullScanSequence,ConfigFlags)
 
     from TrigStreamerHypo.TrigStreamerHypoConf import TrigStreamerHypoAlg
     from TrigStreamerHypo.TrigStreamerHypoConfig import StreamerHypoToolGenerator

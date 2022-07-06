@@ -16,7 +16,7 @@
 #include "xAODEventInfo/EventInfo.h"
 
 namespace CP {
-
+    //  [[deprecated]]
     class MuonCalibrationPeriodTool : public virtual IMuonCalibrationAndSmearingTool,
                                       public virtual ISystematicsTool,
                                       public asg::AsgMetadataTool {

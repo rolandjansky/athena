@@ -28,15 +28,13 @@ def TgcRawDataMonitoringConfig(inputFlags):
 
     tgcRawDataMonitorTool = CompFactory.TgcRawDataMonitorTool("TgcRawDataMonitorTool")
 
-    muonSelectionTool = CompFactory.CP.MuonSelectionTool("TgcMonMuonSelectionTool")
-    muonSelectionTool.MuQuality = 1 # tight:0 medium:1
-    muonSelectionTool.MaxEta = 2.7 # tgc trigger coverage is only up to 2.4 but the detector coverage itself is up to 2.7
-    muonSelectionTool.DisablePtCuts = True # won't use pT-balance cuts
-    muonSelectionTool.TurnOffMomCorr= True   
+    from MuonSelectorTools.MuonSelectorToolsConfig import MuonSelectionToolCfg
     tgcRawDataMonAlg = helper.addAlgorithm(CompFactory.TgcRawDataMonitorAlgorithm,'TgcRawDataMonAlg',
                                            TrackExtrapolator = extrapolator,
                                            TgcRawDataMonitorTool = tgcRawDataMonitorTool,
-                                           MuonSelectionTool = muonSelectionTool )
+                                           MuonSelectionTool = result.popToolsAndMerge(MuonSelectionToolCfg(inputFlags, 
+                                                                                                            MuQuality=1,
+                                                                                                            MaxEta=2.7)) )
 
     from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
     result.merge( TrackingGeometryCondAlgCfg(inputFlags ) )
@@ -47,9 +45,9 @@ def TgcRawDataMonitoringConfig(inputFlags):
 
     tgcRawDataMonAlg.FillGapByGapHistograms = (doGapByGapHitOcc or doGapByGapEffMap or doHitResiduals)
 
-    tgcRawDataMonAlg.UseOnlyCombinedMuons = False
-    tgcRawDataMonAlg.UseOnlyMuidCoStacoMuons = False
-    tgcRawDataMonAlg.UseMuonSelectorTool = True
+    tgcRawDataMonAlg.UseOnlyCombinedMuons = True
+    tgcRawDataMonAlg.UseOnlyMuidCoStacoMuons = True
+    tgcRawDataMonAlg.UseMuonSelectorTool = False
 
     tgcRawDataMonAlg.PrintAvailableMuonTriggers = False
 
@@ -80,7 +78,7 @@ def TgcRawDataMonitoringConfig(inputFlags):
 
     tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_MU10BOM_Run3,Mul:1,HLT:HLT_2mu10_l2mt_L1MU10BOM,RPC:4M,TGC:99;"
 
-    tgcRawDataMonAlg.MonitorThresholdPatterns = False
+    tgcRawDataMonAlg.MonitorThresholdPatterns = True
     tgcRawDataMonAlg.ThrPatternList = "MU4,MU6,MU10,MU11,MU20,MU21,"
     tgcRawDataMonAlg.ThrPatternList += "MU3V,MU3VF,MU3VC,MU5VF,MU8F,MU8VF,MU8FC,MU9VF,MU9VFC,MU14FCH,MU14FCHR,MU15VFCH,MU15VFCHR,MU18VFCH,MU10BOM,MU12BOM,MU8FH,MU20FC,MU12FCH,MU4BOM,MU4BO,MU14EOF,MU8EOF,MU3EOF,"
 
@@ -94,6 +92,10 @@ def TgcRawDataMonitoringConfig(inputFlags):
         tgcRawDataMonAlg.MuonRoIContainerBCp1Name = ''
         tgcRawDataMonAlg.MuonRoIContainerBCp2Name = ''
         tgcRawDataMonAlg.TagAndProbe = False
+        tgcRawDataMonAlg.MonitorThresholdPatterns = False
+        tgcRawDataMonAlg.ThrPatternList = ''
+        tgcRawDataMonAlg.MonitorTriggerMultiplicity = False
+        tgcRawDataMonAlg.CtpDecisionMoniorList = ''
 
     if inputFlags.Input.Format is Format.BS or 'TGC_MeasurementsAllBCs' in inputFlags.Input.Collections:
         tgcRawDataMonAlg.AnaTgcPrd=True
@@ -111,11 +113,11 @@ def TgcRawDataMonitoringConfig(inputFlags):
     commonPath = 'Common/'
     myGroupCommon = helper.addGroup(tgcRawDataMonAlg, 'TgcRawDataMonitor_Common', mainDir)
     myGroupCommon.defineHistogram('mon_lb;TgcMon_LuminosityBlock',title='Luminosity Block;Luminosity Block;Number of events',
-                                  path=commonPath,type='TH1F',xbins=100,xmin=0,xmax=10,opt='kAddBinsDynamically')
+                                  path=commonPath,type='TH1F',xbins=100,xmin=0,xmax=10,opt='kAddBinsDynamically', merge='merge')
     myGroupCommon.defineHistogram('mon_bcid;TgcMon_BCID',title='BCID;BCID;Number of events',
-                                  path=commonPath,type='TH1F',xbins=100,xmin=0,xmax=10,opt='kAddBinsDynamically')
+                                  path=commonPath,type='TH1F',xbins=100,xmin=0,xmax=10,opt='kAddBinsDynamically', merge='merge')
     myGroupCommon.defineHistogram('mon_pileup;TgcMon_Pileup',title='Pileup;Pileup;Number of events',
-                                  path=commonPath,type='TH1F',xbins=100,xmin=0,xmax=10,opt='kAddBinsDynamically')
+                                  path=commonPath,type='TH1F',xbins=100,xmin=0,xmax=10,opt='kAddBinsDynamically', merge='merge')
     
     ################################################################################################################
     muonPath = 'Muon/'
@@ -139,17 +141,17 @@ def TgcRawDataMonitoringConfig(inputFlags):
     for monTrig in tgcRawDataMonAlg.ThrPatternList.split(','):
         if monTrig == "":continue
         monTrigGroup = helper.addGroup(tgcRawDataMonAlg, 'TgcRawDataMonitor'+monTrig, mainDir)
-        monTrigGroup.defineHistogram('l1item_roi_eta_'+monTrig+',l1item_roi_phi_'+monTrig+';L1Item_MuonRoI_EtaVsPhi_'+monTrig,title='L1Item_MuonRoI_EtaVsPhi_'+monTrig+';MuonRoI Eta;MuonRoI Phi',
+        monTrigGroup.defineHistogram('l1item_roi_eta_'+monTrig+',l1item_roi_phi_'+monTrig+';L1Item_MuonRoI_Evt_EtaVsPhi_'+monTrig,title='L1Item_MuonRoI_Evt_EtaVsPhi_'+monTrig+';MuonRoI Eta;MuonRoI Phi',
                                      path=trigThrPatternsPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
-        monTrigGroup.defineHistogram('l1item_roi_eta_'+monTrig+',l1item_roi_thrNumber_'+monTrig+';L1Item_MuonRoI_EtaVsThrNumber_'+monTrig,title='L1Item_MuonRoI_EtaVsThrNumber_'+monTrig+';MuonRoI Eta;MuonRoI Threshold Number',
+        monTrigGroup.defineHistogram('l1item_roi_eta_'+monTrig+',l1item_roi_thrNumber_'+monTrig+';L1Item_MuonRoI_Evt_EtaVsThrNumber_'+monTrig,title='L1Item_MuonRoI_Evt_EtaVsThrNumber_'+monTrig+';MuonRoI Eta;MuonRoI Threshold Number',
                                      path=trigThrPatternsPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=15,ymin=0.5,ymax=15.5)
-        monTrigGroup.defineHistogram('l1item_roi_eta_'+monTrig+',l1item_roi_ismorecand_'+monTrig+';L1Item_MuonRoI_EtaVsIsMoreCand_'+monTrig,title='L1Item_MuonRoI_EtaVsIsMoreCand_'+monTrig+';MuonRoI Eta;MuonRoI IsMoreCand Flag',
+        monTrigGroup.defineHistogram('l1item_roi_eta_'+monTrig+',l1item_roi_ismorecand_'+monTrig+';L1Item_MuonRoI_Evt_EtaVsIsMoreCand_'+monTrig,title='L1Item_MuonRoI_Evt_EtaVsIsMoreCand_'+monTrig+';MuonRoI Eta;MuonRoI IsMoreCand Flag',
                                      path=trigThrPatternsPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=3,ymin=-1.5,ymax=1.5)
-        monTrigGroup.defineHistogram('l1item_roi_eta_'+monTrig+',l1item_roi_bw3coin_'+monTrig+';L1Item_MuonRoI_EtaVsBW3Coin_'+monTrig,title='L1Item_MuonRoI_EtaVsBW3Coin_'+monTrig+';MuonRoI Eta;MuonRoI BW3Coin Flag',
+        monTrigGroup.defineHistogram('l1item_roi_eta_'+monTrig+',l1item_roi_bw3coin_'+monTrig+';L1Item_MuonRoI_Evt_EtaVsBW3Coin_'+monTrig,title='L1Item_MuonRoI_Evt_EtaVsBW3Coin_'+monTrig+';MuonRoI Eta;MuonRoI BW3Coin Flag',
                                      path=trigThrPatternsPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=3,ymin=-1.5,ymax=1.5)
-        monTrigGroup.defineHistogram('l1item_roi_eta_'+monTrig+',l1item_roi_innercoin_'+monTrig+';L1Item_MuonRoI_EtaVsInnerCoin_'+monTrig,title='L1Item_MuonRoI_EtaVsInnerCoin_'+monTrig+';MuonRoI Eta;MuonRoI InnerCoin Flag',
+        monTrigGroup.defineHistogram('l1item_roi_eta_'+monTrig+',l1item_roi_innercoin_'+monTrig+';L1Item_MuonRoI_Evt_EtaVsInnerCoin_'+monTrig,title='L1Item_MuonRoI_Evt_EtaVsInnerCoin_'+monTrig+';MuonRoI Eta;MuonRoI InnerCoin Flag',
                                      path=trigThrPatternsPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=3,ymin=-1.5,ymax=1.5)
-        monTrigGroup.defineHistogram('l1item_roi_eta_'+monTrig+',l1item_roi_goodmf_'+monTrig+';L1Item_MuonRoI_EtaVsGoodMF_'+monTrig,title='L1Item_MuonRoI_EtaVsGoodMF_'+monTrig+';MuonRoI Eta;MuonRoI GoodMF Flag',
+        monTrigGroup.defineHistogram('l1item_roi_eta_'+monTrig+',l1item_roi_goodmf_'+monTrig+';L1Item_MuonRoI_Evt_EtaVsGoodMF_'+monTrig,title='L1Item_MuonRoI_Evt_EtaVsGoodMF_'+monTrig+';MuonRoI Eta;MuonRoI GoodMF Flag',
                                      path=trigThrPatternsPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=3,ymin=-1.5,ymax=1.5)
 
         monTrigGroup.defineHistogram('muon_passed_l1item_'+monTrig+',muon_pt_rpc_l1item_'+monTrig+';L1Item_MuonRoI_Eff_Pt_RPC_'+monTrig,title='L1Item_MuonRoI_Eff_Pt_RPC_'+monTrig+';Offline muon pT [GeV];Efficiency',
@@ -316,11 +318,11 @@ def TgcRawDataMonitoringConfig(inputFlags):
                             xbins=49,xmin=-24.5,xmax=24.5,ybins=5,ymin=-2.5,ymax=2.5,ylabels=['-2BC','-1BC','CurrBC','+1BC','+2BC'])
 
     myGroup.defineHistogram('roi_lumiBlock,roi_sector;MuonRoI_Evt_SectorVsLB_Barrel',title='MuonRoI SectorVsLB Barrel;Luminosity block;MuonRoI Trigger Sector (>0 for A, <0 for C)',
-                            type='TH2F',cutmask='roi_barrel',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=65,ymin=-32.5,ymax=32.5,opt='kAddBinsDynamically')
+                            type='TH2F',cutmask='roi_barrel',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=65,ymin=-32.5,ymax=32.5,opt='kAddBinsDynamically', merge='merge')
     myGroup.defineHistogram('roi_lumiBlock,roi_sector;MuonRoI_Evt_SectorVsLB_Endcap',title='MuonRoI SectorVsLB Endcap;Luminosity block;MuonRoI Trigger Sector (>0 for A, <0 for C)',
-                            type='TH2F',cutmask='roi_endcap',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=97,ymin=-48.5,ymax=48.5,opt='kAddBinsDynamically')
+                            type='TH2F',cutmask='roi_endcap',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=97,ymin=-48.5,ymax=48.5,opt='kAddBinsDynamically', merge='merge')
     myGroup.defineHistogram('roi_lumiBlock,roi_sector;MuonRoI_Evt_SectorVsLB_Forward',title='MuonRoI SectorVsLB Forward;Luminosity block;MuonRoI Trigger Sector (>0 for A, <0 for C)',
-                            type='TH2F',cutmask='roi_forward',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=49,ymin=-24.5,ymax=24.5,opt='kAddBinsDynamically')
+                            type='TH2F',cutmask='roi_forward',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=49,ymin=-24.5,ymax=24.5,opt='kAddBinsDynamically', merge='merge')
 
     myGroup.defineHistogram('roi_thr,roi_sector;MuonRoI_Evt_SectorVsThreshold_Barrel',title='MuonRoI SectorVsThreshold Barrel;Threshold;MuonRoI Trigger Sector (>0 for A, <0 for C)',
                             type='TH2F',cutmask='roi_barrel',path=trigPath,xbins=7,xmin=-0.5,xmax=6.5,ybins=65,ymin=-32.5,ymax=32.5)
@@ -392,13 +394,13 @@ def TgcRawDataMonitoringConfig(inputFlags):
                             xbins=20,xmin=-0.5,xmax=19.5,ybins=2,ymin=-0.5,ymax=1.5)
 
     myGroup.defineHistogram('roi_lumiBlock,roi_phi_sideA;MuonRoI_Evt_PhiVsLB_wInnerCoinEtaUpTo1p3_sideA',title='MuonRoI PhiVsLB wInnerCoinEtaUpTo1p3 sideA;Luminosity block;MuonRoI Phi',
-                            type='TH2F',cutmask='roi_wInnerCoinEtaUpTo1p3',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=48,ymin=-math.pi,ymax=math.pi,opt='kAddBinsDynamically')
+                            type='TH2F',cutmask='roi_wInnerCoinEtaUpTo1p3',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=48,ymin=-math.pi,ymax=math.pi,opt='kAddBinsDynamically', merge='merge')
     myGroup.defineHistogram('roi_lumiBlock,roi_phi_sideA;MuonRoI_Evt_PhiVsLB_wInnerCoinEtaBeyond1p3_sideA',title='MuonRoI PhiVsLB wInnerCoinEtaBeyond1p3 sideA;Luminosity block;MuonRoI Phi',
-                            type='TH2F',cutmask='roi_wInnerCoinEtaBeyond1p3',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=48,ymin=-math.pi,ymax=math.pi,opt='kAddBinsDynamically')
+                            type='TH2F',cutmask='roi_wInnerCoinEtaBeyond1p3',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=48,ymin=-math.pi,ymax=math.pi,opt='kAddBinsDynamically', merge='merge')
     myGroup.defineHistogram('roi_lumiBlock,roi_phi_sideC;MuonRoI_Evt_PhiVsLB_wInnerCoinEtaUpTo1p3_sideC',title='MuonRoI PhiVsLB wInnerCoinEtaUpTo1p3 sideC;Luminosity block;MuonRoI Phi',
-                            type='TH2F',cutmask='roi_wInnerCoinEtaUpTo1p3',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=48,ymin=-math.pi,ymax=math.pi,opt='kAddBinsDynamically')
+                            type='TH2F',cutmask='roi_wInnerCoinEtaUpTo1p3',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=48,ymin=-math.pi,ymax=math.pi,opt='kAddBinsDynamically', merge='merge')
     myGroup.defineHistogram('roi_lumiBlock,roi_phi_sideC;MuonRoI_Evt_PhiVsLB_wInnerCoinEtaBeyond1p3_sideC',title='MuonRoI PhiVsLB wInnerCoinEtaBeyond1p3 sideC;Luminosity block;MuonRoI Phi',
-                            type='TH2F',cutmask='roi_wInnerCoinEtaBeyond1p3',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=48,ymin=-math.pi,ymax=math.pi,opt='kAddBinsDynamically')
+                            type='TH2F',cutmask='roi_wInnerCoinEtaBeyond1p3',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=48,ymin=-math.pi,ymax=math.pi,opt='kAddBinsDynamically', merge='merge')
 
     myGroup.defineHistogram('roi_innveto;MuonRoI_Evt_InnerCoinVeto',title='MuonRoI InnerCoinVeto Flag;InnerCoinVeto Flag;Number of events',
                             cutmask='roi_tgc',path=trigPath,xbins=2,xmin=-0.5,xmax=1.5)
@@ -454,19 +456,19 @@ def TgcRawDataMonitoringConfig(inputFlags):
                             cutmask='roi_tgc',path=trigPath,xbins=20,xmin=-0.5,xmax=19.5)
 
     myGroup.defineHistogram('roi_lumiBlock,roi_phi_barrel;MuonRoI_Evt_PhiVsLB_Barrel_sideA',title='MuonRoI PhiVsLB Barrel sideA;Luminosity block;MuonRoI Phi',type='TH2F',
-                            cutmask='roi_sideA',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=32,ymin=-math.pi,ymax=math.pi,opt='kAddBinsDynamically')
+                            cutmask='roi_sideA',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=32,ymin=-math.pi,ymax=math.pi,opt='kAddBinsDynamically', merge='merge')
     myGroup.defineHistogram('roi_lumiBlock,roi_phi_barrel;MuonRoI_Evt_PhiVsLB_Barrel_sideC',title='MuonRoI PhiVsLB Barrel sideC;Luminosity block;MuonRoI Phi',type='TH2F',
-                            cutmask='roi_sideC',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=32,ymin=-math.pi,ymax=math.pi,opt='kAddBinsDynamically')
+                            cutmask='roi_sideC',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=32,ymin=-math.pi,ymax=math.pi,opt='kAddBinsDynamically', merge='merge')
 
     myGroup.defineHistogram('roi_lumiBlock,roi_phi_endcap;MuonRoI_Evt_PhiVsLB_Endcap_sideA',title='MuonRoI PhiVsLB Endcap sideA;Luminosity block;MuonRoI Phi',type='TH2F',
-                            cutmask='roi_sideA',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=48,ymin=-math.pi,ymax=math.pi,opt='kAddBinsDynamically')
+                            cutmask='roi_sideA',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=48,ymin=-math.pi,ymax=math.pi,opt='kAddBinsDynamically', merge='merge')
     myGroup.defineHistogram('roi_lumiBlock,roi_phi_endcap;MuonRoI_Evt_PhiVsLB_Endcap_sideC',title='MuonRoI PhiVsLB Endcap sideC;Luminosity block;MuonRoI Phi',type='TH2F',
-                            cutmask='roi_sideC',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=48,ymin=-math.pi,ymax=math.pi,opt='kAddBinsDynamically')
+                            cutmask='roi_sideC',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=48,ymin=-math.pi,ymax=math.pi,opt='kAddBinsDynamically', merge='merge')
 
     myGroup.defineHistogram('roi_lumiBlock,roi_phi_forward;MuonRoI_Evt_PhiVsLB_Forward_sideA',title='MuonRoI PhiVsLB Forward sideA;Luminosity block;MuonRoI Phi',type='TH2F',
-                            cutmask='roi_sideA',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=24,ymin=-math.pi,ymax=math.pi,opt='kAddBinsDynamically')
+                            cutmask='roi_sideA',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=24,ymin=-math.pi,ymax=math.pi,opt='kAddBinsDynamically', merge='merge')
     myGroup.defineHistogram('roi_lumiBlock,roi_phi_forward;MuonRoI_Evt_PhiVsLB_Forward_sideC',title='MuonRoI PhiVsLB Forward sideC;Luminosity block;MuonRoI Phi',type='TH2F',
-                            cutmask='roi_sideC',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=24,ymin=-math.pi,ymax=math.pi,opt='kAddBinsDynamically')
+                            cutmask='roi_sideC',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=24,ymin=-math.pi,ymax=math.pi,opt='kAddBinsDynamically', merge='merge')
 
     
     for n in range(1,16):
@@ -636,7 +638,7 @@ def TgcRawDataMonitoringConfig(inputFlags):
     hitPath = 'Hit/'
     hitEffPath = 'HitEff/'
     myGroupHit.defineHistogram('hit_n;TgcPrd_nHits',title='TgcPrd_nHits;Number of hits;Number of events',
-                               path=hitPath,xbins=100,xmin=0,xmax=1000,opt='kAddBinsDynamically')
+                               path=hitPath,xbins=100,xmin=0,xmax=1000,opt='kAddBinsDynamically', merge='merge')
     myGroupHit.defineHistogram('hit_bunch;TgcPrd_Timing',title='TgcPrd_Timing;Timing;Number of events',
                                path=hitPath,xbins=4,xmin=-1.5,xmax=1.5,xlabels=['Previous','Current','Next'])
     
@@ -645,13 +647,13 @@ def TgcRawDataMonitoringConfig(inputFlags):
         if opt=='':titlesuffix='_All'
         myGroupHit.defineHistogram('mon_lb,hit_bw24sectors'+opt+';TgcPrd_BWSectorsVsLB'+titlesuffix,
                                    title='BWSectorsVsLB'+titlesuffix+';Luminosity block;',type='TH2F',
-                                   path=hitPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=25,ymin=-12.5,ymax=12.5,ylabels=label_bw24sectors,opt='kAddBinsDynamically')
+                                   path=hitPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=25,ymin=-12.5,ymax=12.5,ylabels=label_bw24sectors,opt='kAddBinsDynamically', merge='merge')
         myGroupHit.defineHistogram('mon_lb,hit_bw24sectors_strip'+opt+';TgcPrd_BWSectorsVsLB_Strip'+titlesuffix,
                                    title='BWSectorsVsLB_Strip'+titlesuffix+';Luminosity block;',type='TH2F',
-                                   path=hitPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=25,ymin=-12.5,ymax=12.5,ylabels=label_bw24sectors,opt='kAddBinsDynamically')
+                                   path=hitPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=25,ymin=-12.5,ymax=12.5,ylabels=label_bw24sectors,opt='kAddBinsDynamically', merge='merge')
         myGroupHit.defineHistogram('mon_lb,hit_bw24sectors_wire'+opt+';TgcPrd_BWSectorsVsLB_Wire'+titlesuffix,
                                    title='BWSectorsVsLB_Wire'+titlesuffix+';Luminosity block;',type='TH2F',
-                                   path=hitPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=25,ymin=-12.5,ymax=12.5,ylabels=label_bw24sectors,opt='kAddBinsDynamically')
+                                   path=hitPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=25,ymin=-12.5,ymax=12.5,ylabels=label_bw24sectors,opt='kAddBinsDynamically', merge='merge')
         myGroupHit.defineHistogram('hit_bw24sectors'+opt+',hit_bwtiming'+opt+';TgcPrd_BWSectorsVsTiming'+titlesuffix,
                                    title='BWSectorsVsTiming'+titlesuffix+';;Timing',type='TH2F',
                                    path=hitPath,xbins=25,xmin=-12.5,xmax=12.5,xlabels=label_bw24sectors,ybins=3,ymin=-1.5,ymax=1.5,ylabels=['Previous','Current','Next'])
@@ -708,7 +710,7 @@ def TgcRawDataMonitoringConfig(inputFlags):
                 myGroupHit.defineHistogram(x_name+','+y_name+';'+objname,
                                         title=title+';Luminosity block;',type='TH2F',
                                         path=hitPath,xbins=100,xmin=-0.5,xmax=99.5,
-                                        ybins=nbins,ymin=0.5,ymax=nbins+0.5,ylabels=label_glbl_index,opt='kAddBinsDynamically')
+                                        ybins=nbins,ymin=0.5,ymax=nbins+0.5,ylabels=label_glbl_index,opt='kAddBinsDynamically', merge='merge')
                 x_name = "hit_glblphi_%s" % (name)
                 y_name = "hit_bunch_%s" % (name)
                 objname = "TgcPrd_GlobalChamberIndexVsTiming_All_%s" % (name)
@@ -941,7 +943,7 @@ def TgcRawDataMonitoringConfig(inputFlags):
                     myGroupCoin.defineHistogram(suffix+'coin_lb,'+suffix+'coin_sector;'+suffix+'TgcCoin_Evt_SectorVsLB',
                                             title=suffix+'TgcCoin_Evt_SectorVsLB;LumiBlock;Trigger Sector (>0 for A, <0 for C)',
                                             type='TH2F',path=coinPath,
-                                            xbins=100,xmin=0.5,xmax=100.5,opt='kAddBinsDynamically',
+                                            xbins=100,xmin=0.5,xmax=100.5,opt='kAddBinsDynamically', merge='merge',
                                             ybins=nsectors*2+1,ymin=-nsectors-0.5,ymax=nsectors+0.5)
 
                     if coinType == 'SL':
@@ -949,7 +951,7 @@ def TgcRawDataMonitoringConfig(inputFlags):
                             myGroupCoin.defineHistogram(suffix+'coin_lb,'+suffix+'coin_sector;'+suffix+'TgcCoin_Evt_SectorVsLB_CoinFlag'+coinflag,
                                                         title=suffix+'TgcCoin_Evt_SectorVsLB_CoinFlag'+coinflag+';LumiBlock;Trigger Sector (>0 for A, <0 for C)',
                                                         type='TH2F',path=coinPath,cutmask=suffix+'coin_CoinFlag'+coinflag,
-                                                        xbins=100,xmin=0.5,xmax=100.5,opt='kAddBinsDynamically',
+                                                        xbins=100,xmin=0.5,xmax=100.5,opt='kAddBinsDynamically', merge='merge',
                                                         ybins=nsectors*2+1,ymin=-nsectors-0.5,ymax=nsectors+0.5)
 
                         myGroupCoin.defineHistogram(suffix+'coin_roi,'+suffix+'coin_sector;'+suffix+'TgcCoin_Evt_SectorVsRoI',
@@ -981,9 +983,6 @@ def TgcRawDataMonitoringConfig(inputFlags):
     return result
     
 if __name__=='__main__':
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
-
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import INFO
     log.setLevel(INFO)
@@ -1035,6 +1034,6 @@ if __name__=='__main__':
     cfg.merge(L1ConfigSvcCfg(ConfigFlags))
     generateL1Menu(ConfigFlags)
 
-    cfg.printConfig(withDetails=True, summariseProps = True)
+    cfg.printConfig(withDetails=False, summariseProps = False)
 
     cfg.run()

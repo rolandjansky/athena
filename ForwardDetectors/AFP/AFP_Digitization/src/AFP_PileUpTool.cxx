@@ -79,15 +79,25 @@ StatusCode AFP_PileUpTool::initialize()
     ATH_MSG_FATAL("Property SIDSimHitCollectionName not set !");
     return StatusCode::FAILURE;
   }
-  if(m_onlyUseContainerName) m_TDSimHitCollectionName = m_TDSimHitCollectionKey.key();
-  ATH_MSG_DEBUG("Input TD SimHits in container : '" <<m_TDSimHitCollectionName  << "'");
-  if(m_onlyUseContainerName) m_SIDSimHitCollectionName = m_SIDSimHitCollectionKey.key();
-  ATH_MSG_DEBUG("Input SID SimHits in container : '" <<m_SIDSimHitCollectionName  << "'");
 
   // Initialize ReadHandleKeys
   ATH_CHECK(m_TDSimHitCollectionKey.initialize());
   ATH_CHECK(m_SIDSimHitCollectionKey.initialize());
-
+  
+  ATH_MSG_INFO("m_onlyUseContainerName = " <<m_onlyUseContainerName);
+  if(m_onlyUseContainerName)
+  {
+    m_TDSimHitCollectionName = m_TDSimHitCollectionKey.key();
+    ATH_MSG_INFO("Input TD SimHits in container : '" <<m_TDSimHitCollectionName  << "'");
+    m_SIDSimHitCollectionName = m_SIDSimHitCollectionKey.key();
+    ATH_MSG_INFO("Input SID SimHits in container : '" <<m_SIDSimHitCollectionName  << "'");
+  }
+  else
+  {
+    ATH_MSG_INFO("TD SimHits container key: " <<m_TDSimHitCollectionKey);
+    ATH_MSG_INFO("SID SimHits container key: " <<m_SIDSimHitCollectionKey);
+  }
+  
   ATH_CHECK(m_TDDigiCollectionKey.initialize());
   ATH_CHECK(m_SiDigiCollectionKey.initialize());
   
@@ -109,12 +119,16 @@ StatusCode AFP_PileUpTool::recoAll(const EventContext& ctx, std::unique_ptr<AFP_
 
 StatusCode AFP_PileUpTool::recoSiHits(const EventContext& ctx, std::unique_ptr<AFP_SiDigiCollection>& siDigiCollection) const
 {
-  SG::WriteHandle<xAOD::AFPSiHitContainer> my_SiHitCollection = SG::makeHandle(m_AFPSiHitsContainerName, ctx);
-  ATH_CHECK(my_SiHitCollection.record(std::make_unique<xAOD::AFPSiHitContainer>(),std::make_unique<xAOD::AFPSiHitAuxContainer>()));
-
-  newXAODHitSi(my_SiHitCollection, siDigiCollection);
+  auto afpSiHits=std::make_unique<xAOD::AFPSiHitContainer>();
+  auto afpSiHitsAux=std::make_unique<xAOD::AFPSiHitAuxContainer>();
+  afpSiHits->setStore(afpSiHitsAux.get());
+  
+  newXAODHitSi(afpSiHits, siDigiCollection);
     
-  ATH_MSG_DEBUG("AFP_PileUpTool: after newXAODHitSi, simulated digi container size = "<<siDigiCollection->size()<<", got AFPSiHitContainer with size "<<my_SiHitCollection->size());
+  ATH_MSG_DEBUG("AFP_PileUpTool: after newXAODHitSi, simulated digi container size = "<<siDigiCollection->size()<<", got afpSiHits with size "<<afpSiHits->size());
+  
+  SG::WriteHandle<xAOD::AFPSiHitContainer> siHitContainer{m_AFPSiHitsContainerName, ctx};
+  ATH_CHECK( siHitContainer.record(std::move(afpSiHits), std::move(afpSiHitsAux)) );
   
   return StatusCode::SUCCESS;
 }
@@ -137,13 +151,14 @@ inline int AFP_PileUpTool::tot2charge(int tot) const
 }
 
 
-void  AFP_PileUpTool::newXAODHitSi (SG::WriteHandle<xAOD::AFPSiHitContainer>& siHitContainer, std::unique_ptr<AFP_SiDigiCollection>& container) const
+void  AFP_PileUpTool::newXAODHitSi (std::unique_ptr<xAOD::AFPSiHitContainer>& siHitContainer, std::unique_ptr<AFP_SiDigiCollection>& container) const
 {
   AFP_SiDigiConstIter it    = container->begin();
   AFP_SiDigiConstIter itend = container->end();
   
   for (; it != itend; it++) {
-    auto xAODSiHit = siHitContainer->push_back(std::make_unique<xAOD::AFPSiHit>());
+    auto * xAODSiHit = siHitContainer->push_back(std::make_unique<xAOD::AFPSiHit>());
+    
     xAODSiHit->setStationID(it->m_nStationID);
     xAODSiHit->setPixelLayerID(it->m_nDetectorID);
     xAODSiHit->setPixelColIDChip(80-it->m_nPixelRow); // Chip is rotated by 90 degree Row-->Col
@@ -157,25 +172,29 @@ void  AFP_PileUpTool::newXAODHitSi (SG::WriteHandle<xAOD::AFPSiHitContainer>& si
 
 
 StatusCode AFP_PileUpTool::recoToFHits(const EventContext& ctx, std::unique_ptr<AFP_TDDigiCollection>& digitCollection) const
-{	
-  SG::WriteHandle<xAOD::AFPToFHitContainer> my_TDHitCollection = SG::makeHandle(m_AFPHitsContainerNameToF, ctx);
-  ATH_CHECK(my_TDHitCollection.record(std::make_unique<xAOD::AFPToFHitContainer>(),std::make_unique<xAOD::AFPToFHitAuxContainer>()));
-
-  newXAODHitToF(my_TDHitCollection, digitCollection);
+{
+  auto afpToFHits=std::make_unique<xAOD::AFPToFHitContainer>();
+  auto afpToFHitsAux=std::make_unique<xAOD::AFPToFHitAuxContainer>();
+  afpToFHits->setStore(afpToFHitsAux.get());
   
-  ATH_MSG_DEBUG("AFP_PileUpTool: after recoToFHits, simulated TD digi container size = "<<digitCollection->size()<<", got AFPToFHitContainer with size "<<my_TDHitCollection->size());
-    
+  newXAODHitToF(afpToFHits, digitCollection);
+  
+  ATH_MSG_DEBUG("AFP_PileUpTool: after recoToFHits, simulated TD digi container size = "<<digitCollection->size()<<", got afpToFHits with size "<<afpToFHits->size());
+  
+  SG::WriteHandle<xAOD::AFPToFHitContainer> ToFHitsContainer{m_AFPHitsContainerNameToF, ctx};
+  ATH_CHECK(ToFHitsContainer.record(std::move(afpToFHits),std::move(afpToFHitsAux)));
+  
   return StatusCode::SUCCESS;
 }
 
 
-void  AFP_PileUpTool::newXAODHitToF (SG::WriteHandle<xAOD::AFPToFHitContainer>& tofHitContainer, std::unique_ptr<AFP_TDDigiCollection>& container) const
+void  AFP_PileUpTool::newXAODHitToF (std::unique_ptr<xAOD::AFPToFHitContainer>& tofHitContainer, std::unique_ptr<AFP_TDDigiCollection>& container) const
 {
   AFP_TDDigiConstIter it    = container->begin();
   AFP_TDDigiConstIter itend = container->end();
 
   for (; it != itend; it++) {
-    auto xAODToFHit = tofHitContainer->push_back(std::make_unique<xAOD::AFPToFHit>());
+    auto * xAODToFHit = tofHitContainer->push_back(std::make_unique<xAOD::AFPToFHit>());
     xAODToFHit->setStationID(it->m_nStationID);
     xAODToFHit->setHptdcChannel(-1);
     xAODToFHit->setBarInTrainID(it->m_nDetectorID%10-1);
@@ -200,7 +219,7 @@ StatusCode AFP_PileUpTool::processAllSubEvents(const EventContext& ctx)
   if (!m_onlyUseContainerName) {
     SG::ReadHandle<AFP_TDSimHitCollection> hitCollection(m_TDSimHitCollectionKey, ctx);
     if (!hitCollection.isValid()) {
-      ATH_MSG_ERROR("Could not get SCT AFP_TDSimHitCollection container " << hitCollection.name() << " from store " << hitCollection.store());
+      ATH_MSG_ERROR("Could not get AFP_TDSimHitCollection container " << hitCollection.name() << " from store " << hitCollection.store());
       return StatusCode::FAILURE;
     }
 
@@ -232,7 +251,7 @@ StatusCode AFP_PileUpTool::processAllSubEvents(const EventContext& ctx)
   if (!m_onlyUseContainerName) {
     SG::ReadHandle<AFP_SIDSimHitCollection> hitCollection(m_SIDSimHitCollectionKey, ctx);
     if (!hitCollection.isValid()) {
-      ATH_MSG_ERROR("Could not get SCT AFP_SIDSimHitCollection container " << hitCollection.name() << " from store " << hitCollection.store());
+      ATH_MSG_ERROR("Could not get AFP_SIDSimHitCollection container " << hitCollection.name() << " from store " << hitCollection.store());
       return StatusCode::FAILURE;
     }
 
@@ -272,13 +291,13 @@ StatusCode AFP_PileUpTool::processAllSubEvents(const EventContext& ctx)
   ATH_CHECK(fillSiDigiCollection(thpcAFP_SiPmt, ctx, siDigiCollection));
 
   ATH_CHECK( recoAll(ctx, digitCollection, siDigiCollection) );
-    
+  
   SG::WriteHandle<AFP_TDDigiCollection> digitWriteHandle{m_TDDigiCollectionKey, ctx};
   ATH_CHECK( digitWriteHandle.record(std::move(digitCollection)) );
   
   SG::WriteHandle<AFP_SiDigiCollection> siDigiWriteHandle{m_SiDigiCollectionKey, ctx};
   ATH_CHECK( siDigiWriteHandle.record(std::move(siDigiCollection)) );
-    
+  
   return StatusCode::SUCCESS; 
 }
 
@@ -559,15 +578,15 @@ StatusCode AFP_PileUpTool::StoreTDDigi(const EventContext& /*ctx*/, std::unique_
 
           const double TDC = getTDC( hSignal );
           const double ADC = getADC( hSignal, 0.5*peakVal );
-                    
-          AFP_TDDigi* tddigi = new AFP_TDDigi();
-          tddigi->m_nStationID=i;
-          tddigi->m_nDetectorID=10*(j+1)+k+1; // restoring original numeration of bars and trains
-          tddigi->m_nSensitiveElementID=-1; // this variable is currently redundant
-          tddigi->m_fADC=ADC;
-          tddigi->m_fTDC=TDC;
-
-          digitCollection->Insert(*tddigi);
+          
+          AFP_TDDigi tddigi;
+          tddigi.m_nStationID=i;
+          tddigi.m_nDetectorID=10*(j+1)+k+1; // restoring original numeration of bars and trains
+          tddigi.m_nSensitiveElementID=-1; // this variable is currently redundant
+          tddigi.m_fADC=ADC;
+          tddigi.m_fTDC=TDC;
+          
+          digitCollection->push_back(tddigi);
         }
       }
     }
@@ -652,20 +671,16 @@ StatusCode AFP_PileUpTool::StoreSiDigi(const EventContext& ctx, std::unique_ptr<
       
       ATH_MSG_DEBUG ( " reversed mapping, station " << station << ", detector " << detector << ", pixel_col " << column << ", pixel_row " << row ); 
       
+      AFP_SiDigi sidigi;
+
+      sidigi.m_nStationID = station;
+      sidigi.m_nDetectorID = detector;
+      sidigi.m_nPixelCol = column;
+      sidigi.m_nPixelRow = row;
+      sidigi.m_fADC = tot2charge(tot);
+      sidigi.m_fTDC = 0.;
       
-      AFP_SiDigi* sidigi = new AFP_SiDigi();	
-      
-      sidigi->m_nStationID = station;
-      sidigi->m_nDetectorID = detector;
-      sidigi->m_nPixelCol = column;
-      sidigi->m_nPixelRow = row;
-      sidigi->m_fADC = tot2charge(tot);
-      sidigi->m_fTDC = 0.;
-      
-      
-      ATH_MSG_DEBUG ( " size: " << siDigiCollection->size());
-      
-      siDigiCollection->Insert(*sidigi); 
+      siDigiCollection->push_back(sidigi);
     }
     
     index++;

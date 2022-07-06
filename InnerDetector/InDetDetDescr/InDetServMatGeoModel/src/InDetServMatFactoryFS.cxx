@@ -38,7 +38,7 @@
 
 
 InDetServMatFactoryFS::InDetServMatFactoryFS(StoreGateSvc *detStore,ServiceHandle<IRDBAccessSvc> pRDBAccess) :
-  AthMessaging(Athena::getMessageSvc(), "InDetServMatFactoryFS"),
+  AthMessaging("InDetServMatFactoryFS"),
   m_detStore(detStore),
   m_rdbAccess(std::move(pRDBAccess)),
   m_manager(nullptr)

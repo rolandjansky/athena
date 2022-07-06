@@ -27,7 +27,7 @@
 #include "TrigInDetAnalysis/TIDAVertex.h"
 #include "TrigInDetAnalysis/TrackSelector.h"     
 #include "TrigInDetAnalysisUtils/T_AnalysisConfig.h"
-#include "TrigInDetAnalysisUtils/TagNProbe2.h"
+#include "TrigInDetAnalysisUtils/TagNProbe.h"
 
 #include "TrigInDetAnalysisExample/AnalysisR3_Tier0.h"
 #include "TrigInDetAnalysisExample/VtxAnalysis.h"
@@ -105,12 +105,12 @@ public:
   // - roiInfo: in case the test chain is a real chain, this is used to specify RoI widths; in case the test chain is a fake chain, this is used for RoI position too
   // - all standard operations are performed in loops over 0=test 1=reference 2=selection
   T_AnalysisConfigR3_Tier0(const std::string& analysisInstanceName,
-			 const std::string& testChainName,      const std::string& testType,      const std::string& testKey,
-			 const std::string& referenceChainName, const std::string& referenceType, const std::string& referenceKey,
-			 TrackFilter*     testFilter,  TrackFilter*     referenceFilter, 
-			 TrackAssociator* associator,
-			 TrackAnalysis*   analysis,
-			 TagNProbe2*      TnP_tool = 0) :
+			   const std::string& testChainName,      const std::string& testType,      const std::string& testKey,
+			   const std::string& referenceChainName, const std::string& referenceType, const std::string& referenceKey,
+			   TrackFilter*     testFilter,  TrackFilter*     referenceFilter, 
+			   TrackAssociator* associator,
+			   TrackAnalysis*   analysis,
+			   TagNProbe*      TnP_tool = 0) :
     T_AnalysisConfig<T>( analysisInstanceName,
 			 testChainName,      testType,      testKey,
 			 referenceChainName, referenceType, referenceKey,
@@ -123,7 +123,6 @@ public:
     m_doElectrons(false),
     m_doTaus(false),
     m_doBjets(false),
-    m_hasTruthMap(false),
     m_pdgID(0),
     m_parent_pdgID(0),
     m_NRois(0),
@@ -149,7 +148,7 @@ public:
     m_TnP_tool = TnP_tool;
     
 #if 0
-    /// leave for debugging
+    /// leave this code here for debugging purposes ...
     ChainString& chain = m_chainNames.back(); 
 
     std::cout << "\nT_AnalysisConfigR3_Tier0::name:                " << name() << "\t" << this << std::endl;
@@ -159,11 +158,13 @@ public:
     std::cout << "\troi:   " << chain.roi()     << std::endl;
     std::cout << "\tvtx:   " << chain.vtx()     << std::endl;
     std::cout << "\tte:    " << chain.element() << std::endl;
+    std::cout << "\textra: " << chain.extra()   << std::endl;
 
     std::cout << "\tpost:  " << chain.post()          << std::endl; 
     std::cout << "\tpt:    " << chain.postvalue("pt") << std::endl;
 
-    std::cout << "\tcontainTracks: " << m_containTracks << std::endl; 
+    std::cout << "\tcontainTracks: " << m_containTracks << std::endl;
+
 #endif
     
     m_testType = testType;
@@ -181,10 +182,19 @@ public:
 
 
   void initialise() { 
+
     if ( m_tnp_flag ) {
       if ( m_invmass==0 )     m_invmass     = new TIDA::Histogram<float>( monTool(), "invmass" );
       if ( m_invmass_obj==0 ) m_invmass_obj = new TIDA::Histogram<float>( monTool(), "invmass_obj" );
     }
+
+    for ( size_t it=0 ; it<m_types.size() ; it++ ) {
+      if ( m_types[it]=="" ) m_offline_types.push_back( "InDetTrackParticles" );
+      else                   m_offline_types.push_back( m_types[it] );      
+    }
+
+    if ( m_offline_types.empty() ) m_offline_types.push_back( "InDetTrackParticles" );
+
   }
 
 
@@ -203,6 +213,8 @@ public:
   void setMCTruthRef( bool b ) { m_mcTruth=b; }
 
   void setOfflineRef( bool b ) { m_doOffline=b; }
+
+  void setTypes( const std::vector<std::string>& t ) { m_types=t; }
 
   void set_monTool( ToolHandle<GenericMonitoringTool>* m ) { m_monTool=m; }
 
@@ -229,7 +241,7 @@ protected:
   
   virtual void loop() {
 
-    const TagNProbe2* pTnP_tool = m_TnP_tool;
+    const TagNProbe* pTnP_tool = m_TnP_tool;
 
     if( m_provider->msg().level() <= MSG::VERBOSE) {
       m_provider->msg(MSG::VERBOSE) <<  "AnalysisConfigR3_Tier0::loop() for " << T_AnalysisConfig<T>::m_analysisInstanceName <<  endmsg;
@@ -387,6 +399,7 @@ protected:
 	if ( (*(m_tdt))->isPassed(chainname) || (*(m_tdt))->getPrescale(chainname) ) analyse = true;
 	
       }
+
     }
     
     
@@ -405,30 +418,6 @@ protected:
     if(m_provider->msg().level() <= MSG::VERBOSE)
       m_provider->msg(MSG::VERBOSE) << "MC Truth flag " << m_mcTruth << endmsg;
 
-
-#if 0
-    const TrigInDetTrackTruthMap* truthMap = 0;
-
-    /// disable the truth match fetching - keep the code in place for when it is needed 
-    /// is this truthmap stuff even used ???
-    if ( m_mcTruth ) {
-      if(m_provider->msg().level() <= MSG::VERBOSE ) m_provider->msg(MSG::VERBOSE) << "getting Truth" << endmsg;
-
-      if ( m_provider->evtStore()->retrieve(truthMap, "TrigInDetTrackTruthMap").isFailure()) {
-        if(m_provider->msg().level() <= MSG::VERBOSE)
-          m_provider->msg(MSG::VERBOSE) << "TrigInDetTrackTruthMap not found" << endmsg;
-        m_hasTruthMap = false;
-      }
-      else {
-        if(m_provider->msg().level() <= MSG::VERBOSE)
-          m_provider->msg(MSG::VERBOSE) << "TrigInDetTrackTruthMap found" << endmsg;
-        m_hasTruthMap = true;
-      }
-    }
-#else
-    m_hasTruthMap = false;
-#endif    
-
     /// get the offline vertices into our structure
 
     std::vector<TIDA::Vertex> vertices;
@@ -442,7 +431,7 @@ protected:
     m_provider->msg(MSG::VERBOSE) << "fetching AOD Primary vertex container" << endmsg;
 
     if ( !this->select( vertices, "PrimaryVertices" ) ) { 
-      m_provider->msg(MSG::VERBOSE) << "could not retrieve vertex collection " "PrimaryVertices" << std::endl;
+      m_provider->msg(MSG::VERBOSE) << "could not retrieve the 'PrimaryVertices' vertex collection" << std::endl;
     }
 
     /// add the truth particles if needed
@@ -645,19 +634,29 @@ protected:
 	  
     }
 
-    // m_provider->msg(MSG::VERBOSE) << " Offline tracks " << endmsg;
-	
     if ( m_doOffline && !m_mcTruth) {
-	  
-      if ( m_provider->evtStore()->template contains<xAOD::TrackParticleContainer>("InDetTrackParticles") ) {
-	this->template selectTracks<xAOD::TrackParticleContainer>( pselectorRef, "InDetTrackParticles" );
-	refbeamspot = this->template getBeamspot<xAOD::TrackParticleContainer>( "InDetTrackParticles" );
+
+      bool found_offline = false;
+
+      for ( size_t it=0 ; it<m_offline_types.size() ; it++ ) {
+	if ( m_provider->evtStore()->template contains<xAOD::TrackParticleContainer>( m_offline_types[it] ) ) {
+	  this->template selectTracks<xAOD::TrackParticleContainer>( pselectorRef, m_offline_types[it] );
+	  refbeamspot = this->template getBeamspot<xAOD::TrackParticleContainer>( m_offline_types[it] );
+	  found_offline = true;
+	}
+	else { 
+	  m_provider->msg(MSG::WARNING) << "Offline tracks not found: " << m_offline_types[it] << endmsg;
+	}
       }
-      else if (m_provider->evtStore()->template contains<Rec::TrackParticleContainer>("TrackParticleCandidate") ) {
-	this->template selectTracks<Rec::TrackParticleContainer>( pselectorRef, "TrackParticleCandidate" );
-      }
-      else if ( m_provider->msg().level() <= MSG::WARNING ) {
-	m_provider->msg(MSG::WARNING) << " Offline tracks not found " << endmsg;
+      
+      if ( !found_offline ) { 
+	if (m_provider->evtStore()->template contains<Rec::TrackParticleContainer>("TrackParticleCandidate") ) {
+	  /// do we still want to support Rec::TrackParticles ? Would this even still work ?
+	  this->template selectTracks<Rec::TrackParticleContainer>( pselectorRef, "TrackParticleCandidate" );
+	}
+	else { 
+	  m_provider->msg(MSG::WARNING) << "Offline tracks not found: " << "TrackParticleCandidate" << endmsg;
+	}
       }
 
     }
@@ -677,9 +676,10 @@ protected:
       const std::string& chainname = m_chainNames[ichain].head();
       const std::string&       key = m_chainNames[ichain].tail();
       const std::string&  vtx_name = m_chainNames[ichain].vtx();
-      //Not used left just in case
-      //const std::string&  roi_name = m_chainNames[ichain].roi();
-      //const std::string&  te_name = m_chainNames[ichain].element();
+  
+      // Not used left just in case
+      // const std::string&  roi_name = m_chainNames[ichain].roi();
+      // const std::string&  te_name = m_chainNames[ichain].element();
       m_pTthreshold = 0;  /// why does this need to be a class variable ???
 
       if ( m_chainNames[ichain].postcount() ) { 
@@ -688,14 +688,9 @@ protected:
       }
 
 
-      unsigned _decisiontype = TrigDefs::Physics;
-      unsigned  decisiontype;
-     
-      if ( this->requireDecision() ) _decisiontype =  TrigDefs::requireDecision;
-      
-      
-      if ( m_chainNames[ichain].passed() ) decisiontype = _decisiontype;
-      else                                 decisiontype = TrigDefs::alsoDeactivateTEs;
+      unsigned decisiontype = TrigDefs::Physics;
+    
+      if ( !m_chainNames[ichain].passed() ) decisiontype = TrigDefs::includeFailedDecisions;
 
       /// useful debug information to be kept in for the time being 
       //      if ( decisiontype==TrigDefs::requireDecision ) std::cout << "\tSUTT TrigDefs::requireDecision " << decisiontype << std::endl;
@@ -724,7 +719,6 @@ protected:
 
       if ( chainname!="" && !this->m_keepAllEvents && !(*m_tdt)->isPassed( chainname, decisiontype ) ) continue;
 
-
       /// Get chain combinations and loop on them
       /// - loop made on chain selected as the one steering RoI creation
       // Trig::FeatureContainer f = (*m_tdt)->features( chainname, TrigDefs::alsoDeactivateTEs);
@@ -739,12 +733,12 @@ protected:
 	chainNames.push_back(m_chainNames[ichain].raw()) ;
       }
       else {
-	chainNames.push_back(pTnP_tool->tag()) ;
-	chainNames.push_back(pTnP_tool->probe()) ;
+	chainNames.push_back(pTnP_tool->tag());
+	chainNames.push_back(pTnP_tool->probe());
       }
 
       // loop over new chainNames vector but doing the same stuff
-      for ( unsigned i = 0 ; i < chainNames.size() ; ++i ) {
+      for ( size_t i=0 ; i<chainNames.size() ; i++ ) {
 
 	ChainString chainConfig = chainNames[i] ;
 	std::string chainName   = chainConfig.head();
@@ -1232,9 +1226,11 @@ protected:
   bool m_doElectrons;
   bool m_doTaus;
   bool m_doBjets;
-  bool m_hasTruthMap;
   bool m_doTauThreeProng;
   bool m_tauEtCutOffline;
+
+  std::vector<std::string> m_offline_types;
+  std::vector<std::string> m_types;
 
   std::string m_outputFileName;
 
@@ -1256,7 +1252,7 @@ protected:
   
   bool   m_containTracks;
 
-  TagNProbe2* m_TnP_tool ; 
+  TagNProbe* m_TnP_tool ; 
 
   bool       m_tnp_flag;
 

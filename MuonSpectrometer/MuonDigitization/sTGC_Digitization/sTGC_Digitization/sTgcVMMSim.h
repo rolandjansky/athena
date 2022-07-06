@@ -19,7 +19,6 @@
 
 #include <iosfwd>
 #include <inttypes.h>
-#include "AthenaKernel/getMessageSvc.h"
 #include "AthenaBaseComps/AthMessaging.h"
 #include "MuonDigitContainer/MuonDigit.h"
 #include "MuonDigitContainer/sTgcDigitContainer.h"
@@ -34,7 +33,7 @@ class sTgcVMMSim : public AthMessaging
 public:
     // functions
     sTgcVMMSim()
-        : sTgcVMMSim({}, 0, 0, 0, false, 0)
+        : sTgcVMMSim({}, 0, 0, 0, false, 0, 0.)
     {
         readVMMConfig();
     }
@@ -45,8 +44,9 @@ public:
         float deadWindow,
         float readWindow,
         bool readDeadDigits,
-        int typeOfChannel)
-        : AthMessaging(Athena::getMessageSvc(), "sTgcVMMSim")
+        int typeOfChannel,
+        float mainThreshold)
+        : AthMessaging("sTgcVMMSim")
         , m_deadtimeStart(-9999)
         , m_readtimeStart(-9999)
         , m_digitsIn(std::move(inputDigits))
@@ -58,7 +58,7 @@ public:
         , m_channelType(typeOfChannel)
         , m_readoutTick(1)
         , m_mode_neighborOn(false)
-        , m_mainThreshold(1)
+        , m_mainThreshold(mainThreshold)
         , m_neighborThreshold(1)
     {
         readVMMConfig();
@@ -104,7 +104,7 @@ public:
             for(std::vector<sTgcDigit>::iterator it_digit = m_digitBuffer.begin(); it_digit != m_digitBuffer.end();
                 ++it_digit) {
                 ATH_MSG_VERBOSE("Examining Digit at time : " << it_digit->time() << " charge: " << it_digit->charge());
-                if(it_digit->charge() >= m_mainThreshold || m_channelType != 1) {
+                if(it_digit->charge() >= m_mainThreshold) {
                     ATH_MSG_VERBOSE("Begin VMM READ at time : " << it_digit->time() << " charge: " << it_digit->charge());
                     beginRead(m_vmmTime); // If a digit crosses threshold, begin readout window at the beginning of the tick
                     thresh_trig = true;
@@ -246,11 +246,12 @@ private: // data
                 ATH_MSG_DEBUG("m_deadtimeON = " << (bool)value);
                 continue;
             }
-            if(var.compare("mainThreshold") == 0) {
-                m_mainThreshold = value;
-                ATH_MSG_DEBUG("mainThreshold = " << value);
-                continue;
-            }
+            // Main threshold is retrieved from the cond database
+            //if(var.compare("mainThreshold") == 0) {
+            //    m_mainThreshold = value;
+            //    ATH_MSG_DEBUG("mainThreshold = " << value);
+            //    continue;
+            //}
             if(var.compare("neighborThreshold") == 0) {
                 m_neighborThreshold = value;
                 ATH_MSG_DEBUG("neighborThreshold = " << value);
@@ -261,7 +262,6 @@ private: // data
                 ATH_MSG_DEBUG("readoutTick = " << value);
                 continue;
             }
-            ATH_MSG_WARNING("Unknown value encountered reading VMM.config");
         }
 
         ifs.close();

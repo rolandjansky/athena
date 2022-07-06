@@ -61,7 +61,14 @@ StatusCode STGC_RdoToDigit::decodeSTGC( const Muon::STGC_RawDataCollection * rdo
         ATH_MSG_ERROR( "Error in sTGC RDO decoder"  );
         continue;
       }
-      newDigit->set_time(newDigit->time() - Muon::STGC_RawData::s_timeTdoShift); //place holder calibration for tdo->time conversion
+
+      uint16_t relBcid = newDigit->bcTag();
+      uint16_t bcTag = 0;
+      // Triggering bunch crossing is set to relative_BCID = 3 
+      if (relBcid == 3) bcTag = 0;
+      else if (relBcid < 3) bcTag = ~(3 - relBcid);
+      else if (relBcid > 3) bcTag = (relBcid - 3);
+      newDigit->set_bcTag(bcTag);
 
       // find here the Proper Digit Collection identifier, using the rdo-hit id
       // (since RDO collections are not in a 1-to-1 relation with digit collections)

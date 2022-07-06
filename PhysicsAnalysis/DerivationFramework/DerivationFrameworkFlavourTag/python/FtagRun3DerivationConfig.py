@@ -12,54 +12,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 # these files are sloppy with imports, see ATLASRECTS-6635
 with ConfigurableRun3Behavior():
     from BTagging.BTagTrackAugmenterAlgConfig import BTagTrackAugmenterAlgCfg
-    from BTagging.BTagRun3Config import BTagAlgsCfg
-
-# this is where you add the new trainings!
-derivationTrainingMap={
-    'AntiKt4EMPFlow': [
-        'BTagging/201903/rnnip/antikt4empflow/network.json',
-        'BTagging/201903/dl1r/antikt4empflow/network.json',
-        'BTagging/20210517/dipsLoose/antikt4empflow/network.json', #first r22 trainings
-        'BTagging/20210517/dips/antikt4empflow/network.json',
-        'BTagging/20210528r22/dl1d/antikt4empflow/network.json',
-        'BTagging/20210519r22/dl1r/antikt4empflow/network.json',
-        'BTagging/20210729/dipsLoose/antikt4empflow/network.json', #new r22 trainings
-        'BTagging/20210729/dips/antikt4empflow/network.json',
-        'BTagging/20210824r22/dl1dLoose/antikt4empflow/network.json', #“recommended tagger” which is DL1dLoose20210824r22 named DL1dv00 in EDM
-        'BTagging/20210824r22/dl1d/antikt4empflow/network.json',
-        'BTagging/20210824r22/dl1r/antikt4empflow/network.json',
-    ],
-    'AntiKt4PFlowCustomVtx': [
-        'BTagging/201903/rnnip/antikt4empflow/network.json',
-        'BTagging/201903/dl1r/antikt4empflow/network.json',
-    ],
-    'AntiKt4EMTopo': [
-        'BTagging/201903/rnnip/antikt4empflow/network.json',
-        'BTagging/201903/dl1r/antikt4empflow/network.json',
-        'BTagging/20210517/dipsLoose/antikt4empflow/network.json', #first r22 trainings
-        'BTagging/20210517/dips/antikt4empflow/network.json',
-        'BTagging/20210528r22/dl1d/antikt4empflow/network.json',
-        'BTagging/20210519r22/dl1r/antikt4empflow/network.json',
-        'BTagging/20210729/dipsLoose/antikt4empflow/network.json', #new r22 trainings
-        'BTagging/20210729/dips/antikt4empflow/network.json',
-        'BTagging/20210824r22/dl1dLoose/antikt4empflow/network.json', #“recommended tagger” which is DL1dLoose20210824r22 named DL1dv00 in EDM
-        'BTagging/20210824r22/dl1d/antikt4empflow/network.json',
-        'BTagging/20210824r22/dl1r/antikt4empflow/network.json',
-    ],
-    'AntiKtVR30Rmax4Rmin02Track': [
-        'BTagging/201903/rnnip/antiktvr30rmax4rmin02track/network.json',
-        'BTagging/201903/dl1r/antiktvr30rmax4rmin02track/network.json',
-        'BTagging/20210517/dipsLoose/antikt4empflow/network.json', #first r22 trainings
-        'BTagging/20210517/dips/antikt4empflow/network.json',
-        'BTagging/20210528r22/dl1d/antikt4empflow/network.json',
-        'BTagging/20210519r22/dl1r/antikt4empflow/network.json',
-        'BTagging/20210729/dipsLoose/antikt4empflow/network.json', #new r22 trainings
-        'BTagging/20210729/dips/antikt4empflow/network.json',
-        'BTagging/20210824r22/dl1dLoose/antikt4empflow/network.json', #“recommended tagger” which is DL1dLoose20210824r22 named DL1dv00 in EDM
-        'BTagging/20210824r22/dl1d/antikt4empflow/network.json',
-        'BTagging/20210824r22/dl1r/antikt4empflow/network.json',
-    ]
-}
+    from BTagging.BTagRun3Config import BTagAlgsCfg, GetTaggerTrainingMap
 
 # for backward compatability
 def FtagJetCollection(jetcol, seq, pvCol='PrimaryVertices', OutputLevel=WARNING):
@@ -173,22 +126,22 @@ def getFtagComponent(cfgFlags, jetcol, pvCol):
         PrimaryVertexCollectionName=pvCol,
     ))
 
+    # decorate tracks with leptonID
     acc.addEventAlgo(CompFactory.FlavorTagDiscriminants.TrackLeptonDecoratorAlg(
         'TrackLeptonDecoratorAlg',
         trackContainer=track_collection,
     ))
+
     if cfgFlags.Input.isMC:
         acc.addEventAlgo(CompFactory.FlavorTagDiscriminants.TrackTruthDecoratorAlg(
             'TrackTruthDecoratorAlg',
             trackContainer=track_collection,
         ))
 
-    nnList = derivationTrainingMap[jetcol_name_without_Jets]
-
     acc.merge(BTagAlgsCfg(
         inputFlags=cfgFlags,
         JetCollection=jetcol_name_without_Jets,
-        nnList=nnList,
+        nnList=GetTaggerTrainingMap(jetcol_name_without_Jets),
         trackCollection=track_collection,
         primaryVertices=pvCol,
     ))

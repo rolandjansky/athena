@@ -4,7 +4,6 @@
 # so far only handle the RawChannel->CaloCell step
 # not all possibility of CaloCellMaker_jobOptions.py integrated yet
 from RecExConfig.Configured import Configured
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.GlobalFlags import globalflags
 from RecExConfig.RecFlags import rec
 import traceback
@@ -152,8 +151,6 @@ class CaloCellGetter_DigiHSTruth (Configured)  :
             try:
                 from LArCellRec.LArCellRecConf import LArBadFebMaskingTool
                 theLArBadFebMaskingTool = LArBadFebMaskingTool()
-                if (rec.doExpressProcessing() or athenaCommonFlags.isOnline()): # In online or express processing, EventInfo::LArError is triggered if >=4 FEB with data corrupted
-                    theLArBadFebMaskingTool.minFebInError = 4
             except Exception:
                 mlog.error("could not get handle to LArBadFebMaskingTool Quit")
                 print(traceback.format_exc())

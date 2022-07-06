@@ -28,7 +28,7 @@ int inputError(const std::string& errDescr, const po::options_description& optDe
 }
 
 //wrote a better version!
-IAppMgrUI* initGaudi(const std::string& options, ISvcLocator*& svcLocator) {
+IAppMgrUI* initGaudi(const std::string& options, bool verbose, ISvcLocator*& svcLocator) {
   IAppMgrUI* theApp = Gaudi::createApplicationMgr();
   SmartIF<IProperty> propMgr(theApp);
   if(strlen(options.c_str())) {
@@ -36,6 +36,9 @@ IAppMgrUI* initGaudi(const std::string& options, ISvcLocator*& svcLocator) {
   } else {
     //no joboptions given
     CHECK_WITH_CONTEXT( propMgr->setProperty("JobOptionsType", "NONE"), "initGaudi", nullptr );
+  }
+  if (!verbose) {
+    CHECK_WITH_CONTEXT( propMgr->setProperty("OutputLevel", MSG::WARNING), "initGaudi", nullptr );
   }
   CHECK_WITH_CONTEXT( theApp->configure(), "initGaudi", nullptr );
   CHECK_WITH_CONTEXT( theApp->initialize(), "initGaudi", nullptr );
@@ -55,6 +58,7 @@ int main(int argc, char* argv[]) {
     ("input,i", po::value<std::string>(), "optional path to input clid db file")
     ("output,o", po::value<std::string>(), "optional path to resulting clid db file")
     ("jobopts,j", po::value<std::string>(), "name of optional job options txt file, located at ../share/jobopts")
+    ("verbose,v", po::value<bool>()->implicit_value(true), "verbose output")
     ;
   std::string packageName("ALL");
   std::string inputCLIDDB;
@@ -85,13 +89,15 @@ int main(int argc, char* argv[]) {
     outFileName = packageName + "_clid.db";
   }
 
+  bool verbose = vm.count("verbose") && vm["verbose"].as<bool>();
+
   // Initialize Gaudi
   ISvcLocator* pSvcLoc(nullptr);
   std::string jobopts("CLIDComps/minimalPrintout.opts");
   if (vm.count("jobopts")) {
     jobopts = vm["jobopts"].as<std::string>();
   }
-  if (!initGaudi(jobopts,pSvcLoc)) {
+  if (!initGaudi(jobopts, verbose, pSvcLoc)) {
     std::cerr << "cannot initialize Gaudi" << std::endl;
     return 2;
   }
@@ -103,6 +109,9 @@ int main(int argc, char* argv[]) {
     return 2;
   }
   MsgStream log(msgSvc, appName);
+  if (!verbose) {
+    log.setLevel(MSG::WARNING);
+  }
 
   SmartIF<IClassManager> pICM(pSvcLoc);
   if (!pICM.isValid()) {

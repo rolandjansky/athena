@@ -37,11 +37,10 @@ class SCT_RODVetoCondAlg : public AthReentrantAlgorithm {
   SCT_RODVetoCondAlg(const std::string &name, ISvcLocator *pSvcLocator);
   virtual ~SCT_RODVetoCondAlg() = default;
 
-  virtual StatusCode initialize() override;
-  virtual StatusCode execute(const EventContext& ctx) const override;
-  virtual StatusCode finalize() override;
-  /** Make this algorithm clonable. */
-  virtual bool isClonable() const override { return true; };
+  virtual StatusCode initialize() override final;
+  virtual StatusCode execute(const EventContext& ctx) const override final;
+  virtual StatusCode finalize() override final;
+  virtual bool isReEntrant() const override final { return false; }
 
  private:
   ToolHandle<ISCT_CablingTool> m_cabling{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};

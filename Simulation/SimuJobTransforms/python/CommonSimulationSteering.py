@@ -68,6 +68,9 @@ def CommonSimulationCfg(ConfigFlags, log):
             if "xAOD::EventInfo#EventInfo" not in ConfigFlags.Input.TypedCollections:
                 from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoCnvAlgCfg
                 cfg.merge(EventInfoCnvAlgCfg(ConfigFlags))
+            else:
+                from xAODEventInfoCnv.EventInfoBeamSpotDecoratorAlgConfig import EventInfoBeamSpotDecoratorAlgCfg
+                cfg.merge(EventInfoBeamSpotDecoratorAlgCfg(ConfigFlags))
             from McEventCollectionFilter.McEventCollectionFilterConfig import TruthResetAlgCfg
             cfg.merge(TruthResetAlgCfg(ConfigFlags))
             cfg.addSequence(CompFactory.AthSequencer('SimSequence'), parentName='AthAlgSeq')
@@ -90,6 +93,9 @@ def CommonSimulationCfg(ConfigFlags, log):
         if "xAOD::EventInfo#EventInfo" not in ConfigFlags.Input.TypedCollections:
             from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoCnvAlgCfg
             cfg.merge(EventInfoCnvAlgCfg(ConfigFlags)) ## TODO: update config so that ReSim can use the same xAOD::EventInfo
+        else:
+            from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoUpdateFromContextAlgCfg
+            cfg.merge(EventInfoUpdateFromContextAlgCfg(ConfigFlags))
 
     AcceptAlgNames=[]
     if ConfigFlags.Sim.ISFRun:

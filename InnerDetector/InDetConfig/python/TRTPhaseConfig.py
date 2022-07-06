@@ -2,9 +2,6 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType
-import InDetConfig.TrackingCommonConfig as TC
-
-
 
 def InDetCosmicsEventPhaseToolCfg(flags, name='InDetCosmicsEventPhaseTool', **kwargs) :
     #
@@ -99,7 +96,9 @@ def InDetCosmicsEventPhaseCfg(flags, InputTrackCollections, name = 'InDetCosmics
     InDetFixedWindowTrackTimeTool  = acc.popToolsAndMerge(InDetFixedWindowTrackTimeToolCfg(flags))
     acc.addPublicTool(InDetFixedWindowTrackTimeTool )
 
-    InDetTrackSummaryTool = acc.getPrimaryAndMerge(TC.InDetTrackSummaryToolCfg(flags))
+    from TrkConfig.TrkTrackSummaryToolConfig import InDetTrackSummaryToolCfg
+    InDetTrackSummaryTool = acc.popToolsAndMerge(InDetTrackSummaryToolCfg(flags))
+    acc.addPublicTool(InDetTrackSummaryTool)
 
     # CalDb tool
     from TRT_ConditionsServices.TRT_ConditionsServicesConfig import TRT_CalDbToolCfg
@@ -134,9 +133,6 @@ def TRTPhaseCfg(flags, self, InputTrackCollections = [], **kwargs):
     return acc
 
 if __name__ == "__main__":
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
-
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
     numThreads=1

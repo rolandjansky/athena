@@ -36,22 +36,22 @@ class MM_ElectronicsToolInput {
     m_digitID(digitID),
     m_kineticEnergy(kineticEnergy) {}
 
-    ~MM_ElectronicsToolInput() {}
+    ~MM_ElectronicsToolInput() = default;
 
    const std::vector<int>& NumberOfStripsPos() const { return m_NumberOfStripsPos; }
    const std::vector<std::vector<float>>& chipCharge() const { return m_chipCharge; }
    const std::vector<std::vector<float>>& chipTime() const { return m_chipTime; }
    const std::vector<float>& stripThreshold() const {return m_stripThreshold;} 
-    Identifier digitID() const { return m_digitID; }
+   const Identifier& digitID() const { return m_digitID; }
     float kineticEnergy() const { return m_kineticEnergy; }
 
  private:
-    std::vector<std::vector<float>> m_chipCharge;
-    std::vector<std::vector<float>> m_chipTime;
-    std::vector<int> m_NumberOfStripsPos;
-    std::vector<float> m_stripThreshold;
-    Identifier m_digitID;
-    float m_kineticEnergy;
+    std::vector<std::vector<float>> m_chipCharge{};
+    std::vector<std::vector<float>> m_chipTime{};
+    std::vector<int> m_NumberOfStripsPos{};
+    std::vector<float> m_stripThreshold{};
+    Identifier m_digitID{0};
+    float m_kineticEnergy{0.f};
 };
 /*******************************************************************************/
 #endif

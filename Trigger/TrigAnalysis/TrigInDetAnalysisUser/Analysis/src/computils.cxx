@@ -41,8 +41,11 @@ bool LINES = false;
 
 bool Plots::watermark = true;
 
+int   colours[6] = {  1,    2, kBlue-4,  6, kCyan-2,  kMagenta+2 };
+int   markers[6] = { 20,   24,      25, 26,      25,          22 };
+double msizes[6] = {  0.85,  1,       1,  1,       1,           1 };
 
-///
+
 
 double  Entries( TH1* h ) {
   double n = 0;
@@ -71,7 +74,6 @@ void Norm( TH1* h, double scale ) {
   }
   
 }
-
 
 
 
@@ -220,9 +222,11 @@ bool contains( const std::string& s, const std::string& p) {
   return (s.find(p)!=std::string::npos);
 }
 
+
 bool contains( const std::string& s, char p) noexcept { 
   return (s.find(p)!=std::string::npos);
 }
+
 
 /// contains a string at the *beginning* of the string
 bool fcontains( const std::string& s, const std::string& p) { 

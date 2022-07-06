@@ -16,7 +16,6 @@
 #include "AthenaKernel/IAtRndmGenSvc.h"
 // Trk
 #include "TrkEventPrimitives/PropDirection.h"
-#include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkExUtils/MaterialUpdateMode.h"
 #include "TrkDetDescrUtils/GeometrySignature.h" 
 // ISF
@@ -158,8 +157,6 @@ namespace iFatras {
       mutable float                                m_conversionChildAngle;
       // --------------------------------------------------------------------------------
       
-      /** struct of Particle Masses */
-      static Trk::ParticleMasses                   s_particleMasses;
       static Trk::PdgToParticleHypothesis          s_pdgToHypo;
       /** Inverse fine structure constant */
       static double                                s_alpha;

@@ -40,9 +40,15 @@ def LArFebErrorSummaryMakerCfg(configFlags):
 
     acc = LArBadFebCfg(configFlags)
 
+    minErrFeb=1
+    # In online or express processing, EventInfo::LArError is triggered if >=4 FEB with data corrupted
+    if configFlags.Common.isOnline or configFlags.Common.doExpressProcessing:
+       minErrFeb=4
+
     acc.addEventAlgo(CompFactory.LArFebErrorSummaryMaker("LArFebErrorSummaryMaker",CheckAllFEB=bCheckAllFEB,
                                          WriteKey="StoreGateSvc+LArFebErrorSummary",
-                                         MaskFebScacStatus = lMaskFebScacStatus, MaskFebEvtId = lMaskFebEvtId
+                                         MaskFebScacStatus = lMaskFebScacStatus, MaskFebEvtId = lMaskFebEvtId,
+                                         minFebInError=minErrFeb
                                          #MaskFebZeroSample = lMaskFebZeroSample,
                                          )
                     )
@@ -55,8 +61,6 @@ if __name__=="__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import DEBUG
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
     log.setLevel(DEBUG)
 
     from AthenaConfiguration.TestDefaults import defaultTestFiles

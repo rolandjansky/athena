@@ -106,7 +106,6 @@ class TopoAlgoDef:
         tm.registerTopoAlgo(alg)
 
         # SORT
-        # TODO: iso cut not yet implemented in topo sim
         alg = AlgConf.eTauSort( name = 'eTAUsm', inputs = 'eTauTobs', outputs = 'eTAUsm' )
         alg.addgeneric('InputWidth', HW.eTauInputWidth)
         alg.addgeneric('OutputWidth', HW.eTauOutputWidthSort)
@@ -127,7 +126,6 @@ class TopoAlgoDef:
         alg.addvariable('MaxEta',   49*_eta_conversion)
         tm.registerTopoAlgo(alg) 
 
-        # TODO: iso cut not yet implemented in topo sim
         alg = AlgConf.eTauSelect( name = 'eTAUabm', inputs = 'eTauTobs', outputs = 'eTAUabm' )
         alg.addgeneric('InputWidth',  HW.eTauInputWidth)
         alg.addgeneric('OutputWidth', HW.eTauOutputWidthSelect)
@@ -284,14 +282,12 @@ class TopoAlgoDef:
         tm.registerTopoAlgo(alg)
 
         # MET
-        # TODO: replace to new TOB
-        alg = AlgConf.METNoSort( name = 'jXENoSort', inputs = 'MetTobArray', outputs = 'jXENoSort' )
+        alg = AlgConf.jXENoSort( name = 'jXENoSort', inputs = 'jXETobs', outputs = 'jXENoSort' )
         alg.addgeneric('InputWidth', HW.jMetInputWidth)
         alg.addgeneric('OutputWidth', HW.metOutputWidth)
         tm.registerTopoAlgo(alg)
 
-        # TODO: replace to new TOB        
-        alg = AlgConf.MetSort( name = 'jXE', inputs = 'MetTobArray', outputs = 'jXE' )
+        alg = AlgConf.jXESort( name = 'jXE', inputs = 'jXETobs', outputs = 'jXE' )
         alg.addgeneric('InputWidth', HW.jMetInputWidth)
         alg.addgeneric('OutputWidth', HW.metOutputWidth)
         tm.registerTopoAlgo(alg)
@@ -571,8 +567,8 @@ class TopoAlgoDef:
             for bitId in range(len(toponames)):
                 alg.addvariable('MinMSqr', d.minInvm * d.minInvm * _et_conversion * _et_conversion, bitId)
                 alg.addvariable('MaxMSqr', d.maxInvm * d.maxInvm * _et_conversion * _et_conversion, bitId)
-                alg.addvariable('MinDeltaPhi', d.minDphi, bitId)
-                alg.addvariable('MaxDeltaPhi', d.maxDphi, bitId)
+                alg.addvariable('MinDeltaPhi', d.minDphi * _phi_conversion, bitId)
+                alg.addvariable('MaxDeltaPhi', d.maxDphi * _phi_conversion, bitId)
                 alg.addvariable('MinET1' , get_threshold_cut(d.otype1, d.ocut1List[bitId]) * _et_conversion, bitId)
                 alg.addvariable('MinET2' , get_threshold_cut(d.otype1, d.ocut2List[bitId]) * _et_conversion, bitId)
             
@@ -1703,7 +1699,6 @@ class TopoAlgoDef:
 
  
         # CEP_CjJ
-        # TODO: what conversion for Xi?
         CEPmap = [
             {"algoname": 'CEP_CjJ', "minETlist": [90, 100]}
         ]
@@ -1721,7 +1716,7 @@ class TopoAlgoDef:
             alg.addgeneric('MaxTob', HW.jJetOutputWidthSort)       # noqa: F821
             alg.addgeneric('NumResultBits',  len(toponames)) # noqa: F821
             for bitid,minET in enumerate(d.minETlist):  # noqa: F821
-                alg.addvariable('MinET1', get_threshold_cut('jJ', minET), bitid)# noqa: F821
-                alg.addvariable('MinXi', 13000.0*0.02, bitid) # noqa: F821
-                alg.addvariable('MaxXi', 13000.0*0.05, bitid) # noqa: F821
+                alg.addvariable('MinET1', get_threshold_cut('jJ', minET)*_et_conversion, bitid)# noqa: F821
+                alg.addvariable('MinXi', 13600.0*_et_conversion*0.02, bitid) # noqa: F821
+                alg.addvariable('MaxXi', 13600.0*_et_conversion*0.05, bitid) # noqa: F821
             tm.registerTopoAlgo(alg)

@@ -59,7 +59,7 @@ InDet::InDetTrackSummaryHelperTool::initialize()
   ATH_CHECK(
     m_assoTool.retrieve(DisableTool{ !m_doSharedHits || m_assoTool.empty() }));
   ATH_CHECK(m_holeSearchTool.retrieve(DisableTool{ m_holeSearchTool.empty() }));
-  ATH_CHECK(m_testBLayerTool.retrieve(DisableTool{ m_testBLayerTool.empty() }));
+  ATH_CHECK(m_testPixelLayerTool.retrieve(DisableTool{ m_testPixelLayerTool.empty() }));
   ATH_CHECK(m_TRTStrawSummaryTool.retrieve(
     DisableTool{ not m_useTRT or m_TRTStrawSummaryTool.empty() }));
 
@@ -336,10 +336,10 @@ InDet::InDetTrackSummaryHelperTool::searchForHoles(
   ATH_MSG_DEBUG("Do hole search within HELPER, PLEASE FIX THIS AFTER 16.0.X");
   m_holeSearchTool->countHoles(track, information, partHyp);
 
-  // this is a hack, we need to run the TestBLayer Tool somewhere
+  // this is a hack, we need to run the TestPixelLayer Tool somewhere
 
-  if (m_usePixel and not m_testBLayerTool.empty()) {
-
+  if (m_usePixel and not m_testPixelLayerTool.empty()) {
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     if (information[Trk::numberOfContribPixelLayers] == 0) {
       ATH_MSG_DEBUG("No pxiels on track, so wo do not expect a B-Layer hit !");
       information[Trk::expectInnermostPixelLayerHit] = 0;
@@ -349,7 +349,7 @@ InDet::InDetTrackSummaryHelperTool::searchForHoles(
       if (information[Trk::numberOfInnermostPixelLayerHits] > 0) {
         information[Trk::expectInnermostPixelLayerHit] = 1;
       } else {
-        if (m_testBLayerTool->expectHitInInnermostPixelLayer(&track)) {
+        if (m_testPixelLayerTool->expectHitInInnermostPixelLayer(ctx, &track)) {
           ATH_MSG_DEBUG("expect Pixel Layer 0 hit !");
           information[Trk::expectInnermostPixelLayerHit] = 1;
         } else {
@@ -362,7 +362,7 @@ InDet::InDetTrackSummaryHelperTool::searchForHoles(
       if (information[Trk::numberOfNextToInnermostPixelLayerHits] > 0) {
         information[Trk::expectNextToInnermostPixelLayerHit] = 1;
       } else {
-        if (m_testBLayerTool->expectHitInNextToInnermostPixelLayer(&track)) {
+        if (m_testPixelLayerTool->expectHitInNextToInnermostPixelLayer(ctx, &track)) {
           ATH_MSG_DEBUG("expect Pixel Layer 1 hit !");
           information[Trk::expectNextToInnermostPixelLayerHit] = 1;
         } else {
@@ -479,7 +479,7 @@ InDet::InDetTrackSummaryHelperTool::updateExpectedHitInfo(
   Trk::TrackSummary& summary) const
 {
 
-  if (m_usePixel and not m_testBLayerTool.empty()) {
+  if (m_usePixel and not m_testPixelLayerTool.empty()) {
 
     if (summary.m_information[Trk::numberOfContribPixelLayers] == 0) {
       ATH_MSG_DEBUG("No pxiels on track, so wo do not expect a B-Layer hit !");
@@ -492,7 +492,7 @@ InDet::InDetTrackSummaryHelperTool::updateExpectedHitInfo(
                       "innermost pixel layer hit !");
         summary.m_information[Trk::expectInnermostPixelLayerHit] = 1;
       } else {
-        if (m_testBLayerTool->expectHitInInnermostPixelLayer(ctx, &track)) {
+        if (m_testPixelLayerTool->expectHitInInnermostPixelLayer(ctx, &track)) {
           ATH_MSG_DEBUG("expect Pixel Layer 0 hit !");
           summary.m_information[Trk::expectInnermostPixelLayerHit] = 1;
         } else {
@@ -506,8 +506,7 @@ InDet::InDetTrackSummaryHelperTool::updateExpectedHitInfo(
           0) {
         summary.m_information[Trk::expectNextToInnermostPixelLayerHit] = 1;
       } else {
-        if (m_testBLayerTool->expectHitInNextToInnermostPixelLayer(ctx,
-                                                                   &track)) {
+        if (m_testPixelLayerTool->expectHitInNextToInnermostPixelLayer(ctx, &track)) {
           ATH_MSG_DEBUG("expect Pixel Layer 1 hit !");
           summary.m_information[Trk::expectNextToInnermostPixelLayerHit] = 1;
         } else {

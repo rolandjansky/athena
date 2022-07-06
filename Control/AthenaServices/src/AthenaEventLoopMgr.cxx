@@ -15,7 +15,6 @@ ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // non-MT EventLoopMgr
 
 // Athena includes
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
-#include "AthenaKernel/getMessageSvc.h"
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/IEventSeek.h"
 #include "AthenaKernel/IAthenaEvtLoopPreSelectTool.h"
@@ -61,7 +60,7 @@ ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // non-MT EventLoopMgr
 AthenaEventLoopMgr::AthenaEventLoopMgr(const std::string& nam, 
 				       ISvcLocator* svcLoc)
   : MinimalEventLoopMgr(nam, svcLoc), 
-    AthMessaging (Athena::getMessageSvc(), nam),
+    AthMessaging (nam),
     m_incidentSvc ( "IncidentSvc",  nam ), 
     m_eventStore( "StoreGateSvc", nam ), 
     m_evtSelector(nullptr), m_evtSelCtxt(nullptr),

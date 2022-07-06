@@ -27,9 +27,9 @@ class PixelOfflineCalibCondAlg : public AthReentrantAlgorithm
     PixelOfflineCalibCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
     virtual ~PixelOfflineCalibCondAlg() = default;
 
-    virtual StatusCode initialize() override;
-    virtual StatusCode execute(const EventContext& ctx) const override;
-
+    virtual StatusCode initialize() override final;
+    virtual StatusCode execute(const EventContext& ctx) const override final;
+    virtual bool isReEntrant() const override final { return false; }
   private:
     Gaudi::Property<int> m_inputSource
     {this, "InputSource",2,"Source of data: 0 (none), 1 (text file), 2 (database)"};

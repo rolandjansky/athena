@@ -4,6 +4,9 @@ from AthenaCommon.Logging import logging
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 
+# Default name of HitDV output
+hitDVName = "HLT_HitDV"
+
 def createTrigHitDVHypoAlg(name):
     # make the Hypo
     from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConf import (TrigHitDVHypoAlg)
@@ -12,7 +15,7 @@ def createTrigHitDVHypoAlg(name):
     theHitDVHypo = TrigHitDVHypoAlg(name)
 
     from TrigEDMConfig.TriggerEDMRun3 import recordable
-    theHitDVHypo.HitDV = recordable("HLT_HitDV")
+    theHitDVHypo.HitDV = recordable(hitDVName)
 
     if ConfigFlags.Input.isMC:
         theHitDVHypo.isMC = True

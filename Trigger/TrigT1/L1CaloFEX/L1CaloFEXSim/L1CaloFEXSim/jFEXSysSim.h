@@ -9,7 +9,6 @@
 //     email                : alison.elliot@cern.ch, jacob.julian.kempster@cern.ch
 //  ***************************************************************************/
 
-
 #ifndef jFEXSysSim_H
 #define jFEXSysSim_H
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -28,6 +27,8 @@
 #include "xAODTrigger/jFexLRJetRoIAuxContainer.h"
 #include "xAODTrigger/jFexTauRoIContainer.h"
 #include "xAODTrigger/jFexTauRoIAuxContainer.h"
+#include "xAODTrigger/jFexFwdElRoIContainer.h"
+#include "xAODTrigger/jFexFwdElRoIAuxContainer.h"
 #include "xAODTrigger/jFexMETRoIContainer.h"
 #include "xAODTrigger/jFexMETRoIAuxContainer.h"
 #include "xAODTrigger/jFexSumETRoIContainer.h"
@@ -70,7 +71,8 @@ namespace LVL1 {
     /**Create and fill a new eFexEMRoI object (corresponding to this window), and return a pointer to it*/
     virtual StatusCode fillSRJetEDM(uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, int resolution, float_t eta, float_t phi, std::unique_ptr< xAOD::jFexSRJetRoIContainer > &jContainer) override ;
     virtual StatusCode fillLRJetEDM(uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, int resolution, float_t eta, float_t phi, std::unique_ptr< xAOD::jFexLRJetRoIContainer > &jContainer) override ;
-    virtual StatusCode fillTauEDM  (uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, int resolution, float_t eta, float_t phi, std::unique_ptr< xAOD::jFexTauRoIContainer   > &jContainer) override ;  
+    virtual StatusCode fillTauEDM  (uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, int resolution, float_t eta, float_t phi, std::unique_ptr< xAOD::jFexTauRoIContainer   > &jContainer) override ;
+    virtual StatusCode fillFwdElEDM  (uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, int resolution, float_t eta, float_t phi, std::unique_ptr< xAOD::jFexFwdElRoIContainer   > &jContainer) override ;  
     virtual StatusCode fillSumEtEDM(uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, int resolution, std::unique_ptr< xAOD::jFexSumETRoIContainer > &jContainer) override ;  
     virtual StatusCode fillMetEDM  (uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, int resolution, std::unique_ptr< xAOD::jFexMETRoIContainer > &jContainer) override ;  
       
@@ -87,6 +89,7 @@ namespace LVL1 {
     SG::WriteHandleKey< xAOD::jFexSRJetRoIContainer> m_jFexSRJetOutKey {this,"Key_jFexSRJetOutputContainer","L1_jFexSRJetRoI","Output jFexEM container"};
     SG::WriteHandleKey< xAOD::jFexLRJetRoIContainer> m_jFexLRJetOutKey {this,"Key_jFexLRJetOutputContainer","L1_jFexLRJetRoI","Output jFexEM container"};
     SG::WriteHandleKey< xAOD::jFexTauRoIContainer>   m_jFexTauOutKey   {this,"Key_jFexTauOutputContainer","L1_jFexTauRoI","Output jFexEDM tau container"};
+    SG::WriteHandleKey< xAOD::jFexFwdElRoIContainer>   m_jFexFwdElOutKey   {this,"Key_jFexFwdElOutputContainer","L1_jFexFwdElRoI","Output jFexEDM fwdEl container"};
     SG::WriteHandleKey< xAOD::jFexSumETRoIContainer> m_jFexSumETOutKey {this,"Key_jFexSumETOutputContainer","L1_jFexSumETRoI","Output jFexEDM SumET container"};
     SG::WriteHandleKey< xAOD::jFexMETRoIContainer>   m_jFexMETOutKey   {this,"Key_jFexMETOutputContainer","L1_jFexMETRoI","Output jFexEDM Met container"};
 
@@ -94,6 +97,7 @@ namespace LVL1 {
     std::unordered_map<uint8_t, std::vector<std::vector<std::vector<uint32_t>>> > m_allSmallRJetTobs; 
     std::unordered_map<uint8_t, std::vector<std::vector<std::vector<uint32_t>>> > m_allLargeRJetTobs;
     std::unordered_map<uint8_t, std::vector<std::vector<std::vector<uint32_t>>> > m_alltauTobs;
+    std::unordered_map<uint8_t, std::vector<std::vector<std::vector<uint32_t>>> > m_allfwdElTobs;
     std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> > m_allsumEtTobs;
     std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> > m_allMetTobs;
   };

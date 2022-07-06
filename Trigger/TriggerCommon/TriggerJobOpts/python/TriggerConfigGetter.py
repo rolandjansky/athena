@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from RecExConfig.RecFlags  import rec
 from RecExConfig.Configured import Configured
@@ -12,18 +12,6 @@ class TriggerConfigGetter(Configured):
     """ This class brings to the job Trigger Configuration.
     """
 
-    _environment=""
-
-    def __init__(self, environment=""):
-
-        if environment:
-            log.info('Initialize (environment "%s")', environment)
-        else:
-            log.info('Initialize (interpreting rec and trigger flags)')
-        self._environment = environment
-        super(TriggerConfigGetter,self).__init__() # calls configure
-
-
     def configure(self):
 
         log.info("The following flags are set:")
@@ -34,18 +22,6 @@ class TriggerConfigGetter(Configured):
 
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
-
-        # first check the input (TODO: review these environments)
-        if self._environment not in ["ReadPool", "WritePool"]:
-
-            if not ConfigFlags.Trigger.availableRecoMetadata:
-                log.error("At least one run does not contain any trigger configuration data. "
-                          "Turning off trigger [rec.doTrigger=False]")
-                rec.doTrigger = False
-
-            if not rec.doTrigger():
-                log.info("Aborting TriggerConfigGetter as the trigger flags were switched to false")
-                return True
 
         log.info('Creating the Trigger Configuration Services')
         log.info("ConfigFlags.Trigger.EDMVersion: %i", ConfigFlags.Trigger.EDMVersion)

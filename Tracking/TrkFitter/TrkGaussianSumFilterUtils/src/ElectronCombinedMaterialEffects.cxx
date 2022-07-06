@@ -22,7 +22,6 @@
 #include <sstream>
 
 namespace {
-const Trk::ParticleMasses s_particleMasses{};
 constexpr double s_singleGaussianRange = 0.0001;
 constexpr double s_lowerRange = 0.002;
 constexpr double s_xOverRange = 0.10;
@@ -133,7 +132,7 @@ scattering(GsfMaterial::Scattering& cache,
   const double t = pathcorrection * materialProperties.thicknessInX0();
   // We were/are using muon here,
   // not sure is what we want 100%.
-  const double m = s_particleMasses.mass[Trk::muon];
+  const double m = Trk::ParticleMasses::mass[Trk::muon];
   const double E = sqrt(p * p + m * m);
   const double beta = p / E;
   const double sigma = Trk::MaterialInteraction::sigmaMS(t, p, beta);
@@ -321,8 +320,8 @@ Trk::ElectronCombinedMaterialEffects::compute(
   /*
    * 3. Combine the multiple scattering with each of the  energy loss components
    */
-  // Reset everything before computation
-  cache.reset();
+  // Cache is to be filled so 0 entries here
+  cache.numEntries=0;
   for (int i = 0; i < cache_energyLoss.numElements; ++i) {
     double combinedWeight = cache_energyLoss.elements[i].weight;
     double combinedDeltaP = cache_energyLoss.elements[i].deltaP;
@@ -341,9 +340,7 @@ Trk::ElectronCombinedMaterialEffects::compute(
     } else {
       cache.deltaCovariances[i].setZero();
     }
-    ++cache.numWeights;
-    ++cache.numDeltaPs;
-    ++cache.numDeltaCovariance;
+    ++cache.numEntries;
   } // end for loop over energy loss components
 }
 

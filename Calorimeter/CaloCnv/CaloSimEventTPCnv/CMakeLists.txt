@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( CaloSimEventTPCnv )
@@ -22,28 +22,27 @@ atlas_add_dictionary( OLD_CaloSimEventTPCnvDict
 atlas_add_test( CaloCalibrationHitCnv_p1_test
                 SOURCES
                 test/CaloCalibrationHitCnv_p1_test.cxx
-                LINK_LIBRARIES CaloSimEventTPCnv )
+                LINK_LIBRARIES CaloSimEventTPCnv CxxUtils )
 
 atlas_add_test( CaloCalibrationHitCnv_p2_test
                 SOURCES
                 test/CaloCalibrationHitCnv_p2_test.cxx
-                LINK_LIBRARIES CaloSimEventTPCnv )
+                LINK_LIBRARIES CaloSimEventTPCnv CxxUtils )
 
 atlas_add_test( CaloCalibrationHitContainerCnv_p1_test
                 SOURCES
                 test/CaloCalibrationHitContainerCnv_p1_test.cxx
-                LINK_LIBRARIES CaloSimEventTPCnv
+                LINK_LIBRARIES CaloSimEventTPCnv CxxUtils
                 LOG_IGNORE_PATTERN "Athena::getMessageSvc" )
 
 atlas_add_test( CaloCalibrationHitContainerCnv_p2_test
                 SOURCES
                 test/CaloCalibrationHitContainerCnv_p2_test.cxx
-                LINK_LIBRARIES CaloSimEventTPCnv
+                LINK_LIBRARIES CaloSimEventTPCnv CxxUtils
                 LOG_IGNORE_PATTERN "Athena::getMessageSvc" )
 
 atlas_add_test( CaloCalibrationHitContainerCnv_p3_test
                 SOURCES
                 test/CaloCalibrationHitContainerCnv_p3_test.cxx
-                LINK_LIBRARIES CaloSimEventTPCnv
+                LINK_LIBRARIES CaloSimEventTPCnv CxxUtils
                 LOG_IGNORE_PATTERN "Athena::getMessageSvc" )
-

@@ -33,7 +33,7 @@ Muon::STGC_RawData* Muon::STGC_RawDataCnv_p3::createTransient(const Muon::STGC_R
   // To save disk space, the persistent version does not have this bolean but uses the relBCID as flag. In detector data the bcTag has a maximum range of 0-7,
   // therefore a bcTag of 9 indicates that charge and time are in physical units while smaller values of the relBCID indicate that they are in counts.
   // In case of the time being in nano seconds, the bcTag is anyhow not meaningfull while if the time is in counts it is decomposed into the tdo (time) and the bcTag.
-  bool timeAndChargeInCounts = ((persObj->m_bcTag) == 9);
+  bool timeAndChargeInCounts = ((persObj->m_bcTag) != 9);
   Muon::STGC_RawData*  trans = new STGC_RawData( Identifier (persObj->m_id),
 						 persObj->m_bcTag,
              static_cast<float>(persObj->m_time),//  place holder for tdo->time from calibration

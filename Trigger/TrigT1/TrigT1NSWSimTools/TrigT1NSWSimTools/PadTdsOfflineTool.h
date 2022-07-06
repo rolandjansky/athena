@@ -9,6 +9,7 @@
 #include "AthenaKernel/IAthRNGSvc.h"
 #include "AthenaKernel/RNGWrapper.h"
 #include "CLHEP/Random/RandGauss.h"
+#include "CxxUtils/checker_macros.h"
 #include "Gaudi/Property.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/IIncidentSvc.h"
@@ -88,7 +89,7 @@ namespace NSWL1 {
                         const std::string& name,
                         const IInterface* parent);
         virtual ~PadTdsOfflineTool()=default;
-        virtual StatusCode initialize() override;
+        virtual StatusCode initialize ATLAS_NOT_THREAD_SAFE () override;
         virtual void handle (const Incident& inc) override;
         virtual StatusCode gather_pad_data(std::vector<std::shared_ptr<PadData>>& pads, int side=-1, int sector=-1) const override;
 
@@ -121,7 +122,7 @@ namespace NSWL1 {
     private:
         // methods implementing the internal data processing
         StatusCode fill_pad_cache(std::vector< std::vector<std::shared_ptr<PadData>> > &pad_cache) const; //!< Apply the additional processing then fill the cache, locally
-        void fill_pad_validation_id(std::vector< std::vector<std::shared_ptr<PadData>> > &pad_cache) const; //!< Fill the ntuple branch for the PadTdsOffline
+        StatusCode fill_pad_validation_id ATLAS_NOT_THREAD_SAFE (std::vector< std::vector<std::shared_ptr<PadData>> > &pad_cache) const; //!< Fill the ntuple branch for the PadTdsOffline
 
         double computeTof(const sTgcDigit* digit) const;        //!< compute the time of flight of particle giving the PAD hit
         double computeTimeJitter() const;                       //!< extract the time jitter t subtract from the PAD hit time
@@ -162,7 +163,7 @@ namespace NSWL1 {
         Gaudi::Property<bool> m_applyVMM_ShapingTime          {this, "ApplyVMMShapingTime",        false, "VMM Shaping time condition"};
         Gaudi::Property<bool> m_applyVMM_DeadTime             {this, "ApplyVMMDeadTime",           false, "VMM Dead time condition"};
 
-        PadTdsValidationTree m_validation_tree;
+        std::unique_ptr<PadTdsValidationTree> m_validation_tree;
         SG::ReadHandleKey<sTgcDigitContainer> m_sTgcDigitContainer = {this,"sTGC_DigitContainerName","sTGC_DIGITS","the name of the sTGC digit container"};
         SG::ReadHandleKey<MuonSimDataCollection> m_sTgcSdoContainer = {this,"sTGC_SdoContainerName","sTGC_SDO","the name of the sTGC SDO container"};
     };

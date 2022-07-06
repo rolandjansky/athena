@@ -96,6 +96,13 @@
 #include "xAODTrigger/versions/jFexTauRoIContainer_v1.h"
 #include "xAODTrigger/versions/jFexTauRoIAuxContainer_v1.h"
 
+#include "xAODTrigger/jFexFwdElRoI.h"
+#include "xAODTrigger/jFexFwdElRoIContainer.h"
+#include "xAODTrigger/jFexFwdElRoIAuxContainer.h"
+#include "xAODTrigger/versions/jFexFwdElRoI_v1.h"
+#include "xAODTrigger/versions/jFexFwdElRoIContainer_v1.h"
+#include "xAODTrigger/versions/jFexFwdElRoIAuxContainer_v1.h"
+
 #include "xAODTrigger/jFexSumETRoI.h"
 #include "xAODTrigger/jFexSumETRoIContainer.h"
 #include "xAODTrigger/jFexSumETRoIAuxContainer.h"

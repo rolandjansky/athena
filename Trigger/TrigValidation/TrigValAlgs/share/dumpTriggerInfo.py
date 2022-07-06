@@ -1,6 +1,4 @@
 #!/bin/env python
-from AthenaCommon.Configurable import Configurable
-Configurable.configurableRun3Behavior = 1
 # Set the Athena configuration flags
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 ConfigFlags.fillFromArgs()

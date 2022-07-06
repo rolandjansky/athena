@@ -11,7 +11,11 @@
 import sys
 import os
 import re
-import TrigEDMConfig.TriggerEDM as edm
+
+from optparse import OptionParser
+
+import TrigEDMConfig.TriggerEDM     as edm
+import TrigEDMConfig.TriggerEDMRun3 as edmRun3
 
 
 # 'Counter' just contains the list of classes you want to include and the size
@@ -33,24 +37,27 @@ class checkFileTrigSize:
             from Logger import Logger
             self.logger    = Logger()
         except Exception:
-           print("can't import logger in test mode")
-    
-      
+           print("Can't import logger in test mode")
+          
         self.success   =  0
         self.error     = -1
 
         self.checkFile = paramDict.get('checkFile', 'AOD.pool.root.checkFile')
         self.triggerAlgList = []
+        self.triggerAlgListCOMM = []
         self.triggerAlgListNotIncluded = []
         self.nontriggerAlgList = []
         self.triggerAlgSize = {}
+        self.triggerAlgSizeCOMM = {}
         self.totalAlgSize = 0.0
+        self.totalAlgSizeCOMM = 0.0
+
         self.totalAlgSizeInLists = 0.0
         self.total = 0.0
 
     def run(self): 
 
-#sort all classes into 'Counters'
+        #sort all classes into 'Counters'
         atlfastList = [
             'ElectronContainer_p1_AtlfastElectronCollection',
             'INav4MomAssocs_p2_AtlfastMcAodAssocs',
@@ -78,14 +85,6 @@ class checkFileTrigSize:
             'PhotonContainer_p1_AtlfastIsoPhotonCollection',
             'egDetailContainer_p1_AtlfastPhoShowerContainer',
             'Rec::TrackParticleContainer_tlp2_HLT_InDetTrigParticleCreationCombined_Electron_EFID',  
-      
-            
-            #    'Rec::TrackParticleTruthCollection_p1_IPatTrackParticleTruthCollection',
-            #    'Rec::TrackParticleTruthCollection_p1_XKalTrackParticleTruthCollection',
-            #    'POOLContainer_Rec::TrackParticleTruthCollection_p1',
-            #    'McEventCollection_p3_GEN_AOD',
-            #    'JetCollection_tlp2_Cone4TruthJets',
-            #    'JetCollection_tlp2_Cone4H1TopoJets',
         ]
         atlfastCounter = Counter('atlfast',atlfastList)
         
@@ -120,14 +119,6 @@ class checkFileTrigSize:
             'CaloClusterContainer_p7_CaloCalTopoCluster',
             'TileCellVec_MBTSContainer',
             'TileContainer<TileMu>_TileMuObj',
-
-            #    'CaloCompactCellContainer_AODCellContainer',
-            #    'CaloClusterContainer_p4_Tau1P3PPi0ClusterContainer',
-            #    'CaloClusterContainer_p4_MuonClusterCollection',
-            #    'CaloClusterContainer_p4_LArClusterEMSofte',
-            #    'CaloClusterContainer_p4_egClusterCollection',
-            #    'CaloClusterContainer_p4_CaloCalTopoCluster',
-            #    'Trk::TrackCollection_tlp2_Tracks',
         ]
         caloCounter = Counter('calo',caloList)
     
@@ -146,7 +137,6 @@ class checkFileTrigSize:
             'ElectronContainer_p4_ElectronAODCollection',
             'TrigPassFlagsCollection_p1_HLT_isEM',
             'TrigPassFlagsCollection_p1_HLT_passflags', 
-      #    'CaloClusterContainer_p2_LArClusterEMSofte',
         ]
         egammaCounter = Counter('egamma',egammaList)
     
@@ -187,14 +177,6 @@ class checkFileTrigSize:
             'Trk::TrackCollection_tlp1_MuonSlimmedTrackCollection',
             'Trk::TrackCollection_tlp2_Tracks',
             'Trk::TrackCollection_tlp3_Tracks',
-
-            #    'CaloClusterContainer_p4_Tau1P3PCellCluster',
-            #    'CaloClusterContainer_p4_Tau1P3PPi0ClusterContainer',
-            #    'CaloClusterContainer_p4_MuonClusterCollection',
-            #    'CaloClusterContainer_p4_LArClusterEMSofte',
-            #    'CaloClusterContainer_p4_egClusterCollection',
-            #    'CaloClusterContainer_p4_EMTopoCluster430',
-            #    'CaloClusterContainer_p4_CaloCalTopoCluster',
         ]
         emtCounter = Counter('emt',emtList)
     
@@ -208,11 +190,6 @@ class checkFileTrigSize:
             'Trk::VxContainer_tlp1_SecVertices',
             'Trk::VxContainer_tlp1_AllPhotonsVxCandidates',
             'InDetLowBetaContainer_tlp1_InDetLowBetaCandidates',
-         #    'POOLContainer_Trk::VxContainer_tlp1',
-            #    'Trk::VxContainer_tlp1_IPatVxPrimaryCandidate',
-            #    'Trk::VxContainer_tlp1_XKalVxPrimaryCandidate',
-            #    'Rec::TrackParticleContainer_tlp1_XKalTrackParticleCandidate',
-            #    'Rec::TrackParticleContainer_tlp1_IPatTrackParticleCandidate',
         ]
         indetCounter = Counter('indet',indetList)
     
@@ -255,14 +232,11 @@ class checkFileTrigSize:
             'JetCollection_tlp5_AntiKt6H1TowerJets',
 
             'JetMomentMap_p6_TrigJetRecMomentMap',
-            #    'POOLContainer_JetCollection_p1',
-            #    'JetCollection_tlp2_Cone4H1TowerJets',
-            #    'JetCollection_tlp2_Cone7H1TowerJets',
             ]
         jetCounter = Counter('jet',jetList)
     
         jtList = [
-        'ParticleJetContainer_p1_Cone4TruthParticleJets',
+            'ParticleJetContainer_p1_Cone4TruthParticleJets',
             'ParticleJetContainer_p1_Cone7TruthParticleJets',
             'ParticleJetContainer_p1_Kt4TruthParticleJets',
             'ParticleJetContainer_p1_Kt6TruthParticleJets',
@@ -280,11 +254,6 @@ class checkFileTrigSize:
             'JetCollection_tlp2_Cone7TruthJets',
             'JetCollection_tlp2_Kt4TruthJets',
             'JetCollection_tlp2_Kt6TruthJets',
-
-            #    'POOLContainer_JetCollection_p1',
-            #    'JetCollection_tlp2_Cone4H1TowerJets',
-            #    'JetCollection_tlp2_Cone7H1TowerJets',
-            #    'Analysis::JetTagInfo_tlp1',
          ]
         jtCounter = Counter('jt',jtList)
 
@@ -392,9 +361,6 @@ class checkFileTrigSize:
             'MissingEtCalo_p3_MET_LocHadTopo',
             'MissingEtCalo_p3_MET_CorrTopo',
             'MissingETComposition_p1_MET_RefComposition',
-
-            #    'MissingETSigObjContainer_PostJetObjCollection',
-            #    'MissingETSigObjContainer_PreJetObjCollection',
         ]
         metCounter = Counter('met',metList)
         
@@ -439,8 +405,6 @@ class checkFileTrigSize:
             'Muon::ChamberT0s_p1_MboyMuonChamberT0s',   
             'Muon::ChamberT0s_p1_MooreMuonChamberT0s',
             'CaloClusterContainer_p7_MuonClusterCollection',
-            #    'MuonContainer_p1_AtlfastMuonCollection',
-            #    'Rec::MuonSpShowerContainer_MuonSpShowers',
             ]
         muonCounter = Counter('muon',muonList)
     
@@ -476,14 +440,14 @@ class checkFileTrigSize:
             'TrigInDetTrackCollection_tlp1_HLT_TrigSiTrack_Jet',
             'TrigInDetTrackCollection_tlp2_HLT_TrigSiTrack_Jet',
             'TrigInDetTrackCollection_tlp3_HLT_TrigSiTrack_Jet',
-        'TrigInDetTrackCollection_tlp3_HLT_TrigL2SiTrackFinder',
+            'TrigInDetTrackCollection_tlp3_HLT_TrigL2SiTrackFinder',
             'TrigL2BjetContainer_tlp2_HLT_L2BjetFex',
             'TrigL2BjetContainer_p3_HLT_L2BjetFex',
             'TrigVertexCollection_tlp1_HLT_T2HistoPrmVtx',
-        'TrigVertexCollection_tlp1_HLT_TrigBeamSpotVertex',
-        'TrigVertexCollection_tlp1_HLT_TrigBeamSpotVertex_SiTrack',
-        'TrigVertexCollection_tlp2_HLT_T2HistoPrmVtx',
-        'TrigVertexCollection_tlp2_HLT_TrigBeamSpotVertex',
+            'TrigVertexCollection_tlp1_HLT_TrigBeamSpotVertex',
+            'TrigVertexCollection_tlp1_HLT_TrigBeamSpotVertex_SiTrack',
+            'TrigVertexCollection_tlp2_HLT_T2HistoPrmVtx',
+            'TrigVertexCollection_tlp2_HLT_TrigBeamSpotVertex',
             'TrigVertexCollection_tlp2_HLT_EFHistoPrmVtx',
             'Trk::VxContainer_tlp1_HLT_PrimVx',
             'Trk::VxContainer_tlp1_HLT_ConversionVx',
@@ -491,7 +455,6 @@ class checkFileTrigSize:
             'Trk::VxContainer_tlp2_HLT_PrimVx',
             'TrigVertexCollection_tlp2_HLT_TrigBeamSpotVertex_SiTrack',
             'Rec::TrackParticleContainer_tlp2_HLT_InDetTrigParticleCreation_Bjet_EFID',
-
             # Only in ESDs
             'Trk::TrackCollection_tlp2_HLT_InDetTrigTrackSlimmer_Bjet_EFID',
             'Trk::TrackCollection_tlp3_HLT_InDetTrigTrackSlimmer_Bjet_EFID',
@@ -505,12 +468,12 @@ class checkFileTrigSize:
             'TrigEFBphysContainer_tlp1_HLT_EFBMuMuFex',
             'TrigEFBphysContainer_tlp1_HLT_EFDsPhiPiFex',
             'TrigEFBphysContainer_tlp1_HLT_EFMuPairs',
-        'TrigEFBphysContainer_tlp1_HLT_EFTrackMass',
-        'TrigEFBphysContainer_tlp2_HLT_EFMuPairs',
-        'TrigEFBphysContainer_tlp2_HLT_EFTrackMass',
-        'TrigEFBphysContainer_tlp2_HLT_EFDsPhiPiFex',
-        'TrigEFBphysContainer_tlp2_HLT_EFBMuMuFex',
-        'TrigEFBphysContainer_tlp2_HLT_EFMultiMuFex',
+            'TrigEFBphysContainer_tlp1_HLT_EFTrackMass',
+            'TrigEFBphysContainer_tlp2_HLT_EFMuPairs',
+            'TrigEFBphysContainer_tlp2_HLT_EFTrackMass',
+            'TrigEFBphysContainer_tlp2_HLT_EFDsPhiPiFex',
+            'TrigEFBphysContainer_tlp2_HLT_EFBMuMuFex',
+            'TrigEFBphysContainer_tlp2_HLT_EFMultiMuFex',
             'TrigInDetTrackCollection_tlp1_HLT_TrigIDSCAN_Bphysics',
             'TrigInDetTrackCollection_tlp2_HLT_TrigIDSCAN_Bphysics',
             'TrigInDetTrackCollection_tlp3_HLT_TrigIDSCAN_Bphysics',
@@ -532,22 +495,20 @@ class checkFileTrigSize:
             'TrigL2BphysContainer_tlp1_HLT_L2JpsieeFex',
             'TrigL2BphysContainer_tlp1_HLT_TrigDiMuon',
             'TrigL2BphysContainer_tlp1_HLT_L2TrackMass',
-        'TrigL2BphysContainer_tlp2_HLT',
-        'TrigL2BphysContainer_tlp2_HLT_L2BMuMuXFex',
-        'TrigL2BphysContainer_tlp2_HLT_L2DsPhiPiFexDs',
-        'TrigL2BphysContainer_tlp2_HLT_L2DsPhiPiFexPhi',
-        'TrigL2BphysContainer_tlp2_HLT_L2MultiMuFex',
-        'TrigL2BphysContainer_tlp2_HLT_L2BMuMuFex',
+            'TrigL2BphysContainer_tlp2_HLT',
+            'TrigL2BphysContainer_tlp2_HLT_L2BMuMuXFex',
+            'TrigL2BphysContainer_tlp2_HLT_L2DsPhiPiFexDs',
+            'TrigL2BphysContainer_tlp2_HLT_L2DsPhiPiFexPhi',
+            'TrigL2BphysContainer_tlp2_HLT_L2MultiMuFex',
+            'TrigL2BphysContainer_tlp2_HLT_L2BMuMuFex',
             'TrigL2BphysContainer_tlp2_HLT_L2JpsieeFex',
             'TrigL2BphysContainer_tlp2_HLT_L2TrackMass',
-        'TrigL2BphysContainer_tlp2_HLT_L2DiMuXFex',
-        'TrigL2BphysContainer_tlp2_HLT_TrigDiMuon',
-        'Rec::TrackParticleContainer_tlp2_HLT_InDetTrigParticleCreation_Bphysics_EFID',
+            'TrigL2BphysContainer_tlp2_HLT_L2DiMuXFex',
+            'TrigL2BphysContainer_tlp2_HLT_TrigDiMuon',
+            'Rec::TrackParticleContainer_tlp2_HLT_InDetTrigParticleCreation_Bphysics_EFID',
             # Only in ESDs
             'Trk::TrackCollection_tlp2_HLT_InDetTrigTrackSlimmer_Bphysics_EFID',
             'Trk::TrackCollection_tlp3_HLT_InDetTrigTrackSlimmer_Bphysics_EFID',
-
-
         ]
         triggerCounterBphys = Counter('triggerBphys',triggerListBphys)
   
@@ -646,7 +607,7 @@ class checkFileTrigSize:
             'TrigEMClusterContainer_p4_HLT',   
             'TrigEMClusterContainer_p3_HLT_TrigT2CaloEgamma',
             'TrigEMClusterContainer_p4_HLT_TrigT2CaloEgamma',
-        'TrigEMClusterContainer_p4_HLT_T2CaloSwCluster',
+            'TrigEMClusterContainer_p4_HLT_T2CaloSwCluster',
 
             'TrigInDetTrackCollection_tlp1_HLT_TrigIDSCAN_eGamma',
             'TrigInDetTrackCollection_tlp2_HLT_TrigIDSCAN_eGamma',
@@ -694,7 +655,7 @@ class checkFileTrigSize:
             'egammaContainer_p3_HLT_egamma_Electrons',
             'egammaContainer_p4_HLT_egamma_Electrons',
             'TrigRNNOutputContainer_tlp1_HLT_TrigRingerNeuralFex',
-        'Rec::TrackParticleContainer_tlp2_HLT_InDetTrigParticleCreationTRTOnly_Electron_EFID',
+            'Rec::TrackParticleContainer_tlp2_HLT_InDetTrigParticleCreationTRTOnly_Electron_EFID',
             'Rec::TrackParticleContainer_tlp2_HLT_InDetTrigParticleCreation_Electron_EFID',
 
             # Only in ESDs
@@ -705,7 +666,7 @@ class checkFileTrigSize:
             'TrigEMClusterContainer_p3_HLT_TrigCaloRinger',
             'Trk::TrackCollection_tlp3_HLT_InDetTrigTrackSlimmer_Photon_EFID',
             'Trk::TrackCollection_tlp3_HLT_InDetTrigTrackSlimmer_Electron_EFID',
-        'Rec::TrackParticleContainer_tlp2_HLT_InDetTrigParticleCreation_Photon_EFID',
+            'Rec::TrackParticleContainer_tlp2_HLT_InDetTrigParticleCreation_Photon_EFID',
         ]
         triggerCounterEgamma = Counter('triggerEgamma',triggerListEgamma)
     
@@ -719,9 +680,6 @@ class checkFileTrigSize:
             'TrigInDetTrackCollection_tlp1_HLT_TrigSiTrack_Jet_robust',
             'TrigInDetTrackCollection_tlp2_HLT_TrigSiTrack_Jet_robust',
             'TrigInDetTrackCollection_tlp3_HLT_TrigSiTrack_Jet_robust',
-            #'JetCollection_tlp5_AntiKt4TruthPileupJets',
-            #'JetCollection_tlp5_Cone4TruthPileupJets',
-           
         ]
         triggerCounterJet = Counter('triggerJet',triggerListJet)
     
@@ -740,9 +698,8 @@ class checkFileTrigSize:
             'TrigMissingETContainer_p3_HLT_TrigEFMissingET_allCells',    
             'TrigMissingETContainer_p3_HLT_L2JetEtSum',
             'TrigMissingETContainer_p3_HLT_EFJetEtSum',
-        'TrigMissingETContainer_p3_HLT_L2MissingET_FEB',
+            'TrigMissingETContainer_p3_HLT_L2MissingET_FEB',
             'TrigMissingETContainer_p3_HLT_TrigEFMissingET_topocl',
-            #    'MissingETSigHypoContainer_p1_EtMissHypoCollection',
             ]
         triggerCounterMET = Counter('triggerMET',triggerListMET)
     
@@ -753,7 +710,7 @@ class checkFileTrigSize:
             'TrigT2MbtsBitsContainer_tlp1_HLT_T2Mbts',
             'TrigT2MbtsBitsContainer_p3_HLT_T2Mbts',
             'TrigTrackCountsCollection_tlp1_HLT_trackcounts',
-        'Rec::TrackParticleContainer_tlp1_HLT_InDetTrigParticleCreation_minBias_EFID',
+            'Rec::TrackParticleContainer_tlp1_HLT_InDetTrigParticleCreation_minBias_EFID',
             'TrigVertexCountsCollection_tlp1_HLT_vertexcounts',
             ]
         triggerCounterMinBias = Counter('triggerMinBias',triggerListMinBias)
@@ -1004,79 +961,61 @@ class checkFileTrigSize:
         ]
         truthCounter = Counter('truth',truthList)
             
-        listofCounters = [
-        atlfastCounter,
-        caloCounter,
-        egammaCounter,
-        eventinfoCounter,
-        emtCounter,
-        indetCounter,
-        jetCounter,
-        jtCounter,
-        metCounter,
-        muonCounter,
-        tauCounter,
-        triggerCounterBjet,
-        triggerCounterBphys,
-        triggerCounterConfig,
-        triggerCounterCosmics,
-        triggerCounterEgamma,
-        triggerCounterID,
-        triggerCounterJet,
-        triggerCounterMET,
-        triggerCounterMinBias,
-        triggerCounterMuon,
-        triggerCounterTau,
-        triggerCounterCommon,
-        triggerCounterSteer,
-        triggerCounterL1,
-        triggerCounterHLTNav,
-        truthCounter,
-        ]
-    
         listofTriggerCounters = [
-        triggerCounterBjet,
-        triggerCounterBphys,
-        triggerCounterConfig,
-        triggerCounterCosmics,
-        triggerCounterEgamma,
-        triggerCounterID,
-        triggerCounterJet,
-        triggerCounterMET,
-        triggerCounterMinBias,
-        triggerCounterMuon,
-        triggerCounterTau,
-        triggerCounterCommon,
-        triggerCounterSteer,
-        triggerCounterL1,
-        triggerCounterHLTNav,
+            triggerCounterBjet,
+            triggerCounterBphys,
+            triggerCounterConfig,
+            triggerCounterCosmics,
+            triggerCounterEgamma,
+            triggerCounterID,
+            triggerCounterJet,
+            triggerCounterMET,
+            triggerCounterMinBias,
+            triggerCounterMuon,
+            triggerCounterTau,
+            triggerCounterCommon,
+            triggerCounterSteer,
+            triggerCounterL1,
+            triggerCounterHLTNav,
         ]
     
         listofNonTrigCounters = [
-        atlfastCounter,
-        caloCounter,
-        egammaCounter,
-        eventinfoCounter,
-        emtCounter,
-        indetCounter,
-        jetCounter,
-        jtCounter,
-        metCounter,
-        muonCounter,
-        tauCounter,
-        truthCounter,
+            atlfastCounter,
+            caloCounter,
+            egammaCounter,
+            eventinfoCounter,
+            emtCounter,
+            indetCounter,
+            jetCounter,
+            jtCounter,
+            metCounter,
+            muonCounter,
+            tauCounter,
+            truthCounter,
         ]
 
-        print("file:",self.checkFile)
-        try:
-            file = open(self.checkFile,'r')
-        except Exception:
-            parentFile = self.checkFile.replace(".checkFile","")
-            print("WARNING: generating %s from %s", self.checkFile, parentFile)
-            os.system("checkFile.py " + parentFile + " >"+self.checkFile+"0")
+        listofCounters = listofTriggerCounters+listofNonTrigCounters
+
+
+        # when running from command line, it expects the output of running checkFile on an AOD. 
+        # if this isn't passed, it strips the .checkFile of the name from the file and runs checkFile on it
+        print("file:", self.checkFile)
+        if '.checkFile' in self.checkFile:
+            try:
+                file = open(self.checkFile,'r')
+            except Exception:
+                parentFile = self.checkFile.replace(".checkFile","")
+                print("WARNING: generating %s from %s", self.checkFile, parentFile)
+                os.system("checkFile.py " + parentFile + " >"+self.checkFile+"0")
+                file = open(self.checkFile+"0",'r')
+                if file == 0:
+                    return self.error
+        else:
+            print("Passed a root file, running check file on it")
+            os.system("checkFile.py " + self.checkFile + " >"+self.checkFile+"0")
+            print("Finished running checkFile, now opening output and analysing the TrigSize")
             file = open(self.checkFile+"0",'r')
-            if file == 0:
-                return self.error
+                            
 
         self.total = 0
         doublesList = {} #if an entry in the checkFile output matches >=2 Counter items
@@ -1129,10 +1068,6 @@ class checkFileTrigSize:
             ## !! It should definately be found if it's a trigger algorithm !!
             ## Some exceptions for Steering info and RoIDescriptorStore
             if edm.getCategory(name) != 'NOTFOUND':
-                
-                
-                
-
                 self.triggerAlgList.append([name, edm.getCategory(name), float(sizePerEvent)])
                 
             ## IOVMetaDataContainer* are not in TriggerEDM.py dictionary -> Add manually to list
@@ -1152,6 +1087,7 @@ class checkFileTrigSize:
                 self.triggerAlgList.append([name, 'Tracking', float(sizePerEvent)])
             elif edm.getCategory(name)  == 'NOTFOUND' and name.startswith("HLTNav_"):
                 self.triggerAlgList.append([name, 'HLTNav', float(sizePerEvent)])
+
             ## Do some simple checks if algorithm is not found in dictionary (and isn't IOVMetaDataContainer*)
             ## Add these to triggerAlgsNotIncluded
             ## Can be used to debug the search algorithm of getCategory() in TriggerEDM.py
@@ -1189,8 +1125,9 @@ class checkFileTrigSize:
         sumTrig = 0 #the sum of trigger component
         sumNonTrig = 0 #the sum of non trigger component
         
-        ## Calculate trigger category sizes and store in dictionary
         ## ========================================================
+        ## Calculate trigger category sizes and store in dictionary
+
         self.triggerAlgSize = {}
         self.triggerAlgSize[ 'Total' ] = 0.0
         for triggerAlg in self.triggerAlgList:
@@ -1198,15 +1135,55 @@ class checkFileTrigSize:
             else: self.triggerAlgSize[ triggerAlg[1] ] += triggerAlg[2]
             self.triggerAlgSize[ 'Total' ] += triggerAlg[2]
             
+        ## ========================================================
+        ## Calculate total size of all algs / cont in list
+
         self.totalAlgSizeInLists = 0.0
         allAlgList = self.triggerAlgList + triggerAlgListNotIncluded + nontriggerAlgList
         for item in allAlgList:
             self.totalAlgSizeInLists += item[2]
+
         ## ========================================================
+        ## Calculate trigger category sizes for AODCOMM
 
-        fout =open(self.checkFile+"trigSize.txt",'w')
-
+        self.triggerAlgListCOMM = []
+        edmRun3List = edmRun3.TriggerHLTListRun3
+        for tup in edmRun3List:
+            contName = tup[0].split("#")[1]
+            edmSet = tup[1]
             
+            if ("AODCOMM" in edmSet):
+                for trigAlg in self.triggerAlgList:
+                    if contName in trigAlg[0]:
+                        self.triggerAlgListCOMM.append(trigAlg)
+
+        self.triggerAlgSizeCOMM = {}
+        self.triggerAlgSizeCOMM[ 'AODCOMM_Total' ] = 0.0
+
+        for trigAlg in self.triggerAlgListCOMM:
+            if not trigAlg[1] in self.triggerAlgSizeCOMM: 
+                self.triggerAlgSizeCOMM[ trigAlg[1] ] = trigAlg[2]
+            else: 
+                self.triggerAlgSizeCOMM[ trigAlg[1] ] += trigAlg[2]
+
+            self.triggerAlgSizeCOMM[ 'AODCOMM_Total' ] += trigAlg[2]
+            
+
+        ## ================================
+        ## Calculating total sizes without AODCOMM
+
+        totalAlgSizeNoAODCOMM = float(self.triggerAlgSize['Total'])-float(self.triggerAlgSizeCOMM['AODCOMM_Total'])
+
+        ## ================================
+        ## Printing to file and do some computations 
+        
+        fileNameAddition = ""
+        if "checkFile" in self.checkFile:
+            fileNameAddition = "trigSize.txt"
+        else: 
+            fileNameAddition = "checkFiletrigSize.txt"
+
+        fout =open(self.checkFile+fileNameAddition,'w')            
         print()
         print("Summary of categories:")
         fout.write( "\n Summary of categories:\n")
@@ -1230,19 +1207,41 @@ class checkFileTrigSize:
             sumNonTrig += counter.size
 
             fout.write("\n=====================\n")
-
             print()
             print("=====================")
             print("Total Trigger Size".ljust(23), "%6.3f" % self.triggerAlgSize[ 'Total' ])
             fout.write("Total Trigger Size".ljust(23) + "%6.3f" % self.triggerAlgSize[ 'Total' ] + "\n")
             print("Total file size".ljust(23), self.totalAlgSize)
             fout.write("Total file size".ljust(23) + "%6.3f" % self.totalAlgSize + "\n")
+            print()
+            fout.write("\n ")
+            print("File size wo AODCOMM".ljust(23), totalAlgSizeNoAODCOMM)
+            fout.write("File size wo AODCOMM ".ljust(23) + "%6.3f" % totalAlgSizeNoAODCOMM + "\n")
+            print()
+            fout.write("\n ")
             print("Total file size (list)".ljust(23), self.totalAlgSizeInLists)
             fout.write("Total file size (list)".ljust(23) + "%6.3f" % self.totalAlgSizeInLists + "\n")
             print("Total (from checkFile)".ljust(23), self.total)
             fout.write("Total (from checkFile)".ljust(23)+"%6.3f" % self.total + "\n")
             print()
+            print()
+            print("*******************************************************************")
+            fout.write( "\n********************************************************************\n")
+            print("")
+            print("Summary of categories for AODCOMM:")
+            fout.write( "\n Summary of AODCOMM categories:\n")
+            for key in sorted(self.triggerAlgSizeCOMM):
+                if not key == 'AODCOMM_Total':
+                    print("COMM_"+key.ljust(24), "%6.3f" % self.triggerAlgSizeCOMM[key])
+                    fout.write( "COMM_trigger"+key.ljust(24) + "%6.3f" % self.triggerAlgSizeCOMM[key] + "\n")
+            
+            print("=====================")
+            fout.write( "\n=========================\n")
+            print("Total AODCOMM Size ".ljust(23), "%6.3f" % self.triggerAlgSizeCOMM[ 'AODCOMM_Total' ])
+            fout.write("Total AODCOMM Size".ljust(23) + "%6.3f" % self.triggerAlgSizeCOMM[ 'AODCOMM_Total' ] + "\n")
 
+            print()
+            print("=====================")
             if len(self.triggerAlgList) > 0:
                 fout.write( "\nThe following were found in TriggerEDM and counted but have a classification 'Unknown': \n")
                 for item in self.triggerAlgList:
@@ -1258,10 +1257,38 @@ class checkFileTrigSize:
                 return self.error
             return self.success
 
+
+
+
 # This is just for testing outside of the RTT
 if __name__ == "__main__":
-    #params = {'checkFile':'AOD.pool.root.checkFile'}
-    params = {}
+
+    # if the my.AOD.file.pool.root.checkFile is not found, the .checkFile part is stripped and checkFile is run over the file
+
+    parser = OptionParser( usage = "usage: %prog [-f] my.AOD.file.pool.root.checkFile" )
+    p = parser.add_option 
+    p( "-f", 
+       "--file", 
+       dest = "fileName", 
+       help = "The path to the checkFile output of an AOD file to analyse" )
+    
+    (options, args) = parser.parse_args()
+    
+    fileNames = []
+    if len(args) > 0:
+        fileNames = [arg for arg in args if arg[0] != "-"]
+        pass 
+    
+    if options.fileName is None and len(fileNames) == 0:
+        str(parser.print_help() or "")
+        sys.exit(1)
+
+    if options.fileName is not None:
+        fileName = os.path.expandvars(os.path.expanduser(options.fileName))
+        fileNames.append(fileName)
+        pass
+    
+    params = {'checkFile': fileNames[0]}
     r =  checkFileTrigSize(params)
     status = r.run()
     

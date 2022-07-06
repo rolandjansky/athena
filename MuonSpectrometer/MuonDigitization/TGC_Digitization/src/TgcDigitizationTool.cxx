@@ -38,7 +38,6 @@ TgcDigitizationTool::TgcDigitizationTool(const std::string& type,
 //--------------------------------------------
 StatusCode TgcDigitizationTool::initialize()
 {
-
   // retrieve MuonDetctorManager from DetectorStore
   ATH_CHECK(detStore()->retrieve(m_mdManager));
   ATH_MSG_DEBUG("Retrieved MuonDetectorManager from DetectorStore.");
@@ -69,6 +68,7 @@ StatusCode TgcDigitizationTool::initialize()
   ATH_CHECK(m_hitsContainerKey.initialize(true));
   ATH_CHECK(m_readCondKey_ASDpos.initialize(!m_readCondKey_ASDpos.empty()));
   ATH_CHECK(m_readCondKey_TimeOffset.initialize(!m_readCondKey_TimeOffset.empty()));
+  ATH_CHECK(m_readCondKey_Crosstalk.initialize(!m_readCondKey_Crosstalk.empty()));
 
   //initialize the output WriteHandleKeys
   ATH_CHECK(m_outputDigitCollectionKey.initialize());
@@ -300,6 +300,13 @@ StatusCode TgcDigitizationTool::digitizeCore(const EventContext& ctx) {
   } else {
     ATH_MSG_ERROR("Timing Offset parameters /TGC/DIGIT/TOFFSET must be available for TGC_Digitization. Check the configuration!");
   }
+  const TgcDigitCrosstalkData *Crosstalk{};
+  if (!m_readCondKey_Crosstalk.empty()) {
+    SG::ReadCondHandle<TgcDigitCrosstalkData> readHandle_Crosstalk{m_readCondKey_Crosstalk, ctx};
+    Crosstalk = readHandle_Crosstalk.cptr();
+  } else {
+    ATH_MSG_WARNING("/TGC/DIGIT/XTALK is not provided. Probabilities of TGC channel crosstalk will be zero.");
+  }
 
 
   TimedHitCollection<TGCSimHit>::const_iterator i, e; 
@@ -312,7 +319,7 @@ StatusCode TgcDigitizationTool::digitizeCore(const EventContext& ctx) {
       const TGCSimHit& hit = *phit;
       double globalHitTime = hitTime(phit);
       double tof = phit->globalTime();
-      TgcDigitCollection* digiHits = m_digitizer->executeDigi(&hit, globalHitTime, ASDpos, TOffset, rndmEngine);
+      TgcDigitCollection* digiHits = m_digitizer->executeDigi(&hit, globalHitTime, ASDpos, TOffset, Crosstalk, rndmEngine);
 
       if(!digiHits) continue;
 

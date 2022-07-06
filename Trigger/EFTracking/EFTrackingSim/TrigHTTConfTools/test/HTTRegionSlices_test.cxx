@@ -11,17 +11,11 @@
 #include <cassert>
 #include "TrigHTTConfTools/HTTRegionSlices.h"
 #include "TLorentzVector.h"
-#include "PathResolver/PathResolver.h"
 
 int main(int, char**)
 {
-  std::string filePath = PathResolver::find_file("slices_v01_Jan21.txt","DATAPATH", PathResolver::RecursiveSearch);
 
-  if(filePath.length() == 0) {
-    std::cout << " Could not find slices file " << std::endl;
-    return -1;
-  }
-
+  std::string filePath = "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/HTT/TrigHTTMaps/V1/map_file/slices_v01_Jan21.txt";
   HTTRegionSlices regionSlice(filePath.c_str());
 
   const double eta(0.2), phi(0.4);

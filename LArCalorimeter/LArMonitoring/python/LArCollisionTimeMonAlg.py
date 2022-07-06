@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 def LArCollisionTimeMonConfigOld(inputFlags):
@@ -105,7 +105,7 @@ def LArCollisionTimeMonConfigCore(helper, algoinstance,inputFlags,larColTime_his
                                   title='Events with abs(<t_{C}> - <t_{A}>) < 10 ns as a function of LB;Luminosity Block Number;Number of events per LB',
                                   type='TH1F',
                                   path=larColTime_hist_path,
-                                  weight='weight',
+                                  opt='kAlwaysCreate',
                                   xbins=lArDQGlobals.LB_Bins,xmin=lArDQGlobals.LB_Min,xmax=lArDQGlobals.LB_Max)
     
     
@@ -114,7 +114,6 @@ def LArCollisionTimeMonConfigCore(helper, algoinstance,inputFlags,larColTime_his
                                   type='TH1F',
                                   path=larColTime_hist_path,
                                   opt='kAlwaysCreate',
-                                  weight='weight',
                                   xbins=lArDQGlobals.LB_Bins,xmin=lArDQGlobals.LB_Min,xmax=lArDQGlobals.LB_Max)
     
     
@@ -245,10 +244,6 @@ def LArCollisionTimeMonConfigCore(helper, algoinstance,inputFlags,larColTime_his
 
 
 if __name__=='__main__':
-
-    # Setup the Run III behavior
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
 
     # Setup logs
     from AthenaCommon.Constants import DEBUG

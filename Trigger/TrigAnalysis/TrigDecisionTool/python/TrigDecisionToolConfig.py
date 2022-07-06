@@ -47,13 +47,15 @@ def TrigDecisionToolCfg(flags):
     if flags.Input.Format is Format.BS and flags.Trigger.EDMVersion in [1, 2]:
         tdt.UseAODDecision = True
 
-    # This pre-loads libraries required to read the run 2 trigger navigation
-    from TrigEDMConfig.TriggerEDM import EDMLibraries
-    nav = CompFactory.HLT.Navigation('Navigation')
-    nav.Dlls = [e for e in  EDMLibraries if 'TPCnv' not in e]
-    tdt.Navigation = nav
+    if flags.Common.Project!='AthAnalysis':
+        # Full Athena
+        # This pre-loads libraries required to read the run 2 trigger navigation
+        from TrigEDMConfig.TriggerEDM import EDMLibraries
+        nav = CompFactory.HLT.Navigation('Navigation')
+        nav.Dlls = [e for e in  EDMLibraries if 'TPCnv' not in e]
+        tdt.Navigation = nav
+        acc.addPublicTool(nav)
 
-    acc.addPublicTool(nav)
     acc.addPublicTool(tdt, primary=True)
 
     msg.info('Configuring the TrigDecisionTool and xAODConfigSvc to use ConfigSource: %s, Run3NavigationFormat: %s, Run3NavigationSummaryCollection: %s',
@@ -89,8 +91,6 @@ def getRun3NavigationContainerFromInput(flags):
 
 
 if __name__ == '__main__':
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     import sys

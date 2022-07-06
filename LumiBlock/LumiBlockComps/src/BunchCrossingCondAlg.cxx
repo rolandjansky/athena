@@ -13,6 +13,28 @@
 #include "CoralBase/AttributeListException.h"
 #include "TrigConfL1Data/BunchGroupSet.h"
 
+namespace {
+   // helper to set timestamp based IOV with infinit range
+  EventIDBase infiniteIOVBegin() {
+     return EventIDBase( 0, // run,
+                        EventIDBase::UNDEFEVT,  // event
+                        0, // seconds
+                        0, // ns
+                        0 // LB
+                        );
+  }
+
+  EventIDBase infiniteIOVEend() {
+     return EventIDBase( std::numeric_limits<int>::max() - 1, // run
+                         EventIDBase::UNDEFEVT,  // event
+                         std::numeric_limits<int>::max() - 1, // seconds
+                         std::numeric_limits<int>::max() - 1, // ns
+                         std::numeric_limits<int>::max() - 1  // LB
+                         );
+  }
+
+}
+
 StatusCode BunchCrossingCondAlg::initialize() {
   if (m_mode == 2) {
     ATH_CHECK( m_trigConfigSvc.retrieve() );
@@ -31,10 +53,14 @@ StatusCode BunchCrossingCondAlg::execute (const EventContext& ctx) const {
     ATH_MSG_DEBUG("Found valid write handle");
     return StatusCode::SUCCESS;
   }
+  // make sure that the output IOV has a valid timestamp, otherwise the conditions
+  // data cannot be added to the "mixed" conditions data container. A mixed container
+  // is needed when the conditions depends on e.g. the LuminosityCondData
+  EventIDRange infinite_range(infiniteIOVBegin(),infiniteIOVEend());
+  writeHdl.addDependency(infinite_range);
 
   //Output object & range:
   auto bccd=std::make_unique<BunchCrossingCondData>();
-  EventIDRange range;
 
   if (m_mode == 2) { // use trigger bunch groups
     const std::vector< TrigConf::BunchGroup >& bgs =
@@ -60,15 +86,16 @@ StatusCode BunchCrossingCondAlg::execute (const EventContext& ctx) const {
     bccd->m_trains=findTrains(bccd->m_luminous, m_maxBunchSpacing,m_minBunchesPerTrain);
     // we will only trust the validity for 1 LB but that's OK
     const auto& thisevt = ctx.eventID();
-    range = EventIDRange(EventIDBase(thisevt.run_number(), EventIDBase::UNDEFEVT, 
+    EventIDRange range = EventIDRange(EventIDBase(thisevt.run_number(), EventIDBase::UNDEFEVT, 
                                       EventIDBase::UNDEFNUM, 0, thisevt.lumi_block()),
                           EventIDBase(thisevt.run_number(), EventIDBase::UNDEFEVT,
                                       EventIDBase::UNDEFNUM, 0, thisevt.lumi_block()+1));
+    writeHdl.addDependency(range);
   }
 
   if (m_mode == 3) { // use luminosity data
     SG::ReadCondHandle<LuminosityCondData> prefLumiHdl{m_lumiCondDataKey, ctx};
-    ATH_CHECK( prefLumiHdl.range (range) );
+    writeHdl.addDependency(prefLumiHdl);
 
     // consider BCID filled if mu < 1000*average mu
     float avMu = prefLumiHdl->lbAverageInteractionsPerCrossing();
@@ -89,7 +116,7 @@ StatusCode BunchCrossingCondAlg::execute (const EventContext& ctx) const {
   if (m_mode == 0 || m_mode == 1) { // use FILLPARAMS (data) or /Digitization/Parameters (MC)
 
     SG::ReadCondHandle<AthenaAttributeList> fillParamsHdl (m_fillParamsFolderKey, ctx);
-    ATH_CHECK( fillParamsHdl.range (range) );
+    writeHdl.addDependency(fillParamsHdl);
 
     const AthenaAttributeList* attrList=*fillParamsHdl;
 
@@ -242,8 +269,8 @@ StatusCode BunchCrossingCondAlg::execute (const EventContext& ctx) const {
       bccd->m_trains=findTrains(bccd->m_luminous, m_maxBunchSpacing,m_minBunchesPerTrain);
     }//end else is data
   }
-  
-  ATH_CHECK( writeHdl.record (range, std::move (bccd)) );
+
+  ATH_CHECK( writeHdl.record (std::move (bccd)) );
   return StatusCode::SUCCESS;
 }
 

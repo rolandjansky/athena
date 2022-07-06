@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #undef NDEBUG
 #include "../src/TargetBuffer_t.h"
@@ -30,13 +30,6 @@ namespace ndebug {
 #  undef NDEBUG
 }
 
-
-namespace TTN_internal{
-    const static int MAX_LAYER_LENGTH = 1000;
-    static double tmpdata[2*MAX_LAYER_LENGTH];
-    static double * tmp_array[2] = {
-      &(tmpdata[0]), &(tmpdata[MAX_LAYER_LENGTH]) };
-}
 
 class Test2 {
 public:
@@ -167,7 +160,11 @@ public:
     calculateOutputValuesOrig(const std::vector<double>& input)
     const
   {
-    using namespace TTN_internal;
+      const static int MAX_LAYER_LENGTH = 1000;
+      double tmpdata[2*MAX_LAYER_LENGTH];
+      double * tmp_array[2] = {
+        &(tmpdata[0]), &(tmpdata[MAX_LAYER_LENGTH]) };
+
       // This method is now highly optimised (apart from the potential use
       // of a cheaper sigmoid function). Please be very careful changing
       // anything here since it is used heavily in reconstruction during

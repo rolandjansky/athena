@@ -24,6 +24,7 @@
 #include "AthenaKernel/DataBucketBase.h"
 #include "AthenaKernel/IAddressProvider.h"
 #include "AthenaKernel/IIOVDbSvc.h"
+#include "AthenaKernel/IOVInfiniteRange.h"
 #include "IOVSvc/IIOVSvcTool.h"
 
 using SG::DataProxy;
@@ -863,6 +864,12 @@ IOVSvc::createCondObj(CondContBase* ccb, const DataObjID& id,
     return StatusCode::FAILURE;
   }
      
+  //In case the conditons-container is a 'mixed' type, we need both run/lb and time-stamps in the range. 
+  //Assume infinite IOV in the other dimension 
+  EventIDRange eidRange(range);   
+  if (ccb->keyType()==CondContBase::KeyType::MIXED) { 
+    eidRange=EventIDRange::intersect(IOVInfiniteRange::infiniteMixed(),eidRange);    
+  } 
   ATH_MSG_DEBUG( " new range for ID " << id << " : " << range 
                  << " IOA: " << ioa.get());
 
@@ -870,10 +877,10 @@ IOVSvc::createCondObj(CondContBase* ccb, const DataObjID& id,
   // extend the last range rather than trying to insert a new range.
   // This can happen when a folder is tagged as `extensible' in IOVDbSvc.
   EventIDRange r;
-  if (ccb->range (range.start(), r) &&
-      eventIDMatch (r.start(), range.start()))
+  if (ccb->range (eidRange.start(), r) &&
+      eventIDMatch (r.start(), eidRange.start()))
   {
-    if (ccb->extendLastRange (range).isSuccess()) {
+    if (ccb->extendLastRange (eidRange).isSuccess()) {
       return StatusCode::SUCCESS;
     }
   }
@@ -921,13 +928,11 @@ IOVSvc::createCondObj(CondContBase* ccb, const DataObjID& id,
   // DataObject *d2 = static_cast<DataObject*>(v);
   
   ATH_MSG_DEBUG( " SG::Storable_cast to obj: " << v );
-  
-  EventIDRange r2 = range;
 
-  StatusCode sc = ccb->typelessInsert (r2, v);
+  StatusCode sc = ccb->typelessInsert (eidRange, v);
   if (!sc.isSuccess()) {
     ATH_MSG_ERROR("unable to insert Object at " << v << " into CondCont " 
-                  << ccb->id() << " for range " << r2 );
+                  << ccb->id() << " for range " << eidRange );
     return StatusCode::FAILURE;
   }
   else if (CondContBase::Category::isOverlap (sc)) {

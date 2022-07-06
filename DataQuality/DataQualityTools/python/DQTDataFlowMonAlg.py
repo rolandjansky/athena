@@ -5,20 +5,25 @@
 def DQTDataFlowMonAlgConfig(flags):
     from AthenaMonitoring import AthMonitorCfgHelper
     from AthenaConfiguration.ComponentFactory import CompFactory
+    from AthenaMonitoring.AtlasReadyFilterConfig import AtlasReadyFilterCfg
+    ReadyFilterCfg=AtlasReadyFilterCfg(flags)
     helper = AthMonitorCfgHelper(flags, 'DQTDataFlowMonAlgCfg')
-    _DQTDataFlowMonAlgConfigCore(helper, CompFactory.DQTDataFlowMonAlg, flags.Input.isMC)
+    _DQTDataFlowMonAlgConfigCore(helper, CompFactory.DQTDataFlowMonAlg, flags.Input.isMC, ReadyFilterCfg.popPrivateTools())
+    helper.result().merge(ReadyFilterCfg)
     return helper.result()
 
 def DQTDataFlowMonAlgConfigOld(flags):
     from AthenaMonitoring import AthMonitorCfgHelperOld
     from .DataQualityToolsConf import DQTDataFlowMonAlg
     from AthenaCommon.GlobalFlags import globalflags
+    from AthenaMonitoring.AtlasReadyFilterTool import GetAtlasReadyFilterTool
     helper = AthMonitorCfgHelperOld(flags, 'DQTDataFlowMonAlgCfg')
     _DQTDataFlowMonAlgConfigCore(helper, DQTDataFlowMonAlg,
-                                globalflags.DataSource() == 'geant4')
+                                 globalflags.DataSource() == 'geant4',
+                                 GetAtlasReadyFilterTool())
     return helper.result()
 
-def _DQTDataFlowMonAlgConfigCore(helper, algConfObj, isMC):
+def _DQTDataFlowMonAlgConfigCore(helper, algConfObj, isMC, readyFilterTool):
     from ROOT import EventInfo
 
     monAlg = helper.addAlgorithm(algConfObj,'DQTDataFlowMonAlg')
@@ -38,6 +43,7 @@ def _DQTDataFlowMonAlgConfigCore(helper, algConfObj, isMC):
                               xmax=50.5,
                               opt='kAddBinsDynamically',
                               duration='run',
+                              merge='merge',
         )
 
     group.defineHistogram("detstates_idx,detstates;eventflag_summary_lowStat",
@@ -54,6 +60,17 @@ def _DQTDataFlowMonAlgConfigCore(helper, algConfObj, isMC):
                                    "Background", "Lumi", "All"],
                           ylabels=["OK", "Warning", "Error"]
     )
+
+    if not isMC:
+        monAlg.ReadyFilterTool = readyFilterTool
+        group.defineHistogram('atlasready',
+                              title='Events with AtlasReady',
+                              type='TH1I',
+                              xbins=2,
+                              xlabels=["Not Ready","Ready"],
+                              xmin=-0.5,
+                              xmax=1.5,
+                          )
 
     # generate release string
     import os

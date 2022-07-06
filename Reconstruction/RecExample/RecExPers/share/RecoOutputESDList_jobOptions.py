@@ -195,8 +195,6 @@ if rec.doCaloRinger():
     try:
         include ( "CaloRingerAlgs/CaloRingerOutputItemList_jobOptions.py" )
         fullESDList += CfgItemList( "caloRingerEsd", items = caloRingerESDList )
-        from RecExConfig.ObjKeyStore import objKeyStore
-        objKeyStore['metaData'] += CfgItemList( "caloRingerMeta" , items = caloRingerMetaDataList )
     except:
         treatException("Could not load CaloRinger ESD item list")
         pass

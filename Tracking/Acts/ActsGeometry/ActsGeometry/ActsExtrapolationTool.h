@@ -72,7 +72,7 @@ public:
   ActsPropagationOutput
   propagationSteps(const EventContext& ctx,
                    const Acts::BoundTrackParameters& startParameters,
-                   Acts::NavigationDirection navDir = Acts::forward,
+                   Acts::NavigationDirection navDir = Acts::NavigationDirection::Forward,
                    double pathLimit = std::numeric_limits<double>::max(),
                    Trk::ParticleHypothesis particleHypo = Trk::pion) const override;
 
@@ -80,7 +80,7 @@ public:
   std::unique_ptr<const Acts::CurvilinearTrackParameters>
   propagate(const EventContext& ctx,
             const Acts::BoundTrackParameters& startParameters,
-            Acts::NavigationDirection navDir = Acts::forward,
+            Acts::NavigationDirection navDir = Acts::NavigationDirection::Forward,
             double pathLimit = std::numeric_limits<double>::max(),
             Trk::ParticleHypothesis particleHypo = Trk::pion) const override;
 
@@ -89,7 +89,7 @@ public:
   propagationSteps(const EventContext& ctx,
                    const Acts::BoundTrackParameters& startParameters,
                    const Acts::Surface& target,
-                   Acts::NavigationDirection navDir = Acts::forward,
+                   Acts::NavigationDirection navDir = Acts::NavigationDirection::Forward,
                    double pathLimit = std::numeric_limits<double>::max(),
                    Trk::ParticleHypothesis particleHypo = Trk::pion) const override;
 
@@ -98,7 +98,7 @@ public:
   propagate(const EventContext& ctx,
             const Acts::BoundTrackParameters& startParameters,
             const Acts::Surface& target,
-            Acts::NavigationDirection navDir = Acts::forward,
+            Acts::NavigationDirection navDir = Acts::NavigationDirection::Forward,
             double pathLimit = std::numeric_limits<double>::max(),
             Trk::ParticleHypothesis particleHypo = Trk::pion) const override;
 
@@ -134,8 +134,6 @@ private:
   Gaudi::Property<bool> m_interactionMultiScatering{this, "InteractionMultiScatering", false, "Whether to consider multiple scattering in the interactor"};
   Gaudi::Property<bool> m_interactionEloss{this, "InteractionEloss", false, "Whether to consider energy loss in the interactor"};
   Gaudi::Property<bool> m_interactionRecord{this, "InteractionRecord", false, "Whether to record all material interactions"};
-  // Particle masses
-  Trk::ParticleMasses m_particlemasses;
   // Hypothesis to pdg converter
   Trk::PdgToParticleHypothesis m_pdgToParticleHypothesis;
 };

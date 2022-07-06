@@ -13,6 +13,8 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "L1CaloFEXSim/jTowerContainer.h"
+#include "L1CaloFEXSim/jFEXForwardElecInfo.h"
+#include "L1CaloFEXSim/FEXAlgoSpaceDefs.h"
 
 
 namespace LVL1 {
@@ -24,7 +26,17 @@ class IjFEXForwardElecAlgo : virtual public IAlgTool {
         static const InterfaceID& interfaceID ( ) ;
         virtual StatusCode safetyTest() = 0;
         virtual StatusCode reset() =0;
-        virtual void setup() = 0;
+	virtual void setup(int inputTable[FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width], int, int ) =0;
+
+	//virtual std::array<float,4> getEtaPhiEt(uint) =0;                                                                                    
+        virtual std::array<float,2> getEtaPhi(uint) =0;
+        virtual std::array<uint,2> getEtEmHad(uint) =0;
+
+	virtual std::unordered_map<uint, jFEXForwardElecInfo> ClusterTTIDLists() =0;  
+	virtual std::unordered_map<uint, jFEXForwardElecInfo> LocalMaxima() =0;
+	virtual std::unordered_map<uint, jFEXForwardElecInfo> calculateEDM() =0;
+
+	virtual bool isNeighbour(float aeta, int deltaNeta, float deltaPhi) =0;    
 
         virtual void setFPGAEnergy(std::unordered_map<int,std::vector<int> >,std::unordered_map<int,std::vector<int> > )  =0;
 

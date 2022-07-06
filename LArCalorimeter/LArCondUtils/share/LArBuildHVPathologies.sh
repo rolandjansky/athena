@@ -78,6 +78,6 @@ echo " List of pathologies in new sqlite file can be found in newList.txt"
 AtlCoolCopy "sqlite://;schema=larhvpathology.db;dbname=CONDBR2" "sqlite://;schema=larhvpathology.db;dbname=CONDBR2" -f /LAR/HVPathologiesOfl/Pathologies -of /LAR/HVPathologiesOfl/Pathologies -t ${upd1TagName} -ot ${upd4TagName} -rls ${runStart} ${lbStart} -truncate
 
 echo " Sqlite file produced, to merge it to Oracle execute: "
-echo " /afs/cern.ch/user/a/atlcond/utils/AtlCoolMerge.py larhvpathology.db CONDBR2 ATLAS_COOLWRITE ATLAS_COOLOFL_LAR_W <password>"
+echo " /afs/cern.ch/user/a/atlcond/utilsflask/AtlCoolMerge.py larhvpathology.db CONDBR2 ATONR_GPN ATLAS_COOLOFL_LAR_W <password>"
 
 exit

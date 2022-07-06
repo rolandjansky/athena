@@ -50,6 +50,8 @@ def fatrasHitCreatorPixelCfg(flags, name="ISF_FatrasHitCreatorPixel", **kwargs):
     kwargs.setdefault("RandomStreamName", flags.Sim.Fatras.RandomStreamName)
     kwargs.setdefault("IdHelperName", 'PixelID')
     kwargs.setdefault("CollectionName", hits_collection_name)
+
+    kwargs.setdefault("ConditionsTool", "")
     kwargs.setdefault("UseConditionsTool", False)
 
     iFatras__HitCreatorSilicon = CompFactory.iFatras.HitCreatorSilicon
@@ -77,6 +79,8 @@ def fatrasHitCreatorSCTCfg(flags, name="ISF_FatrasHitCreatorSCT", **kwargs):
     kwargs.setdefault("RandomStreamName", flags.Sim.Fatras.RandomStreamName)
     kwargs.setdefault("IdHelperName", 'SCT_ID')
     kwargs.setdefault("CollectionName", hits_collection_name)
+
+    kwargs.setdefault("ConditionsTool", "")
     kwargs.setdefault("UseConditionsTool", False)
 
     iFatras__HitCreatorSilicon = CompFactory.iFatras.HitCreatorSilicon
@@ -104,6 +108,7 @@ def fatrasHitCreatorTRTCfg(flags, name="ISF_FatrasHitCreatorTRT", **kwargs):
     kwargs.setdefault("RandomStreamName", flags.Sim.Fatras.RandomStreamName)
     kwargs.setdefault("CollectionName", hits_collection_name)
 
+    kwargs.setdefault("StrawStatusSummaryTool", "")
     iFatras__HitCreatorTRT = CompFactory.iFatras.HitCreatorTRT
     result.setPrivateTools(iFatras__HitCreatorTRT(name=name, **kwargs))
     return result
@@ -225,7 +230,28 @@ def fatrasSimHitCreatorMSCfg(flags, name="ISF_FatrasSimHitCreatorMS", **kwargs):
                                                                mergeable_collection_suffix,
                                                                csc_merger_input_property,
                                                                region)
-    result.merge(csc_result)
+    if flags.Detector.EnableCSC:
+        result.merge(csc_result)
+
+    stgc_bare_collection_name="sTGC_Hits"
+    stgc_merger_input_property="sTGCHits"
+    stgc_result, stgc_hits_collection_name = CollectionMergerCfg(flags,
+                                                                 stgc_bare_collection_name,
+                                                                 mergeable_collection_suffix,
+                                                                 stgc_merger_input_property,
+                                                                 region)
+    if flags.Detector.EnablesTGC:
+        result.merge(stgc_result)
+
+    mm_bare_collection_name="MM_Hits"
+    mm_merger_input_property="MMHits"
+    mm_result, mm_hits_collection_name = CollectionMergerCfg(flags,
+                                                             mm_bare_collection_name,
+                                                             mergeable_collection_suffix,
+                                                             mm_merger_input_property,
+                                                             region)
+    if flags.Detector.EnableMM:
+        result.merge(mm_result)
 
     kwargs.setdefault("RandomNumberService", result.getPrimaryAndMerge(FatrasRndSvcCfg(flags)).name)
     kwargs.setdefault("RandomStreamName", flags.Sim.Fatras.RandomStreamName)
@@ -238,6 +264,8 @@ def fatrasSimHitCreatorMSCfg(flags, name="ISF_FatrasSimHitCreatorMS", **kwargs):
     kwargs.setdefault("RPCCollectionName", rpc_hits_collection_name)
     kwargs.setdefault("TGCCollectionName", tgc_hits_collection_name)
     kwargs.setdefault("CSCCollectionName", csc_hits_collection_name)
+    kwargs.setdefault("sTGCCollectionName", stgc_hits_collection_name)
+    kwargs.setdefault("MMCollectionName", mm_hits_collection_name)
 
     Muon__MuonTGMeasurementTool = CompFactory.Muon.MuonTGMeasurementTool
     muon_tgmeasurement_tool = Muon__MuonTGMeasurementTool(name='MuonTGMeasurementTool',
@@ -284,7 +312,7 @@ def fatrasParticleDecayHelperCfg(flags, name="ISF_FatrasParticleDecayHelper", **
 
     seed = 'FatrasG4 OFFSET 0 23491234 23470291'
     result.merge(dSFMT(seed))
-    kwargs.setdefault("RandomNumberService", result.getService("AtDSFMTGenSvc"))
+    kwargs.setdefault("RandomNumberService", result.getService("AtDSFMTGenSvc").name)
     kwargs.setdefault("RandomStreamName", flags.Sim.Fatras.RandomStreamName)
     kwargs.setdefault("G4RandomStreamName", flags.Sim.Fatras.G4RandomStreamName)
     kwargs.setdefault("ValidationMode", flags.Sim.ISF.ValidationMode)
@@ -316,32 +344,6 @@ def fatrasParticleDecayHelperCfg(flags, name="ISF_FatrasParticleDecayHelper", **
 # Extrapolator
 ################################################################################
 # the definition of an extrapolator (to be cleaned up)
-def fatrasNavigatorCfg(flags, name="ISF_FatrasNavigator", **kwargs):
-    mlog = logging.getLogger(name)
-    mlog.debug('Start configuration')
-
-    result = ComponentAccumulator()
-    if not flags.Sim.ISF.UseTrackingGeometryCond:
-        if 'TrackingGeometrySvc' not in kwargs:
-            from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-            acc = TrackingGeometrySvcCfg(flags)
-            kwargs.setdefault("TrackingGeometrySvc", acc.getPrimary())
-            kwargs.setdefault("TrackingGeometryKey", '')
-            result.merge(acc)
-    else:
-        if 'TrackingGeometryKey' not in kwargs:
-            from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
-            acc = TrackingGeometryCondAlgCfg(flags)
-            geom_cond_key = acc.getPrimary().TrackingGeometryWriteKey
-            result.merge(acc)
-            kwargs.setdefault("TrackingGeometryKey", geom_cond_key)
-
-    Trk__Navigator = CompFactory.Trk.Navigator
-    navigator = Trk__Navigator(name=name, **kwargs)
-
-    result.setPrivateTools(navigator)
-    return result
-
 
 def fatrasEnergyLossUpdatorCfg(flags, name="ISF_FatrasEnergyLossUpdator", **kwargs):
     mlog = logging.getLogger(name)
@@ -360,21 +362,6 @@ def fatrasEnergyLossUpdatorCfg(flags, name="ISF_FatrasEnergyLossUpdator", **kwar
 
     iFatras__McEnergyLossUpdator = CompFactory.iFatras.McEnergyLossUpdator
     result.setPrivateTools(iFatras__McEnergyLossUpdator(name=name, **kwargs))
-    return result
-
-
-def fatrasMultipleScatteringUpdatorCfg(flags, name="ISF_FatrasMultipleScatteringUpdator", **kwargs):
-    mlog = logging.getLogger(name)
-    mlog.debug('Start configuration')
-
-    result = ComponentAccumulator()
-
-    kwargs.setdefault("RandomNumberService", result.getPrimaryAndMerge(TrkExRndSvcCfg(flags)).name)
-    kwargs.setdefault("RandomStreamName", flags.Sim.Fatras.TrkExRandomStreamName)
-    kwargs.setdefault("GaussianMixtureModel", flags.Sim.Fatras.GaussianMixtureModel)
-
-    Trk__MultipleScatteringUpdator = CompFactory.Trk.MultipleScatteringUpdator
-    result.setPrivateTools(Trk__MultipleScatteringUpdator(name=name, **kwargs))
     return result
 
 
@@ -422,6 +409,7 @@ def fatrasMaterialUpdatorCfg(flags, name="ISF_FatrasMaterialUpdator", **kwargs):
 
     # mutiple scattering
     kwargs.setdefault("MultipleScattering", True)
+    from TrkConfig.AtlasExtrapolatorToolsConfig import fatrasMultipleScatteringUpdatorCfg
     multi_scattering_updator = result.popToolsAndMerge(fatrasMultipleScatteringUpdatorCfg(flags))
     result.addPublicTool(multi_scattering_updator)
     kwargs.setdefault("MultipleScatteringUpdator", result.getPublicTool(multi_scattering_updator.name))
@@ -466,7 +454,8 @@ def fatrasExtrapolatorCfg(flags, name="ISF_FatrasExtrapolator", **kwargs):
 
     # Charged Transport Tool
     # assign the tools
-    navigator = result.popToolsAndMerge(fatrasNavigatorCfg(flags))
+    from TrkConfig.AtlasExtrapolatorToolsConfig import FastSimNavigatorCfg
+    navigator = result.popToolsAndMerge(FastSimNavigatorCfg(flags))
     result.addPublicTool(navigator)
     kwargs.setdefault("Navigator", result.getPublicTool(navigator.name))
 
@@ -480,7 +469,8 @@ def fatrasExtrapolatorCfg(flags, name="ISF_FatrasExtrapolator", **kwargs):
 
     from TrkConfig.TrkExSTEP_PropagatorConfig import fatrasSTEP_PropagatorCfg
     step_propagator = result.popToolsAndMerge(fatrasSTEP_PropagatorCfg(flags))
-    kwargs.setdefault("STEP_Propagator", step_propagator)
+    result.addPublicTool(step_propagator)
+    kwargs.setdefault("STEP_Propagator", result.getPublicTool(step_propagator.name))
 
     # Fatras specific: stop the trajectory
     kwargs.setdefault("StopWithNavigationBreak", True)
@@ -659,10 +649,9 @@ def fatrasTransportToolCfg(flags, name="ISF_FatrasSimTool", **kwargs):
     result.addPublicTool(pdhelper_cfg)
     kwargs.setdefault("ParticleDecayHelper", result.getPublicTool(pdhelper_cfg.name))
 
-    acc = ParticleHelperCfg(flags)
-    part_helper_cfg = acc.getPrimary()
-    kwargs.setdefault("ParticleHelper", part_helper_cfg)
-    result.merge(acc)
+    part_helper = result.popToolsAndMerge(ParticleHelperCfg(flags))
+    result.addPublicTool(part_helper)
+    kwargs.setdefault("ParticleHelper", result.getPublicTool(part_helper.name))
 
     kin_filter_cfg = result.popToolsAndMerge(fatrasKinematicFilterCfg(flags))
     result.addPublicTool(kin_filter_cfg)
@@ -780,9 +769,7 @@ if __name__ == "__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import DEBUG
-    from AthenaCommon.Configurable import Configurable
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-    Configurable.configurableRun3Behavior = 1
 
     log.setLevel(DEBUG)
 

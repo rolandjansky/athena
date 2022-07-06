@@ -110,7 +110,6 @@ namespace InDet
    /** External tools:  */
    const TRT_ID *m_TRTHelper{};
    ToolHandle< ITRT_CalDbTool > m_CalDbTool{this, "TRTCalDbTool", "TRT_CalDbTool", ""};
-   SG::ReadHandleKey<TRT_RDO_Container> m_trt_rdo_location{ this, "TRT_RDOContainerName", "TRT_RDOs", "m_trt_rdo_location" };
    SG::ReadHandleKey<TRT_DriftCircleContainer> m_trt_driftcircles{ this, "TRT_DriftCircleCollection", "TRT_DriftCircles", "m_trt_driftcircles" };
 
    SG::ReadCondHandleKey<TRTCond::AliveStraws> m_strawReadKey{this,"AliveStraws","AliveStraws","AliveStraws in-key"};

@@ -61,11 +61,15 @@ TrackCollectionCnv_tlp7::TrackCollectionCnv_tlp7( )
   addTPConverter( &m_localPositionsCnv );
   addTPConverter( &m_localParametersCnv );
 
+  //Multi Component state on Surface
+  addTPConverter(&m_multiTrackStatesCnv);
+
   // adding extending TLP converters,
   // they don't interfere with the order of adding regular converters (above)
   m_muonMeasurementsCnv.addTPConvertersTo( this );
   m_inDetTrackCnv      .addTPConvertersTo( this );
   m_muonCaloEnergiesCnv.addTPConvertersTo( this );
+
 }
 
 
@@ -76,6 +80,7 @@ void TrackCollectionCnv_tlp7::setPStorage( PERS *storage )
 // for all converters defined in this top level converter
   m_tracksCnv.               setPStorage( &storage->m_tracks );
   m_trackStatesCnv.          setPStorage( &storage->m_trackStates );
+  m_multiTrackStatesCnv.     setPStorage( &storage->m_trackStates );
 
   m_pseudoMeasurementOnTrackCnv.setPStorage( &storage->m_pseudoMeasurementOnTrack );
   m_crotCnv.                 setPStorage( &storage->m_competingRotsOnTrack );

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // class header include
@@ -38,7 +38,7 @@ namespace Simulation
   }
 
   /** checks the given GenEvent */
-  StatusCode GenEventValidityChecker::manipulate(HepMC::GenEvent& ge) const
+  StatusCode GenEventValidityChecker::manipulate(HepMC::GenEvent& ge, const EventContext&) const
   {
     bool allOK = true;
 

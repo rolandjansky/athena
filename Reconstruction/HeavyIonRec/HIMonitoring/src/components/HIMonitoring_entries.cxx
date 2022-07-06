@@ -1,8 +1,8 @@
-#include "HIMonitoring/HIMonitoringEventShapeTool.h"
-#include "HIMonitoring/HIMonitoringPhotonsTool.h"
-#include "HIMonitoring/HIMonitoringZdcTool.h"
-#include "HIMonitoring/HIMonitoringMuonsTool.h"
-#include "HIMonitoring/HIMonitoringElectronsTool.h"
+#include "../HIMonitoringEventShapeTool.h"
+#include "../HIMonitoringPhotonsTool.h"
+#include "../HIMonitoringZdcTool.h"
+#include "../HIMonitoringMuonsTool.h"
+#include "../HIMonitoringElectronsTool.h"
 
 DECLARE_COMPONENT( HIMonitoringEventShapeTool )
 DECLARE_COMPONENT( HIMonitoringPhotonsTool )

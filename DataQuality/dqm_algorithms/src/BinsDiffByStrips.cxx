@@ -831,8 +831,8 @@ else {
             
       if (objectsPublished < maxPublish) {
       	char ctag[256];
-	sprintf(ctag,"C%.3u-R-%.3uBins@ Eta=(%+.3f_to_%+.3f) Phi=(%+.3f_to_%+.3f) Center=(%+.3f,%+.3f) Radius=%+.3f",clustersPublished,it->n,
-		xBinCenters[it->ixmin],xBinCenters[it->ixmax],yBinCenters[it->iymin],yBinCenters[it->iymax],it->x,it->y,it->radius);
+        sprintf(ctag,"C%.3i-R-%.3iBins@ Eta=(%+.3f_to_%+.3f) Phi=(%+.3f_to_%+.3f) Center=(%+.3f,%+.3f) Radius=%+.3f",clustersPublished,it->n,
+                xBinCenters[it->ixmin],xBinCenters[it->ixmax],yBinCenters[it->iymin],yBinCenters[it->iymax],it->x,it->y,it->radius);
 
 	string tag = ctag;	
 	int sizeDiff = 30 - tag.size();
@@ -856,7 +856,7 @@ else {
 	  ++rIter) {
       if (objectsPublished < maxPublish) {
 	char ctag[16];
-	sprintf(ctag,"%.3u-R-",binsPublished);
+	sprintf(ctag,"%.3i-R-",binsPublished);
 	std::string tag = ctag;
 	tools::MakeBinTag(*rIter,tag);
 	result->tags_[tag] = rIter->value;
@@ -876,7 +876,7 @@ else {
 	    ++rIter) {
 	if (objectsPublished < maxPublish) {
 	  char ctag[16];
-	  sprintf(ctag,"%.3u-Y-",binsPublished);
+	  sprintf(ctag,"%.3i-Y-",binsPublished);
 	  std::string tag = ctag;
 	  tools::MakeBinTag(*rIter,tag);
 	  result->tags_[tag] = rIter->value;
@@ -896,7 +896,7 @@ else {
 	   it != yellowClusters.rend(); ++it) {
 	if (objectsPublished < maxPublish) {
 	  char ctag[256];
-	  sprintf(ctag,"C%.3u-Y-%.3uBins@ Eta=(%+.3f_to_%+.3f) Phi=(%+.3f_to_%+.3f) Center=(%+.3f,%+.3f) Radius=%+.3f",clustersPublished,it->n,
+	  sprintf(ctag,"C%.3i-Y-%.3iBins@ Eta=(%+.3f_to_%+.3f) Phi=(%+.3f_to_%+.3f) Center=(%+.3f,%+.3f) Radius=%+.3f",clustersPublished,it->n,
 		  xBinCenters[it->ixmin],xBinCenters[it->ixmax],yBinCenters[it->iymin],yBinCenters[it->iymax],it->x,it->y,it->radius);
 	  string tag = ctag;
 	  int sizeDiff = 30 - tag.size();
@@ -925,7 +925,7 @@ if(name_flag!=1){
   for(unsigned int i=0;i<topDeviations.size();i++){
   if(topDeviations[i].error !=-999.9 ) {
   char tmp[100];
-  sprintf(tmp,"MaxDeviation%i-",i);
+  sprintf(tmp,"MaxDeviation%u-",i);
   std::string myString = tmp;
   tools::MakeBinTag(topDeviations[i], myString);
   result->tags_[myString] = topDeviations[i].value;
@@ -940,7 +940,7 @@ if(name_flag==1) {
   } 
   for(unsigned int i=0;i<topBinEntries.size();i++){
   char tmp[100];
-  sprintf(tmp,"LeadingBinContents%i-",i);
+  sprintf(tmp,"LeadingBinContents%u-",i);
   std::string myString = tmp;
   tools::MakeBinTag(topBinEntries[i], myString);
   result->tags_[myString] = topBinEntries[i].value;

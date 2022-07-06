@@ -15,18 +15,12 @@
 #include "xAODTrigCalo/TrigEMCluster.h"
 
 #include "EgammaReEmEnFex.h"
-#include "T2CalibrationEgamma.h"
 #include "TrigT2CaloCommon/Calo_Def.h"
 
 EgammaReEmEnFex::EgammaReEmEnFex(const std::string& type, const std::string& name,
                                  const IInterface* parent) :
     IReAlgToolCalo(type, name, parent)
 {
-  declareProperty("QlCorrectionLimit", m_limit);
-  declareProperty("QlCorrectionDimension", m_dimension);
-  declareProperty("QlCorrection", m_correction);
-  // Calibration object
-  m_calib=std::make_unique<T2CalibrationEgamma>();
 }
 
 EgammaReEmEnFex::~EgammaReEmEnFex()
@@ -72,10 +66,10 @@ StatusCode EgammaReEmEnFex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const I
 
     // find the standard em cluster energy (3*7 cell, now sampling 0)
     // Find position of current cell w.r.t. seed
-    deta = fabs(etaCell - energyEta);
-    dphi = fabs(phiCell - energyPhi);
+    deta = std::abs(etaCell - energyEta);
+    dphi = std::abs(phiCell - energyPhi);
 
-    if (dphi > M_PI) dphi = 2. * M_PI - dphi; // wrap 0 -> 6.28
+    if (dphi > M_PI) dphi = 2. * M_PI - dphi; // wrap (pi - 2pi)->(-pi - 0)
     // 3x7 means three cells per 7 in the second layer 0.025*3/2, 0.025*7/2, for instance
     bool condition37 = clusterInBarrel &&
                        ((deta <= 0.0375 + 0.0005) && (dphi <= 0.0875 + 0.0005));
@@ -93,26 +87,11 @@ StatusCode EgammaReEmEnFex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const I
 
   } // end of loop over sampling 0
 
-#if 0 // Can't call EtaPhiRange from a const method!
-  // This will internaly define normal, narrow and large clusters
-  if (msgLvl(MSG::DEBUG)) {
-    if (m_geometryTool->EtaPhiRange(0, 0, energyEta, energyPhi)) {
-      ATH_MSG_ERROR("problems with EtaPhiRange");
-    }
-    PrintCluster(totalEnergy, 0, 0, CaloSampling::PreSamplerB, CaloSampling::PreSamplerE);
-  }
-#endif
-
   // Region Selector, sampling 3
   sampling = 3;
 
   LArTT_Selector<LArCellCont> sel3;
   ATH_CHECK( m_dataSvc->loadCollections(context, roi, TTEM, sampling, sel3) );
-  /*
-          if ( m_saveCells ){
-             m_data->storeCells(iBegin,iEnd,*m_CaloCellContPoint,m_cellkeepthr);
-          }
-  */
 
   for (const LArCell* larcell : sel3) { // Should be revised for London scheme
     ncells++;
@@ -122,9 +101,9 @@ StatusCode EgammaReEmEnFex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const I
 
     // find the standard em cluster energy (3*7 cell, now sampling 0)
     // Find position of current cell w.r.t. seed
-    deta = fabs(etaCell - energyEta);
-    dphi = fabs(phiCell - energyPhi);
-    if (dphi > M_PI) dphi = 2. * M_PI - dphi; // wrap 0 -> 6.28
+    deta = std::abs(etaCell - energyEta);
+    dphi = std::abs(phiCell - energyPhi);
+    if (dphi > M_PI) dphi = 2. * M_PI - dphi; // wrap (pi - 2pi)->(-pi - 0)
 
     // 3x7 means three cells per 7 in the second layer 0.025*3/2, 0.025*7/2, for instance
     bool condition37 = clusterInBarrel && ((deta <= 0.0375 + 0.001) && (dphi <= 0.0875 + 0.001));
@@ -134,7 +113,6 @@ StatusCode EgammaReEmEnFex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const I
     if (condition37 || condition55) {
 
       totalEnergy += energyCell;
-      // samp = CaloSampling::getSampling(*larcell);
       samp = larcell->caloDDE()->getSampling();
       rtrigEmCluster.setEnergy(samp, rtrigEmCluster.energy(samp) + energyCell);
       rtrigEmCluster.setRawEnergy(samp, rtrigEmCluster.rawEnergy(samp) + energyCell);
@@ -146,21 +124,10 @@ StatusCode EgammaReEmEnFex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const I
   rtrigEmCluster.setNCells(ncells + rtrigEmCluster.nCells());
   rtrigEmCluster.setRawEnergy(rtrigEmCluster.rawEnergy() + totalEnergy);
   // The dependency with energy is not defined yet
-  rtrigEmCluster.setEnergy(rtrigEmCluster.rawEnergy() *
-                           m_calib->Calib(energyEta, rtrigEmCluster.energy()));
+  rtrigEmCluster.setEnergy(rtrigEmCluster.rawEnergy() );
 
   rtrigEmCluster.setEt(rtrigEmCluster.energy() / cosh(energyEta));
   rtrigEmCluster.setRawEt(rtrigEmCluster.rawEnergy() / cosh(energyEta));
-
-#if 0 // Can't call EtaPhiRange from a const method!
-  // This will internaly define normal, narrow and large clusters
-  if (msgLvl(MSG::DEBUG)) {
-    if (m_geometryTool->EtaPhiRange(0, 3, energyEta, energyPhi)) {
-      ATH_MSG_ERROR("problems with EtaPhiRange");
-    }
-    PrintCluster(totalEnergy, 0, 3, CaloSampling::EMB3, CaloSampling::EME3);
-  }
-#endif
 
   return StatusCode::SUCCESS;
 }

@@ -2,7 +2,7 @@
 
 from AthenaCommon.Resilience import protectedInclude
 protectedInclude('Digitization/ForceUseOfPileUpTools.py')
-protectedInclude('SimulationJobOptions/preInlcude.PileUpBunchTrainsMC16c_2017_Config1.py')
+protectedInclude('SimulationJobOptions/preInclude.PileUpBunchTrainsFill_7314_BCMS_Pattern_Flat.py')
 
 if 'userRunLumiOverride' in dir():
     protectedInclude('RunDependentSimData/configLumi_muRange.py')
@@ -10,7 +10,7 @@ else:
     protectedInclude('RunDependentSimData/configLumi_run410000_mc21a_SingleBeamspot.py')
 
 from Digitization.DigitizationFlags import digitizationFlags
-digitizationFlags.numberOfLowPtMinBias = 51.898
-digitizationFlags.numberOfHighPtMinBias = 0.102
+digitizationFlags.numberOfLowPtMinBias = 84.335
+digitizationFlags.numberOfHighPtMinBias = 0.165
 digitizationFlags.initialBunchCrossing = -32
 digitizationFlags.finalBunchCrossing = 6

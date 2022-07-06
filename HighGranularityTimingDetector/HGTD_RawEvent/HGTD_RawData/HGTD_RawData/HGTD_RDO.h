@@ -1,9 +1,8 @@
 /**
- * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  *
  * @file HGTD_RawData/HGTD_RDO.h
  * @author Alexander Leopold <alexander.leopold@cern.ch>
- * @date August, 2021
  *
  * @brief This is a first implementation, but needs improvement in the future
  * to be closer to real detector output. For now a format compatible with
@@ -77,9 +76,9 @@ public:
    * @param [in] l1_a Level 1 accept
    * @param [in]
    */
-  HGTD_RDO(const Identifier rdo_id, const float toa, const int tot,
-                  const unsigned short bcid, const unsigned short l1_id,
-                  const unsigned short l1_a = 0);
+  HGTD_RDO(const Identifier rdo_id, const float toa, const unsigned int tot,
+           const unsigned short bcid, const unsigned short l1_id,
+           const unsigned short l1_a = 0);
 
   virtual Identifier identify() const;
 
@@ -100,7 +99,7 @@ private:
 
   /** @brief Time over threshold, 9 bit word.
    */
-  int m_tot;
+  unsigned int m_tot;
 
   /** @brief Bunch crossing ID.
    */

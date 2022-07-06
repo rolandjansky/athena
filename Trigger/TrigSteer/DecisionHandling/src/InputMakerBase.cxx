@@ -71,7 +71,7 @@ StatusCode InputMakerBase::decisionInputToOutput(const EventContext& context, SG
 
       bool usedROIMatchingFlag = false;
       size_t alreadyAddedIndex = std::numeric_limits<std::size_t>::max();
-      const bool alreadyAdded = matchInCollection(outDecisions, inputDecision, alreadyAddedIndex, usedROIMatchingFlag, matchingCache);      
+      const bool alreadyAdded = matchInCollection(outDecisions, inputDecision, alreadyAddedIndex, usedROIMatchingFlag, matchingCache, context);      
 
       TrigCompositeUtils::Decision* outputDecision = nullptr;
       if (alreadyAdded) { // Already added, at alreadyAddedIndex
@@ -117,7 +117,7 @@ StatusCode InputMakerBase::decisionInputToOutput(const EventContext& context, SG
 }
 
 
-bool InputMakerBase::matchInCollection(const DecisionContainer* outDecisions, const Decision* toMatch, size_t& matchIndex, bool& usedROIMatchingFlag, MatchingCache& matchingCache) const {
+bool InputMakerBase::matchInCollection(const DecisionContainer* outDecisions, const Decision* toMatch, size_t& matchIndex, bool& usedROIMatchingFlag, MatchingCache& matchingCache, const EventContext& ctx) const {
   std::set<const Decision*> cache; //!< Used to accelerate the recursive typelessFindLinks.
   std::vector<uint32_t> keys;
   std::vector<uint32_t> clids;
@@ -129,19 +129,19 @@ bool InputMakerBase::matchInCollection(const DecisionContainer* outDecisions, co
   ATH_MSG_DEBUG("This decision hasFeature="<< hasFeature);
   // Do feature based matching if configured to do so, or do it tentatively for empty step IMs (will not generate an ERROR if it fails for the empty step case)
   if ( m_mergeUsingFeature == true or (m_isEmptyStep and hasFeature) ) {
-    matchIndex = matchDecision(outDecisions, toMatch, featureString(), matchingCache);
+    matchIndex = matchDecision(outDecisions, toMatch, featureString(), matchingCache, ctx);
     ATH_MSG_DEBUG("matchDecision in features: "<< matchIndex);
   }
   // Do ROI based batching if configured to do so, or if feature matching failed for an empty step IM.
   else {
-    matchIndex = matchDecision(outDecisions, toMatch, m_roisLink.value(), matchingCache);
+    matchIndex = matchDecision(outDecisions, toMatch, m_roisLink.value(), matchingCache, ctx);
     usedROIMatchingFlag = true;
   }
   return (matchIndex != std::numeric_limits<std::size_t>::max());
 }
 
-size_t InputMakerBase::matchDecision(const DecisionContainer* outDecisions, const Decision* toMatch, const std::string& linkNameToMatch, MatchingCache& matchingCache) const {  
-  const uint64_t matchingHash = getMatchingHashForDecision(toMatch, linkNameToMatch);
+size_t InputMakerBase::matchDecision(const DecisionContainer* outDecisions, const Decision* toMatch, const std::string& linkNameToMatch, MatchingCache& matchingCache, const EventContext& ctx) const {  
+  const uint64_t matchingHash = getMatchingHashForDecision(toMatch, linkNameToMatch, ctx);
   ATH_MSG_DEBUG("matchDecision "<<linkNameToMatch<<" with matchingHash="<<matchingHash);
   // Cache this matching hash, so that in subsequent calls we can compare other incoming decision object's matching hash against this one
   matchingCache.setMatchingHash(toMatch, matchingHash);
@@ -159,7 +159,7 @@ size_t InputMakerBase::matchDecision(const DecisionContainer* outDecisions, cons
   return std::numeric_limits<std::size_t>::max();
 }
 
-uint64_t InputMakerBase::getMatchingHashForDecision(const Decision* toMatch, const std::string& linkNameToMatch) const {
+uint64_t InputMakerBase::getMatchingHashForDecision(const Decision* toMatch, const std::string& linkNameToMatch, const EventContext& ctx) const {
   std::set<const Decision*> cache; //!< Used to accelerate the recursive typelessFindLinks.
   std::vector<uint32_t> keys;
   std::vector<uint32_t> clids;
@@ -188,7 +188,7 @@ uint64_t InputMakerBase::getMatchingHashForDecision(const Decision* toMatch, con
       // Super verbose output
       ATH_MSG_ERROR(" -- -- TRACKING FULL HISTORY ");
       NavGraph navGraph;
-      recursiveGetDecisions(toMatch, navGraph);
+      recursiveGetDecisions(toMatch, navGraph, ctx);
       navGraph.printAllPaths(msg(), MSG::ERROR); 
     }
     return std::numeric_limits<std::size_t>::max();

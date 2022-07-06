@@ -63,6 +63,8 @@ class TrackCollectionCnv_tlp7 : public BaseTrackCollectionCnv_tlp7
 protected:
   TrackCnv_p4                       m_tracksCnv;
   TrackStateOnSurfaceCnv_p3         m_trackStatesCnv;	
+  // Converter for Multicomponent TSOS
+  MultiComponentStateOnSurfaceCnv_p1 m_multiTrackStatesCnv;
 
   ErrorMatrixCnv_p1                 m_errorMatricesCnv;
 
@@ -104,5 +106,6 @@ protected:
   MuonMeasurementsCnv_tlp2          m_muonMeasurementsCnv;
   InDetTrackCnv_tlp2                m_inDetTrackCnv;
   MuonCaloEnergyContainerCnv_tlp1   m_muonCaloEnergiesCnv;
+
 };
 #endif

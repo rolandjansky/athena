@@ -1,11 +1,11 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 from TriggerMenuMT.HLT.Config.MenuComponents import ChainStep, RecoFragmentsPool
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.Logging import logging
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaConfiguration.ComponentFactory import isRun3Cfg
 from ..Jet.JetChainConfiguration import JetChainConfiguration
-from AthenaCommon.Configurable import Configurable
 from TriggerMenuMT.HLT.Config.ControlFlow.HLTCFTools import NoCAmigration
 log = logging.getLogger(__name__)
 
@@ -80,7 +80,7 @@ def findTLAStep(chainConfig):
 def alignTLASteps(chain_configs, chain_dicts):
 
     def is_tla_dict(chainNameAndDict):
-        return  chainNameAndDict[1]['eventBuildType'] == 'PhysicsTLA' 
+        return  'PhysicsTLA' in chainNameAndDict[1]['eventBuildType'] 
 
     all_tla_chain_dicts = dict(filter(is_tla_dict, chain_dicts.items()))
     all_tla_chain_names = list(all_tla_chain_dicts.keys())
@@ -92,12 +92,12 @@ def alignTLASteps(chain_configs, chain_dicts):
     all_tla_chain_configs = dict(filter(is_tla_config, chain_configs.items()))
 
 
-    maxTLAStepPosition = {} # {eventBuildType: N}
+    maxTLAStepPosition = 0 # {eventBuildType: N}
 
     def getTLAStepPosition(chainConfig):
         tlaStep = findTLAStep(chainConfig)
         try:
-            if Configurable.configurableRun3Behavior and tlaStep is None:
+            if isRun3Cfg() and tlaStep is None:
                 raise NoCAmigration ("[alignTLASteps] Missing TLA sequence with CA configurables")
         except NoCAmigration:
             return 0
@@ -106,16 +106,13 @@ def alignTLASteps(chain_configs, chain_dicts):
     # First loop to find the maximal TLA step positions to which we need to align
     for chainName, chainConfig in all_tla_chain_configs.items():
         tlaStepPosition = getTLAStepPosition(chainConfig)
-        ebt = all_tla_chain_dicts[chainName]['eventBuildType']
-        if ebt not in maxTLAStepPosition or tlaStepPosition > maxTLAStepPosition[ebt]:
-            maxTLAStepPosition[ebt] = tlaStepPosition
-
+        if tlaStepPosition > maxTLAStepPosition:
+            maxTLAStepPosition = tlaStepPosition
+    
     # Second loop to insert empty steps before the TLA steps where needed
     for chainName, chainConfig in all_tla_chain_configs.items():
         tlaStepPosition = getTLAStepPosition(chainConfig)
-        ebt = all_tla_chain_dicts[chainName]['eventBuildType']
-        if tlaStepPosition < maxTLAStepPosition[ebt]:
-            numStepsNeeded = maxTLAStepPosition[ebt] - tlaStepPosition
+        if tlaStepPosition < maxTLAStepPosition:
+            numStepsNeeded = maxTLAStepPosition - tlaStepPosition
             log.debug('Aligning TLA step for chain %s by adding %d empty steps', chainName, numStepsNeeded)
             chainConfig.insertEmptySteps('EmptyTLAAlign', numStepsNeeded, tlaStepPosition-1)
-

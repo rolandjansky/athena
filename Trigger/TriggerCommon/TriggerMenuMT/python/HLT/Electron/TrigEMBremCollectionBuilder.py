@@ -28,8 +28,10 @@ class TrigEgammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
 
         import egammaRec.EMCommonRefitter
         # import TriggerMenuMT.HLT.Electron.TrigEMCommonRefitter as TrigEMCommonRefitter
-        # Extrapolator to be used for GSF (private)
+        # Extrapolator to be used for GSF (public)
         GSFBuildInDetExtrapolator = egammaExtrapolator()
+        from AthenaCommon.AppMgr import ToolSvc
+        ToolSvc += GSFBuildInDetExtrapolator
 
         # GsfReffiter (private not in ToolSvc)
         from egammaTrackTools.egammaTrackToolsConf import egammaTrkRefitterTool
@@ -44,7 +46,7 @@ class TrigEgammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
         #
         #  BLayer and Pixel Related Tools (private = True)
         #
-        GSFBuildTestBLayerTool = None
+        GSFBuildTestPixelLayerTool = None
         GSFBuildPixelToTPIDTool = None
         if DetFlags.haveRIO.pixel_on():
             GSFPixelConditionsSummaryTool = (
@@ -55,10 +57,11 @@ class TrigEgammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
                 GSFPixelConditionsSummaryTool.IsActiveStatus = [
                     'OK', 'WARNING', 'ERROR', 'FATAL']
 
-            GSFBuildTestBLayerTool = TrackingCommon.getInDetTrigRecTestBLayerTool(
-                name="GSFBuildTestBLayerTool",
+            GSFBuildTestPixelLayerTool = TrackingCommon.getInDetTrigTestPixelLayerToolInner(
+                name="GSFBuildTestPixelLayerTool",
                 PixelSummaryTool=GSFPixelConditionsSummaryTool,
                 Extrapolator=GSFBuildInDetExtrapolator,
+                CheckActiveAreas=False,
                 private=True)
 
             GSFBuildPixelToTPIDTool = TrackingCommon.getInDetPixelToTPIDTool(
@@ -71,14 +74,9 @@ class TrigEgammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
         if DetFlags.haveRIO.TRT_on() and not InDetFlags.doHighPileup():
 
             from TrigInDetConfig.InDetTrigCollectionKeys import TrigTRTKeys
-            from AthenaCommon.GlobalFlags import globalflags
-            TrigTRTRDOs = "TRT_RDOs"
-            if globalflags.DataSource() == "data":
-                TrigTRTRDOs = TrigTRTKeys.RDOs
-
+    
             TRT_LocalOccupancyTool = TrackingCommon.getInDetTRT_LocalOccupancy(
-                TRT_RDOContainerName=TrigTRTRDOs,
-                TRT_DriftCircleCollection="",
+                TRT_DriftCircleCollection = TrigTRTKeys.DriftCircles,
                 isTrigger=True)
 
             TRT_ToT_dEdx_Tool = TrackingCommon.getInDetTRT_dEdxTool(
@@ -86,10 +84,12 @@ class TrigEgammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
                     AssociationTool="InDetTrigPrdAssociationTool")
 
             GSFBuildTRT_ElectronPidTool = TrackingCommon.getInDetTRT_ElectronPidTool(
-                    name="GSFBuildTRT_ElectronPidTool",
-                    private=True,
-                    TRT_LocalOccupancyTool=TRT_LocalOccupancyTool,
-                    TRT_ToT_dEdx_Tool=TRT_ToT_dEdx_Tool)
+                name="GSFBuildTRT_ElectronPidTool",
+                private=True,
+                CalculateNNPid=False,
+                MinimumTrackPtForNNPid=0.,
+                TRT_LocalOccupancyTool=TRT_LocalOccupancyTool,
+                TRT_ToT_dEdx_Tool=TRT_ToT_dEdx_Tool)
 
         #
         #  InDet Track Summary Helper, no Association and no hole
@@ -99,7 +99,7 @@ class TrigEgammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
             name="GSFBuildTrackSummaryHelperTool",
             AssoTool=None,
             HoleSearch=None,
-            TestBLayerTool=GSFBuildTestBLayerTool,
+            TestPixelLayerTool=GSFBuildTestPixelLayerTool,
             isHLT = True,
             DoSharedHits=False,
             private=True)

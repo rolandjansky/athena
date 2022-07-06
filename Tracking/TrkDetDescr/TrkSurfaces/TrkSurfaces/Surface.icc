@@ -268,5 +268,26 @@ Surface::associateLayer(const Layer& lay)
   m_associatedLayer = (&lay);
 }
 
+#if defined(__GNUC__)
+[[gnu::flatten]]
+// Avoid out-of-line-eigen calls
+#endif
+inline Amg::Transform3D
+Surface::inverseTransformHelper() const
+{
+  return transform().inverse();
+}
+
+#if defined(__GNUC__)
+[[gnu::flatten]]
+// Avoid out-of-line-eigen calls
+#endif
+inline Amg::Vector3D
+Surface::inverseTransformMultHelper(const Amg::Vector3D& pos) const
+{
+  return inverseTransformHelper() * pos;
+}
+
+
 } // end of namespace Trk
 

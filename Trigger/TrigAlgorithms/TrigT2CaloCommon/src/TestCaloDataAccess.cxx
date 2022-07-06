@@ -12,7 +12,6 @@
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "CaloEvent/CaloConstCellContainer.h"
 #include "AthenaBaseComps/AthMessaging.h"
-#include "AthenaKernel/getMessageSvc.h"
 #include "TestCaloDataAccess.h"
 #include <sys/time.h>
 
@@ -33,7 +32,7 @@ public:
   AskForRoI( const EventContext& context,
 	     const ServiceHandle<ITrigCaloDataAccessSvc>& svc,  	     
 	     const TrigRoiDescriptor& roi ) 
-    : AthMessaging (Athena::getMessageSvc(), "TestCaloDataAccess"),
+    : AthMessaging ("TestCaloDataAccess"),
       m_context( context ),
       m_svc( svc ),
       m_roi ( roi ) {

@@ -42,11 +42,11 @@ namespace PanTau {
     virtual void ABRDefaultInit();
     virtual StatusCode initialize();
         
-    virtual StatusCode getInfo_Int(const std::string& varName, int& value);
-    virtual StatusCode getInfo_Double(const std::string& varName, double& value);
-    virtual StatusCode getInfo_VecDouble(const std::string& varName, std::vector<double>& value);
-    virtual StatusCode getInfo_String(const std::string& varName, std::string& value);
-    virtual StatusCode getInfo_VecString(const std::string& varName, std::vector<std::string>& value);
+    virtual StatusCode getInfo_Int(const std::string& varName, int& value) const;
+    virtual StatusCode getInfo_Double(const std::string& varName, double& value) const;
+    virtual StatusCode getInfo_VecDouble(const std::string& varName, std::vector<double>& value) const;
+    virtual StatusCode getInfo_String(const std::string& varName, std::string& value) const;
+    virtual StatusCode getInfo_VecString(const std::string& varName, std::vector<std::string>& value) const;
         
        
   private:

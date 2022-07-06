@@ -33,22 +33,22 @@ int MMRawDataMonAlg::get_PCB_from_channel(int channel) const {
 
 int MMRawDataMonAlg::get_sectorPhi_from_stationPhi_stName(int stationPhi,const std::string & stName) const {
   
-  if (stationPhi==1 && stName=="MMS") return 1;
-  if (stationPhi==1 && stName=="MML") return 2;
-  if (stationPhi==2 && stName=="MMS") return 3;
-  if (stationPhi==2 && stName=="MML") return 4;
-  if (stationPhi==3 && stName=="MMS") return 5;
-  if (stationPhi==3 && stName=="MML") return 6;
-  if (stationPhi==4 && stName=="MMS") return 7;
-  if (stationPhi==4 && stName=="MML") return 8;
-  if (stationPhi==5 && stName=="MMS") return 9;
-  if (stationPhi==5 && stName=="MML") return 10;
-  if (stationPhi==6 && stName=="MMS") return 11;
-  if (stationPhi==6 && stName=="MML") return 12;
-  if (stationPhi==7 && stName=="MMS") return 13;
-  if (stationPhi==7 && stName=="MML") return 14;
-  if (stationPhi==8 && stName=="MMS") return 15;
-  if (stationPhi==8 && stName=="MML") return 16;
+  if (stationPhi==1 && stName=="MML") return 1;
+  if (stationPhi==1 && stName=="MMS") return 2;
+  if (stationPhi==2 && stName=="MML") return 3;
+  if (stationPhi==2 && stName=="MMS") return 4;
+  if (stationPhi==3 && stName=="MML") return 5;
+  if (stationPhi==3 && stName=="MMS") return 6;
+  if (stationPhi==4 && stName=="MML") return 7;
+  if (stationPhi==4 && stName=="MMS") return 8;
+  if (stationPhi==5 && stName=="MML") return 9;
+  if (stationPhi==5 && stName=="MMS") return 10;
+  if (stationPhi==6 && stName=="MML") return 11;
+  if (stationPhi==6 && stName=="MMS") return 12;
+  if (stationPhi==7 && stName=="MML") return 13;
+  if (stationPhi==7 && stName=="MMS") return 14;
+  if (stationPhi==8 && stName=="MML") return 15;
+  if (stationPhi==8 && stName=="MMS") return 16;
 
   throw std::invalid_argument( "stationPhi and stName are not valid!" );
 

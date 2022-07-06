@@ -9,13 +9,12 @@
 #include "G4PrimaryParticle.hh"
 #include <iostream>
 
-#include "AthenaKernel/getMessageSvc.h"
 
 namespace G4UA
 {
 
   MomentumConservation::MomentumConservation()
-    : AthMessaging(Athena::getMessageSvc(), "MomentumConservation"),
+    : AthMessaging("MomentumConservation"),
       _sum_edep(0), _sum_eesc(0)
   {}
 

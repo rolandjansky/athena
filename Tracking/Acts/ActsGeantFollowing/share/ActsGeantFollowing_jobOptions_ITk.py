@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #==============================================================
 #
 #
@@ -8,12 +9,9 @@
 #==============================================================
 
 
-from __future__ import print_function
-
 import sys
 from argparse import ArgumentParser
 
-from AthenaCommon.Configurable import Configurable
 from AthenaCommon.Constants import INFO
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
@@ -22,8 +20,6 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 
 from ActsGeometry.ActsGeometryConfig import ActsExtrapolationToolCfg
 
-# Set up logging and new style config
-Configurable.configurableRun3Behavior = True
 
 def defaultTestFlags(configFlags, args):
 

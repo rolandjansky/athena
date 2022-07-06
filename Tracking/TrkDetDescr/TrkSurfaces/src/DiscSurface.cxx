@@ -193,6 +193,10 @@ Trk::DiscSurface::globalReferencePoint() const
   return (*m_referencePoint);
 }
 
+#if defined(__GNUC__)
+[[gnu::flatten]]
+// Avoid out-of-line Eigen calls
+#endif
 void
 Trk::DiscSurface::localToGlobal(const Amg::Vector2D& locpos,
                                 const Amg::Vector3D&,
@@ -212,7 +216,7 @@ Trk::DiscSurface::globalToLocal(const Amg::Vector3D& glopos,
                                 const Amg::Vector3D&,
                                 Amg::Vector2D& locpos) const
 {
-  Amg::Vector3D loc3Dframe = (transform().inverse()) * glopos;
+  Amg::Vector3D loc3Dframe = inverseTransformMultHelper(glopos);
   locpos = Amg::Vector2D(loc3Dframe.perp(), loc3Dframe.phi());
   return (std::fabs(loc3Dframe.z()) <= s_onSurfaceTolerance);
 }
@@ -253,7 +257,7 @@ std::optional<Amg::Vector2D>
 Trk::DiscSurface::globalToLocalCartesian(const Amg::Vector3D& glopos,
                                          double tol) const
 {
-  Amg::Vector3D loc3Dframe = (transform().inverse()) * glopos;
+  Amg::Vector3D loc3Dframe = inverseTransformMultHelper(glopos);
   if (std::abs(loc3Dframe.z()) > s_onSurfaceTolerance + tol) {
     return std::nullopt;
   }
@@ -274,7 +278,7 @@ Trk::DiscSurface::isOnSurface(const Amg::Vector3D& glopo,
                               double tol1,
                               double tol2) const
 {
-  Amg::Vector3D loc3Dframe = (transform().inverse()) * glopo;
+  Amg::Vector3D loc3Dframe = inverseTransformMultHelper(glopo);
   if (std::abs(loc3Dframe.z()) > (s_onSurfaceTolerance + tol1)) {
     return false;
   }

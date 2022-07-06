@@ -288,6 +288,13 @@ bool TFCSEnergyAndHitGAN::fillEnergy(TFCSSimulationState& simulstate, const TFCS
     }
   }
 
+  for(unsigned int ichain=m_bin_start.back();ichain<size();++ichain) {
+    ATH_MSG_DEBUG("now run for all bins: "<<chain()[ichain]->GetName());
+    if (simulate_and_retry(chain()[ichain], simulstate, truth, extrapol) != FCSSuccess) {
+      return FCSFatal;
+    }
+  }
+
   vox = 0;
   for (auto element : binsInLayers){
     int layer = element.first;
@@ -504,14 +511,6 @@ FCSReturnCode TFCSEnergyAndHitGAN::simulate(TFCSSimulationState& simulstate,cons
     ATH_MSG_WARNING("Could not fill energies ");
     // bail out but do not stop the job
     return FCSSuccess;
-  }
-
-
-  for(unsigned int ichain=m_bin_start.back();ichain<size();++ichain) {
-    ATH_MSG_DEBUG("now run for all bins: "<<chain()[ichain]->GetName());
-    if (simulate_and_retry(chain()[ichain], simulstate, truth, extrapol) != FCSSuccess) {
-      return FCSFatal;
-    }
   }
 
   return FCSSuccess;

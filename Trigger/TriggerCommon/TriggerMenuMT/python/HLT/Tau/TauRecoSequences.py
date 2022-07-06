@@ -79,7 +79,7 @@ def _algoTauTrackBDTRoiUpdater(inputRoIs, tracks):
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
     config = getInDetTrigConfig("tauIso")
     from TrigTauHypo.TrigTauHypoConf import TrigTauTrackRoiUpdater
-    from TrigTauRec.TrigTauFlags import TrigTauFlags
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
     algo                               = TrigTauTrackRoiUpdater("TrackRoiUpdaterBDT")
     algo.etaHalfWidth                  = config.etaHalfWidth
     algo.phiHalfWidth                  = config.phiHalfWidth
@@ -87,7 +87,8 @@ def _algoTauTrackBDTRoiUpdater(inputRoIs, tracks):
     algo.RoIInputKey                   = inputRoIs
     algo.RoIOutputKey                  = "UpdatedTrackBDTRoI"
     algo.fastTracksKey                 = tracks
-    algo.BDTweights                    = f"{TrigTauFlags.CalibPath()}/{TrigTauFlags.FTFTauCoreBDTConfig()}"
+    algo.BDTweights                    = "{}/{}".format(ConfigFlags.Trigger.Offline.Tau.tauRecToolsCVMFSPath,
+                                                        ConfigFlags.Trigger.Offline.Tau.FTFTauCoreBDTConfig)
     algo.Key_trigTauJetInputContainer  = "HLT_TrigTauRecMerged_CaloMVAOnly"
     return algo
 
@@ -263,7 +264,7 @@ def tauFTFSequence( RoIs, name ):
 #   Reco sequence for FTFTauCore + TrackRoIUpdater Alg (tracktwoMVA)                                                                  
 # ===============================================================================================  
 
-def tauFTFCoreSequence(ConfigFlags):
+def tauFTFCoreSequence(flags):
 
     RecoSequenceName                    = "tauFTFCoreInViewSequence"
 
@@ -289,7 +290,7 @@ def tauFTFCoreSequence(ConfigFlags):
 #   Reco sequence for FTFTauIso (tracktwoMVA)                                                                  
 # ===============================================================================================  
 
-def tauFTFIsoSequence(ConfigFlags):
+def tauFTFIsoSequence(flags):
 
     RecoSequenceName                   = "tauFTFIsoInViewSequence"
 
@@ -315,7 +316,7 @@ def tauFTFIsoSequence(ConfigFlags):
 #   Reco sequence for FTFTauIsoBDT (tracktwoMVABDT)                                                                                                                                                
 # ===============================================================================================                                                                                                  
 
-def tauFTFIsoBDTSequence(ConfigFlags):
+def tauFTFIsoBDTSequence(flags):
 
     RecoSequenceName                   = "tauFTFIsoBDTInViewSequence"
 
@@ -341,7 +342,7 @@ def tauFTFIsoBDTSequence(ConfigFlags):
 #   Reco sequence for Precision tracking (from FTF Iso algorithm)   (tracktwoMVA)                           
 # ===============================================================================================                                                            
 
-def tauPrecIsoTrackSequence(ConfigFlags):
+def tauPrecIsoTrackSequence(flags):
 
     RecoSequenceName                       = "precFTFIsoInViewSequence"
 
@@ -363,7 +364,7 @@ def tauPrecIsoTrackSequence(ConfigFlags):
 #    Reco sequence for Tau Precision MVA Alg (tracktwoMVA)                                                                                 
 # ===============================================================================================                                                            
 
-def tauMVASequence(ConfigFlags):
+def tauMVASequence(flags):
 
     RecoSequenceName = "tauMVAInViewSequence"
 
@@ -385,7 +386,7 @@ def tauMVASequence(ConfigFlags):
 #    Reco sequence for Tau Precision LLP Alg (tracktwoLLP)                                                                                 
 # ===============================================================================================                                                            
 
-def tauLLPSequence(ConfigFlags):
+def tauLLPSequence(flags):
 
     RecoSequenceName = "tauLLPInViewSequence"
 

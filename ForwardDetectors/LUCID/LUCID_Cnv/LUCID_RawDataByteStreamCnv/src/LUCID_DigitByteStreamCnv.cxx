@@ -2,12 +2,11 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AthenaKernel/getMessageSvc.h"
 #include "LUCID_RawDataByteStreamCnv/LUCID_DigitByteStreamCnv.h"
 
 LUCID_DigitByteStreamCnv::LUCID_DigitByteStreamCnv(ISvcLocator* svcloc) : 
   Converter(storageType(), classID(), svcloc),
-  AthMessaging(Athena::getMessageSvc(), "LUCID_DigitByteStreamCnv"),
+  AthMessaging("LUCID_DigitByteStreamCnv"),
   m_RodBlockVersion      (0),
   m_BCs_per_LVL1ID       (1)
 {

@@ -148,6 +148,9 @@ if( NOT SIMULATIONBASE )
 	TrkG4UserActions )
 endif() 
 
+# Need to disable as-needed, as libraries are not necessarily
+# ordered correctly with respect to objects.
+atlas_disable_as_needed()
 
 # Shared library that only tests should link to, composed of library OBJECTs
 atlas_add_library( AtlasGeant4Lib

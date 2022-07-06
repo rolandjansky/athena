@@ -16,6 +16,9 @@
 #include <vector>
 #include <string>
 
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // standalone ROOT analysis code
+
 class ZDCPulseAnalyzer
 {
 public:

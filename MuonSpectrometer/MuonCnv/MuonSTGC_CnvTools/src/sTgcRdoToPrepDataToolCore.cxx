@@ -13,13 +13,7 @@ using namespace Muon;
 
 //============================================================================
 Muon::sTgcRdoToPrepDataToolCore::sTgcRdoToPrepDataToolCore(const std::string& t, const std::string& n, const IInterface* p) 
-: base_class(t,n,p)
-{
-    //  template for property decalration
-    declareProperty("OutputCollection", m_stgcPrepDataContainerKey = std::string("STGC_Measurements"), "Muon::sTgcPrepDataContainer to record");
-    declareProperty("InputCollection", m_rdoContainerKey = std::string("sTGCRDO"), "RDO container to read");
-    declareProperty("Merge",  m_merge = true);
-}
+: base_class(t,n,p){}
 
 
 //============================================================================
@@ -31,6 +25,7 @@ StatusCode Muon::sTgcRdoToPrepDataToolCore::initialize()
     ATH_CHECK(m_stgcPrepDataContainerKey.initialize());
     ATH_CHECK(m_rdoContainerKey.initialize());
     ATH_CHECK(m_muDetMgrKey.initialize());
+    ATH_CHECK(m_calibTool.retrieve());
     ATH_MSG_INFO("initialize() successful in " << name());
     return StatusCode::SUCCESS;
 }
@@ -39,6 +34,7 @@ StatusCode Muon::sTgcRdoToPrepDataToolCore::initialize()
 //============================================================================
 StatusCode Muon::sTgcRdoToPrepDataToolCore::processCollection(Muon::sTgcPrepDataContainer* stgcPrepDataContainer, const STGC_RawDataCollection *rdoColl, std::vector<IdentifierHash>& idWithDataVect) const
 {
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     const IdentifierHash hash = rdoColl->identifyHash();
 
     ATH_MSG_DEBUG(" ***************** Start of process STGC Collection with hash Id: " << hash);
@@ -81,22 +77,19 @@ StatusCode Muon::sTgcRdoToPrepDataToolCore::processCollection(Muon::sTgcPrepData
     sTgcPadPrds.reserve(rdoColl->size());
     sTgcWirePrds.reserve(rdoColl->size());
     
-    // convert the RDO collection to a PRD collection
-    STGC_RawDataCollection::const_iterator it = rdoColl->begin();
   
     // MuonDetectorManager from the conditions store
-    SG::ReadCondHandle<MuonGM::MuonDetectorManager> detMgrHandle{m_muDetMgrKey};
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> detMgrHandle{m_muDetMgrKey,ctx};
     const MuonGM::MuonDetectorManager* muonDetMgr = detMgrHandle.cptr(); 
     if(!muonDetMgr){
         ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
         return StatusCode::FAILURE;
     }
-  
-    for (; it != rdoColl->end() ; ++it ) {
+    // convert the RDO collection to a PRD collection
+    for ( const STGC_RawData* rdo : * rdoColl) {
 
         ATH_MSG_DEBUG("Adding a new sTgc PrepRawData");
 
-        const STGC_RawData* rdo = *it;
         const Identifier  rdoId = rdo->identify();
 
         if (!m_idHelperSvc->issTgc(rdoId)) {
@@ -127,9 +120,10 @@ StatusCode Muon::sTgcRdoToPrepDataToolCore::processCollection(Muon::sTgcPrepData
         // to be fixed: for now do not set the resolution, it will be added in the next update    
         const int     gasGap = m_idHelperSvc->stgcIdHelper().gasGap(rdoId);
         const int    channel = m_idHelperSvc->stgcIdHelper().channel(rdoId);
-        const int     charge = (int) rdo->charge();
-        const int    rdoTime = (int) rdo->time();
         const uint16_t bcTag = rdo->bcTag();
+
+        NSWCalib::CalibratedStrip calibStrip;
+        ATH_CHECK (m_calibTool->calibrateStrip(ctx, rdo, calibStrip));
         
         ATH_MSG_DEBUG("Adding a new STGC PRD, gasGap: " << gasGap << " channel: " << channel << " type: " << channelType );
 
@@ -149,8 +143,8 @@ StatusCode Muon::sTgcRdoToPrepDataToolCore::processCollection(Muon::sTgcPrepData
                 width = design->channelWidth(localPos);
             }
         }
-
-        const double resolution = width/sqrt(12.); 
+        
+        const double resolution = width/ std::sqrt(12.); 
         auto   cov = Amg::MatrixX(1,1);
         cov.setIdentity();
         (cov)(0,0) = resolution*resolution;  
@@ -164,13 +158,13 @@ StatusCode Muon::sTgcRdoToPrepDataToolCore::processCollection(Muon::sTgcPrepData
             // check if the same RdoId is already present; keep the one with the smallest time
             auto it = std::find_if(sTgcPrds.begin(), sTgcPrds.end(), [&rdoId](auto prd) { return (prd.identify() == rdoId); });
             if (it == sTgcPrds.end()) {
-                sTgcPrds.emplace_back(rdoId, hash, localPos, rdoList, cov, detEl, charge, rdoTime, bcTag);
-            } else if (it->time() > rdoTime) {
-                *it = sTgcPrepData(rdoId, hash, localPos, rdoList, cov, detEl, charge, rdoTime, bcTag);
+                sTgcPrds.emplace_back(rdoId, hash, localPos, rdoList, cov, detEl, calibStrip.charge, calibStrip.time, bcTag);
+            } else if (it->time() > calibStrip.time) {
+                *it = sTgcPrepData(rdoId, hash, localPos, rdoList, cov, detEl, calibStrip.charge, calibStrip.time, bcTag);
             }
         } else {
             // if not merging just add the PRD to the collection
-            prdColl->push_back(new sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl,charge,rdoTime,bcTag));
+            prdColl->push_back(new sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl, calibStrip.charge, calibStrip.time, bcTag));
         } 
     }
 

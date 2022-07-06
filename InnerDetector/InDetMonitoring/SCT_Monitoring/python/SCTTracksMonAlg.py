@@ -32,8 +32,8 @@ def SCTTracksMonAlgConfig(inputFlags):
 
     from AthenaConfiguration.Enums import BeamType
     if inputFlags.Beam.Type is BeamType.Collisions:
-        from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool
-        myMonAlg.FilterTools += [GetFilledBunchFilterTool()]
+        from AthenaMonitoring.FilledBunchFilterToolConfig import FilledBunchFilterToolCfg
+        myMonAlg.FilterTools += [result.popToolsAndMerge(FilledBunchFilterToolCfg(inputFlags))]
 
     doTrigger = False
     if not inputFlags.Input.isMC:
@@ -52,8 +52,8 @@ def SCTTracksMonAlgConfig(inputFlags):
     myMonAlg.TriggerChain = ''
     # myMonAlg.RandomHist = True
 
-    from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolCfg
-    myMonAlg.TrackSummaryTool = result.getPrimaryAndMerge(InDetTrackSummaryToolCfg(inputFlags))
+    from TrkConfig.TrkTrackSummaryToolConfig import InDetTrackSummaryToolCfg
+    myMonAlg.TrackSummaryTool = result.popToolsAndMerge(InDetTrackSummaryToolCfg(inputFlags))
 
     ### STEP 4 ###
     # Add some tools. N.B. Do not use your own trigger decion tool. Use the
@@ -164,10 +164,6 @@ def SCTTracksMonAlgConfig(inputFlags):
     return result
 
 if __name__ == "__main__": 
-    # Setup the Run III behavior
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
-
     # Setup logs
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import INFO

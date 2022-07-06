@@ -1,0 +1,61 @@
+# Separate blocks with ---
+---
+Input : ['Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/evtLB', 
+         'Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/Run']
+Output : ['Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NEvent_VS_Lumi']
+Function: RpcRawDataMonitoring.RPCPostProcessing.make_evt_lumi
+Description: RPC X_Lumi__Y_NEvent
+
+---
+# HitMultiplicity, hit cluster
+Input : ['Muon/MuonRawDataMonitoring/RPC/TrackMatch/HitMultiplicity_Panels', 
+         'Muon/MuonRawDataMonitoring/RPC/TrackMatch/ClusterSize_Panels']
+Output : [
+  'Muon/MuonRawDataMonitoring/RPC/TrackMatch/hitMultiplicity_per_sectors_per_layers_etaAndPhiPanels',
+  'Muon/MuonRawDataMonitoring/RPC/TrackMatch/hitMultiplicity_per_panel_etaAndPhiView',
+  'Muon/MuonRawDataMonitoring/RPC/TrackMatch/hitMultiplicity_per_panel_etaView',
+  'Muon/MuonRawDataMonitoring/RPC/TrackMatch/hitMultiplicity_per_panel_phiView',
+  'Muon/MuonRawDataMonitoring/RPC/TrackMatch/averageClusterSize_per_sectors_per_layers_etaAndPhiPanels',
+  'Muon/MuonRawDataMonitoring/RPC/TrackMatch/averageClusterSize_per_panel_etaAndPhiView',
+  'Muon/MuonRawDataMonitoring/RPC/TrackMatch/averageClusterSize_per_panel_etaView',
+  'Muon/MuonRawDataMonitoring/RPC/TrackMatch/averageClusterSize_per_panel_phiView',
+]
+Function: RpcRawDataMonitoring.RPCPostProcessing.make_hitMulti
+Description: RPC HitMultiplicity, average cluster
+
+---
+# outtime-time (on-track hits) fration
+Input : ['Muon/MuonRawDataMonitoring/RPC/TrackMatch/OuttimeHitFraction_PRDHit',
+         'Muon/MuonRawDataMonitoring/RPC/TrackMatch/OuttimeHitFraction_PRDHit_onTrack']
+Output : [
+  'Muon/MuonRawDataMonitoring/RPC/TrackMatch/outTimeHitFrac_per_sectors_per_layers_etaAndPhiPanels',
+  'Muon/MuonRawDataMonitoring/RPC/TrackMatch/outTimeHitFrac_per_panel_etaAndPhiView',
+  'Muon/MuonRawDataMonitoring/RPC/TrackMatch/outTimeHitFrac_per_panel_etaView',
+  'Muon/MuonRawDataMonitoring/RPC/TrackMatch/outTimeHitFrac_per_panel_phiView',
+  'Muon/MuonRawDataMonitoring/RPC/TrackMatch/outTimeHitFrac_onTrack_per_sectors_per_layers_etaAndPhiPanels',
+  'Muon/MuonRawDataMonitoring/RPC/TrackMatch/outTimeHitFrac_onTrack_per_panel_etaAndPhiView',
+  'Muon/MuonRawDataMonitoring/RPC/TrackMatch/outTimeHitFrac_onTrack_per_panel_etaView',
+  'Muon/MuonRawDataMonitoring/RPC/TrackMatch/outTimeHitFrac_onTrack_per_panel_phiView'
+]
+Function: RpcRawDataMonitoring.RPCPostProcessing.make_hitFrac
+Description: RPC outtime-time (on-track hits) fration
+
+---
+# detection efficiency
+Input : ['Muon/MuonRawDataMonitoring/RPC/TrackMatch/Panel_Efficiency']
+VariableOutput : True
+OutputDOF : [
+  ]
+Function: RpcRawDataMonitoring.RPCPostProcessing.make_detection_eff
+Description: RPC detection efficiency
+
+---
+# Hit rate
+Input : ['Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_Panels_All', 
+         'Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/evtLB', 
+         'Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/Run']
+VariableOutput : True
+OutputDOF : [
+]
+Function: RpcRawDataMonitoring.RPCPostProcessing.make_hit_rate
+Description: RPC HitRate

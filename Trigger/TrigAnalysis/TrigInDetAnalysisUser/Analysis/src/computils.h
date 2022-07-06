@@ -417,8 +417,9 @@ private:
 }; 
 
 
-static const int colours[6] = {  1,  2, kBlue-4,  6, kCyan-2,  kMagenta+2 };
-static const int markers[6] = { 20, 24,      25, 26,      25,          22 };
+extern int   colours[6]; // = {  1,  2, kBlue-4,  6, kCyan-2,  kMagenta+2 };
+extern int   markers[6]; // = { 20, 24,      25, 26,      25,          22 };
+extern double msizes[6]; // = {  1,  1,       1,  1,       1,            1 };
 
 
 template<typename T>
@@ -484,7 +485,7 @@ public:
   
   bool  trim_errors() const { return m_trim_errors; } 
   
-  void Draw( int i, Legend& leg, bool mean=false, bool first=true, bool drawlegend=false ) { 
+  void Draw( int i, Legend* lleg, bool mean=false, bool first=true, bool drawlegend=false ) { 
     
     if ( htest() ) {
       gStyle->SetOptStat(0);
@@ -493,13 +494,20 @@ public:
 	href()->SetLineStyle(2);
 	href()->SetMarkerStyle(0);
       }
-
+      
       if ( LINEF ) htest()->SetLineColor(colours[i%6]);
+
       htest()->SetLineStyle(1);
+
       if ( LINEF ) htest()->SetMarkerColor(htest()->GetLineColor());
+
       if ( LINEF ) htest()->SetMarkerStyle(markers[i%6]);
+      // if ( LINEF && htest()->GetMarkerStyle() == 20 ) 
+
+      if ( LINEF ) htest()->SetMarkerSize( msizes[i%6]*htest()->GetMarkerSize() );
 
       if ( htest() ) std::cout << "\tentries: " << plotable( htest() );
+
       std::cout << std::endl;
 
       if ( first )  {
@@ -523,7 +531,6 @@ public:
        
       }
 
-
       if ( plotref && href() ) { 
 	if ( contains(href()->GetName(),"_vs_")  || 
 	     contains(href()->GetName(),"sigma") || 
@@ -533,7 +540,6 @@ public:
 	     contains(href()->GetName(),"Eff_") ) href()->Draw("hist same][");
 	else                                      href()->Draw("hist same");
       }
-
 
       if ( tgtest() ) { 
 	zeroErrors(htest());
@@ -563,6 +569,180 @@ public:
 
       htest()->Draw("ep same");
       if ( LINES ) htest()->Draw("lhist same");
+
+      // href()->Draw("lhistsame");
+      // htest()->Draw("lhistsame");
+
+      std::string key = m_plotfilename;
+
+      static TH1D* hnull = new TH1D("hnull", "", 1, 0, 1);
+      hnull->SetMarkerColor(kWhite);
+      hnull->SetLineColor(kWhite);
+      hnull->SetMarkerStyle(0);
+      hnull->SetLineStyle(0);
+      hnull->SetLineWidth(0);
+      hnull->SetMarkerSize(0);
+
+      
+      if ( lleg ) { 
+      
+	Legend& leg = *lleg;
+	
+	if ( mean ) { 
+	
+	  char meanrefc[64];
+	  bool displayref = false;
+	  if ( meanplotref && href() ) { 
+	    displayref = true;
+	    true_mean muref( href() );
+	    std::sprintf( meanrefc, " <t> = %3.2f #pm %3.2f ms (ref)", muref.mean(), muref.error() );
+	  }
+	  else { 
+	    std::sprintf( meanrefc, "%s", "" );
+	  }
+	  
+	  true_mean mutest( htest() );
+	  char meanc[64];
+	  std::sprintf( meanc, " <t> = %3.2f #pm %3.2f ms", mutest.mean(), mutest.error() );
+	  
+	  std::string dkey = key;
+	  
+	  std::string remove[7] = { "TIME_", "Time_", "All_", "Algorithm_", "Class_", "HLT_", "Chain_HLT_" };
+	  
+	  if ( dkey.find("Chain")!=std::string::npos ) {
+	    if ( dkey.find("__")!=std::string::npos ) dkey.erase( 0, dkey.find("__")+2 );
+	  } 
+	  
+	  
+	  for ( int ir=0 ; ir<7 ; ir++ ) { 
+	    if ( dkey.find( remove[ir] )!=std::string::npos ) dkey.erase( dkey.find( remove[ir]), remove[ir].size() );
+	  } 
+	  
+	  std::string rkey = dkey;
+	  
+	  
+	  if ( LINEF || leg.size() < m_max_entries ) { 
+	    dkey += std::string(" : ");
+	    
+	    if ( (dkey+meanc).size()>58 ) { 
+	      leg.AddEntry( htest(), dkey.c_str(), "p" );
+	      leg.AddEntry( hnull,   meanc,        "p" ); 
+	    }
+	    else { 
+	      leg.AddEntry( htest(), (dkey+meanc).c_str(), "p" );
+	    }	  
+	    
+	    if ( displayref ) { 
+	      rkey += std::string(" : ");
+	      /// not quite yet ...
+	      //  leg.AddEntry( hnull, "", "l" );
+	      
+	      if ( (rkey+meanrefc).size()>58 ) { 
+		leg.AddEntry( href(), rkey.c_str(), "l" );
+		leg.AddEntry( hnull,  meanrefc,     "l" ); 
+	      }
+	      else {
+		leg.AddEntry( href(), (rkey+meanrefc).c_str(), "l" );
+	      }
+	    }
+	  }
+	  
+	}
+	else { 
+	  if ( LINEF || leg.size()<m_max_entries ) leg.AddEntry( htest(), key.c_str(), "p" );
+	}
+	
+	m_entries++;
+	
+	if ( drawlegend ) leg.Draw();
+      }
+      
+    }
+  }
+
+
+
+  void DrawLegend( int i, Legend& leg, bool mean=false, bool first=true, bool drawlegend=false ) { 
+    
+    if ( htest() ) {
+      gStyle->SetOptStat(0);
+      if ( href() ) { 
+	href()->SetLineColor(colours[i%6]);
+	href()->SetLineStyle(2);
+	href()->SetMarkerStyle(0);
+      }
+
+      if ( LINEF ) htest()->SetLineColor(colours[i%6]);
+      htest()->SetLineStyle(1);
+      if ( LINEF ) htest()->SetMarkerColor(htest()->GetLineColor());
+      if ( LINEF ) htest()->SetMarkerStyle(markers[i%6]);
+
+      if ( htest() ) std::cout << "\tentries: " << plotable( htest() );
+      std::cout << std::endl;
+
+      if ( first )  {
+
+	if ( tgtest() ) { 
+	    zeroErrors(htest());
+	    htest()->GetXaxis()->SetMoreLogLabels(true);
+	    if ( trim_errors() ) trim_tgraph( htest(), tgtest() );
+
+
+	    // htest()->Draw("ep");
+	    if ( LINES ) htest()->Draw("lhistsame");
+	    setParameters( htest(), tgtest() );
+	    //   tgtest()->Draw("esame");
+	}
+	else { 
+	    htest()->GetXaxis()->SetMoreLogLabels(true);
+	    //    htest()->Draw("ep");
+	    //  if ( LINES ) htest()->Draw("lhistsame");
+	}
+       
+      }
+
+
+#if 0
+      if ( plotref && href() ) { 
+	if ( contains(href()->GetName(),"_vs_")  || 
+	     contains(href()->GetName(),"sigma") || 
+	     contains(href()->GetName(),"mean") || 
+	     contains(href()->GetName(),"_eff")  ||
+	     contains(href()->GetName(),"Res_") || 
+	     contains(href()->GetName(),"Eff_") ) href()->Draw("hist same][");
+	else                                      href()->Draw("hist same");
+      }
+
+      if ( tgtest() ) { 
+	zeroErrors(htest());
+
+	if ( trim_errors() ) trim_tgraph( htest(), tgtest() );
+	setParameters( htest(), tgtest() );
+	tgtest()->Draw("e1same");
+	if ( LINES ) tgtest()->Draw("lsame");
+
+      }
+#endif
+
+      
+#if 0
+      /// solid white centres for the marker types
+      if ( htest()->GetMarkerStyle()>23 ) { 
+	TH1D* hnull = (TH1D*)htest()->Clone("duff"); hnull->SetDirectory(0);
+	zeroErrors( hnull );
+	hnull->SetLineColor(kWhite);
+	hnull->SetMarkerStyle( htest()->GetMarkerStyle()-4 );
+	//	hnull->SetMarkerStyle( 0 ); 
+	hnull->SetMarkerColor(kWhite);
+	hnull->SetMarkerSize( htest()->GetMarkerSize()*0.75 );
+	// hnull->SetMarkerSize( 0 );
+	hnull->DrawCopy("l same");
+	delete hnull;
+      }
+#endif
+
+      //      htest()->Draw("ep same");
+      //      if ( LINES ) htest()->Draw("lhist same");
 
       // href()->Draw("lhistsame");
       // htest()->Draw("lhistsame");
@@ -648,6 +828,7 @@ public:
 
     }
   }
+
   
 
   /// print the output 
@@ -972,8 +1153,7 @@ public:
 
     bool first = true;
     
-    if ( m_logy ) {
-      /// increase the number of log labels if only a few decades
+    if ( m_logy ) {      /// increase the number of log labels if only a few decades
       for ( unsigned i=0 ; i<size() ; i++, first=false ) { 
 	double ymax = at(i).htest()->GetMaximum();
 	double ymin = at(i).htest()->GetMinimum();
@@ -985,7 +1165,13 @@ public:
 
     for ( unsigned i=0 ; i<size() ; i++ ) at(i).trim_errors( m_trim_errors );
 
-    for ( unsigned i=0 ; i<size() ; i++,  first=false ) at(i).Draw( i, leg, means, first, (i==size()-1) );
+    /// still can't get this working correctly - for the time being leave these alternative
+    /// loop orders in place but commented out until we can find a better solution ...
+  
+    //  for ( unsigned i=0 ; i<size() ; i++,  first=false ) at(i).DrawLegend( i, leg, means, first, (i==size()-1) );
+    //  for ( unsigned i=0 ; i<size() ; i++,  first=false ) at(i).Draw( i, &leg, means, first, (i==size()-1) );
+    for ( unsigned i=size() ; i-- ;  first=false ) at(i).Draw( i, &leg, means, first, i==0 );
+
     if ( watermark ) DrawLabel(0.1, 0.02, "built "+stime()+release, kBlack, 0.03 );
 
     gPad->SetLogy(m_logy);

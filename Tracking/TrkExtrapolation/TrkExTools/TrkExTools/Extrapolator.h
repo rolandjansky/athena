@@ -644,15 +644,15 @@ private:
     {}
   };
   //!<  Array of MultipleScattering updaters
-  ToolHandleArray<IMultipleScatteringUpdator> m_msupdaters{
+  ToolHandle<IMultipleScatteringUpdator> m_msupdater{
     this,
-    "MultipleScatteringUpdators",
-    {}
+    "MultipleScatteringUpdater",
+    "Trk::MultipleScatteringUpdator/AtlasMultipleScatteringUpdator"
   };
   //!<  Array of EnergyLoss updaters
-  ToolHandleArray<IEnergyLossUpdator> m_elossupdaters{ this,
-                                                       "EnergyLossUpdators",
-                                                       {} };
+  ToolHandle<IEnergyLossUpdator> m_elossupdater{ this,
+                                                "EnergyLossUpdater",
+                                                "Trk::EnergyLossUpdator/AtlasEnergyLossUpdator" };
 
   // ---------------- For Extrapolation handling ------------ //
 

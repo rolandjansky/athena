@@ -27,14 +27,14 @@ class Lvl1ResultBuilderGetter(Configured):
                                                          rec.readESD())):
                 if jobproperties.Global.InputFormat() == 'bytestream':
                     # Decode ROIB::RoIBResult from ByteStream
-                    from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1ByteStreamDecodersRecExSetup
-                    L1ByteStreamDecodersRecExSetup()
+                    from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1TriggerByteStreamDecoderCfg
+                    CAtoGlobalWrapper(L1TriggerByteStreamDecoderCfg, ConfigFlags)
+
                 from AnalysisTriggerAlgs.AnalysisTriggerAlgsCAConfig import RoIBResultToxAODCfg
                 CAtoGlobalWrapper(RoIBResultToxAODCfg, ConfigFlags)
 
-        from TrigEDMConfig.TriggerEDM import getLvl1ESDList
+        from TrigEDMConfig.TriggerEDM import getLvl1ESDList, getLvl1AODList
         objKeyStore.addManyTypesStreamESD(getLvl1ESDList())
-        from TrigEDMConfig.TriggerEDM import getLvl1AODList
         objKeyStore.addManyTypesStreamAOD(getLvl1AODList())
 
         return True

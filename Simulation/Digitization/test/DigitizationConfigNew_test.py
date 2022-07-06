@@ -6,14 +6,12 @@ Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 import sys
 from AthenaCommon.Logging import log
 from AthenaCommon.Constants import DEBUG
-from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.TestDefaults import defaultTestFiles
 from Digitization.DigitizationSteering import DigitizationMainCfg, DigitizationMessageSvcCfg
 
-# Set up logging and new style config
+# Set up logging
 log.setLevel(DEBUG)
-Configurable.configurableRun3Behavior = True
 
 # Configure
 ConfigFlags.Input.Files = defaultTestFiles.HITS_RUN2

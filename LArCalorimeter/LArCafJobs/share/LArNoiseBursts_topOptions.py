@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
@@ -52,7 +52,7 @@ theApp.Dlls += [ "LArByteStream"]
 
 # set up trigger configuration service
 from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
-cfg =  TriggerConfigGetter("ReadPool")
+cfg =  TriggerConfigGetter()
 
 ## set up trigger decision tool
 from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool

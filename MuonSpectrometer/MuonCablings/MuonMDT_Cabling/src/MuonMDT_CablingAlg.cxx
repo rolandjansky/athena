@@ -31,7 +31,7 @@ StatusCode MuonMDT_CablingAlg::initialize() {
 }
 
 StatusCode MuonMDT_CablingAlg::execute() {
-    ATH_MSG_INFO("Load the Mdt cabling");
+    ATH_MSG_VERBOSE("MuonMDT_CablingAlg::execute()");
     const EventContext& ctx = Gaudi::Hive::currentContext();
     // Write Cond Handle
     SG::WriteCondHandle<MuonMDT_CablingMap> writeHandle{m_writeKey, ctx};
@@ -41,6 +41,7 @@ StatusCode MuonMDT_CablingAlg::execute() {
                                     << " if multiple concurrent events are being processed out of order.");
         return StatusCode::SUCCESS;
     }
+    ATH_MSG_INFO("Load the Mdt cabling");
     std::unique_ptr<MuonMDT_CablingMap> writeCdo{std::make_unique<MuonMDT_CablingMap>()};
 
     EventIDRange rangeMez;

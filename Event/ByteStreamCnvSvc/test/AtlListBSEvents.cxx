@@ -113,7 +113,7 @@ int main ATLAS_NOT_THREAD_SAFE (int argc, char *argv[])
   //start loop over files
   for (const std::string& fName : fileNames) {
     std::cout << "Checking file " << fName << std::endl;
-    DataReader *pDR = pickDataReader(fName);
+    std::unique_ptr<EventStorage::DataReader> pDR(pickDataReader(fName));
 
     if(!pDR) {
       std::cout << "Problem opening or reading this file!\n";
@@ -156,30 +156,27 @@ int main ATLAS_NOT_THREAD_SAFE (int argc, char *argv[])
 	break;
       }
 
-      ++eventCounter;
-      uint32_t* fragment = reinterpret_cast<uint32_t*>(buf); 
+      std::unique_ptr<uint32_t[]> fragment(reinterpret_cast<uint32_t*>(buf));
     
       // make a fragment with eformat 3.0 and check it's validity
       try {
 	if ((eformat::HeaderMarker)(fragment[0])!=FULL_EVENT) {
 	  std::cout << "Event doesn't start with full event fragment (found " 
 		    << std::ios::hex << fragment[0] << ") ignored." <<std::endl;
-	  delete[] buf;
+	  ++eventCounter;
 	  continue;
 	}
 	const uint32_t formatVersion = eformat::helper::Version(fragment[3]).major_version();
 	//convert to new version if necessary
 	if (formatVersion != eformat::MAJOR_DEFAULT_VERSION) {
-	  // 100 for increase of data-size due to header conversion
+	  // 1000 for increase of data-size due to header conversion
 	  uint32_t newEventSize = eventSize + 1000;
-	  uint32_t* newFragment = new uint32_t[newEventSize];
-	  eformat::old::convert(fragment,newFragment,newEventSize);
-	  // delete old fragment
-	  delete [] fragment;
+	  auto newFragment=std::make_unique<uint32_t[]>(newEventSize);
+	  eformat::old::convert(fragment.get(),newFragment.get(),newEventSize);
 	  // set new pointer
-	  fragment = newFragment;
+	  fragment = std::move(newFragment);
 	}
-	FullEventFragment<const uint32_t*> fe(fragment);
+	FullEventFragment<const uint32_t*> fe(fragment.get());
       
 	if (checkevents) fe.check_tree();
 	totalSize+=fe.readable_payload_size_word()*4;
@@ -226,14 +223,12 @@ int main ATLAS_NOT_THREAD_SAFE (int argc, char *argv[])
       }
       
       // end event processing 
-      delete [] fragment;
+      ++eventCounter;
     }
 
     //std::cout << std::endl;
     //std::cout << "File end time " << pDR->fileEndTime() << std::endl;
     //std::cout << "File end date " << pDR->fileEndDate() << std::endl;
-
-    delete pDR;
   }
 
   //Print summary:

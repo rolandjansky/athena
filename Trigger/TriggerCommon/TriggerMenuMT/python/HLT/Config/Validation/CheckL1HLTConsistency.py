@@ -1,51 +1,49 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 import re
 
-# Function to define map between L1 algorithm name and board (Topo2, Topo3 or LegacyTopo, items coming from other boards will not be listed in the map)
-def getL1TopoAlgToBoardMap(lvl1access):
+
+def getL1TopoAlgMaps(lvl1access):
+    """
+    Returns tuple of L1Topo algorithm to board and item map: (alg_to_board, alg_to_item)
+
+    alg_to_board: Map between L1 algorithm name and board (Topo2, Topo3 or LegacyTopo,
+                  items coming from other boards will not be listed in the map)
+    alg_to_item:  Map between L1 item name and topo algorithm
+    """
 
     lvl1items   = lvl1access.items(includeKeys=["name"])
     lvl1items_full   = lvl1access.items() 
 
     l1topo_alg_to_board = {}
-    connectors = ['Topo2El','Topo3El','LegacyTopo0']
+    l1topo_alg_to_item = {}
+    connectors = ['Topo2El','Topo3El','LegacyTopoMerged']
 
     for l1item in lvl1items:
-        l1item_def_list = re.split("[&|]+",str(lvl1items_full[l1item]['definition']))
+        # Split string of AND/OR-ed items
+        # e.g. ((AFP_NSA[x1] & AFP_FSA[x1]) | (AFP_NSC[x1] & AFP_FSC[x1])) & EM7[x1]
+        l1item_def_list = re.split("[&|]+", lvl1items_full[l1item]['definition'])
         for l1item_def_aux in l1item_def_list:
-            l1item_def = re.sub("[[((()))]]+","",re.split("[[]+",re.sub("[()]+","",l1item_def_aux))[0]).strip()
+            # Strip brackets/whitespace and take name before multiplicity
+            l1item_def = l1item_def_aux.strip('() ').split('[')[0]
+
+            # fill alg_to_board
             for connect in connectors:
                 for v in lvl1access.connector(connect)['triggerlines']:
-                    v_name = v['name']
-                    if l1item_def==v_name:
+                    if l1item_def==v['name']:
                         l1topo_alg_to_board[l1item_def] = connect
-                   
+
+            # fill alg_to_item (we stop once we found 'TOPO' item)
+            if 'TOPO' not in l1topo_alg_to_item.get(l1item,''):
+                l1topo_alg_to_item[l1item] = l1item_def
+
     log.debug("L1Topo alg to board map: %s",l1topo_alg_to_board)
-    return l1topo_alg_to_board
-
-def getL1TopoAlgToItemMap(lvl1access):
-
-    lvl1items   = lvl1access.items(includeKeys=["name"])
-    lvl1items_full   = lvl1access.items() 
-
-    l1topo_alg_to_item = {}
-
-    for l1item in lvl1items:
-        l1item_def_list = re.split("[&|]+",str(lvl1items_full[l1item]['definition']))
-        for l1item_def_aux in l1item_def_list:
-            l1item_def = re.sub("[[((()))]]+","",re.split("[[]+",re.sub("[()]+","",l1item_def_aux))[0]).strip()
-            if 'TOPO' in l1item_def:
-                l1topo_alg_to_item[l1item] = l1item_def
-                break
-            else:
-                l1topo_alg_to_item[l1item] = l1item_def
-
     log.debug("L1Topo alg to item map: %s",l1topo_alg_to_item)
-    return l1topo_alg_to_item
-    
+    return (l1topo_alg_to_board, l1topo_alg_to_item)
+
+
 #this function checks each threshold within each chain to make sure that it is defined in the L1Menu
 def checkL1HLTConsistency(flags):
     from TrigConfIO.L1TriggerConfigAccess   import L1MenuAccess
@@ -61,14 +59,13 @@ def checkL1HLTConsistency(flags):
     allUnusedItems = []
     chainsWithWrongLabel = {}
 
+    l1topo_alg_to_board, l1topo_alg_to_item = getL1TopoAlgMaps(lvl1access)
+
     for chain in HLTMenuConfig.dictsList():
         log.debug('[checkL1HLTConsistency] Checking the l1thresholds in the chain %s', chain["chainName"])
 #        #don't check the noalg chains (they don't do anything in the HLT anyway)
 #        if 'HLT_noalg_' in chain["chainName"]:
 #            continue
-
-        l1topo_alg_to_board = getL1TopoAlgToBoardMap(lvl1access)
-        l1topo_alg_to_item = getL1TopoAlgToItemMap(lvl1access)
 
         l1item_vec = chain['L1item'].split(',')
         for l1item in l1item_vec:
@@ -125,28 +122,30 @@ def checkL1HLTConsistency(flags):
                 for it in items:
                     if any(substring in it for substring in ['e','c','j','g']): # find phase1 calo inputs in L1Topo decision triggers
                        noCaloItemL1 = False
-        
-            wrongLabelTopo = False
-            if l1topo_alg_to_item[item] in l1topo_alg_to_board:
-                if not any('Topo' in g for g in chain['groups']):
-                    log.debug("Chain has item %s but has no topo group",item)
-                    wrongLabelTopo = True
 
-            # Possibilities for wrong assignment:
-            # - Item comes from topo board but has no topo group
-            # - Chain has topo label but L1 item does not come from topo board
-            # - Chain has wrong topo label (Topo2 when it should be Topo3 for example)
-            for group in chain['groups']:
-                if 'Topo' in group:
-                    if l1topo_alg_to_item[item] in l1topo_alg_to_board:
-                        if group in l1topo_alg_to_board[l1topo_alg_to_item[item]]:
-                            log.debug("Chain correctly assigned topo board")
-                        else:
-                            wrongLabelTopo = True
-                    elif l1topo_alg_to_item[item] not in l1topo_alg_to_board:
-                        log.debug("Does not come from topo board but has Topo group")
-                        wrongLabelTopo = True
+            # Don't check topo assignments for multi-seeded triggers
+            if len(l1item_vec)==1:
+                errormsg = ""
+                if l1topo_alg_to_item[item] in l1topo_alg_to_board:
+                    if not any('Topo' in g for g in chain['groups']):
+                        errormsg = f"Chain has item {item} ({l1topo_alg_to_board[l1topo_alg_to_item[item]]}) but has no topo group"
 
+                # Possibilities for wrong assignment:
+                # - Item comes from topo board but has no topo group
+                # - Chain has topo label but L1 item does not come from topo board
+                # - Chain has wrong topo label (Topo2 when it should be Topo3 for example)
+                for group in chain['groups']:
+                    if 'Topo' in group:
+                        if l1topo_alg_to_item[item] in l1topo_alg_to_board:
+                            if group in l1topo_alg_to_board[l1topo_alg_to_item[item]]:
+                                log.debug("Chain correctly assigned topo board")
+                            else:
+                                errormsg = f"Chain should be labelled with topo board {l1topo_alg_to_board[l1topo_alg_to_item[item]]}"
+                        elif l1topo_alg_to_item[item] not in l1topo_alg_to_board:
+                            errormsg = f"Chain does not come from topo board but has Topo group {group}"
+
+                if errormsg:
+                    chainsWithWrongLabel.update({chain['chainName']: (chain['groups'], errormsg)})
 
         for th in l1thr_vec:
             if th=='FSNOSEED':
@@ -207,13 +206,14 @@ def checkL1HLTConsistency(flags):
                          wrongLabel = True
                       if foundLegacyCaloSeed and group.find('Legacy')>-1 :
                          rightLabel = True
-        if wrongLabelTopo or wrongLabel or not rightLabel:
-            chainsWithWrongLabel.update({chain['chainName']: chain['groups']})
+        if wrongLabel or not rightLabel:
+            errormsg = 'Incorrect L1Calo version label -- check Legacy/Phase-I assignment'
+            chainsWithWrongLabel.update({chain['chainName']: (chain['groups'],errormsg)})
 
     if len(chainsWithWrongLabel) and ('Physics' in lvl1name): # apply this check only for the Physics menu, for now
         log.error('These chains have the wrong groups:')
-        for key in chainsWithWrongLabel:
-            log.error('%s: %s', key, ",".join(chainsWithWrongLabel[key]))
+        for key, (groups, errormsg) in chainsWithWrongLabel.items():
+            log.error('%s: %s\n  --> %s', key, ",".join(groups), errormsg)
         raise Exception("Please fix these chains.")
 
     # check for unused L1 items

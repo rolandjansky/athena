@@ -20,7 +20,7 @@ void  TrackParticleCnv_p1::persToTrans(const Rec::TrackParticle_p1 * persObj, Re
  transObj->setPx (mom[Trk::px]);
  transObj->setPy (mom[Trk::py]);
  transObj->setPz (mom[Trk::pz]);
- double mpi = Trk::ParticleMasses().mass[Trk::pion];
+ double mpi = Trk::ParticleMasses::mass[Trk::pion];
  transObj->setE (std::sqrt ((long double)mom.mag2() + (long double)mpi*mpi));
 }
 

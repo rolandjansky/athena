@@ -193,6 +193,7 @@ def getGlobalGroup(inputFile, filter):
               if hist.GetName() == 'data':
                 return hist.ReadObj()
 
+
 def readDBFromAMI(amiTag):
   ''' Read used database based on AMI tag '''
   try:

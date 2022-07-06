@@ -6,7 +6,7 @@
 #include <xAODEgamma/ElectronContainer.h>
 
 #include "AthenaMonitoring/AthenaMonManager.h"
-#include "HIMonitoring/HIMonitoringElectronsTool.h"
+#include "HIMonitoringElectronsTool.h"
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
 
 #include "LWHists/TH2D_LW.h"

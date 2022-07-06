@@ -11,6 +11,9 @@
 #include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/EventContext.h"
 
+// forward declaration of nlohmann::json
+#include "nlohmann/json_fwd.hpp"
+
 namespace AFP
 {
   // forward declarations
@@ -23,7 +26,8 @@ namespace AFP
     DeclareInterfaceID(ISiGlobAlignDBTool, 1, 0);
 
     /// Provide alignment parameters for a given station. Returns zeros if no data available.
-    virtual const SiGlobAlignData alignment (const EventContext& ctx, const int stationID) const = 0;
+    virtual nlohmann::json alignmentData(const EventContext& ctx) const = 0;
+    virtual const SiGlobAlignData alignment(const nlohmann::json& jsondata, const int stationID) const = 0;
   };
 
 }      // namespace AFP

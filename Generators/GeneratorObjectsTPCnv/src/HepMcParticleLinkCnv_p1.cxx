@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Framework includes
@@ -29,7 +29,7 @@
 
 void HepMcParticleLinkCnv_p1::persToTrans( const HepMcParticleLink_p1* persObj,
                                            HepMcParticleLink* transObj,
-                                           MsgStream &/*msg*/ )
+                                           MsgStream &/*msg*/ ) const
 {
   EBC_EVCOLL evColl = EBC_MAINEVCOLL;
   HepMcParticleLink::PositionFlag flag = HepMcParticleLink::IS_INDEX;
@@ -48,7 +48,7 @@ void HepMcParticleLinkCnv_p1::persToTrans( const HepMcParticleLink_p1* persObj,
 
 void HepMcParticleLinkCnv_p1::transToPers( const HepMcParticleLink* transObj,
                                            HepMcParticleLink_p1* persObj,
-                                           MsgStream &msg )
+                                           MsgStream &msg ) const
 {
   // NB This method assumes that there all GenEvents are stored in a
   // single McEventCollection, as running with split

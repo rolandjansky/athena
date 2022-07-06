@@ -68,9 +68,16 @@ std::pair<int, int> TgcRdo::initOnlineId()
 // online ID calculator
 uint16_t TgcRdo::calculateOnlineId (uint16_t subDetectorId, uint16_t rodId)
 {
-  static const std::pair<int, int> offset_max = initOnlineId();
-  int offset = offset_max.first;
-  int MAX_N_ROD = offset_max.second;
+  int offset = -1;
+  int MAX_N_ROD = 12;
+  if ( rodId < 13 ){
+    static const std::pair<int, int> offset_max = initOnlineId();
+    offset = offset_max.first;
+    MAX_N_ROD = offset_max.second;
+  }else{
+    offset = 7; // 24-0x11
+    MAX_N_ROD = 3;
+  }
   if (MAX_N_ROD < 0) {
     return 9999;
   }
@@ -78,7 +85,7 @@ uint16_t TgcRdo::calculateOnlineId (uint16_t subDetectorId, uint16_t rodId)
   // A-side or C-side ?
   uint16_t is = (subDetectorId == 0x67) ? 0 : 1;
   
-  return is * MAX_N_ROD + rodId + offset;
+  return is * MAX_N_ROD + rodId + offset; // 0-23 : ROD, 24-29 : SROD
 }
 
 template <class stream>

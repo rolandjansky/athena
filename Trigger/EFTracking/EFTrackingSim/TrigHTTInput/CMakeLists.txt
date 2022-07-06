@@ -30,19 +30,19 @@ atlas_install_scripts( scripts/*)
 atlas_install_python_modules( share/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-select=ATL900,ATL901 ) 
 
 
-# tmp disabled due to missing map files to be installed on CVMFS
-#atlas_add_test(             testReadRawHit
-#  SCRIPT                    test/test_TrigHTTReadRawHitsWrapperAlg.sh
-#  LOG_SELECT_PATTERN        "HTTRawHitsWrapp"
-#  PRIVATE_WORKING_DIRECTORY
-#)
 
-# tmp disabled due to missing map files to be installed on CVMFS
-#atlas_add_test(             testRawToLogical
-#  SCRIPT                    test/test_TrigHTTRawToLogicalWrapperAlg.sh 
-#  LOG_SELECT_PATTERN        "HTTRawHitsWrapp"
-#  PRIVATE_WORKING_DIRECTORY
-#)
+atlas_add_test(             testReadRawHit
+  SCRIPT                    test/test_TrigHTTReadRawHitsWrapperAlg.sh
+  LOG_SELECT_PATTERN        "HTTRawHitsWrapp"
+  PRIVATE_WORKING_DIRECTORY
+)
+
+
+atlas_add_test(             testRawToLogical
+  SCRIPT                    test/test_TrigHTTRawToLogicalWrapperAlg.sh 
+  LOG_SELECT_PATTERN        "HTTReadLogical"
+  PRIVATE_WORKING_DIRECTORY
+)
 
 atlas_add_test(             testDumpOutputStat
   SCRIPT                    test/test_TrigHTTDumpOutputStatAlg.sh  

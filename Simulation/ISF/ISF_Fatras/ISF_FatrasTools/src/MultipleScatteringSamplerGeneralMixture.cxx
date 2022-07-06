@@ -11,10 +11,11 @@
 
 #include "MultipleScatteringSamplerGeneralMixture.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
+#include "TrkEventPrimitives/ParticleHypothesis.h"
+
 
 // static particle masses
-Trk::ParticleMasses iFatras::MultipleScatteringSamplerGeneralMixture::s_particleMasses;
-// static doubles
+//  doubles
 
 double iFatras::MultipleScatteringSamplerGeneralMixture::s_main_RossiGreisen = 17.5*Gaudi::Units::MeV;
 double iFatras::MultipleScatteringSamplerGeneralMixture::s_log_RossiGreisen  =  0.125;
@@ -90,7 +91,7 @@ double iFatras::MultipleScatteringSamplerGeneralMixture::simTheta(const Trk::Mat
   double dOverX0 = pathcorrection * mat.thicknessInX0();
 
   // kinematics (relativistic)
-  double m    = s_particleMasses.mass[particle];
+  double m    = Trk::ParticleMasses::mass[particle];
   double E    = sqrt(p*p + m*m);
   double beta = p/E;
   

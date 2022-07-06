@@ -463,6 +463,13 @@ class postProcessingInterval(JobProperty):
     StoredValue=100
 list+=[postProcessingInterval] 
 
+class configureFromOldStyleFlags(JobProperty):
+    """ Configure from old-style job flags """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True 
+list+=[configureFromOldStyleFlags]
+
 ##-----------------------------------------------------------------------------
 ## 2nd step
 ## Definition of the DQMon flag container

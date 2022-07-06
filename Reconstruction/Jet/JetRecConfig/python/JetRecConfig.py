@@ -19,7 +19,7 @@ from ROOT import xAODType
 xAODType.ObjectType
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.ComponentFactory import CompFactory, isRun3Cfg
 
 
 from JetRecConfig.JetDefinition import JetDefinition, JetInputConstitSeq, JetInputConstit, JetInputExternal
@@ -240,8 +240,8 @@ def getPseudoJetAlgs(jetdef):
     (this function is factorized out of PseudoJetCfg so it can be used standalone in the trigger config)
     """
     
-    constitpjalg = getConstitPJGAlg( jetdef.inputdef , suffix=None, flags=jetdef._cflags)
-    #print("aaaa" , constitpjalg, constitpjalg.OutputContainer)
+    constitpjalg = getConstitPJGAlg( jetdef.inputdef , suffix=None , flags=jetdef._cflags)
+
     finalPJContainer = str(constitpjalg.OutputContainer)
     pjalglist = [constitpjalg]
     
@@ -333,7 +333,7 @@ def getInputAlgs(jetOrConstitdef, configFlags=None, context="default", monTool=N
             alg = getConstitModAlg(jetdef, inputInstance, monTool=monTool)
         else: # it must be a JetInputExternal
             alg = inputInstance.algoBuilder( jetdef, inputInstance.specs ) 
-
+            
         if alg is not None:
             if isinstance( alg, list):
                 # this can happen when running in runII style atlas config...
@@ -766,8 +766,14 @@ def isAnalysisRelease():
 def reOrderAlgs(algs):
     """In runIII the scheduler automatically orders algs, so the JetRecConfig helpers do not try to enforce the correct ordering.
     This is not the case in runII config for which this jobO is intended --> This function makes sure some jet-related algs are well ordered.
-    """
-    algs = [ a for a in algs if not isinstance(a, ComponentAccumulator)] 
+    """    
+    algs_tmp = []
+    for a in algs:
+        if not isinstance(a, ComponentAccumulator) :
+            algs_tmp.append(a)
+        else:
+            algs_tmp += a._algorithms.values() # can not ask getEventAlgos() because this returns sub-AthSequence which confuses the rest of the chain
+    algs = algs_tmp
     evtDensityAlgs = [(i, alg) for (i, alg) in enumerate(algs) if alg and alg.getType() == 'EventDensityAthAlg' ]
     pjAlgs = [(i, alg) for (i, alg) in enumerate(algs) if alg and alg.getType() == 'PseudoJetAlgorithm' ]
     pairsToswap = []
@@ -780,6 +786,7 @@ def reOrderAlgs(algs):
                 pairsToswap.append((i, j))
     for i, j in pairsToswap:
         algs[i], algs[j] = algs[j], algs[i]
+        
     return algs
 
 
@@ -795,8 +802,7 @@ def registerAsInputConstit( jetdef ):
 
     # define a function to generate the CA for this jetdef
     def jetBuilder(largejetdef,spec):
-        from AthenaCommon.Configurable import Configurable
-        if Configurable.configurableRun3Behavior :
+        if isRun3Cfg():
             return JetRecCfg(largejetdef._cflags, jetdef)
         else:
             # Compatibility with runII style : we can't use ComponentAccumulator and must return the list of algs.
@@ -815,11 +821,6 @@ def removeFromList(l, o):
 
     
 if __name__=="__main__":
-
-    # Setting needed for the ComponentAccumulator to do its thing
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=True
-    
     # Config flags steer the job at various levels
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ASG/mc16_13TeV.410501.PowhegPythia8EvtGen_A14_ttbar_hdamp258p75_nonallhad.merge.AOD.e5458_s3126_r9364_r9315/AOD.11182705._000001.pool.root.1"]

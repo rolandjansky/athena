@@ -96,7 +96,7 @@ def MuGirlStauAlgCfg(flags, name="MuGirlStauAlg", **kwargs):
                       'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')
     kwargs.setdefault("CombinedTrackCollection", "MuGirlStauCombinedTracks")
     kwargs.setdefault("METrackCollection", "")
-    kwargs.setdefault("SegmentCollection", "MuGirlStauSegments")
+    kwargs.setdefault("SegmentCollection", "TrkStauSegments")
     kwargs.setdefault("InDetCandidateLocation",
                       "InDetCandidates" if not flags.MuonCombined.doCombinedFit else "InDetCandidatesStaus")
     alg = CompFactory.MuonCombinedInDetExtensionAlg(name, **kwargs)
@@ -304,7 +304,7 @@ def LRT_MuonCreatorAlgCfg(flags, name="MuonCreatorAlg_LRT", **kwargs):
     kwargs.setdefault("MuonContainerLocation", "MuonsLRT")
     kwargs.setdefault("ExtrapolatedLocation", "ExtraPolatedMuonsLRT")
     kwargs.setdefault("MSOnlyExtrapolatedLocation",
-                      "MSOnlyExtrapolatedMuonsLRT")
+                      "MSOnlyExtraPolatedMuonsLRT")
     kwargs.setdefault("CombinedLocation", "CombinedMuonsLRT")
     kwargs.setdefault("BuildSlowMuon", False)
     kwargs.setdefault("MakeClusters", False)
@@ -338,7 +338,7 @@ def StauCreatorAlgCfg(flags, name="StauCreatorAlg", **kwargs):
     kwargs.setdefault("CombinedLocation", "CombinedStau")
     kwargs.setdefault("ExtrapolatedLocation", "ExtrapolatedStau")
     kwargs.setdefault("MSOnlyExtrapolatedLocation", "MSOnlyExtrapolatedStau")
-    kwargs.setdefault("MuonCandidateLocation", "")
+    kwargs.setdefault("MuonCandidateLocation", [])
     kwargs.setdefault("SegmentContainerName", "StauSegments")
     kwargs.setdefault("TagToSegmentKey", "")
     kwargs.setdefault("BuildSlowMuon", 1)
@@ -401,10 +401,10 @@ def GetCombinedTrkContainers(flags):
     if flags.Detector.GeometryID and flags.InDet.Tracking.doR3LargeD0:
         tp_coll += ["CombinedMuonsLRTTrackParticles",
                     "ExtraPolatedMuonsLRTTrackParticles",
-                    "MSOnlyExtrapolatedMuonsLRTTrackParticles"]
+                    "MSOnlyExtraPolatedMuonsLRTTrackParticles"]
         track_coll += ["CombinedMuonsLRTTracks",
                        "ExtraPolatedMuonsLRTTracks",
-                       "MSOnlyExtrapolatedMuonsLRTTracks"]
+                       "MSOnlyExtraPolatedMuonsLRTTracks"]
     return tp_coll, track_coll
 
 
@@ -560,6 +560,8 @@ def CombinedMuonOutputCfg(flags):
 
 def MuonCombinedReconstructionCfg(flags):
     from MuonConfig.MuonGeometryConfig import MuonIdHelperSvcCfg
+    from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonSegmentConverterToolCfg
+
     # Many components need these services, so setup once here.
     result = MuonIdHelperSvcCfg(flags)
 
@@ -619,21 +621,27 @@ def MuonCombinedReconstructionCfg(flags):
     if flags.Muon.runCommissioningChain:
         result.merge(EMEO_MuonCombinedMuonCandidateAlgCfg(flags))
         result.merge(EMEO_MuonCombinedAlgCfg(flags))
-        result.merge(EMEO_MuonCreatorAlgCfg(flags))
+        
 
     result.merge(MuonSegContainerMergerAlgCfg(flags))
 
+    muonSegmentCnvTool = result.popToolsAndMerge( MuonSegmentConverterToolCfg(flags) )
     result.addEventAlgo(CompFactory.xAODMaker.MuonSegmentCnvAlg("MuonSegmentCnvAlg",
                                                              SegmentContainerName="TrkMuonSegments",
-                                                             xAODContainerName="MuonSegments") )
+                                                             xAODContainerName="MuonSegments",
+                                                             MuonSegmentConverterTool=muonSegmentCnvTool) )
     if flags.MuonCombined.writeUnAssocSegments:
         result.addEventAlgo(CompFactory.xAODMaker.MuonSegmentCnvAlg("UnAssocMuonSegmentCnvAlg",
                                                              SegmentContainerName="UnAssocMuonTrkSegments",
-                                                             xAODContainerName="UnAssocMuonSegments")  )
+                                                             xAODContainerName="UnAssocMuonSegments",
+                                                             MuonSegmentConverterTool=muonSegmentCnvTool)  )
     if flags.MuonCombined.doMuGirlLowBeta:
         result.addEventAlgo(CompFactory.xAODMaker.MuonSegmentCnvAlg("MuonStauSegmentCnvAlg",
                                                             SegmentContainerName="TrkStauSegments",
-                                                            xAODContainerName="StauSegments"))          
+                                                            xAODContainerName="StauSegments",
+                                                            MuonSegmentConverterTool=muonSegmentCnvTool))          
+    if flags.Muon.runCommissioningChain:
+        result.merge(EMEO_MuonCreatorAlgCfg(flags))
     # runs over outputs and create xAODMuon collection
     result.merge(MuonCreatorAlgCfg(flags))
     if do_LRT:
@@ -645,9 +653,6 @@ def MuonCombinedReconstructionCfg(flags):
 
     # FIXME
     # I see errors related to unconfigured public tools. This is a quick fix, but should really move to where it is called.
-    from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonCombinedTrackSummaryToolCfg
-    result.addPublicTool(result.popToolsAndMerge(
-        MuonCombinedTrackSummaryToolCfg(flags)))
     from MuonConfig.MuonRecToolsConfig import MuonTrackScoringToolCfg
     result.addPublicTool(result.popToolsAndMerge(
         MuonTrackScoringToolCfg(flags)))
@@ -667,7 +672,6 @@ if __name__ == "__main__":
     # python -m MuonCombinedConfig.MuonCombinedReconstructionConfig --run --threads=1
 
     from MuonConfig.MuonConfigUtils import SetupMuonStandaloneArguments, SetupMuonStandaloneCA
-    from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonSegmentConverterToolCfg
 
     args = SetupMuonStandaloneArguments()
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
@@ -685,6 +689,8 @@ if __name__ == "__main__":
     ConfigFlags.Output.ESDFileName = args.output
     ConfigFlags.InDet.Tracking.doR3LargeD0 = False  # Not working with this input
     ConfigFlags.Muon.useTGCPriorNextBC = False
+    ConfigFlags.MuonCombined.doMuGirlLowBeta = False # This fails due to "Hough data per sector vector not found"
+
     if args.debug:
         from AthenaCommon.Debugging import DbgStage
         if args.debug not in DbgStage.allowed_values:
@@ -704,18 +710,14 @@ if __name__ == "__main__":
     acc = MuonCombinedReconstructionCfg(ConfigFlags)
     cfg.merge(acc)
 
-    # Needed to provide xoadMuonSegments
-    muonSegmentCnvToolAcc = MuonSegmentConverterToolCfg(
-        ConfigFlags, OutputLevel=0)
-    muonSegmentCnvToolAcc.addEventAlgo(CompFactory.xAODMaker.MuonSegmentCnvAlg(
-        "MuonSegmentCnvAlg", MuonSegmentConverterTool=muonSegmentCnvToolAcc.popPrivateTools()))
-    cfg.merge(muonSegmentCnvToolAcc)
+    
 
     # This causes a stall. See https://its.cern.ch/jira/browse/ATEAM-825
     # Leaving here for the moment, for convenience investigating this bug.
     # muonSegmentCnvTool = cfg.popToolsAndMerge( MuonSegmentConverterToolCfg(ConfigFlags, OutputLevel=0) )
     # cfg.addEventAlgo(CompFactory.xAODMaker.MuonSegmentCnvAlg("MuonSegmentCnvAlg", MuonSegmentConverterTool=muonSegmentCnvTool))
 
+   
     # Keep this in, since it makes debugging easier to simply uncomment and change Algo/Service name,
     # from AthenaCommon.Constants import VERBOSE
     # tmp = cfg.getEventAlgo("MuonCombinedMuonCandidateAlg")

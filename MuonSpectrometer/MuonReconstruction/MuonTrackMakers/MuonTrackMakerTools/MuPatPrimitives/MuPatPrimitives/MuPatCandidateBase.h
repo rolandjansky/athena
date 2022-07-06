@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUPATCANDIDATEBASE_H
@@ -51,13 +51,7 @@ namespace Muon {
         friend class MuPatCandidateTool;
 
     public:
-        typedef std::vector<const Trk::MeasurementBase*> MeasVec;
-
-        typedef std::set<MuonStationIndex::ChIndex>::iterator chamber_iterator;
-        typedef std::set<MuonStationIndex::ChIndex>::const_iterator const_chamber_iterator;
-
-        typedef std::set<MuonStationIndex::StIndex>::iterator station_iterator;
-        typedef std::set<MuonStationIndex::StIndex>::const_iterator const_station_iterator;
+        using MeasVec = std::vector<const Trk::MeasurementBase*>;
 
     public:
         /** @brief constructor. */

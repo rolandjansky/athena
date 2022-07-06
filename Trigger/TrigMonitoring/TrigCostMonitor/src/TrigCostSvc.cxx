@@ -173,20 +173,29 @@ StatusCode TrigCostSvc::monitor(const EventContext& context, const AlgorithmIden
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-StatusCode TrigCostSvc::monitorROS(const EventContext& /*context*/, robmonitor::ROBDataMonitorStruct payload){
+StatusCode TrigCostSvc::monitorROS(const EventContext& context, robmonitor::ROBDataMonitorStruct payload){
+  ATH_CHECK(checkSlot(context));
   ATH_MSG_DEBUG( "Received ROB payload " << payload );
 
   // Associate payload with an algorithm
   AlgorithmIdentifier theAlg;
   {
     tbb::concurrent_hash_map<std::thread::id, AlgorithmIdentifier, ThreadHashCompare>::const_accessor acc;
-    ATH_CHECK( m_threadToAlgMap.find(acc, std::this_thread::get_id()) );
+    bool result = m_threadToAlgMap.find(acc, std::this_thread::get_id());
+    if (!result){
+      ATH_MSG_WARNING( "Cannot find algorithm on this thread (id=" << std::this_thread::get_id() << "). Request "<< payload <<" won't be monitored");
+      return StatusCode::SUCCESS;
+    }
+
     theAlg = acc->second;
   }
 
   // Record data in TrigCostDataStore
   ATH_MSG_DEBUG( "Adding ROBs from" << payload.requestor_name << " to " << theAlg.m_hash );
-  ATH_CHECK( m_rosData.push_back(theAlg, std::move(payload), msg()) );
+  {
+    std::shared_lock lockShared( m_slotMutex[ context.slot() ] );
+    ATH_CHECK( m_rosData.push_back(theAlg, std::move(payload), msg()) );
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -467,6 +476,28 @@ StatusCode TrigCostSvc::generateTimeoutReport(const EventContext& context, std::
     report += ", ";
   }
 
+  return StatusCode::SUCCESS;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+StatusCode TrigCostSvc::discardEvent(const EventContext& context) {
+  
+  if (m_monitorAllEvents) {
+    ATH_MSG_DEBUG("All events are monitored - event will not be discarded");
+    return StatusCode::SUCCESS;
+  }
+
+  ATH_MSG_DEBUG("Cost Event will be discarded");
+  ATH_CHECK(checkSlot(context));
+  {
+    std::unique_lock lockUnique( m_slotMutex[ context.slot() ] );
+
+    // Reset eventMonitored flags
+    m_eventMonitored[ context.slot() ] = false;
+
+    // tables are cleared at the start of the event
+  }
   return StatusCode::SUCCESS;
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -7,7 +7,7 @@
 // NAME:     EgammaReSamp2Fex.cxx
 // PACKAGE:  Trigger/TrigAlgorithms/TrigT2CaloEgamma
 //
-// AUTHOR:   M.P. Casado
+// AUTHOR:   M.P. Casado, D.O. Damazio
 //
 //
 // ********************************************************************
@@ -98,11 +98,12 @@ StatusCode EgammaReSamp2Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
   std::map<const LArCell*, float> windows;
   for (const LArCell* larcell : sel) {
     float deta = std::abs(seedEta - larcell->eta());
-    if (deta < 0.025 + 0.002) { // Eta check is faster. Do it First
+    if (deta < 0.025 + 0.002) { // Eta check is faster.
+				// Do it First 0.025 is cell, plus a little loose
       float dphi = std::abs(seedPhi - larcell->phi());
       dphi = std::abs(M_PI - dphi);
       dphi = std::abs(M_PI - dphi);
-      if (dphi < 0.025 + 0.002) {
+      if (dphi < 0.025 + 0.002) { // the same here (around 2*pi/64/4, but ok)
         if (windows.find(larcell) == windows.end()) {
           windows[larcell] = 0.0;
         } // end of windows check
@@ -117,12 +118,12 @@ StatusCode EgammaReSamp2Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
     double energyCell = larcell->et();
 
     // Find position of current cell w.r.t. seed
-    float deta = fabs(etaCell - seedEta);
-    if (deta > 0.05 + 0.002) continue;
+    float deta = std::abs(etaCell - seedEta);
+    if (deta > 0.05 + 0.002) continue; // find the energy weighted position with larger cluster
     for (auto& [cell, energy] : windows) {
-      float deta1 = fabs(etaCell - cell->eta());
-      float dphi = fabs(phiCell - cell->phi());
-      if (dphi > M_PI) dphi = 2. * M_PI - dphi; // wrap 0 -> 6.28
+      float deta1 = std::abs(etaCell - cell->eta());
+      float dphi = std::abs(phiCell - cell->phi());
+      if (dphi > M_PI) dphi = 2. * M_PI - dphi; // wrap (pi - 2pi)->(-pi - 0)
 
       // Electromagnetic measurements, done by layer
       // layer 2: Et weighted eta, phi, summed Et in 3*7,
@@ -196,13 +197,13 @@ StatusCode EgammaReSamp2Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
     double energyCell = larcell->energy();
 
     // Find position of current cell w.r.t. seed
-    deta = fabs(etaCell - seedEta);
-    dphi = fabs(phiCell - seedPhi);
-    if (dphi > M_PI) dphi = 2. * M_PI - dphi; // wrap 0 -> 6.28
+    deta = std::abs(etaCell - seedEta);
+    dphi = std::abs(phiCell - seedPhi);
+    if (dphi > M_PI) dphi = 2. * M_PI - dphi; // wrap (pi - 2pi)->(-pi - 0)
 
-    double detaH = fabs(etaCell - hotEta); // eta difference current cell - seed
-    double dphiH = fabs(phiCell - hotPhi); // phi difference current cell - seed
-    if (dphiH > M_PI) dphiH = 2. * M_PI - dphiH; // wrap 0 -> 6.28
+    double detaH = std::abs(etaCell - hotEta); // eta difference current cell - seed
+    double dphiH = std::abs(phiCell - hotPhi); // phi difference current cell - seed
+    if (dphiH > M_PI) dphiH = 2. * M_PI - dphiH; // wrap (pi - 2pi)->(-pi - 0)
 
     // Electromagnetic measurements, done by layer
     // layer 2: Et weighted eta, phi, summed Et in 3*7,
@@ -250,11 +251,7 @@ StatusCode EgammaReSamp2Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
         // energy37Lay2 += energyCell;
 
         if (cluster_in_barrel) {
-          // totalEnergy += energyCell;
-          // samp = CaloSampling::getSampling(*larcell);
           samp = larcell->caloDDE()->getSampling();
-          // rtrigEmCluster.setEnergy(samp,rtrigEmCluster.energy(samp) + energyCell);
-          // rtrigEmCluster.setRawEnergy(samp,rtrigEmCluster.rawEnergy(samp) + energyCell);
         }
 
         if (phiCell > 0.) { // SRA phi wrap-around
@@ -289,13 +286,8 @@ StatusCode EgammaReSamp2Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
       nCellsPhi = 5;
       if ((!cluster_in_barrel) && deta <= 0.5 * double(nCellsEta - 1) * cellSizeEta + 0.005 &&
           dphi <= 0.5 * double(nCellsPhi - 1) * cellSizePhi + 0.005) {
-        // totalEnergy += energyCell;
-        // samp = CaloSampling::getSampling(*larcell);
         samp = larcell->caloDDE()->getSampling();
-        // rtrigEmCluster.setEnergy(samp,rtrigEmCluster.energy(samp) + energyCell);
-        // rtrigEmCluster.setRawEnergy(samp,rtrigEmCluster.rawEnergy(samp) + energyCell);
       } // End of do the 5*5 stuff
-        // energy77Lay2 += energyCell;
     }   // End of do the 7*7 stuff
 
   } // end of loop over sampling 2
@@ -360,9 +352,9 @@ StatusCode EgammaReSamp2Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
     double energyCell = larcell->energy();
 
     // Find position of current cell w.r.t. seed
-    deta = fabs(etaCell - energyEta);
-    dphi = fabs(phiCell - energyPhi);
-    if (dphi > M_PI) dphi = 2. * M_PI - dphi; // wrap 0 -> 6.28
+    deta = std::abs(etaCell - energyEta);
+    dphi = std::abs(phiCell - energyPhi);
+    if (dphi > M_PI) dphi = 2. * M_PI - dphi; // wrap (pi - 2pi)->(-pi - 0)
 
     double cellSizeEta;
     double cellSizePhi;
@@ -427,17 +419,6 @@ StatusCode EgammaReSamp2Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
   rtrigEmCluster.setRawEta(energyEta);
   rtrigEmCluster.setRawPhi(energyPhi);
   rtrigEmCluster.setNCells(ncells);
-
-#if 0 // Can't call EtaPhiRange from a const method!
-  // This will internaly define normal, narrow and large clusters
-  if (msgLvl(MSG::DEBUG)) {
-    if (m_geometryTool->EtaPhiRange(0, 2, energyEta, energyPhi)) {
-      ATH_MSG_ERROR("problems with EtaPhiRange");
-    }
-    ATH_MSG_DEBUG("totalEnergy" << totalEnergy);
-    PrintCluster(totalEnergy, 0, 2, CaloSampling::EMB2, CaloSampling::EME2);
-  }
-#endif
 
   return StatusCode::SUCCESS;
 }

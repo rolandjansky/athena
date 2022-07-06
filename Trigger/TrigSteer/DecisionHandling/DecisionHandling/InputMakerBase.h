@@ -69,17 +69,19 @@ class InputMakerBase : public ::AthReentrantAlgorithm {
   size_t matchDecision(const TrigCompositeUtils::DecisionContainer* outDecisions, 
     const TrigCompositeUtils::Decision* toMatch, 
     const std::string& linkNameToMatch,
-    MatchingCache& matchingCache) const;
+    MatchingCache& matchingCache, 
+    const EventContext& ctx) const;
 
   /// Wrapper around matchDecision. Returns boolean if the match was successful.
   bool matchInCollection(const TrigCompositeUtils::DecisionContainer* outDecisions, 
     const TrigCompositeUtils::Decision* toMatch,
     size_t& matchIndex,
     bool& usedROIMatchingFlag,
-    MatchingCache& matchingCache) const;
+    MatchingCache& matchingCache,
+    const EventContext& ctx) const;
 
   /// Searches from toMatch to locate a single (type-less) Element Link with given edge name. Returns a hash corresponding to this Element Link
-  uint64_t getMatchingHashForDecision(const TrigCompositeUtils::Decision* toMatch, const std::string& linkNameToMatch) const;
+  uint64_t getMatchingHashForDecision(const TrigCompositeUtils::Decision* toMatch, const std::string& linkNameToMatch, const EventContext& ctx) const;
 
  private:
 

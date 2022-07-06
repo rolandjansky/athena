@@ -342,7 +342,7 @@ if (vp1InputFiles != []):
     
     if (vp1Trig):
         from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
-        TriggerConfigGetter( "ReadPool" )
+        TriggerConfigGetter()
     
     if (vp1Calo):
         from LArConditionsCommon import LArAlignable

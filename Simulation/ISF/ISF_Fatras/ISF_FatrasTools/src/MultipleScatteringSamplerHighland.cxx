@@ -13,9 +13,9 @@
 #include "MultipleScatteringSamplerHighland.h"
 
 #include "CLHEP/Random/RandGaussZiggurat.h"
+#include "TrkEventPrimitives/ParticleHypothesis.h"
 
-// static particle masses
-Trk::ParticleMasses iFatras::MultipleScatteringSamplerHighland::s_particleMasses;
+
 // static doubles
 double iFatras::MultipleScatteringSamplerHighland::s_main_RutherfordScott = 13.6*Gaudi::Units::MeV;
 double iFatras::MultipleScatteringSamplerHighland::s_log_RutherfordScott  =  0.038;
@@ -93,7 +93,7 @@ double iFatras::MultipleScatteringSamplerHighland::simTheta(const Trk::MaterialP
   double t = pathcorrection * mat.thicknessInX0();
 
   // kinematics (relativistic)
-  double m    = s_particleMasses.mass[particle];
+  double m    = Trk::ParticleMasses::mass[particle];
   double E    = sqrt(p*p + m*m);
   double beta = p/E;
   

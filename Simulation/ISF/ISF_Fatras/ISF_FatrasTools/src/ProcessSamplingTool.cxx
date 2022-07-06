@@ -24,6 +24,8 @@
 // CLHEP
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Random/RandFlat.h"
+#include "TrkEventPrimitives/ParticleHypothesis.h"
+
 //
  
 #include <iostream>
@@ -186,7 +188,7 @@ Trk::PathLimit iFatras::ProcessSamplingTool::sampleProcess(double momentum,doubl
 
   if ( particle == Trk::electron && charge>0. ) {   // positron
 
-    double mass = m_particleMasses.mass[Trk::electron];
+    double mass = Trk::ParticleMasses::mass[Trk::electron];
     double gamma = momentum/mass; 
 
     // annihilation
@@ -245,7 +247,7 @@ ISF::ISFParticleVector  iFatras::ProcessSamplingTool::interact(const ISF::ISFPar
   Trk::ParticleHypothesis particle = eCell.pHypothesis;
   const Trk::TrackParameters* parm=eCell.leadParameters;
     
-  double mass = m_particleMasses.mass[particle];
+  double mass = Trk::ParticleMasses::mass[particle];
   double p = parm->momentum().mag();
   //double E = sqrt( p*p + mass*mass);
   const Amg::Vector3D& position=parm->position();
@@ -340,7 +342,7 @@ ISF::ISFParticleVector  iFatras::ProcessSamplingTool::interact(const ISF::ISFPar
   const Trk::NeutralParameters* parm=eCell.leadParameters;
   
   if ( process==0 ) return childVector;
-  //double mass = m_particleMasses.mass[particle];
+  //double mass = Trk::ParticleMasses::mass[particle];
   //double p = parm.momentum().mag();
   /*double E = sqrt( p*p + mass*mass);*/
   Amg::Vector3D position=parm->position();

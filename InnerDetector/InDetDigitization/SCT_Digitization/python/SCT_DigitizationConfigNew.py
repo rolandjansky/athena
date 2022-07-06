@@ -108,8 +108,13 @@ def SCT_OverlayDigitizationToolCfg(flags, name="SCT_OverlayDigitizationTool",**k
     """Return ComponentAccumulator with overlay configured SCT digitization tool"""
     acc = ComponentAccumulator()
     kwargs.setdefault("OnlyUseContainerName", False)
-    kwargs.setdefault("OutputObjectName", flags.Overlay.SigPrefix + "SCT_RDOs")
-    kwargs.setdefault("OutputSDOName", flags.Overlay.SigPrefix + "SCT_SDO_Map")
+    #in the case of track overlay, only run digitization on the HS
+    if not flags.Overlay.doTrackOverlay:
+        kwargs.setdefault("OutputObjectName", flags.Overlay.SigPrefix + "SCT_RDOs")
+        kwargs.setdefault("OutputSDOName", flags.Overlay.SigPrefix + "SCT_SDO_Map")
+    else:
+        kwargs.setdefault("OutputObjectName", "SCT_RDOs")
+        kwargs.setdefault("OutputSDOName", "SCT_SDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 0)
     kwargs.setdefault("MergeSvc", '')
     tool = acc.popToolsAndMerge(SCT_DigitizationCommonCfg(flags, name, **kwargs))
@@ -288,6 +293,10 @@ def SCT_DigitizationBasicCfg(flags, **kwargs):
 def SCT_OverlayDigitizationBasicCfg(flags, **kwargs):
     """Return ComponentAccumulator with SCT Overlay digitization"""
     acc = ComponentAccumulator()
+    if flags.Common.ProductionStep != ProductionStep.FastChain:
+        from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
+        acc.merge(SGInputLoaderCfg(flags, ["SiHitCollection#SCT_Hits"]))
+
     if "DigitizationTool" not in kwargs:
         tool = acc.popToolsAndMerge(SCT_OverlayDigitizationToolCfg(flags))
         kwargs["DigitizationTool"] = tool

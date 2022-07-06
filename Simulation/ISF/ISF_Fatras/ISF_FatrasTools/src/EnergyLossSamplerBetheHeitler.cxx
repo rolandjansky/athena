@@ -14,10 +14,10 @@
 #include "CLHEP/Random/RandGamma.h"
 #include "CLHEP/Random/RandLandau.h"
 #include "CLHEP/Random/RandFlat.h"
+#include "TrkEventPrimitives/ParticleHypothesis.h"
+
 #include <cmath>
 
-// static partilce masses
-Trk::ParticleMasses iFatras::EnergyLossSamplerBetheHeitler::s_particleMasses;
 
 iFatras::EnergyLossSamplerBetheHeitler::EnergyLossSamplerBetheHeitler( const std::string& type, const std::string& name, const IInterface* parent )
   :  base_class( type, name, parent ),
@@ -73,7 +73,7 @@ Trk::EnergyLoss* iFatras::EnergyLossSamplerBetheHeitler::energyLoss( const Trk::
   if (pathLength==0.) return new Trk::EnergyLoss(0.,0.);
 
   double p    = pInitial;
-  double me   = s_particleMasses.mass[Trk::electron];
+  double me   = Trk::ParticleMasses::mass[Trk::electron];
   double E    = sqrt(p*p+me*me);
   
   // the following formulas are imported from STEP

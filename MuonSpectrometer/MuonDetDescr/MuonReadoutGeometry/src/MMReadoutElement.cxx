@@ -177,6 +177,7 @@ namespace MuonGM {
         m_minHalfY      = roParam.activeBottomLength / 2; // 0.5*bottom length (active area)
         m_maxHalfY      = roParam.activeTopLength / 2;    // 0.5*top length (active area)
         m_offset        = -0.5*(ylFrame - ysFrame);       // radial dist. of active area center w.r.t. chamber center
+        double sideAngle = std::atan( 0.5*(m_maxHalfY - m_minHalfY) / m_halfX );
 
         for (int il = 0; il < m_nlayers; il++) {
             // identifier of the first channel to retrieve max number of strips
@@ -194,6 +195,7 @@ namespace MuonGM {
             m_etaDesign[il].minYSize            = 2 * m_minHalfY;         // bottom length (active area)
             m_etaDesign[il].maxYSize            = 2 * m_maxHalfY;         // top length (active area)
             m_etaDesign[il].inputPitch          = pitch;
+            m_etaDesign[il].sideAngle           = sideAngle;
             m_etaDesign[il].inputLength         = m_etaDesign[il].minYSize;
             m_etaDesign[il].inputWidth          = pitch;                  // inputwidth is defined as the pitch
             m_etaDesign[il].thickness           = roParam.gasThickness; 
