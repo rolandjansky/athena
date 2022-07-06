@@ -877,7 +877,6 @@ def muEFMSIsoSequence(ConfigFlags, is_probe_leg=False):
                          HypoToolGen = TrigMuonEFTrackIsolationHypoToolFromDict,
                          IsProbe     = is_probe_leg )
 
-
 ####################################################
 ##  Muon RoI Cluster Trigger for MS LLP Searches  ##
 ####################################################
@@ -885,8 +884,8 @@ def muEFMSIsoSequence(ConfigFlags, is_probe_leg=False):
 def muRoiClusterSequence(ConfigFlags):
 
     from DecisionHandling.DecisionHandlingConf import InputMakerForRoI, ViewCreatorInitialROITool
-    from TrigL2LongLivedParticles.TrigL2LongLivedParticlesConfig import MuonClusterConfig
-    from TrigLongLivedParticlesHypo.TrigL2LongLivedParticlesHypoConfig import MuonClusterHypoAlgConfig, TrigL2LongLivedParticlesHypoToolFromDict
+    from TrigLongLivedParticles.TrigLongLivedParticlesConfig import MuonClusterConfig
+    from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConfig import MuonClusterHypoAlgConfig, TrigLongLivedParticlesHypoToolFromDict
 
     muvtxMuonClusterSequence = parOR('muvtxMuonClusterSequence', [MuonClusterConfig('muvtxMuonCluster')])
 
@@ -907,7 +906,7 @@ def muRoiClusterSequence(ConfigFlags):
     return MenuSequence( Sequence    = muvtx_sequence,
                          Maker       = inputMaker,
                          Hypo        = hypo,
-                         HypoToolGen = TrigL2LongLivedParticlesHypoToolFromDict )
+                         HypoToolGen = TrigLongLivedParticlesHypoToolFromDict )
 
 
 ######################
