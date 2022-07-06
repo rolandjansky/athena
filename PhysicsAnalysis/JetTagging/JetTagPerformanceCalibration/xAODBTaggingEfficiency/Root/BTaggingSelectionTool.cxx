@@ -14,6 +14,7 @@
 #include "TFile.h"
 #include "TObjArray.h"
 #include "TObjString.h"
+#include "TMatrixD.h"
 
 #include <algorithm>
 #include <string>
@@ -50,6 +51,7 @@ BTaggingSelectionTool::BTaggingSelectionTool( const std::string & name)
   declareProperty( "OperatingPoint",                m_OP="",            "operating point");
   declareProperty( "JetAuthor",                     m_jetAuthor="",     "jet collection");
   declareProperty( "ErrorOnTagWeightFailure",       m_ErrorOnTagWeightFailure=true, "optionally ignore cases where the tagweight cannot be retrived. default behaviour is to give an error, switching to false will turn it into a warning");
+  declareProperty( "CutBenchmarksContinuousWP",        m_ContinuousBenchmarks="", "comma separated list of tag bins that will be accepted as tagged: 1,2,3 etc.. ");
 }
 
 StatusCode BTaggingSelectionTool::initialize() {
@@ -67,25 +69,6 @@ StatusCode BTaggingSelectionTool::initialize() {
     return StatusCode::FAILURE;
   }
 
-  m_useVeto = false;
-  if( m_OP.find("Veto") != string::npos ){
-    m_useVeto = true;
-    //op string should follow the format nominal_WP_Veto_vetotagger_vetoWP
-    //for example, FixedCutBEff_77_Veto_DL1_CTag_Loose
-    TString vetotaggerstring = m_OP;
-    TObjArray* wptokens = vetotaggerstring.Tokenize("_");
-    if( wptokens->GetEntries() != 6 ){
-        ATH_MSG_ERROR( "BTaggingSelectionTool improperly formatted WP defintion: "+m_OP );
-        return StatusCode::FAILURE;
-    }
-    m_OP = (std::string)(((TObjString *)(wptokens->At(0)))->String());
-    m_OP = m_OP+"_"+(std::string)(((TObjString *)(wptokens->At(1)))->String());
-
-    m_taggerName_Veto = (std::string)(((TObjString *)(wptokens->At(3)))->String());
-    m_OP_Veto = (std::string)(((TObjString *)(wptokens->At(4)))->String());
-    m_OP_Veto = m_OP_Veto+"_"+(std::string)(((TObjString *)(wptokens->At(5)))->String());
-  }
-
   // check the CDI file for the selected tagger and jet collection
   TString check_CDI = m_taggerName;
   if(!m_inf->Get(check_CDI)){
@@ -97,96 +80,117 @@ StatusCode BTaggingSelectionTool::initialize() {
      ATH_MSG_ERROR( "Tagger: "+m_taggerName+" and Jet Collection : "+m_jetAuthor+"  not found in this CDI file: "+m_CutFileName);
     return StatusCode::FAILURE;
   }
+ 
+  //set taggerEnum to avid string comparison:
+  m_taggerEnum = SetTaggerEnum(m_taggerName);
 
-  // Change the minPt cut if the user didn't touch it
-  if (m_minPt < 0) {
-    ATH_MSG_ERROR( "Tagger: "+m_taggerName+" and Jet Collection : "+m_jetAuthor+" do not have a minimum jet pT cut set.");
-    return StatusCode::FAILURE;
-  }
+  //special requirement for VR TrackJets:
+  if((m_jetAuthor.find("AntiKt2PV0TrackJets") != std::string::npos) ||
+     (m_jetAuthor.find("AntiKt4PV0TrackJets") != std::string::npos) ||
+     (m_jetAuthor.find("AntiKtVR30Rmax4Rmin02TrackJets") != std::string::npos)) {
+    m_StoreNConstituents = true;
+ }
+ 
+ // Change the minPt cut if the user didn't touch it
+ if (m_minPt < 0) {
+   ATH_MSG_ERROR( "Tagger: "+m_taggerName+" and Jet Collection : "+m_jetAuthor+" do not have a minimum jet pT cut set.");
+   return StatusCode::FAILURE;
+ }
+ 
+ // Operating point reading
+ TString cutname = m_OP;
+ m_continuous   = false;
+ m_continuous2D = false;
 
-  // Operating point reading
-    TString cutname = m_OP;
-    if(cutname.Contains("Continuous2D")){
-      ATH_MSG_INFO("Working with Continuous2D WP. Tagger = DL1r c-tag + Veto = DL1r b-tag.");
-      
-      cutname = m_taggerName+"/"+m_jetAuthor+"/Continuous2D/cutvalue";
-      m_tagger.name = m_taggerName;
-      m_tagger.constcut = (TVector*) m_inf->Get(cutname);
-  
-      if (m_tagger.constcut == nullptr) ATH_MSG_ERROR( "Invalid operating point" );
-      m_tagger.tagging  = Tag::CTag;  //set c-tagging
-      m_tagger.spline = nullptr;
+ if(cutname.Contains("Continuous2D")){
+   ATH_MSG_INFO("Working with Continuous2D WP.");
+   m_continuous   = true;
+   m_continuous2D = true; 
+   cutname = m_taggerName+"/"+m_jetAuthor+"/Continuous2D/cutvalue";
+   m_tagger.name = m_taggerName;
+   TMatrixD* matrix = (TMatrixD*) m_inf->Get(cutname);
+   m_tagger.cuts2D = matrix;
 
-      TString fraction_data_name = m_taggerName+"/"+m_jetAuthor+"/Continuous2D/fraction_b";
-      TVector *fraction_data = (TVector*) m_inf->Get(fraction_data_name);
-      if(fraction_data!=nullptr)
-        m_tagger.fraction = fraction_data[0](0);
-      else
-	ATH_MSG_ERROR("Tagger fraction_b in Continuous2D WP not available");
+   for (int bin = 0; bin < m_tagger.cuts2D->GetNrows(); bin++)
+     ATH_MSG_DEBUG("INITIALIZATION c-cuts : " <<(*m_tagger.cuts2D)(bin,0) <<" "
+		   <<(*m_tagger.cuts2D)(bin,1) <<" b-cuts : "
+		   <<(*m_tagger.cuts2D)(bin,2) <<" "
+		   <<(*m_tagger.cuts2D)(bin,3));
+   
+   if (m_tagger.cuts2D == nullptr) ATH_MSG_ERROR( "Invalid operating point" );
+   
+   m_tagger.spline = nullptr;
+   
+   TString fraction_data_name = m_taggerName+"/"+m_jetAuthor+"/Continuous2D/fraction_b";
+   TVector *fraction_data = (TVector*) m_inf->Get(fraction_data_name);
+   if(fraction_data!=nullptr)
+     m_tagger.fraction_b = fraction_data[0](0);
+   else
+     ATH_MSG_ERROR("Tagger fraction_b in Continuous2D WP not available");
+   
+   //now the c-fraction:
+   fraction_data_name = m_taggerName+"/"+m_jetAuthor+"/Continuous2D/fraction_c";
+   fraction_data = (TVector*) m_inf->Get(fraction_data_name);
+   if(fraction_data!=nullptr){
+     m_tagger.fraction_c = fraction_data[0](0);}
+   else{
+     ATH_MSG_ERROR("Tagger fraction_c in Continuous2D WP not available");
+   }
+ } //Continuous2D
+ else if ("Continuous"==cutname(0,10))  // For continuous tagging load all flat-cut WPs
+   {
+     //100% efficiency => MVXWP=-infinity
+     m_continuous   = true;
+     m_continuouscuts[0] = -1.e4;
+     cutname = m_taggerName+"/"+m_jetAuthor+"/FixedCutBEff_85/cutvalue";
+     m_tagger.constcut = (TVector*) m_inf->Get(cutname);
+     
+     if (m_tagger.constcut!=nullptr) m_continuouscuts[1] = m_tagger.constcut[0](0);
+     else ATH_MSG_ERROR( "Continuous tagging is trying to use an unvalid operating point: FixedCutBEff_85" );
+     
+     cutname = m_taggerName+"/"+m_jetAuthor+"/FixedCutBEff_77/cutvalue";
+     m_tagger.constcut = (TVector*) m_inf->Get(cutname);
+     if (m_tagger.constcut!=nullptr) m_continuouscuts[2] = m_tagger.constcut[0](0);
+     else ATH_MSG_ERROR( "Continuous tagging is trying to use an unvalid operating point: FixedCutBEff_77" );
+     
+     cutname = m_taggerName+"/"+m_jetAuthor+"/FixedCutBEff_70/cutvalue";
+     m_tagger.constcut = (TVector*) m_inf->Get(cutname);
+     if (m_tagger.constcut!=nullptr) m_continuouscuts[3] = m_tagger.constcut[0](0);
+     else ATH_MSG_ERROR( "Continuous tagging is trying to use an unvalid operating point: FixedCutBEff_70" );
+     
+     cutname = m_taggerName+"/"+m_jetAuthor+"/FixedCutBEff_60/cutvalue";
+     m_tagger.constcut = (TVector*) m_inf->Get(cutname);
+     if (m_tagger.constcut!=nullptr) m_continuouscuts[4] = m_tagger.constcut[0](0);
+     else ATH_MSG_ERROR( "Continuous tagging is trying to use an unvalid operating point: FixedCutBEff_60" );
+     
+     //0% efficiency => MVXWP=+infinity
+     m_continuouscuts[5]= +1.e4;
+     
+     //The WP is not important. This is just to retrieve the c-fraction. 
+     ExtractTaggerProperties(m_tagger,m_taggerName, "FixedCutBEff_60");
+   }
+ else {  // FixedCut Working Point: load only one WP
+   ExtractTaggerProperties(m_tagger,m_taggerName, m_OP);
+ }
 
-      //now initialize the veto tagger
-      m_vetoTagger.name = m_taggerName; //still need two names to exploit the existing functions
-      cutname = m_taggerName +"/"+m_jetAuthor+"/Continuous2D/cutvalue_veto";
-      
-      m_vetoTagger.constcut = (TVector*) m_inf->Get(cutname);
-      if (m_vetoTagger.constcut == nullptr) ATH_MSG_ERROR( "Invalid operating point" );
-      
-      m_vetoTagger.tagging  = Tag::BTag; //b-tagging
-      m_vetoTagger.spline = nullptr;
-
-      fraction_data_name = m_taggerName+"/"+m_jetAuthor+"/Continuous2D/fraction_c";
-      TVector* fraction_data_veto = (TVector*) m_inf->Get(fraction_data_name);
-      if(fraction_data_veto!=nullptr){
-        m_vetoTagger.fraction = fraction_data_veto[0](0);}
-      else{
-        ATH_MSG_ERROR("Tagger fraction_c in Continuous2D WP not available");
-      }
-    } //Continuous2D
-    else if ("Continuous"==cutname(0,10))  // For continuous tagging load all flat-cut WPs
-      {
-      //100% efficiency => MVXWP=-infinity
-    m_continuouscuts[0] = -1.e4;
-    cutname = m_taggerName+"/"+m_jetAuthor+"/FixedCutBEff_85/cutvalue";
-    m_tagger.constcut = (TVector*) m_inf->Get(cutname);
-
-    if (m_tagger.constcut!=nullptr) m_continuouscuts[1] = m_tagger.constcut[0](0);
-    else ATH_MSG_ERROR( "Continuous tagging is trying to use an unvalid operating point: FixedCutBEff_85" );
-
-    cutname = m_taggerName+"/"+m_jetAuthor+"/FixedCutBEff_77/cutvalue";
-    m_tagger.constcut = (TVector*) m_inf->Get(cutname);
-    if (m_tagger.constcut!=nullptr) m_continuouscuts[2] = m_tagger.constcut[0](0);
-    else ATH_MSG_ERROR( "Continuous tagging is trying to use an unvalid operating point: FixedCutBEff_77" );
-
-    cutname = m_taggerName+"/"+m_jetAuthor+"/FixedCutBEff_70/cutvalue";
-    m_tagger.constcut = (TVector*) m_inf->Get(cutname);
-    if (m_tagger.constcut!=nullptr) m_continuouscuts[3] = m_tagger.constcut[0](0);
-    else ATH_MSG_ERROR( "Continuous tagging is trying to use an unvalid operating point: FixedCutBEff_70" );
-
-    cutname = m_taggerName+"/"+m_jetAuthor+"/FixedCutBEff_60/cutvalue";
-    m_tagger.constcut = (TVector*) m_inf->Get(cutname);
-    if (m_tagger.constcut!=nullptr) m_continuouscuts[4] = m_tagger.constcut[0](0);
-    else ATH_MSG_ERROR( "Continuous tagging is trying to use an unvalid operating point: FixedCutBEff_60" );
-
-    //0% efficiency => MVXWP=+infinity
-    m_continuouscuts[5]= +1.e4;
-
-    if(m_taggerName.find("DL1") != string::npos){
-      //this call will extract the c-fraction value and set it in m_tagger
-      //which is needed in case the user calls getTaggerWeight to compute the DL1 score
-      ExtractTaggerProperties(m_tagger,m_taggerName , "FixedCutBEff_60");
-    }
-  }
-  else {  // Else load only one WP
-    ExtractTaggerProperties(m_tagger,m_taggerName , m_OP);
-    if(m_useVeto){ExtractTaggerProperties(m_vetoTagger,m_taggerName_Veto , m_OP_Veto);}
-  }
-  m_inf->Close();
-
-  m_accept.addCut( "Eta", "Selection of jets according to their pseudorapidity" );
-  m_accept.addCut( "Pt",  "Selection of jets according to their transverse momentum" );
-  m_accept.addCut( "WorkingPoint",  "Working point for flavour-tagging of jets according to their b-tagging weight" );
-
-  return StatusCode::SUCCESS;
+ //set the working points
+ if(m_continuous){
+   std::vector<std::string> tag_benchmarks_names = split(m_ContinuousBenchmarks, ',');
+   std::vector<int> tag_benchmarks;
+   for (const std::string& tagbin : tag_benchmarks_names){
+     tag_benchmarks.push_back(std::atoi(tagbin.c_str()));
+     ATH_MSG_INFO("adding " <<tag_benchmarks.back() <<" as tagged bin ");
+   }
+   m_tagger.benchmarks = tag_benchmarks;
+ }
+ 
+ m_inf->Close();
+ 
+ m_accept.addCut( "Eta", "Selection of jets according to their pseudorapidity" );
+ m_accept.addCut( "Pt",  "Selection of jets according to their transverse momentum" );
+ m_accept.addCut( "WorkingPoint",  "Working point for flavour-tagging of jets according to their b-tagging weight" );
+ 
+ return StatusCode::SUCCESS;
 }
 
 void BTaggingSelectionTool::ExtractTaggerProperties(taggerproperties &tagger, std::string taggerName, std::string OP){
@@ -211,30 +215,18 @@ void BTaggingSelectionTool::ExtractTaggerProperties(taggerproperties &tagger, st
 
   //retrive the "fraction" used in the DL1 log likelihood from the CDI, if its not there, use the hard coded values
   // (backwards compatibility)
-  if(taggerName.find("DL1") != string::npos){
+  if( (m_taggerEnum == Tagger::DL1) || (m_taggerEnum == Tagger::DL1r) ){
 
     TString fraction_data_name = taggerName+"/"+m_jetAuthor+"/"+OP+"/fraction";
     TVector *fraction_data = (TVector*) m_inf->Get(fraction_data_name);
 
     if(fraction_data!=nullptr){
-      tagger.fraction = fraction_data[0](0);
+      tagger.fraction_c = fraction_data[0](0);
     }else{
-      if("DL1"    ==taggerName){ tagger.fraction = 0.08; }
-      if("DL1mu"  ==taggerName){ tagger.fraction = 0.08; }
-      if("DL1rnn" ==taggerName){ tagger.fraction = 0.03; }
-
-      if(OP == "CTag_Loose" && "DL1"    == taggerName ){ tagger.fraction = 0.25; }
-      if(OP == "CTag_Tight" && "DL1"    == taggerName ){ tagger.fraction = 0.18; }
-      if(OP == "CTag_Loose" && "DL1rnn" == taggerName ){ tagger.fraction = 0.08; }
-      if(OP == "CTag_Tight" && "DL1rnn" == taggerName ){ tagger.fraction = 0.02; }
+      if("DL1"    ==taggerName){ tagger.fraction_c = 0.08; }
+      if("DL1mu"  ==taggerName){ tagger.fraction_c = 0.08; }
+      if("DL1rnn" ==taggerName){ tagger.fraction_c = 0.03; }
     }
-
-    //set if the tool needs to compute b-tagging or c-tagging    
-    if(OP.find("CTag") != string::npos)
-      tagger.tagging = Tag::CTag;
-    else
-      tagger.tagging = Tag::BTag;
-    
     delete fraction_data;
   }
 }
@@ -244,16 +236,12 @@ const Root::TAccept& BTaggingSelectionTool::getTAccept() const {
   return m_accept;
 }
 
-CorrectionCode BTaggingSelectionTool::getTaggerWeight( const xAOD::Jet& jet, double & tagweight, bool useVetoWP) const{
+CorrectionCode BTaggingSelectionTool::getTaggerWeight( const xAOD::Jet& jet, double & tagweight, bool useCTag) const{
 
-  taggerproperties localtagger;
-  std::string taggerName;
-
-  localtagger = (useVetoWP) ? m_vetoTagger : m_tagger;
-  taggerName = localtagger.name;
+  std::string taggerName = m_tagger.name;
   tagweight = -100.;
 
- if ( taggerName.find("MV2") != string::npos ){
+  if ( m_taggerEnum == Tagger::MV2c10 ){
 
     const xAOD::BTagging* btag = jet.btagging();
 
@@ -268,10 +256,9 @@ CorrectionCode BTaggingSelectionTool::getTaggerWeight( const xAOD::Jet& jet, dou
     }
     ATH_MSG_VERBOSE( taggerName << " " <<  tagweight );
     return  CorrectionCode::Ok;
-  }
-
- else if(taggerName.find("DL1") != string::npos){
-
+  } //MV2
+  else{ 
+    //DL1r or DL1
   double dl1_pb(-10.);
   double dl1_pc(-10.);
   double dl1_pu(-10.);
@@ -298,7 +285,7 @@ CorrectionCode BTaggingSelectionTool::getTaggerWeight( const xAOD::Jet& jet, dou
   ATH_MSG_VERBOSE( "pc " <<  dl1_pc );
   ATH_MSG_VERBOSE( "pu " <<  dl1_pu );
 
-  return getTaggerWeight(dl1_pb, dl1_pc, dl1_pu, tagweight, useVetoWP);
+  return getTaggerWeight(dl1_pb, dl1_pc, dl1_pu, tagweight, useCTag);
 
   }
 
@@ -308,16 +295,12 @@ CorrectionCode BTaggingSelectionTool::getTaggerWeight( const xAOD::Jet& jet, dou
 
 }
 
-CorrectionCode BTaggingSelectionTool::getTaggerWeight( double pb, double pc, double pu , double & tagweight, bool useVetoWP) const {
+CorrectionCode BTaggingSelectionTool::getTaggerWeight( double pb, double pc, double pu , double & tagweight, bool useCTag) const {
 
-  taggerproperties localtagger;
-  std::string taggerName;
-
-  localtagger = (useVetoWP) ? m_vetoTagger : m_tagger;
-  taggerName = localtagger.name;
+  std::string taggerName = m_tagger.name;
 
   tagweight = -100.;
-  if( taggerName.find("DL1") != string::npos ){
+  if( (m_taggerEnum == Tagger::DL1) || (m_taggerEnum == Tagger::DL1r)){
 
     bool valid_input = (!std::isnan(pu) && pb>=0 && pc>=0 && pu>=0);
 
@@ -331,13 +314,12 @@ CorrectionCode BTaggingSelectionTool::getTaggerWeight( double pb, double pc, dou
       }
     }
 
-    if(localtagger.tagging == Tag::CTag){
-     tagweight = log(pc / (localtagger.fraction * pb + (1. - localtagger.fraction) * pu));
+    if(useCTag){
+     tagweight = log(pc / (m_tagger.fraction_b * pb + (1. - m_tagger.fraction_b) * pu));
     }
     else{
-     tagweight = log(pb / (localtagger.fraction * pc + (1. - localtagger.fraction) * pu) );
+     tagweight = log(pb / (m_tagger.fraction_c * pc + (1. - m_tagger.fraction_c) * pu) );
     }
-
     return CorrectionCode::Ok;
   }
 
@@ -378,10 +360,7 @@ const Root::TAccept& BTaggingSelectionTool::accept( const xAOD::Jet& jet ) const
     return m_accept;
   }
 
-  if  ( "AntiKt2PV0TrackJets"== m_jetAuthor ||
-        "AntiKt4PV0TrackJets"== m_jetAuthor ||
-        m_jetAuthor.find("AntiKtVR30Rmax4Rmin02TrackJets") != string::npos
-      ) {
+  if  (m_StoreNConstituents){
     // We want at least 2 tracks in a track jet
     m_accept.setCutResult( "NConstituents", jet.numConstituents() >= 2 );
   }
@@ -389,30 +368,21 @@ const Root::TAccept& BTaggingSelectionTool::accept( const xAOD::Jet& jet ) const
   double pT = jet.pt();
   double eta = jet.eta();
 
-  if(m_taggerName.find("DL1") != string::npos || m_taggerName.find("MV2") != string::npos){
-
-    //for all other taggers, use the same method
-    double tagger_weight(-100);
-
-    if( getTaggerWeight( jet ,tagger_weight)!=CorrectionCode::Ok){
-      return m_accept;
-    }
-
-      if(m_useVeto){
-        double taggerweightVeto(-100);
-        if( getTaggerWeight( jet , taggerweightVeto, true)!=CorrectionCode::Ok){
-          return m_accept;
-        }
-        return accept(pT, eta, tagger_weight,taggerweightVeto);
-      }
-
-      return accept(pT, eta, tagger_weight);
-  }
-
-    //if we got here the tagger name is not configured properly
-    ATH_MSG_ERROR("BTaggingSelectionTool doesn't support tagger: "+m_taggerName);
+  //for all other taggers, use the same method to extrach b-tag score
+  double taggerweight_b(-100);
+  if( getTaggerWeight( jet ,taggerweight_b)!=CorrectionCode::Ok)
     return m_accept;
-
+  
+  if(m_continuous2D){
+    double taggerweight_c(-100);
+    //compute c-tagging score
+    if( getTaggerWeight( jet, taggerweight_c, true)!=CorrectionCode::Ok)
+      return m_accept;
+    
+    return accept(pT, eta, taggerweight_b,taggerweight_c);
+  }
+  //if here, we are in 1D mode:
+  return accept(pT, eta, taggerweight_b);
 }
 
 const Root::TAccept& BTaggingSelectionTool::accept(double pT, double eta, double tag_weight) const
@@ -431,21 +401,42 @@ const Root::TAccept& BTaggingSelectionTool::accept(double pT, double eta, double
 
   // After initialization, either m_tagger.spline or m_tagger.constcut should be non-zero
   // Else, the initialization was incorrect and should be revisited
-  double cutvalue(DBL_MAX);
-  if( getCutValue(pT, cutvalue )!=CorrectionCode::Ok ){
-    return m_accept;
+  if(m_continuous){
+    for(auto bin : m_tagger.benchmarks){
+      if(bin == 0){
+	ATH_MSG_ERROR("bin == 0 in the list of tagged bins. you should not be here. Wrong convention");
+	return m_accept;
+      }
+      float cutvalue_low = m_continuouscuts[bin-1]; 
+      float cutvalue_hig = m_continuouscuts[bin];
+      ATH_MSG_DEBUG("bin " <<bin    <<" taggerWeight "
+		    <<tag_weight   <<" cutvalue low " 
+		    <<cutvalue_low <<" cutvalue hig "
+		    <<cutvalue_hig );
+      
+      if (tag_weight > cutvalue_low && tag_weight <= cutvalue_hig){	    
+	m_accept.setCutResult( "WorkingPoint", true );
+	break;
+      }
+    }
   }
-
-  if (  tag_weight < cutvalue ){
-    return m_accept;
+  else{ //FixedCut
+    double cutvalue(DBL_MAX);
+    if( getCutValue(pT, cutvalue )!=CorrectionCode::Ok ){
+      return m_accept;
+    }
+    
+    if (  tag_weight < cutvalue ){
+      return m_accept;
+    }
+    m_accept.setCutResult( "WorkingPoint", true );
   }
-  m_accept.setCutResult( "WorkingPoint", true );
-
+  
   // Return the result:
   return m_accept;
 }
 
-const Root::TAccept& BTaggingSelectionTool::accept(double pT, double eta, double nominal_taggerWeight, double veto_taggerWeight) const
+const Root::TAccept& BTaggingSelectionTool::accept(double pT, double eta, double taggerWeight_b, double taggerWeight_c) const
 {
   m_accept.clear();
 
@@ -459,35 +450,30 @@ const Root::TAccept& BTaggingSelectionTool::accept(double pT, double eta, double
   if (! checkRange(pT, eta))
     return m_accept;
 
-  // After initialization, either m_tagger.spline or m_tagger.constcut should be non-zero
-  // Else, the initialization was incorrect and should be revisited
-  double cutvalueA(DBL_MAX);
-  double cutvalueB(DBL_MAX);
+  for(auto bin : m_tagger.benchmarks){
 
-  if(m_useVeto){
-
-    if( getCutValue(pT, cutvalueA)!=CorrectionCode::Ok){
-      return m_accept;
-    }
-    if( getCutValue(pT, cutvalueB, true)!=CorrectionCode::Ok){
-      return m_accept;
-    }
-
-    if( ! ( nominal_taggerWeight > cutvalueA && veto_taggerWeight <= cutvalueB ) ){
-      return m_accept;
-    }
-  }
-  else{
-    ATH_MSG_ERROR( "Bad cut configuration!" );
-    return m_accept;
-  }
-
-  m_accept.setCutResult( "WorkingPoint", true ); // IF we arrived here, the jet is tagged
+    ATH_MSG_DEBUG("bin" <<bin <<" taggerWeight_c " 
+		  <<taggerWeight_c <<" taggerWeight_b " 
+		  <<taggerWeight_b);
+    
+    ATH_MSG_DEBUG(" c-cuts : " <<(*m_tagger.cuts2D)(bin,0) <<" " 
+		  <<(*m_tagger.cuts2D)(bin,1) <<" b-cuts : " 
+		  <<(*m_tagger.cuts2D)(bin,2) <<" " 
+		  <<(*m_tagger.cuts2D)(bin,3));
+    
+    if (taggerWeight_c >  (*m_tagger.cuts2D)(bin,0) &&  //ctag low
+	taggerWeight_c <= (*m_tagger.cuts2D)(bin,1) &&  //ctag max
+	taggerWeight_b >  (*m_tagger.cuts2D)(bin,2) &&  //btag low
+	taggerWeight_b <= (*m_tagger.cuts2D)(bin,3)  )  //btag max
+      {
+	m_accept.setCutResult( "WorkingPoint", true ); // IF we arrived here, the jet is tagged
+	break;	
+      }
+  } //for loop
 
   // Return the result:
   return m_accept;
 }
-
 
 const Root::TAccept& BTaggingSelectionTool::accept(double pT, double eta, double pb, double pc, double pu) const
  {
@@ -549,24 +535,24 @@ int BTaggingSelectionTool::getQuantile( const xAOD::Jet& jet ) const{
   double pT = jet.pt();
   double eta = std::abs( jet.eta() );
   // Retrieve the tagger weight which was assigned to the jet
-  double tag_weight(-10.);
-  if (getTaggerWeight(jet, tag_weight)==CorrectionCode::Error){
+  double tag_weight_b(-10.);
+  if (getTaggerWeight(jet, tag_weight_b)==CorrectionCode::Error){
     ATH_MSG_WARNING("getQuantile: Failed to retrieve "+m_taggerName+" weight!");
     return -1;
   }
-  ATH_MSG_VERBOSE( m_taggerName << " " <<  tag_weight );
+  ATH_MSG_VERBOSE( m_taggerName << " " <<  tag_weight_b );
   int quantile = -1;
   
-  if (m_OP == "Continuous2D"){
-    double tag_weight_veto(-10.);
-    if (getTaggerWeight(jet, tag_weight_veto, true) == CP::CorrectionCode::Error){
+  if (m_continuous2D){
+    double tag_weight_c(-10.);
+    if (getTaggerWeight(jet, tag_weight_c, true) == CP::CorrectionCode::Error){
       ATH_MSG_WARNING("getQuantile: Failed to retrieve tag weight veto!");
       return -1;
     }
-    quantile = getQuantile(pT, eta, tag_weight, tag_weight_veto );
+    quantile = getQuantile(pT, eta, tag_weight_b, tag_weight_c );
   }
   else
-    quantile = getQuantile(pT, eta, tag_weight );
+    quantile = getQuantile(pT, eta, tag_weight_b );
 
   return quantile;
 }
@@ -604,7 +590,7 @@ int BTaggingSelectionTool::getQuantile(double pT, double eta, double tag_weight 
   return bin_index;
 }
 
-int BTaggingSelectionTool::getQuantile(double pT, double eta, double tag_weight, double tag_weight_veto ) const
+int BTaggingSelectionTool::getQuantile(double pT, double eta, double tag_weight_b, double tag_weight_c ) const
 {
   //////////////////////
   /// Cheatsheet:
@@ -618,57 +604,31 @@ int BTaggingSelectionTool::getQuantile(double pT, double eta, double tag_weight,
 
   //More details here: https://indico.cern.ch/event/1116952/#4-mr49953-implements-the-conti
 
-  ATH_MSG_DEBUG("inside getQuantile 2D" <<pT <<" " <<eta <<" " <<tag_weight <<" " <<tag_weight_veto);
+  ATH_MSG_DEBUG("inside getQuantile 2D " <<pT <<" " <<eta <<" " <<tag_weight_b <<" " <<tag_weight_c);
   int bin_index(-1);
-  int bin_index_veto(-1);
   if (! checkRange(pT, eta)) return bin_index;
 
-  // If in b-tagging acceptance, cont.tagging
-  ATH_MSG_DEBUG("m_tagger.constcut[0] " <<m_tagger.constcut[0](0));
-  ATH_MSG_DEBUG("m_tagger.constcut[1] " <<m_tagger.constcut[0](1));
-  ATH_MSG_DEBUG("m_vetoTagger.constcut[0] " <<m_vetoTagger.constcut[0](0));
-  ATH_MSG_DEBUG("m_vetoTagger.constcut[1] " <<m_vetoTagger.constcut[0](1));
-  ATH_MSG_DEBUG("tag_weight " <<tag_weight  <<" " <<tag_weight_veto);
+  int ncuts = m_tagger.cuts2D->GetNrows();
+  ATH_MSG_VERBOSE("ncuts: " <<ncuts);
 
-  int ncuts = m_tagger.constcut[0].NonZeros();
-  int ncuts_veto = m_vetoTagger.constcut[0].NonZeros();
-  ATH_MSG_VERBOSE("ncuts: " <<ncuts <<" ncuts_veto: " <<ncuts_veto);
-  //veto tagger
-  for (int i=0; i<ncuts_veto; ++i) {
-    if (tag_weight_veto < m_vetoTagger.constcut[0][i]){
-      bin_index_veto = i;
-      ATH_MSG_VERBOSE("returning bin_index veto " <<bin_index_veto);
-      break;
-    }
-    else if (tag_weight_veto >= (m_vetoTagger.constcut[0][ncuts_veto-1])){
-      bin_index_veto = ncuts_veto;
-      ATH_MSG_VERBOSE("returning bin_index veto " <<bin_index_veto);
+  //loop over all the cuts
+  for(int i = 0; i < ncuts ; i++){
+    float c_cut_low = (*m_tagger.cuts2D)(i,0);
+    float c_cut_hig = (*m_tagger.cuts2D)(i,1);
+    float b_cut_low = (*m_tagger.cuts2D)(i,2);
+    float b_cut_hig = (*m_tagger.cuts2D)(i,3);
+    ATH_MSG_DEBUG("bin " <<i <<" c_cut low " <<c_cut_low <<" c_cut hig " <<c_cut_hig <<" c_cut low " <<b_cut_low <<" b_ct hig" <<b_cut_hig);
+    if (tag_weight_c >  c_cut_low && 
+	tag_weight_c <= c_cut_hig &&
+	tag_weight_b >  b_cut_low && 
+	tag_weight_b <= b_cut_hig){
+      bin_index = i;
       break;
     }
   }
-
-  //now c-tagging
-  if(bin_index_veto > 0){
-    bin_index = ncuts; //if it passes the veto, skip c-tagging
-  }
-  else{ //if the veto is zero, then compute c-tagging
-    for (int i=0; i<ncuts; ++i) {
-      ATH_MSG_VERBOSE(m_tagger.constcut[0][i]);
-      if (tag_weight < m_tagger.constcut[0][i]) {
-	bin_index = i;
-	ATH_MSG_VERBOSE("returning bin_index " <<bin_index);
-	break;
-      }
-      else if (tag_weight >= (m_tagger.constcut[0][ncuts-1])){
-	bin_index = ncuts;
-	ATH_MSG_VERBOSE("returning bin_index " <<bin_index);
-	break;
-      }
-    }
-  }    
-
-  ATH_MSG_VERBOSE("bin_index+bin_index_veto " <<bin_index+bin_index_veto);
-  return bin_index+bin_index_veto;
+    
+  ATH_MSG_VERBOSE("bin_index " <<bin_index);
+  return bin_index;
 }
 
 bool BTaggingSelectionTool::checkRange(double pT, double eta) const
@@ -689,25 +649,23 @@ bool BTaggingSelectionTool::checkRange(double pT, double eta) const
   return true;
 }
 
-CorrectionCode BTaggingSelectionTool::getCutValue(double pT, double & cutval,bool useVetoWP) const
+CorrectionCode BTaggingSelectionTool::getCutValue(double pT, double & cutval) const
 {
    cutval = DBL_MAX;
-
-  taggerproperties localtagger = (useVetoWP) ? m_vetoTagger : m_tagger;
 
    // flat cut for out of range pTs
    if (pT>m_maxRangePt)
      pT = m_maxRangePt;
 
-   if (localtagger.spline != nullptr && localtagger.constcut == nullptr) {
+   if (m_tagger.spline != nullptr && m_tagger.constcut == nullptr) {
      pT = pT/1000.0;
-     double maxsplinept = localtagger.spline->GetXmax();
+     double maxsplinept = m_tagger.spline->GetXmax();
      if (pT>maxsplinept){ pT = maxsplinept; }
-     cutval = localtagger.spline->Eval(pT);
+     cutval = m_tagger.spline->Eval(pT);
    }
 
-   else if (localtagger.constcut != nullptr && localtagger.spline == nullptr) {
-     cutval = localtagger.constcut[0](0);
+   else if (m_tagger.constcut != nullptr && m_tagger.spline == nullptr) {
+     cutval = m_tagger.constcut[0](0);
    }
    else{
     ATH_MSG_ERROR( "Bad cut configuration!" );
@@ -718,4 +676,12 @@ CorrectionCode BTaggingSelectionTool::getCutValue(double pT, double & cutval,boo
    ATH_MSG_VERBOSE( "Cut value " << cutval );
 
    return CorrectionCode::Ok;
+}
+
+std::vector<std::string> BTaggingSelectionTool::split (const std::string &input, const char &delimiter){
+  std::vector<std::string> v;
+  std::istringstream buf(input);
+  for(std::string token; std::getline(buf, token, delimiter); )
+    v.push_back(token);
+  return v;
 }

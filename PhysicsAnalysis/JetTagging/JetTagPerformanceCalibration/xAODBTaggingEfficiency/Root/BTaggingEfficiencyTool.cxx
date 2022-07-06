@@ -245,7 +245,7 @@ StatusCode BTaggingEfficiencyTool::initialize() {
     //   ATH_MSG_FATAL( "No tag weight retrieval function defined for tagger = " << m_taggerName);
     // }
   }
-  else if  (m_OP == "Continuous2D") {
+  else if  (m_OP.find("Continuous2D")  != std::string::npos) {
     m_isContinuous2D = true;
   }
 
@@ -854,7 +854,6 @@ BTaggingEfficiencyTool::getMCEfficiency( int flavour, const Analysis::Calibratio
 					 float & eff) const
 {
   if (! m_initialised) return CorrectionCode::Error;
-
   CalibResult result;
 
   unsigned int sfindex = 0;
@@ -868,7 +867,6 @@ BTaggingEfficiencyTool::getMCEfficiency( int flavour, const Analysis::Calibratio
   // no uncertainty index here as there aren't any uncertainties associated with the MC efficiencies
   CalibrationStatus status = m_CDI->getMCEfficiency(v,efindex,
 						    unc,result);
-  
   eff = result.first;
   if( m_applySyst && !m_applyThisSyst.isUp) {
     eff = result.second; // down variation
