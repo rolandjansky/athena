@@ -31,7 +31,7 @@ StgcStripCalculator::stgcStrip_t StgcStripCalculator::getStgcStrip(ParameterClas
   auto strip = it->second.getStgcStrip(iclass, strip_id.istrip);
   return { VALID, strip.center, strip.left, strip.right };
 }
-StgcStripCalculator::position_t StgcStripCalculator::getPositionAlongStgcStrip(ParameterClass iclass, stripIdentifier_t strip_id, double s) const {
+StgcStripCalculator::position_t StgcStripCalculator::getPositionAlongStgcStrip(ParameterClass iclass, stripIdentifier_t strip_id, double sx, double sy) const {
   int ipcb = 9; // since sTGC strip boards are identical  
   pcbIdentifier_t pcb_id { strip_id.quadruplet, strip_id.ilayer, ipcb };
   auto it = m_pcbMap.find(pcb_id);
@@ -40,7 +40,7 @@ StgcStripCalculator::position_t StgcStripCalculator::getPositionAlongStgcStrip(P
     return { INVALID, {0.0,0.0,0.0} };
   }
 
-  return { VALID, it->second.getPositionAlongStgcStrip(iclass, strip_id.istrip, s) };
+  return { VALID, it->second.getPositionAlongStgcStrip(iclass, strip_id.istrip, sx, sy) };
 }
 
 void StgcStripCalculator::parseJSON(std::string& in) {

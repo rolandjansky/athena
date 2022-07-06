@@ -753,10 +753,10 @@ namespace MuonGM {
             // (formula copied from MuonChannelDesign.h)
             double ylength = design->inputLength + ((design->maxYSize - design->minYSize)*(istrip - design->nMissedBottomEta + 0.5)*design->inputPitch / design->xSize);
             double sx      = design->distanceToChannel(lpos, istrip)/design->inputPitch; // in [-0.5, 0.5]
-            double sy      = 2*locYseed/ylength; // in [-1, 1]
+            double sy      = 2*locYpos/ylength; // in [-1, 1]
 
             // get the position coordinates, in the multilayer frame, from NswAsBuilt.
-            NswAsBuilt::StgcStripCalculator::position_t calcPos = sc->getPositionAlongStgcStrip(NswAsBuilt::Element::ParameterClass::CORRECTION, stgcStrip_id, sy, sx);
+            NswAsBuilt::StgcStripCalculator::position_t calcPos = sc->getPositionAlongStgcStrip(NswAsBuilt::Element::ParameterClass::CORRECTION, stgcStrip_id, sx, sy);
             pos     = calcPos.pos;
 
             // signal that we are in the multilayer reference frame

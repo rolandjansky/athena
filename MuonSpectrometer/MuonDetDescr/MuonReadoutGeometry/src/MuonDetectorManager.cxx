@@ -1439,9 +1439,9 @@ namespace MuonGM {
         std::string stgcJson="";
         if(!nswAsBuiltData->getSTgcData(stgcJson)){
            MsgStream log(Athena::getMessageSvc(), "MGM::MuonDetectorManager");
-           log << MSG::WARNING << " Cannot retrieve MM as-built conditions data from detector store!" << endmsg;
+           log << MSG::WARNING << " Cannot retrieve sTGC as-built conditions data from detector store!" << endmsg;
         }
-        m_StgcAsBuiltCalculator->parseJSON(mmJson);
+        m_StgcAsBuiltCalculator->parseJSON(stgcJson);
 #else
         // just to silence the warning about an unused parameter
         (void)nswAsBuiltData;

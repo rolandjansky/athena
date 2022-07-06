@@ -75,7 +75,7 @@ namespace NswAsBuilt {
        * s is in [-1,1]: -1 returns the left-most point along the strip, 0
        * returns the center point and +1 return the right-most point
        */
-      position_t getPositionAlongStgcStrip(ParameterClass iclass, stripIdentifier_t strip_id, double s) const;
+      position_t getPositionAlongStgcStrip(ParameterClass iclass, stripIdentifier_t strip_id, double sx, double sy) const;
 
       /**
        * Parses a std::istream with JSON-formatted configuration of the
