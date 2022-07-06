@@ -18,13 +18,9 @@ def createComponent( typeName, instanceName, componentType ):
         # Try to get a configurable for this C++ class "from Athena".
         # If this succeeds, we're obviously in an Athena environment.
 
-        # First off, construct a "python type name" for the class, replacing the
-        # '::' namespace delimeters with '__'.
-        pythonTypeName = typeName.replace( '::', '__' )
-
-        # Now look up the Athena configurable of this component:
-        from AthenaCommon import CfgMgr
-        componentClass = getattr( CfgMgr, pythonTypeName )
+        # Look up the Athena configurable of this component:
+        from AthenaConfiguration.ComponentFactory import CompFactory
+        componentClass = CompFactory.getComp(typeName)
 
         # Return the object:
         return componentClass( instanceName )
@@ -189,13 +185,9 @@ def addPrivateTool( alg, toolName, typeName ):
             component = getattr( component, tname )
             pass
 
-        # Let's replace all '::' namespace delimeters in the type name
-        # with '__'. Just because that's how the Athena code behaves...
-        pythonTypeName = typeName.replace( '::', '__' )
-
         # Now look up the Athena configurable describing this tool:
-        from AthenaCommon import CfgMgr
-        toolClass = getattr( CfgMgr, pythonTypeName )
+        from AthenaConfiguration.ComponentFactory import CompFactory
+        toolClass = CompFactory.getComp(typeName) 
 
         # Finally, set up the tool handle property:
         setattr( component, toolNames[ -1 ], toolClass( toolNames[ -1 ] ) )

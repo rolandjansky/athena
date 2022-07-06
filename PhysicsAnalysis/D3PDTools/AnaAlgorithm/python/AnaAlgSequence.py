@@ -36,8 +36,20 @@ class AnaAlgSequence( AlgSequence ):
         # Set up the sequence's member variables:
         self._algorithmMeta = []
         self._metaConfigDefault = {}
+        # Special members for GaudiConfig2 types
+        self._isGaudiConfig2 = False
+        self._gaudiConfig2List = []
 
         return
+
+    # Special method to add Gaudi2 components to a stand-alone list to avoid type clashes  
+    def addGaudiConfig2Component(self,alg):
+        self._isGaudiConfig2 = True
+        self._gaudiConfig2List.append(alg)
+        return
+    # Access Gaudi2 components
+    def getGaudiConfig2Components(self):
+        return self._gaudiConfig2List
 
     def configure( self, inputName, outputName,
                    hiddenLayerPrefix = "" ):
@@ -66,8 +78,17 @@ class AnaAlgSequence( AlgSequence ):
                                scheduling multiple instances of the sequence.
         """
 
+        # To handle the case where the components are GaudiConfig2, such that the algs 
+        # are not actually attached to the sequence, rather than looping directly over the 
+        # sequence the contents are copied into a list so that it works for both cases
+        listOfAlgs = []
+        if self._isGaudiConfig2: listOfAlgs = self._gaudiConfig2List
+        else:
+            for alg in self: listOfAlgs.append(alg)
+
         # Make sure that all internal variables are of the same size:
-        nAlgs = len( self )
+        # Count either the sequence elements (non-GaudiConfig2) or the standalone list (GaudiConfig2)
+        nAlgs = len(listOfAlgs)
         if len( self._algorithmMeta ) != nAlgs:
             raise RuntimeError( 'Analysis algorithm sequence is in an ' \
                                 'inconsistent state' )
@@ -77,7 +98,7 @@ class AnaAlgSequence( AlgSequence ):
         for name, value in self._metaConfigDefault.items() :
             metaConfig[name] = value[:]
             pass
-        for alg, meta in zip( self, self._algorithmMeta ):
+        for alg, meta in zip( listOfAlgs, self._algorithmMeta ):
             for var, func in meta.dynConfig.items() :
                 # if this is a subtool, find the subtool
                 obj = alg
@@ -111,7 +132,7 @@ class AnaAlgSequence( AlgSequence ):
         # Iterate over the algorithms:
         currentInputs = copy.deepcopy( inputNameDict )
         tmpIndex = {}
-        for alg, meta in zip( self, self._algorithmMeta ):
+        for alg, meta in zip( listOfAlgs, self._algorithmMeta ):
 
             # If there is no input defined for the algorithm (because it may
             # be a public tool), then skip doing anything with it:
@@ -154,7 +175,7 @@ class AnaAlgSequence( AlgSequence ):
         # Set the output name(s) of the last algorithm (that provides output)
         # to the requested value:
         currentOutputs = copy.deepcopy( outputNameDict )
-        for alg, meta in reversed( list( zip( self, self._algorithmMeta ) ) ):
+        for alg, meta in reversed( list( zip( listOfAlgs, self._algorithmMeta ) ) ):
 
             # Stop the loop if we're already done.
             if len( currentOutputs ) == 0:
@@ -203,7 +224,11 @@ class AnaAlgSequence( AlgSequence ):
         """
 
         meta = AnaAlgorithmMeta( stageName=stageName, inputPropName=inputPropName, outputPropName=outputPropName, metaConfig=metaConfig, dynConfig=dynConfig )
-        self += alg
+        # This makes sure that a GaudiConfig2 alg isn't attached to an  old-style sequence
+        if 'GaudiConfig2' in str(type(alg)):
+            self.addGaudiConfig2Component(alg)
+        else:   
+            self += alg
         self._algorithmMeta.append( meta )
         return self
 

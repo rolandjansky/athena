@@ -40,3 +40,9 @@ def ClusterEnergyPerLayerDecoratorCfg(ConfigFlags,**kwargs):
     kwargs.setdefault("CaloFillRectangularClusterTool", acc.popToolsAndMerge(CaloFillRectangularClusterCfg(ConfigFlags,**toolArgs) ) )
     acc.setPrivateTools(CompFactory.DerivationFramework.ClusterEnergyPerLayerDecorator(**kwargs))
     return acc
+
+def CaloClusterThinningCfg(ConfigFlags,**kwargs):
+    acc = ComponentAccumulator()
+    CaloClusterThinning = CompFactory.DerivationFramework.CaloClusterThinning
+    acc.addPublicTool(CaloClusterThinning(**kwargs),primary=True)
+    return acc

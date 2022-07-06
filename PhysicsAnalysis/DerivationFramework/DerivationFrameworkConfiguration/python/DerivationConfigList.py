@@ -26,6 +26,8 @@ from DerivationFrameworkMCTruth.TRUTH3 import TRUTH3Cfg
 # Common unskimmed formats for Run 3 physics analysis
 # PHYS - uncalibrated, full slimming list
 from DerivationFrameworkPhys.PHYS import PHYSCfg
+# PHYSLITE - calibrated physics analysis objects, reduced slimming list
+from DerivationFrameworkPhys.PHYSLITE import PHYSLITECfg
 
 # Physics validation for run 3
 # PHYSVAL - large bulk of the variables from AOD plus PHYS augmentations
@@ -38,6 +40,6 @@ from DerivationFrameworkHiggs.HIGG1D1 import HIGG1D1Cfg
 # Avoids compilation warnings from Flake8
 __all__ = ['TEST1Cfg','TEST2Cfg','TEST3Cfg','TEST4Cfg','TEST5Cfg','TEST6Cfg',
            'TRUTH0Cfg','TRUTH1Cfg','TRUTH3Cfg',
-           'PHYSCfg',
+           'PHYSCfg','PHYSLITECfg',
            'PHYSVALCfg',
            'HIGG1D1Cfg']          
