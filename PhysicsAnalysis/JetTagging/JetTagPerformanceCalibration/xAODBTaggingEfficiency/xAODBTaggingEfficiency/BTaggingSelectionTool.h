@@ -12,6 +12,11 @@
   Tool to apply flavour-tagging requirements on jets
   @author C. Lüdtke, M. Ughetto
   @contact cluedtke@cern.ch, mughetto@cern.ch
+
+  Note for getTaggerWeight and getCutValue: the LAST defaulted argument
+  is now 'useCTag', but before AB 21.2.221 it was 'useVetoWP', which has the 
+  **opposite** meaning when set to true. 
+
 */
 
 #ifndef CPBTAGGINGSELECTIONTOOL_H
@@ -26,6 +31,7 @@
 #include "TFile.h"
 #include "TSpline.h"
 #include "TVector.h"
+#include "TMatrixD.h"
 #include <string>
 #include <set>
 #include <vector>
@@ -52,7 +58,7 @@ class BTaggingSelectionTool: public asg::AsgTool,
 
   /// Get the decision using thet jet's pt and mv2c20 weight values
   virtual const Root::TAccept& accept(double /* jet pt */, double /* jet eta */, double /* tag_weight */ ) const;
-  virtual const Root::TAccept& accept(double /* jet pt */, double /* jet eta*/, double /* veto_taggerWeight */, double /* veto_taggerWeight */) const;
+  virtual const Root::TAccept& accept(double /* jet pt */, double /* jet eta*/, double /* taggerWeight_b */, double /* taggerWeight_c */) const;
   virtual const Root::TAccept& accept(double /* jet pt */, double /* jet eta */, double /* dl1pb */, double /* dl1pc  */ , double /* dl1pu  */) const;
 
   /// Decide in which quantile of the MV2c20 weight distribution the jet belongs (continuous tagging)
@@ -60,11 +66,11 @@ class BTaggingSelectionTool: public asg::AsgTool,
   virtual int getQuantile( const xAOD::IParticle* ) const;
   virtual int getQuantile( const xAOD::Jet& ) const;
   virtual int getQuantile( double /* jet pt */, double /* jet eta */, double /* tag weight */  ) const;
-  virtual int getQuantile(double /*pT*/, double /*eta*/, double /*tag_weight*/, double /*tag_weight_veto*/ ) const;
+  virtual int getQuantile(double /*pT*/, double /*eta*/, double /*tag_weight_b*/, double /*tag_weight_c*/ ) const;
 
-  virtual CP::CorrectionCode getCutValue(double /* jet pt */, double & cutval, bool useVetoWP = false) const;
-  virtual CP::CorrectionCode getTaggerWeight( const xAOD::Jet& jet, double & weight ,bool useVetoWP = false) const;
-  virtual CP::CorrectionCode getTaggerWeight( double /* dl1pb */, double /* dl1pc  */ , double /* dl1pu  */ , double & weight,bool useVetoWP = false) const;
+  virtual CP::CorrectionCode getCutValue(double /* jet pt */, double & cutval) const;
+  virtual CP::CorrectionCode getTaggerWeight( const xAOD::Jet& jet, double & weight ,bool useCTag = false) const;
+  virtual CP::CorrectionCode getTaggerWeight( double /* dl1pb */, double /* dl1pc  */ , double /* dl1pu  */ , double & weight,bool useCTag = false) const;
 
 private:
   /// Helper function that decides whether a jet belongs to the correct jet selection for b-tagging
@@ -75,7 +81,9 @@ private:
   bool m_initialised;
 
   bool m_ErrorOnTagWeightFailure;
-
+  bool m_StoreNConstituents = false;
+  bool m_continuous   = false; //Continuous1D
+  bool m_continuous2D = false; //Continuous2D
    /// Object used to store the last decision
   mutable Root::TAccept m_accept;
 
@@ -87,39 +95,39 @@ private:
   std::string m_taggerName;
   std::string m_OP;
   std::string m_jetAuthor;
+  std::string m_ContinuousBenchmarks;
 
   TFile *m_inf;
   double m_continuouscuts[6];
 
-  //optional "Veto" working point defined in the working point name
-  //the user can specify for example:
-  //tool->setProperty("TaggerName", "MV2c10");
-  //tool->setProperty("OperatingPoint", "FixedCutBEff_77-Veto-DL1-FixedCutBEff_60");
-  //and the tool->accept() methods will require the jet to pass MV2c10 FixedCutBEff_77 but fail DL1 FixedCutBEff_60
-  bool m_useVeto;
-  std::string m_taggerName_Veto;
-  std::string m_OP_Veto;
-
-  enum Tag{
-    BTag, ///< b-tagging
-    CTag, ///< c-tagging
-    LTag  ///< light-tagging (okay, not definied now)
-  };
-
   struct taggerproperties{
     std::string name;
-    double fraction;
+    double fraction_b;
+    double fraction_c;
     TSpline3* spline;
-    TVector* constcut;
-    Tag tagging = Tag::BTag; //b-tagging or c-tagging. b-tagging by default
+    TVector*  constcut; 
+    TMatrixD*  cuts2D; //useful only in Continuous2D
+    std::vector<int> benchmarks; //useful only in Continuous WP. list of bins that are considered as tagged. 
   };
 
   taggerproperties m_tagger;
-  taggerproperties m_vetoTagger;
 
+  enum Tagger{UNKNOWN, DL1, DL1r, MV2c10};
+  Tagger m_taggerEnum;
+
+  Tagger SetTaggerEnum(std::string taggerName){
+    if(taggerName == "DL1r") return Tagger::DL1r;
+    else if(taggerName == "DL1") return Tagger::DL1;
+    else if(taggerName == "MV2c10") return Tagger::MV2c10;
+    else 
+      ATH_MSG_ERROR("Tagger Name NOT supported.");
+    return Tagger::UNKNOWN;
+  };
   //get from the CDI file the taggers cut object(that holds the definition of cut values)
   //and flaovur fraction (for DL1 tagger) and store them in the right taggerproperties struct
   void ExtractTaggerProperties(taggerproperties& tagger, std::string taggerName, std::string OP);
+
+  std::vector<std::string> split (const std::string &input, const char &delimiter);
 
 };
 

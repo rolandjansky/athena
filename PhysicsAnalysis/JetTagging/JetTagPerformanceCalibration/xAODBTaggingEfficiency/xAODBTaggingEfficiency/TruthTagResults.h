@@ -18,6 +18,12 @@ namespace Analysis {
     std::map<std::string,std::vector<float> > map_trf_weight_ex;
     std::map<std::string,std::vector<float> > map_trf_weight_in;
 
+    //map from systematic name to vector of SF weights for different number of tagged jets
+    // for examples: map_SF_ex["Nominal"].at(3) is the SF event weight for exactly 3 tagged jets
+    // map_SF_ex["Nominal"].at(2) is the SF event weight for 2 or more tagged jets
+    std::map<std::string,std::vector<float> > map_SF_ex;
+    std::map<std::string,std::vector<float> > map_SF_in;
+
     //chosen permutation (does not depend on the systematic variation)
     // trf_chosen_perm_ex.at(3) is the chosen permutation for exactly 3 tagged jets
     std::vector<std::vector<bool> > trf_chosen_perm_ex;
@@ -27,24 +33,19 @@ namespace Analysis {
     std::vector<std::vector<int> > trf_bin_ex;
     std::vector<std::vector<int> > trf_bin_in;
 
-    //random tag weights generated for the chosen quantiles.
+    //random b-tag weights generated for the chosen quantiles.
     std::vector<std::vector<float> > trf_bin_score_ex;
     std::vector<std::vector<float> > trf_bin_score_in;
+
+    //random c-tag weights generated for the chosen quantiles.
+    std::vector<std::vector<float> > trf_ctag_bin_score_ex;
+    std::vector<std::vector<float> > trf_ctag_bin_score_in;
 
     //direct tagging results
     std::vector<bool> is_tagged;
     std::map<std::string,float > map_SF;
 
     std::vector<std::string> syst_names;
-
-    std::vector<float> tagweight_bin_edges;
-    // tagweight_bin_edges gives the cut values for the different MV2 or DL1 scores
-    // Cheatsheet:
-    // 3  cut value 60%
-    // 2  cut value 70%
-    // 1  cut value 77%
-    // 0  cut value 85%
-    ////////////////////
 
     void clear(){
 
@@ -54,7 +55,6 @@ namespace Analysis {
         trf_chosen_perm_in.clear();
         trf_bin_ex.clear();
         trf_bin_in.clear();
-        tagweight_bin_edges.clear();
 
     }
 
