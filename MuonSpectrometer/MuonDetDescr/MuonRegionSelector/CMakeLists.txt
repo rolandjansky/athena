@@ -20,6 +20,6 @@ atlas_add_component( MuonRegionSelector
                      LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps GeoPrimitives 
                      RegSelLUT GaudiKernel Identifier CSCcablingLib StoreGateLib MuonCablingData
                      MuonTGC_CablingLib RPC_CondCablingLib
-                     MuonReadoutGeometry MuonAGDDDescription MuonRegionSelectorLib )
+                     MuonReadoutGeometry MuonNSWCommonDecode MuonAGDDDescription MuonRegionSelectorLib )
 
 

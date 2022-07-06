@@ -61,3 +61,15 @@ uint16_t Muon::nsw::helper::NSWOfflineHelper::channel_number ()
   return chan_number;
 }
 
+//=====================================================================
+Muon::nsw::helper::NSWOfflineRobId::NSWOfflineRobId (const std::string &station_name,
+						     int8_t station_eta, uint8_t station_phi)
+{
+  bool is_large = station_name.substr (2, 1) == "L";
+  const std::pair <std::string, bool> name_and_side = {station_name.substr (0, 2), station_eta > 0};
+
+  uint8_t detId  = Muon::nsw::helper::s_station_to_detector_map.at (name_and_side);
+  uint8_t sector = (station_phi - 1) * 2 + is_large ? 0 : 1;
+
+  m_sourceId = detId << 16 | sector;
+}
