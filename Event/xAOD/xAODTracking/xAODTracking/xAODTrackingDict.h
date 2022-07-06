@@ -1,6 +1,6 @@
 // Dear emacs, this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef XAODTRACKING_XAODTRACKINGDICT_H
 #define XAODTRACKING_XAODTRACKINGDICT_H
@@ -54,6 +54,14 @@
 
 #include "xAODTracking/TrackingPrimitives.h"
 #include "xAODTracking/TrackParticlexAODHelpers.h"
+
+#include "xAODTracking/TrackState.h"
+#include "xAODTracking/TrackStateContainer.h"
+#include "xAODTracking/TrackStateAuxContainer.h"
+#include "xAODTracking/versions/TrackState_v1.h"
+#include "xAODTracking/versions/TrackStateContainer_v1.h"
+#include "xAODTracking/versions/TrackStateAuxContainer_v1.h"
+
 
 // EDM include(s).
 #include "xAODCore/tools/DictHelpers.h"
