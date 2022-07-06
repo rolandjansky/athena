@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileG4DetDescr/DetectorDescriptionStore.h"
@@ -10,8 +10,6 @@
 
 namespace FADS {
 
-  DetectorDescriptionStore *p = DetectorDescriptionStore::GetDetectorDescriptionStore();
-
   DetectorDescriptionStore::DetectorDescriptionStore() {
 //	theMessenger=new DescriptionMessenger(this);
     m_detDescMap = new DetDescMap();
@@ -19,10 +17,9 @@ namespace FADS {
     m_oldNameSpace = m_currentNameSpace = "std";
   }
 
-  DetectorDescriptionStore* DetectorDescriptionStore::GetDetectorDescriptionStore() {
-    static DetectorDescriptionStore* thePointer = 0;
-    if (!thePointer) thePointer = new DetectorDescriptionStore;
-    return thePointer;
+  DetectorDescriptionStore& DetectorDescriptionStore::GetDetectorDescriptionStore ATLAS_NOT_THREAD_SAFE () {
+    static DetectorDescriptionStore instance;
+    return instance;
   }
 
   void DetectorDescriptionStore::UseNameSpace(std::string s) {
@@ -58,7 +55,7 @@ namespace FADS {
                                                                    << " already exists in namespace "
                                                                    << m_currentNameSpace << ": nothing done"
                                                                    << std::endl;
-    else m_detDescMap->operator[](name) = d;
+    else (*m_detDescMap)[name] = d;
     if (!nspace.empty()) ResetNameSpace();
   }
 
@@ -87,7 +84,7 @@ namespace FADS {
 
     if (!nspace.empty()) UseNameSpace(nspace);
     DetDescMap::iterator it;
-    if ( (it = m_detDescMap->find(nam)) != m_detDescMap->end()) (*it).second = const_cast<DetectorDescription *>(d);
+    if ( (it = m_detDescMap->find(nam)) != m_detDescMap->end()) (*it).second = d;
     if (!nspace.empty()) ResetNameSpace();
   }
 
@@ -95,7 +92,7 @@ namespace FADS {
     return (m_detDescMap->find(name) != m_detDescMap->end());
   }
 
-  DetectorDescription* DetectorDescriptionStore::GetDetectorDescription(std::string name) {
+  const DetectorDescription* DetectorDescriptionStore::GetDetectorDescription(std::string name) {
     std::string::size_type i = name.find("::");
     std::string nspace;
     if (i != std::string::npos) {
@@ -104,11 +101,11 @@ namespace FADS {
     }
 
     if (!nspace.empty()) UseNameSpace(nspace);
-    DetectorDescription *dd = 0;
+    const DetectorDescription *dd = 0;
     if (m_detDescMap->find(name) == m_detDescMap->end()) dd = 0;
 //		std::cout<<"Detector Description name "<<name<<
 //			   "not found! return 0"<<std::endl;
-    else dd = m_detDescMap->operator[](name);
+    else dd = (*m_detDescMap)[name];
     if (!nspace.empty()) ResetNameSpace();
     return dd;
   }
@@ -124,7 +121,7 @@ namespace FADS {
     if (!nspace.empty()) UseNameSpace(nspace);
     if (m_detDescMap->find(name) == m_detDescMap->end()) std::cout << "Detector Description name " << name
                                                                    << "not found! " << std::endl;
-    else m_detDescMap->operator[](name)->print();
+    else (*m_detDescMap)[name]->print();
     if (!nspace.empty()) ResetNameSpace();
   }
 
