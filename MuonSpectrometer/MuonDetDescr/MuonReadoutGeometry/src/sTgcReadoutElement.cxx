@@ -723,10 +723,6 @@ namespace MuonGM {
     //============================================================================
     void sTgcReadoutElement::spacePointPosition(const Identifier& layerId, double locXpos, double locYpos, Amg::Vector3D& pos) const {
 
-        pos = Amg::Vector3D(locXpos, locYpos, 0.);
-
-        if (!has_BLines()) return;
-
         const MuonChannelDesign* design = getDesign(layerId);
         if (!design) {
             MsgStream log(Athena::getMessageSvc(), "sTgcReadoutElement");
@@ -734,10 +730,61 @@ namespace MuonGM {
             return;
         }
 
-        Amg::Transform3D trfToML = m_delta.inverse()*absTransform().inverse()*transform(layerId);
-        pos = trfToML*pos;           // go to the chamber frame of reference
-        posOnDefChamber(pos);        // only chamber deformations at the moment
-        pos = trfToML.inverse()*pos; // back to the initial frame of reference    
+        bool conditionsApplied{false};
+        Amg::Transform3D trfToML{Amg::Transform3D::Identity()};
+
+#ifndef SIMULATIONBASE
+        //*********************
+        // As-Built (MuonNswAsBuilt is not included in AthSimulation)
+        //*********************
+        const NswAsBuilt::StgcStripCalculator* sc = manager()->getStgcAsBuiltCalculator();
+        if (sc) {
+            // nearest strip to locXpos
+            Amg::Vector2D lpos(locXpos, 0.);
+            int istrip = stripNumber(lpos, layerId);          
+
+            // setup strip calculator
+            NswAsBuilt::stripIdentifier_t stgcStrip_id;
+            stgcStrip_id.quadruplet = { (largeSector() ? NswAsBuilt::quadrupletIdentifier_t::STL : NswAsBuilt::quadrupletIdentifier_t::STS), getStationEta(), getStationPhi(), m_ml };
+            stgcStrip_id.ilayer     = manager()->sTgcIdHelper()->gasGap(layerId);
+            stgcStrip_id.istrip     = istrip;
+            
+            // length of the strip with index "istrip"  
+            // (formula copied from MuonChannelDesign.h)
+            double ylength = design->inputLength + ((design->maxYSize - design->minYSize)*(istrip - design->nMissedBottomEta + 0.5)*design->inputPitch / design->xSize);
+            double sx      = design->distanceToChannel(lpos, istrip)/design->inputPitch; // in [-0.5, 0.5]
+            double sy      = 2*locYseed/ylength; // in [-1, 1]
+
+            // get the position coordinates, in the multilayer frame, from NswAsBuilt.
+            NswAsBuilt::StripCalculator::position_t calcPos = sc->getPositionAlongStrip(NswAsBuilt::Element::ParameterClass::CORRECTION, strip_id, sy, sx);
+            pos     = calcPos.pos;
+
+            // signal that we are in the multilayer reference frame
+            conditionsApplied = true;
+            trfToML = m_delta.inverse()*absTransform().inverse()*transform(layerId);     
+        }
+#endif 
+
+        //*********************
+        // Case as-built is not applied: 
+        //*********************
+        if (!conditionsApplied) pos = Amg::Vector3D(locXpos, locYpos, 0.);
+
+        //*********************
+        // B-Lines
+        //*********************
+        // if (!has_BLines()) return;
+        if (has_BLines()) {
+          // go to the multilayer reference frame if we are not already there
+          if (!conditionsApplied) {
+             conditionsApplied = true; 
+             trfToML = m_delta.inverse()*absTransform().inverse()*transform(layerId);
+             pos = trfToML*pos;
+          }
+          posOnDefChamber(pos);
+        }
+               // back to nominal layer frame from where we started
+        if (conditionsApplied) pos = trfToML.inverse()*pos;
     }
 
 }  // namespace MuonGM

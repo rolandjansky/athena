@@ -1432,6 +1432,22 @@ namespace MuonGM {
 #endif
     }
 
+    void MuonDetectorManager::setStgcAsBuiltCalculator(const NswAsBuiltDbData* nswAsBuiltData) {
+#ifndef SIMULATIONBASE
+        m_StgcAsBuiltCalculator.reset();  // unset any previous instance
+        m_StgcAsBuiltCalculator = std::make_unique<NswAsBuilt::StgcStripCalculator>();
+        std::string stgcJson="";
+        if(!nswAsBuiltData->getSTgcData(mmJson)){
+           MsgStream log(Athena::getMessageSvc(), "MGM::MuonDetectorManager");
+           log << MSG::WARNING << " Cannot retrieve MM as-built conditions data from detector store!" << endmsg;
+        }
+        m_StgcAsBuiltCalculator->parseJSON(mmJson);
+#else
+        // just to silence the warning about an unused parameter
+        (void)nswAsBuiltData;
+#endif
+    }
+
     const MdtReadoutElement* MuonDetectorManager::getMdtReadoutElement(const IdentifierHash& id) const {
 #ifndef NDEBUG
         if (id >= MdtRElMaxHash) {

@@ -30,6 +30,7 @@
 
 #ifndef SIMULATIONBASE
 #include "MuonNSWAsBuilt/StripCalculator.h"
+#include "MuonNSWAsBuilt/StgcStripCalculator.h"
 #endif
 
 typedef ALineMapContainer::const_iterator ciALineMap;
@@ -309,8 +310,10 @@ namespace MuonGM {
 
         void initABlineContainers();
         void setMMAsBuiltCalculator(const NswAsBuiltDbData* nswAsBuiltData);
+        void setStgcAsBuiltCalculator(const NswAsBuiltDbData* nswAsBuiltData);
 #ifndef SIMULATIONBASE
         const NswAsBuilt::StripCalculator* getMMAsBuiltCalculator() const { return m_MMAsBuiltCalculator.get(); }
+        const NswAsBuilt::StgcStripCalculator* getStgcAsBuiltCalculator() const { return m_StgcAsBuiltCalculator.get(); }
 #endif
 
         // get Mdt AsBuilt parameters for chamber specified by Identifier
@@ -433,6 +436,7 @@ namespace MuonGM {
 
 #ifndef SIMULATIONBASE
         std::unique_ptr<NswAsBuilt::StripCalculator> m_MMAsBuiltCalculator;
+        std::unique_ptr<NswAsBuilt::StgcStripCalculator> m_StgcAsBuiltCalculator;
 #endif
         // temporary way to pass MM correction for passivation
         double m_MM_passivationCorr{0.};
