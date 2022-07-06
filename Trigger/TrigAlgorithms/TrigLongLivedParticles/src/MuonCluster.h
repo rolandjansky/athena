@@ -2,8 +2,8 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGL2LONGLIVEDPARTICLES_MUONCLUSTER_H
-#define TRIGL2LONGLIVEDPARTICLES_MUONCLUSTER_H
+#ifndef TRIGLONGLIVEDPARTICLES_MUONCLUSTER_H
+#define TRIGLONGLIVEDPARTICLES_MUONCLUSTER_H
 /*
   MuonCluster Algorithm:  Trigger/TrigAlgorithm/TrigMuonCluster
 
@@ -30,6 +30,7 @@
 #include "AthenaMonitoringKernel/MonitoredGroup.h"
 #include "AthenaMonitoringKernel/MonitoredCollection.h"
 #include "AthenaMonitoringKernel/MonitoredTimer.h"
+
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "xAODTrigger/TrigComposite.h"
@@ -56,12 +57,12 @@ public:
 
   SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_outputCompositesKey{ this,
       "TrigCompositeContainer",                             // property name
-      "RoICluster_Composites",                              // default value of StoreGatekey
+      "HLT_RoICluster_Composites",                          // default value of StoreGatekey
       "output Composites container"};
 
   SG::WriteHandleKey<TrigRoiDescriptorCollection> m_outputRoiDescriptorKey{ this,
       "TrigRoiDescriptorDataVector",
-      "RoICluster_Descriptors",
+      "HLT_RoICluster_Descriptors",
       "output RoI Descriptor container with descriptor for cluster with maximum number of RoIs. For ID."};
 
   /** hltInitialize() */
@@ -92,4 +93,4 @@ protected:
 
 };
 
-#endif // TRIGL2LONGLIVEDPARTICLES_MUONCLUSTER_H
+#endif // TRIGLONGLIVEDPARTICLES_MUONCLUSTER_H

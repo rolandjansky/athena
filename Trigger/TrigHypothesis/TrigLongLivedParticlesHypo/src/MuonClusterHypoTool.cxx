@@ -4,6 +4,7 @@
   * Trigger Hypo Tool, that is aimed at triggering clusters of muon RoIs
   * author Michael Schott <michael.louis.schott@cern.ch>
 */
+#include "MuonClusterHypoTool.h"
 
 #include <cmath>
 #include <algorithm>
@@ -26,9 +27,6 @@
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
 
 #include "AthenaMonitoringKernel/Monitored.h"
-
-#include "MuonClusterHypoAlg.h"
-#include "MuonClusterHypoTool.h"
 
 using namespace TrigCompositeUtils;
 
