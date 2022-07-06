@@ -6,7 +6,6 @@ from AnaAlgorithm.DualUseConfig import createAlgorithm
 
 def makeJetJvtAnalysisSequence( dataType, jetCollection,
                                 preselection = '',
-                                systematicsAwarePreselection = '',
                                 disableFJvt = False,
                                 globalSF = True,
                                 runSelection = True,
@@ -40,30 +39,24 @@ def makeJetJvtAnalysisSequence( dataType, jetCollection,
     if dataType != 'data' and globalSF:
         alg = createAlgorithm( 'CP::AsgEventScaleFactorAlg', 'JvtEventScaleFactorAlg' )
         alg.preselection = preselection + '&&no_jvt' if preselection else 'no_jvt'
-        alg.inputSelectionDecoration = systematicsAwarePreselection
         alg.scaleFactorInputDecoration = 'jvt_effSF_%SYS%'
         alg.scaleFactorOutputDecoration = 'jvt_effSF_%SYS%'
 
         seq.append( alg,
-                    inputPropName = { 'jets' : 'particles' },
-                    dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
+                    inputPropName = { 'jets' : 'particles' } )
 
         if not disableFJvt:
             alg = createAlgorithm( 'CP::AsgEventScaleFactorAlg', 'ForwardJvtEventScaleFactorAlg' )
             alg.preselection = preselection + '&&no_fjvt' if preselection else 'no_fjvt'
-            alg.inputSelectionDecoration = systematicsAwarePreselection
             alg.scaleFactorInputDecoration = 'fjvt_effSF_%SYS%'
             alg.scaleFactorOutputDecoration = 'fjvt_effSF_%SYS%'
 
             seq.append( alg,
-                        inputPropName = { 'jets' : 'particles' },
-                        metaConfig = {'selectionDecorNames' : ['fjvt_selection'] if runSelection else [],
-                                      'selectionDecorCount' : [1] if runSelection else [] },
-                        dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"] + ['no_fjvt'])} )
+                        inputPropName = { 'jets' : 'particles' } )
 
     if runSelection:
-        seq.addMetaConfigDefault ("selectionDecorNames", ['jvt_selection'])
-        seq.addMetaConfigDefault ("selectionDecorCount", [1])
+        seq.addMetaConfigDefault ("selectionDecorNames", ['jvt_selection', 'fjvt_selection'] if not disableFJvt else ['jvt_selection'])
+        seq.addMetaConfigDefault ("selectionDecorCount", [1, 1] if not disableFJvt else [1])
 
         # Set up an algorithm used to create jet JVT selection cutflow:
         if enableCutflow:
