@@ -9,7 +9,7 @@ atlas_subdir( ISF_FastCaloSimServices )
 find_package( CLHEP )
 find_package(lwtnn)
 
-if(CMAKE_CUDA_COMPILER)
+if(USE_GPU AND CMAKE_CUDA_COMPILER)
 # add an option switch on the GPU
   add_definitions(-DUSE_GPU)
   message("compiling the ISF_FastCaloSimServices with cuda")
