@@ -14,6 +14,8 @@
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "MuonDetDescrUtils/MuonSectorMapping.h"
 #include "MuonGeoModel/StationSelector.h"
+#include "MuonGeoModel/MuonDetectorFactory001.h"
+#include "MuonGeoModel/MuonDetectorFactoryLite.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
@@ -47,24 +49,26 @@ MuonDetectorTool::~MuonDetectorTool() {
  ** Create the Detector Node corresponding to this tool
  **/
 StatusCode MuonDetectorTool::create() {
+
     std::ofstream geoModelStats;
     int mem = 0;
     float cpu = 0;
     int umem = 0;
     float ucpu = 0;
 
-    MuonDetectorFactory001 theFactory(detStore().operator->());
-    if (createFactory(theFactory).isFailure())
+
+    MuonGM::MuonDetectorManager *mgr=nullptr;
+    if (createFactory(mgr).isFailure())
         return StatusCode::FAILURE;
 
     if (!m_detector) {
-        ATH_CHECK(detStore()->record(theFactory.getDetectorManager(), theFactory.getDetectorManager()->getName()));
+        ATH_CHECK(detStore()->record(mgr,mgr->getName()));
 
         GeoModelExperiment *theExpt = nullptr;
         ATH_CHECK(detStore()->retrieve(theExpt, "ATLAS"));
-        theExpt->addManager(theFactory.getDetectorManager());
+        theExpt->addManager(mgr);
 
-        m_manager = theFactory.getDetectorManager();
+        m_manager = mgr;
     }
 
     if (m_dumpMemoryBreakDown) {
@@ -74,6 +78,7 @@ StatusCode MuonDetectorTool::create() {
                       << " \t Delta T =" << ucpu - cpu << std::endl;
         geoModelStats.close();
     }
+
     Muon::MuonSectorMapping mapping;
     /// add hash look-up for TGC sectors to the detector store here
     if (m_manager && m_manager->tgcIdHelper()) {
@@ -91,13 +96,14 @@ StatusCode MuonDetectorTool::create() {
     return StatusCode::SUCCESS;
 }
 
-StatusCode MuonDetectorTool::createFactory(MuonDetectorFactory001 &theFactory) const {
+StatusCode MuonDetectorTool::createFactory(MuonGM::MuonDetectorManager * & mgr) const {
 
     std::ofstream geoModelStats;
     int mem = 0;
     float cpu = 0;
     int umem = 0;
     float ucpu = 0;
+
 
     if (m_dumpMemoryBreakDown) {
         geoModelStats.open("MuonGeoModelStatistics_MuonDetectorTool");
@@ -136,12 +142,65 @@ StatusCode MuonDetectorTool::createFactory(MuonDetectorFactory001 &theFactory) c
 
     std::string tempLayout = m_layout;
     std::map<std::string, std::string> altAsciiDBMap{};
+
+    GeoModelExperiment *theExpt = nullptr;
+    ATH_CHECK(detStore()->retrieve(theExpt, "ATLAS"));
+    GeoPhysVol *world = &*theExpt->getPhysVol();
+
+    // Get the detector configuration.
+    ServiceHandle<IGeoDbTagSvc> geoDbTag("GeoDbTagSvc",name());
+    ATH_CHECK(geoDbTag.retrieve());
+    ServiceHandle<IRDBAccessSvc> accessSvc(geoDbTag->getParamSvcName(),name());
+    ATH_CHECK(accessSvc.retrieve());
+    GeoModelIO::ReadGeoModel* sqliteReader = geoDbTag->getSqliteReader();
+    
+    if (sqliteReader) {
+
+      ATH_MSG_INFO("New DD Activated; Muon detector description input from SQLITE fie");
+
+      MuonDetectorFactoryLite theFactory(detStore().operator->(),sqliteReader);
+      theFactory.setRDBAccess(&*accessSvc);
+
+      theFactory.create(world);  
+
+
+      mgr=theFactory.getDetectorManager();
+      mgr->setMinimalGeoFlag(m_minimalGeoFlag);
+      mgr->setGeometryVersion(tempLayout);
+      mgr->setCachingFlag(m_cachingFlag);
+      mgr->setCachingFlag(m_fillCache_initTime);
+      mgr->setMdtDeformationFlag(m_enableMdtDeformations);
+      mgr->setMdtAsBuiltParamsFlag(m_enableMdtAsBuiltParameters);
+      mgr->setNswAsBuiltParamsFlag(m_enableNswAsBuiltParameters);
+      
+      if (m_fillCache_initTime) {
+	mgr->fillCache();
+      } else {
+	// cache for RPC / TGC / CSC must be filled once forever
+	mgr->fillRpcCache();
+	mgr->fillTgcCache();
+	mgr->fillCscCache();
+      }
+    
+      return StatusCode::SUCCESS;
+    }
+    //
+    // New DD:  action ends here!!
+    // 
+    //=====================================================
+    // 
+    // Old DD: action starts here:  
+    //
+    
+    MuonDetectorFactory001 theFactory(detStore().operator->());
+    
+
     if (MuonVersion == "CUSTOM")
         ATH_MSG_WARNING("Detector Information coming from a custom configuration !!");
     else {
+
         ATH_MSG_DEBUG("Detector Information coming from the database (job options IGNORED)");
-        IRDBAccessSvc *accessSvc;
-        ATH_CHECK(service("RDBAccessSvc", accessSvc));
+
         IRDBRecordset_ptr switchSet = accessSvc->getRecordsetPtr("MuonSwitches", detectorKey, detectorNode);
         if ((*switchSet).size() == 0)
             return StatusCode::FAILURE;
@@ -169,8 +228,6 @@ StatusCode MuonDetectorTool::createFactory(MuonDetectorFactory001 &theFactory) c
     //
     // Locate the top level experiment node
     //
-    GeoModelExperiment *theExpt = nullptr;
-    ATH_CHECK(detStore()->retrieve(theExpt, "ATLAS"));
 
     int tempControlCscIntAlines = m_controlCscIntAlines;
     if (!m_useCscIntAlines)
@@ -275,7 +332,6 @@ StatusCode MuonDetectorTool::createFactory(MuonDetectorFactory001 &theFactory) c
             // This strange way of casting is to avoid an
             // utterly brain damaged compiler warning.
             //
-            GeoPhysVol *world = &*theExpt->getPhysVol();
             theFactory.create(world);
         } catch (const std::bad_alloc &) {
             ATH_MSG_FATAL("Could not create new MuonDetectorNode!");
@@ -315,6 +371,7 @@ StatusCode MuonDetectorTool::createFactory(MuonDetectorFactory001 &theFactory) c
             cpu = ucpu;
         }
     }
+    mgr=theFactory.getDetectorManager();
     return StatusCode::SUCCESS;
 }
 

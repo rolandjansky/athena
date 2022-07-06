@@ -74,12 +74,13 @@ StatusCode MuonDetectorCondAlg::execute() {
     // =======================
     const MuonDetectorTool *MuDetTool = m_iGeoModelTool.get();
     MuonGM::MuonDetectorFactory001 theFactory(detStore().operator->());
-    if (MuDetTool->createFactory(theFactory).isFailure()) {
+    MuonGM::MuonDetectorManager *mgr;
+    if (MuDetTool->createFactory(mgr).isFailure()) {
         ATH_MSG_FATAL("unable to create MuonDetectorFactory001 ");
         return StatusCode::FAILURE;
     }
 
-    std::unique_ptr<MuonGM::MuonDetectorManager> MuonMgrData(theFactory.getDetectorManager());
+    std::unique_ptr<MuonGM::MuonDetectorManager> MuonMgrData(mgr);
 
     // =======================
     // Add NSW to the MuonDetectorManager by calling BuildReadoutGeometry from MuonAGDDToolHelper

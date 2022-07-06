@@ -7,7 +7,6 @@
 
 #include "GeoPrimitives/GeoPrimitives.h" // need to include Amg stuff first to avoid that another Eigen implementation is included first which breaks compilation
 #include "GeoModelUtilities/GeoModelTool.h"
-#include "MuonGeoModel/MuonDetectorFactory001.h"
 
 namespace MuonGM {
     class MuonDetectorManager;
@@ -27,7 +26,7 @@ class MuonDetectorTool final : public GeoModelTool {
 
     // build the geometry
     virtual StatusCode create() override final;
-    StatusCode createFactory(MuonGM::MuonDetectorFactory001 &theFactory) const;
+    StatusCode createFactory(MuonGM::MuonDetectorManager * & ) const;
 
     // Dereference tree tops and drop readout objects
     virtual StatusCode clear() override final;
