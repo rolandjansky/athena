@@ -44,6 +44,26 @@ namespace Muon
         uint16_t m_vmm;
         uint16_t m_chan;
       };
+
+      class NSWOfflineRobId
+      {
+       public:
+	NSWOfflineRobId (const std::string &station_name, int8_t station_eta, uint8_t station_phi);
+	virtual ~NSWOfflineRobId () {};
+
+	uint32_t get_id () const {return m_sourceId;};
+
+       private:
+	uint32_t m_sourceId;
+      };
+
+      static const std::map <const std::pair <std::string, bool>, const uint32_t> s_station_to_detector_map =
+      {
+	{{"MM", true},  eformat::MUON_MMEGA_ENDCAP_A_SIDE},
+	{{"MM", false}, eformat::MUON_MMEGA_ENDCAP_C_SIDE},
+	{{"ST", true},  eformat::MUON_STGC_ENDCAP_A_SIDE},
+	{{"ST", false}, eformat::MUON_STGC_ENDCAP_C_SIDE}
+      };
     }
   }
 }
