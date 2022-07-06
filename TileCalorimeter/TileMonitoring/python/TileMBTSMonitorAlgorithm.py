@@ -11,7 +11,7 @@ def TileMBTSMonitoringConfig(flags, **kwargs):
 
     ''' Function to configure TileMBTSMonitorAlgorithm algorithm in the monitoring system.'''
 
-    kwargs.setdefault('useTrigger', flags.DQ.useTrigger)
+    kwargs.setdefault('useTrigger', (flags.DQ.useTrigger and not flags.Input.isMC))
     kwargs.setdefault('FillHistogramsPerMBTS', True)
 
     # Define one top-level monitoring algorithm. The new configuration

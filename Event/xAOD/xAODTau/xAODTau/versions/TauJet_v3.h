@@ -4,7 +4,6 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TauJet_v3.h 725228 2016-02-19 22:59:42Z griffith $
 #ifndef XAODTAU_VERSIONS_TAUJET_V3_H
 #define XAODTAU_VERSIONS_TAUJET_V3_H
 
@@ -417,6 +416,8 @@ namespace xAOD {
     void setProtoChargedPFOLinks( const PFOLinks_t& protoChargedPFOs );
     /// Get the pointer to a given cellbased_charged PFO associated with this tau
     const PFO* protoChargedPFO( size_t i ) const;
+    /// Get the non-const pointer to a given cellbased_charged PFO associated with this tau
+    PFO* protoChargedPFONonConst( size_t i );
     /// Get the number of cellbased_charged PFO particles associated with this tau
     size_t nProtoChargedPFOs() const;
     /// add a cellbased_charged PFO to the tau
@@ -431,6 +432,8 @@ namespace xAOD {
     void setProtoNeutralPFOLinks( const PFOLinks_t& protoNeutralPFOs );
     /// Get the pointer to a given cellbased_neutral PFO associated with this tau
     const PFO* protoNeutralPFO( size_t i ) const;
+    /// Get the non-const pointer to a given cellbased_neutral PFO associated with this tau
+    PFO* protoNeutralPFONonConst( size_t i );
     /// Get the number of cellbased_neutral PFO particles associated with this tau
     size_t nProtoNeutralPFOs() const;
     /// add a cellbased_neutral PFO to the tau

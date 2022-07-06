@@ -26,11 +26,13 @@ mettoolPFlow = CfgMgr.met__METMaker('METMaker_AntiKt4PFlow',
                                     JetJvtMomentName="NewJvt",
                                     DoPFlow=True)
 tool1.METMakerPFlow = mettoolPFlow
-
+from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 museltool = CfgMgr.CP__MuonSelectionTool("MuonSelectionTool",
                                          MuQuality=1, # Medium
                                          MaxEta=2.4,
-                                         TurnOffMomCorr = True)
+                                         TurnOffMomCorr = True,
+                                         IsRun3Geo = CommonGeometryFlags.Run not in ["RUN1","RUN2"]
+                                         )
 tool1.MuonSelectionTool = museltool
 
 eseltool = CfgMgr.AsgElectronLikelihoodTool("ElectronLHSelectionTool",

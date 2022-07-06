@@ -391,12 +391,12 @@ void PanTau::Tool_DetailsArranger::SetNeutralConstituentMass(xAOD::PFO* neutral_
 }
 
 
-void PanTau::Tool_DetailsArranger::SetNeutralConstituentVectorMasses(const std::vector< ElementLink<xAOD::PFOContainer> >& neutralPFOLinks, double mass) const {
-    
+void PanTau::Tool_DetailsArranger::SetNeutralConstituentVectorMasses(std::vector< ElementLink<xAOD::PFOContainer> >& neutralPFOLinks, double mass) const {
+
   for(unsigned int iNeutral=0; iNeutral<neutralPFOLinks.size(); iNeutral++) {
     ElementLink<xAOD::PFOContainer> curNeutralPFOLink   = neutralPFOLinks.at(iNeutral);
-    xAOD::PFO*                      curNeutralPFO       = const_cast<xAOD::PFO*>(curNeutralPFOLink.cachedElement());
-      
+    // to get non-const pointer, we need to lookup the element directly in the container
+    xAOD::PFO* curNeutralPFO = curNeutralPFOLink.getDataNonConstPtr()->at( curNeutralPFOLink.persIndex() );
     SetNeutralConstituentMass(curNeutralPFO, mass);      
   }
     

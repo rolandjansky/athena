@@ -208,12 +208,12 @@ StatusCode Muon::NSWCalibTool::calibrateStrip(const EventContext& ctx, const Muo
   const MuonGM::MuonDetectorManager* muDetMgr = muDetMgrHandle.cptr();
 
   //get globalPos
-  Amg::Vector3D globalPos;
+  Amg::Vector3D globalPos{0.,0.,0.};
   const MuonGM::sTgcReadoutElement* detEl = muDetMgr->getsTgcReadoutElement(rdoId);
   detEl->stripGlobalPosition(rdoId,globalPos);
   
   //get local postion
-  Amg::Vector2D locPos;
+  Amg::Vector2D locPos{0.,0.};
   if(!localStripPosition(rdoId,locPos)) {
     ATH_MSG_WARNING("Failed to retrieve local strip position");
     return StatusCode::FAILURE;
@@ -271,13 +271,22 @@ StatusCode Muon::NSWCalibTool::distToTime(const EventContext& ctx, const Muon::M
 bool
 Muon::NSWCalibTool::chargeToPdo(const EventContext& ctx, const double charge, const Identifier& chnlId, int& pdo) const {
   const NswCalibDbTimeChargeData* tdoPdoData = getCalibData(ctx);
-  if (!tdoPdoData) return false;  
+  if (!tdoPdoData) {
+    pdo = 0;
+    return false;  
+  }
   const TimeCalibConst& calib = tdoPdoData->getCalibForChannel(TimeCalibType::PDO, chnlId);
-  if (!calib.is_valid) return false; 
+  if (!calib.is_valid) {
+    pdo = 0;
+    return false; 
+  }
   double c = charge;
   if     (m_idHelperSvc->isMM  (chnlId)) c /= MM_electronsPerfC;
   else if(m_idHelperSvc->issTgc(chnlId)) c *= sTGC_pCPerfC;
-  else return false;
+  else {
+    pdo = 0;
+    return false;
+  }
   pdo = c * calib.slope + calib.intercept;
   return true;
 }
@@ -289,9 +298,15 @@ Muon::NSWCalibTool::pdoToCharge(const EventContext& ctx, const bool inCounts, co
     return true;
   }
   const NswCalibDbTimeChargeData* tdoPdoData = getCalibData(ctx);
-  if (!tdoPdoData) return false;  
+  if (!tdoPdoData) {
+    charge =0.;
+    return false;  
+  }
   const TimeCalibConst& calib = tdoPdoData->getCalibForChannel(TimeCalibType::PDO, chnlId);
-  if (!calib.is_valid) return false; 
+  if (!calib.is_valid) {
+    charge = 0.;
+    return false; 
+  }
   charge = (pdo-calib.intercept)/calib.slope;
   if     (m_idHelperSvc->isMM  (chnlId)) charge *= MM_electronsPerfC;
   else if(m_idHelperSvc->issTgc(chnlId)) charge /= sTGC_pCPerfC;
@@ -322,7 +337,10 @@ Muon::NSWCalibTool::timeToTdoMM(const NswCalibDbTimeChargeData* tdoPdoData, cons
       break;
     }
   }
-  if(tdoTime < lowerBound) return false;
+  if(tdoTime < lowerBound) {
+    tdo = relBCID = 0;
+    return false;
+  }
   tdo = tdoTime*calib.slope + calib.intercept;
   return true;
 }
@@ -340,7 +358,10 @@ Muon::NSWCalibTool::timeToTdoSTGC(const NswCalibDbTimeChargeData* tdoPdoData, co
       break;
     }
   }
-  if(tdoTime < lowerBound) return false;
+  if(tdoTime < lowerBound) {
+    tdo = relBCID = 0;
+    return false;
+  }
   tdo = tdoTime*calib.slope + calib.intercept;
   return true;
 }
@@ -352,9 +373,15 @@ Muon::NSWCalibTool::tdoToTime(const EventContext& ctx, const bool inCounts, cons
     return true;
   }
   const NswCalibDbTimeChargeData* tdoPdoData = getCalibData(ctx);
-  if (!tdoPdoData) return false;  
+  if (!tdoPdoData) {
+    time = 0.;
+    return false;  
+  }
   const TimeCalibConst& calib = tdoPdoData->getCalibForChannel(TimeCalibType::TDO, chnlId);
-  if (!calib.is_valid) return false;
+  if (!calib.is_valid){
+    time = 0.;
+    return false;
+  } 
   //this shift of 25ns is necessary to align the time of the signal with the way the VMM determines the time
   //(relBCID 0 corresponds to -37.5 ns to - 12.5 ns)
   //Eventually it should go into the conditions db since it is probably not the same for MC and Data

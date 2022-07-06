@@ -1,5 +1,9 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
+# configLumi_run410000_mc21a_MultiBeamspot.py
+# Default mu-profile for variable beam spot simulation without
+# bunch-to-bunch variations in luminosity.
+
 # We need to be able to adjust for different dataset sizes.
 if not 'ScaleTaskLength' in dir():   ScaleTaskLength = 1
 _evts = lambda x: int(ScaleTaskLength * x)

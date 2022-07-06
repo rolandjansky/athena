@@ -131,8 +131,8 @@ private:
     bool m_doShift;
     bool m_doExpert;
 
-    unsigned char m_mat_chip_B[64][1642]{};
-    unsigned char m_mat_chip_E[64][3840]{};
+    std::vector<std::vector<unsigned char>> m_mat_chip_B{64, std::vector<unsigned char>(1642)};
+    std::vector<std::vector<unsigned char>> m_mat_chip_E{64, std::vector<unsigned char>(3840)};
 
     float m_DistToStraw;
     bool m_isCosmics;
