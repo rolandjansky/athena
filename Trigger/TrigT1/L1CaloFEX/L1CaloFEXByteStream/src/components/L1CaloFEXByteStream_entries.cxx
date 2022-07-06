@@ -1,5 +1,5 @@
-#include "../jFexByteStreamTool.h"
+#include "../jFexRoiByteStreamTool.h"
 #include "../eFexByteStreamTool.h"
 
-DECLARE_COMPONENT( jFexByteStreamTool )
+DECLARE_COMPONENT( jFexRoiByteStreamTool )
 DECLARE_COMPONENT( eFexByteStreamTool )
