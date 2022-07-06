@@ -311,6 +311,11 @@ StatusCode xAODTauFilter::filterEvent() {
       } else {
 	(*mec)[i]->weights().push_back( existingWeight*extra_weight );
       }
+
+#ifdef HEPMC3
+      (*mec)[i]->add_attribute("filterWeight", std::make_shared<HepMC3::DoubleAttribute>(extra_weight));
+#endif
+
     }
   }
 

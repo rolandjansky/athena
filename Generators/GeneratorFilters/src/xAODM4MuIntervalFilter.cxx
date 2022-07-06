@@ -120,6 +120,11 @@ for (itr = xTruthEventContainer->begin(); itr!=xTruthEventContainer->end(); ++it
       } else {
         (*mec)[i]->weights().push_back( eventWeight*existingWeight );
       }
+
+#ifdef HEPMC3
+      (*mec)[i]->add_attribute("filterWeight", std::make_shared<HepMC3::DoubleAttribute>(eventWeight));
+#endif
+
     }
   }
   // Made it to the end - success!

@@ -151,6 +151,11 @@ StatusCode QCDTruthJetFilter::filterEvent() {
     orig = (*mec)[i]->weights().size()>0?(*mec)[i]->weights()[0]:1.;
     if ((*mec)[i]->weights().size()>0) (*mec)[i]->weights()[0] = orig*w*m_norm;
     else (*mec)[i]->weights().push_back( w*m_norm*orig );
+    
+#ifdef HEPMC3
+      (*mec)[i]->add_attribute("filterWeight", std::make_shared<HepMC3::DoubleAttribute>(w*m_norm));
+#endif
+
   }
   return StatusCode::SUCCESS;
 }
