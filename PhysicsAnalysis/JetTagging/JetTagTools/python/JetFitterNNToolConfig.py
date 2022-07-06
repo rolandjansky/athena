@@ -2,11 +2,11 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from JetTagTools.NeuralNetworkToHistoToolConfig import NeuralNetworkToHistoToolCfg
+from TrkConfig.TrkNeuralNetworkUtilsConfig import NeuralNetworkToHistoToolCfg
 
 # import the JetFitterNNTool configurable
 
-def JetFitterNNToolCfg( name = 'JetFitterNNTool', scheme='', CombinedIPNN = False, useBTagFlagsDefaults = True, **options ):
+def JetFitterNNToolCfg( flags, name = 'JetFitterNNTool', scheme='', CombinedIPNN = False, useBTagFlagsDefaults = True, **options ):
     """Sets up a JetFitterNNTool tool and returns it.
 
     The following options have BTaggingFlags defaults:
@@ -27,7 +27,7 @@ def JetFitterNNToolCfg( name = 'JetFitterNNTool', scheme='', CombinedIPNN = Fals
 
     if useBTagFlagsDefaults:
         if not CombinedIPNN:
-            nnToHistoTool = acc.popToolsAndMerge(NeuralNetworkToHistoToolCfg('NeuralNetworkToHistoToolNN'))
+            nnToHistoTool = acc.popToolsAndMerge(NeuralNetworkToHistoToolCfg(flags))
             defaults = { 'useCombinedIPNN'                  : False,
                      'CalibrationDirectory'             : 'JetFitter',
                      'CalibrationSubDirectory'          : 'NeuralNetwork',

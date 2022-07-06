@@ -32,7 +32,7 @@ def JetFitterTagCfg(flags, name = 'JetFitterTagNN', scheme = '', CombinedIPNN = 
         if useBTagFlagsDefaults:
             if not CombinedIPNN:
                 if runNN:
-                    jetfitterClassifier = acc.popToolsAndMerge(JetFitterNNToolCfg('JetFitterNNTool', scheme))
+                    jetfitterClassifier = acc.popToolsAndMerge(JetFitterNNToolCfg(flags, 'JetFitterNNTool', scheme))
                 else:
                     # FIXME: there has to be an easier way to instance
                     # a #@$%ing tool :'(
