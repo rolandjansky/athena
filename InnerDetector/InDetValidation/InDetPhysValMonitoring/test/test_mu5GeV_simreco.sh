@@ -109,6 +109,7 @@ if [ $sim_tf_exit_code -eq 0 ]  ;then
    InDetPhysValFlags.doValidateTracksInJets.set_Value_and_Lock(False); \
    InDetPhysValFlags.doValidateGSFTracks.set_Value_and_Lock(False); \
    InDetPhysValFlags.doExpertOutput.set_Value_and_Lock(True); \
+   InDetPhysValFlags.doHitLevelPlots.set_Value_and_Lock(True); \
    rec.doDumpProperties=True; rec.doCalo=True; rec.doEgamma=True; \
    rec.doForwardDet=False; rec.doInDet=True; rec.doJetMissingETTag=True; \
    rec.doLArg=True; rec.doLucid=True; rec.doMuon=True; rec.doMuonCombined=True; \
@@ -124,13 +125,13 @@ if [ $sim_tf_exit_code -eq 0 ]  ;then
  
  if [ $rec_tf_exit_code -eq 0 ]  ;then
  
-   echo "compare with a fixed R22"
-   $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
-     -p -x ${dcube_rec_fixref} \
-     -c ${dcubecfg_rec} \
-     -r ${dcuberef_rec} \
-     ${dcubemon_rec}
-   echo "art-result: $? rec plots"
+#   echo "compare with a fixed R22"
+#   $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
+#     -p -x ${dcube_rec_fixref} \
+#     -c ${dcubecfg_rec} \
+#     -r ${dcuberef_rec} \
+#     ${dcubemon_rec}
+#   echo "art-result: $? rec plots"
    
    echo "compare with last build"
    $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
