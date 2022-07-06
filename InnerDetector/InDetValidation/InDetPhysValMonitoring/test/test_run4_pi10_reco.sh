@@ -10,7 +10,7 @@
 
 lastref_dir=last_results
 dcubeXml="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPhysValMonitoring/dcube/config/IDPVMPlots_R22.xml"
-ref_21p9=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPhysValMonitoring/ReferenceHistograms/900038.PG_singlepiplus_Pt10_etaFlatnp0_43.evgen.EVNT.e8185
+ref_21p9=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPhysValMonitoring/ReferenceHistograms/900038_piplus10_ITk_21p9_v1.IDPVM.root
 
 geometry=ATLAS-P2-RUN4-01-00-00
 
