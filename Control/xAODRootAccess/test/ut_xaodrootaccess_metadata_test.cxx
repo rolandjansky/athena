@@ -78,14 +78,13 @@ int main() {
    const SG::AuxElement* ei = nullptr;
    SIMPLE_ASSERT( event.retrieve( ei, "EventInfo" ).isSuccess() == false );
 
-   // Temporarily disabled as it doesn't currently exist in DAOD_PHYS
-   // // Try to retrieve some objects:
-   // const SG::AuxVectorBase* v = 0;
-   // const xAOD::AuxContainerBase* c = 0;
-   // RETURN_CHECK( APP_NAME, event.retrieveMetaInput( v, "TriggerMenu" ) );
-   // SIMPLE_ASSERT( v->size_v() == 1 );
-   // RETURN_CHECK( APP_NAME, event.retrieveMetaInput( c, "TriggerMenuAux." ) );
-   // SIMPLE_ASSERT( c->size() == 1 );
+   // Try to retrieve some objects:
+   const SG::AuxVectorBase* v = 0;
+   const xAOD::AuxContainerBase* c = 0;
+   RETURN_CHECK( APP_NAME, event.retrieveMetaInput( v, "TriggerMenu" ) );
+   SIMPLE_ASSERT( v->size_v() == 1 );
+   RETURN_CHECK( APP_NAME, event.retrieveMetaInput( c, "TriggerMenuAux." ) );
+   SIMPLE_ASSERT( c->size() == 1 );
 
    // Open a test output file:
    static const char* const OFNAME = "test.root";

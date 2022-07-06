@@ -721,7 +721,7 @@ asg::AcceptData AsgElectronSelectorTool::accept( const EventContext& ctx, const 
   ATH_MSG_VERBOSE("\t AsgElectronSelectorTool::accept( &ctx, *part= "<<(&ctx)<<", "<<part<<" )");
   const xAOD::Electron* eg = dynamic_cast<const xAOD::Electron*>(part);
   if (eg){
-    return accept(ctx, eg);
+    return accept(eg);
   }
   else {
     ATH_MSG_DEBUG("AsgElectronSelectorTool::could not cast to const Electron");
@@ -741,7 +741,7 @@ double AsgElectronSelectorTool::calculate( const EventContext& ctx, const xAOD::
   ATH_MSG_VERBOSE("\t AsgElectronSelectorTool::calculate( &ctx, *part"<<(&ctx)<<", "<<part<<" )");
   const xAOD::Electron* eg = dynamic_cast<const xAOD::Electron*>(part);
   if (eg){
-    return calculate(ctx, eg);
+    return calculate(eg);
   }
   else {
     ATH_MSG_DEBUG("AsgElectronSelectorTool::could not cast to const Electron");
