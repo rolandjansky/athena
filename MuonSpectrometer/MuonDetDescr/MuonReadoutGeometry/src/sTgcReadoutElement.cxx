@@ -746,7 +746,7 @@ namespace MuonGM {
             // setup strip calculator
             NswAsBuilt::stripIdentifier_t stgcStrip_id;
             stgcStrip_id.quadruplet = { (largeSector() ? NswAsBuilt::quadrupletIdentifier_t::STL : NswAsBuilt::quadrupletIdentifier_t::STS), getStationEta(), getStationPhi(), m_ml };
-            stgcStrip_id.ilayer     = manager()->sTgcIdHelper()->gasGap(layerId);
+            stgcStrip_id.ilayer     = manager()->stgcIdHelper()->gasGap(layerId);
             stgcStrip_id.istrip     = istrip;
             
             // length of the strip with index "istrip"  
@@ -756,7 +756,7 @@ namespace MuonGM {
             double sy      = 2*locYseed/ylength; // in [-1, 1]
 
             // get the position coordinates, in the multilayer frame, from NswAsBuilt.
-            NswAsBuilt::StripCalculator::position_t calcPos = sc->getPositionAlongStrip(NswAsBuilt::Element::ParameterClass::CORRECTION, strip_id, sy, sx);
+            NswAsBuilt::StgcStripCalculator::position_t calcPos = sc->getPositionAlongStgcStrip(NswAsBuilt::Element::ParameterClass::CORRECTION, stgcStrip_id, sy, sx);
             pos     = calcPos.pos;
 
             // signal that we are in the multilayer reference frame

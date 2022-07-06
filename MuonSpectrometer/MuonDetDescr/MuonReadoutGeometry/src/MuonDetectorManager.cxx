@@ -1437,7 +1437,7 @@ namespace MuonGM {
         m_StgcAsBuiltCalculator.reset();  // unset any previous instance
         m_StgcAsBuiltCalculator = std::make_unique<NswAsBuilt::StgcStripCalculator>();
         std::string stgcJson="";
-        if(!nswAsBuiltData->getSTgcData(mmJson)){
+        if(!nswAsBuiltData->getSTgcData(stgcJson)){
            MsgStream log(Athena::getMessageSvc(), "MGM::MuonDetectorManager");
            log << MSG::WARNING << " Cannot retrieve MM as-built conditions data from detector store!" << endmsg;
         }
