@@ -1948,11 +1948,13 @@ namespace Muon {
                     continue;
                 }
                 float r = rCor(*prd);
-                MuonHough::PhiHit* phiHit =
-                    new MuonHough::PhiHit(sublayer, r, std::min(phi1c, phi2c), std::max(phi1c, phi2c), 1, debug.release(), prd);
-                ATH_MSG_VERBOSE("Phi hit " << m_idHelperSvc->toString(id) << " r " << r << " phi min " << phiHit->phimin << " phi max "
-                                           << phiHit->phimax << " bc " << debug->barcode << " chw " << chWidth << " trigC "
+                float phiMin = std::min(phi1c, phi2c);
+                float phiMax = std::max(phi1c, phi2c);
+                ATH_MSG_VERBOSE("Phi hit " << m_idHelperSvc->toString(id) << " r " << r << " phi min " << phiMin << " phi max "
+                                           << phiMax << " bc " << debug->barcode << " chw " << chWidth << " trigC "
                                            << debug->trigConfirm << " g phi " << phi1 << " " << phi2);
+                MuonHough::PhiHit* phiHit =
+                    new MuonHough::PhiHit(sublayer, r, phiMin, phiMax, 1, debug.release(), prd);
                 phiHits.emplace_back(phiHit);
             }
         }
