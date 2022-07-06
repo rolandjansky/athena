@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ViewAlgs_IDCCacheCreatorBase_h
@@ -21,7 +21,7 @@ protected:
   StatusCode createContainer(const SG::WriteHandleKey<T>& , long unsigned int , const EventContext& ) const;
   template<bool checkKey = true, typename T, typename X>
   StatusCode createValueContainer(const SG::WriteHandleKey<T>& , long unsigned int , const EventContext&, const X& defaultValue ) const;
-  mutable std::atomic_flag m_disableWarningCheck ATLAS_THREAD_SAFE;
+  mutable std::atomic_flag m_disableWarningCheck ATLAS_THREAD_SAFE = ATOMIC_FLAG_INIT;
   bool isInsideView(const EventContext&) const;
   StatusCode checkInsideViewOnce(const EventContext&) const;
 };
