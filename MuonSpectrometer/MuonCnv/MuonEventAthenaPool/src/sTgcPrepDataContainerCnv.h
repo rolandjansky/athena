@@ -1,20 +1,19 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONEVENTATHENAPOOL_sTgcPREPDATACONTAINERCNV_H
 #define MUONEVENTATHENAPOOL_sTgcPREPDATACONTAINERCNV_H
 
-//#include "AthenaPoolCnvSvc/T_AthenaPoolCustCnv.h"
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 #include "MuonPrepRawData/sTgcPrepDataCollection.h"
 #include "MuonPrepRawData/sTgcPrepDataContainer.h"
 #include "MuonEventTPCnv/MuonPrepRawData/sTgcPrepDataContainerCnv_p1.h"
+#include "MuonEventTPCnv/MuonPrepRawData/sTgcPrepDataContainerCnv_p2.h"
 
 
 // the latest persistent representation type of DataCollection:
-// COMPRESS typedef  Muon::sTgcPrepDataContainer_p2  sTgcPrepDataContainer_PERS;
-typedef  Muon::sTgcPrepDataContainer_p1  sTgcPrepDataContainer_PERS;
+typedef  Muon::sTgcPrepDataContainer_p2  sTgcPrepDataContainer_PERS;
 typedef  T_AthenaPoolCustomCnv<Muon::sTgcPrepDataContainer, sTgcPrepDataContainer_PERS >  sTgcPrepDataContainerCnvBase;
 
 /**
@@ -38,6 +37,7 @@ public:
         
 private:
     Muon::sTgcPrepDataContainerCnv_p1    m_converter_p1;
+    Muon::sTgcPrepDataContainerCnv_p2    m_converter_p2;
 };
 
 #endif
