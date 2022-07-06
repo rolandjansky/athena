@@ -29,6 +29,9 @@ def PhysValMonitoringCfg(flags):
     if flags.PhysVal.doBtag:
         from JetTagDQA.JetTagDQAConfig import PhysValBTagCfg
         monMan.AthenaMonTools += [ acc.popToolsAndMerge(PhysValBTagCfg(flags)) ]
+    if flags.PhysVal.doEgamma:
+        from EgammaPhysValMonitoring.EgammaPhysValMonitoringConfig import EgammaPhysValMonitoringToolCfg
+        monMan.AthenaMonTools += [ acc.popToolsAndMerge(EgammaPhysValMonitoringToolCfg(flags)) ]
 
     acc.addEventAlgo(monMan, primary = True)
     return acc

@@ -2,32 +2,30 @@
 #  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
-'''@file JetTagDQAConfig.py
+'''@file EGammaPhysValMonitoringConfig.py
 @author T. Strebler
-@date 2022-06-16
-@brief Main CA-based python configuration for JetTagDQA
+@date 2022-07-05
+@brief Main CA-based python configuration for EGammaPhysValMonitoring
 '''
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-def PhysValBTagCfg(flags, **kwargs):
+def EgammaPhysValMonitoringToolCfg(flags, **kwargs):
     acc = ComponentAccumulator()
 
+    kwargs.setdefault("EnableLumi", False)
     kwargs.setdefault("DetailLevel", 10)
-    kwargs.setdefault("isData", not flags.Input.isMC)
+    kwargs.setdefault("isMC", flags.Input.isMC)
 
-    import ROOT
-    path = ROOT.PathResolver.find_file( 'JetTagDQA/PhysValBtag_VariablesMenu.json', 'DATAPATH' )
-    from PhysValMonitoring.PhysValUtils import getHistogramDefinitions
-    kwargs.setdefault("HistogramDefinitions", getHistogramDefinitions(path, 'PHYSVAL', 'ALL'))
+    from MCTruthClassifier.MCTruthClassifierConfig import MCTruthClassifierCaloTruthMatchCfg
+    kwargs.setdefault("MCTruthClassifier", acc.popToolsAndMerge(MCTruthClassifierCaloTruthMatchCfg(flags)))
 
-    tool = CompFactory.JetTagDQA.PhysValBTag(**kwargs)
+    tool = CompFactory.EgammaPhysValMonitoring.EgammaPhysValMonitoringTool(**kwargs)
     acc.setPrivateTools(tool)
     return acc
-    
 
-def JetTagDQACfg(flags):
+def EgammaPhysValMonitoringCfg(flags):
     acc = ComponentAccumulator()
 
     monMan = CompFactory.AthenaMonManager( "PhysValMonManager" )
@@ -38,7 +36,8 @@ def JetTagDQACfg(flags):
     monMan.ManualRunLBSetup = True
     monMan.Run = 1
     monMan.LumiBlock = 1
-    monMan.AthenaMonTools += [ acc.popToolsAndMerge(PhysValBTagCfg(flags)) ]
+    monMan.AthenaMonTools += [ acc.popToolsAndMerge(EgammaPhysValMonitoringToolCfg(flags)) ]
     
     acc.addEventAlgo(monMan, primary = True)
     return acc
+
