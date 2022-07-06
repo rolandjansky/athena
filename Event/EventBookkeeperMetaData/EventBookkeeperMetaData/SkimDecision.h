@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////// 
@@ -26,7 +26,7 @@ class SkimDecision
 
   // get() and set() methods
   std::string getName() const { return m_name; }
-  void setName( std::string name );
+  void setName( const std::string& name );
 
   bool isAccepted() const { return m_isAccepted; }
   void setIsAccepted( bool answer );

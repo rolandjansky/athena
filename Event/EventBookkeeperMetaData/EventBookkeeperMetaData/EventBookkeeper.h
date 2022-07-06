@@ -75,7 +75,8 @@ class EventBookkeeper
   void setChildrenEventBookkeepers(std::vector<EventBookkeeper*>*  childrenEB );
   void AddChild(EventBookkeeper* eb);
   void AddChildren( std::vector<EventBookkeeper*>* children );
-  EventBookkeeper* AddNewChild(std::string name, std::string description);
+  EventBookkeeper* AddNewChild(const std::string& name,
+                               const std::string& description);
 
   bool isEqualTo( const EventBookkeeper *eb );
 

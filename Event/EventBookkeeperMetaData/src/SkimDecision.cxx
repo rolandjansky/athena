@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////// 
@@ -14,16 +14,15 @@
 ////////////////
 
 SkimDecision::SkimDecision()
+  : m_isAccepted (true)
 { 
-  m_name="";
-  m_isAccepted=true;
 }
 
 SkimDecision::SkimDecision( const SkimDecision& rhs )
+  : m_name (rhs.m_name),
+    m_isAccepted (rhs.m_isAccepted)
 {
-  m_name=rhs.m_name;
-  m_isAccepted=rhs.m_isAccepted;
 }
  
-void SkimDecision::setName( std::string name ){ m_name=name; }
+void SkimDecision::setName( const std::string& name ){ m_name=name; }
 void SkimDecision::setIsAccepted( bool answer ){ m_isAccepted=answer; }
