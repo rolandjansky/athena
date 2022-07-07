@@ -15,10 +15,6 @@
 //STL
 #include <string>
 
-//Tools
-#include "AthenaMonitoringKernel/Monitored.h"
-#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
-
 //Gaudi
 #include "GaudiKernel/ToolHandle.h"
 
@@ -39,6 +35,8 @@
 class PixelID;
 class SCT_ID;
 
+namespace InDet {
+
 class InDetToXAODClusterConversion : public AthReentrantAlgorithm {
 public:
 
@@ -58,9 +56,8 @@ public:
    //@}
 
 private:
-  ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
-  const PixelID* m_pixelID{};
-  const SCT_ID* m_stripID{};
+  const PixelID* m_pixelID {};
+  const SCT_ID* m_stripID {};
 
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "ITkPixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_stripDetEleCollKey{this, "StripDetEleCollKey", "ITkStripDetectorElementCollection", "Key of SiDetectorElementCollection for Strip"};
@@ -71,6 +68,8 @@ private:
   SG::WriteHandleKey<xAOD::PixelClusterContainer> m_outputPixelClusterContainerKey {this, "OutputPixelClustersName", "ITkPixelClusters", "name of the output xAOD pixel cluster container"};
   SG::WriteHandleKey<xAOD::StripClusterContainer> m_outputStripClusterContainerKey {this, "OutputStripClustersName", "ITkStripClusters", "name of the output xAOD strip cluster container"};
 };
+
+}
 
 #endif // INDETRIOMAKER_INDETTOXAODCLUSTERCONVERSION_H
 

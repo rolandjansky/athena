@@ -23,6 +23,8 @@
 #include "AthContainers/DataVector.h"
 #include <iterator>
 
+using namespace InDet;
+
 // Constructor with parameters:
 InDetToXAODClusterConversion::InDetToXAODClusterConversion(const std::string &name, ISvcLocator *pSvcLocator) :
 AthReentrantAlgorithm(name, pSvcLocator)
@@ -44,11 +46,6 @@ StatusCode InDetToXAODClusterConversion::initialize(){
     ATH_CHECK( m_outputPixelClusterContainerKey.initialize() );
     ATH_CHECK( m_outputStripClusterContainerKey.initialize() );
 
-    if ( !m_monTool.empty() )
-        ATH_CHECK(m_monTool.retrieve() );
-    else
-        ATH_MSG_DEBUG("Monitoring tool is empty");
-
     ATH_MSG_DEBUG( "Initialize done !" );
     return StatusCode::SUCCESS;
 }
@@ -56,8 +53,6 @@ StatusCode InDetToXAODClusterConversion::initialize(){
 //----------------------------------------------------------------------------
 //
 StatusCode InDetToXAODClusterConversion::execute(const EventContext& ctx) const {
-
-    auto mnt_timer_Total = Monitored::Timer("TIME_Total");
 
     SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey, ctx);
     const InDetDD::SiDetectorElementCollection* pixElements(*pixelDetEleHandle);
@@ -72,9 +67,6 @@ StatusCode InDetToXAODClusterConversion::execute(const EventContext& ctx) const 
     ATH_MSG_DEBUG( "Recorded xAOD::PixelClusterContainer with key: " << m_outputPixelClusterContainerKey.key()  );
 
     SG::ReadHandle<InDet::PixelClusterContainer> inputPixelClusterContainer(m_inputPixelClusterContainerKey, ctx);
-
-    auto mnt_timer_pixel = Monitored::Timer("TIME_PixelConversion");
-    mnt_timer_pixel.start();
 
     for (const auto clusterCollection : *inputPixelClusterContainer) {
         if (!clusterCollection) continue;
@@ -134,7 +126,6 @@ StatusCode InDetToXAODClusterConversion::execute(const EventContext& ctx) const 
     }
 
     ATH_MSG_DEBUG("xAOD::PixelClusterContainer with size: " << outputPixelClusterContainer->size());
-    mnt_timer_pixel.stop();
 
     SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> stripDetEleHandle(m_stripDetEleCollKey, ctx);
     const InDetDD::SiDetectorElementCollection* stripElements(*stripDetEleHandle);
@@ -149,9 +140,6 @@ StatusCode InDetToXAODClusterConversion::execute(const EventContext& ctx) const 
     ATH_MSG_DEBUG( "Recorded xAOD::StripClusterContainer with key: " << m_outputStripClusterContainerKey.key()  );
 
     SG::ReadHandle<InDet::SCT_ClusterContainer> inputStripClusterContainer(m_inputStripClusterContainerKey, ctx);
-
-    auto mnt_timer_strip = Monitored::Timer("TIME_StripConversion");
-    mnt_timer_strip.start();
 
     for (const auto clusterCollection : *inputStripClusterContainer) {
         if (!clusterCollection) continue;
@@ -211,12 +199,6 @@ StatusCode InDetToXAODClusterConversion::execute(const EventContext& ctx) const 
 
     ATH_MSG_DEBUG("xAOD::StripClusterContainer with size: " << outputStripClusterContainer->size());
 
-    mnt_timer_strip.stop();
-
-    auto monTime = Monitored::Group(m_monTool,
-                                    mnt_timer_Total,
-                                    mnt_timer_pixel,
-                                    mnt_timer_strip);
     return StatusCode::SUCCESS;
   }
 
