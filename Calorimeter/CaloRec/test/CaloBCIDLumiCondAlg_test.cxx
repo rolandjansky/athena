@@ -61,6 +61,17 @@ EventIDBase mixed (int lbn,
                       lbn);
 }
 
+EventIDBase mixed (int run,
+                   int lbn,
+                   int t)
+{
+  return EventIDBase (run,  // run
+                      EventIDBase::UNDEFEVT,  // event
+                      t,                      // timestamp
+                      0,                      // ns offset
+                      lbn);
+}
+
 
 //************************************************************************
 
@@ -351,7 +362,8 @@ void test1 (ISvcLocator* svcloc,
 
   DataObjID id_bccd ("BunchCrossingData");
   auto cc_bccd = std::make_unique<CondCont<BunchCrossingCondData> > (rcu, id_bccd);
-  const EventIDRange range_bccd (timestamp (0), timestamp (100));
+  constexpr int infinite_int = std::numeric_limits<int>::max() - 1;
+  const EventIDRange range_bccd (mixed (0,0,0), mixed(infinite_int,infinite_int,100));
   assert( cc_bccd->insert (range_bccd, get_bccd(), ctx).isSuccess() );
   assert( conditionStore->record (std::move (cc_bccd), id_bccd.key()) );
 
