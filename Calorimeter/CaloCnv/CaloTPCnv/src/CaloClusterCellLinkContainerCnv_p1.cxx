@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTPCnv/CaloClusterCellLinkContainerCnv_p1.h" 
@@ -87,12 +87,19 @@ CaloClusterCellLinkContainerCnv_p1::transToPersWithKey (const CaloClusterCellLin
       for (; it != end; ++it) {
         unsigned ndx = it.index();
         if (dec_cells) ndx = dec_cells->index (ndx);
-        if (it.weight() == 1.0) { //standard weight 
+        // Don't save weights that are exactly 1.0.
+        // But the weights we save are single-precision, while the weights
+        // in the cluster are double-precision.  Convert to single-precision
+        // before doing the comparision with 1.0, otherwise the contents
+        // of this object can change if we read and rewrite.
+        // See ATLASRECTS-7129.
+        float fweight = it.weight();
+        if (fweight == 1.0) { //standard weight 
           pers->m_indices.push_back(ndx & INDEXBIT_MASK);
         }
         else {
           pers->m_indices.push_back((ndx & INDEXBIT_MASK) | HAS_WEIGHT_BIT);
-          pers->m_weights.push_back(it.weight());
+          pers->m_weights.push_back(fweight);
         }
       }//end loop over cells in cellLink object
     }
