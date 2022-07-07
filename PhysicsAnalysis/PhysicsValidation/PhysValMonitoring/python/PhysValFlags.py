@@ -9,6 +9,7 @@ def createPhysValConfigFlags():
 
     icf.addFlag("PhysVal.doInDet", False)
     icf.addFlag("PhysVal.doBtag", False)
+    icf.addFlag("PhysVal.doMET", False)
     icf.addFlag("PhysVal.doEgamma", False)
 
     from InDetPhysValMonitoring.InDetPhysValFlags import createIDPVMConfigFlags
