@@ -4,7 +4,6 @@
 
 #include "StripClusterAnalysis.h"
 #include "AthenaMonitoringKernel/Monitored.h"
-#include "InDetIdentifier/SCT_ID.h"
 
 namespace ActsTrk {
 
@@ -16,6 +15,7 @@ namespace ActsTrk {
     ATH_MSG_DEBUG( "Initializing ActsTrk::StripClusterAnalysis" );
     
     ATH_CHECK( m_stripClusterContainerKey.initialize() );
+    ATH_CHECK(detStore()->retrieve(m_stripID,"SCT_ID"));
 
     return AthMonitorAlgorithm::initialize();
   }
@@ -29,38 +29,35 @@ namespace ActsTrk {
         return StatusCode::FAILURE;
     }
     
-    const SCT_ID *stripID = nullptr;
-    ATH_CHECK( detStore()->retrieve(stripID, "SCT_ID") );
-
     auto monitor_barrelEndcap = Monitored::Collection("barrelEndcap", *inputStripClusterContainer,
-                                                      [&stripID] (const auto* cluster) -> int
+                                                      [this] (const auto* cluster) -> int
                                                       {
-                                                        const Identifier& id = stripID->wafer_id(cluster->identifierHash());
-                                                        return stripID->barrel_ec(id);
+                                                        const Identifier& id = m_stripID->wafer_id(cluster->identifierHash());
+                                                        return m_stripID->barrel_ec(id);
                                                       });
     auto monitor_layerDisk = Monitored::Collection("layerDisk", *inputStripClusterContainer,
-						   [&stripID] (const auto* cluster) -> int
+						   [this] (const auto* cluster) -> int
                                                    {
-                                                     const Identifier& id = stripID->wafer_id(cluster->identifierHash());
-                                                     return stripID->layer_disk(id);
+                                                     const Identifier& id = m_stripID->wafer_id(cluster->identifierHash());
+                                                     return m_stripID->layer_disk(id);
                                                    });
     auto monitor_phiModule = Monitored::Collection("phiModule", *inputStripClusterContainer,
-						   [&stripID] (const auto* cluster) -> int
+						   [this] (const auto* cluster) -> int
 						   {
-						     const Identifier& id = stripID->wafer_id(cluster->identifierHash());
-						     return stripID->phi_module(id);
+						     const Identifier& id = m_stripID->wafer_id(cluster->identifierHash());
+						     return m_stripID->phi_module(id);
 						   });
     auto monitor_etaModule = Monitored::Collection("etaModule", *inputStripClusterContainer,
-						   [&stripID] (const auto* cluster) -> int
+						   [this] (const auto* cluster) -> int
 						   {
-						     const Identifier& id = stripID->wafer_id(cluster->identifierHash());
-						     return stripID->eta_module(id);
+						     const Identifier& id = m_stripID->wafer_id(cluster->identifierHash());
+						     return m_stripID->eta_module(id);
 						   });
     auto monitor_sideModule = Monitored::Collection("sideModule", *inputStripClusterContainer,
-						    [&stripID] (const auto* cluster) -> int
+						    [this] (const auto* cluster) -> int
 						    {
-						      const Identifier& id = stripID->wafer_id(cluster->identifierHash());
-						      return stripID->side(id);
+						      const Identifier& id = m_stripID->wafer_id(cluster->identifierHash());
+						      return m_stripID->side(id);
 						    });
 
 
