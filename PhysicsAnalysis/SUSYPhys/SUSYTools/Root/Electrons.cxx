@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // This source file implements all of the functions related to <OBJECT>
@@ -53,6 +53,7 @@ namespace ST {
   const static SG::AuxElement::ConstAccessor<float> acc_z0sinTheta("z0sinTheta");
   const static SG::AuxElement::Decorator<float>     dec_d0sig("d0sig");
   const static SG::AuxElement::ConstAccessor<float> acc_d0sig("d0sig");
+  const static SG::AuxElement::ConstAccessor<float> acc_LowPtPLV("LowPtPLV");
 
   const static SG::AuxElement::ConstAccessor<float> acc_topoetcone20("topoetcone20");
   const static SG::AuxElement::ConstAccessor<char> acc_passECIDS("DFCommonElectronsECIDS"); // Loose 97% WP
@@ -225,7 +226,7 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
 
   dec_baseline(input) = true;
   dec_selected(input) = 2;
-  if (!m_eleIso_WP.empty() && m_eleIso_WP.find("PLV")!=std::string::npos) ATH_CHECK( m_isoToolLowPtPLV->augmentPLV(input) );
+  if (!m_eleIso_WP.empty() && m_eleIso_WP.find("PLV")!=std::string::npos && !acc_LowPtPLV.isAvailable(input)) ATH_CHECK( m_isoToolLowPtPLV->augmentPLV(input) );
   if (!m_eleIso_WP.empty()) dec_isol(input) = m_isoTool->accept(input);
   if (!m_eleIsoHighPt_WP.empty()) dec_isolHighPt(input) = m_isoHighPtTool->accept(input);
 
