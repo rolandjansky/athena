@@ -8,6 +8,7 @@
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODInDetMeasurement/PixelClusterContainer.h"
+#include "InDetIdentifier/PixelID.h"
 
 namespace ActsTrk {
 
@@ -22,6 +23,8 @@ namespace ActsTrk {
 
   private:
     SG::ReadHandleKey< xAOD::PixelClusterContainer > m_pixelClusterContainerKey{this, "ClusterContainerKey", "ITkPixelClusters", "Key of input pixel clusters"};    
+
+    const PixelID *m_pixelID {};
   };
 
 }

@@ -8,6 +8,7 @@
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODInDetMeasurement/StripClusterContainer.h"
+#include "InDetIdentifier/SCT_ID.h"
 
 namespace ActsTrk {
 
@@ -22,6 +23,8 @@ namespace ActsTrk {
 
   private:
     SG::ReadHandleKey<xAOD::StripClusterContainer> m_stripClusterContainerKey{this, "ClusterContainerKey", "ITkStripClusters", "Key of input pixel clusters"};
+
+    const SCT_ID *m_stripID {};
   };
 
 }

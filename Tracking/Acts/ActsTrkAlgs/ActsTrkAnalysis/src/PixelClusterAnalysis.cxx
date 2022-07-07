@@ -4,7 +4,6 @@
 
 #include "PixelClusterAnalysis.h"
 #include "AthenaMonitoringKernel/Monitored.h"
-#include "InDetIdentifier/PixelID.h"
 
 namespace ActsTrk {
 
@@ -16,6 +15,8 @@ namespace ActsTrk {
     ATH_MSG_DEBUG( "Initializing ActsTrk::PixelClusterAnalysis" );
     
     ATH_CHECK( m_pixelClusterContainerKey.initialize() );
+
+    ATH_CHECK(detStore()->retrieve(m_pixelID,"PixelID"));
 
     return AthMonitorAlgorithm::initialize();
   }
@@ -29,46 +30,43 @@ namespace ActsTrk {
         return StatusCode::FAILURE;
     }
 
-    const PixelID *pixelID = nullptr;
-    ATH_CHECK( detStore()->retrieve(pixelID, "PixelID") );
-
     auto monitor_barrelEndcap = Monitored::Collection("barrelEndcap", *inputPixelClusterContainer,
-						      [&pixelID] (const auto* cluster) -> int
+						      [this] (const auto* cluster) -> int
 						      {
-							const Identifier& id = pixelID->wafer_id(cluster->identifierHash());
-							return pixelID->barrel_ec(id);
+							const Identifier& id = m_pixelID->wafer_id(cluster->identifierHash());
+							return m_pixelID->barrel_ec(id);
 						      });
     auto monitor_layerDisk = Monitored::Collection("layerDisk", *inputPixelClusterContainer,
-						      [&pixelID] (const auto* cluster) -> int
+						      [this] (const auto* cluster) -> int
 						   { 
-						     const Identifier& id = pixelID->wafer_id(cluster->identifierHash());
-						     return pixelID->layer_disk(id);
+						     const Identifier& id = m_pixelID->wafer_id(cluster->identifierHash());
+						     return m_pixelID->layer_disk(id);
 						   });
     auto monitor_phiModule = Monitored::Collection("phiModule", *inputPixelClusterContainer,
-						      [&pixelID] (const auto* cluster) -> int
+						      [this] (const auto* cluster) -> int
 						      {
-							const Identifier& id = pixelID->wafer_id(cluster->identifierHash());
-							return pixelID->phi_module(id);
+							const Identifier& id = m_pixelID->wafer_id(cluster->identifierHash());
+							return m_pixelID->phi_module(id);
 						      });
     auto monitor_etaModule = Monitored::Collection("etaModule", *inputPixelClusterContainer,
-						      [&pixelID] (const auto* cluster) -> int
+						      [this] (const auto* cluster) -> int
 						      {
-							const Identifier& id = pixelID->wafer_id(cluster->identifierHash());
-							return pixelID->eta_module(id);
+							const Identifier& id = m_pixelID->wafer_id(cluster->identifierHash());
+							return m_pixelID->eta_module(id);
 						      });
     auto monitor_isInnermost = Monitored::Collection("isInnermost", *inputPixelClusterContainer,
-						      [&pixelID] (const auto* cluster) -> int
+						      [this] (const auto* cluster) -> int
 						      {
-							const Identifier& id = pixelID->wafer_id(cluster->identifierHash());
-							int pixLayerDisk = pixelID->layer_disk(id);
+							const Identifier& id = m_pixelID->wafer_id(cluster->identifierHash());
+							int pixLayerDisk = m_pixelID->layer_disk(id);
 							return int(pixLayerDisk==0);
 						      });
     auto monitor_isNextToInnermost = Monitored::Collection("isNextToInnermost", *inputPixelClusterContainer,
-						      [&pixelID] (const auto* cluster) -> int
+						      [this] (const auto* cluster) -> int
 						      {
-							const Identifier& id = pixelID->wafer_id(cluster->identifierHash());
-							int pixLayerDisk = pixelID->layer_disk(id);
-							int pixBrlEc = pixelID->barrel_ec(id);
+							const Identifier& id = m_pixelID->wafer_id(cluster->identifierHash());
+							int pixLayerDisk = m_pixelID->layer_disk(id);
+							int pixBrlEc = m_pixelID->barrel_ec(id);
 							return int((pixLayerDisk==1) or (pixBrlEc!=0 and pixLayerDisk==2));
 						      });
 
