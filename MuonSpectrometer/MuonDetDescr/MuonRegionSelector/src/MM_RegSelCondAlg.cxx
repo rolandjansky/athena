@@ -8,7 +8,7 @@
  **   @date   Sun 22 Sep 2019 10:21:50 BST
  **
  **
- **   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ **   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  **/
 
 #include "GaudiKernel/EventIDRange.h"
@@ -33,10 +33,9 @@
 
 #include "MuonReadoutGeometry/MuonStation.h"
 
-#include "RegSelLUT/RegSelSiLUT.h"
+#include "MuonNSWCommonDecode/NSWOfflineHelper.h"
 
-/// not implemented yet
-/// #include "MuonMM_Cabling/MuonMM_CablingSvc.h"
+#include "RegSelLUT/RegSelSiLUT.h"
 
 
 #include "MM_RegSelCondAlg.h"
@@ -67,9 +66,6 @@ std::unique_ptr<RegSelSiLUT> MM_RegSelCondAlg::createTable( const EventContext& 
     ATH_MSG_ERROR("Failed to retrieve validity range for " << mdtCabling.key());
     return std::unique_ptr<RegSelSiLUT>(nullptr);
   }   
-  
-
-  /// no NSW cabling available at the moment ...
 
   /// get the MM detector manager
 
@@ -86,12 +82,9 @@ std::unique_ptr<RegSelSiLUT> MM_RegSelCondAlg::createTable( const EventContext& 
   std::vector<Identifier>::const_iterator  idfirst = helper->module_begin();
   std::vector<Identifier>::const_iterator  idlast =  helper->module_end();
  
-  /// do we want the module context ...
+  /// Using the module context
   const IdContext ModuleContext = helper->module_context();
   
-  /// or the detector element context ? Keep them both untill we are sure 
-  /// const IdContext ModuleContext = helper->detectorElement_context();
-
   ATH_MSG_DEBUG("createTable()");
   
   std::unique_ptr<RegSelSiLUT> lut = std::make_unique<RegSelSiLUT>();
@@ -107,14 +100,17 @@ std::unique_ptr<RegSelSiLUT> MM_RegSelCondAlg::createTable( const EventContext& 
       const MuonGM::MMReadoutElement* mm = manager->getMMReadoutElement(Id);
       if (!mm) continue;
 
+      std::string stationName=mm->getStationName();
+      int stationEta=mm->getStationEta();
+      int stationPhi=mm->getStationPhi();
       int multilayer = helper->multilayer(Id);
 
       char side     = mm->getStationEta() < 0 ? 'C' : 'A';
 
-      char sector_l = mm->getStationName().substr(2,1)=="L" ? 'L' : 'S';
+      char sector_l = stationName.substr(2,1)=="L" ? 'L' : 'S';
 
       MMDetectorHelper aHelper;
-      MMDetectorDescription* md = aHelper.Get_MMDetector( sector_l, std::abs(mm->getStationEta()), mm->getStationPhi(), multilayer, side );
+      MMDetectorDescription* md = aHelper.Get_MMDetector( sector_l, std::abs(stationEta), stationPhi, multilayer, side );
 
       /// now calculate the required limits
 
@@ -154,10 +150,11 @@ std::unique_ptr<RegSelSiLUT> MM_RegSelCondAlg::createTable( const EventContext& 
       int layerid = multilayer;
       int detid   = ( side == 'C' ? -1 : 1 );
 
-      /// no cabling map at the moment - don't store robID 
-      int robId  = 0;
+      /// store the robId
+      Muon::nsw::helper::NSWOfflineRobId robIdHelper(stationName,static_cast<int8_t>(stationEta),static_cast<uint8_t>(stationPhi));
+      uint32_t robId  = robIdHelper.get_id();
 
-      RegSelModule m( zmin, zmax, rmin, rmax, phimin, phimax, int(layerid), int(detid), uint32_t(robId), hashId );
+      RegSelModule m( zmin, zmax, rmin, rmax, phimin, phimax, layerid, detid, robId, hashId );
 
       lut->addModule( m );
 

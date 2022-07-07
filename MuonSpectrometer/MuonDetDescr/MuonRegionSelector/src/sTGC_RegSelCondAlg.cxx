@@ -30,6 +30,7 @@
 #include "MuonAGDDDescription/sTGCDetectorDescription.h"
 
 #include "MuonReadoutGeometry/MuonStation.h"
+#include "MuonNSWCommonDecode/NSWOfflineHelper.h"
 
 #include "sTGC_RegSelCondAlg.h"
 
@@ -77,12 +78,9 @@ std::unique_ptr<RegSelSiLUT> sTGC_RegSelCondAlg::createTable( const EventContext
   std::vector<Identifier>::const_iterator  idfirst = helper->module_begin();
   std::vector<Identifier>::const_iterator  idlast =  helper->module_end();
  
-  /// do we want the module context ...
+  /// we want the module context ...
   const IdContext ModuleContext = helper->module_context();
   
-  /// or the detector element context ? Keep them both untill we are sure 
-  /// const IdContext ModuleContext = helper->detectorElement_context();
-
   ATH_MSG_DEBUG("createTable()");
   
   std::unique_ptr<RegSelSiLUT> lut = std::make_unique<RegSelSiLUT>();
@@ -95,21 +93,24 @@ std::unique_ptr<RegSelSiLUT> sTGC_RegSelCondAlg::createTable( const EventContext
 
       helper->get_hash( Id, hashId, &ModuleContext );
 
-      const MuonGM::sTgcReadoutElement* mm = manager->getsTgcReadoutElement(Id);
-      if (!mm) continue;
+      const MuonGM::sTgcReadoutElement* stgc = manager->getsTgcReadoutElement(Id);
+      if (!stgc) continue;
 
       //      std::cout << "stgc station name: " << mm->getStationName() << "\teta: " << mm->getStationEta() << "\tphi: " << mm->getStationPhi() << std::endl; 
   
+      std::string stationName=stgc->getStationName();
+      int stationEta=stgc->getStationEta();
+      int stationPhi=stgc->getStationPhi();
       int multilayer = helper->multilayer(Id);
 
-      char side     = mm->getStationEta() < 0 ? 'C' : 'A';
+      char side     = stationEta < 0 ? 'C' : 'A';
 
-      char sector_l = mm->getStationName().substr(2,1)=="L" ? 'L' : 'S';
+      char sector_l = stationName.substr(2,1)=="L" ? 'L' : 'S';
 
       sTGCDetectorHelper aHelper;
-      sTGCDetectorDescription* md = aHelper.Get_sTGCDetector( sector_l, std::abs(mm->getStationEta()), mm->getStationPhi(), multilayer, side );
+      sTGCDetectorDescription* md = aHelper.Get_sTGCDetector( sector_l, std::abs(stationEta), stationPhi, multilayer, side );
   
-      Amg::Vector3D mmPos = mm->center();      
+      Amg::Vector3D mmPos = stgc->center();      
   
       double swidth = md->sWidth();
       double lwidth = md->lWidth();
@@ -147,11 +148,11 @@ std::unique_ptr<RegSelSiLUT> sTGC_RegSelCondAlg::createTable( const EventContext
       int layerid = multilayer;
       int detid   = ( side == 'C' ? -1 : 1 );
 
-      int robId  = 0;
+      /// store the robId
+      Muon::nsw::helper::NSWOfflineRobId robIdHelper(stationName,static_cast<int8_t>(stationEta),static_cast<uint8_t>(stationPhi));
+      uint32_t robId  = robIdHelper.get_id();
 
-      //      std::cout << "sTGC::module r: " << moduleR << "\tlength: " << length << "\tswidth: " << swidth << "\tlwidth: " << lwidth << "\tycut: " << ycutout << std::endl; 
-      
-      RegSelModule m( zmin, zmax, rmin, rmax, phimin, phimax, int(layerid), int(detid), uint32_t(robId), hashId );
+      RegSelModule m( zmin, zmax, rmin, rmax, phimin, phimax, layerid, detid, robId, hashId );
 
       lut->addModule( m );
 
