@@ -18,7 +18,7 @@ truthFormatList = ['TRUTH0', 'TRUTH1', 'TRUTH3']
 
 trainList = [
               ["EGAM2","EGAM3","EGAM4"],
-              ["EGAM9","EGAM7","EGAM8"],
+              ["EGAM7","EGAM8","EGAM9","JETM3"],
               ["FTAG1","JETM1"]
             ]
 
