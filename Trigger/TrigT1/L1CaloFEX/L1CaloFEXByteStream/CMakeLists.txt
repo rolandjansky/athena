@@ -4,7 +4,7 @@
 atlas_subdir( L1CaloFEXByteStream )
 
 # External dependencies:
-find_package( tdaq-common COMPONENTS eformat )
+find_package( tdaq-common COMPONENTS eformat eformat_write )
 
 # Component(s) in the package:
 atlas_add_component( L1CaloFEXByteStream
