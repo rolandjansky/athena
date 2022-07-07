@@ -53,6 +53,8 @@ namespace Analysis {
     m_dec_track_pos = m_TrackContainerKey.key() + "." + m_prefix.value() + m_dec_track_pos.key();
     m_dec_track_mom = m_TrackContainerKey.key() + "." + m_prefix.value() + m_dec_track_mom.key();
 
+    m_dec_invalid = m_TrackContainerKey.key() + "." + m_prefix.value() + m_dec_invalid.key();
+
     // Initialize decorators
     ATH_MSG_DEBUG( "Inizializing decorators:"  );
     ATH_MSG_DEBUG( "    ** " << m_dec_d0       );
@@ -61,6 +63,7 @@ namespace Analysis {
     ATH_MSG_DEBUG( "    ** " << m_dec_z0_sigma );
     ATH_MSG_DEBUG( "    ** " << m_dec_track_pos );
     ATH_MSG_DEBUG( "    ** " << m_dec_track_mom );
+    ATH_MSG_DEBUG( "    ** " << m_dec_invalid  );
 
     CHECK( m_dec_d0.initialize() );
     CHECK( m_dec_z0.initialize() );
@@ -68,6 +71,7 @@ namespace Analysis {
     CHECK( m_dec_z0_sigma.initialize() );
     CHECK( m_dec_track_pos.initialize() );
     CHECK( m_dec_track_mom.initialize() );
+    CHECK( m_dec_invalid.initialize() );
 
     return StatusCode::SUCCESS;
   }
@@ -109,6 +113,9 @@ namespace Analysis {
     SG::WriteDecorHandle< xAOD::TrackParticleContainer, std::vector< float > > decor_track_pos( m_dec_track_pos );
     SG::WriteDecorHandle< xAOD::TrackParticleContainer, std::vector< float > > decor_track_mom( m_dec_track_mom );
 
+    SG::WriteDecorHandle< xAOD::TrackParticleContainer, char > decor_invalid(
+      m_dec_invalid);
+
     // ========================================================================================================================== 
     //    ** Computation
     // ========================================================================================================================== 
@@ -120,13 +127,13 @@ namespace Analysis {
       std::unique_ptr< const Trk::ImpactParametersAndSigma > ip( m_track_to_vx->estimate( track, primary ) );
       if ( ip ) {
         decor_d0(*track) = ip->IPd0;
-	decor_z0(*track) = ip->IPz0SinTheta;
+  decor_z0(*track) = ip->IPz0SinTheta;
         decor_d0_sigma(*track) = ip->sigmad0;
         decor_z0_sigma(*track) = ip->sigmaz0SinTheta;
         ATH_MSG_DEBUG( " d0= " << ip->IPd0 <<
-		       " z0SinTheta= " << ip->IPz0SinTheta <<
-		       " sigmad0= " << ip->sigmad0 <<
-		       " sigmaz0SinTheta= " << ip->sigmaz0SinTheta );
+           " z0SinTheta= " << ip->IPz0SinTheta <<
+           " sigmad0= " << ip->sigmad0 <<
+           " sigmaz0SinTheta= " << ip->sigmaz0SinTheta );
       } else {
         ATH_MSG_WARNING( "failed to estimate track impact parameter, using dummy values" );
         decor_d0(*track) = NAN;
@@ -143,29 +150,31 @@ namespace Analysis {
         const Amg::Vector3D& track_pos = extrap_pars->position();
         const Amg::Vector3D& vertex_pos = primary->position();
 
-	const Amg::Vector3D position = track_pos - vertex_pos;
-	const Amg::Vector3D momentum = extrap_pars->momentum();
+        const Amg::Vector3D position = track_pos - vertex_pos;
+        const Amg::Vector3D momentum = extrap_pars->momentum();
 
-	//Test output for cross checking output with stored values
-	ATH_MSG_DEBUG( "vertex_pos (x,y,z)= (" << vertex_pos.x() << ", " << vertex_pos.y() << ", " << vertex_pos.z() << ")");
-	ATH_MSG_DEBUG( "track_pos (x,y,z)= (" << track_pos.x() << ", " << track_pos.y() << ", " << track_pos.z() << ")");
-	ATH_MSG_DEBUG( "track_displacement (x,y,z)= (" << position.x() << ", " << position.y() << ", " << position.z() << ")");
-	ATH_MSG_DEBUG( "track_momentum (x,y,z)= (" << momentum.x() << ", " << momentum.y() << ", " << momentum.z() << ")");
+        //Test output for cross checking output with stored values
+        ATH_MSG_DEBUG( "vertex_pos (x,y,z)= (" << vertex_pos.x() << ", " << vertex_pos.y() << ", " << vertex_pos.z() << ")");
+        ATH_MSG_DEBUG( "track_pos (x,y,z)= (" << track_pos.x() << ", " << track_pos.y() << ", " << track_pos.z() << ")");
+        ATH_MSG_DEBUG( "track_displacement (x,y,z)= (" << position.x() << ", " << position.y() << ", " << position.z() << ")");
+        ATH_MSG_DEBUG( "track_momentum (x,y,z)= (" << momentum.x() << ", " << momentum.y() << ", " << momentum.z() << ")");
 
-	std::vector< float > out_vec_pos( position.data(), position.data() + position.size() );
-	std::vector< float > out_vec_mom( momentum.data(), momentum.data() + momentum.size() );
+        std::vector< float > out_vec_pos( position.data(), position.data() + position.size() );
+        std::vector< float > out_vec_mom( momentum.data(), momentum.data() + momentum.size() );
 
-	decor_track_pos (*track) = out_vec_pos;
-	decor_track_mom (*track) = out_vec_mom;
+        decor_track_pos (*track) = out_vec_pos;
+        decor_track_mom (*track) = out_vec_mom;
       } else {
         ATH_MSG_WARNING( "failed to extrapolate track coordinates at primary vertex, using dummy values");
 
-	std::vector< float > out_vec_pos = {NAN,NAN,NAN};
-	std::vector< float > out_vec_mom = {NAN,NAN,NAN};
+        std::vector< float > out_vec_pos = {NAN,NAN,NAN};
+        std::vector< float > out_vec_mom = {NAN,NAN,NAN};
 
-	decor_track_pos (*track) = out_vec_pos;
+        decor_track_pos (*track) = out_vec_pos;
         decor_track_mom (*track) = out_vec_mom;
       }
+      bool invalid = !(ip && extrap_pars);
+      decor_invalid(*track) = invalid ? 1 : 0;
     }
 
     return StatusCode::SUCCESS;
@@ -177,9 +186,10 @@ namespace Analysis {
       return nullptr;
     }
 
-    for ( const xAOD::Vertex *vertex : vertexCollection ) { 
-      if ( vertex->vertexType() == xAOD::VxType::PriVtx ) 
+    for ( const xAOD::Vertex *vertex : vertexCollection ) {
+      if ( vertex->vertexType() == xAOD::VxType::PriVtx ) {
         return vertex;
+      }
     }
 
     // this is taken from BTagTool, should be the beam spot if nothing

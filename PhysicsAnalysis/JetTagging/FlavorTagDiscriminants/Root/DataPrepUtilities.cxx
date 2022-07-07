@@ -78,19 +78,17 @@ namespace {
 
   // functions to rewrite input names
   std::string sub_first(const StringRegexes& res,
-                        const std::string var_name) {
+                        const std::string& var_name,
+                        const std::string& context) {
     for (const auto& pair: res) {
       const std::regex& re = pair.first;
       const std::string& fmt = pair.second;
-      std::string new_name = std::regex_replace(
-        var_name, re, fmt, std::regex_constants::format_no_copy);
-      if (new_name.size() > 0) {
-        return new_name;
+      if (std::regex_match(var_name, re)) {
+        return std::regex_replace(var_name, re, fmt);
       }
     }
     throw std::logic_error(
-      "no regex match found for variable '" + var_name + "' while building "
-      "negative tag b-btagger");
+      "no regex match found for variable '" + var_name + "' while " + context);
   }
 
   std::vector<FTagInputConfig> get_input_config(
@@ -103,8 +101,8 @@ namespace {
       FTagInputConfig input;
       input.name = var;
       input.type = match_first(type_regexes, var, "type matching");
-      input.default_flag = match_first(default_flag_regexes, var,
-                                       "default matching");
+      input.default_flag = sub_first(default_flag_regexes, var,
+                                     "default matching");
 
       inputs.push_back(input);
     }
@@ -174,19 +172,20 @@ namespace {
 
   void rewriteFlipConfig(lwt::GraphConfig& config,
                          const StringRegexes& res){
+    std::string context = "building negative tag b-btagger";
     for (auto& node: config.inputs) {
       for (auto& var: node.variables) {
-        var.name = sub_first(res, var.name);
+        var.name = sub_first(res, var.name, context);
       }
       std::map<std::string, double> new_defaults;
       for (auto& pair: node.defaults) {
-        new_defaults[sub_first(res, pair.first)] = pair.second;
+        new_defaults[sub_first(res, pair.first, context)] = pair.second;
       }
       node.defaults = new_defaults;
     }
     std::map<std::string, lwt::OutputNodeConfig> new_outputs;
     for (auto& pair: config.outputs) {
-      new_outputs[sub_first(res, pair.first)] = pair.second;
+      new_outputs[sub_first(res, pair.first, context)] = pair.second;
     }
     config.outputs = new_outputs;
   }
@@ -217,6 +216,7 @@ namespace FlavorTagDiscriminants {
     track_link_name = "BTagTrackToJetAssociator";
     track_link_type = TrackLinkType::TRACK_PARTICLE;
     default_output_value = NAN;
+    invalid_ip_key = "invalidIp";
   }
 
   // ________________________________________________________________________
@@ -636,7 +636,7 @@ namespace FlavorTagDiscriminants {
         {"JetFitterSecondaryVertex_.*"_r, "JetFitterSecondaryVertex_isDefaults"},
         {"JetFitterSecondaryVertexFlip_.*"_r, "JetFitterSecondaryVertexFlip_isDefaults"},
         {"rnnip_.*"_r, "rnnip_isDefaults"},
-        {"dips[^_]*_.*"_r, ""},
+        {"(dips[^_]*)_.*"_r, "$1_isDefaults"},
         {"rnnipflip_.*"_r, "rnnipflip_isDefaults"},
         {"iprnn_.*"_r, ""},
         {"smt_.*"_r, "softMuon_isDefaults"},
@@ -715,6 +715,9 @@ namespace FlavorTagDiscriminants {
       }
       if (auto h = remap_scalar.extract(options.track_link_name)) {
         options.track_link_name = h.mapped();
+      }
+      if (auto h = remap_scalar.extract(options.invalid_ip_key)) {
+        options.invalid_ip_key = h.mapped();
       }
       options.flip = flip_config;
       options.remap_scalar = remap_scalar;
@@ -838,6 +841,40 @@ namespace FlavorTagDiscriminants {
 
       return std::make_tuple(decorators, deps);
     }
+
+    // return a function to check IP validity
+    std::tuple<
+      std::function<char(const internal::Tracks&)>,
+      std::vector<SG::AuxElement::Decorator<char>>,
+      FTagDataDependencyNames>
+    createIpChecker(
+      const lwt::GraphConfig& gc, const FTagOptions& opts) {
+      using namespace internal;
+      FTagDataDependencyNames deps;
+      // dummy if there's no invalid check key
+      std::function checker = [](const Tracks&) -> char {return 0;};
+      // if we do have a key, return 1 for invalid
+      if (!opts.invalid_ip_key.empty()) {
+        std::string ip_key = opts.track_prefix + opts.invalid_ip_key;
+        SG::AuxElement::ConstAccessor<char> invalid_check(ip_key);
+        checker = [invalid_check](const Tracks& trs){
+          for (const xAOD::TrackParticle* trk: trs) {
+            if (invalid_check(*trk)) return 1;
+          }
+          return 0;
+        };
+        deps.trackInputs.insert(ip_key);
+      }
+      std::vector<SG::AuxElement::Decorator<char>> default_decs;
+      for (const auto& output: gc.outputs) {
+        std::string basename = output.first;
+        std::string dec_name = basename + "_isDefaults";
+        default_decs.emplace_back(dec_name);
+        deps.bTagOutputs.insert(dec_name);
+      }
+      return {checker, default_decs, deps};
+    }
+
   } // end of datapre namespace
 
 } // end of FlavorTagDiscriminants namespace

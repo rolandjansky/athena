@@ -154,6 +154,7 @@ namespace FlavorTagDiscriminants {
 
     m_dec_track_pos = m_TrackContainerKey.key() + "." + m_prefix.value() + m_dec_track_pos.key();
     m_dec_track_mom = m_TrackContainerKey.key() + "." + m_prefix.value() + m_dec_track_mom.key();
+    m_dec_invalid = m_TrackContainerKey.key() + "." + m_prefix.value() + m_dec_invalid.key();
 
     // Initialize decorators
     ATH_MSG_DEBUG( "Inizializing decorators:"  );
@@ -161,11 +162,13 @@ namespace FlavorTagDiscriminants {
     ATH_MSG_DEBUG( "    ** " << m_dec_z0_sigma );
     ATH_MSG_DEBUG( "    ** " << m_dec_track_pos );
     ATH_MSG_DEBUG( "    ** " << m_dec_track_mom );
+    ATH_MSG_DEBUG( "    ** " << m_dec_invalid  );
 
     CHECK( m_dec_d0_sigma.initialize() );
     CHECK( m_dec_z0_sigma.initialize() );
     CHECK( m_dec_track_pos.initialize() );
     CHECK( m_dec_track_mom.initialize() );
+    CHECK( m_dec_invalid.initialize() );
 
     ATH_MSG_DEBUG(
       "Accessors for beamspot:" <<
@@ -215,6 +218,8 @@ namespace FlavorTagDiscriminants {
       m_dec_track_pos, ctx);
     SG::WriteDecorHandle<TPC,std::vector<float>> decor_track_mom(
       m_dec_track_mom, ctx);
+
+    SG::WriteDecorHandle<TPC, char> decor_invalid(m_dec_invalid, ctx);
 
     SG::ReadDecorHandle<xAOD::EventInfo,float> beam_sigma_x(
       m_beam_sigma_x, ctx);
@@ -279,6 +284,10 @@ namespace FlavorTagDiscriminants {
 
       decor_track_pos (*trk) = out_vec_pos;
       decor_track_mom (*trk) = out_vec_mom;
+
+      // all tracks are valid for now, but downstream code requires
+      // this decoration.
+      decor_invalid(*trk) = 0;
     }
 
     return StatusCode::SUCCESS;

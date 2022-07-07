@@ -15,15 +15,17 @@ def DL2ToolCfg(ConfigFlags, NNFile = '', FlipConfig='STANDARD' , **options):
 
     options['flipTagConfig'] = FlipConfig
 
+    # this map lets us change the names of EDM inputs with respect to
+    # the values we store in the saved NN
+    remap = {}
     # This is a hack to accomodate the older b-tagging training with
     # old names for variables. We should be able to remove it when we
     # move over to the 2020 / 2021 retraining.
     if '201903' in NNFile and 'dl1' in NNFile:
-        remap = {}
         for aggragate in ['minimum','maximum','average']:
             remap[f'{aggragate}TrackRelativeEta'] = (
                 f'JetFitterSecondaryVertex_{aggragate}AllJetTrackRelativeEta')
-        options['variableRemapping'] = remap
+    options['variableRemapping'] = remap
 
     dl2 = CompFactory.FlavorTagDiscriminants.DL2Tool(**options)
 
