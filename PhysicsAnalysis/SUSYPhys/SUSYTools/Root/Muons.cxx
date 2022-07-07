@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // This source file implements all of the functions related to <OBJECT>
@@ -48,6 +48,7 @@ namespace ST {
   const static SG::AuxElement::ConstAccessor<float> acc_z0sinTheta("z0sinTheta");
   const static SG::AuxElement::Decorator<float>     dec_d0sig("d0sig");
   const static SG::AuxElement::ConstAccessor<float> acc_d0sig("d0sig");
+  const static SG::AuxElement::ConstAccessor<float> acc_LowPtPLV("LowPtPLV");
 
 StatusCode SUSYObjDef_xAOD::GetMuons(xAOD::MuonContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, bool recordSG, const std::string& muonkey, const xAOD::MuonContainer* containerToBeCopied)
 {
@@ -216,11 +217,11 @@ StatusCode SUSYObjDef_xAOD::FillMuon(xAOD::Muon& input, float ptcut, float etacu
   dec_baseline(input) = true;
   dec_selected(input) = 2;
 
-  if (!m_muIso_WP.empty() && m_muIso_WP.find("PLV")!=std::string::npos) ATH_CHECK( m_isoToolLowPtPLV->augmentPLV(input) );
+  if (!m_muIso_WP.empty() && m_muIso_WP.find("PLV")!=std::string::npos && !acc_LowPtPLV.isAvailable(input)) ATH_CHECK( m_isoToolLowPtPLV->augmentPLV(input) );
   if (!m_muIso_WP.empty()) dec_isol(input) = m_isoTool->accept(input);
   if (!m_muIsoHighPt_WP.empty()) dec_isolHighPt(input) = m_isoHighPtTool->accept(input);
+
   dec_passSignalID(input) = m_muonSelectionTool->accept(input);
-  
   ATH_MSG_VERBOSE("FillMuon: passed baseline selection");
   return StatusCode::SUCCESS;
 }
