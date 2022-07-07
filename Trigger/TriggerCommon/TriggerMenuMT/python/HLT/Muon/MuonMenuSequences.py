@@ -596,6 +596,25 @@ def muEFCBLRTSequence(ConfigFlags, is_probe_leg=False):
                          IsProbe     = is_probe_leg )
 
 
+def muEFCBLRTIDperfSequence(ConfigFlags, is_probe_leg=False):
+
+    (muonEFCBLRTSequence, efcbViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muEFCBLRTAlgSequence, ConfigFlags)
+
+    # setup EFCBLRT hypo
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFHypoAlg
+    trigMuonEFCBLRTHypo = TrigMuonEFHypoAlg( "TrigMuonEFCombinerHypoAlgLRTIDPerf", IncludeSAmuons=True   )
+    trigMuonEFCBLRTHypo.MuonDecisions = sequenceOut
+    trigMuonEFCBLRTHypo.MapToPreviousDecisions=True
+
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFCombinerHypoToolFromDict
+
+    return MenuSequence( Sequence    = muonEFCBLRTSequence,
+                         Maker       = efcbViewsMaker,
+                         Hypo        = trigMuonEFCBLRTHypo,
+                         HypoToolGen = TrigMuonEFCombinerHypoToolFromDict,
+                         IsProbe     = is_probe_leg )
+
+
 ######################
 ### EF SA full scan ###
 ######################
