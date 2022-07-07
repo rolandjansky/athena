@@ -157,7 +157,9 @@ def _getInDetTrackingGeometryBuilder(name, flags,
 
         # set the binning from bi-aequidistant to arbitrary for complex TRT volumes
         TRT_LayerBinning = 1
-        if buildTrtStrawLayers:
+        from AthenaConfiguration.Enums import ProductionStep
+        from G4AtlasApps.SimEnums import SimulationFlavour
+        if buildTrtStrawLayers or (flags.Common.ProductionStep in [ProductionStep.Simulation, ProductionStep.FastChain] and flags.Sim.ISF.Simulator not in [SimulationFlavour.ATLFASTIIMT]):
             TRT_LayerBinning = 2
             TRT_LayerBuilder.ModelLayersOnly = False
         # TRT -> ToolSvc

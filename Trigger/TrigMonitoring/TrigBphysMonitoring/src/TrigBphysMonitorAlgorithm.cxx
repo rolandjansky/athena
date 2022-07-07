@@ -596,6 +596,9 @@ const xAOD::Vertex* TrigBphysMonitorAlgorithm::getPvForDimuon_lowestA0(const xAO
                                                                     [&, vtx](const xAOD::Vertex* pv1, const xAOD::Vertex* pv2)
                                                                     { return (std::abs(m_v0Tools->a0(vtx, pv1)) < std::abs(m_v0Tools->a0(vtx, pv2)));}
                                                                   );
+  if(pv == PVs.end()) {
+    return nullptr;
+  }
   ATH_MSG_VERBOSE("Min-a0 PV has index " << std::distance(PVs.begin(), pv) << ", a0 = " << m_v0Tools->a0(vtx, *pv));
   return *pv;
 }

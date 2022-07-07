@@ -161,7 +161,8 @@ def _printComps(conf):
 def _structuredPrint(conf, start):
     def _oneCompPrint(d, comp, indent = ""):
         print(f"{indent}{comp}")
-        for prop,val in d.items():
+        
+        for prop,val in sorted(d.items()):
             print(f"{indent}   {prop} = {val}")
             if prop == "Members" or prop == "TopAlg":
                 continue

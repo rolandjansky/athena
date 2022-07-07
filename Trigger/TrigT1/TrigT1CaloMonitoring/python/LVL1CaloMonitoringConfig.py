@@ -42,10 +42,13 @@ def LVL1CaloMonitoringConfig(flags):
             from TrigT1CaloMonitoring.CpmSimMonitorAlgorithm import CpmSimMonitoringConfig
             from TrigT1CaloMonitoring.JepCmxMonitorAlgorithm import JepCmxMonitoringConfig
             from TrigT1CaloMonitoring.OverviewMonitorAlgorithm import OverviewMonitoringConfig
+            from TrigT1CaloMonitoring.PPMSimBSMonitorAlgorithm import PPMSimBSMonitoringConfig
+            
             result.merge(CpmMonitoringConfig(flags))
             result.merge(CpmSimMonitoringConfig(flags))
             result.merge(JepCmxMonitoringConfig(flags))
             result.merge(OverviewMonitoringConfig(flags))
+            result.merge(PPMSimBSMonitoringConfig(flags))
 
         result.merge(PprMonitoringConfig(flags))
         result.merge(JepJemMonitoringConfig(flags))

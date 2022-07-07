@@ -8385,6 +8385,20 @@ HLT_g25_tight_icalotight_xe40_cell_xe50_tcpufit_L1eEM26M:
     2: 7
     3: 3
     4: 2
+HLT_g25_tight_icalotight_xe40_cell_xe50_tcpufit_xe70_nn_80mTAD_L1EM22VHI:
+  eventCount: 0
+  stepCounts:
+    0: 10
+    1: 6
+    2: 6
+    3: 3
+    4: 1
+  stepFeatures:
+    0: 12
+    1: 7
+    2: 7
+    3: 3
+    4: 5
 HLT_g300_etcut_L1EM22VHI:
   eventCount: 0
 HLT_g300_etcut_L1eEM26M:
@@ -19939,6 +19953,22 @@ HLT_xe30_trkmht_L1XE30:
   stepFeatures:
     0: 11
     1: 11
+HLT_xe55_cell_xe105_nn_L1gXEJWOJ100:
+  eventCount: 4
+  stepCounts:
+    0: 6
+    1: 4
+  stepFeatures:
+    0: 15
+    1: 4
+HLT_xe55_cell_xe105_nn_L1jXE100:
+  eventCount: 4
+  stepCounts:
+    0: 6
+    1: 4
+  stepFeatures:
+    0: 13
+    1: 4
 HLT_xe55_cell_xe70_tcpufit_L1XE50:
   eventCount: 4
   stepCounts:
@@ -19976,6 +20006,22 @@ HLT_xe55_cell_xe70_tcpufit_xe95_pfsum_cssk_L1jXE100:
     1: 4
   stepFeatures:
     0: 17
+    1: 4
+HLT_xe55_cell_xe90_nn_L1gXEJWOJ100:
+  eventCount: 4
+  stepCounts:
+    0: 6
+    1: 4
+  stepFeatures:
+    0: 15
+    1: 4
+HLT_xe55_cell_xe90_nn_L1jXE100:
+  eventCount: 4
+  stepCounts:
+    0: 6
+    1: 4
+  stepFeatures:
+    0: 13
     1: 4
 HLT_xe60_cell_L1XE50:
   eventCount: 6
@@ -20071,6 +20117,30 @@ HLT_xe65_cell_xe105_mhtpufit_em_L1jXE100:
   stepFeatures:
     0: 12
     1: 2
+HLT_xe65_cell_xe105_nn_L1XE50:
+  eventCount: 4
+  stepCounts:
+    0: 5
+    1: 4
+  stepFeatures:
+    0: 11
+    1: 4
+HLT_xe65_cell_xe105_nn_L1gXEJWOJ100:
+  eventCount: 4
+  stepCounts:
+    0: 5
+    1: 4
+  stepFeatures:
+    0: 14
+    1: 4
+HLT_xe65_cell_xe105_nn_L1jXE100:
+  eventCount: 4
+  stepCounts:
+    0: 5
+    1: 4
+  stepFeatures:
+    0: 12
+    1: 4
 HLT_xe65_cell_xe110_tcpufit_L1XE50:
   eventCount: 2
   stepCounts:
@@ -20089,6 +20159,30 @@ HLT_xe65_cell_xe110_tcpufit_sig30_L1XE50:
     0: 2
   stepFeatures:
     0: 7
+HLT_xe65_cell_xe90_nn_L1XE50:
+  eventCount: 4
+  stepCounts:
+    0: 5
+    1: 4
+  stepFeatures:
+    0: 11
+    1: 4
+HLT_xe65_cell_xe90_nn_L1gXEJWOJ100:
+  eventCount: 4
+  stepCounts:
+    0: 5
+    1: 4
+  stepFeatures:
+    0: 14
+    1: 4
+HLT_xe65_cell_xe90_nn_L1jXE100:
+  eventCount: 4
+  stepCounts:
+    0: 5
+    1: 4
+  stepFeatures:
+    0: 12
+    1: 4
 HLT_xe65_cell_xe90_pfopufit_L1XE50:
   eventCount: 4
   stepCounts:

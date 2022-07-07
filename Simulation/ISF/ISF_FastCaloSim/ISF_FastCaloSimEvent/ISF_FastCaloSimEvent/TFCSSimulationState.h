@@ -71,6 +71,7 @@ class TFCSSimulationState:public TObject
 
 #ifdef USE_GPU
     //for FastCaloSim-GPU
+    //will not compile by default
     void * m_gpu_rand ;
     void * m_geold ;
 #endif

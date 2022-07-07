@@ -125,6 +125,14 @@ def TrigMinBiasEff(flags):
     # monitor exclusivity cut
     triggerAndRef += [  _c(chain, 'HLT_mb_sptrk_L1RD0_FILLED') for chain in excl ]
 
+    mbtsNoAlg = [c for c in mbChains if 'noalg' in c and 'L1MBTS' in c]
+    # monitor noalg MBTS chains
+    triggerAndRef += [  _c(chain, 'HLT_mb_sptrk_L1RD0_FILLED') for chain in mbtsNoAlg ]
+    # L1 MBTS
+    mbts = ["L1_MBTS_A","L1_MBTS_C","L1_MBTS_1", "L1_MBTS_2","L1_MBTS_1_1"]
+    triggerAndRef += [  _c(chain, 'HLT_mb_sptrk_L1RD0_FILLED') for chain in mbts ]
+
+
     triggerAndRef += [ _c("L1_TE{}".format(i), 'HLT_mb_sptrk_L1RD0_FILLED', xmin=0, xmax=100) for i in [3,5,10,40]]
 
     # add here all the special cases
