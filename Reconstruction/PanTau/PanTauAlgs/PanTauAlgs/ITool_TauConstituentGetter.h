@@ -31,7 +31,7 @@ namespace PanTau {
       public:
             
     virtual bool isInitialized() = 0;
-    virtual StatusCode GetTauConstituents(xAOD::TauJet* tauJet,
+    virtual StatusCode GetTauConstituents(const xAOD::TauJet* tauJet,
 					  std::vector<TauConstituent*>& outputList,
 					  const std::string& algName) const = 0;
             

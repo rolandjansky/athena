@@ -903,12 +903,6 @@ namespace xAOD {
   const PFO* TauJet_v3::protoChargedPFO( size_t i ) const {
    return ( *protoChargedPFOAcc( *this )[ i ] );
   }
-
-  PFO* TauJet_v3::protoChargedPFONonConst( size_t i ) {
-    ElementLink< xAOD::PFOContainer > link = protoChargedPFOAcc( *this )[ i ];
-    // to get non-const pointer, we need to lookup the element directly in the container
-    return link.getDataNonConstPtr()->at( link.persIndex() );
-  }
   
   size_t TauJet_v3::nProtoChargedPFOs() const {
    return protoChargedPFOAcc( *this ).size();
@@ -939,13 +933,7 @@ namespace xAOD {
   const PFO* TauJet_v3::protoNeutralPFO( size_t i ) const {
    return ( *protoNeutralPFOAcc( *this )[ i ] );
   }
-
-  PFO* TauJet_v3::protoNeutralPFONonConst( size_t i ) {
-    ElementLink< xAOD::PFOContainer > link = protoNeutralPFOAcc( *this )[ i ];
-    // to get non-const pointer, we need to lookup the element directly in the container
-    return link.getDataNonConstPtr()->at( link.persIndex() );
-  }
-
+  
   size_t TauJet_v3::nProtoNeutralPFOs() const {
    return protoNeutralPFOAcc( *this ).size();
   }
