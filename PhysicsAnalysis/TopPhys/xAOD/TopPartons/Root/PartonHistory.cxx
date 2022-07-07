@@ -427,6 +427,7 @@ namespace xAOD {
 
     this->auxdecor< int >("MC_Z_AncestryCorrupted") = -1;
     this->auxdecor< int >("MC_Z_IsOnShell") = -1;
+
   }
 
   //Initialize variables for ttbargamma events
@@ -745,27 +746,57 @@ namespace xAOD {
     this->auxdecor< int >("MC_Wdecay2_from_t_pdgId") = -9999;
     
     //Z variables
+
+    //Z
     this->auxdecor< float >("MC_Z_m") = -1000;
     this->auxdecor< float >("MC_Z_pt") = -1000;
     this->auxdecor< float >("MC_Z_eta") = -1000;
     this->auxdecor< float >("MC_Z_phi") = -1000;
-   
-    
+
+    //Zdecay1
     this->auxdecor< float >("MC_Zdecay1_m") = -1000;
     this->auxdecor< float >("MC_Zdecay1_pt") = -1000;
     this->auxdecor< float >("MC_Zdecay1_eta") = -1000;
     this->auxdecor< float >("MC_Zdecay1_phi") = -1000;
-    this->auxdecor< int >("MC_Zdecay1_pdgId") = -9999;
-    this->auxdecor< int >("MC_Zdecay1_status") = -9999;
+    this->auxdecor< int >  ("MC_Zdecay1_pdgId") = -9999;
+    this->auxdecor< int >  ("MC_Zdecay1_status") = -9999;
+    this->auxdecor< int >  ("MC_Zdecay1_tau_isHadronic") = -9999;
+    this->auxdecor< float >("MC_Zdecay1_tauvis_m") = -1000;
+    this->auxdecor< float >("MC_Zdecay1_tauvis_pt") = -1000;
+    this->auxdecor< float >("MC_Zdecay1_tauvis_phi") = -1000;
+    this->auxdecor< float >("MC_Zdecay1_tauvis_eta") = -1000;
     
+    //Zdecay2
     this->auxdecor< float >("MC_Zdecay2_m") = -1000;
     this->auxdecor< float >("MC_Zdecay2_pt") = -1000;
     this->auxdecor< float >("MC_Zdecay2_eta") = -1000;
     this->auxdecor< float >("MC_Zdecay2_phi") = -1000;
-    this->auxdecor< int >("MC_Zdecay2_pdgId") = -9999;
-    this->auxdecor< int >("MC_Zdecay2_status") = -9999;
-        
- }
+    this->auxdecor< int >  ("MC_Zdecay2_pdgId") = -9999;
+    this->auxdecor< int >  ("MC_Zdecay2_status") = -9999;
+    this->auxdecor< int >  ("MC_Zdecay2_tau_isHadronic") = -9999;
+    this->auxdecor< float >("MC_Zdecay2_tauvis_m") = -1000;
+    this->auxdecor< float >("MC_Zdecay2_tauvis_pt") = -1000;
+    this->auxdecor< float >("MC_Zdecay2_tauvis_phi") = -1000;
+    this->auxdecor< float >("MC_Zdecay2_tauvis_eta") = -1000;
+
+    //b quark
+    this->auxdecor< float >("MC_b_m") = -1000;
+    this->auxdecor< float >("MC_b_pt") = -1000;
+    this->auxdecor< float >("MC_b_eta") = -1000;
+    this->auxdecor< float >("MC_b_phi") = -1000;
+    this->auxdecor< int >("MC_b_pdgId") = -9999;
+    
+    //q quark
+    this->auxdecor< float >("MC_q_m") = -1000;
+    this->auxdecor< float >("MC_q_pt") = -1000;
+    this->auxdecor< float >("MC_q_eta") = -1000;
+    this->auxdecor< float >("MC_q_phi") = -1000;
+    this->auxdecor< float >("MC_q_e") = -1000;
+    this->auxdecor< int >("MC_q_pdgId") = -9999;
+    
+    this->auxdecor< int >("isThqEvent") = 0;
+
+  }
 
   // Initialize variables for tZq events
   void PartonHistory::IniVarTttt() {

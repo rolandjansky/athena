@@ -53,8 +53,6 @@ namespace PartonHistoryUtils {
     TLorentzVector tauvis_decay2_from_decay1_vector;
     TLorentzVector tauvis_decay1_from_decay2_vector;
     TLorentzVector tauvis_decay2_from_decay2_vector;
-
-    
   };
 
   ///Return particle after FSR (before the decay vertex)
@@ -68,6 +66,9 @@ namespace PartonHistoryUtils {
   
   /// Store higgs decay information
   HiggsDecay AnalyzeHiggsDecay(const xAOD::TruthParticle* higgs);
+
+  /// Store Z decay information
+  HiggsDecay AnalyzeZDecay(const xAOD::TruthParticle* Zboson);
   
   /// Check if tau decays hadronically or not
   int TauIsHadronic(const xAOD::TruthParticle* tau, TLorentzVector& tau_p4);
