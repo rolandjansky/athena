@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileHitsTestTool.h"
@@ -67,43 +67,44 @@ StatusCode TileHitsTestTool::processEvent() {
   CHECK(detStore()->retrieve(m_tileMgr));
 
   const TileHitVector* hitVec;
-  CHECK(evtStore()->retrieve(hitVec,"TileHitVec"));
 
   double etot=0.;
-  for (TileHitVecConstIterator i_hit=hitVec->begin() ; i_hit!=hitVec->end() ; ++i_hit) {
+  if (evtStore()->retrieve(hitVec,"TileHitVec") == StatusCode::SUCCESS) {
+    for (TileHitVecConstIterator i_hit=hitVec->begin() ; i_hit!=hitVec->end() ; ++i_hit) {
 
-    Identifier pmt_id = (*i_hit).identify();
-    Identifier cell_id = m_tileID->cell_id(pmt_id);
+      Identifier pmt_id = (*i_hit).identify();
+      Identifier cell_id = m_tileID->cell_id(pmt_id);
 
-    const CaloDetDescrElement *ddElement = m_tileMgr->get_cell_element(cell_id);
-    if(ddElement) // skip E4' cells which are not yet described in TileDetDescrManager.
-      {
-        double eta = ddElement->eta();
-        double phi = ddElement->phi();
-        double radius = ddElement->r();
-        double z  = ddElement->z();
+      const CaloDetDescrElement *ddElement = m_tileMgr->get_cell_element(cell_id);
+      if(ddElement) // skip E4' cells which are not yet described in TileDetDescrManager.
+        {
+          double eta = ddElement->eta();
+          double phi = ddElement->phi();
+          double radius = ddElement->r();
+          double z  = ddElement->z();
 
-        int pmt = m_tileID->pmt(pmt_id);
-        if (pmt>0) phi += ddElement->dphi()/2.; // to see clearly two PMTs in a cell
+          int pmt = m_tileID->pmt(pmt_id);
+          if (pmt>0) phi += ddElement->dphi()/2.; // to see clearly two PMTs in a cell
 
-        // loop over subhits
-        double energy=0;
-        //    ATH_MSG(INFO) << "TileHit size :" <<(*i_hit).size()<<endmsg;
-        for (int i=0; i<(*i_hit).size();++i) {
-          energy+=(*i_hit).energy(i);
-          m_tile_energy->Fill((*i_hit).energy(i));
-          m_tile_log_energy->Fill( std::log((*i_hit).energy(i)) );
-          m_tile_time->Fill((*i_hit).time(i));
+          // loop over subhits
+          double energy=0;
+          //    ATH_MSG(INFO) << "TileHit size :" <<(*i_hit).size()<<endmsg;
+          for (int i=0; i<(*i_hit).size();++i) {
+            energy+=(*i_hit).energy(i);
+            m_tile_energy->Fill((*i_hit).energy(i));
+            m_tile_log_energy->Fill( std::log((*i_hit).energy(i)) );
+            m_tile_time->Fill((*i_hit).time(i));
+          }
+          etot+=energy;
+
+          m_tile_eta->Fill(eta);
+          m_tile_phi->Fill(phi);
+          m_tile_rz->Fill(z,radius);
+          m_tile_etaphi->Fill(eta,phi);
+          m_tile_energyphi->Fill(energy,phi);
+          m_tile_energyeta->Fill(energy,eta);
         }
-        etot+=energy;
-
-        m_tile_eta->Fill(eta);
-        m_tile_phi->Fill(phi);
-        m_tile_rz->Fill(z,radius);
-        m_tile_etaphi->Fill(eta,phi);
-        m_tile_energyphi->Fill(energy,phi);
-        m_tile_energyeta->Fill(energy,eta);
-      }
+    }
   }
   //Check the Hit container with postfix _Fast which generated with FastCaloSim
   const TileHitVector *hitVec_fast;
@@ -146,17 +147,17 @@ StatusCode TileHitsTestTool::processEvent() {
     }
 
   if(m_testMBTS) {
-    CHECK(evtStore()->retrieve(hitVec,"MBTSHits"));
-
-    for (TileHitVecConstIterator i_hit=hitVec->begin() ; i_hit!=hitVec->end() ; ++i_hit) {
-      Identifier mbts_id = (*i_hit).identify();
-      double side = m_tileTBID->side(mbts_id); // -1 or +1
-      double ieta = m_tileTBID->eta(mbts_id);  // 0 for inner cell, 1 for outer cell
-      double iphi = m_tileTBID->phi(mbts_id);  // 0-7, cell 0 at phi=0
-      m_mbts_side->Fill(side);
-      m_mbts_eta->Fill(ieta);
-      m_mbts_phi->Fill(iphi);
-      m_mbts_sidetaphi->Fill((ieta+1)*side,iphi);
+    if (evtStore()->retrieve(hitVec,"MBTSHits") == StatusCode::SUCCESS) {
+      for (TileHitVecConstIterator i_hit=hitVec->begin() ; i_hit!=hitVec->end() ; ++i_hit) {
+        Identifier mbts_id = (*i_hit).identify();
+        double side = m_tileTBID->side(mbts_id); // -1 or +1
+        double ieta = m_tileTBID->eta(mbts_id);  // 0 for inner cell, 1 for outer cell
+        double iphi = m_tileTBID->phi(mbts_id);  // 0-7, cell 0 at phi=0
+        m_mbts_side->Fill(side);
+        m_mbts_eta->Fill(ieta);
+        m_mbts_phi->Fill(iphi);
+        m_mbts_sidetaphi->Fill((ieta+1)*side,iphi);
+      }
     }
   }
   m_etot->Fill(etot);
