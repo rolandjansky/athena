@@ -102,6 +102,8 @@ def MuonClusterOnTrackCreatorCfg(flags,name="MuonClusterOnTrackCreator", **kwarg
         # scale TGC eta hit errors as long as TGC eta are not well aligned
         kwargs.setdefault("DoFixedErrorTgcEta", True)
         kwargs.setdefault("FixedErrorTgcEta", 15.)
+    else:
+        kwargs.setdefault("DoFixedErrorTgcEta", False) # This is ONLY to make the tool configured. Real solution is to use default name.
     
     muon_cluster_rot_creator = CompFactory.Muon.MuonClusterOnTrackCreator(name, **kwargs)
     result.setPrivateTools(muon_cluster_rot_creator)

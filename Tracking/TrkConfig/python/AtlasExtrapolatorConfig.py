@@ -49,10 +49,13 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
 import TrkConfig.AtlasExtrapolatorToolsConfig as TC
 
+# For debugging comparisons with old-style config it is helpful to have names match
+use_old_names=False
 
 def AtlasExtrapolatorCfg(flags, name='AtlasExtrapolator'):
     # Default "ATLAS" with some reasonable defaults
     # Rk for Global/ID STEP to be used for dense volumes.
+    from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasMultipleScatteringUpdatorCfg
 
     result = ComponentAccumulator()
 
@@ -91,6 +94,7 @@ def AtlasExtrapolatorCfg(flags, name='AtlasExtrapolator'):
         ITkMaterialEffectsUpdator = result.popToolsAndMerge(
             TC.ITkMaterialEffectsUpdatorCfg(flags))
 
+
     AtlasUpdators = []
     AtlasUpdators += [AtlasMaterialEffectsUpdator]
     AtlasUpdators += [AtlasMaterialEffectsUpdatorLandau]
@@ -126,10 +130,12 @@ def AtlasExtrapolatorCfg(flags, name='AtlasExtrapolator'):
     AtlasELossUpdater = result.popToolsAndMerge(TC.AtlasEnergyLossUpdatorCfg(flags))
     AtlasEnergyLossUpdater = AtlasELossUpdater
 
+
     # call the base class constructor
     Extrapolator = CompFactory.Trk.Extrapolator(name,
                                                 Navigator=AtlasNavigator,
                                                 MaterialEffectsUpdators=AtlasUpdators,
+                                                MultipleScatteringUpdater=result.popToolsAndMerge(AtlasMultipleScatteringUpdatorCfg(flags, UseTrkUtils=True )),
                                                 STEP_Propagator=AtlasSTEP_Propagator,
                                                 Propagators=AtlasPropagators,
                                                 SubPropagators=AtlasSubPropagators,
@@ -322,6 +328,8 @@ def InDetExtrapolatorCfg(flags, name='InDetExtrapolator', **kwargs):
 
 
 def MuonExtrapolatorCfg(flags, name="MuonExtrapolator", **kwargs):
+    from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasMultipleScatteringUpdatorCfg
+    from TrkConfig.TrkExSTEP_PropagatorConfig import AtlasSTEP_PropagatorCfg
     # Muon set the STEP also as the single "Global" propagator
     result = ComponentAccumulator()
 
@@ -330,21 +338,26 @@ def MuonExtrapolatorCfg(flags, name="MuonExtrapolator", **kwargs):
                                           name="MuonMaterialEffectsUpdator"))
     kwargs.setdefault("MaterialEffectsUpdators", [AtlasMaterialEffectsUpdator])
 
+    kwargs.setdefault("MultipleScatteringUpdater", result.popToolsAndMerge(AtlasMultipleScatteringUpdatorCfg(flags, UseTrkUtils=True)))
+
     AtlasNavigator = result.popToolsAndMerge(TC.AtlasNavigatorCfg(flags))
     kwargs.setdefault("Navigator", AtlasNavigator)
 
     AtlasELossUpdater = result.popToolsAndMerge(TC.AtlasEnergyLossUpdatorCfg(flags))
     kwargs.setdefault("EnergyLossUpdater", AtlasELossUpdater)
-
+   
     if 'STEP_Propagator' not in kwargs:
-        from TrkConfig.TrkExSTEP_PropagatorConfig import (
-            AtlasSTEP_PropagatorCfg)
         AtlasSTEP_Propagator = result.popToolsAndMerge(
             AtlasSTEP_PropagatorCfg(flags))
         kwargs.setdefault("STEP_Propagator", AtlasSTEP_Propagator)
 
     if 'Propagators' not in kwargs:
-        kwargs.setdefault("Propagators", [kwargs["STEP_Propagator"]])
+        if use_old_names:
+            kwargs.setdefault("Propagators", [result.popToolsAndMerge(
+            AtlasSTEP_PropagatorCfg(flags, name="MuonPropagator"))]) 
+        else:
+            kwargs.setdefault("Propagators", [kwargs["STEP_Propagator"]])
+
 
     kwargs.setdefault("ResolveMuonStation", True)
     # must be > 1um to avoid missing MTG intersections
@@ -361,8 +374,12 @@ def MuonStraightLineExtrapolatorCfg(flags,
     # Muon set the STEP also as the single "Global" propagator
     result = ComponentAccumulator()
     from TrkConfig.TrkExSTEP_PropagatorConfig import AtlasSTEP_PropagatorCfg
-    muon_prop = result.popToolsAndMerge(
-        AtlasSTEP_PropagatorCfg(flags, name))
+
+    muon_prop = None
+    if use_old_names:
+        muon_prop=result.popToolsAndMerge( AtlasSTEP_PropagatorCfg(flags, name='MuonStraightLinePropagator'))
+    else:
+        muon_prop=result.popToolsAndMerge( AtlasSTEP_PropagatorCfg(flags))
     kwargs.setdefault("Propagators", [muon_prop])
     kwargs.setdefault("STEP_Propagator", muon_prop)
     extrap = result.popToolsAndMerge(
@@ -375,15 +392,20 @@ def MCTBExtrapolatorCfg(flags, name='MCTBExtrapolator', **kwargs):
     # Muon set the STEP also as the single "Global" propagator
     result = ComponentAccumulator()
     from TrkConfig.TrkExSTEP_PropagatorConfig import AtlasSTEP_PropagatorCfg
-    prop = result.popToolsAndMerge(
-        AtlasSTEP_PropagatorCfg(flags))
-    kwargs.setdefault("Propagators", [prop])
-    kwargs.setdefault("STEP_Propagator", prop)
+    if use_old_names:
+        kwargs.setdefault("Propagators", [result.popToolsAndMerge(
+            AtlasSTEP_PropagatorCfg(flags, name='MCTBPropagator'))])
+        kwargs.setdefault("STEP_Propagator", AtlasSTEP_PropagatorCfg(flags)) #These have different names in old-style, even though they're configured the same(!)
+    else:    
+        prop = result.popToolsAndMerge(
+            AtlasSTEP_PropagatorCfg(flags))
+        kwargs.setdefault("Propagators", [prop])
+        kwargs.setdefault("STEP_Propagator", prop)
     kwargs.setdefault("ResolveMuonStation", False)
-    extrap = result.popToolsAndMerge(
-        MuonExtrapolatorCfg(flags, name, **kwargs))
-    result.setPrivateTools(extrap)
-    return result
+    kwargs.setdefault("Navigator", result.popToolsAndMerge(TC.AtlasNavigatorCfg(flags, name="InDetNavigator")))
+    kwargs.setdefault("EnergyLossUpdater", result.popToolsAndMerge(TC.AtlasEnergyLossUpdatorCfg(flags, UseTrkUtils=True)))
+
+    return MuonExtrapolatorCfg(flags, name, **kwargs)
 
 
 if __name__ == "__main__":

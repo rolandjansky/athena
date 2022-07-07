@@ -8,6 +8,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 
 def RungeKuttaPropagatorCfg(flags, name='AtlasRungeKuttaPropagator', **kwargs):
     result = ComponentAccumulator()
+    kwargs.setdefault("IncludeBgradients", False) # Just so this doesn't seem unconfigured. Real fix is to use default name. 
     tool = CompFactory.Trk.RungeKuttaPropagator(name, **kwargs)
     result.setPrivateTools(tool)
     return result
