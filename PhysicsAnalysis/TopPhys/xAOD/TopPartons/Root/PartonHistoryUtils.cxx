@@ -40,8 +40,6 @@ namespace PartonHistoryUtils {
 
     HiggsDecay result;
 
-   
-
     if (higgs->pdgId() != 25) return result;
 
     /// identify after FSR higgs (just to be sure)
@@ -59,7 +57,7 @@ namespace PartonHistoryUtils {
     const bool isW = (std::abs(result.decay1_pdgId) == 24 || std::abs(result.decay2_pdgId) == 24) ? true : false;
 
 
-    
+
     if (std::abs(result.decay1_pdgId) == 15) { // Tautau channel -> Check if the Tau is hadronic or leptonic
       const xAOD::TruthParticle* tau1_fsr = findAfterFSR(higgs_fsr->child(0));
       result.tau_decay1_vector = tau1_fsr->p4();
@@ -116,11 +114,40 @@ namespace PartonHistoryUtils {
     
   }
 
-  
+  HiggsDecay AnalyzeZDecay(const xAOD::TruthParticle* Zboson) {
+
+    HiggsDecay result;
+
+    /// identify after FSR higgs (just to be sure)
+    const xAOD::TruthParticle* Zboson_fsr = findAfterFSR(Zboson);
+    if (Zboson_fsr->nChildren() != 2) return result;
+
+    /// identify direct Z decays (MC_Z_decay1 and MC_Z_decay2)
+    result.decay1_vector = Zboson_fsr->child(0)->p4();
+    result.decay2_vector = Zboson_fsr->child(1)->p4();
+    result.decay1_pdgId  = Zboson_fsr->child(0)->pdgId();
+    result.decay2_pdgId  = Zboson_fsr->child(1)->pdgId();
+
+    result.tau_decay1_vector = findAfterFSR(Zboson_fsr->child(0))->p4();
+    result.tau_decay2_vector = findAfterFSR(Zboson_fsr->child(1))->p4();
+
+    if (std::abs(result.decay1_pdgId) == 15) { // Tautau channel -> Check if the Tau is hadronic or leptonic
+      // const xAOD::TruthParticle* tau1_fsr = findAfterFSR(Zboson_fsr->child(0));
+      // result.tau_decay1_vector = tau1_fsr->p4();
+      result.tau_decay1_isHadronic = TauIsHadronic(Zboson_fsr->child(0),result.tauvis_decay1_vector);
+    } 
+    if (std::abs(result.decay2_pdgId) == 15) { // Tautau channel -> Check if the Tau is hadronic or leptonic
+      // const xAOD::TruthParticle* tau2_fsr = findAfterFSR(Zboson_fsr->child(1));
+      // result.tau_decay2_vector = tau2_fsr->p4();
+      result.tau_decay2_isHadronic = TauIsHadronic(Zboson_fsr->child(1),result.tauvis_decay2_vector);
+    } 
+
+    return result;
+  }
 
   int TauIsHadronic(const xAOD::TruthParticle* tau, TLorentzVector& tau_visible_decay_p4) {
     // Takes a tau as input and returns information about how is this tau decaying
-    //  - tau_decay_pdgId: Identifies the type of decay. For leptonoically decaying taus stores the pdgId
+    //  - tau_decay_pdgId: Identifies the type of decay. For leptonically decaying taus stores the pdgId
     //                   of the light lepton and for hadronically decaying tau stores +24 for tau+ and -24 for tau^-
     //  - tau_visible_decay_p4: Stores the combined four-momentum of the all the decay products except the neutrinos.
 
@@ -129,7 +156,7 @@ namespace PartonHistoryUtils {
     if (!tau) return tau_decay_pdgId;
 
     if (std::abs(tau->pdgId()) != 15) return tau_decay_pdgId;
-    
+ 
 
     const xAOD::TruthParticle* afterFsr = findAfterFSR(tau);
     
@@ -151,14 +178,11 @@ namespace PartonHistoryUtils {
         tau_visible_decay_p4 = afterFsr->child(k)->p4();       // p4 of LepTau visible decay is the p4 of Lepton
         tau_decay_pdgId = afterFsr->child(k)->pdgId();               // pdgId of LepTau is the pdgId of Lepton 
         there_are_leptons = true;
-      } 
+      }
     }
     
     return tau_decay_pdgId;
-
-
   }
 
-    
 }
 }
