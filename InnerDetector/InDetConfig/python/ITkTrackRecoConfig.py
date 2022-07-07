@@ -4,6 +4,8 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import Format
 
+from InDetConfig.TrackRecoConfig import FTAG_AUXDATA
+
 def ITkTrackCollectionCnvToolCfg(flags, name="ITkTrackCollectionCnvTool", **kwargs):
     result = ComponentAccumulator()
 
@@ -195,9 +197,7 @@ def ITkTrackRecoOutputCfg(flags):
     # excluded track aux data
     excludedAuxData = "-clusterAssociation.-TTVA_AMVFVertices_forReco.-TTVA_AMVFWeights_forReco"
     # remove track decorations used internally by FTAG software
-    excludedAuxData += ('.-TrackCompatibility.-JetFitter_TrackCompatibility_antikt4emtopo.-JetFitter_TrackCompatibility_antikt4empflow'
-                        '.-btagIp_d0Uncertainty.-btagIp_z0SinThetaUncertainty.-btagIp_z0SinTheta.-btagIp_d0.-btagIp_trackMomentum.-btagIp_trackDisplacement'
-                        '.-VxTrackAtVertex')
+    excludedAuxData += '.-'.join([''] + FTAG_AUXDATA)
 
     # exclude IDTIDE/IDTRKVALID decorations
     excludedAuxData += '.-TrkBLX.-TrkBLY.-TrkBLZ.-TrkIBLX.-TrkIBLY.-TrkIBLZ.-TrkL1X.-TrkL1Y.-TrkL1Z.-TrkL2X.-TrkL2Y.-TrkL2Z'

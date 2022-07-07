@@ -74,6 +74,7 @@ namespace FlavorTagDiscriminants {
     std::map<std::string,std::string> remap_scalar;
     TrackLinkType track_link_type;
     float default_output_value;
+    std::string invalid_ip_key;
   };
 
 
@@ -271,6 +272,14 @@ namespace FlavorTagDiscriminants {
     createDecorators(
       const lwt::GraphConfig& config,
       const FTagOptions& options);
+
+    // return a function to check if IP is invalid
+    std::tuple<
+      std::function<char(const internal::Tracks&)>,
+      std::vector<SG::AuxElement::Decorator<char>>,
+      FTagDataDependencyNames>
+    createIpChecker(
+      const lwt::GraphConfig&, const FTagOptions&);
   }
 }
 #endif
