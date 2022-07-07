@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /***************************************************************************
                           Jetroi.h  -  description
@@ -12,12 +12,10 @@
 #ifndef JetROI_H
 #define JetROI_H
 
-// Gaudi kernel stuff.
-#include "GaudiKernel/SmartRef.h"
-#include "GaudiKernel/SmartRefVector.h"
-
 //LVL1 Calo trigger includes
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
+
+#include <vector>
  
 namespace LVL1 {
 
