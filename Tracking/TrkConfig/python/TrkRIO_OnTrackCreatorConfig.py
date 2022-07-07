@@ -223,7 +223,7 @@ def MuonRotCreatorCfg(flags, name="MuonRotCreator", **kwargs):
     result = ComponentAccumulator()
 
     from MuonConfig.MuonRIO_OnTrackCreatorToolConfig import (
-        MdtDriftCircleOnTrackCreatorCfg, MuonClusterOnTrackCreatorCfg)
+        MdtDriftCircleOnTrackCreatorCfg, MuonClusterOnTrackCreatorCfg, MMClusterOnTrackCreatorCfg)
     mdt_rot_creator = result.popToolsAndMerge(
         MdtDriftCircleOnTrackCreatorCfg(flags))
     cluster_rot_creator = result.popToolsAndMerge(
@@ -231,13 +231,15 @@ def MuonRotCreatorCfg(flags, name="MuonRotCreator", **kwargs):
 
     kwargs.setdefault("ToolMuonDriftCircle", mdt_rot_creator)
     kwargs.setdefault("ToolMuonCluster", cluster_rot_creator)
+    kwargs.setdefault("ToolMuonMMCluster", result.popToolsAndMerge(
+        MMClusterOnTrackCreatorCfg(flags)))
+    
     kwargs.setdefault("ToolPixelCluster", None)
     kwargs.setdefault("ToolSCT_Cluster", None)
     kwargs.setdefault("ToolTRT_DriftCircle", None)
     kwargs.setdefault("Mode", 'muon')
 
-    muon_rot_creator = CompFactory.Trk.RIO_OnTrackCreator(name, **kwargs)
-    result.setPrivateTools(muon_rot_creator)
+    result.setPrivateTools(CompFactory.Trk.RIO_OnTrackCreator(name, **kwargs))
     return result
 
 

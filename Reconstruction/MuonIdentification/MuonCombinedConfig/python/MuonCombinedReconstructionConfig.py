@@ -53,7 +53,6 @@ def MuonInsideOutRecoAlgCfg(flags, name="MuonInsideOutRecoAlg", **kwargs):
     result = MuonInsideOutRecoToolCfg(flags)
     insideoutrecotool = result.popPrivateTools()
     tools.append(insideoutrecotool)
-    result.addPublicTool(insideoutrecotool)
 
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools)
     kwargs.setdefault("usePRDs", True)
