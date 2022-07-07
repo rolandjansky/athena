@@ -1,6 +1,6 @@
 #!/bin/bash
-# art-description: Run 4 configuration, ITK only recontruction, 100 GeV Muons, no pileup
-# art-input: mc15_14TeV:mc15_14TeV.900040.PG_singlemu_Pt100_etaFlatnp0_43.evgen.EVNT.e8185
+# art-description: Run 4 configuration, ITK only recontruction, 10 GeV Electrons, no pileup
+# art-input: mc15_14TeV:mc15_14TeV.900035.PG_singleel_Pt10_etaFlatnp0_43.evgen.EVNT.e8185
 # art-input-nfiles: 1
 # art-type: grid
 # art-include: master/Athena
@@ -10,7 +10,7 @@
 
 lastref_dir=last_results
 dcubeXml="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPhysValMonitoring/dcube/config/IDPVMPlots_R22.xml"
-ref_21p9=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPhysValMonitoring/ReferenceHistograms/900040_mu100_ITk_21p9_v1.IDPVM.root  # Ref release = 21.9.25
+ref_21p9=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPhysValMonitoring/ReferenceHistograms/900035_el10_ITk_21p9_v1.IDPVM.root  # Ref release = 21.9.26
 
 geometry=ATLAS-P2-RUN4-01-00-00
 
