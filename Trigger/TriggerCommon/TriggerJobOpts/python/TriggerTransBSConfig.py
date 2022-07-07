@@ -93,6 +93,8 @@ def triggerTransBSCfg_Calo(flags, seqName="AthAlgSeq"):
     # Tile
     itemList += ["TileRawChannelContainer#*"]
     typeNames += ["TileCellIDC/TileCellIDC"]
+    from TileConditions.TileBadChannelsConfig import TileBadChannelsCondAlgCfg
+    acc.merge( TileBadChannelsCondAlgCfg(flags) )
     extraInputs += [('TileBadChannels','ConditionStore+TileBadChannels')]
 
     acc.merge(triggerTransBSCfg_Base(flags, itemList, typeNames, extraInputs, seqName))
