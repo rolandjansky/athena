@@ -3,13 +3,13 @@
 */
 
 //***************************************************************************
-//                           jFexByteStreamTool  -  description
+//                           jFexRoiByteStreamTool  -  description
 //                              -------------------
 //     begin                : 01 01 2022
 //     email                : Sergi.Rodriguez@cern.ch
 //  ***************************************************************************/
 
-#include "jFexByteStreamTool.h"
+#include "jFexRoiByteStreamTool.h"
 #include "jFexBits.h"
 #include "CxxUtils/span.h"
 #include "eformat/SourceIdentifier.h"
@@ -36,12 +36,12 @@ struct color {
     std::string B_GREEN  ="\033[1;42m";
 } const C;
 
-jFexByteStreamTool::jFexByteStreamTool(const std::string& type,
+jFexRoiByteStreamTool::jFexRoiByteStreamTool(const std::string& type,
         const std::string& name,
         const IInterface* parent)
     : base_class(type, name, parent) {}
 
-StatusCode jFexByteStreamTool::initialize() {
+StatusCode jFexRoiByteStreamTool::initialize() {
     // Conversion mode for jJ TOBs
     ConversionMode jJmode = getConversionMode(m_jJReadKey, m_jJWriteKey, msg());
     ATH_CHECK(jJmode!=ConversionMode::Undefined);
@@ -103,7 +103,7 @@ StatusCode jFexByteStreamTool::initialize() {
 }
 
 // BS->xAOD conversion
-StatusCode jFexByteStreamTool::convertFromBS(const std::vector<const ROBF*>& vrobf, const EventContext& ctx) const {
+StatusCode jFexRoiByteStreamTool::convertFromBS(const std::vector<const ROBF*>& vrobf, const EventContext& ctx) const {
     
     //std::cout<<C.RED<<"SERGI"<<C.END<<std::endl;
     
@@ -325,7 +325,7 @@ StatusCode jFexByteStreamTool::convertFromBS(const std::vector<const ROBF*>& vro
 
 
 // Unpack number of TOBs in Trailer "TOB,XTOB Counter Trailer"
-std::array<uint32_t,6> jFexByteStreamTool::TOBCounterTrailer (uint32_t word) const {
+std::array<uint32_t,6> jFexRoiByteStreamTool::TOBCounterTrailer (uint32_t word) const {
     
     uint32_t jJ    = ((word >> jBits::jJ_TOB_COUNTS  ) & jBits::TOB_COUNTS_6b);
     uint32_t jLJ   = ((word >> jBits::jLJ_TOB_COUNTS ) & jBits::TOB_COUNTS_6b);
@@ -340,7 +340,7 @@ std::array<uint32_t,6> jFexByteStreamTool::TOBCounterTrailer (uint32_t word) con
 }
 
 // Unpack number of xTOBs in Trailer "TOB,XTOB Counter Trailer"
-std::array<uint32_t,4> jFexByteStreamTool::xTOBCounterTrailer (uint32_t word) const {
+std::array<uint32_t,4> jFexRoiByteStreamTool::xTOBCounterTrailer (uint32_t word) const {
     
     uint32_t xjJ    = ((word >> jBits::jJ_TOB_COUNTS  ) & jBits::TOB_COUNTS_6b);
     uint32_t xjLJ   = ((word >> jBits::jLJ_TOB_COUNTS ) & jBits::TOB_COUNTS_6b);
@@ -352,7 +352,7 @@ std::array<uint32_t,4> jFexByteStreamTool::xTOBCounterTrailer (uint32_t word) co
 }
 
 // Unpack jFEX to ROD Trailer
-std::array<uint32_t,3> jFexByteStreamTool::jFEXtoRODTrailer (uint32_t word0, uint32_t /*word1*/) const {
+std::array<uint32_t,3> jFexRoiByteStreamTool::jFEXtoRODTrailer (uint32_t word0, uint32_t /*word1*/) const {
     
     uint32_t payload    = ((word0 >> jBits::PAYLOAD_ROD_TRAILER ) & jBits::ROD_TRAILER_16b);
     uint32_t fpga       = ((word0 >> jBits::FPGA_ROD_TRAILER    ) & jBits::ROD_TRAILER_2b );
@@ -385,7 +385,7 @@ std::array<uint32_t,3> jFexByteStreamTool::jFEXtoRODTrailer (uint32_t word0, uin
 
 
 // Unpack jFEX to ROD Header
-void jFexByteStreamTool::jFEXtoRODHeader (uint32_t /*word0*/, uint32_t /*word1*/) const {
+void jFexRoiByteStreamTool::jFEXtoRODHeader (uint32_t /*word0*/, uint32_t /*word1*/) const {
     
     //std::cout << "jFEXtoRODHeader: word0 0x" <<  std::hex << word0  << std::dec << std::endl;
     //std::cout << "jFEXtoRODHeader: word1 0x" <<  std::hex << word1  << std::dec << std::endl;
@@ -430,7 +430,7 @@ void jFexByteStreamTool::jFEXtoRODHeader (uint32_t /*word0*/, uint32_t /*word1*/
 
 
 /// xAOD->BS conversion
-StatusCode jFexByteStreamTool::convertToBS(std::vector<WROBF*>& /*vrobf*/, const EventContext& /*eventContext*/) {
+StatusCode jFexRoiByteStreamTool::convertToBS(std::vector<WROBF*>& /*vrobf*/, const EventContext& /*eventContext*/) {
     
 /*
     // Retrieve the RoI container

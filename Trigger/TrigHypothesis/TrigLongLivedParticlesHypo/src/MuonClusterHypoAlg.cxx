@@ -6,6 +6,8 @@
 // MuonClusterHypoAlg
 // (see header for history/etc..)
 //
+#include "MuonClusterHypoAlg.h"
+
 #include <cmath>
 #include <algorithm>
 #include <sstream>
@@ -16,10 +18,11 @@
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 
-#include "MuonClusterHypoAlg.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "xAODTrigger/TrigComposite.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
+
+#include "CLHEP/Units/SystemOfUnits.h"
 
 class ISvcLocator;
 

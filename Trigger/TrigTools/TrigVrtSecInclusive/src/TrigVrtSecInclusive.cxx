@@ -120,7 +120,7 @@ StatusCode TrigVrtSecInclusive::execute(const EventContext& ctx) const
          ATH_MSG_WARNING( header << "Illed primary vertex, keeping null privtx" );
          privtx = nullptr;
       } else {
-      	 ATH_MSG_INFO( header << "primary vertex successfully retrieved" );
+      	 ATH_MSG_DEBUG( header << "primary vertex successfully retrieved" );
       }
    }
    else {

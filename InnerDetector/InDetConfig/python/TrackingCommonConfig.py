@@ -6,61 +6,6 @@ from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 
 #######################################################################
 
-def NeuralNetworkToHistoToolCfg(**kwargs):
-    acc = ComponentAccumulator()
-    name = kwargs.pop('name',"NeuralNetworkToHistoTool")
-
-    NeuralNetworkToHistoTool=CompFactory.Trk.NeuralNetworkToHistoTool(name, **kwargs)
-    acc.setPrivateTools(NeuralNetworkToHistoTool)
-    return acc
-
-def PixelClusterNnCondAlgCfg(flags, **kwargs):
-    acc = ComponentAccumulator()
-    track_nn = kwargs.pop('TrackNetwork',False)
-    nn_names = [
-          "NumberParticles_NoTrack/",
-          "ImpactPoints1P_NoTrack/",
-          "ImpactPoints2P_NoTrack/",
-          "ImpactPoints3P_NoTrack/",
-          "ImpactPointErrorsX1_NoTrack/",
-          "ImpactPointErrorsX2_NoTrack/",
-          "ImpactPointErrorsX3_NoTrack/",
-          "ImpactPointErrorsY1_NoTrack/",
-          "ImpactPointErrorsY2_NoTrack/",
-          "ImpactPointErrorsY3_NoTrack/" ]
-
-    if track_nn :
-        nn_names = [ elm.replace('_NoTrack', '')  for elm in nn_names ]
-
-    acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/PixelClustering/PixelClusNNCalib", "/PIXEL/PixelClustering/PixelClusNNCalib", className='CondAttrListCollection'))
-    kwargs.setdefault("NetworkNames", nn_names)
-    kwargs.setdefault("WriteKey", 'PixelClusterNN' if not track_nn else 'PixelClusterNNWithTrack')
-
-    if 'NetworkToHistoTool' not in kwargs:
-        NeuralNetworkToHistoTool = acc.popToolsAndMerge(NeuralNetworkToHistoToolCfg(name = "NeuralNetworkToHistoTool"))
-        kwargs.setdefault("NetworkToHistoTool", NeuralNetworkToHistoTool)
-
-    acc.addCondAlgo(CompFactory.InDet.TTrainedNetworkCondAlg(kwargs.pop("name", 'PixelClusterNnCondAlg'), **kwargs))
-    return acc
-
-def PixelClusterNnWithTrackCondAlgCfg(flags, **kwargs):
-    kwargs.setdefault("TrackNetwork", True)
-    kwargs.setdefault("name", 'PixelClusterNnWithTrackCondAlg')
-
-    acc = PixelClusterNnCondAlgCfg(flags, **kwargs)
-    return acc
-
-def LWTNNCondAlgCfg(flags, **kwargs):
-    acc = ComponentAccumulator()
-    # Check for the folder
-    acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/PixelClustering/PixelNNCalibJSON", "/PIXEL/PixelClustering/PixelNNCalibJSON", className="CondAttrListCollection"))
-    # What we'll store it as
-    kwargs.setdefault("WriteKey", 'PixelClusterNNJSON')
-
-    # Set up the algorithm
-    acc.addCondAlgo(CompFactory.InDet.LWTNNCondAlg(kwargs.pop("name", "LWTNNCondAlg"), **kwargs))
-    return acc
-
 def LumiCondDataKeyForTRTMuScalingCfg(flags, **kwargs) :
     acc = ComponentAccumulator()
     LuminosityOutputKey = ''

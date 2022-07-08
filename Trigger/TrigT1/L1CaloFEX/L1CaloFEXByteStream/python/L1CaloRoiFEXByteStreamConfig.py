@@ -27,8 +27,8 @@ def eFexByteStreamToolCfg(name, flags, writeBS=False, xTOBs=False, multiSlice=Fa
   return tool
 
 
-def jFexByteStreamToolCfg(name, flags, writeBS=False, xTOBs=False):
-  tool = CompFactory.jFexByteStreamTool(name)
+def jFexRoiByteStreamToolCfg(name, flags, writeBS=False, xTOBs=False):
+  tool = CompFactory.jFexRoiByteStreamTool(name)
   tool.ConvertExtendedTOBs = xTOBs
   jfex_roi_moduleids = [0x2000]
   tool.ROBIDs = [int(SourceIdentifier(SubDetector.TDAQ_CALO_FEAT_EXTRACT_ROI, moduleid)) for moduleid in jfex_roi_moduleids]

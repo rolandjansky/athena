@@ -4,6 +4,7 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType, LHCPeriod
+from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 
 def ClusterMakerToolCfg(flags, name="InDetClusterMakerTool", **kwargs) :
     acc = ComponentAccumulator()
@@ -102,6 +103,54 @@ def ITkMergedPixelsToolCfg(flags, name="ITkMergedPixelsTool", **kwargs) :
     acc.setPrivateTools(ITkMergedPixelsTool)
     return acc
 
+def PixelClusterNnCondAlgCfg(flags, **kwargs):
+    acc = ComponentAccumulator()
+    track_nn = kwargs.pop('TrackNetwork',False)
+    nn_names = [
+          "NumberParticles_NoTrack/",
+          "ImpactPoints1P_NoTrack/",
+          "ImpactPoints2P_NoTrack/",
+          "ImpactPoints3P_NoTrack/",
+          "ImpactPointErrorsX1_NoTrack/",
+          "ImpactPointErrorsX2_NoTrack/",
+          "ImpactPointErrorsX3_NoTrack/",
+          "ImpactPointErrorsY1_NoTrack/",
+          "ImpactPointErrorsY2_NoTrack/",
+          "ImpactPointErrorsY3_NoTrack/" ]
+
+    if track_nn :
+        nn_names = [ elm.replace('_NoTrack', '')  for elm in nn_names ]
+
+    acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/PixelClustering/PixelClusNNCalib", "/PIXEL/PixelClustering/PixelClusNNCalib", className='CondAttrListCollection'))
+    kwargs.setdefault("NetworkNames", nn_names)
+    kwargs.setdefault("WriteKey", 'PixelClusterNN' if not track_nn else 'PixelClusterNNWithTrack')
+
+    if 'NetworkToHistoTool' not in kwargs:
+        from TrkConfig.TrkNeuralNetworkUtilsConfig import NeuralNetworkToHistoToolCfg
+        NeuralNetworkToHistoTool = acc.popToolsAndMerge(NeuralNetworkToHistoToolCfg(flags))
+        kwargs.setdefault("NetworkToHistoTool", NeuralNetworkToHistoTool)
+
+    acc.addCondAlgo(CompFactory.InDet.TTrainedNetworkCondAlg(kwargs.pop("name", 'PixelClusterNnCondAlg'), **kwargs))
+    return acc
+
+def PixelClusterNnWithTrackCondAlgCfg(flags, **kwargs):
+    kwargs.setdefault("TrackNetwork", True)
+    kwargs.setdefault("name", 'PixelClusterNnWithTrackCondAlg')
+
+    acc = PixelClusterNnCondAlgCfg(flags, **kwargs)
+    return acc
+
+def LWTNNCondAlgCfg(flags, **kwargs):
+    acc = ComponentAccumulator()
+    # Check for the folder
+    acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/PixelClustering/PixelNNCalibJSON", "/PIXEL/PixelClustering/PixelNNCalibJSON", className="CondAttrListCollection"))
+    # What we'll store it as
+    kwargs.setdefault("WriteKey", 'PixelClusterNNJSON')
+
+    # Set up the algorithm
+    acc.addCondAlgo(CompFactory.InDet.LWTNNCondAlg(kwargs.pop("name", "LWTNNCondAlg"), **kwargs))
+    return acc
+
 def NnClusterizationFactoryCfg(flags, name="NnClusterizationFactory", **kwargs):
     acc = ComponentAccumulator()
 
@@ -117,11 +166,9 @@ def NnClusterizationFactoryCfg(flags, name="NnClusterizationFactory", **kwargs):
         kwargs.setdefault("PixelLorentzAngleTool", PixelLorentzAngleTool)
 
     if flags.GeoModel.Run is LHCPeriod.Run1:
-        from InDetConfig.TrackingCommonConfig import PixelClusterNnCondAlgCfg, PixelClusterNnWithTrackCondAlgCfg
         acc.merge(PixelClusterNnCondAlgCfg(flags, name="PixelClusterNnCondAlg", GetInputsInfo=True))
         acc.merge(PixelClusterNnWithTrackCondAlgCfg(flags, name="PixelClusterNnWithTrackCondAlg", GetInputsInfo=True))
     else:
-        from InDetConfig.TrackingCommonConfig import LWTNNCondAlgCfg
         acc.merge(LWTNNCondAlgCfg(flags, name="LWTNNCondAlg"))
 
     kwargs.setdefault("doRunI", flags.GeoModel.Run is LHCPeriod.Run1)
@@ -147,7 +194,6 @@ def TrigNnClusterizationFactoryCfg(flags, name="TrigNnClusterizationFactory", **
     else:
         acc.merge(PixelChargeCalibCondAlgCfg(flags))
 
-    from InDetConfig.TrackingCommonConfig import PixelClusterNnCondAlgCfg, PixelClusterNnWithTrackCondAlgCfg
     acc.merge(PixelClusterNnCondAlgCfg(flags, name="PixelClusterNnCondAlg", GetInputsInfo=True))
     acc.merge(PixelClusterNnWithTrackCondAlgCfg(flags, name="PixelClusterNnWithTrackCondAlg", GetInputsInfo=True))
 
