@@ -6,11 +6,15 @@
 #include "BuildCombinations.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIncidentSvc.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include "xAODCore/AuxContainerBase.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "FourMomUtils/xAODP4Helpers.h"
 #include <memory>
 #include <algorithm>
+#include "AthenaKernel/IProxyDict.h"
+#include "AthenaKernel/ExtendedEventContext.h"
+#include "StoreGate/ReadHandle.h"
 
 namespace {
   /// Helper typedefs for accessors/decorators, vectors of ele links
@@ -20,6 +24,17 @@ namespace {
     using dec_t = SG::AuxElement::Decorator<T>;
   template <typename T>
     using vecLink_t = std::vector<ElementLink<T>>;
+
+  template <typename T>
+    ElementLink<T> makeLink(typename T::const_value_type element, IProxyDict *proxyDct)
+    {
+      SG::DataProxy *proxy = proxyDct->proxy(element->container());
+      // This will be null if the container isn't in the store. This shouldn't really happen
+      if (!proxy) [[unlikely]]
+        return {};
+      else
+        return ElementLink<T>(proxy->sgkey(), element->index(), proxyDct);
+    }
 } //> end anonymous namespace
 
 namespace DerivationFramework {
@@ -71,6 +86,10 @@ namespace DerivationFramework {
     m_chainNames.erase(std::unique(m_chainNames.begin(), m_chainNames.end() ), m_chainNames.end() );
 
     ATH_CHECK( m_trigParticleTool.retrieve() );
+    for (auto &p : m_offlineInputs)
+    {
+      ATH_CHECK(p.second.initialize(SG::AllowEmpty));
+    }
     return StatusCode::SUCCESS;
   }
 
@@ -92,18 +111,27 @@ namespace DerivationFramework {
       return false;
     }();
 
+    const EventContext &ctx = Gaudi::Hive::currentContext();
+    const Atlas::ExtendedEventContext &extendedCtx = Atlas::getExtendedEventContext(ctx);
+
     // Now, get all the possible offline candidates
+    std::map<xAOD::Type::ObjectType, const xAOD::IParticleContainer *> offlineContainers;
     std::map<xAOD::Type::ObjectType, particleVec_t> offlineCandidates;
     for (const auto& p : m_offlineInputs) {
       // Skip any that may have been disabled by providing an empty string to
       // the corresponding property
       if (p.second.empty() )
         continue;
-      const xAOD::IParticleContainer* cont(nullptr);
-      ATH_CHECK( evtStore()->retrieve(cont, p.second) );
+      auto handle = SG::makeHandle(p.second, ctx);
+      if (!handle.isValid())
+      {
+        ATH_MSG_ERROR("Failed to retrieve " << p.second);
+        return StatusCode::FAILURE;
+      }
+      offlineContainers[p.first] = handle.ptr();
       offlineCandidates.emplace(std::make_pair(
           p.first, 
-          particleVec_t(cont->begin(), cont->end() )
+          particleVec_t(handle->begin(), handle->end() )
       ) );
     }
 
@@ -178,11 +206,17 @@ namespace DerivationFramework {
             "TrigMatchedObjects");
         vecLink_t<xAOD::IParticleContainer>& links = dec_links(*composite);
         for (const xAOD::IParticle* part : foundCombination) {
-          // TODO This might be dangerous if the user provides the wrong types
-          // for the inputs or the input containers are not the owners (so that
-          // part->index() isn't the right value...). However I'm not sure what
-          // the best option is here...
-          links.emplace_back(m_offlineInputs.at(part->type()), part->index() );
+          const xAOD::IParticleContainer *container = offlineContainers.at(part->type());
+          // If we have an owning container then things are relatively simple:
+          // we can just construct the element link from its SG key and the
+          // index. Otherwise we have to locate the correct proxy from the element
+          if (container->trackIndices())
+            links.emplace_back(
+                m_offlineInputs.at(part->type()).hashedKey(),
+                part->index(),
+                extendedCtx.proxy());
+          else
+            links.push_back(makeLink<xAOD::IParticleContainer>(part, extendedCtx.proxy()));
         }
       } //> end loop over the found combinations
     } //> end loop over chains

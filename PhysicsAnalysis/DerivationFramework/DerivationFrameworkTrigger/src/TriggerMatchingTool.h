@@ -14,6 +14,7 @@
 #include "xAODBase/IParticle.h"
 #include "xAODBase/IParticleContainer.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
+#include "StoreGate/ReadHandleKey.h"
 #include <vector>
 
 namespace DerivationFramework
@@ -66,7 +67,7 @@ namespace DerivationFramework
     ToolHandle<Trig::IIParticleRetrievalTool> m_trigParticleTool{"Trig::IParticleRetrievalTool/OnlineParticleTool"};
 
     /// The input containers to use. These are keyed by xAOD object type
-    std::map<xAOD::Type::ObjectType, std::string> m_offlineInputs;
+    std::map<xAOD::Type::ObjectType, SG::ReadHandleKey<xAOD::IParticleContainer>> m_offlineInputs;
 
     /// The DR threshold to use
     float m_drThreshold;
