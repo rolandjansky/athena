@@ -16,6 +16,8 @@
 #ifndef TRIG_MUCLUHYPOALG_H
 #define TRIG_MUCLUHYPOALG_H
 
+#include "MuonClusterHypoTool.h"
+
 #include <string>
 #include <vector>
 #include <set>
@@ -36,15 +38,13 @@
 #include "AthenaMonitoringKernel/MonitoredTimer.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
-// #include "TrigT1Interfaces/RecMuonRoI.h"
+
 #include "xAODTrigger/TrigComposite.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
-
-#include "MuonClusterHypoTool.h"
 
 class StoreGateSvc;
 
@@ -64,13 +64,13 @@ class MuonClusterHypoAlg: public HypoBase {
 
     SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_outputCompositesKey{ this,
         "TrigCluCompositeContainer",                  // property name
-        "RoICluster_Composites",                      // default value of StoreGatekey
+        "HLT_RoICluster_Composites",                  // default value of StoreGatekey
         "output Composites container"};
 
     /** method to initialize. */
-    StatusCode initialize();
+    virtual StatusCode initialize() override;
     /** method to execute. */
-    StatusCode execute(const EventContext& ctx) const;
+    virtual StatusCode execute(const EventContext& ctx) const override;
 
 private:
 

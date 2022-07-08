@@ -75,6 +75,7 @@ foreach( name CscMcDataCnv_p1_test CscSimDataCnv_p1_test
       STGC_DigitContainerCnv_p1_test
       STGC_RawDataContainerCnv_p1_test
       STGC_RawDataContainerCnv_p2_test
+      sTgcPrepDataCnv_p2_test sTgcPrepDataContainerCnv_p2_test
       )
 
    atlas_add_test( ${name}

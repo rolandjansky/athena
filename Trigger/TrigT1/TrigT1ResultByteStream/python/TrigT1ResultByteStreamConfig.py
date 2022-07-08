@@ -7,7 +7,7 @@ from AthenaConfiguration.Enums import Format
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from libpyeformat_helper import SourceIdentifier, SubDetector
 
-from L1CaloFEXByteStream.L1CaloFEXByteStreamConfig import eFexByteStreamToolCfg, jFexByteStreamToolCfg
+from L1CaloFEXByteStream.L1CaloRoiFEXByteStreamConfig import eFexByteStreamToolCfg, jFexRoiByteStreamToolCfg
 from L1TopoByteStream.L1TopoByteStreamConfig import L1TopoPhase1ByteStreamToolCfg
 from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConfig import getRun3RPCRecRoiTool
 from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConfig import getRun3TGCRecRoiTool
@@ -152,13 +152,13 @@ def L1TriggerByteStreamDecoderCfg(flags):
                                                flags=flags,
                                                writeBS=False,
                                                multiSlice=False)
-    jFexByteStreamTool = jFexByteStreamToolCfg("jFexBSDecoderTool",
+    jFexRoiByteStreamTool = jFexRoiByteStreamToolCfg("jFexBSDecoderTool",
                                                flags=flags,
                                                writeBS=False)
-    decoderTools += [eFexByteStreamTool, jFexByteStreamTool]
+    decoderTools += [eFexByteStreamTool, jFexRoiByteStreamTool]
     # During commissioning of the phase-1 L1Calo (2022), allow the data to be missing
     maybeMissingRobs += eFexByteStreamTool.ROBIDs
-    maybeMissingRobs += jFexByteStreamTool.ROBIDs
+    maybeMissingRobs += jFexRoiByteStreamTool.ROBIDs
 
   ########################################
   # Run-3 L1Topo decoding
@@ -286,7 +286,7 @@ if __name__ == '__main__':
   outputEDM += addEDM('xAOD::EnergySumRoI'     , 'LVL1EnergySumRoI')
 
   if subsystem in ['jFex','allFex'] :
-    jFexTool = jFexByteStreamToolCfg('jFexBSDecoder', flags)
+    jFexTool = jFexRoiByteStreamToolCfg('jFexBSDecoder', flags)
     decoderTools += [jFexTool]
     outputEDM += addEDM('xAOD::jFexSRJetRoIContainer', jFexTool.jJRoIContainerWriteKey.Path)
     outputEDM += addEDM('xAOD::jFexLRJetRoIContainer', jFexTool.jLJRoIContainerWriteKey.Path)

@@ -91,24 +91,28 @@ fi
 echo "art-result: $rc3 Digi_tf.py MP fork after 1"
 
 rc4=-9999
-if [[ $status -eq 0 ]] && [[ $rc -eq 0 ]] && [[ $rc2 -eq 0 ]]
+if [[ $rc -eq 0 ]] && [[ $rc2 -eq 0 ]]
 then
     acmd.py diff-root ${DigiOutFileNameSP} ${DigiOutFileNameMP0} \
         --mode=semi-detailed --error-mode resilient --order-trees \
         --ignore-leaves RecoTimingObj_p1_HITStoRDO_timings McEventCollection_p5_TruthEvent.m_genParticles.m_m index_ref
     rc4=$?
-    status=$rc4
+    if [[ $status -eq 0 ]]; then
+        status=$rc4
+    fi
 fi
 echo "art-result: $rc4 SP vs MP fork after 0"
 
 rc5=-9999
-if [[ $status -eq 0 ]] && [[ $rc -eq 0 ]] && [[ $rc3 -eq 0 ]]
+if [[ $rc -eq 0 ]] && [[ $rc3 -eq 0 ]]
 then
     acmd.py diff-root ${DigiOutFileNameSP} ${DigiOutFileNameMP1} \
         --mode=semi-detailed --error-mode resilient --order-trees \
         --ignore-leaves RecoTimingObj_p1_HITStoRDO_timings McEventCollection_p5_TruthEvent.m_genParticles.m_m index_ref
     rc5=$?
-    status=$rc5
+    if [[ $status -eq 0 ]]; then
+        status=$rc5
+    fi
 fi
 echo "art-result: $rc5 SP vs MP fork after 1"
 

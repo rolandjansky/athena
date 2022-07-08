@@ -6,20 +6,29 @@
   MuonCluster.cxx
   Muon cluster finding, creates an RoI cluster for track finding
 */
-#include <cmath>
-#include <algorithm>
-#include <sstream>
-#include <vector>
+
+//CLASS HEADER
+#include "MuonCluster.h"
+
+//ATHENA GAUDI & STOREGATE
 #include "GaudiKernel/ITHistSvc.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
+
 //LVL1 ROIS
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
+
 //MUON CLUSTER
 #include "MuonCluster.h"
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
 #include "CxxUtils/fpcompare.h"
 #include "CxxUtils/phihelper.h"
+
+//C++ LIBS
+#include <cmath>
+#include <algorithm>
+#include <sstream>
+#include <stdexcept>
 
 using namespace std;
 
@@ -65,13 +74,13 @@ StatusCode MuonCluster::execute(const EventContext& ctx) const
     auto CluPhi = Monitored::Scalar<double>("CluPhi", -99.);
     auto CluNum = Monitored::Scalar<int>("NumRoi", 0);
 
-    auto dPhi_cluSeed = Monitored::Scalar<float>("dPhiCluSeed", -99);
-    auto dEta_cluSeed = Monitored::Scalar<float>("dEtaCluSeed", -99);
-    auto dR_cluSeed = Monitored::Scalar<float>("dRCluSeed", -99);
+    auto dPhi_cluSeed = Monitored::Scalar<float>("dPhiCluSeed", -99.);
+    auto dEta_cluSeed = Monitored::Scalar<float>("dEtaCluSeed", -99.);
+    auto dR_cluSeed = Monitored::Scalar<float>("dRCluSeed", -99.);
 
-    auto dPhi_RoivecSeed = Monitored::Scalar<double>("dPhiRoiVecSeed", -99);
-    auto dEta_RoivecSeed = Monitored::Scalar<double>("dEtaRoiVecSeed", -99);
-    auto dR_RoivecSeed   = Monitored::Scalar<double>("dRRoiVecSeed", -99);
+    auto dPhi_RoivecSeed = Monitored::Scalar<double>("dPhiRoiVecSeed", -99.);
+    auto dEta_RoivecSeed = Monitored::Scalar<double>("dEtaRoiVecSeed", -99.);
+    auto dR_RoivecSeed   = Monitored::Scalar<double>("dRRoiVecSeed", -99.);
 
     auto mon_roiEta = Monitored::Collection("RoiEta", RoiEta_mon);
     auto mon_roiPhi = Monitored::Collection("RoiPhi", RoiPhi_mon);
@@ -115,10 +124,8 @@ StatusCode MuonCluster::execute(const EventContext& ctx) const
         ATH_MSG_WARNING("Can't get any TrigRoiDescriptor from m_roiCollectionKey!");
         return StatusCode::FAILURE;
     } else {
-        const TrigRoiDescriptor* roi;
-        for (TrigRoiDescriptorCollection::const_iterator it = roiCollection->begin();it != roiCollection->end(); ++it)
+        for (const TrigRoiDescriptor *roi : *roiCollection)
         {
-            roi = (*it);
             if(iter_cl>= kMAX_ROI) {
                 ATH_MSG_WARNING("Too many L1 Muon RoIs: bailing out");
                 break;
@@ -233,31 +240,36 @@ StatusCode MuonCluster::execute(const EventContext& ctx) const
     xAOD::TrigComposite *compClu = new xAOD::TrigComposite();
     try{
         trigCompColl->push_back(compClu);  //add muon RoI clusters to the composite container
-    }catch(...){
-        ATH_MSG_ERROR("Write of MuonRoICluster TrigCompositeContainer object into trigCompColl failed");
+    }catch(const std::exception& e){
+        ATH_MSG_ERROR("Write of MuonRoICluster TrigCompositeContainer object into trigCompColl failed!");
+        ATH_MSG_ERROR("Error Message: " << e.what());
         return StatusCode::FAILURE;
     }
+
+
     compClu->setName("Cluster");
-    compClu->setDetail( "ClusterEta", double(CluEta) );
-    compClu->setDetail( "ClusterPhi", double(CluPhi) );
-    compClu->setDetail( "nRoIs", int(CluNum) );
+    compClu->setDetail( "ClusterEta", static_cast<double>(CluEta) );
+    compClu->setDetail( "ClusterPhi", static_cast<double>(CluPhi) );
+    compClu->setDetail( "nRoIs", static_cast<int>(CluNum) );
 
 
     //create a TrigRoiDescriptor to send to ID tracking, to seed track-finding
     //only need to do this if the MuonCluster will pass the hypo!
-    if( (int(CluNum) >= 3 && fabs(double(CluEta)) < 1.0) || (int(CluNum) >= 4 && fabs(double(CluEta)) >= 1.0 && fabs(double(CluEta)) <= 2.5)){
+    if( (static_cast<int>(CluNum) >= 3 && std::abs(static_cast<double>(CluEta)) < 1.0) || \
+        (static_cast<int>(CluNum) >= 4 && std::abs(static_cast<double>(CluEta)) >= 1.0 && std::abs(static_cast<double>(CluEta)) <= 2.5) )
+    {
         double phiHalfWidth = 0.35;
-        double phiMinus = CxxUtils::wrapToPi(double(CluPhi)-phiHalfWidth);
-        double phiPlus  = CxxUtils::wrapToPi(double(CluPhi)+phiHalfWidth);
-        TrigRoiDescriptor* roiClus =  new TrigRoiDescriptor(double(CluEta), double(CluEta)-0.4, double(CluEta)+0.4,double(CluPhi), phiMinus, phiPlus);
+        double phiMinus = CxxUtils::wrapToPi(static_cast<double>(CluPhi)-phiHalfWidth);
+        double phiPlus  = CxxUtils::wrapToPi(static_cast<double>(CluPhi)+phiHalfWidth);
+        TrigRoiDescriptor* roiClus =  new TrigRoiDescriptor(static_cast<double>(CluEta), static_cast<double>(CluEta)-0.4, static_cast<double>(CluEta)+0.4,static_cast<double>(CluPhi), phiMinus, phiPlus);
         trigDescColl->push_back(roiClus);
     }
 
     //----------------------------------------------------------------
     // REGTEST
     //----------------------------------------------------------------
-    ATH_MSG_DEBUG(" REGTEST \t Cluster with : " << int(CluNum) << " LVL1-Roi");
-    ATH_MSG_DEBUG(" REGTEST \t Cluster Eta " <<  double(CluEta) << "  Cluster Phi " << double(CluPhi));
+    ATH_MSG_DEBUG(" REGTEST \t Cluster with : " << static_cast<int>(CluNum) << " LVL1-Roi");
+    ATH_MSG_DEBUG(" REGTEST \t Cluster Eta " <<  static_cast<double>(CluEta) << "  Cluster Phi " << static_cast<double>(CluPhi));
     //----------------------------------------------------------------
 
     return StatusCode::SUCCESS;

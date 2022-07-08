@@ -3,14 +3,14 @@
 */
 
 //***************************************************************************
-//                           jFexByteStreamTool  -  description
+//                           jFexRoiByteStreamTool  -  This tool decodes Run3 jFEX data!
 //                              -------------------
 //     begin                : 01 01 2022
 //     email                : Sergi.Rodriguez@cern.ch
 //  ***************************************************************************/
 
-#ifndef JFEXBYTESTREAMTOOL_H 
-#define JFEXBYTESTREAMTOOL_H
+#ifndef JFEXROIBYTESTREAMTOOL_H 
+#define JFEXROIBYTESTREAMTOOL_H
 
 // Trigger includes
 #include "TrigT1ResultByteStream/IL1TriggerByteStreamTool.h"
@@ -38,10 +38,10 @@
  *  @brief Implementation of a tool for L1 RoI conversion from BS to xAOD and from xAOD to BS
  *  (IL1TriggerByteStreamTool interface)
  **/
-class jFexByteStreamTool : public extends<AthAlgTool, IL1TriggerByteStreamTool> {
+class jFexRoiByteStreamTool : public extends<AthAlgTool, IL1TriggerByteStreamTool> {
     public:
-        jFexByteStreamTool(const std::string& type, const std::string& name, const IInterface* parent);
-        virtual ~jFexByteStreamTool() override = default;
+        jFexRoiByteStreamTool(const std::string& type, const std::string& name, const IInterface* parent);
+        virtual ~jFexRoiByteStreamTool() override = default;
 
         // ------------------------- IAlgTool methods --------------------------------
         virtual StatusCode initialize() override;
@@ -87,4 +87,4 @@ class jFexByteStreamTool : public extends<AthAlgTool, IL1TriggerByteStreamTool> 
         
 };
 
-#endif // JFEXBYTESTREAMTOOL_H
+#endif // JFEXROIBYTESTREAMTOOL_H

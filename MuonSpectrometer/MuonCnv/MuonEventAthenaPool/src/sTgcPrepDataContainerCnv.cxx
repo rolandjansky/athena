@@ -32,17 +32,23 @@ StatusCode sTgcPrepDataContainerCnv::initialize() {
 sTgcPrepDataContainer_PERS*    sTgcPrepDataContainerCnv::createPersistent (Muon::sTgcPrepDataContainer* transCont) {
     MsgStream log(msgSvc(), "sTgcPrepDataContainerCnv" );
     if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createPersistent(): main converter"<<endmsg;
-    sTgcPrepDataContainer_PERS *pers= m_converter_p1.createPersistent( transCont, log );
+    sTgcPrepDataContainer_PERS *pers= m_converter_p2.createPersistent( transCont, log );
     return pers;
 }
 
 Muon::sTgcPrepDataContainer* sTgcPrepDataContainerCnv::createTransient() {
     MsgStream log(msgSvc(), "sTgcPrepDataContainerCnv" );
     static const pool::Guid   p1_guid("7AB87DDE-8D7C-11E2-AA7C-001517648C14"); 
+    static const pool::Guid   p2_guid("9E1B8028-D22C-4E02-BA82-D0EC79DB4F6C"); 
+
     if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): main converter"<<endmsg;
     Muon::sTgcPrepDataContainer* p_collection(nullptr);
-    if( compareClassGuid(p1_guid) ) {
+    if( compareClassGuid(p2_guid) ) {
         if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): T/P version 2 detected"<<endmsg;
+        std::unique_ptr< Muon::sTgcPrepDataContainer_p2 >  p_coll( poolReadObject< Muon::sTgcPrepDataContainer_p2 >() );
+        p_collection = m_converter_p2.createTransient( p_coll.get(), log );
+    } else if( compareClassGuid(p1_guid) ) {
+        if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): T/P version 1 detected"<<endmsg;
         std::unique_ptr< Muon::sTgcPrepDataContainer_p1 >  p_coll( poolReadObject< Muon::sTgcPrepDataContainer_p1 >() );
         p_collection = m_converter_p1.createTransient( p_coll.get(), log );
     } else {
