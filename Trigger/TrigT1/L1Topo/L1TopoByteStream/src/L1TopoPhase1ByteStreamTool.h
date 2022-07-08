@@ -50,10 +50,10 @@ private:
     Gaudi::Property<std::vector<uint32_t>> m_robIds {this, "ROBIDs", {}, "List of ROB IDs required for conversion to/from xAOD RoI"};
 	
   // Write handle keys for the L1TopoRAWDataContainer for BS->xAOD mode of operation
-  SG::WriteHandleKey< xAOD::L1TopoRawDataContainer> m_topoRawWriteKey   {this,"L1TopoPhase1RAWDataWriteContainer"  ,"L1_Phase1L1TopoRAWData","Write Phase1 L1Topo RAW data"};
+  SG::WriteHandleKey< xAOD::L1TopoRawDataContainer > m_topoRawWriteKey   {this,"L1TopoPhase1RAWDataWriteContainer"  ,"L1_Phase1L1TopoRAWData","Write Phase1 L1Topo RAW data"};
 
   // Read handle keys for the L1Calo EDMs for xAOD->BS mode of operation
-  SG::ReadHandleKey< xAOD::L1TopoRawDataContainer> m_topoRawReadKey   {this,"L1TopoPhase1RAWDataReadContainer"  ,"L1_Phase1L1TopoRAWData","Read Phase1 L1Topo RAW data"};
+  SG::ReadHandleKey< xAOD::L1TopoRawDataContainer > m_topoRawReadKey   {this,"L1TopoPhase1RAWDataReadContainer"  ,"L1_Phase1L1TopoRAWData","Read Phase1 L1Topo RAW data"};
 
   //------------------------- Private Vars ---------------------------------------
   
