@@ -622,15 +622,14 @@ class RunDict(JobProperty):
     """
     statusOn = True
     allowedTypes = ['dict']
-    StoredValue = { 197451 : 1 , 201445 : 1 }
+    StoredValue = dict() #{ 197451 : 1 , 201445 : 1 }
     def GetRunNumber(self, a_job ):
         """
         Get a run number based on the runs in the dictionary.  Returns
         as though we process a linear sequence for the moment
         """
         if len(self.get_Value())==0:
-            _sflog.warning('No run dictionary - giving back run number -1')
-            return -1
+            raise ValueError('Cannot use empty run dictionary. Confirm that this job should be using jobNumber on the command-line.')
         else:
             total=0
             for a in self.get_Value(): total += int(self.get_Value()[a])

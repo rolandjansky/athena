@@ -59,6 +59,10 @@ namespace FlavorTagDiscriminants {
     SG::WriteDecorHandleKey< xAOD::TrackParticleContainer > m_dec_track_mom {
       this, "trackMomentum","trackMomentum","trackMomentum of tracks" };
 
+    SG::WriteDecorHandleKey< xAOD::TrackParticleContainer > m_dec_invalid {
+      this, "invalidIp", "invalidIp", "flag for invalid impact parameter"
+    };
+
     // accessors for beam spot uncertainty
     SG::ReadDecorHandleKey<xAOD::EventInfo> m_beam_sigma_x {
       this, "beamspotSigmaX", "EventInfo.beamPosSigmaX",

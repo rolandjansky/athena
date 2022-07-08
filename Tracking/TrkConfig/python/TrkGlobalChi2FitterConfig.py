@@ -220,16 +220,18 @@ def MuonChi2TrackFitterCfg(flags,
                            name='MuonChi2TrackFitter',
                            **kwargs):
     result = ComponentAccumulator()
+    from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasMultipleScatteringUpdatorCfg
 
-    from TrkConfig.AtlasExtrapolatorConfig import MuonExtrapolatorCfg
-    extrapolator = result.popToolsAndMerge(MuonExtrapolatorCfg(flags))
     from TrkConfig.TrkRIO_OnTrackCreatorConfig import MuonRotCreatorCfg
     rotcreator = result.popToolsAndMerge(MuonRotCreatorCfg(flags))
     from TrkConfig.TrkMeasurementUpdatorConfig import KalmanUpdatorCfg
     measurement_updater = result.popToolsAndMerge(
-        KalmanUpdatorCfg(flags, name="MuonMeasUpdator"))
+        KalmanUpdatorCfg(flags, name='MuonMeasUpdator'))
 
-    kwargs.setdefault("ExtrapolationTool", extrapolator)
+    if 'ExtrapolationTool' not in kwargs:
+        from TrkConfig.AtlasExtrapolatorConfig import MuonExtrapolatorCfg
+        kwargs.setdefault("ExtrapolationTool", result.popToolsAndMerge(MuonExtrapolatorCfg(flags)))
+    kwargs.setdefault("MultipleScatteringTool", result.popToolsAndMerge(AtlasMultipleScatteringUpdatorCfg(flags, UseTrkUtils=True)))
     kwargs.setdefault("RotCreatorTool", rotcreator)
     kwargs.setdefault("MeasurementUpdateTool", measurement_updater)
     kwargs.setdefault("StraightLine", False)
@@ -238,6 +240,7 @@ def MuonChi2TrackFitterCfg(flags,
     kwargs.setdefault("RejectLargeNScat", True)
 
     # take propagator and navigator from the extrapolator
+    extrapolator = kwargs['ExtrapolationTool']
     kwargs.setdefault("PropagatorTool",
                       extrapolator.Propagators[0]
                       if len(extrapolator.Propagators) > 0
@@ -265,12 +268,12 @@ def MCTBFitterCfg(flags,
 
     kwargs.setdefault("ExtrapolationTool", mctbExtrapolator)
     kwargs.setdefault("GetMaterialFromTrack", True)
-    kwargs.setdefault("Momentum", flags.Muon.straightLineFitMomentum)
-    mctbfitter = result.popToolsAndMerge(
-        MuonChi2TrackFitterCfg(flags, name=name, **kwargs))
-    result.setPrivateTools(mctbfitter)
-    return result
+    return MuonChi2TrackFitterCfg(flags, name=name, **kwargs)
 
+def MCTBSLFitterCfg(flags, name = 'MCTBSLFitter', **kwargs):
+    kwargs["StraightLine"] = True       # always set
+    kwargs.setdefault("Momentum", flags.Muon.straightLineFitMomentum)    
+    return MCTBFitterCfg(flags, name=name, **kwargs)
 
 def MCTBSLFitterMaterialFromTrackCfg(flags,
                                      name='MCTBSLFitterMaterialFromTrack',

@@ -12608,29 +12608,29 @@ HLT_mu20_LRT_d0tight_L1MU18VFCH:
   stepFeatures:
     0: 6
 HLT_mu20_LRT_idperf_L1MU14FCH:
-  eventCount: 4
+  eventCount: 5
   stepCounts:
     0: 5
     1: 5
     2: 5
-    3: 4
+    3: 5
   stepFeatures:
     0: 6
     1: 6
     2: 5
-    3: 4
+    3: 5
 HLT_mu20_LRT_idperf_L1MU18VFCH:
-  eventCount: 4
+  eventCount: 5
   stepCounts:
     0: 5
     1: 5
     2: 5
-    3: 4
+    3: 5
   stepFeatures:
     0: 6
     1: 6
     2: 5
-    3: 4
+    3: 5
 HLT_mu20_bBmux_BdmuDpX_L1MU14FCH:
   eventCount: 0
   stepCounts:
@@ -16546,17 +16546,17 @@ HLT_mu6_2mu4_bUpsi_L1MU5VF_3MU3VF:
     3: 5
     4: 5
 HLT_mu6_LRT_idperf_L1MU5VF:
-  eventCount: 7
+  eventCount: 8
   stepCounts:
     0: 8
     1: 8
     2: 8
-    3: 7
+    3: 8
   stepFeatures:
     0: 12
     1: 12
     2: 13
-    3: 10
+    3: 13
 HLT_mu6_bJpsimutrk_MuonTrkPEB_L1MU5VF:
   eventCount: 0
   stepCounts:

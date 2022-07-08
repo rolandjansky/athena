@@ -15,6 +15,8 @@ from AthenaCommon.CFElements import seqAND, parOR
 
 from InDetPrepRawDataToxAOD.InDetDxAODUtils import getPixelPrepDataToxAOD
 
+from InDetConfig.TrackRecoConfig import FTAG_AUXDATA
+
 # Select active sub-systems
 dumpPixInfo = InDetDxAODFlags.DumpPixelInfo()
 dumpSctInfo = True or InDetDxAODFlags.DumpSctInfo()
@@ -769,8 +771,7 @@ excludedAuxData = "-clusterAssociation.-trackParameterCovarianceMatrices.-parame
 excludedVtxAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
 
 # exclude b-tagging decoration
-excludedAuxData += '.-TrackCompatibility.-JetFitter_TrackCompatibility_antikt4emtopo.-JetFitter_TrackCompatibility_antikt4empflow' \
-                + '.-btagIp_d0Uncertainty.-btagIp_z0SinThetaUncertainty.-btagIp_z0SinTheta.-btagIp_d0.-btagIp_trackMomentum.-btagIp_trackDisplacement'
+excludedAuxData += '.-'.join([''] + FTAG_AUXDATA)
 
 # exclude IDTIDE decorations
 excludedAuxData += '.-IDTIDE1_biased_PVd0Sigma.-IDTIDE1_biased_PVz0Sigma.-IDTIDE1_biased_PVz0SigmaSinTheta.-IDTIDE1_biased_d0.-IDTIDE1_biased_d0Sigma' \

@@ -164,7 +164,7 @@ def MuonReconstructionCfg(flags):
             track_cols += ["EMEO_MuonSpectrometerTracks"]
             track_colstp += ["EMEO_MuonSpectrometerTrackParticles"]
 
-        muondetailedtracktruthmaker = CompFactory.MuonDetailedTrackTruthMaker(name="EJWMMuonStandaloneDetailedTrackTruthMaker", TrackCollectionNames=track_cols,
+        muondetailedtracktruthmaker = CompFactory.MuonDetailedTrackTruthMaker(name="MuonStandaloneDetailedTrackTruthMaker", TrackCollectionNames=track_cols,
                                                                               PRD_TruthNames=["RPC_TruthMap", "TGC_TruthMap", "MDT_TruthMap"] +
                                                                               (["CSC_TruthMap"] if flags.Detector.EnableCSC else []) +
                                                                               (["MM_TruthMap"]if flags.Detector.EnableMM else []) +

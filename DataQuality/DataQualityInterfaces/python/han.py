@@ -163,7 +163,8 @@ def FixRegion(config: ROOT.TDirectory, top_level: dqi.HanConfigGroup, td: ROOT.T
 
     for v in refmapcache.values():
         # fully clean up reference maps, will not happen otherwise
-        v.DeleteAll()
+        if isinstance(v, ROOT.TMap):
+            v.DeleteAll()
 
     return mapping_groups_final['top_level']
 
