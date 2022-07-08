@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ExpressionEvaluation/xAODVariableProxyLoaders.h"
@@ -267,7 +267,7 @@ namespace ExpressionParsing {
 
   xAODElementProxyLoader::~xAODElementProxyLoader()
   {
-    reset();
+    xAODElementProxyLoader::reset();
   }
 
   void xAODElementProxyLoader::reset()
@@ -328,7 +328,7 @@ namespace ExpressionParsing {
 
   xAODVectorProxyLoader::~xAODVectorProxyLoader()
   {
-    reset();
+    xAODVectorProxyLoader::reset();
   }
 
   void xAODVectorProxyLoader::reset()
