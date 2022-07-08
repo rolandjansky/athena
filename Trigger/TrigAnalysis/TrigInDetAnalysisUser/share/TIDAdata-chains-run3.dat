@@ -80,6 +80,15 @@ testChains = {
     "HLT_tau25_idperf_tracktwoMVA_L1TAU12IM:HLT_IDTrack_TauIso_FTF:HLT_Roi_TauIso",
     "HLT_tau25_idperf_tracktwoMVA_L1TAU12IM:HLT_IDTrack_Tau_IDTrig:HLT_Roi_TauIso",
     "HLT_tau25_idperf_tracktwoMVA_L1TAU12IM:HLT_IDTrack_Tau_IDTrig:HLT_Roi_TauIso:HLT_IDVertex_Tau:post:rvtx=HLT_IDVertex_Tau",
+
+    "HLT_tau25_idperf_mediumRNN_tracktwoLLP_L1TAU12IM:HLT_IDTrack_TauCore_FTF:HLT_Roi_TauCore",
+    "HLT_tau25_idperf_mediumRNN_tracktwoLLP_L1TAU12IM:HLT_IDTrack_TauIso_FTF:HLT_Roi_TauIso",
+    "HLT_tau25_idperf_mediumRNN_tracktwoLLP_L1TAU12IM:HLT_IDTrack_Tau_IDTrig:HLT_Roi_TauIso",
+    "HLT_tau25_idperf_mediumRNN_tracktwoLLP_L1TAU12IM:HLT_IDTrack_Tau_IDTrig:HLT_Roi_TauIso:HLT_IDVertex_Tau:post:rvtx=HLT_IDVertex_Tau",
+
+    "HLT_tau25_idperf_mediumRNN_trackLRT_L1TAU12IM:HLT_IDTrack_TauLRT_FTF:HLT_Roi_TauLRT",
+    "HLT_tau25_idperf_mediumRNN_trackLRT_L1TAU12IM:HLT_IDTrack_TauLRT_IDTrig:HLT_Roi_TauLRT",
+
     
     "HLT_j45_0eta290_020jvt_boffperf_pf_ftf_L1J20:HLT_IDTrack_Bjet_FTF",
     "HLT_j45_0eta290_020jvt_boffperf_pf_ftf_L1J20:HLT_IDTrack_Bjet_IDTrig:HLT_Roi_Bjet:HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_BTaggingSecVtx:post:rvtx=HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_BTaggingSecVtx",

@@ -518,6 +518,18 @@ def setupMenu():
         ChainProp(name="HLT_tau35_perf_tracktwoMVA_L1eTAU30",   groups=SupportPhIGroup+SingleTauGroup, monGroups=['tauMon:t0']),
         ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVA_L1eTAU30",   groups=SupportPhIGroup+SingleTauGroup, monGroups=['tauMon:t0']),
 
+        # LRT tau dev ATR-23787
+        ChainProp(name="HLT_tau25_mediumRNN_trackLRT_L1TAU12IM", groups=DevGroup+['PS:NoHLTRepro']),
+        ChainProp(name="HLT_tau25_idperf_looseRNN_trackLRT_L1TAU12IM", groups=DevGroup+['PS:NoHLTRepro']),
+        ChainProp(name="HLT_tau25_idperf_mediumRNN_trackLRT_L1TAU12IM", groups=DevGroup+['PS:NoHLTRepro']),
+        ChainProp(name="HLT_tau25_idperf_tightRNN_trackLRT_L1TAU12IM", groups=DevGroup+['PS:NoHLTRepro']),
+        ChainProp(name="HLT_tau25_idperf_mediumRNN_tracktwoLLP_L1TAU12IM", groups=DevGroup+['PS:NoHLTRepro']),
+        ChainProp(name="HLT_tau25_mediumRNN_trackLRT_L1cTAU20M", groups=DevGroup+['PS:NoHLTRepro']),
+        ChainProp(name="HLT_tau25_idperf_mediumRNN_trackLRT_L1cTAU20M", groups=DevGroup+['PS:NoHLTRepro']),
+        ChainProp(name="HLT_tau25_idperf_mediumRNN_tracktwoLLP_L1cTAU20M", groups=DevGroup+['PS:NoHLTRepro']),
+        ChainProp(name="HLT_tau25_mediumRNN_trackLRT_L1eTAU20", groups=DevGroup+['PS:NoHLTRepro']),
+        ChainProp(name="HLT_tau25_idperf_mediumRNN_trackLRT_L1eTAU20", groups=DevGroup+['PS:NoHLTRepro']),
+        ChainProp(name="HLT_tau25_idperf_mediumRNN_tracktwoLLP_L1eTAU20", groups=DevGroup+['PS:NoHLTRepro']),
     ]
 
     chains['Bphysics'] += [

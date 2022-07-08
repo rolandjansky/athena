@@ -45,6 +45,18 @@ public:
   Gaudi::Property< std::string > m_viewToFetchFrom {this,"ViewToFetchFrom","", 
       "Optional name of EventView to fetch ROI from. Must be in the history of the DecisionObject. If not supplied, the most recent EventView will be used."};
 
+  Gaudi::Property< bool > m_doResize{this,"doResize",false,
+      "Resize RoI if updated widths are given."};
+
+  Gaudi::Property< double > m_roiEtaWidth{this,"RoIEtaWidth",-1.0,
+      "New extent of the ROI in eta from its centre"};
+
+  Gaudi::Property< double > m_roiPhiWidth{this,"RoIPhiWidth",-1.0,
+      "New extent of the ROI in phi from its centre"};
+
+  Gaudi::Property< double > m_roiZedWidth{this,"RoIZedWidth",-1.0,
+      "New extent of the ROI in zed from its centre"};
+
   private:
     std::string m_viewToFetchFromProbe;
 };
