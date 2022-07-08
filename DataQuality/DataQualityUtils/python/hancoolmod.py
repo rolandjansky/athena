@@ -33,93 +33,6 @@ os.chdir(CWD)
 # LumiBlock length (in minutes)
 LBlength = 1.0
 
-# Mapping han<->COOL
-folderMap = {
-    # ATLAS global
-    # "/Global/DQShift": "ATLGL",
-    # lar
-    "/LAr/EMBC": "EMBC",
-    "/LAr/EMBA": "EMBA",
-    "/LAr/EMECA": "EMECA",
-    "/LAr/EMECC": "EMECC",
-    "/LAr/FCALA": "FCALA",
-    "/LAr/FCALC": "FCALC",
-    "/LAr/HECA": "HECA",
-    "/LAr/HECC": "HECC",
-    # Tile
-    "/TileCal/Cell/AnyPhysTrig/LBA": "TILBA",
-    "/TileCal/Cell/AnyPhysTrig/LBC": "TILBC",
-    "/TileCal/Cell/AnyPhysTrig/EBA": "TIEBA",
-    "/TileCal/Cell/AnyPhysTrig/EBC": "TIEBC",
-    "/InnerDetector/IDAlignment/BeamSpot/NoTriggerSelection": "IDBS",
-    "/InnerDetector/IDAlignment/CombinedInDetTracks_NoTriggerSelection": "IDAL",
-    "/InnerDetector/IDAlignment_Perf": "IDPF",
-    "/InnerDetector/Global": "IDGL",
-    # CaloGlobal
-    "/CaloMonitoring/CaloMonShift/CaloMonBAR": "CALBA",
-    "/CaloMonitoring/CaloMonShift/CaloMonECA": "CALEA",
-    "/CaloMonitoring/CaloMonShift/CaloMonECC": "CALEC",
-    # pixels
-    "/InnerDetector/Pixel/DQMF/BLayer": "PIX0",
-    "/InnerDetector/Pixel/DQMF/Barrel": "PIXB",
-    "/InnerDetector/Pixel/DQMF/ECA": "PIXEA",
-    "/InnerDetector/Pixel/DQMF/ECC": "PIXEC",
-    # sct
-    "/InnerDetector/SCT/SCTB": "SCTB",
-    "/InnerDetector/SCT/SCTEA": "SCTEA",
-    "/InnerDetector/SCT/SCTEC": "SCTEC",
-    # trt
-    "/InnerDetector/TRT/TRTB": "TRTB",
-    "/InnerDetector/TRT/TRTEA": "TRTEA",
-    "/InnerDetector/TRT/TRTEC": "TRTEC",
-    # rpc
-    "/MuonDetectors/RPC/RPCBA": "RPCBA",
-    "/MuonDetectors/RPC/RPCBC": "RPCBC",
-    # mdt
-    "/MuonDetectors/MDT/MDTBA": "MDTBA",
-    "/MuonDetectors/MDT/MDTBC": "MDTBC",
-    "/MuonDetectors/MDT/MDTEA": "MDTEA",
-    "/MuonDetectors/MDT/MDTEC": "MDTEC",
-    # tgc
-    "/MuonDetectors/TGC/TGCEA": "TGCEA",
-    "/MuonDetectors/TGC/TGCEC": "TGCEC",
-    # csc
-    "/MuonDetectors/CSC/CSCEA/Cluster": "CSCEA",
-    "/MuonDetectors/CSC/CSCEC/Cluster": "CSCEC",
-    # l1
-    "/CentralTrigger/ErrorSummary": "L1CTP",
-    "/L1Calo": "L1CAL",
-    # HLT
-    "/HLT/TRCAL": "TRCAL",
-    "/HLT/TRBJT": "TRBJT",
-    "/HLT/TRBPH": "TRBPH",
-    "/HLT/TRELE": "TRELE",
-    "/HLT/TRGAM": "TRGAM",
-    "/HLT/TRJET": "TRJET",
-    "/HLT/TRMET": "TRMET",
-    "/HLT/TRMBI": "TRMBI",
-    "/HLT/TRMUO": "TRMUO",
-    "/HLT/TRTAU": "TRTAU",
-    "/HLT/TRIDT": "TRIDT",
-    # egamma
-    "/egamma/EIDB": "EIDB",
-    "/egamma/EIDC": "EIDCR",
-    "/egamma/EIDE": "EIDE",
-    "/egamma/PHOB": "PIDB",
-    "/egamma/PHOC": "PIDCR",
-    "/egamma/PHOE": "PIDE",
-    # tau
-    "/Tau/TAUB": "TAUB",
-}
-
-# Mapping Status<->Code
-codeMap = {
-    "Disabled": -1,
-    "Undefined": 0,
-    "Red": 1,
-    "Yellow": 2,
-    "Green": 3
-}
 
 # Mapping different interval types
 intervalType = {
@@ -131,8 +44,6 @@ intervalType = {
 }
 
 # Generates LB from filename
-
-
 def getLimits(name):
     try:
         import re
@@ -197,93 +108,6 @@ def hancool(runNumber=3070,
     logger.info('====> Running hancool_defects')
     hancool_defects(runNumber, filePath, dbConnection, 'HEAD', isESn)
     logger.info('<==== Done with hancool_defects')
-
-# Nothing that follows applies for Run 2 ...
-#    if ( filePath.rfind("/")!=(len(filePath)-1) ):
-#        filePath+="/"
-#
-#    def nocomment_insert(mod, flag, code, comment):
-#        mod.insert(flag, code, 0, 0, db_tag)
-#
-#    def comment_insert(mod, flag, code, comment):
-#        mod.insert(flag, code, 0, 0, comment, db_tag)
-#
-#    def codelogic(since, until, flag, code, comment=None):
-#        if comment is None:
-#            inserter = nocomment_insert
-#        else:
-#            inserter = comment_insert
-#        mod.setIOV(runNumber, since, runNumber, until)
-#        wasModified = True
-#        oldcode=mod.dumpCode(flag, db_tag)
-#        if (oldcode == -1):
-#            # this situation shouldn't happen
-#            inserter(mod, flag, code, comment)
-#        elif (code==3 and oldcode in (sys.maxint, 0)):
-#            inserter(mod, flag, code, comment)
-#        elif (code==2 and (oldcode in (sys.maxint, 0, 3))):
-#            inserter(mod, flag, code, comment)
-#        elif (code==0 and oldcode==sys.maxint):
-#            inserter(mod, flag, code, comment)
-#        elif ((code==1 or code==-1) and code != oldcode):
-#            inserter(mod, flag, code, comment)
-#        else:
-#            wasModified = False
-#        if wasModified:
-#            print '%d-%d, %s --> %s' % (since, until, flag, code)
-#        else:
-#            print 'Not changed for %s' % flag
-#
-#    def filelogic(globname, filename, pair):
-#        result=stringGetResult(globname, pair[0]+"/Results/Status")
-#        code = codeMap[result]
-#        if filename not in runlimitscache:
-#            runlimitscache[filename] = getLimits(filename)
-#        since, until = runlimitscache[filename]
-#        print filename + ':',
-#        codelogic(since, until, pair[1], code)
-#        #print filename + ": " + pair[1]+" --> "+result+" ("+str(code)+")"
-#
-#    ## pdb.set_trace()
-#    mod = dqutils.StatusFlagCOOL(dbConnection,dqmfOfl,0,0,0,0)
-#    filename="run_"+str(runNumber)+"_han.root"
-#    runNumber = int(runNumber)
-#    for pair in folderMap.iteritems():
-#        i = 0
-#        number = 0
-#        while ((os.path.isfile(filePath+filename)) and (i<2)):
-#            while os.path.isfile(filePath+filename):
-#                ##print "--------------------------------------"
-#                filelogic(filePath+filename, filename, pair)
-#                ##print "in database: "+str(mod.dumpCode(pair[1]))
-#                number = number+1
-#                filename="run_"+str(runNumber)+intervalType[i]+str(number)+"_han.root"
-#            number = 1
-#            i = i+1
-#            filename="run_"+str(runNumber)+intervalType[i]+str(number)+"_han.root"
-#        for i in [2,3]:
-#            for globname in glob.glob(os.path.join(filePath, 'run_%d%s*_han.root' % (runNumber, intervalType[i]))):
-#                filename = os.path.basename(globname)
-#                ##print "--------------------------------------"
-#                filelogic(globname, filename, pair)
-#                ##print "in database: "+str(mod.dumpCode(pair[1]))
-#        filename="run_"+str(runNumber)+"_han.root"
-#    ##print "--------------------------------------"
-#
-#    import detmaskmod
-#    blacks = detmaskmod.decodeBlack(detmaskmod.getRunMask(runNumber))
-#    for flag in blacks:
-#        print 'Detector mask:',
-#        codelogic(1, 4294967295, flag, -1)
-#
-#    if shiftOfl != '':
-#        print 'Exporting black flags to SHIFTOFL'
-#        db_tag = shiftOfl_db_tag
-#        mod = dqutils.StatusFlagCommentCOOL(dbConnection,shiftOfl,0,0,0,0)
-#        for flag in blacks:
-#            print 'Detector mask:',
-#            codelogic(1, 4294967295, flag, -1, 'Automatically filled by hancool')
-#
 
 
 def detmask_defects(runNumber, ddb):

@@ -38,7 +38,7 @@ def show_variable_info(lbtime, Subdetector):
                 print since, until, pretty_ranges(channels)
 
 def main():
-    from DCSCalculator2.subdetectors import CSC, MDT
+    from DCSCalculator2.subdetectors import MDT
 
     lbtime = fetch_iovs("LBTIME", (177540, 0))
 
