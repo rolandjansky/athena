@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # art-description: art job for bjet_lowpt_pu55
 # art-type: grid
@@ -6,7 +7,6 @@
 # art-include: 22.0/Athena
 # art-input-nfiles: 3
 # art-athena-mt: 4
-# art-memory: 4096
 # art-html: https://idtrigger-val.web.cern.ch/idtrigger-val/TIDAWeb/TIDAart/?jobdir=
 # art-output: *.txt
 # art-output: *.log
