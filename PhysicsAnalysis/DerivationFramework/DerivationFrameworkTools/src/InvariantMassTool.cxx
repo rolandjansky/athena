@@ -86,13 +86,12 @@ namespace DerivationFramework {
     SG::ReadHandle<xAOD::IParticleContainer> particles{m_containerName};
     
     bool from2Collections(false);
-    const xAOD::IParticleContainer* particles2{nullptr}; 
+    const xAOD::IParticleContainer* particles2{nullptr};
     if (!m_containerName2.key().empty() && m_containerName2.key()!=m_containerName.key()) {
       SG::ReadHandle<xAOD::IParticleContainer> particleHdl2{m_containerName2};
       particles2=particleHdl2.cptr();
       from2Collections = true;
     }
-
 
     // get the positions of the elements which pass the requirement
     std::vector<int> entries =  m_parser[kInvariantMassToolParser1]->evaluateAsVector();
@@ -127,7 +126,7 @@ namespace DerivationFramework {
           tmpPair.push_back(outerIt); tmpPair.push_back(innerIt);
           pairs.push_back(tmpPair);
         }
-      }    
+      }
       // Select the pairs for which the mass should be calculated, and then calculate it	
       std::vector<std::vector<int> >::iterator pairIt;
       for (pairIt=pairs.begin(); pairIt!=pairs.end(); ++pairIt) {
@@ -136,9 +135,9 @@ namespace DerivationFramework {
         if ( (entries[first]==1 && entries2[second]==1) || (entries2[first]==1 && entries[second]==1) ) {
          
           const float mass = calculateInvariantMass( ((*particles)[first])->p4().Vect(),
-                                                   ((*particles)[second])->p4().Vect(), 
-                                                   m_massHypothesis,
-                                                   m_massHypothesis);  
+						     ((*particles)[second])->p4().Vect(),
+						     m_massHypothesis,
+						     m_massHypothesis);
           masses->push_back(mass);
         }
       }  
@@ -161,9 +160,9 @@ namespace DerivationFramework {
         unsigned int first = (*pairIt)[0];
         unsigned int second = (*pairIt)[1];
         const float mass = calculateInvariantMass( ((*particles)[first])->p4().Vect(),
-                                                   ((*particles)[second])->p4().Vect(), 
+                                                   ((*particles2)[second])->p4().Vect(),
                                                    m_massHypothesis,
-                                                   m_massHypothesis2);  
+                                                   m_massHypothesis2);
         masses->push_back(mass);
       }
     } 
