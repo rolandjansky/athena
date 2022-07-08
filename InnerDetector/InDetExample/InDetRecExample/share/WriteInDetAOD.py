@@ -3,6 +3,8 @@
 from InDetRecExample.InDetKeys import InDetKeys
 InDetAODList = []
 
+from InDetConfig.TrackRecoConfig import FTAG_AUXDATA
+
 # Add Vertices and Particles.
 # -----------------------------
 
@@ -16,9 +18,7 @@ if InDetFlags.doxAOD():
   excludedVertexAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
 
   # remove track decorations used internally by FTAG software
-  excludedAuxData += '.-TrackCompatibility.-JetFitter_TrackCompatibility_antikt4emtopo.-JetFitter_TrackCompatibility_antikt4empflow' \
-                   + '.-btagIp_d0Uncertainty.-btagIp_z0SinThetaUncertainty.-btagIp_z0SinTheta.-btagIp_d0.-btagIp_trackMomentum.-btagIp_trackDisplacement' \
-                   + '.-VxTrackAtVertex'
+  excludedAuxData += '.-'.join([''] + FTAG_AUXDATA)
   # @TODO the exclusion of VxTrackAtVertex for InDetTrackParticles is presumably not necessary
 
   # exclude IDTIDE decorations

@@ -3,6 +3,8 @@
 from InDetRecExample.InDetKeys import InDetKeys
 InDetESDList = []
 
+from InDetConfig.TrackRecoConfig import FTAG_AUXDATA
+
 # Save full and zero-suppressed BCM rdos
 # (the latter is needed to allow writting to AOD and the former will hopefully be removed in future):
 if not InDetFlags.doDBMstandalone(): 
@@ -94,7 +96,7 @@ if InDetFlags.doDBMstandalone() or InDetFlags.doDBM():
    if InDetFlags.doxAOD(): 
       excludedAuxData = "-clusterAssociation.-TTVA_AMVFVertices_forReco.-TTVA_AMVFWeights_forReco" 
       # remove track decorations used internally by FTAG software
-      excludedAuxData += ".-TrackCompatibility.-JetFitter_TrackCompatibility_antikt4emtopo.-JetFitter_TrackCompatibility_antikt4empflow.-VxTrackAtVertex.-btagIp_d0Uncertainty.-btagIp_z0SinThetaUncertainty.-btagIp_z0SinTheta.-btagIp_d0.-btagIp_trackMomentum.-btagIp_trackDisplacement"
+      excludedAuxData += '.-'.join([''] + FTAG_AUXDATA)
 
       InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODDBMTrackParticleContainer()] 
       InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODDBMTrackParticleContainer()+'Aux.' + excludedAuxData] 

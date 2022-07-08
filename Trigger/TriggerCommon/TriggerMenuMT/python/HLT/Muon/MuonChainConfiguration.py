@@ -15,7 +15,7 @@ from AthenaConfiguration.ComponentFactory import isRun3Cfg
 if isRun3Cfg():
     from .generateMuon import muFastSequence, muEFSASequence, muCombSequence, muEFCBSequence
 else: 
-    from .MuonMenuSequences import muFastSequence, muFastCalibSequence, muFastOvlpRmSequence, mul2mtSAOvlpRmSequence, muCombSequence, muCombLRTSequence, muCombOvlpRmSequence, mul2mtCBOvlpRmSequence, mul2IOOvlpRmSequence, muEFSASequence, muEFCBSequence, muEFCBIDperfSequence, muEFCBLRTSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence, muEFMSIsoSequence, efLateMuRoISequence, efLateMuSequence, muRoiClusterSequence
+    from .MuonMenuSequences import muFastSequence, muFastCalibSequence, muFastOvlpRmSequence, mul2mtSAOvlpRmSequence, muCombSequence, muCombLRTSequence, muCombOvlpRmSequence, mul2mtCBOvlpRmSequence, mul2IOOvlpRmSequence, muEFSASequence, muEFCBSequence, muEFCBIDperfSequence, muEFCBLRTSequence, muEFCBLRTIDperfSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence, muEFMSIsoSequence, efLateMuRoISequence, efLateMuSequence, muRoiClusterSequence
 
 from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFInvMassHypoToolFromDict
 
@@ -61,6 +61,9 @@ def muEFCBIDperfSequenceCfg(flags,is_probe_leg=False):
 
 def muEFCBLRTSequenceCfg(flags,is_probe_leg=False):
     return muEFCBLRTSequence(flags, is_probe_leg=is_probe_leg)
+
+def muEFCBLRTIDperfSequenceCfg(flags,is_probe_leg=False):
+    return muEFCBLRTIDperfSequence(flags, is_probe_leg=is_probe_leg)
 
 def FSmuEFSASequenceCfg(flags,is_probe_leg=False):
     return muEFSAFSSequence(flags, is_probe_leg=is_probe_leg)
@@ -210,7 +213,10 @@ class MuonChainConfiguration(ChainConfigurationBase):
         if 'invm' in self.chainPart['invMassInfo']: # No T&P support, add if needed
             return self.getStep(4,'EFCB', [muEFCBSequenceCfg], comboTools=[TrigMuonEFInvMassHypoToolFromDict], is_probe_leg=is_probe_leg)
         elif "LRT" in self.chainPart['addInfo']:
-            return self.getStep(4,'EFCBLRT', [muEFCBLRTSequenceCfg], is_probe_leg=is_probe_leg)
+            if "idperf" in self.chainPart['addInfo']:
+                return self.getStep(4,'EFCBLRTIDPERF', [muEFCBLRTIDperfSequenceCfg], is_probe_leg=is_probe_leg)
+            else:
+                return self.getStep(4,'EFCBLRT', [muEFCBLRTSequenceCfg], is_probe_leg=is_probe_leg)
         elif "idperf" in self.chainPart['addInfo']:
             return self.getStep(4,'EFCBIDPERF', [muEFCBIDperfSequenceCfg], is_probe_leg=is_probe_leg)
         else:

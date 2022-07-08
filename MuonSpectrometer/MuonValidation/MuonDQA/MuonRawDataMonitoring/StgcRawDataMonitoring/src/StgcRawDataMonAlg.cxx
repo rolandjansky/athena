@@ -31,6 +31,8 @@ StatusCode sTgcRawDataMonAlg::initialize()
   ATH_CHECK(AthMonitorAlgorithm::initialize());
   ATH_CHECK(m_idHelperSvc.retrieve());
   ATH_CHECK(m_sTgcContainerKey.initialize());
+
+  ATH_MSG_INFO("sTGCRawDataMonAlg Successfuly initialized");
   
   return StatusCode::SUCCESS;
 } 
@@ -115,6 +117,7 @@ void sTgcRawDataMonAlg::fillsTgcOverviewHistograms(const Muon::sTgcPrepData *sTg
 void sTgcRawDataMonAlg::fillsTgcSummaryHistograms(const Muon::sTgcPrepData *sTgc_object) const
 {
   Identifier Id    = sTgc_object   -> identify();
+  if(!Id.is_valid()) return;
   int stationPhi   = m_idHelperSvc -> stgcIdHelper().stationPhi(Id);
   int stationEta   = m_idHelperSvc -> stgcIdHelper().stationEta(Id);
   int multiplet    = m_idHelperSvc -> stgcIdHelper().multilayer(Id);

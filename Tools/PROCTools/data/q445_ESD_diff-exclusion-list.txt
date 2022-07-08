@@ -15,6 +15,8 @@ index_ref
 
 # Ignore most b-tagging outside the reference tagger, DL1dv00
 xAOD::BTagging(?!.*PFlow.*DL1dv00_p.*)
+# Also ignore some b-tagging on tracking
+xAOD::TrackParticleAuxContainer.*\.btagIp_.*
 
 # Ignoring agreed at the RIG meeting on 17.6.2022 (https://its.cern.ch/jira/browse/ATLASRECTS-7101)
 Muon::MuonPRD_Container_p2<Muon::MMPrepData_p1>_MM_Measurements.m_prds.m_stripNumbers

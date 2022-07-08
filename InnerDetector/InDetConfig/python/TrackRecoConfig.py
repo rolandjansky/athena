@@ -493,6 +493,23 @@ def InDetTrackRecoCfg(flags):
     return result
 
 
+# these are used internally by the FTAG software. We generally don't
+# want to save them since they can be reconstructed by rerunning
+# flavor tagging.
+FTAG_AUXDATA = [
+    'VxTrackAtVertex',
+    'TrackCompatibility',
+    'JetFitter_TrackCompatibility_antikt4emtopo',
+    'JetFitter_TrackCompatibility_antikt4empflow',
+    'btagIp_d0Uncertainty',
+    'btagIp_z0SinThetaUncertainty',
+    'btagIp_z0SinTheta',
+    'btagIp_d0',
+    'btagIp_trackMomentum',
+    'btagIp_trackDisplacement',
+    'btagIp_invalidIp',
+ ]
+
 def InDetTrackRecoOutputCfg(flags):
     from OutputStreamAthenaPool.OutputStreamConfig import addToESD,addToAOD
     toAOD = []
@@ -504,9 +521,7 @@ def InDetTrackRecoOutputCfg(flags):
     # excluded track aux data
     excludedAuxData = "-clusterAssociation.-TTVA_AMVFVertices_forReco.-TTVA_AMVFWeights_forReco"
     # remove track decorations used internally by FTAG software
-    excludedAuxData += ('.-TrackCompatibility.-JetFitter_TrackCompatibility_antikt4emtopo.-JetFitter_TrackCompatibility_antikt4empflow'
-                        '.-btagIp_d0Uncertainty.-btagIp_z0SinThetaUncertainty.-btagIp_z0SinTheta.-btagIp_d0.-btagIp_trackMomentum.-btagIp_trackDisplacement'
-                        '.-VxTrackAtVertex')
+    excludedAuxData += '.-'.join([''] + FTAG_AUXDATA)
 
     if not special: #not flags.InDet.keepFirstParameters or flags.InDet.keepAdditionalHitsOnTrackParticle
         excludedAuxData += '.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition'

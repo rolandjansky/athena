@@ -54,6 +54,12 @@ namespace FlavorTagDiscriminants {
       graph_config, options);
     m_dataDependencyNames += dd;
     m_decorators = decorators;
+
+    auto [track_validity, is_defaults, ipdd] = dataprep::createIpChecker(
+      graph_config, options);
+    m_invalid_track_checker = track_validity;
+    m_is_defaults = is_defaults;
+    m_dataDependencyNames += ipdd;
   }
 
   void DL2::decorate(const xAOD::BTagging& btag) const {
@@ -67,7 +73,7 @@ namespace FlavorTagDiscriminants {
   void DL2::decorate(const xAOD::Jet& jet) const {
     decorate(jet, jet);
   }
-  void DL2::decorateWithDefaults(const xAOD::Jet& jet) const {
+  void DL2::decorateWithDefaults(const SG::AuxElement& jet) const {
     // save out things
     for (const auto& dec: m_decorators) {
       for (const auto& node: dec.second) {
@@ -97,16 +103,26 @@ namespace FlavorTagDiscriminants {
       nodes[m_input_node_name] =  cleaned;
     }
 
-    // add track sequences
+    // add track sequences, check if any are invalid
+    char invalid = 0;
     std::map<std::string, std::map<std::string, std::vector<double>>> seqs;
     for (const auto& builder: m_trackSequenceBuilders) {
 
       Tracks sorted_tracks = builder.tracksFromJet(jet, btag);
+      if (m_invalid_track_checker(sorted_tracks)) invalid = 1;
       Tracks flipped_tracks = builder.flipFilter(sorted_tracks, jet);
 
       for (const auto& seq_builder: builder.sequencesFromTracks) {
         seqs[builder.name].insert(seq_builder(jet, flipped_tracks));
       }
+    }
+
+    for (const auto& def: m_is_defaults) {
+      def(btag) = invalid;
+    }
+    if (invalid) {
+      decorateWithDefaults(btag);
+      return;
     }
 
     // save out things

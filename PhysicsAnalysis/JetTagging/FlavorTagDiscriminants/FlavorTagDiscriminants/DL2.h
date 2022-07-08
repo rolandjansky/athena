@@ -24,7 +24,7 @@ namespace FlavorTagDiscriminants {
         const FTagOptions& = FTagOptions());
     void decorate(const xAOD::BTagging& btag) const;
     void decorate(const xAOD::Jet& jet) const;
-    void decorateWithDefaults(const xAOD::Jet&) const;
+    void decorateWithDefaults(const SG::AuxElement&) const;
     void decorate(const xAOD::Jet& jet, const SG::AuxElement& decorated) const;
 
     // functions to report data depdedencies
@@ -40,6 +40,8 @@ namespace FlavorTagDiscriminants {
     std::vector<internal::TrackSequenceBuilder> m_trackSequenceBuilders;
     std::map<std::string, internal::OutNode> m_decorators;
     float m_defaultValue;
+    std::function<char(const internal::Tracks&)> m_invalid_track_checker;
+    std::vector<SG::AuxElement::Decorator<char>> m_is_defaults;
 
     FTagDataDependencyNames m_dataDependencyNames;
 
