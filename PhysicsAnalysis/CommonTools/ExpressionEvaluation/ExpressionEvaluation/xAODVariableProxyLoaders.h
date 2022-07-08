@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -99,6 +99,8 @@ namespace ExpressionParsing {
   class TMethodWrapper : public BaseAccessorWrapper {
     public:
       TMethodWrapper(const std::type_info &elementTypeinfo, const std::string &methodName);
+      TMethodWrapper(const TMethodWrapper&) = delete;
+      TMethodWrapper& operator= (const TMethodWrapper&) = delete;
       virtual ~TMethodWrapper();
       IProxyLoader::VariableType variableType() const;
       virtual bool isValid(const SG::AuxElement *auxElement) const;
@@ -118,6 +120,8 @@ namespace ExpressionParsing {
   class TMethodCollectionWrapper : public BaseAccessorWrapper {
     public:
       TMethodCollectionWrapper(const std::type_info &containerTypeinfo, const std::string &methodName);
+      TMethodCollectionWrapper(const TMethodCollectionWrapper&) = delete;
+      TMethodCollectionWrapper& operator= (const TMethodCollectionWrapper&) = delete;
       virtual ~TMethodCollectionWrapper();
       IProxyLoader::VariableType variableType() const;
       virtual bool isValid(const SG::AuxElement *auxElement) const;

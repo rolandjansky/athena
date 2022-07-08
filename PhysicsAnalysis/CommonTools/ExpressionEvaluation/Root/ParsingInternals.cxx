@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -108,7 +108,7 @@ namespace ExpressionParsing {
     if (max_stack_size>g_maxStackSize) {
        g_maxStackSize=max_stack_size;
     }
-    return std::move(stack.back());
+    return stack.back();
   }
 
 
