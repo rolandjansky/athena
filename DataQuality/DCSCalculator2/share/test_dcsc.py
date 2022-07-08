@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 from __future__ import with_statement
 
-from DCSCalculator2.subdetectors import CSC, LAr, Lucid, MDT, Pixels, RPC, SCT, TDQ, Tile, TGC, TRT
+from DCSCalculator2.subdetectors import LAr, Lucid, MDT, Pixels, RPC, SCT, TDQ, Tile, TGC, TRT
 
 from DQUtils.general import timer, kgrind_profile
 
@@ -74,7 +74,6 @@ def main():
     #system = SCT() # Works, very slightly discrepant for the config.
     #system = Pixels() # Works
     #system = Tile() # Works
-    #system = CSC() # Needs globals fixing
     #system = TDQ() # Works, needs further testing
     #system = RPC() # Works
     #system = LAr() # Works, but produces slightly different result. Original gives: 

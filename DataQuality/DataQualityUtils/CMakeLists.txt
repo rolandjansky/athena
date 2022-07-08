@@ -21,7 +21,6 @@ atlas_add_root_dictionary( DataQualityUtils
 atlas_add_library( DataQualityUtils
                    src/HanOutputFile.cxx
                    src/MonitoringFile.cxx
-                   src/MonitoringFile_CSCPostProcess.cxx
                    src/MonitoringFile_RPCPostProcess.cxx
                    src/MonitoringFile_TGCPostProcess.cxx
                    src/MonitoringFile_MDTvsTGCPostProcess.cxx
@@ -49,8 +48,6 @@ atlas_add_library( DataQualityUtils
                    src/CoolMdt.cxx
                    src/CoolTgc.cxx
                    src/MdtDeadNoisyUtils.cxx
-                   src/MonitoringFile_CSCChamberEfficiency.cxx
-                   src/MonitoringFile_CSCClusterFit.cxx
                    src/MonitoringFile_TgcHistogramDivision.cxx
                    src/MonitoringFile_HLTMuonHistogramDivision.cxx
                    src/MonitoringFile_HLTEgammaEfficiency.cxx
