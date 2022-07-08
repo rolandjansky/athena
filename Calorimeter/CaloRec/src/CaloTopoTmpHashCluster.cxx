@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
 // File and Version Information:
-// $Id: CaloTopoTmpHashCluster.cxx,v 1.8 2008-08-28 05:15:06 ssnyder Exp $
 //
 // Description: see CaloTopoTmpHashCluster.h
 // 
@@ -47,7 +46,7 @@ void CaloTopoTmpHashCluster::add(const HashCell& hashCell)
   // take the cell with the largest Signal to Noise and report its E_t as the
   // relevant maxEt for the cluster - Note that there might be a cell with a
   // larger E_t ...
-  CaloTopoTmpClusterCell* pCell = hashCell.getCaloTopoTmpClusterCell();
+  const CaloTopoTmpClusterCell* pCell = hashCell.getCaloTopoTmpClusterCell();
   if ( pCell->getSignedRatio() > m_maxRatio )
     m_maxEt = pCell->getSignedEt();
   Base::add (hashCell);
