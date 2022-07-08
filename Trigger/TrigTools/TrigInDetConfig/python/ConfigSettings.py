@@ -354,10 +354,12 @@ class _ConfigSettings_tauLRT( _ConfigSettingsBase ):
       _ConfigSettingsBase.__init__(self)
       self._name     = "tauLRT"
       self._suffix   = "TauLRT"
-      self._roi      = "HLT_Roi_TauCore"
+      self._roi      = "HLT_Roi_TauLRT"
+      self._vertex   = "HLT_IDVertex_Tau" # TODO: does this need renaming?
       self._pTmin        = 0.8*GeV
       self._etaHalfWidth = 0.4
       self._phiHalfWidth = 0.4
+      self._zedHalfWidth = 225.
       self._doTRT        = True
       self._UsePixelSpacePoints = False
       self._Triplet_D0Max       = 300.

@@ -7329,6 +7329,22 @@ HLT_tau20_mediumRNN_tracktwoMVA_probe_xe75_cell_xe100_pfopufit_L1jXE100:
   eventCount: 0
   stepFeatures:
     0: 1
+HLT_tau25_idperf_looseRNN_trackLRT_L1TAU12IM:
+  eventCount: 0
+HLT_tau25_idperf_mediumRNN_trackLRT_L1TAU12IM:
+  eventCount: 0
+HLT_tau25_idperf_mediumRNN_trackLRT_L1cTAU20M:
+  eventCount: 0
+HLT_tau25_idperf_mediumRNN_trackLRT_L1eTAU20:
+  eventCount: 0
+HLT_tau25_idperf_mediumRNN_tracktwoLLP_L1TAU12IM:
+  eventCount: 0
+HLT_tau25_idperf_mediumRNN_tracktwoLLP_L1cTAU20M:
+  eventCount: 0
+HLT_tau25_idperf_mediumRNN_tracktwoLLP_L1eTAU20:
+  eventCount: 0
+HLT_tau25_idperf_tightRNN_trackLRT_L1TAU12IM:
+  eventCount: 0
 HLT_tau25_idperf_tracktwoMVABDT_L1TAU12IM:
   eventCount: 11
   stepCounts:
@@ -7483,6 +7499,12 @@ HLT_tau25_looseRNN_tracktwoMVA_L1TAU12IM:
     2: 13
     3: 13
     4: 9
+HLT_tau25_mediumRNN_trackLRT_L1TAU12IM:
+  eventCount: 0
+HLT_tau25_mediumRNN_trackLRT_L1cTAU20M:
+  eventCount: 0
+HLT_tau25_mediumRNN_trackLRT_L1eTAU20:
+  eventCount: 0
 HLT_tau25_mediumRNN_tracktwoLLP_L1TAU12IM:
   eventCount: 4
   stepCounts:
