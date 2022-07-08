@@ -1,12 +1,11 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 # art-description: Test of transform HITS->RDO followed by RDO->RDO_TRIG
 # art-type: grid
 # art-include: master/Athena
 # art-include: 22.0/Athena
 # art-athena-mt: 4
-# art-memory: 6000
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*

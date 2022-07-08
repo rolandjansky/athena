@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # art-description: art job for el_singlee_7-80
 # art-type: grid
@@ -7,7 +8,6 @@
 # art-input: mc15_13TeV.159010.ParticleGenerator_e_Et7to80.recon.RDO.e1948_s2726_r7728
 # art-input-nfiles: 10
 # art-athena-mt: 8
-# art-memory: 4096
 # art-html: https://idtrigger-val.web.cern.ch/idtrigger-val/TIDAWeb/TIDAart/?jobdir=
 # art-output: *.txt
 # art-output: *.log

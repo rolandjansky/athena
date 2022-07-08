@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # art-description: CalibPeb test where chains are executed in parallel doing concurrent ROB requests
 # art-type: grid
@@ -19,7 +19,6 @@
 # art-output: prmon*
 # art-output: *.check*
 # art-athena-mt: 12
-# art-memory: 3000
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 
