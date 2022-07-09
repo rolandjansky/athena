@@ -160,11 +160,6 @@ if DerivationFrameworkHasTruth:
 #====================================================================
 #re-tag PFlow jets so they have b-tagging info.
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqSUSY20)
-#applyJetCalibration_xAODColl("AntiKt4EMPFlow_BTagging201810", SeqSUSY20)
-#applyJetCalibration_xAODColl("AntiKt4EMPFlow_BTagging201903", SeqSUSY20)
-#updateJVT_xAODColl("AntiKt4EMPFlow_BTagging201810", SeqSUSY20)
-#applyBTagging_xAODColl("AntiKt4EMPFlow_BTagging201810", SeqSUSY20)
-#applyBTagging_xAODColl("AntiKt4EMPFlow_BTagging201903", SeqSUSY20)  
 
 #====================================================================
 # SKIMMING TOOL 
@@ -195,25 +190,11 @@ ToolSvc += SUSY20LeptonSkimmingTool
 # DFCommonJets_FixedCutBEff_<Eff>_<Tagger> value not supported for AntiKt4EMPFlowJets_BTagging201903
 # ------------------------------------------------------------
 JetName = "AntiKt4EMPFlow" # AntiKt4EMPFlow, AntiKt4EMTopo
-BtagEff = "85" # 77, 85
 Year = "201903" # 201810, 201903
-bfix77_DL1r = {}
-bfix77_MV2 = {}
-bfix85_DL1r = {}
-bfix85_MV2 = {}
-bfix85_DL1r["201903"] = 'log(BTagging_AntiKt4EMPFlow_201903.DL1r_pb/(0.018*BTagging_AntiKt4EMPFlow_201903.DL1r_pc+(1-0.018)*BTagging_AntiKt4EMPFlow_201903.DL1r_pu))>0.665'
-bfix77_DL1r["201903"] = 'log(BTagging_AntiKt4EMPFlow_201903.DL1r_pb/(0.018*BTagging_AntiKt4EMPFlow_201903.DL1r_pc+(1-0.018)*BTagging_AntiKt4EMPFlow_201903.DL1r_pu))>2.195'
-#bfix_MV2["201903"]  = 'BTagging_AntiKt4EMPFlow_201903.MV2c10_discriminant>0.691'
-#bfix77_DL1r["201810"] = 'log(BTagging_AntiKt4EMPFlow_201810.DL1r_pb/(0.08*BTagging_AntiKt4EMPFlow_201810.DL1r_pc+(1-0.08)*BTagging_AntiKt4EMPFlow_201810.DL1r_pu))>0.7550000000000002'
-bfix77_MV2["201810"] = 'BTagging_AntiKt4EMPFlow_201810.MV2c10_discriminant>0.629222'
-bfix85_MV2["201810"] = 'BTagging_AntiKt4EMPFlow_201810.MV2c10_discriminant>0.0722749'
-bfix_MV2c10=  JetName + 'Jets_BTagging' + Year + '.DFCommonJets_FixedCutBEff_' + BtagEff + '_MV2c10'
-bfix_DL1r= JetName + 'Jets_BTagging' + Year + '.DFCommonJets_FixedCutBEff_' + BtagEff + '_DL1r'
+bfix85_DL1r = 'log(BTagging_AntiKt4EMPFlow_201903.DL1r_pb/(0.018*BTagging_AntiKt4EMPFlow_201903.DL1r_pc+(1-0.018)*BTagging_AntiKt4EMPFlow_201903.DL1r_pu))>0.665'
+bfix77_DL1r  = 'log(BTagging_AntiKt4EMPFlow_201903.DL1r_pb/(0.018*BTagging_AntiKt4EMPFlow_201903.DL1r_pc+(1-0.018)*BTagging_AntiKt4EMPFlow_201903.DL1r_pu))>2.195'
 bjetpt= JetName + 'Jets_BTagging' + Year + '.DFCommonJets_Calib_pt'
-#bfix ='(%s || %s)' % (bfix_MV2c10, bfix_DL1r)
-#bfix='(%s || %s)' % (bfix77_DL1r[Year], bfix77_MV2[Year])
-bfix='(%s)' % (bfix85_DL1r[Year])
-btagSelection = "count(%s && (%s>25.*GeV))>1" % (bfix, bjetpt)
+btagSelection = "count(%s && (%s>25.*GeV))>1" % (bfix85_DL1r, bjetpt)
 
 SUSY20btagSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY20btagSkimmingTool",
                                                                       expression = btagSelection)
@@ -243,8 +224,7 @@ ToolSvc += SUSY20TriggerSkimmingTool
 # Final skim selection, with trigger selection and jet selection
 # ------------------------------------------------------------
 SUSY20SkimmingTool = DerivationFramework__FilterCombinationAND(name = "SUSY20SkimmingTool",
-                                                               FilterList = [SUSY20JetSkimmingTool, SUSY20TriggerSkimmingTool])
-#                                                               FilterList = [SUSY20SkimmingORTool, SUSY20TriggerSkimmingTool])
+                                                               FilterList = [SUSY20SkimmingORTool, SUSY20TriggerSkimmingTool])
 ToolSvc += SUSY20SkimmingTool
 
 
@@ -580,8 +560,6 @@ SUSY20SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons",
                                          "PrimaryVertices",
                                          "AntiKt4EMPFlowJets_BTagging201903",
                                          "BTagging_AntiKt4EMPFlow_201903",
-                                         "AntiKt4EMPFlowJets_BTagging201810",
-                                         "BTagging_AntiKt4EMPFlow_201810",
                                          "InDetTrackParticles"
                                          ]
 
@@ -678,6 +656,5 @@ if DerivationFrameworkHasTruth:
   from DerivationFrameworkMCTruth.MCTruthCommon import addTruth3ContentToSlimmerTool
   addTruth3ContentToSlimmerTool(SUSY20SlimmingHelper)
   SUSY20SlimmingHelper.AllVariables += ['TruthTauWithDecayParticles','TruthTauWithDecayVertices','TruthHFWithDecayParticles','TruthHFWithDecayVertices','TruthCharm']
-  #SUSY20SlimmingHelper.AllVariables += ['TruthHFWithDecayParticles','TruthHFWithDecayVertices','TruthCharm']
 
 SUSY20SlimmingHelper.AppendContentToStream(SUSY20Stream)
