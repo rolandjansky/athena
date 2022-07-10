@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////// 
@@ -20,14 +20,12 @@ class SkimDecision_p1 {
   ///////////////////////////////////////////////////////////////////////
   
   SkimDecision_p1();
-  ~SkimDecision_p1();
+  ~SkimDecision_p1() = default;
 
   std::string m_name;
-  bool m_isAccepted;
+  bool m_isAccepted = true;
   
 }; 
 
-inline 
-SkimDecision_p1::~SkimDecision_p1(){}
 
 #endif //> SKIMDECISION_P1_H
