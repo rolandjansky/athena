@@ -12,22 +12,21 @@ from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 from MuonPRDTest.MuonPRDTestConf import *
 
-job+=NSWPRDValAlg('NSWPRDValAlg', OutputLevel = DEBUG)
-NSWPRDValAlg.OutputLevel = INFO
+job+=NSWPRDValAlg('NSWPRDValAlg')
 NSWPRDValAlg.doTruth = True
 NSWPRDValAlg.doMuEntry = True
 
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
-NSWPRDValAlg.doMMHit = MuonGeometryFlags.hasMM()
-NSWPRDValAlg.doMMDigit = False # no sTGC Digits present in RDO files
-NSWPRDValAlg.doMMRDO = MuonGeometryFlags.hasMM()
-NSWPRDValAlg.doMMPRD = MuonGeometryFlags.hasMM()
-NSWPRDValAlg.doMMFastDigit = False
+NSWPRDValAlg.doMMHit         = False #No Sim Hits present in the RDO 
+NSWPRDValAlg.doMMDigit       = False # no sTGC Digits present in RDO files
+NSWPRDValAlg.doMMRDO         = MuonGeometryFlags.hasMM()
+NSWPRDValAlg.doMMPRD         = MuonGeometryFlags.hasMM()
+NSWPRDValAlg.doMMFastDigit   = False
 
-NSWPRDValAlg.doSTGCHit = MuonGeometryFlags.hasSTGC()
-NSWPRDValAlg.doSTGCDigit = False # no sTGC Digits present in RDO files
-NSWPRDValAlg.doSTGCRDO = MuonGeometryFlags.hasSTGC()
-NSWPRDValAlg.doSTGCPRD = MuonGeometryFlags.hasSTGC()
+NSWPRDValAlg.doSTGCHit       = False#MuonGeometryFlags.hasSTGC()
+NSWPRDValAlg.doSTGCDigit     = False # no sTGC Digits present in RDO files
+NSWPRDValAlg.doSTGCRDO       = MuonGeometryFlags.hasSTGC()
+NSWPRDValAlg.doSTGCPRD       = MuonGeometryFlags.hasSTGC()
 NSWPRDValAlg.doSTGCFastDigit = False
 
 NSWPRDValAlg.doRPCHit = False # no RPC_Hits present in RDO files

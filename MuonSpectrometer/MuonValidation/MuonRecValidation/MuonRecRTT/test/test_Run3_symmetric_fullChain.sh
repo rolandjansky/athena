@@ -105,7 +105,12 @@ NFATAL="$(cat log.HITtoRDO | grep FATAL | wc -l)"
 echo "Found ${NWARNING} WARNING, ${NERROR} ERROR and ${NFATAL} FATAL messages in log.HITtoRDO"
 #####################################################################
 # check the NSW validation ntuple
-python $Athena_DIR/bin/checkNSWValTree.py -i NSWPRDValAlg.digi.ntuple.root &> NSWDigiCheck.txt
+python $Athena_DIR/bin/checkNSWValTree.py \
+                -i NSWPRDValAlg.digi.ntuple.root  \
+                --checkHits \
+                --checkDigits \
+                --checkSDO \
+                &> NSWDigiCheck.txt
 exit_code=$?
 echo  "art-result: ${exit_code} NSWDigiCheck"
 if [ ${exit_code} -ne 0 ]
@@ -167,8 +172,7 @@ echo "Found ${NWARNING} WARNING, ${NERROR} ERROR and ${NFATAL} FATAL messages in
 mv log.RAWtoESD log.RAWtoESD_serial
 #####################################################################
 # check the NSW validation ntuple
-python $Athena_DIR/bin/checkNSWValTree.py -i NSWPRDValAlg.reco.ntuple.root \
-                                         --checkPRD &> NSWRecoCheck.txt
+python $Athena_DIR/bin/checkNSWValTree.py -i NSWPRDValAlg.reco.ntuple.root &> NSWRecoCheck.txt
 exit_code=$?
 echo  "art-result: ${exit_code} NSWRecoCheck"
 if [ ${exit_code} -ne 0 ]
