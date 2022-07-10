@@ -9,13 +9,11 @@ from InDetRecExample.TrackingCommon import setDefaults
 
 # ---- definitions
 
-
 def metaDataKey():
     '''
     Meta data key to store the file source on which the InDet decoration alg has been running.
     '''
     return 'InDetPhysValDecoration'
-
 
 def monManName():
     '''
@@ -65,21 +63,6 @@ def findMonMan():
     '''
 
     return findAlg([monManName()], search_outputstream_otherwise=False)
-
-
-def getMetaData():
-    '''
-    Try to determine from the meta data whether the decoration has been performed already.
-    '''
-    from RecExConfig.RecFlags import rec
-    if not rec.readRDO():
-        from PyUtils.MetaReaderPeekerFull import metadata
-    try:
-        return metadata['/TagInfo'][metaDataKey()]
-    except Exception:
-        pass
-    return ''
-
 
 def setMetaData():
     '''
@@ -461,10 +444,7 @@ def addDecoratorIfNeeded():
         print('DEBUG addDecoratorIfNeeded ? Stage is too early or too late for running the decoration. Needs reconstructed tracks. Try again during next stage ?')
         return
 
-    meta_data = getMetaData()
-    if len(meta_data) == 0:
-        # decoration has not been ran
-        addDecorator()
+    addDecorator()
 
     # if DBM or GSF tracks need to be monitored schedule addExtraMonitoring as user algorithm, so that
     # the monitoring manager exists already.
