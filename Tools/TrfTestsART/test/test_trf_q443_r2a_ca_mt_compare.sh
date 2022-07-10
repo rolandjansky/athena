@@ -30,7 +30,7 @@ Reco_tf.py \
   --steering "doRAWtoALL" \
   --outputAODFile myAOD_def.pool.root \
   --outputESDFile myESD_def.pool.root \
-  --preExec "all:from JetRec.JetRecFlags import jetFlags; jetFlags.writeJetsToAOD.set_Value_and_Lock(True); from METReconstruction.METRecoFlags import metFlags; metFlags.WriteMETAssocToOutput.set_Value_and_Lock(True);" \
+  --preExec "all:from JetRec.JetRecFlags import jetFlags; jetFlags.writeJetsToAOD.set_Value_and_Lock(True); from METReconstruction.METRecoFlags import metFlags; metFlags.WriteMETAssocToOutput.set_Value_and_Lock(True);  metFlags.WriteMETToOutput.set_Value_and_Lock(True);" \
   --imf="False" \
   --maxEvents 100
 
