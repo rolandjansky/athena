@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////// 
@@ -20,8 +20,8 @@ class EventBookkeeper_p1 {
   //  This class is the persistent form of EventBookkeeper
   ///////////////////////////////////////////////////////////////////////
   
-     EventBookkeeper_p1();
-  ~EventBookkeeper_p1();
+  EventBookkeeper_p1();
+  ~EventBookkeeper_p1() = default;
 
   std::string m_name;
   std::string m_description;
@@ -29,12 +29,9 @@ class EventBookkeeper_p1 {
   std::string m_outputstream;
   std::string m_logic;
   std::vector<std::string> m_childrenEB;
-  uint64_t m_nAcceptedEvents;
-  double m_nWeightedAcceptedEvents;
-  uint64_t m_cycle;
+  uint64_t m_nAcceptedEvents = 0;
+  double m_nWeightedAcceptedEvents = 0;
+  uint64_t m_cycle = 0;
 }; 
-
-inline 
-EventBookkeeper_p1::~EventBookkeeper_p1(){}
 
 #endif //> EVENTBOOKKEEPER_P1_H

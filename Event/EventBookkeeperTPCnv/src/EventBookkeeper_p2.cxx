@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////// 
@@ -9,15 +9,6 @@
 
 EventBookkeeper_p2::EventBookkeeper_p2()
 { 
-  m_name="";
-  m_description="";
-  m_inputstream="";
-  m_outputstream="";
-  m_logic ="";
-  m_nAcceptedEvents=0; 
-  m_nWeightedAcceptedEvents=0; 
-  m_cycle=-1; 
-  m_childrenEB = 0; 
 }
 
 EventBookkeeper_p2::EventBookkeeper_p2( const EventBookkeeper_p2& rhs )
