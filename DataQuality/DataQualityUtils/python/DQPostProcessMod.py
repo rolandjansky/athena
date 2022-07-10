@@ -187,8 +187,6 @@ def DQPostProcess( outFileName, isIncremental=False ):
                   ['Andreas.Wildauer@cern.ch']),
                  (mf.VxMon_move,
                  ['federico.meloni@cern.ch']),
-                 (mf.CSCPostProcess,
-                  ['venkat.kaushik@cern.ch', 'jason.veatch@cern.ch']),
                  (rpc_create,
                   ['michele.bianco@le.infn.it', 'monica.verducci@cern.ch']),
                  (mf.RPCPostProcess,

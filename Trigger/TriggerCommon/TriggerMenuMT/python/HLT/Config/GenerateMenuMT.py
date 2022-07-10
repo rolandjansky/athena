@@ -3,16 +3,6 @@
 import importlib
 import string
 
-from TriggerMenuMT.HLT.Config.Utility.HLTMenuConfig  import HLTMenuConfig
-from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import dictFromChainName
-from TriggerMenuMT.HLT.Menu.MenuPrescaleConfig import MenuPrescaleConfig, applyHLTPrescale
-from TriggerMenuMT.HLT.Config.Utility.MenuAlignmentTools import MenuAlignment
-from TriggerMenuMT.HLT.Config.Utility.ChainDictTools import splitInterSignatureChainDict
-from TriggerMenuMT.HLT.Config.Utility.ComboHypoHandling import addTopoInfo, comboConfigurator, topoLegIndices
-from TriggerMenuMT.HLT.Config.Utility.ChainMerging import mergeChainDefs
-from TriggerMenuMT.HLT.CommonSequences import EventBuildingSequences, TLABuildingSequences
-
-from TriggerMenuMT.HLT.Config.ControlFlow.HLTCFConfig import makeHLTTree
 from AthenaConfiguration.ComponentFactory import isRun3Cfg
 from TriggerMenuMT.HLT.Config.ControlFlow.HLTCFTools import NoCAmigration
 
@@ -107,6 +97,8 @@ class GenerateMenuMT(object, metaclass=Singleton):
             if not isValid:
                 log.error("Chain signatures %s not a subset of required signatures %s",set(chainSig),reqd)
             return isValid
+
+        from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import dictFromChainName
 
         chainCounter = 0
         invalid = False
@@ -206,6 +198,10 @@ class GenerateMenuMT(object, metaclass=Singleton):
         == Obtains chain configs for all chains in menu
         """
 
+        from TriggerMenuMT.HLT.Config.Utility.HLTMenuConfig  import HLTMenuConfig
+        from TriggerMenuMT.HLT.Config.Utility.MenuAlignmentTools import MenuAlignment
+        from TriggerMenuMT.HLT.CommonSequences import EventBuildingSequences, TLABuildingSequences
+
         # get all chain names from menu
         log.info("Will now get chains from the menu")
         self.getChainsFromMenu(flags)
@@ -295,6 +291,9 @@ class GenerateMenuMT(object, metaclass=Singleton):
         == Returns the list of chain names that are in the menu
         """
 
+        from TriggerMenuMT.HLT.Config.Utility.HLTMenuConfig  import HLTMenuConfig
+        from TriggerMenuMT.HLT.Menu.MenuPrescaleConfig import MenuPrescaleConfig
+
         # go over the slices and put together big list of signatures requested
         (self.L1Prescales, self.HLTPrescales, self.chainsInMenu) = MenuPrescaleConfig(HLTMenuConfig, flags)
 
@@ -336,6 +335,11 @@ class GenerateMenuMT(object, metaclass=Singleton):
         """
         # Assembles the chain configuration and returns a chain object with (name, L1see and list of ChainSteps)
         """
+
+        from TriggerMenuMT.HLT.Config.Utility.ChainDictTools import splitInterSignatureChainDict
+        from TriggerMenuMT.HLT.Config.Utility.ComboHypoHandling import addTopoInfo, comboConfigurator, topoLegIndices
+        from TriggerMenuMT.HLT.Config.Utility.ChainMerging import mergeChainDefs
+        from TriggerMenuMT.HLT.CommonSequences import EventBuildingSequences, TLABuildingSequences
 
         # split the the chainDictionaries for each chain and print them in a pretty way
         chainDicts = splitInterSignatureChainDict(mainChainDict)
@@ -497,6 +501,11 @@ class GenerateMenuMT(object, metaclass=Singleton):
         """
         == Main function of the class which generates L1, L1Topo and HLT menu
         """
+
+        from TriggerMenuMT.HLT.Config.Utility.HLTMenuConfig  import HLTMenuConfig
+        from TriggerMenuMT.HLT.Menu.MenuPrescaleConfig import applyHLTPrescale
+        from TriggerMenuMT.HLT.Config.ControlFlow.HLTCFConfig import makeHLTTree
+
         log.info('Starting menu generation')
 
         # --------------------------------------------------------------------

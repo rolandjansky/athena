@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "IOVSvcTool.h"
@@ -227,35 +227,50 @@ IOVSvcTool::initialize() {
 void 
 IOVSvcTool::handle(const Incident &inc) {
 
-  //The first part of the handle-function is non-const and not re-entrant
-  //In MT mode, only called during the serial part at the beginning of the job 
-  //(hopefully)
-
-  const bool first = m_first;
-  if (m_first) m_first = false;
+  bool initial_first = m_first;
 
   // Don't bother doing anything if we're handled the first run, and
   // preLoadData has been set, or if we only want to check once at the
   // beginning of the job
-  if (!first && m_preLoadData && m_checkOnce) {
+  if (!initial_first && m_preLoadData && m_checkOnce) {
     return;
   }
+  else if (!initial_first) {
+     if ( inc.type() != m_checkTrigger && inc.type() != IncidentType::BeginRun ) {
+        return;
+     }
+  }
 
-  if (first) {
-    for (auto e : m_ignoredProxyNames) {
-      DataProxy* proxy = p_cndSvc->proxy(e.first,e.second);
+  std::lock_guard<std::recursive_mutex> lock(m_handleMutex);
+  if (initial_first) {
+     if (!m_first && m_preLoadData && m_checkOnce) {
+        return;
+     }
+     else if (!m_first) {
+        if ( inc.type() != m_checkTrigger && inc.type() != IncidentType::BeginRun ) {
+           return;
+        }
+     }
 
-      if (proxy == nullptr) {
-        ATH_MSG_ERROR("ignoreProxy: could not retrieve proxy "
-                      << fullProxyName(e.first,e.second) << " from store");
-      } else {
-        ignoreProxy( proxy );
-        ATH_MSG_DEBUG("will ignore resetting proxy " << fullProxyName(proxy));
-      }
-    }
+     if (m_first) {
+        for (auto e : m_ignoredProxyNames) {
+           DataProxy* proxy = p_cndSvc->proxy(e.first,e.second);
+
+           if (proxy == nullptr) {
+              ATH_MSG_ERROR("ignoreProxy: could not retrieve proxy "
+                            << fullProxyName(e.first,e.second) << " from store");
+           } else {
+              ignoreProxy( proxy );
+              ATH_MSG_DEBUG("will ignore resetting proxy " << fullProxyName(proxy));
+           }
+        }
+        m_first = false;
+     }
+     else {
+        initial_first=false;
+     }
   }//end first
-
-
+  const bool first = initial_first;
 
   // Forcing IOV checks on the first event in the run for AthenaMP (ATEAM-439)
   if(Gaudi::Concurrency::ConcurrencyFlags::numProcs()==0) {
@@ -626,6 +641,7 @@ namespace {
 StatusCode 
 IOVSvcTool::replaceProxy( SG::DataProxy *pOld,
                           SG::DataProxy *pNew) {
+  std::lock_guard<std::recursive_mutex> lock(m_handleMutex);
   assert(nullptr != pOld);
   assert(nullptr != pNew);
     
@@ -844,6 +860,7 @@ IOVSvcTool::setRange(const CLID& clid, const std::string& key,
     return StatusCode::FAILURE;
   }
 
+  std::lock_guard<std::recursive_mutex> lock(m_handleMutex);
   setRange_impl (proxy, iovr);
   return StatusCode::SUCCESS;
 }
@@ -855,6 +872,7 @@ IOVSvcTool::getRange(const CLID& clid, const std::string& key,
 
   DataProxy* dp = p_cndSvc->proxy(clid,key);
 
+  std::lock_guard<std::recursive_mutex> lock(m_handleMutex);
   std::map<const DataProxy*,IOVEntry*>::const_iterator itr(m_entries.find(dp));
   if (itr == m_entries.end()) {
     return StatusCode::FAILURE;
@@ -925,6 +943,7 @@ IOVSvcTool::setRangeInDB(const CLID& clid, const std::string& key,
     return StatusCode::FAILURE;
   }
 
+  std::lock_guard<std::recursive_mutex> lock(m_handleMutex);
   std::map<const DataProxy*,IOVEntry*>::const_iterator itr(m_entries.find(dp));
   if (itr == m_entries.end()) {
     ATH_MSG_WARNING(fullProxyName(clid,key) << " not registered with the IOVSvc");

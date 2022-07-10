@@ -8,7 +8,7 @@ from __future__ import print_function
 import os
 
 import logging
-logging.basicConfig()
+logging.basicConfig(level=logging.INFO)
 
 ## Needed to correct ROOT behavior; see below
 CWD = os.getcwd()
