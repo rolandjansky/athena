@@ -339,7 +339,7 @@ bool AFP_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
 
         // maximum PMT efficiency cut (15%) to to avoid crashes due to the too large memory consumption
         rand = G4UniformRand();
-        if (rand>TDMaxCnt) continue;
+        if (rand>TDMaxQEff) continue;
         ///////////////////////////////////////////////////////////////////////////////////////////////
 
         NumPhotonsCuts++;
