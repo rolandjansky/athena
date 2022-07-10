@@ -8,9 +8,12 @@
 #include "MuonReadoutGeometry/MMReadoutElement.h"
 
 namespace MuonPRDTest {
-    MMPRDVariables::MMPRDVariables(MuonTesterTree& tree, const std::string& container_name, MSG::Level msglvl) :
-        PrdTesterModule(tree, "PRD_MM", true, msglvl), m_key{container_name} {}
-    bool MMPRDVariables::declare_keys() { return m_key.initialize().isSuccess(); }
+    MMPRDVariables::MMPRDVariables(MuonTesterTree& tree, const std::string& prd_container_name, MSG::Level msglvl) :
+        PrdTesterModule(tree, "PRD_MM", true, msglvl), m_key{prd_container_name} {}
+
+    bool MMPRDVariables::declare_keys() {
+       return (m_key.initialize().isSuccess() );
+    }
 
     bool MMPRDVariables::fill(const EventContext& ctx) {
         ATH_MSG_DEBUG("do fillMMPRDVariables()");
@@ -25,24 +28,9 @@ namespace MuonPRDTest {
 
         if (mmprdContainer->size() == 0) ATH_MSG_DEBUG(" MM PRD Container empty ");
 
-        SG::ReadHandle<Muon::MM_RawDataContainer> mmrdoContainer{m_rdokey, ctx};
-        if (!mmrdoContainer.isValid()) {
-            ATH_MSG_FATAL("Failed to retrieve rdo container " << m_rdokey.fullKey());
-            return false;
-        }
-        ATH_MSG_DEBUG("retrieved MM RDO Container with size " << mmrdoContainer->size());
-
-        if (mmrdoContainer->size() == 0) ATH_MSG_DEBUG(" MM RDO Container empty ");
-
         unsigned int n_PRD{0};
         for(const Muon::MMPrepDataCollection* coll : *mmprdContainer) {
-            const Muon::MM_RawDataCollection* rdo_coll = mmrdoContainer->indexFindPtr(coll->identifyHash());
 
-            if(rdo_coll==nullptr){
-                ATH_MSG_ERROR("Did not find rdo collection " << coll->identifyHash());
-                return false;
-            }
-            ATH_MSG_DEBUG("Found rdo_coll at "<<rdo_coll);
             for (unsigned int item=0; item<coll->size(); item++) {
                 const Muon::MMPrepData* prd = coll->at(item);
                 Identifier Id = prd->identify();
@@ -66,25 +54,21 @@ namespace MuonPRDTest {
                                                                     << ",  y=" << std::setw(6) << std::setprecision(2) << loc_pos[1] );
 
                 m_NSWMM_PRD_globalPos.push_back(pos);
-
                 m_NSWMM_PRD_localPosX.push_back(loc_pos[0]);
                 m_NSWMM_PRD_localPosY.push_back(loc_pos[1]);
                 m_NSWMM_PRD_covMatrix_1_1.push_back(cov(0,0));
                 m_NSWMM_PRD_nRdos.push_back((prd->rdoList()).size());
-
-                for(const Identifier &id_rdo:prd->rdoList()){
-                    const Muon::MM_RawData* rdo=nullptr;
-                    for(auto it :*rdo_coll){if(it->identify() == id_rdo) rdo=it;}
-                    if(rdo==nullptr){
-                        ATH_MSG_ERROR("Did not find rdo for identifier in rdo list");
-                        return false;
-                    }
-                    m_NSWMM_PRD_rdos_charge.push_back(rdo->charge());
-                    m_NSWMM_PRD_rdos_time.push_back(rdo->time());
-                    m_NSWMM_PRD_rdos_channel.push_back(idHelperSvc()->mmIdHelper().channel(id_rdo));      
-                }
                 m_NSWMM_PRD_uTPCAngle.push_back(prd->angle());  
                 m_NSWMM_PRD_uTPCChiSqProb.push_back(prd->chisqProb());
+
+                std::vector<short unsigned> strip_numbers = prd->stripNumbers(); 
+                std::vector<short int>      strip_times   = prd->stripTimes();   
+                std::vector<int>            strip_charges = prd->stripCharges(); 
+                for( unsigned istrip = 0; istrip < strip_numbers.size(); ++istrip){
+                     m_NSWMM_PRD_stripNumbers.push_back(istrip, strip_numbers[istrip] );
+                     m_NSWMM_PRD_stripTimes.push_back(istrip,   strip_times[istrip] );
+                     m_NSWMM_PRD_stripCharges.push_back(istrip, strip_charges[istrip] );
+                }
                 
                 ++n_PRD;
             }

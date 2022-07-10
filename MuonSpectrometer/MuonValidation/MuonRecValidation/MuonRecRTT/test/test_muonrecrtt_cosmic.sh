@@ -17,4 +17,5 @@ Reco_tf.py --maxEvents=9000 \
            --geometryVersion ATLAS-R2-2016-01-00-01 \
            --inputBSFile=${ArtInFile} \
            --outputAODFile=MuonCosmic_Reco.AOD.pool.root \
-           --preExec 'from RecExConfig.RecFlags  import rec; rec.doTrigger=False; import MuonCombinedRecExample.MuonCombinedRecOnlySetup;from MuonRecExample.MuonRecFlags import muonRecFlags; muonRecFlags.doMuonIso.set_Value_and_Lock(False)'
+           --preExec 'from RecExConfig.RecFlags  import rec; rec.doTrigger=False; import MuonCombinedRecExample.MuonCombinedRecOnlySetup;from MuonRecExample.MuonRecFlags import muonRecFlags; muonRecFlags.doMuonIso.set_Value_and_Lock(False); rec.doCaloRinger = False; from AthenaConfiguration.AllConfigFlags import ConfigFlags; ConfigFlags.Reco.EnableEgamma = False'
+
