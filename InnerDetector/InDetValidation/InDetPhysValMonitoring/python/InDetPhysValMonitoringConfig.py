@@ -271,7 +271,7 @@ def InDetLargeD0PhysValMonitoringToolCfg(flags, **kwargs):
     if flags.Detector.GeometryID:
         kwargs.setdefault("TrackParticleContainerName", 'InDetLargeD0TrackParticles' if flags.InDet.Tracking.storeSeparateLargeD0Container else 'InDetTrackParticles')
     elif flags.Detector.GeometryITk:
-        kwargs.setdefault("TrackParticleContainerName", 'InDetLargeD0TrackParticles' if flags.ITk.storeSeparateLargeD0Container else 'InDetTrackParticles')
+        kwargs.setdefault("TrackParticleContainerName", 'InDetLargeD0TrackParticles' if flags.ITk.Tracking.storeSeparateLargeD0Container else 'InDetTrackParticles')
     kwargs.setdefault("useTrackSelection", True)
 
     return InDetPhysValMonitoringToolCfg(flags, name='InDetPhysValMonitoringToolLargeD0', **kwargs)
@@ -289,7 +289,7 @@ def InDetMergedLargeD0PhysValMonitoringToolCfg(flags, **kwargs):
     if flags.Detector.GeometryID:
         kwargs.setdefault("TrackParticleContainerName", 'InDetWithLRTTrackParticles' if flags.InDet.Tracking.storeSeparateLargeD0Container else 'InDetTrackParticles')
     elif flags.Detector.GeometryITk:
-        kwargs.setdefault("TrackParticleContainerName", 'InDetWithLRTTrackParticles' if flags.ITk.storeSeparateLargeD0Container else 'InDetTrackParticles')
+        kwargs.setdefault("TrackParticleContainerName", 'InDetWithLRTTrackParticles' if flags.ITk.Tracking.storeSeparateLargeD0Container else 'InDetTrackParticles')
     kwargs.setdefault("useTrackSelection", True)
 
     return InDetPhysValMonitoringToolCfg(flags, name='InDetPhysValMonitoringToolMergedLargeD0', **kwargs)

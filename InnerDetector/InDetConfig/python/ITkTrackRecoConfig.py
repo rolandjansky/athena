@@ -139,7 +139,7 @@ def ITkTrackRecoCfg(flags):
                                              ClusterSplitProbContainer = ClusterSplitProbContainer))
 
         if current_flags.ITk.Tracking.ActivePass.storeSeparateContainer:
-            if flags.ITk.doTruth:
+            if flags.ITk.Tracking.doTruth:
                 from InDetConfig.ITkTrackTruthConfig import ITkTrackTruthCfg
                 result.merge(ITkTrackTruthCfg(current_flags,
                                               Tracks = TrackContainer,
