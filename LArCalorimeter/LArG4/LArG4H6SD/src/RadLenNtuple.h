@@ -60,7 +60,7 @@ namespace G4UA
     SG::ReadHandle<McEventCollection> m_mcEvtColl;
     int m_verboseLevel;
 
-    bool m_has_cryo, m_has_em, m_has_hec, m_has_fcal;
+    bool m_has_cryo{}, m_has_em{}, m_has_hec{}, m_has_fcal{};
   };
 }
 #endif
