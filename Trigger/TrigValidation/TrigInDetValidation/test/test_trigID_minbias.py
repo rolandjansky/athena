@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # art-description: art job for minbias
 # art-type: grid
@@ -7,7 +7,6 @@
 # art-include: 22.0/Athena
 # art-html: https://idtrigger-val.web.cern.ch/idtrigger-val/TIDAWeb/TIDAart/?jobdir=
 # art-athena-mt: 8
-# art-memory: 4096
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*
@@ -33,8 +32,6 @@ Threads = 8
 Slots   = 8
 Input   = 'minbias'    # defined in TrigValTools/share/TrigValInputs.json  
 ExtraAna   = " -c 'ptmin=400' "
-
-preinclude_file = 'all:TrigInDetValidation/TIDV_cond_fix.py' #conditions fix for ATR-23982. In future find a more recent RDO  
 
 Jobs = [ ( "Truth",       " TIDAdata-run3-minbias.dat                    -o data-hists.root" ),
          ( "Offline",     " TIDAdata-run3-minbias-offline.dat -r Offline -o data-hists-offline.root" ) ]
