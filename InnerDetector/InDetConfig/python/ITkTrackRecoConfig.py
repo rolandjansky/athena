@@ -236,6 +236,13 @@ def ITkTrackRecoOutputCfg(flags):
             "xAOD::TrackStateValidationAuxContainer#ITkStripMSOSsAux."
         ]
 
+    if flags.ITk.Tracking.doLargeD0 and flags.ITk.Tracking.storeSeparateLargeD0Container:
+        toAOD.append(
+            'xAOD::TrackParticleContainer#InDet{}TrackParticles'.format(
+                flags.ITk.Tracking.LargeD0Pass.extension
+            )
+        )
+
     result = ComponentAccumulator()
     result.merge(addToESD(flags, toAOD+toESD))
     result.merge(addToAOD(flags, toAOD))
