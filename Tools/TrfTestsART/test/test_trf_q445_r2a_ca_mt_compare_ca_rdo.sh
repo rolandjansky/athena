@@ -31,7 +31,7 @@ Reco_tf.py \
   --inputRDOFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/ReferenceFiles/dev/x86_64-centos7-gcc11-opt/mc21a_ttbar.CA.RDO.pool.root \
   --outputAODFile myAOD_def.pool.root \
   --outputESDFile myESD_def.pool.root \
-  --preExec "all:from JetRec.JetRecFlags import jetFlags; jetFlags.writeJetsToAOD.set_Value_and_Lock(True); from METReconstruction.METRecoFlags import metFlags; metFlags.WriteMETAssocToOutput.set_Value_and_Lock(True);" \
+  --preExec "all:from JetRec.JetRecFlags import jetFlags; jetFlags.writeJetsToAOD.set_Value_and_Lock(True); from METReconstruction.METRecoFlags import metFlags; metFlags.WriteMETAssocToOutput.set_Value_and_Lock(True);  metFlags.WriteMETToOutput.set_Value_and_Lock(True);" \
   --imf="False" \
   --maxEvents 100
 
