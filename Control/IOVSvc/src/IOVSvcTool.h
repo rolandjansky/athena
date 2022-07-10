@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IOVSVC_IOVSVCTOOL_H
@@ -199,6 +199,15 @@ private:
   typedef stopSet::iterator  stopITR;
 
   std::map< const SG::DataProxy*, std::string> m_names;
+
+  mutable std::recursive_mutex m_handleMutex ATLAS_THREAD_SAFE;
+   // meant to protect: m_first, m_entries,
+   //    m_startSet...,  m_stopSet... .
+   // Locked by "handle" and "setRange", where setRange
+   // is called also via preLoadProxies which calls
+   // SG::DataProxy::updateAddress which then calls
+   // setRange. So, without refactoring a recursive
+   // mutex is needed.
 
   std::set< SG::DataProxy*, SortDPptr > m_proxies;
   std::multimap< const SG::DataProxy*, BFCN* > m_proxyMap;

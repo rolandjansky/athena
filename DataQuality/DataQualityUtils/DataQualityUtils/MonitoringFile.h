@@ -170,15 +170,6 @@ namespace dqutils {
     static void   MakeMap(TH2* outputhist, TH3* hist);
     static int    IterativeGaussFit(TH1* hist, double &mu, double &mu_err, double &sigma, double &sigma_err); 
 
-    // Muon CSC
-    static void CSCPostProcess(const std::string & inFilename, bool isIncremental = false);
-    static void CSCChamberEfficiency(TFile* f, TString& run_dir);
-    static void CSCClusterFit(TFile* f, TString& run_dir);
-
-    // given bin- content and bin-error of numerator, denominator, compute efficiency (eff)
-    // and efficiency error (err) according to errtype = 0(binomial), =1(UPX) or Sumw2
-    static void GetCscEffAndErr(float& num, float& num_err, float& den, float& den_err, float& eff, float& err, int errtype);
-
     // For MuonTrackMonitoring
     static void MuonTrackPostProcess(const std::string & inFileName, bool isIncremental = false);
     static void MuonTrack_Main(const std::string & inFileName, TString dirname);
@@ -412,10 +403,10 @@ namespace dqutils {
     enum debugLevel_t { none = 0, DEBUG, VERBOSE };
     typedef std::map<TDirectory*, std::vector<TDirectory*> > map_dir_vdir;
 
-    static TObject* mergeObjsMultiCycles(const std::string&, 
+    static void mergeObjsMultiCycles(const std::string&, 
 					 const std::vector<int>&, 
 					 TDirectory*, const std::string&, 
-					 TObject* = 0);
+					 std::shared_ptr<TObject>&);
     static int mergeObjs(TObject*, TObject*, const std::string &, debugLevel_t debugLevel = none);
     static int mergeLB_createListOfHistos(TDirectory*, TDirectory*, std::vector<std::string>&, debugLevel_t&);
     static int mergeLB_recursiveDirCopy(TDirectory*, TDirectory*, TDirectory*, std::vector<std::string>&, debugLevel_t&);

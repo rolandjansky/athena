@@ -1,49 +1,9 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 import eformat
 import operator
 from functools import reduce
 
-detmaskmap = {
-    'FORWARD_AFP': 'AFP',
-    'FORWARD_ALPHA': 'ALFA',
-    'FORWARD_BCM': 'IDBCM',                                     
-    'FORWARD_LUCID': 'LCD',                                       
-    'FORWARD_ZDC': 'ZDC',
-    'LAR_EM_BARREL_A_SIDE': 'EMBA',
-    'LAR_EM_BARREL_C_SIDE': 'EMBC',
-    'LAR_EM_ENDCAP_A_SIDE': 'EMECA',                               
-    'LAR_EM_ENDCAP_C_SIDE': 'EMECC',                              
-    'LAR_FCAL_A_SIDE': 'FCALA',                              
-    'LAR_FCAL_C_SIDE': 'FCALC',                                   
-    'LAR_HAD_ENDCAP_A_SIDE': 'HECA', 
-    'LAR_HAD_ENDCAP_C_SIDE': 'HECC',                              
-    'MUON_CSC_ENDCAP_A_SIDE': 'CSCEA',                              
-    'MUON_CSC_ENDCAP_C_SIDE': 'CSCEC',                               
-    'MUON_MDT_BARREL_A_SIDE': 'MDTBA',                                
-    'MUON_MDT_BARREL_C_SIDE': 'MDTBC',                                
-    'MUON_MDT_ENDCAP_A_SIDE': 'MDTEA',
-    'MUON_MDT_ENDCAP_C_SIDE': 'MDTEC',                            
-    'MUON_RPC_BARREL_A_SIDE': 'RPCBA',                            
-    'MUON_RPC_BARREL_C_SIDE': 'RPCBC',                            
-    'MUON_TGC_ENDCAP_A_SIDE': 'TGCEA',
-    'MUON_TGC_ENDCAP_C_SIDE': 'TGCEC',                            
-    'PIXEL_BARREL': 'PIXB',                            
-    'PIXEL_B_LAYER': 'PIX0',
-    'PIXEL_DISK_SIDE': ('PIXEA', 'PIXEC'),
-    ('SCT_BARREL_A_SIDE', 'SCT_BARREL_C_SIDE'): 'SCTB',
-    'SCT_ENDCAP_A_SIDE': 'SCTEA',
-    'SCT_ENDCAP_C_SIDE': 'SCTEC',
-    'TDAQ_CTP': 'L1CTP',
-    'TILECAL_BARREL_A_SIDE': 'TILBA',
-    'TILECAL_BARREL_C_SIDE': 'TILBC',                                     
-    'TILECAL_EXT_A_SIDE': 'TIEBA',                                 
-    'TILECAL_EXT_C_SIDE': 'TIEBC',
-    ('TRT_BARREL_A_SIDE', 'TRT_BARREL_C_SIDE'): 'TRTB',
-    'TRT_ENDCAP_A_SIDE': 'TRTEA',
-    'TRT_ENDCAP_C_SIDE': 'TRTEC',
-    ('TRT_BARREL_A_SIDE', 'TRT_BARREL_C_SIDE', 'TRT_ENDCAP_A_SIDE', 'TRT_ENDCAP_C_SIDE'): 'TRTTR',
-    }
 
 detmaskmap_defects = {
     #'FORWARD_AFP': 'AFP_DISABLED', # not yet functional
@@ -58,8 +18,6 @@ detmaskmap_defects = {
     'LAR_FCAL_C_SIDE': 'LAR_FCALC_DISABLED',                                   
     'LAR_HAD_ENDCAP_A_SIDE': 'LAR_HECA_DISABLED', 
     'LAR_HAD_ENDCAP_C_SIDE': 'LAR_HECC_DISABLED',                              
-    'MUON_CSC_ENDCAP_A_SIDE': 'MS_CSC_EA_DISABLED',                            
-    'MUON_CSC_ENDCAP_C_SIDE': 'MS_CSC_EC_DISABLED',                           
     'MUON_MDT_BARREL_A_SIDE': 'MS_MDT_BA_DISABLED',                          
     'MUON_MDT_BARREL_C_SIDE': 'MS_MDT_BC_DISABLED',                          
     'MUON_MDT_ENDCAP_A_SIDE': 'MS_MDT_EA_DISABLED',
@@ -84,25 +42,10 @@ detmaskmap_defects = {
 def getSubDetectorObj(sdstr):
     return getattr(eformat.helper.SubDetector, sdstr)
 
-def decode(mask):
+def decodeBlack(mask, defects=True):  # defects argument is deprecated and now a nop
     dm = eformat.helper.DetectorMask(mask)
     rv = []
-    for keys, value in detmaskmap.items():
-        if isinstance(keys, str):
-            keys = [keys]
-        if reduce(operator.or_,
-                  [dm.is_set(getSubDetectorObj(key)) for key in keys]):
-            flags = value
-            if isinstance(flags, str):
-                flags = [flags]
-            rv += list(flags)
-
-    return sorted(rv)
-
-def decodeBlack(mask, defects=False):
-    dm = eformat.helper.DetectorMask(mask)
-    rv = []
-    dmap = detmaskmap if not defects else detmaskmap_defects
+    dmap = detmaskmap_defects
     for keys, value in dmap.items():
         if isinstance(keys, str):
             keys = [keys]

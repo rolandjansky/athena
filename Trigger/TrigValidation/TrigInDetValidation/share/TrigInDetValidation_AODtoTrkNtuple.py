@@ -2,6 +2,8 @@
 
 
 FilesInput = [ "AOD.pool.root" ]
+if len(jps.AthenaCommonFlags.FilesInput.get_Value())>0:
+   FilesInput = jps.AthenaCommonFlags.FilesInput.get_Value()
 
 theApp.EvtMax=-1                                       #says how many events to run over. Set to -1 for all events
 
@@ -240,6 +242,9 @@ if ( True ) :
     "HLT_tau.*_idperf.*_track_.*:HLT_IDTrack_Tau_FTF:roi=HLT_Roi_Tau",
     "HLT_tau.*_idperf.*_track_.*:HLT_IDTrack_Tau_IDTrig:roi=HLT_Roi_Tau",
 
+    # LRT tau
+    "HLT_tau.*trackLRT.*:HLT_IDTrack_TauLRT_FTF:roi=HLT_Roi_TauLRT",
+    "HLT_tau.*trackLRT.*:HLT_IDTrack_TauLRT_IDTrig:roi=HLT_Roi_TauLRT",
 
     # none of these will work
     "HLT_tau.*_idperf.*:HLT_IDTrack_Tau_IDTrig",

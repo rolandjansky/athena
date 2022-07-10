@@ -110,6 +110,12 @@ class TrigInDetReco(ExecStep):
                 flags += 'doEgammaSlice=True;'
             if (i=='tau') :
                 chains +=  "'HLT_tau25_idperf_tracktwoMVA_L1TAU12IM',"
+                chains +=  "'HLT_tau25_idperf_mediumRNN_tracktwoLLP_L1TAU12IM',"
+                flags += 'doTauSlice=True;'
+            if (i=='tauLRT') :
+                chains +=  "'HLT_tau25_idperf_tracktwoMVA_L1TAU12IM',"
+                chains +=  "'HLT_tau25_idperf_mediumRNN_tracktwoLLP_L1TAU12IM',"
+                chains +=  "'HLT_tau25_idperf_mediumRNN_trackLRT_L1TAU12IM',"
                 flags += 'doTauSlice=True;'
             if (i=='bjet') :
 #               chains += "'HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20',"

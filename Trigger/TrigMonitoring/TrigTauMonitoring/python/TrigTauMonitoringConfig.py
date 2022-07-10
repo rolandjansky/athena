@@ -312,7 +312,7 @@ class TrigTauMonAlgBuilder:
 
        monGroup.defineHistogram(monGroupName+'_HLTpass,'+monGroupName+'_'+xvariable+';EffHLT_'+xvariable+'_wrt_Offline',
                                 title='HLT Efficiency ' +trigger+' '+nProng+';'+xlabel+';Efficiency',
-                                type='TEfficiency',xbins=xbins,xmin=xmin,xmax=xmax)
+                                type='TEfficiency',xbins=xbins,xmin=xmin,xmax=xmax,opt='kAlwaysCreate')
 
     defineEachStepHistograms('tauPt', 'p_{T} [GeV]', 60, 0.0, 300.)
     defineEachStepHistograms('tauEta','#eta', 13, -2.6, 2.6)
@@ -335,7 +335,7 @@ class TrigTauMonAlgBuilder:
 
        monGroup.defineHistogram(monGroupName+'_DiTauHLTpass,'+monGroupName+'_'+xvariable+';EffDiTauHLT_'+xvariable+'_wrt_Offline',
                                 title='DiTau HLT Efficiency ' +trigger+';'+xlabel+';Efficiency',
-                                type='TEfficiency',xbins=xbins,xmin=xmin,xmax=xmax)
+                                type='TEfficiency',xbins=xbins,xmin=xmin,xmax=xmax,opt='kAlwaysCreate')
 
     defineEachStepHistograms('dR',' dR(#tau,#tau)',20,0,4)
     defineEachStepHistograms('dEta',' dEta(#tau,#tau)',20,0,4)
@@ -358,7 +358,7 @@ class TrigTauMonAlgBuilder:
 
        monGroup.defineHistogram(monGroupName+'_TAndPHLTpass,'+monGroupName+'_'+xvariable+';EffTAndPHLT_'+xvariable+'_wrt_Offline',
                                 title='TAndP HLT Efficiency ' +trigger+';'+xlabel+';Efficiency',
-                                type='TEfficiency',xbins=xbins,xmin=xmin,xmax=xmax)
+                                type='TEfficiency',xbins=xbins,xmin=xmin,xmax=xmax,opt='kAlwaysCreate')
 
     defineEachStepHistograms('tauPt', 'p_{T} [GeV]', 60, 0.0, 300.)
     defineEachStepHistograms('dR',' dR(#tau,lep)',20,0,4)
@@ -383,7 +383,7 @@ class TrigTauMonAlgBuilder:
 
        monGroup.defineHistogram(monGroupName+'_L1pass,'+monGroupName+'_'+xvariable+';EffL1_'+xvariable+'_wrt_Offline',
                                 title='L1 Efficiency ' +L1seed+' '+nProng+';'+xlabel+';Efficiency',
-                                type='TEfficiency',xbins=xbins,xmin=xmin,xmax=xmax)
+                                type='TEfficiency',xbins=xbins,xmin=xmin,xmax=xmax, opt='kAlwaysCreate')
 
     defineEachStepHistograms('tauPt', 'p_{T} [GeV]', 60, 0.0, 300.)
     defineEachStepHistograms('tauEta','#eta', 13, -2.6, 2.6)
@@ -404,26 +404,26 @@ class TrigTauMonAlgBuilder:
 
     monGroup.defineHistogram('L1RoIEt,L1RoIEta', type='TH2F', title='L1 RoI Et vs Eta; E_{T}[GeV]; #eta',
                             xbins=100,xmin=0,xmax=100,
-                            ybins=100,ymin=-2.6,ymax=2.6)
+                             ybins=100,ymin=-2.6,ymax=2.6, opt='kAlwaysCreate')
     monGroup.defineHistogram('L1RoIEt,L1RoIPhi', type='TH2F', title='L1 RoI Et vs Phi; E_{T}[GeV]; #phi',
                             xbins=100,xmin=0,xmax=100,
-                            ybins=100,ymin=-3.2,ymax=3.2)
+                             ybins=100,ymin=-3.2,ymax=3.2, opt='kAlwaysCreate')
     monGroup.defineHistogram('L1RoIEta,L1RoIPhi', type='TH2F', title='L1 RoI Eta vs Phi; #eta; #phi',
                             xbins=100,xmin=-2.6,xmax=2.6,
-                            ybins=100,ymin=-3.2,ymax=3.2)
-    monGroup.defineHistogram('L1RoIEMIsol', title='L1 RoI EM Isol; E_{T}^{EM Isol}[GeV]; N RoI',xbins=16,xmin=-2,xmax=30)
-    monGroup.defineHistogram('L1RoIEta', title='L1 RoI Eta; #eta; N RoI',xbins=100,xmin=-2.6,xmax=2.6)
-    monGroup.defineHistogram('L1RoIHadCore', title='L1 RoI HAD Core; E_{T}^{HAD}[GeV]; N RoI',xbins=16,xmin=-2,xmax=30)
-    monGroup.defineHistogram('L1RoIHadIsol', title='L1 RoI HAD Isol; E_{T}^{HAD Isol}[GeV]; N RoI',xbins=16,xmin=-2,xmax=30)
-    monGroup.defineHistogram('L1RoIPhi', title='L1 RoI Phi; #phi; N RoI',xbins=100,xmin=-3.2,xmax=3.2)
-    monGroup.defineHistogram('L1RoITauClus', title='L1 RoI Tau Clust Energy; E_{T}[GeV]; N RoI',xbins=260,xmin=0,xmax=130)
+                             ybins=100,ymin=-3.2,ymax=3.2, opt='kAlwaysCreate')
+    monGroup.defineHistogram('L1RoIEMIsol', title='L1 RoI EM Isol; E_{T}^{EM Isol}[GeV]; N RoI',xbins=16,xmin=-2,xmax=30,opt='kAlwaysCreate')
+    monGroup.defineHistogram('L1RoIEta', title='L1 RoI Eta; #eta; N RoI',xbins=100,xmin=-2.6,xmax=2.6,opt='kAlwaysCreate')
+    monGroup.defineHistogram('L1RoIHadCore', title='L1 RoI HAD Core; E_{T}^{HAD}[GeV]; N RoI',xbins=16,xmin=-2,xmax=30,opt='kAlwaysCreate')
+    monGroup.defineHistogram('L1RoIHadIsol', title='L1 RoI HAD Isol; E_{T}^{HAD Isol}[GeV]; N RoI',xbins=16,xmin=-2,xmax=30,opt='kAlwaysCreate')
+    monGroup.defineHistogram('L1RoIPhi', title='L1 RoI Phi; #phi; N RoI',xbins=100,xmin=-3.2,xmax=3.2,opt='kAlwaysCreate')
+    monGroup.defineHistogram('L1RoITauClus', title='L1 RoI Tau Clust Energy; E_{T}[GeV]; N RoI',xbins=260,xmin=0,xmax=130,opt='kAlwaysCreate')
     monGroup.defineHistogram('L1RoITauClus,L1RoIEMIsol', type='TH2F', title='L1 RoI TauClus vs EMiso; E_{T}[GeV]; E_{T}^{EM Isol}[GeV]',
                             xbins=140,xmin=10,xmax=80,
-                            ybins=42,ymin=-1,ymax=20)
-    monGroup.defineHistogram('L1RoIEt', title='L1 RoI Tau Clust Energy; E_{T}[GeV]; N RoI',xbins=30,xmin=0,xmax=150)
-    monGroup.defineHistogram('L1RoIRCore', title='L1 RoI RCore isolation; rCore isolation; N RoI',xbins=20,xmin=0,xmax=2)
-    monGroup.defineHistogram('L1RoIRHad' , title='L1 RoI RHAD isolation; rHad isolation; N RoI'  ,xbins=20,xmin=0,xmax=2)
-    monGroup.defineHistogram('L1RoIIso', title='L1 RoI isolation; isolation [GeV]; N RoI'  ,xbins=15,xmin=0,xmax=30)
+                             ybins=42,ymin=-1,ymax=20,opt='kAlwaysCreate')
+    monGroup.defineHistogram('L1RoIEt', title='L1 RoI Tau Clust Energy; E_{T}[GeV]; N RoI',xbins=30,xmin=0,xmax=150,opt='kAlwaysCreate')
+    monGroup.defineHistogram('L1RoIRCore', title='L1 RoI RCore isolation; rCore isolation; N RoI',xbins=20,xmin=0,xmax=2,opt='kAlwaysCreate')
+    monGroup.defineHistogram('L1RoIRHad' , title='L1 RoI RHAD isolation; rHad isolation; N RoI'  ,xbins=20,xmin=0,xmax=2,opt='kAlwaysCreate')
+    monGroup.defineHistogram('L1RoIIso', title='L1 RoI isolation; isolation [GeV]; N RoI'  ,xbins=15,xmin=0,xmax=30,opt='kAlwaysCreate')
                              
   #
   # Book RNN Variables
@@ -436,18 +436,18 @@ class TrigTauMonAlgBuilder:
     monGroup = self.helper.addGroup( monAlg, monGroupName, 
                               self.basePath+'/'+monGroupPath )
 
-    monGroup.defineHistogram('centFrac', title='Centrality Fraction ('+nProng+'); centFrac; Events',xbins=50,xmin=-0.05,xmax=1.2)
-    monGroup.defineHistogram('etOverPtLeadTrk', title='etOverPtLeadTrk log ('+nProng+'); etOverPtLeadTrk_log; Events',xbins=60,xmin=-3.,xmax=3.)
-    monGroup.defineHistogram('dRmax', title='max dR of associated tracks ('+nProng+'); dRmax; Events',xbins=50,xmin=-0.1,xmax=0.3)
-    monGroup.defineHistogram('absipSigLeadTrk', title='AbsIpSigLeadTrk ('+nProng+'); absipSigLeadTrk; Events',xbins=25,xmin=0.0,xmax=20.0)
-    monGroup.defineHistogram('sumPtTrkFrac', title='SumPtTrkFrac ('+nProng+'); SumPtTrkFrac; Events',xbins=50,xmin=-0.5,xmax=1.1)
-    monGroup.defineHistogram('emPOverTrkSysP', title='EMPOverTrkSysP log ('+nProng+'); EMPOverTrkSysP_log; Events',xbins=50,xmin=-5.,xmax=3.)
-    monGroup.defineHistogram('ptRatioEflowApprox', title='ptRatioEflowApprox ('+nProng+'); ptRatioEflowApprox; Events',xbins=50,xmin=0.0,xmax=2.0)
-    monGroup.defineHistogram('mEflowApprox', title='mEflowApprox log ('+nProng+'); mEflowApprox_log; Events',xbins=50,xmin=0.,xmax=5.)
-    monGroup.defineHistogram('ptDetectorAxis', title='ptDetectorAxis log ('+nProng+'); ptDetectorAxis_log; Events',xbins=50,xmin=0.,xmax=5.)
+    monGroup.defineHistogram('centFrac', title='Centrality Fraction ('+nProng+'); centFrac; Events',xbins=50,xmin=-0.05,xmax=1.2,opt='kAlwaysCreate')
+    monGroup.defineHistogram('etOverPtLeadTrk', title='etOverPtLeadTrk log ('+nProng+'); etOverPtLeadTrk_log; Events',xbins=60,xmin=-3.,xmax=3.,opt='kAlwaysCreate')
+    monGroup.defineHistogram('dRmax', title='max dR of associated tracks ('+nProng+'); dRmax; Events',xbins=50,xmin=-0.1,xmax=0.3,opt='kAlwaysCreate')
+    monGroup.defineHistogram('absipSigLeadTrk', title='AbsIpSigLeadTrk ('+nProng+'); absipSigLeadTrk; Events',xbins=25,xmin=0.0,xmax=20.0,opt='kAlwaysCreate')
+    monGroup.defineHistogram('sumPtTrkFrac', title='SumPtTrkFrac ('+nProng+'); SumPtTrkFrac; Events',xbins=50,xmin=-0.5,xmax=1.1,opt='kAlwaysCreate')
+    monGroup.defineHistogram('emPOverTrkSysP', title='EMPOverTrkSysP log ('+nProng+'); EMPOverTrkSysP_log; Events',xbins=50,xmin=-5.,xmax=3.,opt='kAlwaysCreate')
+    monGroup.defineHistogram('ptRatioEflowApprox', title='ptRatioEflowApprox ('+nProng+'); ptRatioEflowApprox; Events',xbins=50,xmin=0.0,xmax=2.0,opt='kAlwaysCreate')
+    monGroup.defineHistogram('mEflowApprox', title='mEflowApprox log ('+nProng+'); mEflowApprox_log; Events',xbins=50,xmin=0.,xmax=5.,opt='kAlwaysCreate')
+    monGroup.defineHistogram('ptDetectorAxis', title='ptDetectorAxis log ('+nProng+'); ptDetectorAxis_log; Events',xbins=50,xmin=0.,xmax=5.,opt='kAlwaysCreate')
     if nProng=='MP' or nProng=='3P':  
-      monGroup.defineHistogram('massTrkSys', title='massTrkSys log ('+nProng+'); massTrkSys_log; Events',xbins=50,xmin=0.,xmax=3.)
-      monGroup.defineHistogram('trFlightPathSig', title='trFlightPathSig ('+nProng+'); trFlightPathSig; Events', xbins=100, xmin=-20., xmax=40)
+      monGroup.defineHistogram('massTrkSys', title='massTrkSys log ('+nProng+'); massTrkSys_log; Events',xbins=50,xmin=0.,xmax=3.,opt='kAlwaysCreate')
+      monGroup.defineHistogram('trFlightPathSig', title='trFlightPathSig ('+nProng+'); trFlightPathSig; Events', xbins=100, xmin=-20., xmax=40,opt='kAlwaysCreate')
 
   def bookRNNTrack( self, monAlg, trigger, online ):
 
@@ -457,15 +457,15 @@ class TrigTauMonAlgBuilder:
     monGroup = self.helper.addGroup( monAlg, monGroupName,
                               self.basePath+'/'+monGroupPath )
 
-    monGroup.defineHistogram('track_pt_log',title='track_pt_log;track_pt_log;Events',xbins=20,xmin=2,xmax=7)
-    monGroup.defineHistogram('track_pt_jetseed_log',title='track_pt_jetseed_log;track_pt_jetseed_log;Events',xbins=50,xmin=2,xmax=7)
-    monGroup.defineHistogram('track_dEta',title='track_dEta;track_dEta;Events',xbins=100,xmin=-0.5,xmax=0.5)
-    monGroup.defineHistogram('track_dPhi',title='track_dPhi;track_dPhi;Events',xbins=100,xmin=-0.5,xmax=0.5)
-    monGroup.defineHistogram('track_d0_abs_log',title='track_d0_abs_log;track_d0_abs_log;Events',xbins=50,xmin=-7,xmax=2)
-    monGroup.defineHistogram('track_z0sinThetaTJVA_abs_log',title='track_z0sinThetaTJVA_abs_log;track_z0sinThetaTJVA_abs_log;Events',xbins=50,xmin=-10,xmax=4)
-    monGroup.defineHistogram('track_nIBLHitsAndExp',title='track_nIBLHitsAndExp; track_nIBLHitsAndExp;Events',xbins=3,xmin=0,xmax=3)
-    monGroup.defineHistogram('track_nPixelHitsPlusDeadSensors',title='track_nPixelHitsPlusDeadSensors;track_nPixelHitsPlusDeadSensors;Events',xbins=11,xmin=0,xmax=11)
-    monGroup.defineHistogram('track_nSCTHitsPlusDeadSensors',title='track_nSCTHitsPlusDeadSensors;track_nSCTHitsPlusDeadSensors;Events',xbins=20,xmin=0,xmax=20)
+    monGroup.defineHistogram('track_pt_log',title='track_pt_log;track_pt_log;Events',xbins=20,xmin=2,xmax=7,opt='kAlwaysCreate')
+    monGroup.defineHistogram('track_pt_jetseed_log',title='track_pt_jetseed_log;track_pt_jetseed_log;Events',xbins=50,xmin=2,xmax=7,opt='kAlwaysCreate')
+    monGroup.defineHistogram('track_dEta',title='track_dEta;track_dEta;Events',xbins=100,xmin=-0.5,xmax=0.5,opt='kAlwaysCreate')
+    monGroup.defineHistogram('track_dPhi',title='track_dPhi;track_dPhi;Events',xbins=100,xmin=-0.5,xmax=0.5,opt='kAlwaysCreate')
+    monGroup.defineHistogram('track_d0_abs_log',title='track_d0_abs_log;track_d0_abs_log;Events',xbins=50,xmin=-7,xmax=2,opt='kAlwaysCreate')
+    monGroup.defineHistogram('track_z0sinThetaTJVA_abs_log',title='track_z0sinThetaTJVA_abs_log;track_z0sinThetaTJVA_abs_log;Events',xbins=50,xmin=-10,xmax=4,opt='kAlwaysCreate')
+    monGroup.defineHistogram('track_nIBLHitsAndExp',title='track_nIBLHitsAndExp; track_nIBLHitsAndExp;Events',xbins=3,xmin=0,xmax=3,opt='kAlwaysCreate')
+    monGroup.defineHistogram('track_nPixelHitsPlusDeadSensors',title='track_nPixelHitsPlusDeadSensors;track_nPixelHitsPlusDeadSensors;Events',xbins=11,xmin=0,xmax=11,opt='kAlwaysCreate')
+    monGroup.defineHistogram('track_nSCTHitsPlusDeadSensors',title='track_nSCTHitsPlusDeadSensors;track_nSCTHitsPlusDeadSensors;Events',xbins=20,xmin=0,xmax=20,opt='kAlwaysCreate')
         
   def bookRNNCluster( self, monAlg, trigger, online ):
 
@@ -475,13 +475,13 @@ class TrigTauMonAlgBuilder:
     monGroup = self.helper.addGroup( monAlg, monGroupName,
                               self.basePath+'/'+monGroupPath )
 
-    monGroup.defineHistogram('cluster_et_log',title='cluster_et_log; cluster_et_log;Events',xbins=30,xmin=0,xmax=6)
-    monGroup.defineHistogram('cluster_pt_jetseed_log',title='cluster_pt_jetseed_log; cluster_pt_jetseed_log;Events',xbins=50,xmin=2,xmax=7)
-    monGroup.defineHistogram('cluster_dEta',title='cluster_dEta; cluster_dEta;Events',xbins=100,xmin=-0.5,xmax=0.5)
-    monGroup.defineHistogram('cluster_dPhi',title='cluster_dPhi; cluster_dPhi;Events',xbins=100,xmin=-0.5,xmax=0.5)
-    monGroup.defineHistogram('cluster_SECOND_R_log10',title='cluster_SECOND_R_log10; cluster_SECOND_R_log10;Events',xbins=50,xmin=-3,xmax=7)
-    monGroup.defineHistogram('cluster_SECOND_LAMBDA_log10',title='cluster_SECOND_LAMBDA_log10; cluster_SECOND_LAMBDA_log10;Events',xbins=50,xmin=-3,xmax=7)
-    monGroup.defineHistogram('cluster_CENTER_LAMBDA_log10',title='cluster_CENTER_LAMBDA_log10; cluster_CENTER_LAMBDA_log10;Events',xbins=50,xmin=-2,xmax=5)
+    monGroup.defineHistogram('cluster_et_log',title='cluster_et_log; cluster_et_log;Events',xbins=30,xmin=0,xmax=6,opt='kAlwaysCreate')
+    monGroup.defineHistogram('cluster_pt_jetseed_log',title='cluster_pt_jetseed_log; cluster_pt_jetseed_log;Events',xbins=50,xmin=2,xmax=7,opt='kAlwaysCreate')
+    monGroup.defineHistogram('cluster_dEta',title='cluster_dEta; cluster_dEta;Events',xbins=100,xmin=-0.5,xmax=0.5,opt='kAlwaysCreate')
+    monGroup.defineHistogram('cluster_dPhi',title='cluster_dPhi; cluster_dPhi;Events',xbins=100,xmin=-0.5,xmax=0.5,opt='kAlwaysCreate')
+    monGroup.defineHistogram('cluster_SECOND_R_log10',title='cluster_SECOND_R_log10; cluster_SECOND_R_log10;Events',xbins=50,xmin=-3,xmax=7,opt='kAlwaysCreate')
+    monGroup.defineHistogram('cluster_SECOND_LAMBDA_log10',title='cluster_SECOND_LAMBDA_log10; cluster_SECOND_LAMBDA_log10;Events',xbins=50,xmin=-3,xmax=7,opt='kAlwaysCreate')
+    monGroup.defineHistogram('cluster_CENTER_LAMBDA_log10',title='cluster_CENTER_LAMBDA_log10; cluster_CENTER_LAMBDA_log10;Events',xbins=50,xmin=-2,xmax=5,opt='kAlwaysCreate')
 
   def bookbasicVars( self, monAlg, trigger, nProng, online ):
   
@@ -507,23 +507,23 @@ class TrigTauMonAlgBuilder:
        etmin=int(thresh)
        etmax=5*int(thresh)
 
-    monGroup.defineHistogram('hEFEt', title='EF Et;E_{T}[GeV];Nevents',xbins=50,xmin=etmin,xmax=etmax)
-    monGroup.defineHistogram('hEFEta', title='EF TrigCaloCluster Eta; #eta ; Nevents',xbins=26,xmin=-2.6,xmax=2.6)
-    monGroup.defineHistogram('hEFPhi', title='EF TrigCaloCluster Phi; #phi ; Nevents',xbins=16,xmin=-3.2,xmax=3.2)
-    monGroup.defineHistogram('hEFnTrack', title='EF number of tracks;number of tracks;Nevents',xbins=10,xmin=0,xmax=10)
+    monGroup.defineHistogram('hEFEt', title='EF Et;E_{T}[GeV];Nevents',xbins=50,xmin=etmin,xmax=etmax,opt='kAlwaysCreate')
+    monGroup.defineHistogram('hEFEta', title='EF TrigCaloCluster Eta; #eta ; Nevents',xbins=26,xmin=-2.6,xmax=2.6,opt='kAlwaysCreate')
+    monGroup.defineHistogram('hEFPhi', title='EF TrigCaloCluster Phi; #phi ; Nevents',xbins=16,xmin=-3.2,xmax=3.2,opt='kAlwaysCreate')
+    monGroup.defineHistogram('hEFnTrack', title='EF number of tracks;number of tracks;Nevents',xbins=10,xmin=0,xmax=10,opt='kAlwaysCreate')
 
     monGroup.defineHistogram('hEFEta,hEFPhi', type='TH2F', title='Eta vs Phi; #eta ; #phi',
-                               xbins=26,xmin=-2.6,xmax=2.6,ybins=16,ymin=-3.2,ymax=3.2)
+                               xbins=26,xmin=-2.6,xmax=2.6,ybins=16,ymin=-3.2,ymax=3.2,opt='kAlwaysCreate')
     monGroup.defineHistogram('hEFEt,hEFPhi', type='TH2F',  title='Et vs Phi; E_{T} [GeV]; #phi',
-                               xbins=50,xmin=etmin,xmax=etmax,ybins=16,ymin=-3.2,ymax=3.2) 
+                               xbins=50,xmin=etmin,xmax=etmax,ybins=16,ymin=-3.2,ymax=3.2,opt='kAlwaysCreate') 
     monGroup.defineHistogram('hEFEt,hEFEta', type='TH2F',  title='Et vs Eta; E_{T} [GeV]; #eta',
-                               xbins=50,xmin=etmin,xmax=etmax,ybins=26,ymin=-2.6,ymax=2.6)
+                               xbins=50,xmin=etmin,xmax=etmax,ybins=26,ymin=-2.6,ymax=2.6,opt='kAlwaysCreate')
    
-    monGroup.defineHistogram('hEFEtRaw', title='EF Et Raw;Uncalibrated E_{T}[GeV];Nevents',xbins=50,xmin=0,xmax=100)
-    monGroup.defineHistogram('hEFnWideTrack', title='EF number of wide tracks;number of tracks;Nevents',xbins=10,xmin=0,xmax=10)
+    monGroup.defineHistogram('hEFEtRaw', title='EF Et Raw;Uncalibrated E_{T}[GeV];Nevents',xbins=50,xmin=0,xmax=100,opt='kAlwaysCreate')
+    monGroup.defineHistogram('hEFnWideTrack', title='EF number of wide tracks;number of tracks;Nevents',xbins=10,xmin=0,xmax=10,opt='kAlwaysCreate')
 
-    monGroup.defineHistogram('hRNNScore', title='EF RNN score; RNN score;Nevents',xbins=20,xmin=0,xmax=1)
-    monGroup.defineHistogram('hRNNScoreSigTrans', title='EF RNN trans score; RNN Trans score;Nevents',xbins=20,xmin=0,xmax=1)
+    monGroup.defineHistogram('hRNNScore', title='EF RNN score; RNN score;Nevents',xbins=20,xmin=0,xmax=1,opt='kAlwaysCreate')
+    monGroup.defineHistogram('hRNNScoreSigTrans', title='EF RNN trans score; RNN Trans score;Nevents',xbins=20,xmin=0,xmax=1,opt='kAlwaysCreate')
 
   def bookDiTauVars(self, monAlg, trigger):
     
@@ -534,20 +534,20 @@ class TrigTauMonAlgBuilder:
                               self.basePath+'/'+monGroupPath )    
 
     monGroup.defineHistogram('hleadEFEt,hsubleadEFEt', type='TH2F', title='lead Et vs sublead Et; lead E_{T} [GeV] ; sublead E_{T} [GeV]',
-                               xbins=50,xmin=0,xmax=250,ybins=50,ymin=0,ymax=250)
+                               xbins=50,xmin=0,xmax=250,ybins=50,ymin=0,ymax=250,opt='kAlwaysCreate')
     monGroup.defineHistogram('hleadEFEta,hsubleadEFEta', type='TH2F', title='lead Eta vs sublead Eta; lead #eta ; sublead #eta',
-                               xbins=26,xmin=-2.6,xmax=2.6,ybins=26,ymin=-2.6,ymax=2.6)
+                               xbins=26,xmin=-2.6,xmax=2.6,ybins=26,ymin=-2.6,ymax=2.6,opt='kAlwaysCreate')
     monGroup.defineHistogram('hleadEFPhi,hsubleadEFPhi', type='TH2F', title='lead Phi vs sublead Phi; lead #phi ; sublead #phi',
-                               xbins=16,xmin=-3.2,xmax=3.2,ybins=16,ymin=-3.2,ymax=3.2) 
-    monGroup.defineHistogram('hdR', title='EF dR(#tau,#tau);dR(#tau,#tau);Nevents',xbins=40,xmin=0,xmax=4)
-    monGroup.defineHistogram('hdEta', title='EF dEta(#tau,#tau);dEta(#tau,#tau);Nevents',xbins=40,xmin=0,xmax=4)
-    monGroup.defineHistogram('hdPhi', title='EF dPhi(#tau,#tau);dPhi(#tau,#tau);Nevents',xbins=16,xmin=-3.2,xmax=3.2)
+                               xbins=16,xmin=-3.2,xmax=3.2,ybins=16,ymin=-3.2,ymax=3.2,opt='kAlwaysCreate') 
+    monGroup.defineHistogram('hdR', title='EF dR(#tau,#tau);dR(#tau,#tau);Nevents',xbins=40,xmin=0,xmax=4,opt='kAlwaysCreate')
+    monGroup.defineHistogram('hdEta', title='EF dEta(#tau,#tau);dEta(#tau,#tau);Nevents',xbins=40,xmin=0,xmax=4,opt='kAlwaysCreate')
+    monGroup.defineHistogram('hdPhi', title='EF dPhi(#tau,#tau);dPhi(#tau,#tau);Nevents',xbins=16,xmin=-3.2,xmax=3.2,opt='kAlwaysCreate')
 
-    monGroup.defineHistogram('Pt', title='Pt DiTau; P_{t}; Nevents', xbins=50,xmin=0,xmax=250)
-    monGroup.defineHistogram('Eta', title='Eta(#tau,#tau);Eta(#tau,#tau);Nevents',xbins=26,xmin=-2.6,xmax=2.6)
-    monGroup.defineHistogram('Phi', title='Phi(#tau,#tau);Phi(#tau,#tau);Nevents',xbins=16,xmin=-3.2,xmax=3.2)
-    monGroup.defineHistogram('M', title='M(#tau,#tau);M_{#tau,#tau};Nevents',xbins=50,xmin=0,xmax=250)
-    monGroup.defineHistogram('dPt', title='dPt |leading-subleading|; P_{t}; Nevents', xbins=20,xmin=0,xmax=200)  
+    monGroup.defineHistogram('Pt', title='Pt DiTau; P_{t}; Nevents', xbins=50,xmin=0,xmax=250,opt='kAlwaysCreate')
+    monGroup.defineHistogram('Eta', title='Eta(#tau,#tau);Eta(#tau,#tau);Nevents',xbins=26,xmin=-2.6,xmax=2.6,opt='kAlwaysCreate')
+    monGroup.defineHistogram('Phi', title='Phi(#tau,#tau);Phi(#tau,#tau);Nevents',xbins=16,xmin=-3.2,xmax=3.2,opt='kAlwaysCreate')
+    monGroup.defineHistogram('M', title='M(#tau,#tau);M_{#tau,#tau};Nevents',xbins=50,xmin=0,xmax=250,opt='kAlwaysCreate')
+    monGroup.defineHistogram('dPt', title='dPt |leading-subleading|; P_{t}; Nevents', xbins=20,xmin=0,xmax=200,opt='kAlwaysCreate')  
 
   def bookTAndPVars(self, monAlg, trigger):
 
@@ -557,15 +557,15 @@ class TrigTauMonAlgBuilder:
     monGroup = self.helper.addGroup( monAlg, monGroupName,
                               self.basePath+'/'+monGroupPath )
 
-    monGroup.defineHistogram('hdR', title='EF dR(#tau,lep);dR(#tau,lep);Nevents',xbins=40,xmin=0,xmax=4)
-    monGroup.defineHistogram('hdEta', title='EF dEta(#tau,lep);dEta(#tau,lep);Nevents',xbins=40,xmin=0,xmax=4)
-    monGroup.defineHistogram('hdPhi', title='EF dPhi(#tau,lep);dPhi(#tau,lep);Nevents',xbins=16,xmin=-3.2,xmax=3.2)
+    monGroup.defineHistogram('hdR', title='EF dR(#tau,lep);dR(#tau,lep);Nevents',xbins=40,xmin=0,xmax=4,opt='kAlwaysCreate')
+    monGroup.defineHistogram('hdEta', title='EF dEta(#tau,lep);dEta(#tau,lep);Nevents',xbins=40,xmin=0,xmax=4,opt='kAlwaysCreate')
+    monGroup.defineHistogram('hdPhi', title='EF dPhi(#tau,lep);dPhi(#tau,lep);Nevents',xbins=16,xmin=-3.2,xmax=3.2,opt='kAlwaysCreate')
 
-    monGroup.defineHistogram('Pt', title='Pt DiTau; P_{t}; Nevents', xbins=50,xmin=0,xmax=250)
-    monGroup.defineHistogram('Eta', title='Eta DiTau;Eta;Nevents',xbins=26,xmin=-2.6,xmax=2.6)
-    monGroup.defineHistogram('Phi', title='Phi DiTau;Phi;Nevents',xbins=16,xmin=-3.2,xmax=3.2)
-    monGroup.defineHistogram('M', title='M(#tau,lep) DiTau;M_{#tau,lep};Nevents',xbins=50,xmin=0,xmax=250)
-    monGroup.defineHistogram('dPt', title='dPt |lep-#tau|; P_{t}; Nevents', xbins=20,xmin=0,xmax=200)
+    monGroup.defineHistogram('Pt', title='Pt DiTau; P_{t}; Nevents', xbins=50,xmin=0,xmax=250,opt='kAlwaysCreate')
+    monGroup.defineHistogram('Eta', title='Eta DiTau;Eta;Nevents',xbins=26,xmin=-2.6,xmax=2.6,opt='kAlwaysCreate')
+    monGroup.defineHistogram('Phi', title='Phi DiTau;Phi;Nevents',xbins=16,xmin=-3.2,xmax=3.2,opt='kAlwaysCreate')
+    monGroup.defineHistogram('M', title='M(#tau,lep) DiTau;M_{#tau,lep};Nevents',xbins=50,xmin=0,xmax=250,opt='kAlwaysCreate')
+    monGroup.defineHistogram('dPt', title='dPt |lep-#tau|; P_{t}; Nevents', xbins=20,xmin=0,xmax=200,opt='kAlwaysCreate')
 
   def bookTruth( self, monAlg, trigger, nProng):
 

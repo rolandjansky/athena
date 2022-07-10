@@ -1,11 +1,11 @@
 #!/usr/bin/env python
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # art-description: art job for all_ttbar_pu55
 # art-type: grid
 # art-include: master/Athena
 # art-include: 22.0/Athena
 # art-athena-mt: 8
-# art-memory: 4096
 # art-html: https://idtrigger-val.web.cern.ch/idtrigger-val/TIDAWeb/TIDAart/?jobdir=
 # art-output: *.txt
 # art-output: *.log

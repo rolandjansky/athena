@@ -1,6 +1,8 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from L1TopoSimulation.L1TopoSimulationConf import LVL1__L1TopoSimulation, LVL1__RoiB2TopoInputDataCnv
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 class L1TopoSimulation ( LVL1__L1TopoSimulation ):
 
@@ -20,8 +22,6 @@ class RoiB2TopoInputDataCnv ( LVL1__RoiB2TopoInputDataCnv ):
         super( RoiB2TopoInputDataCnv, self ).__init__( name )
 
 def L1LegacyTopoSimulationCfg(flags):
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    from AthenaConfiguration.ComponentFactory import CompFactory
     
     acc = ComponentAccumulator()
     
@@ -45,8 +45,6 @@ def L1LegacyTopoSimulationCfg(flags):
     return acc
 
 def L1TopoSimulationCfg(flags):
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    from AthenaConfiguration.ComponentFactory import CompFactory
     from AthenaConfiguration.Enums import Format
 
     acc = ComponentAccumulator()
@@ -96,7 +94,7 @@ def L1TopoSimulationCfg(flags):
     acc.addEventAlgo(topoSimAlg)
     
     from L1TopoOnlineMonitoring import L1TopoOnlineMonitoringConfig as TopoMonConfig
-    acc.addEventAlgo(TopoMonConfig.getL1TopoPhase1OnlineMonitor(flags))
+    acc.addEventAlgo(TopoMonConfig.getL1TopoPhase1OnlineMonitor(flags,'L1/L1TopoSimDecisions'))
     
     return acc
 
@@ -135,3 +133,224 @@ def L1TopoSimulationOldStyleCfg(flags, isLegacy):
         topoSimSeq.MuonInputProvider.MuonEncoding = 1
 
     return topoSimSeq
+
+def L1TopoSimulationStandaloneCfg(flags, outputEDM=[]):
+
+    acc = ComponentAccumulator()
+
+    efex_provider_attr = ['eFexEMRoI','eFexTauRoI']
+    jfex_provider_attr = ['jFexSRJetRoI','jFexLRJetRoI','jFexEMRoI','jFexTauRoI','jFexXERoI','jFexTERoI']
+    gfex_provider_attr = ['gFexSRJetRoI','gFexLRJetRoI','gFexXEJWOJRoI','gFexXENCRoI','gFexXERHORoI','gFexMHTRoI','gFexTERoI']
+   
+    #Configure the MuonInputProvider
+    muProvider = CompFactory.LVL1.MuonInputProvider("MuonInputProvider",
+                                                    ROIBResultLocation = "", #disable input from RoIBResult
+                                                    MuonROILocation = "",
+                                                    MuonEncoding = 1)
+
+    #Configure the MuonRoiTools for the MIP
+    from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConfig import getRun3RPCRecRoiTool, getRun3TGCRecRoiTool
+    muProvider.RecRpcRoiTool = getRun3RPCRecRoiTool("RPCRecRoiTool", useRun3Config = True)
+    muProvider.RecTgcRoiTool = getRun3TGCRecRoiTool("TGCRecRoiTool", useRun3Config = True)
+
+
+    efexProvider = CompFactory.LVL1.eFexInputProvider("eFexInputProvider")
+    jfexProvider = CompFactory.LVL1.jFexInputProvider("jFexInputProvider")
+    gfexProvider = CompFactory.LVL1.gFexInputProvider("gFexInputProvider")
+
+    for attr in efex_provider_attr:
+        res = [x for x in outputEDM if attr in x]
+        if len(res)>0:
+            key = res[0].split('#')[1]
+            print (f'Key found for eFEX: {key}')
+            setattr(efexProvider,attr+'Key',key)
+        else:
+            setattr(efexProvider,attr+'Key','')
+
+    for attr in jfex_provider_attr:
+        res = [x for x in outputEDM if attr in x]
+        if len(res)>0:
+            key = res[0].split('#')[1]
+            print (f'Key found for jFEX: {key}')
+            setattr(jfexProvider,attr+'Key',key)
+        else:
+            setattr(jfexProvider,attr+'Key','')
+
+    for attr in gfex_provider_attr:
+        res = [x for x in outputEDM if attr in x]
+        if len(res)>0:
+            key = res[0].split('#')[1]
+            print (f'Key found for gFEX: {key}')
+            setattr(gfexProvider,attr+'Key',key)
+        else:
+            setattr(gfexProvider,attr+'Key','')
+
+    topoSimAlg = CompFactory.LVL1.L1TopoSimulation("L1TopoSimulation",
+                                                    MuonInputProvider = "",
+                                                    EMTAUInputProvider = efexProvider,
+                                                    JetInputProvider = jfexProvider,
+                                                    EnergyInputProvider = gfexProvider,
+                                                    IsLegacyTopo = False,
+                                                    EnableInputDump = True,
+                                                    UseBitwise = True,
+                                                    FillHistoBasedOnHardware = False
+                                                    )
+
+    acc.addEventAlgo(topoSimAlg)
+    
+    return acc
+
+
+if __name__ == '__main__':
+  from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+  from AthenaCommon.Logging import logging
+  from AthenaCommon.Constants import VERBOSE,DEBUG,WARNING
+  import argparse
+  from argparse import RawTextHelpFormatter
+  import sys
+
+  log = logging.getLogger('runL1TopoSim')
+  log.setLevel(DEBUG)
+  algLogLevel = DEBUG
+
+  parser = argparse.ArgumentParser("Running L1TopoSimulation standalone for the BS input", formatter_class=RawTextHelpFormatter)
+  parser.add_argument("-i","--inputs",nargs='*',action="store", dest="inputs", help="Inputs will be used in commands", required=True)
+  parser.add_argument("-m","--module",action="store", dest="module", help="Input modules wants to be simulated.",default="NoModule", required=False)
+  parser.add_argument("-l","--logLevel",action="store", dest="log", help="Log level.",default="warning", required=False)
+  parser.add_argument("-n","--nevent", type=int, action="store", dest="nevent", help="Maximum number of events will be executed.",default=0, required=False)
+  
+  args = parser.parse_args()
+
+  supportedSubsystems = ['Muons','jFex','eFex','gFex','AllFex','AllModule','NoModule']
+  subsystem = args.module
+  filename = args.inputs
+  
+  if args.log == 'warning': algLogLevel = WARNING
+  if args.log == 'debug': algLogLevel = DEBUG
+  if args.log == 'verbose': algLogLevel = VERBOSE
+  
+  if subsystem not in supportedSubsystems:
+    log.error(f'subsystem "{subsystem}" not one of supported subsystems: {supportedSubsystems}')
+    sys.exit(1)
+
+  if "data22" in filename:
+    flags.Trigger.triggerConfig='DB'
+  flags.Exec.OutputLevel = WARNING
+  if(args.nevent > 0):
+    flags.Exec.MaxEvents = args.nevent
+  flags.Input.Files = args.inputs
+  flags.Concurrency.NumThreads = 1
+  flags.Concurrency.NumConcurrentEvents = 1
+  flags.Exec.SkipEvents = 90
+  flags.Output.AODFileName = 'AOD.pool.root'
+  flags.GeoModel.AtlasVersion = 'ATLAS-R3S-2021-01-00-02'
+  flags.IOVDb.GlobalTag = 'CONDBR2-BLKPA-2018-13'
+  flags.Muon.enableAlignment = True
+  flags.lock()
+
+  from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+  acc = MainServicesCfg(flags)
+
+  from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamReadCfg
+  acc.merge(ByteStreamReadCfg(flags, type_names=['CTP_RDO/CTP_RDO']))
+
+  # Generate run3 L1 menu
+  from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg,generateL1Menu
+  acc.merge(L1ConfigSvcCfg(flags))
+  if "data22" not in filename:   
+    generateL1Menu(flags)
+  
+  # Produce xAOD L1 RoIs from RoIBResult
+  from AnalysisTriggerAlgs.AnalysisTriggerAlgsCAConfig import RoIBResultToxAODCfg
+  xRoIBResultAcc, xRoIBResultOutputs = RoIBResultToxAODCfg(flags)
+  from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1TriggerByteStreamDecoderCfg
+  acc.merge(L1TriggerByteStreamDecoderCfg(flags))
+  acc.merge(xRoIBResultAcc)  
+  
+  decoderTools = []
+  outputEDM = []
+  def addEDM(edmType, edmName):
+    auxType = edmType.replace('Container','AuxContainer')
+    return [f'{edmType}#{edmName}',
+            f'{auxType}#{edmName}Aux.']
+
+  outputEDM += ['CTP_RDO#*']
+
+  outputEDM += addEDM('xAOD::JetEtRoI'         , 'LVL1JetEtRoI')
+  outputEDM += addEDM('xAOD::JetRoIContainer'  , 'LVL1JetRoIs')
+  outputEDM += addEDM('xAOD::EmTauRoIContainer', 'LVL1EmTauRoIs')
+  outputEDM += addEDM('xAOD::EnergySumRoI'     , 'LVL1EnergySumRoI')
+
+  loadFromSG = [('xAOD::EventInfo', 'StoreGateSvc+EventInfo')]
+  
+  if subsystem in ['Muons','AllModule']:
+      loadFromSG += [( 'RpcPadContainer' , 'StoreGateSvc+RPCPAD_L1' ),
+                     ( 'TgcRdoContainer' , 'StoreGateSvc+TGCRDO_L1' )]
+      from MuonConfig.MuonCablingConfig import MuonCablingConfigCfg
+      acc.merge(MuonCablingConfigCfg(flags))
+      
+      from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
+      acc.merge(MuonGeoModelCfg(flags))
+
+      from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import MuonRoIByteStreamToolCfg
+      muonRoiTool = MuonRoIByteStreamToolCfg(name="L1MuonBSDecoderTool",flags=flags,writeBS=False)
+      decoderTools += [muonRoiTool]
+
+      from TriggerJobOpts.Lvl1MuonSimulationConfig import MuonBytestream2RdoConfig
+      acc.merge(MuonBytestream2RdoConfig(flags))
+
+  if subsystem in ['jFex','AllFex','AllModule'] :
+      from L1CaloFEXByteStream.L1CaloFEXByteStreamConfig import jFexByteStreamToolCfg
+      jFexTool = jFexByteStreamToolCfg('jFexBSDecoder', flags)
+      decoderTools += [jFexTool]
+      outputEDM += addEDM('xAOD::jFexSRJetRoIContainer', jFexTool.jJRoIContainerWriteKey.Path)
+      outputEDM += addEDM('xAOD::jFexLRJetRoIContainer', jFexTool.jLJRoIContainerWriteKey.Path)
+      outputEDM += addEDM('xAOD::jFexTauRoIContainer'  , jFexTool.jTauRoIContainerWriteKey.Path)
+      outputEDM += addEDM('xAOD::jFexFwdElRoIContainer', jFexTool.jEMRoIContainerWriteKey.Path)
+      outputEDM += addEDM('xAOD::jFexSumETRoIContainer', jFexTool.jTERoIContainerWriteKey.Path)
+      outputEDM += addEDM('xAOD::jFexMETRoIContainer'  , jFexTool.jXERoIContainerWriteKey.Path)
+  #
+  if subsystem in ['eFex','AllFex','AllModule'] :
+      from L1CaloFEXByteStream.L1CaloFEXByteStreamConfig import eFexByteStreamToolCfg
+      eFexTool = eFexByteStreamToolCfg('eFexBSDecoder', flags)
+      decoderTools += [eFexTool]
+      outputEDM += addEDM('xAOD::eFexEMRoIContainer', eFexTool.eEMTOBContainerWriteKey.Path)
+      outputEDM += addEDM('xAOD::eFexTauRoIContainer', eFexTool.eTAUTOBContainerWriteKey.Path)
+
+  from L1TopoByteStream.L1TopoByteStreamConfig import L1TopoPhase1ByteStreamToolCfg
+  l1topoBSTool = L1TopoPhase1ByteStreamToolCfg("L1TopoBSDecoderTool",flags)
+  decoderTools += [l1topoBSTool]
+  outputEDM += addEDM('xAOD::L1TopoRawDataContainer', l1topoBSTool.L1TopoPhase1RAWDataWriteContainer.Path)
+
+  
+  decoderAlg = CompFactory.L1TriggerByteStreamDecoderAlg(name="L1TriggerByteStreamDecoder",
+                                                         DecoderTools=decoderTools, OutputLevel=algLogLevel)
+
+  
+  acc.addEventAlgo(decoderAlg, sequenceName='AthAlgSeq')
+  
+  acc.addEventAlgo(CompFactory.SGInputLoader(Load=loadFromSG), sequenceName="AthAlgSeq")
+
+  acc.merge(L1TopoSimulationStandaloneCfg(flags,outputEDM), sequenceName='AthAlgSeq')
+
+      
+  from L1TopoOnlineMonitoring import L1TopoOnlineMonitoringConfig as TopoMonConfig
+  acc.addEventAlgo(
+      TopoMonConfig.getL1TopoPhase1OnlineMonitor(flags,'L1/L1TopoOffline',True,True,False,True,algLogLevel),
+      sequenceName="AthAlgSeq"
+  )
+
+
+  from GaudiSvc.GaudiSvcConf import THistSvc # noqa: F401
+  histSvc = CompFactory.THistSvc(Output = ["EXPERT DATAFILE='expert-monitoring-l1topo.root', OPT='RECREATE'"])
+  acc.addService(histSvc)
+
+  from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+  log.debug('Adding the following output EDM to ItemList: %s', outputEDM)
+  acc.merge(OutputStreamCfg(flags, 'AOD', ItemList=outputEDM))
+
+  if args.log == 'verbose':
+      acc.printConfig(withDetails=True, summariseProps=True, printDefaults=True)
+  
+  if acc.run().isFailure():
+    sys.exit(1)

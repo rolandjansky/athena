@@ -16,7 +16,7 @@ atlas_add_component( L1TopoOnlineMonitoring
                      ${TDAQ-COMMON_LIBRARIES}
                      GaudiKernel AthenaKernel AthenaMonitoringLib AthenaMonitoringKernelLib
 		     ByteStreamCnvSvcBaseLib
-                     L1TopoRDO TrigT1Result TrigT1Interfaces xAODTrigger DecisionHandlingLib
+                     L1TopoRDO TrigT1Result TrigT1Interfaces xAODTrigger xAODTrigL1Calo DecisionHandlingLib
                      TrigCompositeUtilsLib )
 
 # Install files from the package:

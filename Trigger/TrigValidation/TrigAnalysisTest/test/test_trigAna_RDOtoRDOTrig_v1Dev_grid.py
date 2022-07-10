@@ -6,7 +6,6 @@
 # art-include: master/Athena
 # art-include: 22.0/Athena
 # art-athena-mt: 4
-# art-memory: 6000
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*

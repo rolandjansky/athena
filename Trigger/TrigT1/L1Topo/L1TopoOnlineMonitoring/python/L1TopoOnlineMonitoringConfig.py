@@ -68,22 +68,29 @@ def getL1TopoLabels(flags,connectors = {0: 'LegacyTopo0', 1: 'LegacyTopo1'}, bma
     return topo_trigline_labels
 
 
-def getL1TopoPhase1OnlineMonitor(flags):
+def getL1TopoPhase1OnlineMonitor(flags, name='L1TopoOnlineMonitoring', doSimMon=True, doHwMonCtp=False, doHwMon=False, doComp=False, logLevel = None):
     # Placeholder for phase-1 implementation
     #raise RuntimeError('L1Topo phase-1 online monitoring not yet implemented')
-    
-    alg = CompFactory.L1TopoOnlineMonitor()
+    alg = CompFactory.L1TopoOnlineMonitor("L1TopoMonitoringTool",
+                                          doSimMon = doSimMon,
+                                          doHwMonCTP = doHwMonCtp,
+                                          doComp = doComp)
+    if logLevel : alg.OutputLevel=logLevel
     alg.MonTool = GenericMonitoringTool('MonTool')
-    configureHistograms(alg, flags)
+    alg.MonTool.HistPath = name
+    configureHistograms(alg, flags, doHwMonCtp, doHwMon, doComp)
 
     return alg
 
-def configureHistograms(alg, flags):
+def configureHistograms(alg, flags, doHwMonCtp, doHwMon, doComp):
 
+    label_topo_all = []
     for cable in range(2):
         name = 'CableElec_'+str(cable+2)
+        name += ';Topo'+str(cable+2)+'El'
         title = f'Topo Electric Cable {cable+2}'
         labels = getL1TopoLabels(flags,{0: f'Topo{cable+2}El'},64)
+        label_topo_all += labels
         alg.MonTool.defineHistogram(name, path='EXPERT', type='TH1I',
                                     title=title, xbins=64, xlabels=labels,
                                     xmin=0, xmax=64)
@@ -91,10 +98,29 @@ def configureHistograms(alg, flags):
     #TODO: add labels
     for cable in range(4):
         name = 'CableOpti_'+str(cable+4)
+        name += ';Topo1Opt'+str(cable)
         title = f'Topo Optical Cable {cable}'
         alg.MonTool.defineHistogram(name, path='EXPERT', type='TH1I',
                                     title=title, xbins=128, 
                                     xmin=0, xmax=128)
+
+    if doHwMonCtp:
+        alg.MonTool.defineHistogram('TopoCTP', path='EXPERT', type='TH1I',
+                                    title='CTP Results for L1Topo', xbins=128, xlabels=label_topo_all,
+                                    xmin=0, xmax=128)
+
+    if doComp:
+        alg.MonTool.defineHistogram('SimNotHdwL1TopoResult', path='EXPERT', type='TH1I',
+                                    title='L1Topo events with simulation accept and hardware fail',
+                                    xbins=128, xlabels=label_topo_all,
+                                    xmin=0, xmax=128)
+        alg.MonTool.defineHistogram('HdwNotSimL1TopoResult', path='EXPERT', type='TH1I',
+                                    title='L1Topo events with hardware accept and simulation fail',
+                                    xbins=128, xlabels=label_topo_all,
+                                    xmin=0, xmax=128)
+
+    if doHwMon:
+        print("L1Topo Raw data decoders are not available...")
         
 def getL1TopoLegacyOnlineMonitor(flags):
     alg = CompFactory.L1TopoLegacyOnlineMonitor()

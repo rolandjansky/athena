@@ -15,7 +15,7 @@ from AthenaConfiguration.ComponentFactory import isRun3Cfg
 if isRun3Cfg():
     pass
 else:
-    from TriggerMenuMT.HLT.Tau.TauMenuSequences import tauCaloMVAMenuSeq, tauFTFTauCoreSeq, tauFTFTauIsoSeq, tauFTFTauIsoBDTSeq, tauTrackTwoMVASeq, tauTrackTwoLLPSeq, tauPrecTrackIsoSeq
+    from TriggerMenuMT.HLT.Tau.TauMenuSequences import tauCaloMVAMenuSeq, tauFTFTauCoreSeq, tauFTFTauLRTSeq, tauFTFTauIsoSeq, tauFTFTauIsoBDTSeq, tauTrackTwoMVASeq, tauTrackTwoLLPSeq, tauTrackLRTSeq, tauPrecTrackIsoSeq, tauPrecTrackLRTSeq
 
 #--------------------------------------------------------
 # fragments generating config will be functions in new JO
@@ -25,6 +25,9 @@ def getTauCaloMVACfg(flags, is_probe_leg=False):
 
 def getFTFCoreCfg(flags, is_probe_leg=False):
     return tauFTFTauCoreSeq(is_probe_leg=is_probe_leg)
+
+def getFTFLRTCfg(flags, is_probe_leg=False):
+    return tauFTFTauLRTSeq(is_probe_leg=is_probe_leg)
 
 def getFTFIsoCfg(flags, is_probe_leg=False):
     return tauFTFTauIsoSeq(is_probe_leg=is_probe_leg)
@@ -38,8 +41,14 @@ def getTrackTwoMVACfg(flags, is_probe_leg=False):
 def getTrackTwoLLPCfg(flags, is_probe_leg=False):
     return tauTrackTwoLLPSeq(is_probe_leg=is_probe_leg)
 
+def getTrackLRTCfg(flags, is_probe_leg=False):
+    return tauTrackLRTSeq(is_probe_leg=is_probe_leg)
+
 def getPrecTrackIsoCfg(flags, is_probe_leg=False):
     return tauPrecTrackIsoSeq(is_probe_leg=is_probe_leg)
+
+def getPrecTrackLRTCfg(flags, is_probe_leg=False):
+    return tauPrecTrackLRTSeq(is_probe_leg=is_probe_leg)
 
 ############################################# 
 ###  Class/function to configure muon chains 
@@ -61,10 +70,11 @@ class TauChainConfiguration(ChainConfigurationBase):
         # define here the names of the steps and obtain the chainStep configuration 
         # --------------------
         stepDictionary = {
-            "ptonly"        :['getCaloMVASeq', 'getFTFEmpty', 'getTrkEmpty' , 'getPTEmpty'      , 'getIDEmpty'     ], 
+            "ptonly"        :['getCaloMVASeq', 'getFTFEmpty', 'getTrkEmpty' , 'getPTEmpty'      , 'getIDEmpty'     ],
             "tracktwoMVA"   :['getCaloMVASeq', 'getFTFCore' , 'getFTFIso'   , 'getPrecTrackIso' , 'getTrackTwoMVA' ],
             "tracktwoMVABDT":['getCaloMVASeq', 'getFTFCore' , 'getFTFIsoBDT', 'getPrecTrackIso' , 'getTrackTwoMVA' ],
             "tracktwoLLP"   :['getCaloMVASeq', 'getFTFCore' , 'getFTFIso'   , 'getPrecTrackIso' , 'getTrackTwoLLP' ],
+            "trackLRT"      :['getCaloMVASeq', 'getFTFLRT'  , 'getTrkEmpty' , 'getPrecTrackLRT' , 'getTrackLRT'    ],
         }
 
         # this should be extended by the signature expert to make full use of the dictionary!
@@ -92,6 +102,11 @@ class TauChainConfiguration(ChainConfigurationBase):
         stepName = 'FTFCore_tau'
         return self.getStep(2,stepName, [getFTFCoreCfg], is_probe_leg=is_probe_leg)
 
+    # --------------------
+    def getFTFLRT(self, is_probe_leg=False):
+        stepName = 'FTFLRT_tau'
+        return self.getStep(2,stepName, [getFTFLRTCfg], is_probe_leg=is_probe_leg)
+
     # --------------------                                                                                                                                   
     def getFTFEmpty(self):
         stepName = 'FTFEmpty_tau'
@@ -117,6 +132,11 @@ class TauChainConfiguration(ChainConfigurationBase):
         stepName = 'PrecTrkIso_tau'
         return self.getStep(4,stepName,[getPrecTrackIsoCfg],is_probe_leg=is_probe_leg)
 
+    # --------------------
+    def getPrecTrackLRT(self, is_probe_leg=False):
+        stepName = 'PrecTrkLRT_tau'
+        return self.getStep(4,stepName,[getPrecTrackLRTCfg],is_probe_leg=is_probe_leg)
+
     # --------------------                                                                                                                                   
     def getPTEmpty(self):
         stepName = 'PTEmpty_tau'
@@ -131,6 +151,11 @@ class TauChainConfiguration(ChainConfigurationBase):
     def getTrackTwoLLP(self, is_probe_leg=False):
         stepName = "TrkTwoLLP_tau"
         return self.getStep(5,stepName,[getTrackTwoLLPCfg],is_probe_leg=is_probe_leg)
+
+    # --------------------
+    def getTrackLRT(self, is_probe_leg=False):
+        stepName = "TrkLRT_tau"
+        return self.getStep(5,stepName,[getTrackLRTCfg],is_probe_leg=is_probe_leg)
 
     # --------------------                                                                                                                                   
     def getIDEmpty(self):
