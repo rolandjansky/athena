@@ -8,5 +8,7 @@ SUSY20ExtraVariables = [
     "InDetTrackParticles.truthParticleLink.vertexLink.vz",
     "InDetTrackParticles.ptcone20.ptcone30.ptcone40.ptvarcone20.ptvarcone30.ptvarcone40.topoetcone20.topoetcone30.topoetcone40.topoetcone20NonCoreCone.topoetcone30NonCoreCone.topoetcone40NonCoreCone",
     "InDetTrackParticles.trackCaloClusEta.trackCaloClusPhi.trackCaloSampleE.trackCaloSampleNumber",
-    "TruthEvents.Q.XF1.XF2.PDGID1.PDGID2.PDFID1.PDFID2.X1.X2.crossSection"
+    "TruthEvents.Q.XF1.XF2.PDGID1.PDGID2.PDFID1.PDFID2.X1.X2.crossSection",
+    "InDetTrackParticles.trackCaloClusEta_ele.trackCaloClusPhi_ele.trackCaloClusE_ele.trackCaloSampleE_ele.trackCaloSampleNumber_ele",
+    "InDetTrackParticles.numberOfInnermostPixelLayerOutliers.numberOfInnermostPixelLayerSharedHits.numberOfInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerOutliers.numberOfNextToInnermostPixelLayerSharedHits.numberOfNextToInnermostPixelLayerSplitHits.numberOfGangedPixels.numberOfSCTDoubleHoles.numberOfTRTHighThresholdHits.numberOfTRTHighThresholdHitsTotal.numberOfTRTHighThresholdOutliers.numberOfTRTTubeHits.numberOfTRTXenonHits.numberOfOutliersOnTrack.standardDeviationOfChi2OS.eProbabilityHT.eProbabilityComb.TRTTrackOccupancy"
     ]

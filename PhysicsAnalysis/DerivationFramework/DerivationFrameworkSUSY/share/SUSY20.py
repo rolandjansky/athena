@@ -464,7 +464,8 @@ SeqSUSY20 += JetTagConfig.GetDecoratePromptTauAlgs()
 
 
 #====================================================================
-# TrackAssociatedCaloSampleDecorator
+# TrackAssociatedCaloSampleDecorator and 
+# TrackCaloClusterDecorator_LowPtE
 #====================================================================
 from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import DerivationFramework__TrackAssociatedCaloSampleDecorator
 
@@ -473,9 +474,18 @@ SUSY20_TrackAssociatedCaloSampleDecorator = DerivationFramework__TrackAssociated
   ContainerName    = "InDetTrackParticles"
 )
 ToolSvc += SUSY20_TrackAssociatedCaloSampleDecorator
+
+from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__TrackCaloClusterDecorator_LowPtE
+
+SUSY20_TrackCaloClusterDecorator_LowPtE = DerivationFramework__TrackCaloClusterDecorator_LowPtE(
+  name             = "SUSY20_TrackCaloClusterDecorator_LowPtE",
+  ContainerName    = "InDetTrackParticles"
+)
+ToolSvc += SUSY20_TrackCaloClusterDecorator_LowPtE
+
 SeqSUSY20 += CfgMgr.DerivationFramework__DerivationKernel(
   "SUSY20KernelDeco",
-  AugmentationTools = [SUSY20_TrackAssociatedCaloSampleDecorator]
+    AugmentationTools = [SUSY20_TrackAssociatedCaloSampleDecorator, SUSY20_TrackCaloClusterDecorator_LowPtE]
 )
 
 
