@@ -54,7 +54,7 @@ kwargsErrMonAlg = { 'doOnline'        : isOnline,      #Histograms for online (G
 kwargsMVAMonAlg = { 'calibFolder'     : 'mva01022022',
                     'RDOName'         : InDetKeys.PixelRDOs(),
                     'ClusterName'     : InDetKeys.PixelClusters(),
-                    'TrackName'       : InDetKeys.Tracks()
+                    'TrackParticleContainerName' : InDetKeys.xAODTrackParticleContainer()
 }
 
 from AthenaMonitoring.DQMonFlags import DQMonFlags                                                                                                                                      
