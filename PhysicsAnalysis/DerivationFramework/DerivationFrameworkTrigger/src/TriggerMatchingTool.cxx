@@ -30,7 +30,7 @@ namespace {
     {
       SG::DataProxy *proxy = proxyDct->proxy(element->container());
       // This will be null if the container isn't in the store. This shouldn't really happen
-      if (!proxy) [[unlikely]]
+      if (!proxy)
         return {};
       else
         return ElementLink<T>(proxy->sgkey(), element->index(), proxyDct);
