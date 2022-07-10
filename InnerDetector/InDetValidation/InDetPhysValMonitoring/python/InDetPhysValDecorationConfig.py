@@ -17,23 +17,6 @@ def monManName():
     '''
     return 'PhysValMonManager'
 
-def getMetaData(flags):
-    '''
-    Try to determine from the meta data whether the decoration has been performed already.
-    '''
-
-    from PyUtils.MetaReader import read_metadata
-    infile = flags.Input.Files[0]
-    thisFileMD = read_metadata(infile, None, 'full')
-    metadata = thisFileMD[infile]
-
-    try:
-        return metadata['/TagInfo'][metaDataKey()]
-    except Exception:
-        pass
-    return ''
-
-
 def canAddDecorator(flags):
     '''
     check whether the decorator can be added.
@@ -269,10 +252,7 @@ def AddDecoratorIfNeededCfg(flags):
         print('DEBUG addDecoratorIfNeeded ? Stage is too early or too late for running the decoration. Needs reconstructed tracks. Try again during next stage ?')
         return acc
 
-    meta_data = getMetaData(flags)
-    if len(meta_data) == 0:
-        # decoration has not been ran
-        acc.merge(AddDecoratorCfg(flags))
+    acc.merge(AddDecoratorCfg(flags))
 
     return acc
 
