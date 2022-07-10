@@ -10,7 +10,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog='createDCubeRecoHistograms', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-i', '--inputFile', help='choose input ROOT file', default='NSWPRDValAlg.reco.ntuple.root', type=str)
     parser.add_argument('-o', '--outputFile', help='choose output ROOT file', default='NSWPRDValAlg.reco.dcube.root', type=str)
-    parser.add_argument('--doCSC', help='turn off CSC if using Run4 input ROOT file', default=True, action='store_true')
+    parser.add_argument('--doCSC', help='turn on CSC if using Run4 input ROOT file', default=False, action='store_true')
+    parser.add_argument('--doTGC', help='turn on TGC', default=False, action='store_true')
     parser.add_argument('--CSCsel', help='Choose eta_sector selections for CSC, e.g. positive_1 for positive eta and sector 1, None_None for no selection', default='None_None', type=str)
     parser.add_argument('--TGCsel', help='Choose eta_sector selections for TGC, e.g. positive_1 for positive eta and sector 1, None_None for no selection', default='None_None', type=str)
 
@@ -67,7 +68,7 @@ if __name__ == "__main__":
         tgcPRDHists = []
 
         # CSCs
-        if Options.doCSC == True:
+        if Options.doCSC:
             if CSC_eta == "positive":
                 csc_eta_sel = lambda t: MyHistoFiller.Eta(ord(t.PRD_CSC_stationEta[ncscPRD])) >= 0
             elif CSC_eta == "negative":
@@ -87,28 +88,30 @@ if __name__ == "__main__":
 
                 
         # TGCs
-        if TGC_eta == "positive":
-            tgc_eta_sel = lambda t: MyHistoFiller.Eta(ord(t.PRD_TGC_stationEta[ntgcPRD])) >= 0
-        elif TGC_eta == "negative":
-            tgc_eta_sel = lambda t: MyHistoFiller.Eta(ord(t.PRD_TGC_stationEta[ntgcPRD])) < 0
-        else:
-            tgc_eta_sel = lambda t: MyHistoFiller.Eta(ord(t.PRD_TGC_stationEta[ntgcPRD])) < 9
+        if Options.doTGC:
+            if TGC_eta == "positive":
+                tgc_eta_sel = lambda t: MyHistoFiller.Eta(ord(t.PRD_TGC_stationEta[ntgcPRD])) >= 0
+            elif TGC_eta == "negative":
+                tgc_eta_sel = lambda t: MyHistoFiller.Eta(ord(t.PRD_TGC_stationEta[ntgcPRD])) < 0
+            else:
+                tgc_eta_sel = lambda t: MyHistoFiller.Eta(ord(t.PRD_TGC_stationEta[ntgcPRD])) < 9
 
-        if TGC_sector == "None":
-            tgc_sector_sel = lambda s: MyHistoFiller.Eta(ord(s.PRD_TGC_stationPhi[ntgcPRD])) < 51
-        else:
-            tgc_sector_sel = lambda s: MyHistoFiller.Eta(ord(s.PRD_TGC_stationPhi[ntgcPRD])) == TGC_sector
-            
-        for ntgcPRD in range(0,len(inputTree.PRD_TGC_localPosX)):
-            tgcPRDHists += [MyHistoFiller( chamber_name = "TGC_PRD", eta_sel = tgc_eta_sel, sector_sel = tgc_sector_sel )]
-            tgcPRDHists[ntgcPRD].fill(inputTree, ntgcPRD)
+            if TGC_sector == "None":
+                tgc_sector_sel = lambda s: MyHistoFiller.Eta(ord(s.PRD_TGC_stationPhi[ntgcPRD])) < 51
+            else:
+                tgc_sector_sel = lambda s: MyHistoFiller.Eta(ord(s.PRD_TGC_stationPhi[ntgcPRD])) == TGC_sector
+                
+            for ntgcPRD in range(0,len(inputTree.PRD_TGC_localPosX)):
+                tgcPRDHists += [MyHistoFiller( chamber_name = "TGC_PRD", eta_sel = tgc_eta_sel, sector_sel = tgc_sector_sel )]
+                tgcPRDHists[ntgcPRD].fill(inputTree, ntgcPRD)
 
 
     #Writing
-    if Options.doCSC == True:
+    if Options.doCSC:
         cscPRDHist = MyHistoFiller( chamber_name = "CSC_PRD", eta_sel = None, sector_sel = None )
         cscPRDHist.write(ODir)
     
-    tgcPRDHist = MyHistoFiller( chamber_name = "TGC_PRD", eta_sel = None, sector_sel = None )
-    tgcPRDHist.write(ODir)
+    if Options.doTGC:
+        tgcPRDHist = MyHistoFiller( chamber_name = "TGC_PRD", eta_sel = None, sector_sel = None )
+        tgcPRDHist.write(ODir)
     
