@@ -83,6 +83,7 @@ _all_streams = [
     # HI STREAMS
     StreamInfo('HardProbes', 'physics', True, True),
     StreamInfo('MinBias', 'physics', True, True),
+    StreamInfo('UPC', 'physics', True, True),
     # DELAYED STREAMS
     StreamInfo('VBFDelayed'  , 'physics', True, True),
     StreamInfo('BphysDelayed', 'physics', True, True),

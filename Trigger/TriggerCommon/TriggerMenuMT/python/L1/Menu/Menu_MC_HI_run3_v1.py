@@ -44,7 +44,7 @@ def defineMenu():
         'L1_EM20VH_FIRSTEMPTY',
         # new calo
         'L1_eEM5', 'L1_eEM9', 'L1_eEM18', 'L1_eEM15',
-        'L1_eEM26', 'L1_eEM26M',
+        'L1_eEM18L', 'L1_eEM26', 'L1_eEM26M',
 
         ## 
         # MU
@@ -63,12 +63,20 @@ def defineMenu():
         # combined lepton (e and mu)
         ##
         'L1_2EM7', 'L1_2EM10', 'L1_2EM15', 'L1_2EM16',
+        # new calo
+        #'L1_2eEM7', 'L1_2eEM9', 'L1_2eEM15',
+        'L1_2eEM18L',
+
         
         # combined mu - jet
         'L1_MU3V_J12','L1_MU3V_J15', 
+        'L1_MU3V_jJ30', 'L1_MU3V_jJ40',
 
         'L1_TAU8', 'L1_TAU60', 'L1_TAU12IM', 'L1_TAU20IM',
         'L1_TAU8_EMPTY',
+        # new calo
+        'L1_eTAU12',
+
 
         # single jet
         'L1_J12','L1_J15','L1_J20','L1_J25', 'L1_J30', 'L1_J40', 'L1_J50' ,'L1_J75','L1_J85', 'L1_J100',
@@ -80,8 +88,12 @@ def defineMenu():
         'L1_J100_FIRSTEMPTY',
         'L1_J12_BGRP12',
         'L1_J400', 'L1_J400_LAR',
+        # new calo
         'L1_jJ500', 'L1_jJ500_LAR',
         'L1_jJ20', 'L1_jJ30',
+        'L1_jJ40', 'L1_jJ50', 'L1_jJ55', 'L1_jJ60', 'L1_jJ80', 'L1_jJ90',
+        'L1_jJ40p31ETA49', 'L1_jJ50p31ETA49', 'L1_jJ60p31ETA49', 'L1_jJ90p31ETA49', 'L1_jJ125p31ETA49',
+
 
         # XE
         'L1_XE35', 'L1_XE40', 'L1_XE45', 'L1_XE50', 
@@ -108,6 +120,9 @@ def defineMenu():
         'L1_ZDC_A_VZDC_C_VTE200', 'L1_ZDC_C_VZDC_A_VTE200',
         'L1_MBTS_1_ZDC_A_VZDC_C_VTE200', 'L1_MBTS_1_ZDC_C_VZDC_A_VTE200',
         'L1_TE3p0ETA49_ZDC_A_VZDC_C_VTE200', 'L1_TE3p0ETA49_ZDC_C_VZDC_A_VTE200', 'L1_TE5_ZDC_A_VZDC_C_VTE200','L1_TE5_ZDC_C_VZDC_A_VTE200','L1_TE20_ZDC_A_VZDC_C_VTE200', 'L1_TE20_ZDC_C_VZDC_A_VTE200', 
+        #UPC calo only - legacy
+        'L1_TE5_VTE200', 'L1_VTE50',
+
         
         
 
@@ -200,6 +215,10 @@ def defineMenu():
         #'L1_MBTS_1_UNPAIRED', 'L1_MBTS_2_UNPAIRED',
         'L1_MBTS_1_UNPAIRED_ISO', 'L1_MBTS_1_1_UNPAIRED_ISO', 'L1_MBTS_2_UNPAIRED_ISO',
         'L1_MBTS_A', 'L1_MBTS_C',
+        # extra MBTS
+        #'L1_MBTSA0', 'L1_MBTSA1', 'L1_MBTSA2', 'L1_MBTSA3', 'L1_MBTSA4', 'L1_MBTSA5', 'L1_MBTSA6', 'L1_MBTSA7', 'L1_MBTSA8', 'L1_MBTSA9', 'L1_MBTSA10', 'L1_MBTSA11', 'L1_MBTSA12', 'L1_MBTSA13', 'L1_MBTSA14', 'L1_MBTSA15',
+        #'L1_MBTSC0', 'L1_MBTSC1', 'L1_MBTSC2', 'L1_MBTSC3', 'L1_MBTSC4', 'L1_MBTSC5', 'L1_MBTSC6', 'L1_MBTSC7', 'L1_MBTSC8', 'L1_MBTSC9', 'L1_MBTSC10', 'L1_MBTSC11', 'L1_MBTSC12', 'L1_MBTSC13', 'L1_MBTSC14', 'L1_MBTSC15',
+
  
         #--------------------------------
         # TOPO items
