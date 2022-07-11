@@ -308,19 +308,21 @@ def MuonChi2TrackFitter(name='MuonChi2TrackFitter',**kwargs):
     kwargs.setdefault("TrackingGeometryReadKey",cond_alg.TrackingGeometryWriteKey)
     return Trk__GlobalChi2Fitter(name,**kwargs)
 
+try:
+    from MuonSegmentMomentum.MuonSegmentMomentumConf import MuonSegmentMomentumFromField as MuonSegMomField
+    class MuonSegmentMomentumFromField(MuonSegMomField,ConfiguredBase):
+        __slots__ = ()
 
-from MuonSegmentMomentum.MuonSegmentMomentumConf import MuonSegmentMomentumFromField as MuonSegMomField
-class MuonSegmentMomentumFromField(MuonSegMomField,ConfiguredBase):
-    __slots__ = ()
+        def __init__(self,name="MuonSegmentMomentumFromField",**kwargs):
+            self.applyUserDefaults(kwargs,name)
+            super(MuonSegmentMomentumFromField,self).__init__(name,**kwargs)
 
-    def __init__(self,name="MuonSegmentMomentumFromField",**kwargs):
-        self.applyUserDefaults(kwargs,name)
-        super(MuonSegmentMomentumFromField,self).__init__(name,**kwargs)
-
-MuonSegmentMomentumFromField.setDefaultProperties(
-    PropagatorTool = "MuonPropagator",
-    NavigatorTool  = TrackingCommon.getInDetNavigator()
-    )
+    MuonSegmentMomentumFromField.setDefaultProperties(
+        PropagatorTool = "MuonPropagator",
+        NavigatorTool  = TrackingCommon.getInDetNavigator()
+        )
+except ImportError:
+    pass
 
 
 def MuonPhiHitSelector(name="MuonPhiHitSelector",**kwargs):
@@ -467,23 +469,45 @@ def MuonSegmentFittingTool(name='MuonSegmentFittingTool',extraFlags=None,**kwarg
     kwargs.setdefault("TrackCleaner", getPrivateTool('MuonTrackCleaner')  )
     return CfgMgr.Muon__MuonSegmentFittingTool(name,**kwargs)
 
+def getMuonToolSafe(name, isPublic):
+    '''Helper function for creating a public tool, if it's available
+
+    In order to make it possible to use this python module in projects in
+    which not every single reconstruction tool is available, this function
+    only instantiates the ones that can actually be instantiated.
+
+    Parameter(s):
+       name     -- The type (and instance name) of the public tool to create
+       isPublic -- Flag specifying whether the tool is public (or private)
+    '''
+
+    # If the tool is not available, don't do anything.
+    from AthenaCommon.ConfigurableDb import getConfigurable
+    if not getConfigurable(name):
+        return
+
+    # If it *is* available, leave the heavy lifting to the "unsafe" functions.
+    if isPublic:
+        getPublicTool(name)
+    else:
+        getPrivateTool(name)
+        pass
+    return
+
 if DetFlags.detdescr.Muon_on() and rec.doMuon():
     # until all clients explicitly get their tools and services, load some explicitly
-    getPublicTool("ResidualPullCalculator")
-    getPublicTool("MuonHoughPatternTool")
-    getPublicTool("MuonCombinePatternTool")
-    getPublicTool("MuonPhiHitSelector")
-    getPublicTool("MuonEDMPrinterTool")
-    getPublicTool("MuonSegmentMomentum")
-    getPublicTool("MuonClusterOnTrackCreator")
+    getMuonToolSafe("ResidualPullCalculator", True)
+    getMuonToolSafe("MuonHoughPatternTool", True)
+    getMuonToolSafe("MuonCombinePatternTool", True)
+    getMuonToolSafe("MuonPhiHitSelector", True)
+    getMuonToolSafe("MuonEDMPrinterTool", True)
+    getMuonToolSafe("MuonSegmentMomentum", True)
+    getMuonToolSafe("MuonClusterOnTrackCreator", True)
     if MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs():
-        getPrivateTool("CscClusterOnTrackCreator")
-        getPrivateTool("CscBroadClusterOnTrackCreator")
-    getPublicTool("MdtDriftCircleOnTrackCreator")
-    getPublicTool("MdtTubeHitOnTrackCreator")
-
-    #getService("SomeService")
-
+        getMuonToolSafe("CscClusterOnTrackCreator", False)
+        getMuonToolSafe("CscBroadClusterOnTrackCreator", False)
+    getMuonToolSafe("MdtDriftCircleOnTrackCreator", True)
+    getMuonToolSafe("MdtTubeHitOnTrackCreator", True)
 else: # not (DetFlags.Muon_on() and rec.doMuon())
     logMuon.warning("Muon reconstruction tools only loaded on-demand because Muons")
 

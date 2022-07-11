@@ -12,7 +12,7 @@ def _addFlagsCategory (acf, name, generator, modName = None):
         return acf.addFlagsCategory (name, generator)
     return None
 
-        
+
 def _createCfgFlags():
 
     acf=AthConfigFlags()
@@ -20,7 +20,7 @@ def _createCfgFlags():
     #Flags steering the job execution:
     from AthenaCommon.Constants import INFO
     acf.addFlag('Exec.OutputLevel',INFO) #Global Output Level
-    acf.addFlag('Exec.MaxEvents',-1) 
+    acf.addFlag('Exec.MaxEvents',-1)
     acf.addFlag('Exec.SkipEvents',0)
     acf.addFlag('Exec.DebugStage','')
 
@@ -28,7 +28,7 @@ def _createCfgFlags():
     acf.addFlag('ExecutorSplitting.Step', -1)
     acf.addFlag('ExecutorSplitting.TotalEvents', -1)
 
-    #Flags describing the input data 
+    #Flags describing the input data
     acf.addFlag('Input.Files', ["_ATHENA_GENERIC_INPUTFILE_NAME_",]) # former global.InputFiles
     acf.addFlag('Input.SecondaryFiles', []) # secondary input files for DoubleEventSelector
     acf.addFlag('Input.isMC', lambda prevFlags : "IS_SIMULATION" in GetFileMD(prevFlags.Input.Files).get("eventTypes", [])) # former global.isMC
@@ -45,7 +45,7 @@ def _createCfgFlags():
     acf.addFlag('Input.FailOnUnknownCollections', False)
 
     acf.addFlag('Input.ProjectName', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("project_name", "data17_13TeV")) # former global.ProjectName
-    acf.addFlag('Input.TriggerStream', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("stream", "") if prevFlags.Input.Format == Format.BS 
+    acf.addFlag('Input.TriggerStream', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("stream", "") if prevFlags.Input.Format == Format.BS
                                                           else GetFileMD(prevFlags.Input.Files).get("triggerStreamOfFile", "")) # former global.TriggerStream
     acf.addFlag('Input.Format', lambda prevFlags : Format.BS if GetFileMD(prevFlags.Input.Files).get("file_type", "BS") == "BS" else Format.POOL, enum=Format) # former global.InputFormat
     acf.addFlag('Input.ProcessingTags', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("processingTags", []) ) # list of names of streams written to this file
@@ -116,6 +116,8 @@ def _createCfgFlags():
             return "AthGeneration"
         if "AthAnalysis_DIR" in os.environ:
             return "AthAnalysis"
+        if "AthDerivation_DIR" in os.environ:
+            return "AthDerivation"
         #TODO expand this method.
         return "Athena"
     acf.addFlag('Common.Project', _checkProject())
@@ -138,7 +140,7 @@ def _createCfgFlags():
     acf.addFlag('Output.ESDFileName',  '')
     acf.addFlag('Output.AODFileName',  '')
     acf.addFlag('Output.HISTFileName', '')
-    
+
 
     acf.addFlag('Output.doWriteRDO', lambda prevFlags: bool(prevFlags.Output.RDOFileName)) # write out RDO file
     acf.addFlag('Output.doWriteRDO_SGNL', lambda prevFlags: bool(prevFlags.Output.RDO_SGNLFileName)) # write out RDO_SGNL file
@@ -210,7 +212,7 @@ def _createCfgFlags():
     def __lar():
         from LArConfiguration.LArConfigFlags import createLArConfigFlags
         return createLArConfigFlags()
-    _addFlagsCategory(acf, "LAr", __lar, 'LArConfiguration' ) 
+    _addFlagsCategory(acf, "LAr", __lar, 'LArConfiguration' )
 
     def __tile():
         from TileConfiguration.TileConfigFlags import createTileConfigFlags
@@ -318,8 +320,7 @@ if __name__=="__main__":
         ConfigFlags.Input.Files = sys.argv[1:]
     else:
         ConfigFlags.Input.Files = [ "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/data16_13TeV.00311321.physics_Main.recon.AOD.r9264/AOD.11038520._000001.pool.root.1",]
-    
+
     ConfigFlags.loadAllDynamicFlags()
     ConfigFlags.initAll()
     ConfigFlags.dump()
-    
