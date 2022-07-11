@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GNN_TOOL_H
@@ -15,19 +15,16 @@
 
 // EDM includes
 #include "xAODBTagging/BTaggingFwd.h"
-#include "xAODJet/Jet.h"
-#include "xAODBTagging/BTagging.h"
+#include "xAODJet/JetFwd.h"
 
 #include <memory>
 #include <string>
 #include <map>
 
-#include "FlavorTagDiscriminants/DataPrepUtilities.h"
-#include "FlavorTagDiscriminants/OnnxUtil.h"
-
-
 namespace FlavorTagDiscriminants {
-  
+
+  class GNN;
+
   struct GNNToolProperties {
     std::string nnFile;
     std::string flipTagConfig;
@@ -56,27 +53,14 @@ namespace FlavorTagDiscriminants {
       virtual void decorateWithDefaults(const xAOD::Jet& jet) const override;
       void decorate(const xAOD::Jet& jet, const SG::AuxElement& decorated) const;
 
-
-
       virtual std::set<std::string> getDecoratorKeys() const override;
       virtual std::set<std::string> getAuxInputKeys() const override;
       virtual std::set<std::string> getConstituentAuxInputKeys() const override;
 
     private:
 
-      GNNToolProperties m_props; //!
-
-      std::unique_ptr<OnnxUtil> m_onnxUtil;
-      lwt::GraphConfig m_config;
-
-      SG::AuxElement::ConstAccessor<ElementLink<xAOD::JetContainer>> m_jetLink;
-      std::string m_input_node_name;
-      std::vector<internal::VarFromBTag> m_varsFromBTag;
-      std::vector<internal::VarFromJet> m_varsFromJet;
-      std::vector<internal::TrackSequenceBuilder> m_trackSequenceBuilders;
-      std::map<std::string, internal::OutNode> m_decorators;
-
-      FTagDataDependencyNames m_dataDependencyNames;
+      GNNToolProperties m_props;
+      std::unique_ptr<const GNN> m_gnn;
   };
 }
 #endif
