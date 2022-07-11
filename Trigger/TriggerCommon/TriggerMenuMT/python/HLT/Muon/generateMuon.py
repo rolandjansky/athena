@@ -15,7 +15,7 @@ from TriggerMenuMT.HLT.Muon.MuonRecoSequences import muonDecodeCfg
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 from MuonConfig.MuonSegmentFindingConfig import MooSegmentFinderAlgCfg
-from MuonConfig.MuonTrackBuildingConfig import MuonTrackBuildingCfg
+from MuonConfig.MuonTrackBuildingConfig import MuPatTrackBuilderCfg
 from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCombinedMuonCandidateAlgCfg, MuonInsideOutRecoAlgCfg, MuonInDetToMuonSystemExtensionAlgCfg
 from MuonSegmentTrackMaker.MuonTrackMakerAlgsMonitoring import MuPatTrackBuilderMonitoring
 from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCombinedInDetCandidateAlgCfg, MuonCombinedAlgCfg, MuonCreatorAlgCfg
@@ -90,7 +90,9 @@ def MuonInsideOutViewDataVerifierCfg(flags):
         MuonViewDataVerifier.DataObjects += [( 'Muon::CscPrepDataContainer' , 'StoreGateSvc+CSC_Clusters' )]
     if flags.Beam.Type is not BeamType.Cosmics:
         MuonViewDataVerifier.DataObjects +=[( 'Muon::HoughDataPerSectorVec' , 'StoreGateSvc+HoughDataPerSectorVec' )]
-
+    if (flags.Detector.GeometrysTGC and flags.Detector.GeometryMM): 
+        MuonViewDataVerifier.DataObjects += [( 'Muon::MMPrepDataContainer'       , 'StoreGateSvc+MM_Measurements'),
+                                            ( 'Muon::sTgcPrepDataContainer'     , 'StoreGateSvc+STGC_Measurements') ]
 
     result = ComponentAccumulator()
     result.addEventAlgo(MuonViewDataVerifier)
@@ -307,7 +309,7 @@ def _muEFSAStepSeq(flags, name='RoI'):
     #Reco
     recoMS.mergeReco( MooSegmentFinderAlgCfg(flags,name="TrigMooSegmentFinder_"+name,UseTGCNextBC=False, UseTGCPriorBC=False))
 
-    recoMS.mergeReco(MuonTrackBuildingCfg(flags, name="TrigMuPatTrackBuilder_"+name, MonTool = MuPatTrackBuilderMonitoring("MuPatTrackBuilderMonitoringSA_"+name)))
+    recoMS.mergeReco(MuPatTrackBuilderCfg(flags, name="TrigMuPatTrackBuilder_"+name, MonTool = MuPatTrackBuilderMonitoring("MuPatTrackBuilderMonitoringSA_"+name)))
     recoMS.mergeReco(MuonTrackParticleCnvCfg(flags, name = "TrigMuonTrackParticleCnvAlg_"+name))
     recoMS.mergeReco(MuonCombinedMuonCandidateAlgCfg(flags, name = "TrigMuonCandidateAlg_"+name))
     recoMS.mergeReco(MuonCreatorAlgCfg(flags, name = "TrigMuonCreatorAlg_"+name, MuonContainerLocation="Muons_"+name))
@@ -326,9 +328,9 @@ def _muEFSAStepSeq(flags, name='RoI'):
 
     return (selAccMS , efmuMSSequence)
 
-def muEFSASequence(flags, is_probe_leg=False):
+def muEFSASequence(flags, name='RoI', is_probe_leg=False):
     muonflags = flags.cloneAndReplace('Muon', 'Trigger.Offline.SA.Muon')
-    selAccMS , efmuMSSequence = _muEFSAStepSeq(muonflags, 'RoI')
+    selAccMS , efmuMSSequence = _muEFSAStepSeq(muonflags, name)
     return efmuMSSequence
 
 def muEFSAStep(flags, chainDict, name='RoI'):
