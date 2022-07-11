@@ -55,7 +55,7 @@
 #include "Cool2Json.h"
 #include "Json2Cool.h"
 #include "BasicFolder.h"
-#include "IOVDbResolveTag.h"
+
 #include "CrestFunctions.h"
 
 using namespace IOVDbNamespace;
@@ -63,10 +63,7 @@ using namespace IOVDbNamespace;
 namespace{
   const std::string fileSuffix{".json"};
   const std::string delimiter{"."};
-  std::string
-  jsonTagName(const std::string &globalTag, const std::string & folderName){
-    return resolveCrestTag(globalTag,folderName);
-  }
+ 
 }
 
 IOVDbFolder::IOVDbFolder(IOVDbConn* conn,
@@ -227,7 +224,7 @@ IOVDbFolder::loadCache(const cool::ValidityKey vkey,
   const auto & [cachestart, cachestop] = m_iovs.getCacheBounds();
   BasicFolder b;
   if (m_source == "CREST"){
-    const std::string  jsonFolderName=sanitiseCrestTag(m_foldername);
+    //const std::string  jsonFolderName=sanitiseCrestTag(m_foldername);
     const std::string  completeTag=jsonTagName(globalTag, m_foldername);
     ATH_MSG_INFO("Download tag would be: "<<completeTag);
     std::string reply=getPayloadForTag(completeTag);
@@ -236,7 +233,7 @@ IOVDbFolder::loadCache(const cool::ValidityKey vkey,
     //basic folder now contains the info
     Json2Cool inputJson(ss, b);
     if (b.empty()){
-      ATH_MSG_FATAL("Reading channel data from "<<jsonFolderName<<" failed.");
+      ATH_MSG_FATAL("Reading channel data from "<<m_foldername<<" failed.");
       return false;
     }
   }
@@ -878,7 +875,7 @@ IOVDbFolder::createTransientAddress(const std::vector<std::string> & symlinks){
 }
 
 std::unique_ptr<SG::TransientAddress>
-IOVDbFolder::preLoadFolder(ITagInfoMgr *tagInfoMgr , const unsigned int cacheRun, const unsigned int cacheTime) {
+IOVDbFolder::preLoadFolder(ITagInfoMgr *tagInfoMgr , const unsigned int cacheRun, const unsigned int cacheTime, const std::string& globalTag) {
   // preload Address from SG - does folder setup including COOL access
   // also set detector store location - cannot be done in constructor
   // as detector store does not exist yet in IOVDbSvc initialisation
@@ -887,7 +884,7 @@ IOVDbFolder::preLoadFolder(ITagInfoMgr *tagInfoMgr , const unsigned int cacheRun
   p_tagInfoMgr = tagInfoMgr;
   if( not m_useFileMetaData ) {
     if(m_source=="CREST"){
-      const std::string  tagName=sanitiseCrestTag(m_foldername);
+      const std::string  & tagName=resolveCrestTag(globalTag,m_foldername );
       m_folderDescription = folderDescriptionForTag(tagName);
     } else {
       //folder desc from db
@@ -911,9 +908,10 @@ IOVDbFolder::preLoadFolder(ITagInfoMgr *tagInfoMgr , const unsigned int cacheRun
   // setup channel list and folder type
   if( not m_useFileMetaData ) {
     if(m_source=="CREST"){
-        const auto & crestTag=sanitiseCrestTag(m_foldername);
+        const std::string  & crestTag=resolveCrestTag(globalTag,m_foldername );
         m_channums=channelListForTag(crestTag);
         const std::string & payloadSpec = payloadSpecificationForTag(crestTag);
+        std::cout<<"payload spec "<<payloadSpec<<std::endl;
         //determine foldertype from the description, the spec and the number of channels
         m_foldertype = IOVDbNamespace::determineFolderType(m_folderDescription, payloadSpec, m_channums);
     } else {

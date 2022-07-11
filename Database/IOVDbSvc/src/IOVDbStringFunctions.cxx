@@ -103,14 +103,18 @@ namespace IOVDbNamespace{
   std::string 
   sanitiseFilename(const std::string & fname){
     std::string newName{fname};
-    std::replace(newName.begin(), newName.end(), '/', '^');
+    auto oldEnd = newName.end();
+    auto newEnd = std::remove(newName.begin(), oldEnd, '/');
+    //keep this line for reference
+    //std::replace(newName.begin(), newName.end(), '/', '^');
+    newName.erase(newEnd, newName.end());
     return newName;
   }
   
   std::string 
   sanitiseCrestTag(const std::string & fname){
     const std::string newName{sanitiseFilename(fname)};
-    return newName.substr(1, std::string::npos);
+    return newName;
   }
   
   std::string

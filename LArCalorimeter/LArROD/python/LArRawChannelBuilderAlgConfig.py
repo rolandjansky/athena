@@ -109,5 +109,5 @@ if __name__=="__main__":
     
     DumpLArRawChannels=CompFactory.DumpLArRawChannels
     acc.addEventAlgo(DumpLArRawChannels(LArRawChannelContainerName="LArRawChannels_FromDigits",),sequenceName="AthAlgSeq")
-
+    
     acc.run(3)

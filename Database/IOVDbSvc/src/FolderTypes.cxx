@@ -100,7 +100,7 @@ namespace IOVDbNamespace{
    
    bool
    poolCompatible(const std::string & specString){
-     return (specString.find("PoolRef: String4k") != std::string::npos);
+     return (specString.find("PoolRef:String4k") != std::string::npos);
    }
    
    bool

@@ -21,8 +21,8 @@
 
 #include <CrestApi/picosha2.h>
 
-#include <stdio.h>
-#include <time.h>
+#include <cstdio>
+#include <ctime>
 
 namespace Crest {
   CrestClient::CrestClient(bool rewriteIfExists, const std::string& root_folder) : m_mode(FILESYSTEM_MODE),
@@ -63,7 +63,6 @@ namespace Crest {
     }
     m_port = std::string(port);
     m_host = std::string(host);
-    std::cout << "host=" << m_host << " port" << m_port << std::endl;
   }
 
   CrestClient::~CrestClient() {
@@ -368,12 +367,12 @@ namespace Crest {
     std::string retv;
 
     nlohmann::json js = nullptr;
-
     retv = performRequest(current_path, GET, js, method_name);
-
+    
     nlohmann::json respond = getJson(retv, method_name);
-
-    return getResources(respond);
+    
+    auto answer = getResources(respond);
+    return answer;
   }
 
   nlohmann::json CrestClient::findAllIovs(const std::string& tagname, int size, int page, const std::string& sort,
@@ -1325,10 +1324,13 @@ namespace Crest {
                                           const char* method_name) {
     CURL* curl;
     CURLcode res;
+    
 
     /* Enable tracing of ascii data */
-
-
+    //sanitise the current path
+    std::string sanitisedPath(current_path);
+    auto caretPosition = sanitisedPath.find("^");
+    if (caretPosition != std::string::npos) sanitisedPath.replace(caretPosition,1,"%5E");
     /* get a curl handle */
     curl = curl_easy_init();
     std::string stt;
@@ -1336,7 +1338,8 @@ namespace Crest {
     if (curl) {
       std::ostringstream url;
       std::string s;
-      url << "http://" << m_host << ':' << m_port << current_path;
+      url << "http://" << m_host << ':' << m_port << sanitisedPath;
+      std::cout<<"cURL request to "<<url.str()<<std::endl;
 
       curl_easy_setopt(curl, CURLOPT_URL, url.str().c_str());
       if (js.is_null()) {
@@ -1387,7 +1390,6 @@ namespace Crest {
 
   std::string CrestClient::performRequest(const std::string& current_path, Action action, nlohmann::json& js) {
     const char* method = "Unknown";
-
     return performRequest(current_path, action, js, method);
   }
 
