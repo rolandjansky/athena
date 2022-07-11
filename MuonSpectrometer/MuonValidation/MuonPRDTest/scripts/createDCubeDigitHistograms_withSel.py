@@ -43,6 +43,7 @@ if __name__ == "__main__":
         print ('ERROR: Failed to open file %s'%Options.outputFile)
         sys.exit(1)
 
+
     outputFile.cd()
     outputFile.mkdir("digitization/")
     ODir = outputFile.GetDirectory("digitization/")
@@ -75,6 +76,8 @@ if __name__ == "__main__":
         MDT_sector = int (MDTselections[1])
     else:
         MDT_sector = MDTselections[1]
+
+
         
     #Filling
     for i in range(inputTree.GetEntries()):
@@ -201,4 +204,5 @@ if __name__ == "__main__":
     
     mdtDigitHist = MyHistoFiller( chamber_name = "MDT_Digit", eta_sel = None, sector_sel = None )
     mdtDigitHist.write(ODir)
+
     

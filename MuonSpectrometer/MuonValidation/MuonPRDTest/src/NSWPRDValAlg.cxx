@@ -56,7 +56,7 @@ StatusCode NSWPRDValAlg::initialize() {
     }
     if (m_doMMFastDigit) { m_tree.addBranch(std::make_unique<MMSDOVariables>(m_tree, "MMfast_SDO", msgLevel())); }
     if (m_doMMRDO) { m_tree.addBranch(std::make_unique<MMRDOVariables>(m_tree, m_NSWMM_RDOContainerName.value(), msgLevel())); }
-    if (m_doMMPRD) { m_tree.addBranch(std::make_unique<MMPRDVariables>(m_tree, m_NSWMM_PRDContainerName.value(), msgLevel())); }
+    if (m_doMMPRD ) { m_tree.addBranch(std::make_unique<MMPRDVariables>(m_tree, m_NSWMM_PRDContainerName.value(), msgLevel())); }
 
     if (m_doCSCHit) { m_tree.addBranch(std::make_unique<CSCSimHitVariables>(m_tree, m_CSC_SimContainerName.value(), msgLevel())); }
     if (m_doCSCSDO) { m_tree.addBranch(std::make_unique<CscSDOVariables>(m_tree, m_CSC_SDOContainerName.value(), msgLevel())); }
@@ -88,8 +88,10 @@ StatusCode NSWPRDValAlg::initialize() {
 
     for (std::unique_ptr<ValAlgVariables>& tester : m_testers) { ATH_CHECK(tester->initializeVariables()); }
 
+    ATH_MSG_DEBUG("Init TTree");
     ATH_CHECK(m_tree.init(histSvc()));
 
+    ATH_MSG_DEBUG("Finished with the initialization");
     return StatusCode::SUCCESS;
 }
 
@@ -115,10 +117,12 @@ StatusCode NSWPRDValAlg::execute() {
             return StatusCode::FAILURE;
         }
     }
+
     for (std::unique_ptr<ValAlgVariables>& tester : m_testers) {
         ATH_CHECK(tester->fillVariables(muonDetMgr));
     }
 
+    ATH_MSG_DEBUG("Fill TTree");
     if (!m_tree.fill(ctx)) return StatusCode::FAILURE;
 
     return StatusCode::SUCCESS;
