@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETPHYSVALMONITORING_ParameterErrDecoratorAlg_H
@@ -19,6 +19,7 @@
 #include "StoreGate/WriteDecorHandleKey.h"
 #include "StoreGate/WriteDecorHandle.h"
 #include "GaudiKernel/EventContext.h"
+#include "safeDecorator.h"
 
 // class to decorate xAOD::TrackParticles with errors on the defining parameters
 class ParameterErrDecoratorAlg: public AthReentrantAlgorithm {
@@ -31,7 +32,7 @@ public:
   virtual StatusCode execute(const EventContext &ctx) const;
 private:
   virtual bool decorateTrack(const xAOD::TrackParticle& particle,
-                             std::vector< SG::WriteDecorHandle<xAOD::TrackParticleContainer,float> > &float_decor) const;
+                             std::vector<IDPVM::OptionalDecoration<xAOD::TrackParticleContainer, float> > &floatDecoration) const;
 
   Gaudi::Property<std::string> m_prefix
     {this, "Prefix", "", "Decoration prefix to avoid clashes."};
@@ -45,10 +46,11 @@ private:
     kDecorZ0err,
     kDecorPhierr,
     kDecorThetaerr,
-    kDecorQopterr,
+    kDecorQoperr,
     kNDecorators
   };
-  std::vector< SG::WriteDecorHandleKey<xAOD::TrackParticleContainer> > m_decor;
+
+  std::vector< std::pair<SG::WriteDecorHandleKey<xAOD::TrackParticleContainer>,SG::AuxElement::ConstAccessor<float> > > m_decor;
 
 };
 

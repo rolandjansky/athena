@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -10,8 +10,6 @@
 #include "TrkEventPrimitives/JacobianThetaPToCotThetaPt.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "GeoPrimitives/GeoPrimitivesHelpers.h"
-
-#include "safeDecorator.h"
 
 ParameterErrDecoratorAlg::ParameterErrDecoratorAlg(const std::string& name, ISvcLocator* pSvcLocator) :
 AthReentrantAlgorithm(name, pSvcLocator) {
@@ -30,13 +28,14 @@ ParameterErrDecoratorAlg::initialize() {
   decorationNames[kDecorZ0err]="z0err";
   decorationNames[kDecorPhierr]="phierr";
   decorationNames[kDecorThetaerr]="thetaerr";
-  decorationNames[kDecorQopterr]="qopterr";
+  decorationNames[kDecorQoperr]="qoperr";
   std::string message{"The following decorations should be added by ParameterErrDecoratorAlg:\n"};
   for (const auto & thisName: decorationNames){
     message += thisName+"\n";
   }
   ATH_MSG_INFO(message);
-  IDPVM::createDecoratorKeys(*this, m_trkParticleKey, m_prefix, decorationNames, m_decor);
+
+  IDPVM::createDecoratorKeysAndAccessor(*this, m_trkParticleKey, m_prefix.value(),decorationNames, m_decor);
   assert( m_decor.size() == kNDecorators);
   
   return StatusCode::SUCCESS;
@@ -54,8 +53,8 @@ ParameterErrDecoratorAlg::execute(const EventContext &ctx) const {
     ATH_MSG_ERROR("The track particle container '"<< m_trkParticleKey.key()<<"' could not be read.");
     return StatusCode::FAILURE;
   }
-  std::vector< SG::WriteDecorHandle<xAOD::TrackParticleContainer,float> >
-    floatDecoration( IDPVM::createDecorators<xAOD::TrackParticleContainer,float>(m_decor, ctx) );
+  std::vector< IDPVM::OptionalDecoration<xAOD::TrackParticleContainer,float> >
+     floatDecoration( IDPVM::createDecoratorsIfNeeded(*ptracks, m_decor, ctx, msgLvl(MSG::DEBUG)) );
   for (const xAOD::TrackParticle *pTrkParticle : *ptracks) {
     if (not decorateTrack(*pTrkParticle, floatDecoration) ) {
       ATH_MSG_ERROR("Decoration failed in ParameterErrDecoratorAlg::execute.");
@@ -67,7 +66,7 @@ ParameterErrDecoratorAlg::execute(const EventContext &ctx) const {
 
 bool
 ParameterErrDecoratorAlg::decorateTrack(const xAOD::TrackParticle& particle,
-                                         std::vector< SG::WriteDecorHandle<xAOD::TrackParticleContainer,float> > &floatDecoration) const {
+                                        std::vector<IDPVM::OptionalDecoration<xAOD::TrackParticleContainer, float> > &floatDecoration) const {
   ATH_MSG_VERBOSE("Decorate track with errors ");
   bool success(true);
   const AmgSymMatrix(5)  errorMat = particle.definingParametersCovMatrix();
@@ -76,10 +75,20 @@ ParameterErrDecoratorAlg::decorateTrack(const xAOD::TrackParticle& particle,
   Trk::JacobianThetaPToCotThetaPt TheJac(mtheta, mqp);
   AmgSymMatrix(5) covVert;
   covVert = errorMat.similarity(TheJac);
-  floatDecoration[kDecorD0err](particle)=Amg::error(covVert, 0);
-  floatDecoration[kDecorZ0err](particle)=Amg::error(covVert, 1);
-  floatDecoration[kDecorPhierr](particle)=Amg::error(covVert, 2);
-  floatDecoration[kDecorThetaerr](particle)=Amg::error(errorMat, Trk::theta);
-  floatDecoration[kDecorQopterr](particle)=Amg::error(covVert, 4) * 1000.;
+
+  // 'safeDecorator' used to prevent a crash in case of adding something which pre-exists.
+  // behaviour chosen is to reject quietly
+  float d0err = Amg::error(covVert, Trk::d0);
+  float z0err = Amg::error(covVert, Trk::z0);
+  float phierr = Amg::error(covVert, Trk::phi);
+  float thetaerr = Amg::error(covVert, Trk::theta);
+  float qoperr = Amg::error(covVert, Trk::qOverP)*1000.;
+
+  IDPVM::decorateOrRejectQuietly(particle,floatDecoration[kDecorD0err],d0err);
+  IDPVM::decorateOrRejectQuietly(particle,floatDecoration[kDecorZ0err],z0err);
+  IDPVM::decorateOrRejectQuietly(particle,floatDecoration[kDecorPhierr],phierr);
+  IDPVM::decorateOrRejectQuietly(particle,floatDecoration[kDecorThetaerr],thetaerr);
+  IDPVM::decorateOrRejectQuietly(particle,floatDecoration[kDecorQoperr],qoperr);
+
   return success;
 }
