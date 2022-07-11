@@ -2602,6 +2602,11 @@ def setupMenu():
 
     ]
 
+    chains['Beamspot'] += [
+          ChainProp(name='HLT_beamspot_trkFS_trkfast_BeamSpotPEB_L14J20',  l1SeedThresholds=['FSNOSEED'], stream=['BeamSpot'], groups=['PS:Online', 'RATE:BeamSpot',  'BW:BeamSpot']+SupportLegGroup),
+    ]
+
+
 
     # if menu is not for P1, remove all online chains
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
