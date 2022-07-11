@@ -25,158 +25,125 @@ Comments to be added here...
 */
 
 /// ROOT
-#include <TFile.h>
 #include <TF1.h>
+#include <TFile.h>
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TRandom3.h>
 
 /// Projects
-#include "MM_Digitization/MM_DigitToolInput.h"
-#include "MM_Digitization/MM_StripToolOutput.h"
-#include "MM_Digitization/MM_IonizationCluster.h"
+#include "AthenaBaseComps/AthMessaging.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/Service.h"
-#include "AthenaBaseComps/AthMessaging.h"
 #include "GaudiKernel/StatusCode.h"
+#include "MM_Digitization/MM_DigitToolInput.h"
+#include "MM_Digitization/MM_IonizationCluster.h"
+#include "MM_Digitization/MM_StripToolOutput.h"
 
 /// STD'S
+#include <sys/stat.h>
+
 #include <algorithm>
 #include <cmath>
-#include <sstream>
-#include <iostream>
 #include <iomanip>
-#include <utility>
+#include <iostream>
+#include <sstream>
 #include <string>
-#include <sys/stat.h>
+#include <utility>
 
 class MM_DigitToolInput;
 class MM_StripToolOutput;
 
 namespace CLHEP {
-   class HepRandomEngine;
-   class HepRandom;
-   class RandGeneral;
-}
-
+    class HepRandomEngine;
+    class HepRandom;
+    class RandGeneral;
+}  // namespace CLHEP
 
 class MM_StripsResponseSimulation : public AthMessaging {
+public:
 
-public :
+    struct ConfigModule{
+        /** qThreshold=2e, we accept a good strip if the charge is >=2e */
+        float qThreshold{0.};
 
+        /** // 0.350/10 diffusSigma=transverse diffusion (350 microm per 1cm ) for 93:7 @ 600 V/cm, according to garfield  */
+        float transverseDiffusionSigma{0.};
+        float longitudinalDiffusionSigma{0.};
+        /** crosstalk of neighbor strips, it's 15%  */
+        float crossTalk1{0.};  // 0.10; //
+        /** // crosstalk of second neighbor strips, it's 6% */
+        float crossTalk2{0.};  // 0.03;
 
-  MM_StripsResponseSimulation();
+        float driftGapWidth{0.};
 
-  virtual ~MM_StripsResponseSimulation();
-  MM_StripToolOutput GetResponseFrom(const MM_DigitToolInput & digiInput, double gainFraction, double stripPitch, CLHEP::HepRandomEngine* rndmEngine);
+        /** //0.050 drift velocity in [mm/ns], driftGap=5 mm +0.128 mm (the amplification gap) */
+        float driftVelocity{0.};
 
-  void initialize ();
-  void writeHistos();
-  void initHistos ();
-  void clearValues ();
-  void whichStrips(const float & hitx, const int & stripOffest, const float & incidentAngleXZ, const float & incidentAngleYZ, const int & stripMinID, const int & stripMaxID, const MM_DigitToolInput & digiInput, double gainFraction, double stripPitch, CLHEP::HepRandomEngine* rndmEngine);
+        // Avalanche gain
+        float avalancheGain{0.};
+        int maxPrimaryIons{300};
 
-  inline void setQThreshold (float val) { m_qThreshold = val; };
-  inline void setTransverseDiffusionSigma (float val) { m_transverseDiffusionSigma = val; };
-  inline void setLongitudinalDiffusionSigma (float val) { m_longitudinalDiffusionSigma = val; };
-  inline void setDriftVelocity (float val) { m_driftVelocity = val; };
-  inline void setCrossTalk1 (float val) { m_crossTalk1 = val; };
-  inline void setCrossTalk2 (float val) { m_crossTalk2 = val; };
-  inline void setDriftGapWidth (float val) {m_driftGapWidth = val;};
-  inline void setAvalancheGain(float val) {m_avalancheGain = val;}
-  inline void setInteractionDensityMean(float val) {m_interactionDensityMean = val;}
-  inline void setInteractionDensitySigma(float val) {m_interactionDensitySigma = val;}
-  inline void setLorentzAngleFunction(const TF1* f) {m_lorentzAngleFunction = f;}
+        float interactionDensityMean{0.};
+        float interactionDensitySigma{0.};
 
-  float getQThreshold    () const { return m_qThreshold;      };
-  float getDriftGapWidth () const { return m_driftGapWidth;   };
-  float getDriftVelocity () const { return m_driftVelocity;   };
-  float getInteractionDensityMean () const { return m_interactionDensityMean;}
-  float getInteractionDensitySigma () const { return m_interactionDensitySigma;}
-  float getLongitudinalDiffusionSigma () const { return m_longitudinalDiffusionSigma;}
-  float getTransversDiffusionSigma () const { return m_transverseDiffusionSigma;}
-  const TF1* getLorentzAngleFunction () const { return m_lorentzAngleFunction;}
+        bool writeOutputFile{false};
+        bool writeEventDisplays{false};
 
-  std::vector <float> getTStripElectronicsAbThr() const { return m_tStripElectronicsAbThr;};
-  std::vector <float> getQStripElectronics() const { return m_qStripElectronics;};
-  std::vector <float> getFinaltStripNoSlewing() const { return m_finaltStripNoSlewing;};
-  std::vector < std::vector <float> > getFinalqStrip() const { return m_finalqStrip;};
-  std::vector < std::vector <float> > getFinaltStrip() const { return m_finaltStrip;};
-  std::vector <int>   getNStripElectronics() const { return m_nStripElectronics;};
-  std::vector <int>   getFinalNumberofStrip() const { return m_finalNumberofStrip;};
+        /// ToDo: random number from custom functions
+        const TF1* lorentzAngleFunction{nullptr};
+    };
+    MM_StripsResponseSimulation(ConfigModule&& cfg);
 
-  inline void writeOutputFile(bool val) {m_writeOutputFile = val;}
+    virtual ~MM_StripsResponseSimulation();
+    MM_StripToolOutput GetResponseFrom(const MM_DigitToolInput& digiInput, double gainFraction, double stripPitch,
+                                       CLHEP::HepRandomEngine* rndmEngine);   
+  
+   
+    float getQThreshold() const { return m_cfg.qThreshold; };
+    float getDriftGapWidth() const { return m_cfg.driftGapWidth; };
+    float getDriftVelocity() const { return m_cfg.driftVelocity; };
+    float getInteractionDensityMean() const { return m_cfg.interactionDensityMean; }
+    float getInteractionDensitySigma() const { return m_cfg.interactionDensitySigma; }
+    float getLongitudinalDiffusionSigma() const { return m_cfg.longitudinalDiffusionSigma; }
+    float getTransversDiffusionSigma() const { return m_cfg.transverseDiffusionSigma; }
+    const TF1* getLorentzAngleFunction() const { return m_cfg.lorentzAngleFunction; }
 
 private:
-  /** qThreshold=2e, we accept a good strip if the charge is >=2e */
-  float m_qThreshold{0.};
+    void initHistos();  
+    void writeHistos(); 
+    const ConfigModule m_cfg{};
+
+    struct DataCache {
+        std::vector<std::unique_ptr<MM_IonizationCluster>> IonizationClusters{};
+        std::vector<int> finalNumberofStrip{};
+        std::vector<std::vector<float>> finalqStrip{};
+        std::vector<std::vector<float>> finaltStrip{};
+        std::vector<float> tStripElectronicsAbThr{};
+        std::vector<float> qStripElectronics{};
+    };
+
+    void whichStrips(DataCache& cache,
+                     const MM_DigitToolInput& digiInput, double gainFraction,
+                     double stripPitch, CLHEP::HepRandomEngine* rndmEngine);
+
+  
+    std::map<TString, TH1F*> m_mapOfHistograms{};
+    std::map<TString, TH2F*> m_mapOf2DHistograms{};
+
+    std::unique_ptr<CLHEP::RandGeneral> m_randNelectrons{};
+
+    static constexpr unsigned int s_NelectronPropBins{300};
 
 
-  /** // 0.350/10 diffusSigma=transverse diffusion (350 microm per 1cm ) for 93:7 @ 600 V/cm, according to garfield  */
-  float m_transverseDiffusionSigma{0.};
-  float m_longitudinalDiffusionSigma{0.};
-  /** crosstalk of neighbor strips, it's 15%  */
-  float m_crossTalk1{0.};//0.10; //
-  /** // crosstalk of second neighbor strips, it's 6% */
-  float m_crossTalk2{0.};//0.03;
+    std::unique_ptr<TFile> m_outputFile{nullptr};
 
-  float m_driftGapWidth{0.};
-
-  /** //0.050 drift velocity in [mm/ns], driftGap=5 mm +0.128 mm (the amplification gap) */
-  float m_driftVelocity{0.};
-
-
-  // Avalanche gain
-  float m_avalancheGain{0.};
-  int m_maxPrimaryIons{300};
-
-  float m_interactionDensityMean{0.};
-  float m_interactionDensitySigma{0.};
-
-  std::vector <int>   m_finalNumberofStrip{};
-  std::vector <int>   m_nStripElectronics{};
-  std::vector < std::vector <float> > m_finalqStrip{};
-  std::vector < std::vector <float> > m_finaltStrip{};
-  std::vector <float> m_finaltStripNoSlewing{};
-  std::vector <float> m_tStripElectronicsAbThr{};
-  std::vector <float> m_qStripElectronics{};
-
-  std::vector <int> m_stripNumber{};
-  std::vector <int> m_firstq{};
-  std::vector <float> m_qstrip{};
-  std::vector <float> m_cntTimes{};
-  std::vector <float> m_tStrip{};
-  std::vector <float> m_qStrip{};
-  std::vector <float> m_time{};  //Drift velocity [mm/ns]
-  std::vector <int> m_numberofStrip{};
-
-  std::vector <float> m_clusterelectrons{};
-  std::vector <float> m_l{};
-
-  /// ToDo: random number from custom functions
-  const TF1 *m_lorentzAngleFunction{nullptr};
-
-  std::vector<std::unique_ptr<MM_IonizationCluster>> m_IonizationClusters{};
-
-  std::map<TString, TH1F* > m_mapOfHistograms{};
-  std::map<TString, TH2F* > m_mapOf2DHistograms{};
-
-  std::unique_ptr<CLHEP::RandGeneral> m_randNelectrons{};
-  int m_NelectronPropBins{0};
-
-  bool m_writeOutputFile{false};
-  bool m_writeEventDisplays{false};
-  TFile * m_outputFile{nullptr};
-
- protected:
-  // seperate random number generation for performance monitoring
-  float generateTransverseDiffusion(float posY, CLHEP::HepRandomEngine* rndmEngine) const;
-  float getTransverseDiffusion(float posY, CLHEP::HepRandomEngine* rndmEngine);
-  float getLongitudinalDiffusion(float posY, CLHEP::HepRandomEngine* rndmEngine) const;
-  float getEffectiveCharge(CLHEP::HepRandomEngine* rndmEngine) const;
-  float getPathLengthTraveled(CLHEP::HepRandomEngine* rndmEngine) const;
-
-
-
+protected:
+    // seperate random number generation for performance monitoring
+    float generateTransverseDiffusion(float posY, CLHEP::HepRandomEngine* rndmEngine) const;
+    float getTransverseDiffusion(float posY, CLHEP::HepRandomEngine* rndmEngine);
+    float getLongitudinalDiffusion(float posY, CLHEP::HepRandomEngine* rndmEngine) const;
+    float getEffectiveCharge(CLHEP::HepRandomEngine* rndmEngine) const;
+    float getPathLengthTraveled(CLHEP::HepRandomEngine* rndmEngine) const;
 };
 #endif
