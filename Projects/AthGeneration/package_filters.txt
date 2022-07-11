@@ -144,6 +144,7 @@
 + External/AtlasPyFwdBwdPorts
 + External/Pythia8
 + External/pyAMI
++ External/uuidgen
 - Generators/Baur_i
 + Generators/Charybdis_i
 - Generators/Exhume_i
