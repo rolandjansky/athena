@@ -275,12 +275,36 @@ def shortenDefaultComponents(dic, args) -> Dict:
         conf[key] = shorten_defaults(value)
     return conf
 
-def isReference(value, compname, conf) -> bool:
-    """Returns true if value stores reference to other components
+def isReference(value, compname, conf, svcCache={}) -> list:
+    """Returns a list of (component,class) if value stores reference to other components
        value - the value to check
        compname - full component name
        conf - complete config dict
     """
+
+    def _getSvcClass(instance):
+        """Find instance in service lists to get class.
+        Keeps a cache of the service classes in the svcCache default value.
+        That's fine, unless we are dealing with more than one conf in the program.
+        In that case, initialise svcCache to {} and specify in the caller."""
+        if not svcCache:   # only scan ApplicationMgr once
+            props = conf.get('ApplicationMgr',{"":None})
+            if isinstance(props,dict):
+                for prop,val in props.items():
+                    if 'Svc' in prop:
+                        try:
+                            val = ast.literal_eval(str(val))
+                        except Exception:
+                            pass
+                        if isinstance(val,list):
+                            for v in val:
+                                if isinstance(v,str):
+                                    vv = v.split('/')
+                                    if len(vv) == 2:
+                                        if svcCache.setdefault(vv[1], vv[0]) != vv[0]:
+                                            svcCache[vv[1]] = None # fail if same instance, different class
+        return svcCache.get(instance)
+
     try:
         value = ast.literal_eval(str(value))
     except Exception:
@@ -288,20 +312,20 @@ def isReference(value, compname, conf) -> bool:
 
     if isinstance(value, str):
         ctype_name = value.split('/')
-        instance = None
-        if len(ctype_name) == 2:
-            instance = ctype_name[1]
-        if len(ctype_name) == 1:
-            instance = ctype_name[0] 
+        cls = ctype_name[0] if len(ctype_name) == 2 else None
+        instance = ctype_name[-1]
+        ref = None
         if instance:
-            if f"{compname}.{instance}" in conf: # private tool
-                return [f"{compname}.{instance}"]
-            if f"ToolSvc.{instance}" in conf: # public tool
-                return [f"ToolSvc.{instance}"]
-            if instance in conf: # service
-                return [instance]
-        if  len(ctype_name) == 2: # in either case for 2 elements value we consider that as comp
-            return [ctype_name[1]]
+            if compname and f"{compname}.{instance}" in conf: # private tool
+                ref = f"{compname}.{instance}"
+            elif f"ToolSvc.{instance}" in conf: # public tool
+                ref = f"ToolSvc.{instance}"
+            elif cls is not None or instance in conf: # service or other component
+                ref = instance
+                if cls is None:
+                    cls = _getSvcClass(instance)
+        if ref is not None:
+                return [(ref, cls)]
 
     elif isinstance(value, list):
         refs = [isReference(el, compname, conf) for el in value]
