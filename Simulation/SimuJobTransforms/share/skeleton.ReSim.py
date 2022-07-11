@@ -191,6 +191,10 @@ if 'xAOD::EventInfo#EventInfo' not in convert_itemList(layout='#join'):
     # If xAOD::EventInfo is not present in the input file then it should be created
     if not hasattr( athAlgSeq, "xAODMaker::EventInfoCnvAlg" ):
         athAlgSeq += CfgMgr.xAODMaker__EventInfoCnvAlg(AODKey="McEventInfo")
+else:
+    if not hasattr( athAlgSeq, "EventInfoUpdateFromContextAlg" ):
+        from AthenaCommon.CfgGetter import getAlgorithm
+        athAlgSeq += getAlgorithm("EventInfoUpdateFromContextAlg")
 
 from McEventCollectionFilter.McEventCollectionFilterConf import TruthResetAlg
 athAlgSeq += TruthResetAlg("TruthResetAlg",InputMcEventCollection="TruthEventOLD", OutputMcEventCollection="BeamTruthEvent")
