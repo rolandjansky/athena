@@ -47,6 +47,9 @@ public:
    could get rather tricky, but the idea is to allow fast simulations to use the very
    same SD classes as the standard simulation. */
   template <class... Args> void AddHit(Args&&... args){ m_HitColl->Emplace( args... ); }
+  
+  static constexpr double TDMaxQEff = 0.15;
+  static constexpr int TDMaxCnt  = 4000;
 
 private:
   int m_nHitID;
