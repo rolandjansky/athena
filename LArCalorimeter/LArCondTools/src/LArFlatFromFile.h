@@ -8,13 +8,11 @@
 
 #include <string>
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "LArRawConditions/LArSingleFloatP.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
 class LArOnlineID;
 class LArOnline_SuperCellID;
-class AthenaAttributeList;
 
 class LArFlatFromFile: public AthAlgorithm
 { 
@@ -47,9 +45,9 @@ class LArFlatFromFile: public AthAlgorithm
 
   void errIfConnected(const HWIdentifier chid, const int gain, const std::string& objName, const std::string& message=0) const;
 
-  unsigned m_hashMax;
-  const LArOnlineID* m_onlineID;
-  const LArOnline_SuperCellID* m_onlineSCID;
+  unsigned m_hashMax{};
+  const LArOnlineID* m_onlineID{};
+  const LArOnline_SuperCellID* m_onlineSCID{};
 
 
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
@@ -62,7 +60,7 @@ class LArFlatFromFile: public AthAlgorithm
   Gaudi::Property<unsigned> m_ngain{this,"NGains",1,"Number of gains to process"};
   Gaudi::Property<unsigned> m_nsample{this,"NSamples",4,"Number of samples to process"};
 
-  bool m_forceStop;
+  bool m_forceStop{};
 }; 
 
 #endif
