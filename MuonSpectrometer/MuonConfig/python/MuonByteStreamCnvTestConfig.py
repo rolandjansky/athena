@@ -22,14 +22,14 @@ def MdtRdoToMdtDigitCfg(flags, name="MdtRdoToMdtDigitAlg", **kwargs):
     acc = MuonIdHelperSvcCfg(flags)
     kwargs.setdefault("mdtRdoDecoderTool", acc.popToolsAndMerge(MdtRDO_DecoderCfg(flags)))
 
-    if flags.Common.ProductionStep == ProductionStep.Overlay:
+    if flags.Common.isOverlay:
         kwargs.setdefault("MdtRdoContainer", f"{flags.Overlay.BkgPrefix}MDTCSM")
         kwargs.setdefault("MdtDigitContainer", f"{flags.Overlay.BkgPrefix}MDT_DIGITS")
     else:
         kwargs.setdefault("MdtRdoContainer", "MDTCSM")
         kwargs.setdefault("MdtDigitContainer", "MDT_DIGITS")
 
-    if flags.Common.ProductionStep == ProductionStep.Overlay and not flags.Overlay.DataOverlay:
+    if flags.Common.isOverlay and not flags.Overlay.DataOverlay:
         from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
         acc.merge(SGInputLoaderCfg(flags, [f'MdtCsmContainer#{kwargs["MdtRdoContainer"]}']))
 
@@ -43,14 +43,14 @@ def RpcRdoToRpcDigitCfg(flags, name="RpcRdoToRpcDigitAlg", **kwargs):
     from MuonConfig.MuonCablingConfig import RPCCablingConfigCfg
     acc.merge(RPCCablingConfigCfg(flags))
 
-    if flags.Common.ProductionStep == ProductionStep.Overlay:
+    if flags.Common.isOverlay:
         kwargs.setdefault("RpcRdoContainer", f"{flags.Overlay.BkgPrefix}RPCPAD")
         kwargs.setdefault("RpcDigitContainer", f"{flags.Overlay.BkgPrefix}RPC_DIGITS")
     else:
         kwargs.setdefault("RpcRdoContainer", "RPCPAD")
         kwargs.setdefault("RpcDigitContainer", "RPC_DIGITS")
 
-    if flags.Common.ProductionStep == ProductionStep.Overlay and not flags.Overlay.DataOverlay:
+    if flags.Common.isOverlay and not flags.Overlay.DataOverlay:
         from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
         acc.merge(SGInputLoaderCfg(flags, [f'RpcPadContainer#{kwargs["RpcRdoContainer"]}']))
 
@@ -64,14 +64,14 @@ def TgcRdoToTgcDigitCfg(flags, name="TgcRdoToTgcDigitAlg", **kwargs):
     from MuonConfig.MuonCablingConfig import TGCCablingConfigCfg
     acc.merge(TGCCablingConfigCfg(flags))
 
-    if flags.Common.ProductionStep == ProductionStep.Overlay:
+    if flags.Common.isOverlay:
         kwargs.setdefault("TgcRdoContainer", f"{flags.Overlay.BkgPrefix}TGCRDO")
         kwargs.setdefault("TgcDigitContainer",f"{flags.Overlay.BkgPrefix}TGC_DIGITS")
     else:
         kwargs.setdefault("TgcRdoContainer", "TGCRDO")
         kwargs.setdefault("TgcDigitContainer", "TGC_DIGITS")
 
-    if flags.Common.ProductionStep == ProductionStep.Overlay and not flags.Overlay.DataOverlay:
+    if flags.Common.isOverlay and not flags.Overlay.DataOverlay:
         from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
         acc.merge(SGInputLoaderCfg(flags, [f'TgcRdoContainer#{kwargs["TgcRdoContainer"]}']))
 
@@ -82,7 +82,7 @@ def TgcRdoToTgcDigitCfg(flags, name="TgcRdoToTgcDigitAlg", **kwargs):
 def STGC_RdoToDigitCfg(flags, name="STGC_RdoToDigitAlg", **kwargs):
     """Return ComponentAccumulator with configured STGC_RdoToDigit algorithm"""
     acc = ComponentAccumulator()
-    if flags.Common.ProductionStep == ProductionStep.Overlay:
+    if flags.Common.isOverlay:
         kwargs.setdefault("sTgcRdoContainer", f"{flags.Overlay.BkgPrefix}sTGCRDO")
         kwargs.setdefault("sTgcDigitContainer", f"{flags.Overlay.BkgPrefix}sTGC_DIGITS")
     else:
@@ -91,7 +91,7 @@ def STGC_RdoToDigitCfg(flags, name="STGC_RdoToDigitAlg", **kwargs):
 
     kwargs.setdefault("sTgcRdoDecoderTool", acc.popToolsAndMerge(STgcRdoDecoderCfg(flags)))
 
-    if flags.Common.ProductionStep == ProductionStep.Overlay and not flags.Overlay.DataOverlay:
+    if flags.Common.isOverlay and not flags.Overlay.DataOverlay:
         from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
         acc.merge(SGInputLoaderCfg(flags, [f'Muon::STGC_RawDataContainer#{kwargs["sTgcRdoContainer"]}']))
 
@@ -102,7 +102,7 @@ def STGC_RdoToDigitCfg(flags, name="STGC_RdoToDigitAlg", **kwargs):
 def MM_RdoToDigitCfg(flags, name="MM_RdoToDigitAlg", **kwargs):
     """Return ComponentAccumulator with configured MM_RdoToDigit algorithm"""
     acc = ComponentAccumulator()
-    if flags.Common.ProductionStep == ProductionStep.Overlay:
+    if flags.Common.isOverlay:
         kwargs.setdefault("MmRdoContainer", f"{flags.Overlay.BkgPrefix}MMRDO")
         kwargs.setdefault("MmDigitContainer", f"{flags.Overlay.BkgPrefix}MM_DIGITS")
     else:
@@ -111,7 +111,7 @@ def MM_RdoToDigitCfg(flags, name="MM_RdoToDigitAlg", **kwargs):
 
     kwargs.setdefault("mmRdoDecoderTool", acc.popToolsAndMerge(MMRdoDecoderCfg(flags)))
 
-    if flags.Common.ProductionStep == ProductionStep.Overlay and not flags.Overlay.DataOverlay:
+    if flags.Common.isOverlay and not flags.Overlay.DataOverlay:
         from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
         acc.merge(SGInputLoaderCfg(flags, [f'Muon::MM_RawDataContainer#{kwargs["MmRdoContainer"]}']))
 
@@ -170,9 +170,9 @@ def CscDigitToCscRDOToolCfg(flags, name="CscDigitToCscRDOTool", **kwargs):
     kwargs.setdefault("cscCalibTool", acc.popToolsAndMerge(CscCalibToolCfg(flags)))
     kwargs.setdefault("NumSamples", 4)
     kwargs.setdefault("Latency", 0)
-    kwargs.setdefault("addNoise", flags.Common.ProductionStep != ProductionStep.Overlay) # doMuonNoise flag not migrated
+    kwargs.setdefault("addNoise", not flags.Common.isOverlay) # doMuonNoise flag not migrated
 
-    if flags.Common.ProductionStep == ProductionStep.Overlay:
+    if flags.Common.isOverlay:
         kwargs.setdefault("InputObjectName", f"{flags.Overlay.SigPrefix}CSC_DIGITS")
         kwargs.setdefault("OutputObjectName", f"{flags.Overlay.SigPrefix}CSCRDO")
     if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:

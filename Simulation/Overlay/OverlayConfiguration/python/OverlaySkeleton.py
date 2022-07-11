@@ -5,6 +5,7 @@ import sys
 from PyJobTransforms.CommonRunArgsToFlags import commonRunArgsToFlags
 from PyJobTransforms.TransformUtils import processPreExec, processPreInclude, processPostExec, processPostInclude
 from SimuJobTransforms.CommonSimulationSteering import specialConfigPreInclude, specialConfigPostInclude
+from AthenaConfiguration.Enums import ProductionStep
 
 
 def defaultOverlayFlags(configFlags):
@@ -28,7 +29,7 @@ def setOverlayInputFiles(runArgs, configFlags, log):
     hasRDO_BKGInput = hasattr(runArgs, 'inputRDO_BKGFile')
     hasBS_SKIMInput = hasattr(runArgs, 'inputBS_SKIMFile')
 
-    if not hasattr(runArgs, 'inputHITSFile'):
+    if configFlags.Common.ProductionStep == ProductionStep.Overlay and not hasattr(runArgs, 'inputHITSFile'):
         raise RuntimeError('No input HITS file defined')
 
     if hasRDO_BKGInput and hasBS_SKIMInput:
@@ -44,7 +45,8 @@ def setOverlayInputFiles(runArgs, configFlags, log):
         configFlags.Overlay.DataOverlay = False
         configFlags.Input.isMC = True
         configFlags.Input.Files = runArgs.inputRDO_BKGFile
-        configFlags.Input.SecondaryFiles = runArgs.inputHITSFile
+        if configFlags.Common.ProductionStep == ProductionStep.Overlay:
+            configFlags.Input.SecondaryFiles = runArgs.inputHITSFile
     else:
         log.info('Running MC+data overlay')
         configFlags.Overlay.DataOverlay = True
@@ -65,11 +67,10 @@ def fromRunArgs(runArgs):
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     commonRunArgsToFlags(runArgs, ConfigFlags)
 
+    ConfigFlags.Common.ProductionStep = ProductionStep.Overlay
+
     # Setting input files for Overlay
     setOverlayInputFiles(runArgs, ConfigFlags, logOverlay)
-
-    from AthenaConfiguration.Enums import ProductionStep
-    ConfigFlags.Common.ProductionStep = ProductionStep.Overlay
 
     # Setting output files for Overlay
     if hasattr(runArgs, 'outputRDOFile'):

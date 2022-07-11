@@ -1,7 +1,6 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import ProductionStep
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 AthSequencer=CompFactory.AthSequencer
@@ -30,7 +29,7 @@ def AthenaEventLoopMgrCfg(cfgFlags):
         from AthenaKernel.EventIdOverrideConfig import EvtIdModifierSvcCfg
         elmgr.EvtIdModifierSvc =  cfg.getPrimaryAndMerge( EvtIdModifierSvcCfg(cfgFlags) ).name
 
-    if cfgFlags.Common.ProductionStep == ProductionStep.Overlay:
+    if cfgFlags.Common.isOverlay:
         if not cfgFlags.Overlay.DataOverlay:
             elmgr.RequireInputAttributeList = True
             elmgr.UseSecondaryEventNumber = True
@@ -81,7 +80,7 @@ def AthenaHiveEventLoopMgrCfg(cfgFlags):
         from AthenaKernel.EventIdOverrideConfig import EvtIdModifierSvcCfg
         elmgr.EvtIdModifierSvc =  cfg.getPrimaryAndMerge(EvtIdModifierSvcCfg(cfgFlags)).name
 
-    if cfgFlags.Common.ProductionStep == ProductionStep.Overlay:
+    if cfgFlags.Common.isOverlay:
         if not cfgFlags.Overlay.DataOverlay:
             elmgr.RequireInputAttributeList = True
             elmgr.UseSecondaryEventNumber = True

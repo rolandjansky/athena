@@ -43,7 +43,7 @@ def TRT_DigitizationBasicToolCfg(flags, name="TRT_DigitizationBasicTool", **kwar
     PartPropSvc = CompFactory.PartPropSvc
     acc.addService(PartPropSvc(InputFile="PDGTABLE.MeV"))
     # TODO: move this data overlay in a separate place
-    if flags.Common.ProductionStep == ProductionStep.Overlay and flags.Overlay.DataOverlay:
+    if flags.Common.isOverlay and flags.Overlay.DataOverlay:
         acc.merge(addFolders(flags, "/TRT/Cond/DigVers", "TRT_OFL", tag="TRTCondDigVers-Collisions-01", db="OFLP200",
                              className = 'AthenaAttributeList'))
     else:

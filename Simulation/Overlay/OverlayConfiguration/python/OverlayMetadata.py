@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 import re
 
@@ -25,9 +25,9 @@ def _getFileMD(filenames):
     return _fileMetadata[filename]
 
 
-def signalMetadataCheck(flags, simDict, tagInfoDict):
-    """Check the metadata for signal HITS file"""
-    logger.info("Checking Overlay configuration against Signal Simulation metadata...")
+def overlayInputMetadataCheck(flags, simDict, tagInfoDict):
+    """Check the metadata for signal HITS or presampled pileup RDO file"""
+    logger.info("Checking Overlay configuration against Signal or presampled pileup RDO metadata...")
 
     simKeys = simDict.keys()
     tagInfoKeys = tagInfoDict.keys()
@@ -180,25 +180,34 @@ def overlayMetadataCheck(flags):
         files = flags.Input.SecondaryFiles
         filesPileup = flags.Input.Files
 
-    signalMetadata = _getFileMD(files)
-    signalSimulationMetadata = signalMetadata["/Simulation/Parameters"]
-    signalTagInfoMetadata = signalMetadata["/TagInfo"]
-
-    # signal check
-    signalMetadataCheck(flags, signalSimulationMetadata, signalTagInfoMetadata)
+    if files:
+        signalMetadata = _getFileMD(files)
+        signalSimulationMetadata = signalMetadata["/Simulation/Parameters"]
+        signalTagInfoMetadata = signalMetadata["/TagInfo"]
+        # signal check
+        overlayInputMetadataCheck(flags, signalSimulationMetadata, signalTagInfoMetadata)
+    else:
+        # This can be the case for the FastChain with overlay 
+        # It is not an error.
+        logger.info("Simulation metadata check not done due to no inputs")
 
     # pile-up check
-    if not flags.Overlay.DataOverlay:
+    if not flags.Overlay.DataOverlay and filesPileup:
         pileupMetaDataCheck = _getFileMD(filesPileup)
         pileupDigitizationMetadata = pileupMetaDataCheck["/Digitization/Parameters"]
         pileupSimulationMetadata = pileupMetaDataCheck["/Simulation/Parameters"]
         pileupTagInfoMetadata = pileupMetaDataCheck["/TagInfo"]
-    
-        logger.info("Checking Presampled pile-up metadata against Signal Simulation metadata...")
-        simulationMetadataCheck(signalSimulationMetadata, pileupSimulationMetadata)
-        tagInfoMetadataCheck(signalTagInfoMetadata, pileupTagInfoMetadata)
+   
+        if not flags.Overlay.FastChain: 
+            logger.info("Checking Presampled pile-up metadata against Signal Simulation metadata...")
+            simulationMetadataCheck(signalSimulationMetadata, pileupSimulationMetadata)
+            tagInfoMetadataCheck(signalTagInfoMetadata, pileupTagInfoMetadata)
+        else:
+            logger.info("Checking Presampled pile-up metadata against configuration of jobs (i.e. flags)...")
+            overlayInputMetadataCheck(flags, pileupSimulationMetadata, pileupTagInfoMetadata)
         logger.info("Completed all checks against Presampled pile-up Simulation metadata.")
- 
+
+
         if pileupDigitizationMetadata:
             writeOverlayDigitizationMetadata(flags,pileupDigitizationMetadata)
 
