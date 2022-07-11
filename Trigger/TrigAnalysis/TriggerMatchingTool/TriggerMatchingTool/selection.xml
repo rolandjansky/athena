@@ -7,4 +7,7 @@
    <class name="Trig::MatchFromCompositeTool" />
    <class name="Trig::R3MatchingTool" />
    <class name="Trig::MatchingTool" />
+   <class name="Trig::DRScoringTool" />
+   <class name="Trig::TypedScoringTool" />
+   <class name="Trig::EgammaDRScoringTool" />
 </lcgdict>

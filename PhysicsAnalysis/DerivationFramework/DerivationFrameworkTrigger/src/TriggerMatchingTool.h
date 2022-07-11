@@ -10,6 +10,7 @@
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TriggerMatchingTool/IIParticleRetrievalTool.h"
+#include "TriggerMatchingTool/IMatchScoringTool.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "xAODBase/IParticle.h"
 #include "xAODBase/IParticleContainer.h"
@@ -88,6 +89,10 @@ namespace DerivationFramework
 
     /// The trig decision tool
     ToolHandle<Trig::TrigDecisionTool> m_tdt{"Trig::TrigDecisionTool/TrigDecisionTool"};
+
+    /// The pair scoring tool
+    ToolHandle<Trig::IMatchScoringTool> m_scoreTool{
+        this, "ScoringTool", "Trig::DRScoringTool", "The pair scoring tool"};
 
     // Internal functions
     /**

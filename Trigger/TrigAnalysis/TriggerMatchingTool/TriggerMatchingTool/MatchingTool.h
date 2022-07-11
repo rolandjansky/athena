@@ -12,6 +12,7 @@
 #include "AsgTools/ToolHandle.h"
 
 #include "TriggerMatchingTool/IMatchingTool.h"
+#include "TriggerMatchingTool/IMatchScoringTool.h"
 #include "TriggerMatchingTool/TypeMap.h"
 #include "TrigDecisionTool/Combination.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
@@ -44,15 +45,12 @@ protected:
 #endif
 
 private:
-
-  double IParticleMetric(const xAOD::IParticle* lhs, const xAOD::IParticle* rhs) const ;
-  std::vector<std::vector<double> > distanceMatrix(const std::vector<const xAOD::IParticle*>& reco,
-						   const std::vector<const xAOD::IParticle*>& trigger)const;
-  
   
   MatchingImplementation* m_impl;  
   TypeMap m_typeMap;
   ToolHandle<Trig::TrigDecisionTool> m_trigDecTool;
+  ToolHandle<Trig::IMatchScoringTool> m_scoreTool{
+      this, "ScoringTool", "Trig::DRScoringTool","Tool to score pairs of particles"};
   double m_matchingThreshold;
 };
 

@@ -8,6 +8,7 @@
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"
 #include "TriggerMatchingTool/IMatchingTool.h"
+#include "TriggerMatchingTool/IMatchScoringTool.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
 namespace Trig
@@ -35,6 +36,8 @@ namespace Trig
 
   private:
     ToolHandle<TrigDecisionTool> m_trigDecTool;
+    ToolHandle<Trig::IMatchScoringTool> m_scoreTool{
+        this, "ScoringTool", "Trig::DRScoringTool","Tool to score pairs of particles"};
     bool matchObjects(
         const xAOD::IParticle *reco,
         const ElementLink<xAOD::IParticleContainer> &onlineLink,
