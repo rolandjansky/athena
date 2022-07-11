@@ -55,6 +55,7 @@ namespace FlavorTagDiscriminants {
 
   DL2HighLevel::~DL2HighLevel() = default;
   DL2HighLevel::DL2HighLevel(DL2HighLevel&&) = default;
+  DL2HighLevel::DL2HighLevel(const DL2HighLevel&) = default;
 
   void DL2HighLevel::decorate(const xAOD::BTagging& btag) const {
     m_dl2->decorate(btag);

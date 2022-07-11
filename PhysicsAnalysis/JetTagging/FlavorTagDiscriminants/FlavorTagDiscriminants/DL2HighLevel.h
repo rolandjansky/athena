@@ -31,13 +31,14 @@ namespace FlavorTagDiscriminants {
                  TrackLinkType = TrackLinkType::TRACK_PARTICLE,
                  float default_output_value = NAN);
     DL2HighLevel(DL2HighLevel&&);
+    DL2HighLevel(const DL2HighLevel&);
     ~DL2HighLevel();
     void decorate(const xAOD::BTagging& btag) const;
     void decorate(const xAOD::Jet& jet) const;
     void decorateWithDefaults(const xAOD::Jet& jet) const;
     FTagDataDependencyNames getDataDependencyNames() const;
   private:
-    std::unique_ptr<DL2> m_dl2;
+    std::shared_ptr<const DL2> m_dl2;
   };
 
 }

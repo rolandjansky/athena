@@ -13,17 +13,9 @@ namespace FlavorTagDiscriminants {
 
   // Constructor
   OnnxUtil::OnnxUtil(const std::string& path_to_onnx){
-    m_path_to_onnx = path_to_onnx;
-  }
-
-  // Destructor
-  OnnxUtil::~OnnxUtil(){
-  }
-
-  void OnnxUtil::initialize(){
 
     //load the onnx model to memory using the path m_path_to_onnx
-    m_env = std::make_unique< Ort::Env >(ORT_LOGGING_LEVEL_ERROR, "");
+    m_env = std::make_unique< Ort::Env >(ORT_LOGGING_LEVEL_FATAL, "");
 
     // initialize session options if needed
     Ort::SessionOptions session_options;
@@ -32,13 +24,13 @@ namespace FlavorTagDiscriminants {
       GraphOptimizationLevel::ORT_ENABLE_EXTENDED);
 
     // create session and load model into memory
-    m_session = std::make_unique< Ort::Session >(*m_env, m_path_to_onnx.c_str(),
+    m_session = std::make_unique< Ort::Session >(*m_env, path_to_onnx.c_str(),
                                                  session_options);
     Ort::AllocatorWithDefaultOptions allocator;
 
     // get the input nodes
     size_t num_input_nodes = m_session->GetInputCount();
-    
+
     // iterate over all input nodes
     for (std::size_t i = 0; i < num_input_nodes; i++) {
       char* input_name = m_session->GetInputName(i, allocator);
@@ -56,8 +48,10 @@ namespace FlavorTagDiscriminants {
     }
   }
 
+  // Destructor
+  OnnxUtil::~OnnxUtil() = default;
 
-  std::string OnnxUtil::getMetaData(const std::string& key){
+  std::string OnnxUtil::getMetaData(const std::string& key) const {
 
     Ort::AllocatorWithDefaultOptions allocator;
     Ort::ModelMetadata metadata = m_session->GetModelMetadata();
@@ -71,8 +65,8 @@ namespace FlavorTagDiscriminants {
     std::map<std::string, float>& output) const {
 
     // Args:
-    //    gnn_inputs : {string: input_pair} 
-    //    outputs    : {string: float} 
+    //    gnn_inputs : {string: input_pair}
+    //    outputs    : {string: float}
 
     std::vector<float> input_tensor_values;
 
