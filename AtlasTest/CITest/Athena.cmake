@@ -26,7 +26,7 @@ atlas_add_citest( SimulationRun2AF3
    SCRIPT RunWorkflowTests_Run2.py --CI -s -w AF3 )
 
 atlas_add_citest( SimulationRun4FullSim
-   SCRIPT RunWorkflowTests_Run4.py --CI -s -w FullSim -e '--maxEvents 5'
+   SCRIPT RunWorkflowTests_Run4.py --CI -s -w FullSim -e '--maxEvents 5 --geometryVersion ATLAS-P2-RUN4-01-00-00'
    LOG_IGNORE_PATTERN "WARNING FPE INVALID" )  # ignore FPEs from Geant4
 
 atlas_add_citest( PileUpPresamplingRun2
@@ -108,9 +108,13 @@ atlas_add_citest( RecoRun3MC_PileUp
    DEPENDS_SUCCESS PileUpPresamplingRun3 )
 
 atlas_add_citest( RecoRun4MC
-   SCRIPT RunWorkflowTests_Run4.py --CI -r -w MCReco -e '--maxEvents 5 --inputHITSFile=../../SimulationRun4FullSim/run_s3761/myHITS.pool.root'  # go two levels up as the test runs in a subfolder
+   SCRIPT RunWorkflowTests_Run4.py --CI -r -w MCReco -e '--maxEvents 5 --geometryVersion ATLAS-P2-RUN4-01-00-00 --inputHITSFile=../../SimulationRun4FullSim/run_s3761/myHITS.pool.root'  # go two levels up as the test runs in a subfolder
    DEPENDS_SUCCESS SimulationRun4FullSim )
 
+atlas_add_citest( RecoRun4MC_DAODPHYS
+   SCRIPT RunWorkflowTests_Run4.py --CI -d -e '--maxEvents 5 --inputAODFile=../../RecoRun4MC/run_q447/myAOD.pool.root'  # go two levels up as the test runs in a subfolder
+   DEPENDS_SUCCESS RecoRun4MC
+   PROPERTIES PROCESSORS 2 )
 
 #################################################################################
 # Data Quality
