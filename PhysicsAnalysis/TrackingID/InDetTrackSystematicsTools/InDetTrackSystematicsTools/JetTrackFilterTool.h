@@ -80,7 +80,7 @@ namespace InDet {
     std::string m_calibFileNomEff;
     std::string m_calibFileJetEff;
 
-    double m_fakeUncertTIDE = 0.25;
+    double m_fakeUncertTIDE = 0.35;
 
     ToolHandle< IInDetTrackTruthOriginTool > m_trackOriginTool;
 
