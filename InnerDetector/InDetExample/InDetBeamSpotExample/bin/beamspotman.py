@@ -256,7 +256,7 @@ if cmd == 'upload' and len(cmdargs) == 1:
         dbfile))
 
     print()
-    stat = os.system('/afs/cern.ch/user/a/atlcond/utils/AtlCoolMerge.py --nomail %s %s --folder /Indet/Beampos --tag %s --retag %s --destdb %s %s %s ATLAS_COOLWRITE ATLAS_COOLOFL_INDET_W %s' % (
+    stat = os.system('/afs/cern.ch/user/a/atlcond/utils22/AtlCoolMerge.py --nomail %s %s --folder /Indet/Beampos --tag %s --retag %s --destdb %s %s %s ATLAS_COOLWRITE ATLAS_COOLOFL_INDET_W %s' % (
         '--batch' if options.batch else '',
         ('--ignoremode %s' % options.ignoremode) if options.ignoremode else '',
         options.srctag,
@@ -543,7 +543,7 @@ if cmd=='upload' and len(args)==3:
         else:
             batchmode = ''
 
-        stat = os.system('/afs/cern.ch/user/a/atlcond/utils/AtlCoolMerge.py --nomail  %s %s --folder /Indet/Beampos --tag %s --retag %s --destdb %s %s %s ATLAS_COOLWRITE ATLAS_COOLOFL_INDET_W %s' % (batchmode,ignoremode,options.srctag,options.beamspottag,options.destdbname,dbfile[0],options.srcdbname,passwd))
+        stat = os.system('/afs/cern.ch/user/a/atlcond/utils22/AtlCoolMerge.py --nomail  %s %s --folder /Indet/Beampos --tag %s --retag %s --destdb %s %s %s ATLAS_COOLWRITE ATLAS_COOLOFL_INDET_W %s' % (batchmode,ignoremode,options.srctag,options.beamspottag,options.destdbname,dbfile[0],options.srcdbname,passwd))
 
         if stat:
             print ("\n\nERROR: UPLOADING TO COOL FAILED - PLEASE CHECK CAREFULLY!\n\n")
@@ -1381,7 +1381,7 @@ if cmd=='dqflag' and len(args)==2:
     stat = os.system(cmd)
 
     # Old DQ flags
-    #stat = os.system('/afs/cern.ch/user/a/atlcond/utils/AtlCoolMerge.py --nomail %s %s --folder /GLOBAL/DETSTATUS/SHIFTOFL --tag %s --retag %s --destdb %s %s %s ATLAS_COOLWRITE ATLAS_COOLOFL_GLOBAL_W %s' % (batchmode,ignoremode,options.srcdqtag,options.dqtag,options.destdqdbname,dbfile,options.srcdqdbname,passwd))
+    #stat = os.system('/afs/cern.ch/user/a/atlcond/utils22/AtlCoolMerge.py --nomail %s %s --folder /GLOBAL/DETSTATUS/SHIFTOFL --tag %s --retag %s --destdb %s %s %s ATLAS_COOLWRITE ATLAS_COOLOFL_GLOBAL_W %s' % (batchmode,ignoremode,options.srcdqtag,options.dqtag,options.destdqdbname,dbfile,options.srcdqdbname,passwd))
 
     if stat:
         print ("\n\nERROR: UPLOADING DQ FLAG TO COOL FAILED - PLEASE CHECK CAREFULLY!\n\n")
@@ -1431,7 +1431,7 @@ if cmd=='dqflag' and len(args)==3:
     stat = os.system(cmd)
 
     # Old DQ flags
-    #stat = os.system('/afs/cern.ch/user/a/atlcond/utils/AtlCoolMerge.py --nomail  %s %s --folder /GLOBAL/DETSTATUS/SHIFTOFL --tag %s --retag %s --destdb %s %s %s ATLAS_COOLWRITE ATLAS_COOLOFL_GLOBAL_W %s' % (batchmode,ignoremode,options.srcdqtag,options.dqtag,options.destdqdbname,dbfile[0],options.srcdqdbname,passwd))
+    #stat = os.system('/afs/cern.ch/user/a/atlcond/utils22/AtlCoolMerge.py --nomail  %s %s --folder /GLOBAL/DETSTATUS/SHIFTOFL --tag %s --retag %s --destdb %s %s %s ATLAS_COOLWRITE ATLAS_COOLOFL_GLOBAL_W %s' % (batchmode,ignoremode,options.srcdqtag,options.dqtag,options.destdqdbname,dbfile[0],options.srcdqdbname,passwd))
     if stat:
         print ("\n\nERROR: UPLOADING DQ FLAG TO COOL FAILED - PLEASE CHECK CAREFULLY!\n\n")
         sys.exit(1)
@@ -1593,7 +1593,7 @@ if cmd=='mctag' and len(args)<12:
     print ('  - AtlCoolConsole.py "sqlite://;schema=' + dbfile + ';dbname=OFLP200"')
     print ('* To upload to oracle use:')
     print ('  - beamspotman.py --srctag %s -t %s --srcdbname OFLP200 --destdbname OFLP200 upload %s' %(options.beamspottag, options.beamspottag, dbfile))
-    print ('  - /afs/cern.ch/user/a/atlcond/utils/AtlCoolMerge.py --nomail %s OFLP200 ATLAS_COOLWRITE ATLAS_COOLOFL_INDET_W <passwd>' %(dbfile))
+    print ('  - /afs/cern.ch/user/a/atlcond/utils22/AtlCoolMerge.py --nomail %s OFLP200 ATLAS_COOLWRITE ATLAS_COOLOFL_INDET_W <passwd>' %(dbfile))
     sys.exit(0)
 
 
