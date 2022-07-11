@@ -481,6 +481,19 @@ public:
 
 
   /**
+   * @brief Declare other conditions containers that depend on this one.
+   * @param deps Conditions containers that depend on this one.
+   */
+  void addDeps (const std::vector<CondContBase*>& deps);
+
+
+  /**
+   * @brief Return the list of conditions containers that depend on this one.
+   */
+  std::vector<CondContBase*> getDeps();
+
+
+  /**
    * @brief Allow overriding the name of the global conditions cleaner
    *        service (for testing purposes).
    * @param name The name of the global conditions cleaner service.
@@ -639,7 +652,6 @@ private:
   /// Key type of this container.
   std::atomic<KeyType> m_keyType;
 
-
   /// CLID of the most-derived @c CondCont
   CLID m_clid;
 
@@ -654,6 +666,14 @@ private:
 
   /// Handle to the cleaner service.
   ServiceHandle<Athena::IConditionsCleanerSvc> m_cleanerSvc;
+
+  /// Other conditions dependencies that depend on this one, as inferred
+  /// by addDependency calls.  There should only be a few of them,
+  /// so just use a simple vector.
+  std::vector<CondContBase*> m_deps;
+
+  /// Serialize access to m_deps.
+  mutable std::mutex m_depMutex;
 
   /// Name of the global conditions cleaner service.
   static std::string s_cleanerSvcName ATLAS_THREAD_SAFE;
