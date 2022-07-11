@@ -14,14 +14,11 @@
 
 
 namespace {
-int reorganizePlanes(const int station, const int layer)
-{
-	if(station == 0 || station == 1)
+	constexpr int reorganizePlanes(const int station, const int layer)
 	{
-		return (station*4)+3-(layer);
+		bool reverse = station == 0 || station == 1;
+		return station * 4 + (reverse ? 3 - layer : layer);
 	}
-	return 0;
-}
 }
 
 
@@ -80,7 +77,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	const BunchCrossingCondData* bcData{*bcidHdl};
 
 	// Classifying bunches by position in train (Front, Middle, End)
-        enum { FRONT, MIDDLE, END, NPOS } position = NPOS;
+	enum { FRONT, MIDDLE, END, NPOS } position = NPOS;
 	if(bcData->isFilled(bcid))
 	{
 		bcidAll = bcid;
@@ -176,8 +173,8 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	lbEvents  = eventInfo->lumiBlock();
 	muPerBX   = lbAverageInteractionsPerCrossing(ctx);
 	if (muPerBX == 0.0) {
-	  ATH_MSG_DEBUG("AverageInteractionsPerCrossing is 0, forcing to 1.0");
-	  muPerBX=1.0;
+		ATH_MSG_DEBUG("AverageInteractionsPerCrossing is 0, forcing to 1.0");
+		muPerBX=1.0;
 	}
 	fill("AFPSiLayerTool", lb, muPerBX);
 	fill("AFPSiLayerTool", lbEvents);
@@ -218,28 +215,13 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 			fill(m_tools[m_StationPlaneGroup.at(m_stationnames.at(hitsItr->stationID())).at(m_pixlayers.at(hitsItr->pixelLayerID()))], pixelColIDChip);
 			fill(m_tools[m_StationPlaneGroup.at(m_stationnames.at(hitsItr->stationID())).at(m_pixlayers.at(hitsItr->pixelLayerID()))], timeOverThreshold);
 			fill(m_tools[m_StationPlaneGroup.at(m_stationnames.at(hitsItr->stationID())).at(m_pixlayers.at(hitsItr->pixelLayerID()))], lb, hitsCounterPlanesTProfile);
-			
-			if(hitsItr->stationID() == 0 || hitsItr->stationID() == 1)
-			{
-				planeHits = reorganizePlanes(0, hitsItr->pixelLayerID());
-			}
-			else
-			{
-				planeHits = hitsItr->pixelLayerID();
-			}
+
+			planeHits = hitsItr->pixelLayerID();
 			fill(m_tools[m_StationGroup.at(m_stationnames.at(hitsItr->stationID()))], planeHits);
 			
 			++numberOfHitsPerPlane[hitsItr->stationID()][hitsItr->pixelLayerID()];
-			if(hitsItr->stationID() == 0 || hitsItr->stationID() == 1)
-			{
-				planeHitsAll = reorganizePlanes(hitsItr->stationID(), hitsItr->pixelLayerID());
-				planeHitsAllMU = reorganizePlanes(hitsItr->stationID(), hitsItr->pixelLayerID());
-			}
-			else
-			{
-				planeHitsAll = (hitsItr->stationID())*4+hitsItr->pixelLayerID();
-				planeHitsAllMU = (hitsItr->stationID())*4+hitsItr->pixelLayerID();
-			}
+			planeHitsAll = reorganizePlanes(hitsItr->stationID(), hitsItr->pixelLayerID());
+			planeHitsAllMU = reorganizePlanes(hitsItr->stationID(), hitsItr->pixelLayerID());
 			weightAllPlanes = 1 / muPerBX;
 			fill("AFPSiLayerTool", planeHitsAll);
 			fill("AFPSiLayerTool", planeHitsAllMU, weightAllPlanes);
