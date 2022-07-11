@@ -19,6 +19,12 @@ def getEventInfoOverlay(name="EventInfoOverlay", **kwargs):
 
 
 def getEventInfoUpdateFromContextAlg(name="EventInfoUpdateFromContextAlg", **kwargs):
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
+    if not hasattr(condSeq, "BeamSpotCondAlg"):
+        from IOVDbSvc.CondDB import conddb
+        conddb.addFolderSplitOnline("INDET","/Indet/Onl/Beampos","/Indet/Beampos", className='AthenaAttributeList')
+        condSeq += CfgMgr.BeamSpotCondAlg( "BeamSpotCondAlg" )
     from SGComps import AddressRemappingSvc
     AddressRemappingSvc.addInputRename("xAOD::EventInfo","EventInfo","Input_EventInfo")
     AddressRemappingSvc.addInputRename("xAOD::EventAuxInfo","EventInfoAux.","Input_EventInfoAux.")
