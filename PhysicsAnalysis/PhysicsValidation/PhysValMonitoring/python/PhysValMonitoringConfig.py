@@ -35,6 +35,9 @@ def PhysValMonitoringCfg(flags):
     if flags.PhysVal.doEgamma:
         from EgammaPhysValMonitoring.EgammaPhysValMonitoringConfig import EgammaPhysValMonitoringToolCfg
         monMan.AthenaMonTools += [ acc.popToolsAndMerge(EgammaPhysValMonitoringToolCfg(flags)) ]
+    if flags.PhysVal.doTau:
+        from TauDQA.TauDQAConfig import PhysValTauCfg
+        monMan.AthenaMonTools += [ acc.popToolsAndMerge(PhysValTauCfg(flags))]
 
     acc.addEventAlgo(monMan, primary = True)
     return acc

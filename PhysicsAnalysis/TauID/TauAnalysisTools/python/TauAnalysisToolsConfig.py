@@ -8,5 +8,12 @@ def TauSelectionToolCfg(ConfigFlags, name, **kwargs):
    acc = ComponentAccumulator()
    TauSelectionTool = CompFactory.TauAnalysisTools.TauSelectionTool
    acc.setPrivateTools(TauSelectionTool(name, **kwargs))
-   return acc   
+   return acc 
+
+def TauTruthMatchingToolCfg(ConfigFlags, name, **kwargs):
+   acc = ComponentAccumulator()
+   tool = CompFactory.TauAnalysisTools.TauTruthMatchingTool(name, **kwargs)
+   acc.setPrivateTools(tool)
+   return acc
+
 
