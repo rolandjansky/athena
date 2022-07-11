@@ -6,6 +6,12 @@ def getNewConfigFlags():
     from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
     ConfigFlags = getNewConfigFlags()
     """
+
+    # Set up a logger object.
+    from AthenaCommon.Logging import logging
+    log = logging.getLogger('getNewConfigFlags')
+
+    # Flags needed from this package.
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.Enums import BeamType
 
@@ -15,12 +21,6 @@ def getNewConfigFlags():
     import AthenaCommon.GlobalFlags      # noqa: F401
     import AthenaCommon.BeamFlags        # noqa: F401
     import AthenaCommon.ConcurrencyFlags # noqa: F401
-    from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
-    from AthenaMonitoring.DQMonFlags import DQMonFlags
-    from RecExConfig.RecFlags import rec
-    from RecExConfig.RecAlgsFlags import recAlgs
-    from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
-    from MuonRecExample.MuonRecFlags import muonRecFlags
 
     # Files and conditions
     if jobproperties.Global.InputFormat() == 'bytestream':
@@ -33,10 +33,20 @@ def getNewConfigFlags():
     ConfigFlags.IOVDb.GlobalTag = jobproperties.Global.ConditionsTag()
     ConfigFlags.Beam.Type = BeamType(jobproperties.Beam.beamType())
     ConfigFlags.Beam.BunchSpacing = jobproperties.Beam.bunchSpacing()
-    ConfigFlags.Output.HISTFileName = DQMonFlags.histogramFile()
+    try:
+        from AthenaMonitoring.DQMonFlags import DQMonFlags
+        ConfigFlags.Output.HISTFileName = DQMonFlags.histogramFile()
+    except ImportError:
+        log.info('AthenaMonitoring not available, "ConfigFlags.Output.HISTFileName" not set')
+        pass
     # Geometry - General
     ConfigFlags.GeoModel.AtlasVersion = jobproperties.Global.DetDescrVersion()
-    ConfigFlags.GeoModel.Align.Dynamic = InDetGeometryFlags.useDynamicAlignFolders()
+    try:
+        from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
+        ConfigFlags.GeoModel.Align.Dynamic = InDetGeometryFlags.useDynamicAlignFolders()
+    except ImportError:
+        log.info('AtlasGeoModel not available, "ConfigFlags.GeoModel.Align.Dynamic" not set')
+        pass
     # Environment
     ConfigFlags.Common.isOnline = jobproperties.AthenaCommonFlags.isOnline()
 
@@ -62,59 +72,100 @@ def getNewConfigFlags():
     # Geometry - Forward
     geom_flag_map.update({'Lucid':'Lucid', 'ZDC':'ZDC', 'ALFA':'ALFA', 'AFP':'AFP'})
 
-    # Now set Geometry i.e. do equivalent of : 
+    # Now set Geometry i.e. do equivalent of :
     # ConfigFlags.Detector.GeometryBpipe = DetFlags.geometry.bpipe_on()
     ConfigFlags._loadDynaFlags('Detector')
-    for flag in geom_flag_map:   
-        ConfigFlags._set('Detector.Geometry'+flag, getattr(DetFlags.detdescr,geom_flag_map[flag]+'_on')()) 
-    
+    for flag in geom_flag_map:
+        ConfigFlags._set('Detector.Geometry'+flag, getattr(DetFlags.detdescr,geom_flag_map[flag]+'_on')())
+
     # Apparently we have detdescr flags and MuonGeometryFlags and they don't agree. FIXME.
-    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
-    ConfigFlags.Detector.GeometrysTGC = MuonGeometryFlags.hasSTGC()
-    ConfigFlags.Detector.GeometryMM = MuonGeometryFlags.hasMM()
-    ConfigFlags.Detector.GeometryCSC = MuonGeometryFlags.hasCSC()
+    try:
+        from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+        ConfigFlags.Detector.GeometrysTGC = MuonGeometryFlags.hasSTGC()
+        ConfigFlags.Detector.GeometryMM = MuonGeometryFlags.hasMM()
+        ConfigFlags.Detector.GeometryCSC = MuonGeometryFlags.hasCSC()
+    except ImportError:
+        log.info('AtlasGeoModel not available, "ConfigFlags.Detector.GeometrysTGC", "ConfigFlags.Detector.GeometryMM" and "ConfigFlags.Detector.GeometryCSC" not set')
+        pass
 
     # Now setup Enable flags:
     reco_flag_map = { 'BCM':'BCM', 'Pixel':'pixel', 'SCT':'SCT', 'TRT':'TRT'}
-    for flag in reco_flag_map:   
+    for flag in reco_flag_map:
         ConfigFlags._set('Detector.Enable'+flag, getattr(DetFlags.haveRIO,reco_flag_map[flag]+'_on')() )
 
     # miscellaneous settings
-    from InDetRecExample.InDetJobProperties import InDetFlags
-    InDetFlags.init()
-    ConfigFlags.InDet.Tracking.doTIDE_Ambi = InDetFlags.doTIDE_Ambi()
-    ConfigFlags.InDet.useDCS = InDetFlags.useDCS()
-    ConfigFlags.InDet.PriVertex.doVertexFinding = InDetFlags.doVertexFinding()
+    try:
+        from InDetRecExample.InDetJobProperties import InDetFlags
+        InDetFlags.init()
+        ConfigFlags.InDet.Tracking.doTIDE_Ambi = InDetFlags.doTIDE_Ambi()
+        ConfigFlags.InDet.useDCS = InDetFlags.useDCS()
+        ConfigFlags.InDet.PriVertex.doVertexFinding = InDetFlags.doVertexFinding()
+    except ImportError:
+        log.info('InDetRecExample not available, "ConfigFlags.InDet.Tracking.doTIDE_Ambi", "ConfigFlags.InDet.useDCS" and "ConfigFlags.InDet.PriVertex.doVertexFinding" not set')
+        pass
 
 
     # LAr Flags
-    from LArConditionsCommon.LArCondFlags import larCondFlags 
-    ConfigFlags.LAr.OFCShapeFolder = larCondFlags.OFCShapeFolder()
-    from LArROD.LArRODFlags import larRODFlags
-    ConfigFlags.LAr.ROD.DoOFCPileupOptimization=larRODFlags.doOFCPileupOptimization()
-    ConfigFlags.LAr.ROD.NumberOfCollisions=larRODFlags.NumberOfCollisions()
-    ConfigFlags.LAr.ROD.nSamples=larRODFlags.nSamples()
-    ConfigFlags.LAr.ROD.FirstSample=larRODFlags.firstSample()
-    ConfigFlags.LAr.ROD.UseHighestGainAutoCorr=larRODFlags.useHighestGainAutoCorr()
-    ConfigFlags.LAr.ROD.DoOFCMixedOptimization=larRODFlags.doOFCMixedOptimization()
-    ConfigFlags.LAr.ROD.UseDelta=larRODFlags.UseDelta()
-    ConfigFlags.LAr.ROD.forceIter=larRODFlags.forceIter()
+    try:
+        from LArConditionsCommon.LArCondFlags import larCondFlags
+        ConfigFlags.LAr.OFCShapeFolder = larCondFlags.OFCShapeFolder()
+    except ImportError:
+        log.info('LArConditionsCommon not available, "ConfigFlags.LAr.OFCShapeFolder" not set')
+        pass
+    try:
+        from LArROD.LArRODFlags import larRODFlags
+        ConfigFlags.LAr.ROD.DoOFCPileupOptimization=larRODFlags.doOFCPileupOptimization()
+        ConfigFlags.LAr.ROD.NumberOfCollisions=larRODFlags.NumberOfCollisions()
+        ConfigFlags.LAr.ROD.nSamples=larRODFlags.nSamples()
+        ConfigFlags.LAr.ROD.FirstSample=larRODFlags.firstSample()
+        ConfigFlags.LAr.ROD.UseHighestGainAutoCorr=larRODFlags.useHighestGainAutoCorr()
+        ConfigFlags.LAr.ROD.DoOFCMixedOptimization=larRODFlags.doOFCMixedOptimization()
+        ConfigFlags.LAr.ROD.UseDelta=larRODFlags.UseDelta()
+        ConfigFlags.LAr.ROD.forceIter=larRODFlags.forceIter()
+    except ImportError:
+        log.info('LArROD not available, "ConfigFlags.LAr.ROD" flags not set')
+        pass
 
     # Muon reco flags
-    ConfigFlags.MuonCombined.doMuGirl = recAlgs.doMuGirl()
-    ConfigFlags.MuonCombined.doMuGirlLowBeta = muonCombinedRecFlags.doMuGirlLowBeta()
-    ConfigFlags.Muon.doMSVertex = muonRecFlags.doMSVertex()
+    try:
+        from RecExConfig.RecAlgsFlags import recAlgs
+        ConfigFlags.MuonCombined.doMuGirl = recAlgs.doMuGirl()
+    except ImportError:
+        log.info('RecExConfig not available, "ConfigFlags.MuonCombined.doMuGirl" not set')
+        pass
+    try:
+        from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
+        ConfigFlags.MuonCombined.doMuGirlLowBeta = muonCombinedRecFlags.doMuGirlLowBeta()
+    except ImportError:
+        log.info('MuonCombinedRecExample not available, "ConfigFlags.MuonCombined.doMuGirlLowBeta" not set')
+        pass
+    try:
+        from MuonRecExample.MuonRecFlags import muonRecFlags
+        ConfigFlags.Muon.doMSVertex = muonRecFlags.doMSVertex()
+    except ImportError:
+        log.info('MuonRecExample not available, "ConfigFlags.Muon.doMSVertex" not set')
+        pass
 
     # data overlay
-    from AthenaCommon.GlobalFlags import globalflags
-    from OverlayCommonAlgs.OverlayFlags import overlayFlags
-    ConfigFlags.Overlay.DataOverlay = globalflags.isOverlay() and overlayFlags.isDataOverlay()
+    try:
+        from AthenaCommon.GlobalFlags import globalflags
+        from OverlayCommonAlgs.OverlayFlags import overlayFlags
+        ConfigFlags.Overlay.DataOverlay = globalflags.isOverlay() and overlayFlags.isDataOverlay()
+    except ImportError:
+        log.info('OverlayCommonAlgs not available, "ConfigFlags.Overlay.DataOverlay" not set')
+        pass
 
-    if rec.doDPD():
-        # flags for Physics Validation (ATLASRECTS-6636)
-        ConfigFlags.BTagging.SaveSV1Probabilities = True
-        ConfigFlags.BTagging.RunJetFitterNN = True
-        ConfigFlags.BTagging.RunFlipTaggers = True
+    try:
+        from RecExConfig.RecFlags import rec
+        if rec.doDPD():
+            # flags for Physics Validation (ATLASRECTS-6636)
+            ConfigFlags.BTagging.SaveSV1Probabilities = True
+            ConfigFlags.BTagging.RunJetFitterNN = True
+            ConfigFlags.BTagging.RunFlipTaggers = True
+            pass
+    except ImportError:
+        log.info('RecExConfig not available, "ConfigFlags.BTagging.SaveSV1Probabilities", "ConfigFlags.BTagging.RunJetFitterNN" and "ConfigFlags.BTagging.RunFlipTaggers" not set')
+        pass
 
     return ConfigFlags
 

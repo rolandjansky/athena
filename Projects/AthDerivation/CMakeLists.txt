@@ -30,13 +30,8 @@ find_package( Gaudi REQUIRED )
 find_package( tdaq-common REQUIRED )
 
 # Additional externals needed for the build/runtime:
-# find_package( Xrootd )
-# find_package( GSL )
-# find_package( Davix )
-# find_package( PNG )
-# find_package( BLAS )
+find_package( Frontier_Client )
 find_package( VDT )
-# find_package( requests )
 
 # Set up where to find the AthenaPoolUtilitiesTest CMake code.
 set( AthenaPoolUtilitiesTest_DIR

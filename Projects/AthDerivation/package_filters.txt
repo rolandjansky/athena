@@ -14,6 +14,7 @@
 + AtlasGeometryCommon/SubDetectorEnvelopes
 
 # Calorimeter package(s).
++ Calorimeter/CaloAlignment/.*
 + Calorimeter/CaloBadChannelTool
 + Calorimeter/CaloCalibHitRec
 + Calorimeter/CaloClusterCorrection
@@ -62,6 +63,7 @@
 + Database/CoolConvUtilities
 + Database/CoolLumiUtilities
 + Database/CoraCool
++ Database/CoralUtilities
 + Database/CrestApi
 + Database/DBLock
 + Database/IOVDb.*
@@ -140,6 +142,7 @@
 + InnerDetector/InDetConditions/.*ConditionsServices
 + InnerDetector/InDetConditions/.*ConditionsTools
 + InnerDetector/InDetConditions/TRT_ConditionsNN
++ InnerDetector/InDetConfig
 - InnerDetector/InDetDetDescr/BCMPrimeReadoutGeometry
 + InnerDetector/InDetDetDescr/InDetGeoModelUtils
 + InnerDetector/InDetDetDescr/InDetIdDictFiles
@@ -150,25 +153,31 @@
 + InnerDetector/InDetDetDescr/.*ReadoutGeometry
 + InnerDetector/InDetDetDescr/PixelReadoutDefinitions
 + InnerDetector/InDetDetDescrCnv/.*
++ InnerDetector/InDetEventCnv/InDetPrepRawDataToxAOD
 + InnerDetector/InDetExample/InDetRecExample
 + InnerDetector/InDetRawEvent/.*
++ InnerDetector/InDetRecAlgs/InDetUsedInVertexFitTrackDecorator
 + InnerDetector/InDetRecAlgs/InDetV0Finder
 - InnerDetector/InDetRecEvent/SiSpacePoint
 + InnerDetector/InDetRecEvent/.*
 - InnerDetector/InDetRecTools/Si.*
 + InnerDetector/InDetRecTools/TRT_ElectronPidTools
++ InnerDetector/InDetRecTools/TRT_DriftFunctionTool
 - InnerDetector/InDetRecTools/TRT.*
 + InnerDetector/InDetRecTools/.*
++ InnerDetector/InDetSimEvent
 + InnerDetector/InDetValidation/InDetPhysValMonitoring
 + InnerDetector/InDetValidation/InDetTruthVertexValidation
 
 # LAr package(s).
++ LArCalorimeter/LArAlignment/.*
 + LArCalorimeter/LArBadChannelTool
 + LArCalorimeter/LArCabling
 + LArCalorimeter/LArCnv/LArIdCnv
 + LArCalorimeter/LArCnv/LArCond.*
 + LArCalorimeter/LArCnv/LArAthenaPool
 + LArCalorimeter/LArCnv/LArTPCnv
++ LArCalorimeter/LArConfiguration
 + LArCalorimeter/LArDetDescr
 + LArCalorimeter/LArElecCalib
 + LArCalorimeter/LArExample/LArConditionsCommon
@@ -204,12 +213,14 @@
 + MuonSpectrometer/MuonCalib/MdtCalib/MdtCalibData
 + MuonSpectrometer/MuonCalib/MdtCalib/MdtCalibInterfaces
 + MuonSpectrometer/MuonCalib/MdtCalib/MdtCalibSvc
++ MuonSpectrometer/MuonCalib/MdtCalib/MdtCalibUtils
++ MuonSpectrometer/MuonCalib/MuonCalibTools
 + MuonSpectrometer/MuonCalib/MuonCalibUtils/.*
 + MuonSpectrometer/MuonCalib/MuonCalibEvent.*
 + MuonSpectrometer/MuonCalib/MuonCalibI.*
-- MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondAlg
 - MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondTest
 + MuonSpectrometer/MuonConditions/MuonCondGeneral/.*
++ MuonSpectrometer/MuonConfig
 + MuonSpectrometer/MuonDetDescr/MuonAGDD.*
 + MuonSpectrometer/MuonDetDescr/MuonDetDescrUtils
 + MuonSpectrometer/MuonDetDescr/MuonNSWAsBuilt
@@ -266,6 +277,7 @@
 + PhysicsAnalysis/JetMissingEtID/MissingEtDQA
 + PhysicsAnalysis/JetTagging/JetTagAlgs/.*
 + PhysicsAnalysis/JetTagging/JetTagCalibration
++ PhysicsAnalysis/JetTagging/JetTagConfig
 + PhysicsAnalysis/JetTagging/JetTagEvent
 + PhysicsAnalysis/JetTagging/JetTagInfo
 + PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/.*
@@ -296,6 +308,7 @@
 + Reconstruction/eflowRec
 + Reconstruction/egamma/egammaCalo.*
 + Reconstruction/egamma/egammaConditions
++ Reconstruction/egamma/egammaConfig
 + Reconstruction/egamma/egammaEvent
 + Reconstruction/egamma/egammaInterfaces
 + Reconstruction/egamma/egammaLayerRecalibTool
@@ -321,9 +334,11 @@
 + Reconstruction/MuonIdentification/MuidEvent
 + Reconstruction/MuonIdentification/muonEvent
 + Reconstruction/MuonIdentification/MuonCombinedBaseTools
++ Reconstruction/MuonIdentification/MuonCombinedConfig
 + Reconstruction/MuonIdentification/MuonCombinedEvent
 + Reconstruction/MuonIdentification/MuonCombinedRecExample
 + Reconstruction/MVAUtils
++ Reconstruction/PanTau/PanTauAlgs
 + Reconstruction/Particle
 + Reconstruction/ParticleTruth
 + Reconstruction/PFlow/PFlowUtils
@@ -359,11 +374,13 @@
 # Simulation package(s).
 + Simulation/G4Sim/TrackRecord
 + Simulation/HitManagement
++ Simulation/Overlay/OverlayConfiguration
 + Simulation/Tools/AtlasCLHEP_RandomGenerators
 
 # Tile package(s).
 + TileCalorimeter/TileCalib/TileCalibBlobObjs
 + TileCalorimeter/TileConditions
++ TileCalorimeter/TileConfiguration
 + TileCalorimeter/TileDetDescr
 + TileCalorimeter/TileEvent
 + TileCalorimeter/TileGeoModel
@@ -388,6 +405,8 @@
 - Tracking/Acts/ActsTrkAlgs/.*
 - Tracking/Acts/ActsTrkTools/.*
 + Tracking/Acts/.*
++ Tracking/TrkConditions/TrackingGeometryCondAlg
++ Tracking/TrkConfig
 + Tracking/TrkDetDescr/TrkDetDescrAthenaPool
 + Tracking/TrkDetDescr/TrkDetDescrGeoModelCnv
 + Tracking/TrkDetDescr/TrkDetDescrInterfaces
@@ -409,7 +428,6 @@
 + Tracking/TrkExtrapolation/.*
 + Tracking/TrkFitter/.*
 - Tracking/TrkTools/TrkMaterialProvider
-- Tracking/TrkTools/TrkTrack.*
 + Tracking/TrkTools/.*
 + Tracking/TrkUtilityPackages/TrkDriftCircleMath
 + Tracking/TrkUtilityPackages/TrkNeuralNetworkUtils
@@ -425,6 +443,7 @@
 + Trigger/TrigAnalysis/TrigDecisionTool
 + Trigger/TrigAnalysis/TriggerMatchingTool
 + Trigger/TrigAnalysis/TrigMuonMatching
++ Trigger/TrigAnalysis/TrigNavSlimmingMT
 + Trigger/TrigConfiguration/.*
 + Trigger/TriggerCommon/.*
 + Trigger/TrigCost/EnhancedBiasWeighter

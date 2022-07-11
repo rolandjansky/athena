@@ -28,8 +28,12 @@ if svcMgr.MessageSvc.OutputLevel <= DEBUG :
 if "SuperCells" not in dir():
   SuperCells = False
 
-from Digitization.DigitizationFlags import digitizationFlags
-isPileUpDigi = digitizationFlags.doXingByXingPileUp()
+try:
+  from Digitization.DigitizationFlags import digitizationFlags
+  isPileUpDigi = digitizationFlags.doXingByXingPileUp()
+except ImportError:
+  isPileUpDigi = False
+  pass
 
 # Access to IOVSvc and IOVDbSvc
 # Must list the folders to be used for reading
