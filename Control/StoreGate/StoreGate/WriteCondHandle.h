@@ -97,7 +97,9 @@ namespace SG {
 
     EventIDRange m_range{};
     bool m_rangeSet {false};
-    
+
+    std::vector<CondContBase*> m_oldDeps;
+    std::vector<CondContBase*> m_newDeps;
   };
   
   //---------------------------------------------------------------------------
@@ -121,6 +123,8 @@ namespace SG {
           << "WriteCondHandle : ptr to CondCont<T> is zero"
           << endmsg;
     }
+
+    m_oldDeps = m_cc->getDeps();
 
     if (! m_hkey.isInit()) {
       throw SG::ExcUninitKey (key.clid(), key.key(), key.storeHandle().name(),
@@ -187,6 +191,9 @@ namespace SG {
     }
     #endif
 
+    if (!m_newDeps.empty()) {
+      m_cc->addDeps (m_newDeps);
+    }
     StatusCode sc = m_cc->insert(m_range, std::move(t));
     // Preserve sc for return, since it may be DUPLICATE.
     if (sc.isFailure()) {
@@ -296,6 +303,11 @@ namespace SG {
   template< typename R>
   void
   WriteCondHandle<T>::addDependency(SG::ReadCondHandle<R>& rch) {
+    CondContBase* dep_cc = rch.getCC();
+    auto it = std::find (m_oldDeps.begin(), m_oldDeps.end(), dep_cc);
+    if (it == m_oldDeps.end()) {
+      m_newDeps.push_back (dep_cc);
+    }
     return addDependency(rch.getRange());
   }
 

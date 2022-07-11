@@ -28,5 +28,6 @@ UNKNOWN_CLASS:c...  ERROR CondContMixedBase::insertMixed: Run+lbn part of new ra
 UNKNOWN_CLASS:c...  ERROR CondContMixedBase::insertMixed: Run+lbn part of new range doesn't match existing range, or can't extend. New: {[1,t:25,l:30] - [1,t:30,l:50]}; existing: {[1,t:25,l:30] - [1,t:30,l:40]}
 test6
 UNKNOWN_CLASS:c...  ERROR CondCont<T>::insert: Not most-derived class; CLID used: 932847548; container CLID: 932847551
+test7
 testThread
 testThreadMixed

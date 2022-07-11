@@ -72,6 +72,8 @@ namespace SG {
     bool range(EventIDRange& r);
     bool range(const EventIDBase& t, EventIDRange& r) const;
     const EventIDRange& getRange();
+
+    CondCont<T>* getCC() { return m_cc; }
     
   private:
 
