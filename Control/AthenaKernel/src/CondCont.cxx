@@ -678,6 +678,34 @@ StatusCode CondContBase::inserted (const EventContext& ctx)
 
 
 /**
+ * @brief Declare other conditions containers that depend on this one.
+ * @param deps Conditions containers that depend on this one.
+ */
+void CondContBase::addDeps (const std::vector<CondContBase*>& deps)
+{
+  if (deps.empty()) return;
+  std::scoped_lock lock (m_depMutex);
+  m_deps.insert (m_deps.end(), deps.begin(), deps.end());
+
+  // Remove duplicates.
+  std::sort (m_deps.begin(), m_deps.end());
+  auto it = std::unique (m_deps.begin(), m_deps.end());
+  m_deps.resize (it - m_deps.begin());
+}
+
+
+/**
+ * @brief Return the list of conditions containers that depend on this one.
+ */
+std::vector<CondContBase*> CondContBase::getDeps()
+{
+  std::scoped_lock lock (m_depMutex);
+  return m_deps;
+}
+
+
+
+/**
  * @brief Allow overriding the name of the global conditions cleaner
  *        service (for testing purposes).
  * @param name The name of the global conditions cleaner service.

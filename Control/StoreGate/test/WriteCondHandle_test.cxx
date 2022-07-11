@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -117,6 +117,20 @@ makeWithAux (int x=0)
   auto aux = std::make_unique<MyObjAux>(x+100);
   obj->setStore (aux.get());
   return std::make_pair (std::move(obj), std::move(aux));
+}
+
+
+EventIDBase timestamp (int t)
+{
+  return EventIDBase (EventIDBase::UNDEFNUM,  // run
+                      EventIDBase::UNDEFEVT,  // event
+                      t);
+}
+
+
+EventIDRange tsrange (int beg, int end)
+{
+  return EventIDRange (timestamp (beg), timestamp (end));
 }
 
 
@@ -429,6 +443,69 @@ void test2( StoreGateSvc* cs )
 }
 
 
+// Test dependency tracking.
+void test3( StoreGateSvc* cs )
+{
+  std::cout << "test3\n";
+
+  SGTest::TestStore dumstore;
+  EventContext ctx (0, 0);
+  ctx.setEventID( timestamp(1) );
+  ctx.setExtension( Atlas::ExtendedEventContext(&dumstore) );
+  Gaudi::Hive::setCurrentContext(ctx);
+
+  // Add a couple items to the store.
+  {
+    SG::WriteCondHandleKey<MyObj>  k1 ("test3_1");
+    SG::WriteCondHandleKey<MyObj>  k2 ("test3_2");
+    assert ( k1.initialize().isSuccess() );
+    assert ( k2.initialize().isSuccess() );
+
+    SG::WriteCondHandle h1 (k1, ctx);
+    SG::WriteCondHandle h2 (k2, ctx);
+    assert ( h1.record (tsrange (1, 2), std::make_unique<MyObj>(1)).isSuccess() );
+    assert ( h2.record (tsrange (1, 2), std::make_unique<MyObj>(2)).isSuccess() );
+  }
+
+  SG::ReadCondHandleKey<MyObj>  k1 ("test3_1");
+  SG::ReadCondHandleKey<MyObj>  k2 ("test3_2");
+  assert ( k1.initialize().isSuccess() );
+  assert ( k2.initialize().isSuccess() );
+  SG::ReadCondHandle h1 (k1, ctx);
+  SG::ReadCondHandle h2 (k2, ctx);
+
+  SG::WriteCondHandleKey<MyObj>  k3 ("test3_3");
+  assert ( k3.initialize().isSuccess() );
+
+  {
+    SG::WriteCondHandle h3 (k3, ctx);
+    h3.addDependency (h1);
+    h3.addDependency (h2);
+    assert ( h3.record (std::make_unique<MyObj>(3)).isSuccess() );
+  }
+
+  CondCont<MyObj>* cc1 = nullptr;
+  assert ( cs->retrieve (cc1, "test3_1").isSuccess() );
+  CondCont<MyObj>* cc2 = nullptr;
+  assert ( cs->retrieve (cc2, "test3_2").isSuccess() );
+  CondCont<MyObj>* cc3 = nullptr;
+  assert ( cs->retrieve (cc3, "test3_3").isSuccess() );
+
+  std::vector<CondContBase*> v { cc1, cc2 };
+  std::sort (v.begin(), v.end());
+  assert (cc3->getDeps() == v);
+
+  {
+    SG::WriteCondHandle h3 (k3, ctx);
+    h3.addDependency (h1);
+    h3.addDependency (h2);
+    assert ( h3.record (std::make_unique<MyObj>(3)).isSuccess() );
+  }
+  assert (cc3->getDeps() == v);
+}
+
+
+
 int main()
 {
   ISvcLocator* svcloc;
@@ -445,5 +522,6 @@ int main()
   // cs->clearStore();
   
   test2(cs);
+  test3(cs);
   return 0;
 }
