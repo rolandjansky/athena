@@ -233,12 +233,12 @@ if __name__ == '__main__':
   filename = sys.argv[2]
   events = int(sys.argv[3])
 
-  if sys.argv[4] == 'verbose': algLogLevel = VERBOSE
-  
+  if len(sys.argv) > 4 and sys.argv[4] == 'verbose': algLogLevel = VERBOSE
+
   if subsystem not in supportedSubsystems:
     log.error(f'subsystem "{subsystem}" not one of supported subsystems: {supportedSubsystems}')
     sys.exit(1)
-  
+
   if "data22" in filename:
     flags.Trigger.triggerConfig='DB'
 
@@ -257,20 +257,20 @@ if __name__ == '__main__':
 
   from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamReadCfg
   acc.merge(ByteStreamReadCfg(flags))
-  
+
   # Generate run3 L1 menu
   from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg,generateL1Menu
   acc.merge(L1ConfigSvcCfg(flags))
 
-  if "data22" not in filename:   
+  if "data22" not in filename:
     generateL1Menu(flags)
-  
+
   # Produce xAOD L1 RoIs from RoIBResult
   from AnalysisTriggerAlgs.AnalysisTriggerAlgsCAConfig import RoIBResultToxAODCfg
   xRoIBResultAcc, xRoIBResultOutputs = RoIBResultToxAODCfg(flags)
   acc.merge(L1TriggerByteStreamDecoderCfg(flags))
-  acc.merge(xRoIBResultAcc)  
-  
+  acc.merge(xRoIBResultAcc)
+
 
   decoderTools = []
   outputEDM = []
@@ -279,7 +279,7 @@ if __name__ == '__main__':
     auxType = edmType.replace('Container','AuxContainer')
     return [f'{edmType}#{edmName}',
             f'{auxType}#{edmName}Aux.']
-            
+
   outputEDM += addEDM('xAOD::JetEtRoI'         , 'LVL1JetEtRoI')
   outputEDM += addEDM('xAOD::JetRoIContainer'  , 'LVL1JetRoIs')
   outputEDM += addEDM('xAOD::EmTauRoIContainer', 'LVL1EmTauRoIs')
@@ -297,13 +297,14 @@ if __name__ == '__main__':
 
   if subsystem in ['eFex','allFex'] :
     eFexTool = eFexByteStreamToolCfg('eFexBSDecoder', flags)
-    decoderTools += [eFexTool]
+    eFexTool_xTOBs = eFexByteStreamToolCfg('eFexBSDecoder_xTOBs', flags,xTOBs=True)
+    decoderTools += [eFexTool,eFexTool_xTOBs]
     # TOB containers
-    outputEDM += addEDM('xAOD::eFexEMRoIContainer', eFexTool.eEMTOBContainerWriteKey.Path)
-    outputEDM += addEDM('xAOD::eFexTauRoIContainer', eFexTool.eTAUTOBContainerWriteKey.Path)
+    outputEDM += addEDM('xAOD::eFexEMRoIContainer', eFexTool.eEMContainerWriteKey.Path)
+    outputEDM += addEDM('xAOD::eFexTauRoIContainer', eFexTool.eTAUContainerWriteKey.Path)
     # xTOB containers
-    outputEDM += addEDM('xAOD::eFexEMRoIContainer', eFexTool.eEMxTOBContainerWriteKey.Path)
-    outputEDM += addEDM('xAOD::eFexTauRoIContainer', eFexTool.eTAUxTOBContainerWriteKey.Path)
+    outputEDM += addEDM('xAOD::eFexEMRoIContainer', eFexTool_xTOBs.eEMContainerWriteKey.Path)
+    outputEDM += addEDM('xAOD::eFexTauRoIContainer', eFexTool_xTOBs.eTAUContainerWriteKey.Path)
 
   if subsystem in 'Topo':
     l1topoBSTool = L1TopoPhase1ByteStreamToolCfg()
