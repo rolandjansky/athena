@@ -4,7 +4,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import BeamType, ProductionStep
+from AthenaConfiguration.Enums import BeamType
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from Digitization.PileUpMergeSvcConfigNew import PileUpMergeSvcCfg, PileUpXingFolderCfg
 from Digitization.PileUpToolsConfig import PileUpToolsCfg
@@ -38,8 +38,8 @@ def TileHitVecToCntToolCfg(flags, **kwargs):
     """
 
     kwargs.setdefault('name', 'TileHitVecToCntTool')
-    kwargs.setdefault('RndmEvtOverlay', flags.Common.ProductionStep == ProductionStep.Overlay)
-    if flags.Common.ProductionStep == ProductionStep.Overlay:
+    kwargs.setdefault('RndmEvtOverlay', flags.Common.isOverlay)
+    if flags.Common.isOverlay:
         kwargs.setdefault('OnlyUseContainerName', False)
     else:
         kwargs.setdefault('OnlyUseContainerName', flags.Digitization.PileUp)
@@ -61,7 +61,7 @@ def TileHitVecToCntToolCfg(flags, **kwargs):
         kwargs.setdefault('TileHitVectors', ['TileHitVec'])
     kwargs.setdefault('TileHitContainer', 'TileHitCnt')
 
-    if flags.Common.ProductionStep == ProductionStep.Overlay:
+    if flags.Common.isOverlay:
         from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
         acc.merge(SGInputLoaderCfg(flags, [f'TileHitVector#{vec}' for vec in kwargs['TileHitVectors']]))
 
@@ -117,7 +117,7 @@ def TileHitVecToCntCfg(flags, **kwargs):
         kwargs.setdefault('DigitizationTool', tool)
 
     # choose which alg to attach to, following PileUpToolsCfg
-    if flags.Common.ProductionStep == ProductionStep.Overlay:
+    if flags.Common.isOverlay:
         if flags.Concurrency.NumThreads > 0:
             kwargs.setdefault('Cardinality', flags.Concurrency.NumThreads)
 

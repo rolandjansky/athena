@@ -2,7 +2,6 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import ProductionStep
 from AthenaCommon.Constants import DEBUG
 
 ## Small class to hold the names for cache containers, should help to avoid copy / paste errors
@@ -50,7 +49,7 @@ def RpcBytestreamDecodeCfg(flags, name="RpcRawDataProvider"):
 
 
     # Setup the RAW data provider tool
-    keyName = flags.Overlay.BkgPrefix + "RPCPAD" if flags.Common.ProductionStep == ProductionStep.Overlay else "RPCPAD"
+    keyName = flags.Overlay.BkgPrefix + "RPCPAD" if flags.Common.isOverlay else "RPCPAD"
     Muon__RPC_RawDataProviderToolMT=CompFactory.Muon.RPC_RawDataProviderToolMT
     MuonRpcRawDataProviderTool = Muon__RPC_RawDataProviderToolMT(name    = "RPC_RawDataProviderToolMT",
                                                                  Decoder = RPCRodDecoder,
@@ -96,7 +95,7 @@ def TgcBytestreamDecodeCfg(flags, name="TgcRawDataProvider"):
 
 
     # Setup the RAW data provider tool
-    keyName = flags.Overlay.BkgPrefix + "TGCRDO" if flags.Common.ProductionStep == ProductionStep.Overlay else "TGCRDO"
+    keyName = flags.Overlay.BkgPrefix + "TGCRDO" if flags.Common.isOverlay else "TGCRDO"
     Muon__TGC_RawDataProviderToolMT=CompFactory.Muon.TGC_RawDataProviderToolMT
     MuonTgcRawDataProviderTool = Muon__TGC_RawDataProviderToolMT(name    = "TGC_RawDataProviderToolMT",
                                                                  Decoder = TGCRodDecoder,
@@ -143,7 +142,7 @@ def MdtBytestreamDecodeCfg(flags, name="MdtRawDataProvider"):
 
 
     # Setup the RAW data provider tool
-    keyName = flags.Overlay.BkgPrefix + "MDTCSM" if flags.Common.ProductionStep == ProductionStep.Overlay else "MDTCSM"
+    keyName = flags.Overlay.BkgPrefix + "MDTCSM" if flags.Common.isOverlay else "MDTCSM"
     Muon__MDT_RawDataProviderToolMT=CompFactory.Muon.MDT_RawDataProviderToolMT
     MuonMdtRawDataProviderTool = Muon__MDT_RawDataProviderToolMT(name    = "MDT_RawDataProviderToolMT",
                                                                  Decoder = MDTRodDecoder,
@@ -186,7 +185,7 @@ def CscBytestreamDecodeCfg(flags, name="CscRawDataProvider"):
 
 
     # Setup the RAW data provider tool
-    keyName = flags.Overlay.BkgPrefix + "CSCRDO" if flags.Common.ProductionStep == ProductionStep.Overlay else "CSCRDO"
+    keyName = flags.Overlay.BkgPrefix + "CSCRDO" if flags.Common.isOverlay else "CSCRDO"
     Muon__CSC_RawDataProviderToolMT=CompFactory.Muon.CSC_RawDataProviderToolMT
     MuonCscRawDataProviderTool = Muon__CSC_RawDataProviderToolMT(name    = "CSC_RawDataProviderToolMT",
                                                                  Decoder = CSCRodDecoder,
@@ -229,7 +228,7 @@ def sTgcBytestreamDecodeCfg(flags, name="sTgcRawDataProvider"):
 
 
     # Setup the RAW data provider tool
-    keyName = flags.Overlay.BkgPrefix + "sTGCRDO" if flags.Common.ProductionStep == ProductionStep.Overlay else "sTGCRDO"
+    keyName = flags.Overlay.BkgPrefix + "sTGCRDO" if flags.Common.isOverlay else "sTGCRDO"
     Muon__STGC_RawDataProviderToolMT=CompFactory.Muon.STGC_RawDataProviderToolMT
     MuonsTgcRawDataProviderTool = Muon__STGC_RawDataProviderToolMT(name    = "STGC_RawDataProviderToolMT",
                                                                    Decoder = STGCRodDecoder,
@@ -273,7 +272,7 @@ def MmBytestreamDecodeCfg(flags, name="MmRawDataProvider"):
 
     # Setup the RAW data provider tool
     #keyName = flags.Overlay.BkgPrefix + "MMRDO" if flags.Detector.OverlayMM else "MMRDO"
-    keyName = flags.Overlay.BkgPrefix + "MMRDO" if flags.Common.ProductionStep == ProductionStep.Overlay else "MMRDO"
+    keyName = flags.Overlay.BkgPrefix + "MMRDO" if flags.Common.isOverlay else "MMRDO"
     Muon_MM_RawDataProviderToolMT = CompFactory.Muon.MM_RawDataProviderToolMT
     MuonMmRawDataProviderTool = Muon_MM_RawDataProviderToolMT(name  = "MM_RawDataProviderToolMT",
                                                               Decoder = MMRodDecoder,

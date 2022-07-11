@@ -42,7 +42,7 @@ def BCM_DigitizationToolCommonCfg(flags, name="BCM_DigitizationTool", **kwargs):
     if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("OutputRDOKey", flags.Overlay.BkgPrefix + "BCM_RDOs")
         kwargs.setdefault("OutputSDOKey", flags.Overlay.BkgPrefix + "BCM_SDO_Map")
-    elif flags.Common.ProductionStep == ProductionStep.Overlay:
+    elif flags.Common.isOverlay:
         kwargs.setdefault("OnlyUseContainerName", False)
         kwargs.setdefault("OutputRDOKey", flags.Overlay.SigPrefix + "BCM_RDOs")
         kwargs.setdefault("OutputSDOKey", flags.Overlay.SigPrefix + "BCM_SDO_Map")

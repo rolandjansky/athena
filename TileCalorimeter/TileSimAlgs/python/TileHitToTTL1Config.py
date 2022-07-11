@@ -48,7 +48,7 @@ def TileHitToTTL1Cfg(flags, **kwargs):
             kwargs.setdefault('TileMBTSTTL1Container', flags.Overlay.BkgPrefix + 'TileTTL1MBTS')
         else:
             kwargs.setdefault('TileMBTSTTL1Container', '')
-    elif flags.Common.ProductionStep == ProductionStep.Overlay:
+    elif flags.Common.isOverlay:
         kwargs.setdefault('TileTTL1Container', flags.Overlay.SigPrefix + 'TileTTL1Cnt')
         if flags.Detector.EnableMBTS:
             kwargs.setdefault('TileMBTSTTL1Container', flags.Overlay.SigPrefix + 'TileTTL1MBTS')

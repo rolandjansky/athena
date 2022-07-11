@@ -4,7 +4,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import Format, ProductionStep
+from AthenaConfiguration.Enums import Format
 
 
 def TileDQstatusToolCfg(flags, **kwargs):
@@ -64,7 +64,7 @@ def TileDQstatusAlgCfg(flags, **kwargs):
 
         rawChannelContainer = 'TileRawChannelCnt'
 
-    elif flags.Common.ProductionStep == ProductionStep.Overlay and flags.Overlay.DataOverlay:
+    elif flags.Common.isOverlay and flags.Overlay.DataOverlay:
         beamElemContainer = ''
         digitsContainer = flags.Overlay.BkgPrefix + 'TileDigitsCnt'
         rawChannelContainer = flags.Overlay.BkgPrefix + 'TileRawChannelCnt'
