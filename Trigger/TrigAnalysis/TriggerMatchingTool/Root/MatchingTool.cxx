@@ -34,6 +34,7 @@ StatusCode MatchingTool::initialize() {
   m_impl->setThreshold( m_matchingThreshold );
 
   ATH_CHECK( m_trigDecTool.retrieve() );
+  ATH_CHECK( m_scoreTool.retrieve() );
 
   return StatusCode::SUCCESS;
 }
@@ -112,11 +113,22 @@ StatusCode MatchingTool::initialize() {
   std::vector<const xAOD::IParticle*> trigObjects;
   for(auto& feat : iparticle_feats){trigObjects.push_back(feat.cptr());}
 
-  auto distance_matrix = distanceMatrix(recoObjects,trigObjects);
+  std::vector<std::vector<double>> scoreMatrix;
+  scoreMatrix.reserve(recoObjects.size());
+  for (const xAOD::IParticle *reco : recoObjects)
+  {
+      scoreMatrix.emplace_back();
+      std::vector<double> &scores = scoreMatrix.back();
+      scores.reserve(trigObjects.size());
+      for (const xAOD::IParticle *trig: trigObjects)
+          // For historic reasons a lot of the interfaces here expect doubles
+          // It doesn't seem worth fixing this now
+          scores.push_back(static_cast<double>(m_scoreTool->score(*trig, *reco)));
+  }
 
   ATH_MSG_DEBUG("made distance matrix");
 
-  bool match_result = impl()->matchDistanceMatrix(distance_matrix, Trig::MatchingStrategy::MinimalSum,threshold);
+  bool match_result = impl()->matchDistanceMatrix(scoreMatrix, Trig::MatchingStrategy::MinimalSum,threshold);
 
   ATH_MSG_DEBUG("got matching result: " << match_result);
   
@@ -163,24 +175,6 @@ StatusCode MatchingTool::initialize() {
 const Trig::MatchingImplementation* MatchingTool::impl() const {
   return m_impl;
 }
-
-double MatchingTool::IParticleMetric(const xAOD::IParticle* lhs, const xAOD::IParticle* rhs) const {
-  return xAOD::P4Helpers::deltaR(lhs,rhs,false /*use pseudorapidity to avoid calling p4*/);//return lhs->p4().DeltaR(rhs->p4());
-}
-
-std::vector<std::vector<double> > MatchingTool::distanceMatrix(const std::vector<const xAOD::IParticle*>& reco,
-							       const std::vector<const xAOD::IParticle*>& trigger) const {
-  std::vector<std::vector<double> > rows;
-  for(const auto& rec : reco){
-    std::vector<double> distances_to_rec;
-    for(const auto& trig : trigger){
-      distances_to_rec.push_back(IParticleMetric(rec,trig));
-    }
-    rows.push_back(distances_to_rec);
-  }
-  return rows;
-}
-
 } //Trig namespace
 
 

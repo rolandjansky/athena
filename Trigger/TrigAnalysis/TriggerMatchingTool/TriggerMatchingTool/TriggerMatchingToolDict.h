@@ -10,5 +10,8 @@
 #include "TriggerMatchingTool/R3MatchingTool.h"
 #include "TriggerMatchingTool/IParticleRetrievalTool.h"
 #include "TriggerMatchingTool/MatchFromCompositeTool.h"
+#include "TriggerMatchingTool/DRScoringTool.h"
+#include "TriggerMatchingTool/TypedScoringTool.h"
+#include "TriggerMatchingTool/EgammaDRScoringTool.h"
 
 #endif

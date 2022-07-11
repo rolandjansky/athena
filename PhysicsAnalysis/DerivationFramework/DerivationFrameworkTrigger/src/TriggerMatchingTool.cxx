@@ -86,6 +86,7 @@ namespace DerivationFramework {
     m_chainNames.erase(std::unique(m_chainNames.begin(), m_chainNames.end() ), m_chainNames.end() );
 
     ATH_CHECK( m_trigParticleTool.retrieve() );
+    ATH_CHECK( m_scoreTool.retrieve() );
     for (auto &p : m_offlineInputs)
     {
       ATH_CHECK(p.second.initialize(SG::AllowEmpty));
@@ -282,7 +283,7 @@ namespace DerivationFramework {
       const xAOD::IParticle* lhs,
       const xAOD::IParticle* rhs) const
   {
-    return xAOD::P4Helpers::deltaR(lhs, rhs, false) < m_drThreshold;
+    return m_scoreTool->score(*lhs, *rhs) < m_drThreshold;
   }
 
 } //> end namespace DerivationFramework
