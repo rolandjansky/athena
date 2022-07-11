@@ -1,12 +1,11 @@
 // Yo emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
 // File and Version Information:
-// $Id: CaloTopoSplitterClusterCell.h,v 1.7 2008-12-23 02:57:16 ssnyder Exp $
 //
 // Description: ClusterCell Container for the topological cluster splitter
 //   
@@ -119,7 +118,12 @@ public:
     m_shared = false;
   }
 
-  inline CaloTopoSplitterHashCluster *getCaloTopoTmpHashCluster() const
+  inline const CaloTopoSplitterHashCluster *getCaloTopoTmpHashCluster() const
+  {
+    return m_cluster;
+  }
+
+  inline CaloTopoSplitterHashCluster *getCaloTopoTmpHashCluster()
   {
     return m_cluster;
   }

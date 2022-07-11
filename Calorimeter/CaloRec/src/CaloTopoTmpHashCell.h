@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
 // File and Version Information:
-// $Id: CaloTopoTmpHashCell.h,v 1.6 2008-08-28 05:15:05 ssnyder Exp $
-// 
+//
 // Description: HashCell Container for the topological cluster maker
 //   
 // Environment:
@@ -57,7 +56,12 @@ public:
 
   CaloTopoTmpHashCell & operator=(const CaloTopoTmpHashCell & other) = default;
 
-  T * getCaloTopoTmpClusterCell() const
+  const T * getCaloTopoTmpClusterCell() const
+  {
+    return m_clusterCell;
+  }
+
+  T * getCaloTopoTmpClusterCell()
   {
     return m_clusterCell;
   }

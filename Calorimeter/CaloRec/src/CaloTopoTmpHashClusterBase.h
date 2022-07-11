@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
 // File and Version Information:
-// $Id: CaloTopoTmpHashClusterBase.h,v 1.7 2008-12-23 02:57:16 ssnyder Exp $
 //
 // Description: base class for temporary Cluster Container for 
 // topological cluster making tools
@@ -116,8 +115,9 @@ public:
 template <class T>
 void CaloTopoTmpHashClusterBase<T>::add(const HashCell& hashCell)
 {
-  T* cell = hashCell.getCaloTopoTmpClusterCell();
-  m_members.push_back (cell);
+  const T* cell = hashCell.getCaloTopoTmpClusterCell();
+  // FIXME: Need const_cast because CxxUtils::pointer_list can only store void*
+  m_members.push_back (const_cast<T*>(cell));
   
   float ratio = cell->getSignedRatio(); 
   if ( ratio > m_maxRatio ) {

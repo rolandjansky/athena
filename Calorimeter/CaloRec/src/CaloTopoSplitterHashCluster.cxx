@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
 // File and Version Information:
-// $Id: CaloTopoSplitterHashCluster.cxx,v 1.8 2008-12-23 02:57:16 ssnyder Exp $
 //
 // Description: see CaloTopoSplitterHashCluster.h
 // 
@@ -51,7 +50,7 @@ CaloTopoSplitterHashCluster::~CaloTopoSplitterHashCluster()
 void CaloTopoSplitterHashCluster::add (const HashCell& hashCell)
 {
   if ( !m_parentCluster ) {
-    CaloTopoSplitterClusterCell* pCell = hashCell.getCaloTopoTmpClusterCell();
+    const CaloTopoSplitterClusterCell* pCell = hashCell.getCaloTopoTmpClusterCell();
     m_parentCluster = pCell->getParentCluster();
     m_parentClusterIndex = pCell->getParentClusterIndex();
   }
@@ -66,7 +65,7 @@ void CaloTopoSplitterHashCluster::add (const HashCell& hashCell)
 
 void CaloTopoSplitterHashCluster::remove (const HashCell& hashCell)
 {
-  CaloTopoSplitterClusterCell* cell = hashCell.getCaloTopoTmpClusterCell();
+  const CaloTopoSplitterClusterCell* cell = hashCell.getCaloTopoTmpClusterCell();
   {
     pointer_list::iterator iter =
       std::find (m_members.begin(), m_members.end(), cell);
