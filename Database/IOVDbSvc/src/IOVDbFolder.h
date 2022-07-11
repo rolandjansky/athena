@@ -117,7 +117,7 @@ public:
   std::unique_ptr<SG::TransientAddress>
   preLoadFolder(ITagInfoMgr *tagInfoMgr,
                 const unsigned int cacheRun,
-                const unsigned int cacheTime);
+                const unsigned int cacheTime,const std::string& globalTag="");
 
   // print out cache
   void printCache();

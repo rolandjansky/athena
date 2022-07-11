@@ -398,7 +398,7 @@ StatusCode IOVDbSvc::preLoadAddresses(StoreID::type storeID,tadList& tlist) {
         if (folder->conn()==pThisConnection || (folder->conn()==0 && doMeta)) {
           std::unique_ptr<SG::TransientAddress> tad =
             folder->preLoadFolder( &(*m_h_tagInfoMgr), m_par_cacheRun.value(),
-                                   m_par_cacheTime.value());
+                                   m_par_cacheTime.value(),m_globalTag);
           if (oldconn!=pThisConnection) {
             // close old connection if appropriate
             if (m_par_manageConnections && oldconn!=0) oldconn->setInactive();

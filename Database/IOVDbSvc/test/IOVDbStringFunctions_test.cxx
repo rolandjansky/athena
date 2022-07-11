@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_SUITE(IOVDbStringFunctionsTest)
   
   BOOST_AUTO_TEST_CASE(sanitiseFilename){
     const std::string filePath="/this/is/full/Filename.txt";
-    const std::string sanitisedPath="^this^is^full^Filename.txt";
+    const std::string sanitisedPath="thisisfullFilename.txt";
     BOOST_TEST(IOVDbNamespace::sanitiseFilename(filePath) == sanitisedPath);
   }
   

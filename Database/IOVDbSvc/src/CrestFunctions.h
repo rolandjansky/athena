@@ -49,5 +49,12 @@ namespace IOVDbNamespace{
   
   std::string 
   extractDescriptionFromJson(const std::string & jsonReply);
+  
+  std::string
+	resolveCrestTag(const std::string & globalTagName, const std::string & folderName, const std::string & forceTag="", const bool testing=false);
+	
+  
+  std::string
+  jsonTagName(const std::string &globalTag, const std::string & folderName);
 }
 #endif
