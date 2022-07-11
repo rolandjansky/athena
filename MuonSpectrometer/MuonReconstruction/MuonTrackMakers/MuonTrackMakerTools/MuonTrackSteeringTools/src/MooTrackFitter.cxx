@@ -1668,7 +1668,11 @@ namespace Muon {
         std::unique_ptr<Trk::Track> track = std::unique_ptr<Trk::Track>(m_trackFitter->fit(ctx, hits, *pars, m_runOutlier, partHypo));
 
         // 'sign' track
-        if (track) track->info().setPatternRecognitionInfo(m_patRecInfo);
+        if (track) {
+            ATH_MSG_VERBOSE("Got back this track:"<<*track);
+            track->info().setPatternRecognitionInfo(m_patRecInfo);
+        }
+
         return track;
     }
 
