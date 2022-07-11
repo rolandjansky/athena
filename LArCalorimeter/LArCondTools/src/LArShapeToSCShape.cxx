@@ -148,8 +148,9 @@ StatusCode LArShapeToSCShape::execute()
     //const IdentifierHash scHash=caloSCID->calo_cell_hash(scId);
     const std::vector<Identifier> &cellIds=m_scidTool->superCellToOfflineID(scId);
     if (cellIds.empty()) {
-      ATH_MSG_WARNING("Got empty vector of cell ids for super cell id 0x" 
+      ATH_MSG_ERROR("Got empty vector of cell ids for super cell id 0x" 
 		      << std::hex << scId.get_compact());
+		      return StatusCode::FAILURE;
     }
     const Identifier cellId=cellIds[0];
     
