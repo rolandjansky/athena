@@ -24,7 +24,7 @@ monitoringTP_electron = [
     'HLT_e20_lhmedium_L1EM15VH',
     'HLT_e20_lhtight_L1EM15VH',
     'HLT_e20_lhtight_ivarloose_L1EM15VH',
-    'HLT_e20_lhtight_ivarloose_L1EM15VHI'
+    'HLT_e20_lhtight_ivarloose_L1EM15VHI',
     'HLT_e140_lhloose_L1EM22VHI',
     'HLT_e140_lhloose_noringer_L1EM22VHI',
     'HLT_e60_lhmedium_L1EM22VHI',
@@ -65,24 +65,19 @@ validation_electron = [
         'HLT_e5_etcut_L1EM3',
         'HLT_e5_lhtight_noringer_L1EM3',
         'HLT_e60_etcut_L1EM22VHI',
-        'HLT_e26_etcut_L1EM22VHI'
+        'HLT_e26_etcut_L1EM22VHI',
+        'HLT_e300_etcut_L1EM22VHI'
         ]
 
 validationTP_electron = [
-        'HLT_e26_lhtight_L1eEM26',
-        'HLT_e26_lhtight_L1eEM26L',
         'HLT_e26_lhtight_L1EM22VHI',
         'HLT_e26_lhtight_ivarloose_L1EM15VH',
         'HLT_e26_lhtight_ivarloose_L1EM22VHI',
         'HLT_e26_lhtight_ivarmedium_L1EM22VHI',
-        'HLT_e26_lhtight_ivarloose_L1eEM26',
-        'HLT_e26_lhtight_ivarloose_L1eEM26M',
-        'HLT_e26_lhtight_ivarloose_L1eEM26T',
         'HLT_e28_lhtight_ivarloose_L1EM22VHI'
         'HLT_e140_lhloose_L1EM22VHI',
         'HLT_e140_lhloose_noringer_L1EM22VHI',
         'HLT_e60_lhmedium_L1EM22VHI',
-        'HLT_e60_lhmedium_L1eEM26M',
         ]
 
 
@@ -93,6 +88,14 @@ validationTP_electron_DNN = [ # will be added when new DNN is ready
         'HLT_e26_dnntight_L1EM22VHI'
         ]
 
+validationTP_electron_eEM = [
+        'HLT_e26_lhtight_L1eEM26',
+        'HLT_e26_lhtight_L1eEM26L',
+        'HLT_e26_lhtight_ivarloose_L1eEM26',
+        'HLT_e26_lhtight_ivarloose_L1eEM26M',
+        'HLT_e26_lhtight_ivarloose_L1eEM26T',
+        'HLT_e60_lhmedium_L1eEM26M',
+        ]
 
 
 validation_jpsi = [
