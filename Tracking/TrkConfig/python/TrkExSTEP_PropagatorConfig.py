@@ -14,11 +14,11 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 
 
 def AtlasSTEP_PropagatorCfg(flags,
-                            name='STEP_Propagator',
+                            name='AtlasSTEP_Propagator',
                             **kwargs):
     result = ComponentAccumulator()
-    STEP_Propagator = CompFactory.Trk.STEP_Propagator(name, **kwargs)
-    result.setPrivateTools(STEP_Propagator)
+    kwargs.setdefault("MaterialEffects", True) # Default value, set to allow non-default name for compatibility with legacy config
+    result.setPrivateTools(CompFactory.Trk.STEP_Propagator(name, **kwargs))
     return result
 
 
