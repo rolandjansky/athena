@@ -626,6 +626,10 @@ def setupMenu():
 
     chains['Beamspot'] += [
         ChainProp(name='HLT_beamspot_allTE_trkfast_BeamSpotPEB_L1J15',  l1SeedThresholds=['FSNOSEED'], stream=['BeamSpot'], groups=['PS:Online', 'RATE:BeamSpot',  'BW:BeamSpot']),
+
+        ChainProp(name='HLT_j0_perf_pf_ftf_beamspotVtx_BeamSpotPEB_L1J45p0ETA21_3J15p0ETA25', l1SeedThresholds=['FSNOSEED'], stream=['BeamSpot'], groups=['PS:Online', 'RATE:BeamSpot',  'BW:BeamSpot']),
+        ChainProp(name='HLT_j0_perf_pf_ftf_beamspotVtx_BeamSpotPEB_L1J15', l1SeedThresholds=['FSNOSEED'], stream=['BeamSpot'], groups=['PS:Online', 'RATE:BeamSpot',  'BW:BeamSpot']),
+        
     ]
 
     chains['MinBias'] += [

@@ -52,8 +52,6 @@ StatusCode Muon::MmRdoToPrepDataToolCore::processCollection(Muon::MMPrepDataCont
 
   const IdentifierHash hash = rdoColl->identifierHash();
 
-
-  
   // check if the collection already exists, otherwise add it
   if ( mmPrepDataContainer->indexFindPtr(hash) != nullptr) {
 
@@ -119,20 +117,24 @@ StatusCode Muon::MmRdoToPrepDataToolCore::processCollection(Muon::MMPrepDataCont
 
     bool getLocalPos = detEl->stripPosition(prdId,localPos);
     if ( !getLocalPos ) {
-      ATH_MSG_WARNING("Could not get the local strip position for MM "<<m_idHelperSvc->toString(prdId));
+      ATH_MSG_WARNING("Could not get the local strip position for "<<m_idHelperSvc->toString(prdId));
       continue;
     }
-    int stripNumberRDOId = detEl->stripNumber(localPos,layid);
-    ATH_MSG_DEBUG(" strip number at the hit position (assuming the design readout geometry): " << stripNumberRDOId );
+
     Amg::Vector3D globalPos;
     bool getGlobalPos = detEl->stripGlobalPosition(prdId,globalPos);
     if ( !getGlobalPos ) {
       ATH_MSG_WARNING("Could not get the global strip position for MM");
       continue;
     }
+    
     NSWCalib::CalibratedStrip calibStrip;
     ATH_CHECK (m_calibTool->calibrateStrip(ctx, rdo, calibStrip));
-
+    if (calibStrip.charge < 0) {
+        ATH_MSG_WARNING("MM RDO with pdo = "<<rdo->charge()<<" counts corresponds to a negative charge ("<<calibStrip.charge<<"). Skipping this RDO");
+        continue;
+    }
+    
     const Amg::Vector3D globalDir(globalPos.x(), globalPos.y(), globalPos.z());
     Trk::LocalDirection localDir;
     const Trk::PlaneSurface& psurf = detEl->surface(layid);

@@ -1,6 +1,7 @@
 #!/bin/sh
 #
 # art-description: MC21-style simulation using ATLFAST3F_G4MS
+# art-include: master/22.0
 # art-include: master/Athena
 # art-type: grid
 # art-architecture:  '#x86_64-intel'
@@ -65,18 +66,29 @@ then
 fi
 echo "art-result: $rc2 simOLD"
 
-#rc3=-9999
-#if [ $rc2 -eq 0 ]
-#then
-#  # Compare the outputs
-#  acmd.py diff-root test.CG.HITS.pool.root test.CA.HITS.pool.root \
-#    --error-mode resilient \
-#    --mode semi-detailed \
-#    --ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings index_ref
-#  rc3=$?
-#  status=$rc3
-#fi
-#
-#echo "art-result: $rc3 CAvsCG"
+rc3=-9999
+if [ $rc2 -eq 0 ]
+then
+  # Compare the outputs
+  acmd.py diff-root test.CG.HITS.pool.root test.CA.HITS.pool.root \
+    --error-mode resilient \
+    --mode semi-detailed \
+    --ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings index_ref
+  rc3=$?
+  status=$rc3
+fi
+
+echo "art-result: $rc3 OLDvsCA"
+
+rc4=-9999
+if [ $rc2 -eq 0 ]
+then
+    ArtPackage=$1
+    ArtJobName=$2
+    art.py compare grid --entries 4 ${ArtPackage} ${ArtJobName} --mode=semi-detailed --file=test.CG.HITS.pool.root
+    rc4=$?
+    status=$rc4
+fi
+echo  "art-result: $rc4 regression"
 
 exit $status

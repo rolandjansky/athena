@@ -45,7 +45,9 @@
 // VMM Mapping
 #include "MM_Digitization/MM_StripVmmMappingTool.h"
 #include "MM_Digitization/VMM_Shaper.h"
-
+namespace CLHEP{
+  class HepRandomEngine;
+}
 class MM_ElectronicsResponseSimulation {
 public:
     
@@ -74,8 +76,8 @@ public:
                                                              const int stationEta);
     
     MM_ElectronicsToolTriggerOutput applyDeadTimeART(const MM_ElectronicsToolTriggerOutput& ElectronicsTriggerOutput);
-    MM_ElectronicsToolTriggerOutput applyARTTiming(const MM_ElectronicsToolTriggerOutput& ElectronicsTriggerOutput, float jitter,
-                                                   float offset);
+    MM_ElectronicsToolTriggerOutput applyARTTiming(const MM_ElectronicsToolTriggerOutput& ElectronicsTriggerOutput, CLHEP::HepRandomEngine* random_engine, float jitter,
+                                                   float offset) const ;
     
     
 

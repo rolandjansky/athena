@@ -30,6 +30,8 @@ class MuonDetectorCondAlg : public AthAlgorithm {
 
     Gaudi::Property<bool> m_isData{this, "IsData", true};
     Gaudi::Property<bool> m_applyMmPassivation{this, "applyMmPassivation", false};
+    Gaudi::Property<bool> m_applyALines{this, "applyALines", true};
+    Gaudi::Property<bool> m_applyBLines{this, "applyBLines", true};
 
   private:
     ToolHandle<MuonDetectorTool> m_iGeoModelTool{this, "MuonDetectorTool", "MuonDetectorTool", "The MuonDetector tool"};

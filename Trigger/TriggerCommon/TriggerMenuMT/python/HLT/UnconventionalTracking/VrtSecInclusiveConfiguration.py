@@ -1,6 +1,5 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaCommon.CFElements import parOR
-from ..CommonSequences.FullScanDefs import trkFSRoI
 from TriggerMenuMT.HLT.Config.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaCommon.Logging import logging
 
@@ -11,24 +10,19 @@ log = logging.getLogger(__name__)
 def VrtSecInclusiveSequence(ConfigFlags):
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
     fscfg = getInDetTrigConfig("jet")
-    lrtcfg = getInDetTrigConfig( 'fullScanLRT' )
+    lrtcfg = getInDetTrigConfig("fullScanLRT")
 
-    from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTrackingNoView
-    ft_reco_algs = makeInDetTrigFastTrackingNoView( config = fscfg, rois=trkFSRoI, secondStageConfig = lrtcfg)
+    from TriggerMenuMT.HLT.UnconventionalTracking.CommonConfiguration import getCommonInDetFullScanLRTSequence
 
-    from TriggerMenuMT.HLT.Jet.JetMenuSequences import getTrackingInputMaker
-    im_alg = getTrackingInputMaker("ftf")
-
-    from TrigInDetConfig.InDetTrigVertices import makeInDetTrigVertices
-    vtxAlgs = makeInDetTrigVertices( "jet", fscfg.tracks_FTF(), fscfg.vertex_jet, fscfg, adaptiveVertex=fscfg.adaptiveVertex_jet)
-    prmVtx = vtxAlgs[-1]
+    ftf_seqs, im_alg, seqOut = RecoFragmentsPool.retrieve(getCommonInDetFullScanLRTSequence,ConfigFlags)
 
     from TrigVrtSecInclusive.TrigVrtSecInclusiveConfig import TrigVrtSecInclusiveCfg
     theVSI = TrigVrtSecInclusiveCfg("TrigVrtSecInclusive", fscfg.tracks_FTF(), lrtcfg.tracks_FTF(), fscfg.vertex, "HLT_TrigVSIVertex", "HLT_TrigVSITrkPair")
     theVSI.recordTrkPair = False
     vtx_reco_algs = [theVSI]
 
-    TrkSeq = parOR("UncTrkrecoSeqVSI", [im_alg, ft_reco_algs, prmVtx, vtx_reco_algs])
+    vsiseq = parOR("UncTrkrecoSeqVSI", [vtx_reco_algs])
+    TrkSeq = parOR("UncTrkrecoSeqLRTVSI", [ftf_seqs, vsiseq])
     sequenceOut = "HLT_TrigVSIVertex"
 
     return (TrkSeq, im_alg, sequenceOut)

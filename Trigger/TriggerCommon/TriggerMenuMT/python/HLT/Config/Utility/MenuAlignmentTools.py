@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 import numpy as np
 from collections import OrderedDict
 from AthenaCommon.Logging import logging
@@ -24,6 +24,7 @@ the_signature_grouping = OrderedDict([
     ('UnconventionalTracking','JetMET'),
     ('Bjet','JetMET'),
     ('MinBias', 'MinBias'),
+    ('Beamspot', 'Beamspot'),
     ('MuonnoL1', 'MuonnoL1'),
     ('Electronprobe', 'EgammaProbe'),
     ('Photonprobe' , 'EgammaProbe'),

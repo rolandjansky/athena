@@ -423,7 +423,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
 
         # --- check for duplicate strings in chain part name ---
         duplicateParts = ([item for item, count in collections.Counter(parts).items() if count > 1])
-        log.debug("[analyseChainName] chainpartsNoL1 %s contains duplicate strins %s", chainpartsNoL1, duplicateParts)
+        log.debug("[analyseChainName] chainpartsNoL1 %s contains duplicate strings %s", chainpartsNoL1, duplicateParts)
         if duplicateParts:
             log.error("[analyseChainName] chain %s has duplicate strings %s, please fix!!", chainName, duplicateParts)
             raise RuntimeError("[analyseChainName] Check the chain name, there are duplicate configurations: %s", duplicateParts)
@@ -518,6 +518,24 @@ def analyseChainName(chainName, L1thresholds, L1item):
                     if propSet is False:
                         log.debug('Changing %s from %s to %s', prop, str(chainProperties[prop]), str(bJetDefaultValues[prop]))
                         chainProperties[prop] = bJetDefaultValues[prop]
+
+
+            if chainProperties['signature'] == 'Jet' and chainProperties['beamspotChain'] != '':
+                log.debug('Setting beamspot chain defaults')
+                BeamspotDefaultValues, allowedBeamspotPropertiesAndValues = getSignatureInformation('Beamspot_Jet')
+                
+                for prop, value in BeamspotDefaultValues.items():
+                    propSet=False
+                    for value in allowedBeamspotPropertiesAndValues[prop]:
+                        if value in matchedparts:
+                            propSet=True
+                            break
+
+                    # if the property was not set already, then set if according to the b-jet defaults
+                    if propSet is False:
+                        log.debug('Changing %s from %s to %s', prop, str(chainProperties[prop]), str(BeamspotDefaultValues[prop]))
+                        chainProperties[prop] = BeamspotDefaultValues[prop]
+                        
 
             # Substitute after b-jet defaults have been set otherwise they will be overridden
             if chainProperties['extra']:
@@ -693,7 +711,7 @@ def dictFromChainName(chainInfo):
                 log.error("Standard egamma chains should be seeded from L1_EM. Check %s seeded from %s (defined L1: %s),  signature %s",chainDict['chainName'],thisL1,l1Thresholds,thisSignature)
                 #incorrectL1=True
 
-        if thisSignature in 'Tau':
+        if thisSignature in ['Tau']:
             if 'TAU' not in thisL1:
                 log.error("Standard tau chains should be seeded from L1_TAU. Check %s seeded from %s (defined L1: %s), signature %s",chainDict['chainName'],thisL1,l1Thresholds,thisSignature)
                 #incorrectL1=True
