@@ -55,10 +55,12 @@ ParameterErrDecoratorAlg::execute(const EventContext &ctx) const {
   }
   std::vector< IDPVM::OptionalDecoration<xAOD::TrackParticleContainer,float> >
      floatDecoration( IDPVM::createDecoratorsIfNeeded(*ptracks, m_decor, ctx, msgLvl(MSG::DEBUG)) );
-  for (const xAOD::TrackParticle *pTrkParticle : *ptracks) {
-    if (not decorateTrack(*pTrkParticle, floatDecoration) ) {
-      ATH_MSG_ERROR("Decoration failed in ParameterErrDecoratorAlg::execute.");
-      return StatusCode::FAILURE;
+  if (not floatDecoration.empty()){
+    for (const xAOD::TrackParticle *pTrkParticle : *ptracks) {
+      if (not decorateTrack(*pTrkParticle, floatDecoration) ) {
+	ATH_MSG_ERROR("Decoration failed in ParameterErrDecoratorAlg::execute.");
+	return StatusCode::FAILURE;
+      }
     }
   }
   return StatusCode::SUCCESS;
