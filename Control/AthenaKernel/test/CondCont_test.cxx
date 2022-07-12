@@ -858,6 +858,26 @@ void test6 (TestRCUSvc& rcusvc)
 }
 
 
+// Testing dependency handling
+void test7 (TestRCUSvc& rcusvc)
+{
+  std::cout << "test7\n";
+  SG::DataProxy proxy;
+  DataObjID id ("cls", "key");
+  CondCont<B> cc1 (rcusvc, id, &proxy);
+  CondCont<B> cc2 (rcusvc, id, &proxy);
+  CondCont<B> cc3 (rcusvc, id, &proxy);
+
+  assert (cc1.getDeps().empty());
+  std::vector<CondContBase*> v  { &cc2, &cc3 };
+  cc1.addDeps (v);
+  std::sort (v.begin(), v.end());
+  assert (cc1.getDeps() == v);
+  cc1.addDeps (std::vector<CondContBase*> { &cc3 });
+  assert (cc1.getDeps() == v);
+}
+
+
 //******************************************************************************
 
 
@@ -1291,6 +1311,7 @@ int main ATLAS_NOT_THREAD_SAFE ()
   test4 (rcusvc);
   test5 (rcusvc);
   test6 (rcusvc);
+  test7 (rcusvc);
   testThread (rcusvc);
   testThreadMixed (rcusvc);
   return 0;
