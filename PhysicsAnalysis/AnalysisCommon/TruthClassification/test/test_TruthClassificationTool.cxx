@@ -52,7 +52,7 @@ int main(int argc, char* argv[])
   // Use a default MC file for testing if none is provided
   TString fileName = "$ASG_TEST_FILE_MC";
   if (argc < 2) {
-    ANA_MSG_WARNING("No file name received, using ASG_TEST_FILE_MC");
+    ANA_MSG_INFO("No file name received, using ASG_TEST_FILE_MC");
   } else {
     fileName = argv[1]; // use the user provided file
   }

@@ -42,6 +42,5 @@ atlas_add_executable(testTruthClassificationTool
 # this test currently needs a special input file as the default ASG test files
 # do not contain all necessary information
 atlas_add_test(TruthClassificationToolTest
-  SCRIPT testTruthClassificationTool
-  /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/DAOD_PHYSVAL.mc16_13TeV.410470.FS_mc16e_p4017.PHYSVAL.pool.root
+  SCRIPT testTruthClassificationTool $ASG_TEST_FILE_MC 1000
   POST_EXEC_SCRIPT nopost.sh )
