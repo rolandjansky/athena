@@ -92,7 +92,7 @@ namespace Trk {
     /** The Amg::VectorX is a vector of first-derivatives of the alignTSOS on the alignTrack 
         w.r.t. a particular alignment parameter times W*F.  There is one Amg::VectorX in the vector for 
         each alignment parameter of each align module. Set by accumulateVTX. */
-    std::vector<AlignModuleVertexDerivatives>* derivatives() const { return m_derivatives; }
+    const std::vector<AlignModuleVertexDerivatives>* derivatives() const { return m_derivatives; }
     void setDerivatives(std::vector<AlignModuleVertexDerivatives>* vec) { m_derivatives=vec; }
     void addDerivatives(std::vector<AlignModuleVertexDerivatives>* vec);
 

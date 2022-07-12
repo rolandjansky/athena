@@ -962,10 +962,10 @@ void BeamspotVertexPreProcessor::accumulateVTX(const AlignTrack* alignTrack) {
   }
 
   // get pointers so we can reuse them if they're valid
-  Amg::MatrixX                 * ptrWeights   = alignTrack->weightMatrix();
-  Amg::MatrixX                 * ptrWeightsFD = alignTrack->weightMatrixFirstDeriv();
-  Amg::VectorX                 * ptrResiduals = alignTrack->residualVector();
-  std::vector<AlignModuleDerivatives> * ptrDerivs    = alignTrack->derivatives();
+  const Amg::MatrixX           * ptrWeights   = alignTrack->weightMatrix();
+  const Amg::MatrixX           * ptrWeightsFD = alignTrack->weightMatrixFirstDeriv();
+  const Amg::VectorX           * ptrResiduals = alignTrack->residualVector();
+  const std::vector<AlignModuleDerivatives> * ptrDerivs    = alignTrack->derivatives();
 
   // check if pointers are valid
   if (!ptrWeights || !ptrWeightsFD || !ptrResiduals || !ptrDerivs) {
@@ -978,12 +978,12 @@ void BeamspotVertexPreProcessor::accumulateVTX(const AlignTrack* alignTrack) {
   }
 
   // get vectors
-  Amg::VectorX&                    residuals     = *ptrResiduals;
+  const Amg::VectorX&                  residuals     = *ptrResiduals;
   std::vector<AlignModuleDerivatives>  derivatives   = *ptrDerivs;
 
   // get weight matrices
-  Amg::MatrixX&                weights           = *ptrWeights;
-  Amg::MatrixX&                weightsFirstDeriv = *ptrWeightsFD;
+  const Amg::MatrixX&          weights           = *ptrWeights;
+  const Amg::MatrixX&          weightsFirstDeriv = *ptrWeightsFD;
   ATH_MSG_VERBOSE("weights="<<weights);
   ATH_MSG_VERBOSE("weightsFirstDeriv="<<weightsFirstDeriv);
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKALIGNEVENT_ALIGNTRACK_H
@@ -130,35 +130,35 @@ namespace Trk {
     /** The Amg::VectorX is a vector of first-derivatives of the alignTSOS on the alignTrack 
         w.r.t. a particular alignment parameter.  There is one Amg::VectorX in the vector for 
         each alignment parameter of each align module. Set by DerivCalcTool. */
-    std::vector<AlignModuleDerivatives>* derivatives() const { return m_derivatives; }
+    const std::vector<AlignModuleDerivatives>* derivatives() const { return m_derivatives; }
     void setDerivatives(std::vector<AlignModuleDerivatives>* vec) { m_derivatives=vec; }
 
     /** The Amg::VectorX is a vector of errors in first-derivatives of the alignTSOS on 
         the alignTrack w.r.t. a particular alignment parameter.  There is one Amg::VectorX in 
         the vector for each alignment parameter of each align module. Set by 
         DerivCalcTool. */
-    std::vector<AlignModuleDerivatives>* derivativeErr() const { return m_derivativeErr; }
+    const std::vector<AlignModuleDerivatives>* derivativeErr() const { return m_derivativeErr; }
     void setDerivativeErr(std::vector<AlignModuleDerivatives>* vec) { m_derivativeErr=vec; }
 
     /** The Amg::VectorX is a vector of first-derivatives of the alignTSOS on the alignTrack 
         w.r.t. a particular alignment parameter.  There is one Amg::VectorX in the vector for 
         each alignment parameter of each align module. Set by DerivCalcTool. */
-    std::vector<std::pair<const AlignModule*,std::vector<double> > >* actualSecondDerivatives() const { return m_actualSecondDerivatives; }
+    const std::vector<std::pair<const AlignModule*,std::vector<double> > >* actualSecondDerivatives() const { return m_actualSecondDerivatives; }
     void setActualSecondDerivatives(std::vector<std::pair<const AlignModule*,std::vector<double> > >* vec) { m_actualSecondDerivatives=vec; }
     
     /** Vector of residuals of the alignTSOS on the alignTrack, to be set by AlignTrackDresser.  Owned by AlignTrack. */
-    Amg::VectorX* residualVector() const { return m_residuals; }
+    const Amg::VectorX* residualVector() const { return m_residuals; }
     void setResidualVector(Amg::VectorX* vec) { m_residuals=vec;}
     
     /** Weight matrix is W from Si alignment (see Eqn. 10 of INDET-PUB-2005-002).  
         It is related to the residual covariance matrix from TRT alignment by 
         W= V^{-1}RV (R is defined in Eqn. 18 of ATL-INDET-PUB-2007-009).*/ 
-    Amg::SymMatrixX* weightMatrix() const  { return m_weights; } 
+    const Amg::SymMatrixX* weightMatrix() const  { return m_weights; }
     void setWeightMatrix( Amg::SymMatrixX* mat) { m_weights=mat; }
 
     /** First deriv weight matrix can be either W from Si alignment 
         (see Eqn. 10 of INDET-PUB-2005-002) or the inverse local error matrix */  
-    Amg::SymMatrixX* weightMatrixFirstDeriv() const  { return m_weightsFirstDeriv; }
+    const Amg::SymMatrixX* weightMatrixFirstDeriv() const  { return m_weightsFirstDeriv; }
     void setWeightMatrixFirstDeriv( Amg::SymMatrixX* mat) { m_weightsFirstDeriv=mat; }
 
     /** locally calculated chi2 */
