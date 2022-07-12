@@ -185,6 +185,11 @@ _stdInputList = [
                      prereqs = ['input:GPFlowCSSK'],
                      algoBuilder = lambda jdef,_ : tcccfg.runUFOReconstruction(jdef._cflags, stdConstitDic['GPFlowCSSK'])
                      ),
+
+    JetInputExternal("UFO", xAODType.FlowElement,
+                     prereqs = ['input:GPFlow'],
+                     algoBuilder = lambda jdef,_ : tcccfg.runUFOReconstruction(jdef._cflags, stdConstitDic['GPFlow'])
+                     ),
     
 ]
 
@@ -266,6 +271,8 @@ _stdSeqList = [
 
 
     JetInputConstit("UFOCSSK", xAODType.FlowElement, "UFOCSSK" ),
+
+    JetInputConstit("UFO", xAODType.FlowElement, "UFO" ),
     
     # *****************************
     # Tower (used only as ghosts atm)

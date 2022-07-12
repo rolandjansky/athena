@@ -43,7 +43,7 @@ substrmods = ("nsubjettiness", "nsubjettinessR", "ktsplitter",
 
 #Variables used for trimmed large-R jets
 lctopo_trimmed_mods = ("planarflow","angularity","comshapes","ktdr","TrackSumMoments")
-
+ufo_softdrop_mods = ("planarflow","angularity","comshapes","ktdr","ecorrgeneral","ecorrgeneralratios")
 
 # *********************************************************
 # Standard large R jets definitions
@@ -83,15 +83,18 @@ AntiKt10LCTopoSoftDrop = JetSoftDrop(AntiKt10LCTopo,
                                      )
 
 
+AntiKt10UFOCHS = JetDefinition("AntiKt",1.0,cst.UFO,
+                               standardRecoMode = True)
 
 
 AntiKt10UFOCSSK = JetDefinition("AntiKt",1.0,cst.UFOCSSK,
                                 ghostdefs = standardghosts+flavourghosts+["AntiKtVR30Rmax4Rmin02PV0TrackJets"] ,
                                 modifiers = ("Sort", "Filter:50000","TrackMoments", "JetGhostLabel"),
                                 standardRecoMode = True,                               
-                                )                                   
+                                )
+
 AntiKt10UFOCSSKSoftDrop = JetSoftDrop(AntiKt10UFOCSSK,
-                                      modifiers = standardrecomods+substrmods+("JetGhostLabel",),
+                                      modifiers = standardrecomods+substrmods+ufo_softdrop_mods+truthlabels+("JetGhostLabel",),
                                       Beta = 1., ZCut= 0.1,
                                       )
 
