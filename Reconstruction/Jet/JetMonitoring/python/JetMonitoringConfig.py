@@ -366,7 +366,7 @@ class HistoSpec(ToolSpec):
 
         name = name+";"+self.groupName()
 
-        #print ' uuuuuuuuuuu ', self.name , ' --> ', name,  hargs
+        #print(' uuuuuuuuuuu ', self.name , ' --> ', name,  hargs)
         # call the standard histo definition routine :
         group.defineHistogram(name, path=path, **hargs)
 
@@ -574,7 +574,7 @@ class JetMonAlgSpec(ConfigDict):
         writeFunc(')')
 
 
-# **************************************                
+# **************************************
 
 class JetMonSpecException(Exception):
     pass
