@@ -80,6 +80,9 @@ def fromRunArgs(runArgs):
         from PerfMonComps.PerfMonCompsConfig import PerfMonMTSvcCfg
         cfg.merge(PerfMonMTSvcCfg(ConfigFlags))
 
+
+    cfg.getService("AthenaEventLoopMgr").EventPrintoutInterval = 100
+
     # Post-include
     log.info('**** Processing postInclude')
     processPostInclude(runArgs, ConfigFlags, cfg)
