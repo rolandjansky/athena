@@ -188,7 +188,7 @@ class AthMonitorCfgHelperOld(object):
         self.monName = monName
         self.monSeq = AthSequencer('AthMonSeq_' + monName)
 
-    def addAlgorithm(self, algClassOrObj, name = None, *args, **kwargs):
+    def addAlgorithm(self, algClassOrObj, name = None, addFilterTools = [], *args, **kwargs):
         '''
         Instantiate/add a monitoring algorithm
 
@@ -232,6 +232,10 @@ class AthMonitorCfgHelperOld(object):
             algObj.EnableLumi = True
         else:
             algObj.EnableLumi = False
+
+        # add some optional filters
+        for obj in addFilterTools:
+            algObj.FilterTools += [obj]
 
         self.monSeq+=algObj
         return algObj
