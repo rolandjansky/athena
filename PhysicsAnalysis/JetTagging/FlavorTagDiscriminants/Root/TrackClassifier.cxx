@@ -43,8 +43,8 @@ double TrackClassifier :: compute_HF_Score(const xAOD::TrackParticle *track, con
 
 std::map<std::string, double> TrackClassifier::ComputeScore(const std::unique_ptr<lwt::LightweightGraph>& net, const xAOD::TrackParticle* track, const xAOD::Jet* jet) const
 {
-  double dphi = (jet->p4()).DeltaPhi(track->p4());  
-  double deta = jet->eta() - track->eta();
+  double dphi = -(jet->p4()).DeltaPhi(track->p4());  
+  double deta = -(jet->eta() - track->eta());
   double dr = (track->p4()).DeltaR(jet->p4());
   double ptfrac = (track->pt())/(jet->pt());
 
@@ -53,7 +53,7 @@ std::map<std::string, double> TrackClassifier::ComputeScore(const std::unique_pt
   // as long as no variables are missing
   std::map<std::string, double> track_inputs{
         {"eta_btagJes",            (double) jet->eta()},
-	{"log_pt_btagJes",         (double) std::log(jet->pt()*0.001)},//GeV
+	{"log_pt_btagJes",         (double) std::log(jet->pt())},
 	{"dphi",                   (double) dphi},
 	{"deta",                   (double) deta},
 	{"log_dr",                 (double) std::log(dr)},
