@@ -147,6 +147,8 @@ class FrozenTier0PolicyCheck(WorkflowCheck):
             exclusion_list = [r"'index_ref'", r"'(.*)_timings(.*)'", r"'(.*)_mems(.*)'"]
 
         file_name = f"my{self.format}.pool.root"
+        if test.type == WorkflowType.Derivation:
+            file_name = f"{self.format}.myOutput.pool.root"
         reference_file = reference_path / file_name
         validation_file = test.validation_path / file_name
         log_file = test.validation_path / f"diff-root-{test.ID}.{self.format}.log"
@@ -154,7 +156,7 @@ class FrozenTier0PolicyCheck(WorkflowCheck):
 
         # TODO: temporary due to issues with some tests
         extra_args = ""
-        if test.type == WorkflowType.MCReco or test.type == WorkflowType.DataReco:
+        if test.type == WorkflowType.MCReco or test.type == WorkflowType.DataReco or test.type == WorkflowType.Derivation:
             extra_args = "--order-trees"
 
         comparison_command = f"acmd.py diff-root {reference_file} {validation_file} {extra_args} --nan-equal --mode semi-detailed --error-mode resilient --ignore-leaves {exclusion_list} --entries {self.max_events} > {log_file} 2>&1"

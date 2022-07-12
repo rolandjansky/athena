@@ -1,11 +1,11 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from sys import exit
 
 from WorkflowTestRunner.ScriptUtils import setup_logger, setup_parser, get_test_setup, \
     run_tests, run_checks, run_summary
-from WorkflowTestRunner.StandardTests import QTest, SimulationTest
+from WorkflowTestRunner.StandardTests import DerivationTest, QTest, SimulationTest
 from WorkflowTestRunner.Test import WorkflowRun, WorkflowType
 
 
@@ -33,6 +33,8 @@ def main():
         exit(1)
     elif options.reco:
         tests_to_run.append(QTest("q447", run, WorkflowType.MCReco, ["HITtoRDO", "RAWtoALL"], setup, options.extra_args))
+    elif options.derivation:
+        tests_to_run.append(DerivationTest("p5205", run, WorkflowType.Derivation, ["Derivation"], setup, options.extra_args))
     else:
         if setup.parallel_execution:
             log.error("Parallel execution not supported for the default Phase-II workflow")

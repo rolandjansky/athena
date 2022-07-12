@@ -137,3 +137,32 @@ class PileUpTest(WorkflowTest):
         ]
 
         super().__init__(ID, run, type, steps, setup)
+
+
+class DerivationTest(WorkflowTest):
+    """Derivations test."""
+
+    def __init__(self, ID: str, run: WorkflowRun, type: WorkflowType, steps: List[str], setup: TestSetup, extra_args: str = "") -> None:
+        if "maxEvents" not in extra_args:
+            extra_args += " --maxEvents 10"
+
+        threads = 2
+        if setup.custom_threads is not None:
+            threads = setup.custom_threads
+
+        self.command = \
+            (f"ATHENA_CORE_NUMBER={threads} Derivation_tf.py --AMIConfig {ID}"
+             " --outputDAODFile myOutput.pool.root"
+             " --formats PHYS"
+             f" --imf False {extra_args}")
+
+        # skip performance checks for now due to CA
+        self.skip_performance_checks = True
+
+        if threads == 0:
+            # does not work with shared writer
+            self.output_checks = [
+                FrozenTier0PolicyCheck(setup, "DAOD_PHYS", 10)
+            ]
+
+        super().__init__(ID, run, type, steps, setup)
