@@ -9,179 +9,251 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
+// Athena
+#include "AthenaKernel/IAthRNGSvc.h"
+#include "AthenaKernel/RNGWrapper.h"
+
 // ISF
 #include "ISF_Event/ISFParticle.h"
-#include "ISF_FatrasInterfaces/ISimHitCreator.h"
 #include "ISF_Interfaces/BaseSimulatorTool.h"
 #include "ISF_Interfaces/IParticleFilter.h"
 
 // ACTS
-#include "Acts/EventData/NeutralTrackParameters.hpp"
-#include "Acts/EventData/TrackParameters.hpp"
-#include "Acts/MagneticField/ConstantBField.hpp"
-#include "Acts/Propagator/EigenStepper.hpp"
-#include "Acts/Propagator/Navigator.hpp"
-#include "Acts/Propagator/StraightLineStepper.hpp"
-#include "ActsGeometry/ActsExtrapolationTool.h"
-#include "ActsGeometry/ActsGeometryContext.h"
-#include "ActsGeometry/ActsTrackingGeometryTool.h"
-#include "ActsGeometryInterfaces/IActsExtrapolationTool.h"
-#include "ActsGeometryInterfaces/IActsTrackingGeometryTool.h"
 #include "Acts/Utilities/UnitVectors.hpp"
+#include "ActsInterop/Logger.h"
+#include "Acts/Geometry/GeometryContext.hpp"
+#include "Acts/MagneticField/MagneticFieldContext.hpp"
+#include "Acts/EventData/SingleCurvilinearTrackParameters.hpp"
+#include "Acts/Propagator/Navigator.hpp"
+#include "Acts/Propagator/EigenStepper.hpp"
+#include "Acts/Propagator/StraightLineStepper.hpp"
+#include "Acts/Propagator/detail/SteppingLogger.hpp"
+#include "Acts/Propagator/ActionList.hpp"
+#include "Acts/Propagator/Propagator.hpp"
 #include "ActsFatras/Kernel/InteractionList.hpp"
 #include "ActsFatras/Kernel/Simulation.hpp"
+#include "ActsFatras/Kernel/SimulationResult.hpp"
 #include "ActsFatras/Physics/Decay/NoDecay.hpp"
 #include "ActsFatras/Physics/StandardInteractions.hpp"
-#include "ActsFatras/Selectors/ParticleSelectors.hpp"
 #include "ActsFatras/Selectors/SurfaceSelectors.hpp"
 #include "ActsFatras/Utilities/ParticleData.hpp"
-#include "ActsInterop/Logger.h"
+// Tracking
+#include "ActsGeometryInterfaces/IActsTrackingGeometryTool.h"
+#include "ActsGeometry/ATLASMagneticFieldWrapper.h"
+
+#include <algorithm>
+#include <cassert>
+#include <vector>
 
 class AtlasDetectorID;
 using namespace Acts::UnitLiterals;
+
 namespace iFatras {
-class ISimHitCreator;
+  class ISimHitCreator;
 }
 
 namespace ISF {
-
-struct SplitEnergyLoss {
-  double splitMomentumMin = 5_GeV;
-
-  template <typename generator_t>
-  bool operator()(generator_t&, const Acts::MaterialSlab&,
-                  ActsFatras::Particle& particle,
-                  std::vector<ActsFatras::Particle>& generated) const {
-    const auto p = particle.absoluteMomentum();
-    if (splitMomentumMin < p) {
-      particle.setAbsoluteMomentum(0.5 * p);
-      const auto pid = particle.particleId().makeDescendant();
-      generated.push_back(particle.withParticleId(pid).setAbsoluteMomentum(0.5 * p));
-    }
-    // never break
-    return false;
-  }
-};
+class IParticleHelper;
 
 /**
    @class ACTSFATRASSIMTOOL
 
    Standard ATLAS hit creator, with Acts-fatras simulation
-
-   @author yi.fei.han at cern.ch
-   @author vrpascuzzi at lbl.gov
 */
 
 class ActsFatrasSimTool : public BaseSimulatorTool {
+ 
  public:
+  /// Simple struct to select surfaces where hits should be generated.
+  struct HitSurfaceSelector {
+    /// Check if the surface should be used.
+    bool operator()(const Acts::Surface &surface) const {
+      bool isSensitive = surface.associatedDetectorElement();
+      return isSensitive;
+    }
+  };
+  // SingleParticleSimulation
+  /// Single particle simulation with fixed propagator, interactions, and decay.
+  ///
+  /// @tparam generator_t random number generator
+  /// @tparam interactions_t interaction list
+  /// @tparam hit_surface_selector_t selector for hit surfaces
+  /// @tparam decay_t decay module
+  template <typename propagator_t, typename interactions_t,
+            typename hit_surface_selector_t, typename decay_t>
+  struct SingleParticleSimulation {
+    /// How and within which geometry to propagate the particle.
+    propagator_t propagator;
+    /// Decay module.
+    decay_t decay;
+    /// Interaction list containing the simulated interactions.
+    interactions_t interactions;
+    /// Selector for surfaces that should generate hits.
+    hit_surface_selector_t selectHitSurface;
+    /// parameters for propagator options
+    double maxStepSize = 3.0; // leght in m
+    double maxStep = 1000;
+    double pathLimit = 100.0; // lenght in cm
+    double ptLoopers = 300.0; // pT in MeV
+
+    /// Wrapped logger for debug output.
+    Acts::LoggerWrapper loggerWrapper = Acts::getDummyLogger();
+    /// Local logger for debug output.
+    std::shared_ptr<const Acts::Logger> localLogger = nullptr;
+
+    /// Alternatively construct the simulator with an external logger.
+    SingleParticleSimulation(propagator_t &&propagator_,
+                            std::shared_ptr<const Acts::Logger> localLogger_)
+        : propagator(propagator_), localLogger(localLogger_) {}
+
+    /// Provide access to the local logger instance, e.g. for logging macros.
+    const Acts::Logger &logger() const { return *localLogger; }
+    
+    /// Simulate a single particle without secondaries.
+    ///
+    /// @tparam generator_t is the type of the random number generator
+    ///
+    /// @param geoCtx is the geometry context to access surface geometries
+    /// @param magCtx is the magnetic field context to access field values
+    /// @param generator is the random number generator
+    /// @param particle is the initial particle state
+    /// @returns Simulated particle state, hits, and generated particles.
+    template <typename generator_t>
+    Acts::Result<ActsFatras::SimulationResult> simulate(
+        const Acts::GeometryContext &geoCtx,
+        const Acts::MagneticFieldContext &magCtx, generator_t &generator,
+        const ActsFatras::Particle &particle) const {
+      assert(localLogger and "Missing local logger");
+      ACTS_VERBOSE("Using ActsFatrasSimTool simulate()");
+      // propagator-related additional types
+      using SteppingLogger = Acts::detail::SteppingLogger;
+      using Actor = ActsFatras::detail::SimulationActor<generator_t, decay_t, interactions_t, hit_surface_selector_t>;
+      using Aborter = typename Actor::ParticleNotAlive;
+      using Result = typename Actor::result_type;
+      using Actions = Acts::ActionList<SteppingLogger, Actor>;
+      using Abort = Acts::AbortList<Aborter, Acts::EndOfWorldReached>;
+      using PropagatorOptions = Acts::DenseStepperPropagatorOptions<Actions, Abort>;
+
+      // Construct per-call options.
+      PropagatorOptions options(geoCtx, magCtx, Acts::LoggerWrapper{*localLogger});
+      // setup the interactor as part of the propagator options
+      auto &actor = options.actionList.template get<Actor>();
+      actor.generator = &generator;
+      actor.decay = decay;
+      actor.interactions = interactions;
+      actor.selectHitSurface = selectHitSurface;
+      actor.initialParticle = particle;
+      // use AnyCharge to be able to handle neutral and charged parameters
+      Acts::SingleCurvilinearTrackParameters<Acts::AnyCharge> startPoint(
+          particle.fourPosition(), particle.unitDirection(),
+          particle.absoluteMomentum(), particle.charge());
+      options.absPdgCode = Acts::makeAbsolutePdgParticle(particle.pdg());
+      options.mass = particle.mass();
+      options.pathLimit = pathLimit * Acts::UnitConstants::cm;
+      options.loopProtection = Acts::VectorHelpers::perp(startPoint.momentum()) 
+                              < ptLoopers * Acts::UnitConstants::MeV;
+      options.maxStepSize = maxStepSize * Acts::UnitConstants::m;
+      options.maxSteps = maxStep;
+
+      auto result = propagator.propagate(startPoint, options);
+      if (not result.ok()) {
+        return result.error();
+      }
+      auto &value = result.value().template get<Result>();
+      return std::move(value);
+    }
+  };// end of SingleParticleSimulation
+
+  // Standard generator
+  using Generator = std::ranlux48;
+  // Use default navigator
   using Navigator = Acts::Navigator;
-  using MagneticField = Acts::ConstantBField;
+  // Propagate charged particles numerically in the B-field
   using ChargedStepper = Acts::EigenStepper<>;
   using ChargedPropagator = Acts::Propagator<ChargedStepper, Navigator>;
+  // Propagate neutral particles in straight lines
   using NeutralStepper = Acts::StraightLineStepper;
   using NeutralPropagator = Acts::Propagator<NeutralStepper, Navigator>;
-  using Generator = std::ranlux48;
-  using MinP = ActsFatras::Min<ActsFatras::Casts::P>;
-  using ChargedSelector =
-      ActsFatras::CombineAnd<ActsFatras::ChargedSelector, MinP>;
-  using ChargedPhysicsList =
-      ActsFatras::InteractionList<ActsFatras::detail::StandardScattering,
-                              SplitEnergyLoss>;
-  using ChargedSimulator = ActsFatras::SingleParticleSimulation<
-      ChargedPropagator, ActsFatras::StandardChargedElectroMagneticInteractions,
-      ActsFatras::EverySurface, ActsFatras::NoDecay>;
-  using NeutralSelector =
-      ActsFatras::CombineAnd<ActsFatras::NeutralSelector, MinP>;
-  using NeutralSimulator = ActsFatras::SingleParticleSimulation<
-      NeutralPropagator, ActsFatras::InteractionList<>, ActsFatras::NoSurface,
-      ActsFatras::NoDecay>;
-  using Simulator = ActsFatras::Simulation<ChargedSelector, ChargedSimulator,
-                                          NeutralSelector, NeutralSimulator>;
+
+  // ===============================
+  // Setup ActsFatras simulator types
+  // Charged
+  using ChargedSelector = ActsFatras::EveryParticle;
+  using ChargedInteractions =
+          ActsFatras::StandardChargedElectroMagneticInteractions;
+  using ChargedSimulation = SingleParticleSimulation<
+          ChargedPropagator, ChargedInteractions, HitSurfaceSelector,
+          ActsFatras::NoDecay>;
+  // Neutral
+  using NeutralSelector = ActsFatras::EveryParticle;
+  using NeutralInteractions = ActsFatras::InteractionList<>;
+  using NeutralSimulation = SingleParticleSimulation<
+          NeutralPropagator, NeutralInteractions, ActsFatras::NoSurface,
+          ActsFatras::NoDecay>;
+  // Combined
+  using Simulation = ActsFatras::Simulation<ChargedSelector, ChargedSimulation,
+                                            NeutralSelector, NeutralSimulation>;
+  // ===============================
 
   ActsFatrasSimTool(const std::string& type, const std::string& name,
                     const IInterface* parent);
   virtual ~ActsFatrasSimTool();
 
-  // Interface methods
+  // ISF BaseSimulatorTool Interface methods
   virtual StatusCode initialize() override;
   virtual StatusCode simulate(const ISFParticle& isp, ISFParticleContainer&,
                               McEventCollection*) const override;
-  virtual StatusCode setupEvent(const EventContext&) override { return StatusCode::SUCCESS; };
-  virtual StatusCode releaseEvent(const EventContext&) override { return StatusCode::SUCCESS; };
-  virtual ISF::SimulationFlavor simFlavor() const override { return ISF::Fatras; };
+  virtual StatusCode simulateVector(
+            const ConstISFParticleVector& particles,
+            ISFParticleContainer& secondaries,
+            McEventCollection* mcEventCollection) const override;
+  virtual StatusCode setupEvent(const EventContext&) override {
+    return StatusCode::SUCCESS; };
+  virtual StatusCode releaseEvent(const EventContext&) override {
+    return StatusCode::SUCCESS; };
+  virtual ISF::SimulationFlavor simFlavor() const override{
+    return ISF::Fatras; };
 
-  virtual ISF::ISFParticle* process(const ISFParticle& isp) const;
+  virtual Acts::MagneticFieldContext getMagneticFieldContext(
+    const EventContext&) const;
 
  private:
-  /** templated Tool retrieval - gives unique handling & look and feel */
+  // Templated tool retrieval
   template <class T>
   StatusCode retrieveTool(ToolHandle<T>& thandle) {
     if (!thandle.empty() && thandle.retrieve().isFailure()) {
-      ATH_MSG_FATAL("[ fatras setup ] Cannot retrieve " << thandle
-                                                        << ". Abort.");
+      ATH_MSG_FATAL("Cannot retrieve " << thandle << ". Abort.");
       return StatusCode::FAILURE;
-    } else
-      ATH_MSG_DEBUG("[ fatras setup ] Successfully retrieved " << thandle);
+    } else ATH_MSG_DEBUG("Successfully retrieved " << thandle);
     return StatusCode::SUCCESS;
   }
 
-  // Tracking geometry tools
+  // Random number service
+  ServiceHandle<IAthRNGSvc> m_rngSvc{this, "RNGServec", "AthRNGSvc"};
+  ATHRNG::RNGWrapper* m_randomEngine;
+  Gaudi::Property<std::string> m_randomEngineName{this, "RandomEngineName",
+    "RandomEngineName", "Name of random number stream"};
+
+  // Tracking geometry
   ToolHandle<IActsTrackingGeometryTool> m_trackingGeometryTool{
-      this, "ActsTrackingGeometryTool", "ActsTrackingGeometryTool"};
+      this, "TrackingGeometryTool", "ActsTrackingGeometryTool"};
   std::shared_ptr<const Acts::TrackingGeometry> m_trackingGeometry;
-  // Acts extrapolator
-  ToolHandle<IActsExtrapolationTool> m_actsExtrapolationTool{
-      this, "ActsExtrapolationTool", "ActsExtrapolationTool"};
 
-  ActsGeometryContext m_geoCtx;
-  Acts::MagneticFieldContext m_magCtx;
+  // Magnetic field
+  SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
 
-  std::unique_ptr<const Acts::Logger> m_logger{nullptr};
+  // Logging
+  std::shared_ptr<const Acts::Logger> m_logger{nullptr};
 
-  // Acts propagators
-  Navigator m_navigator{ Acts::Navigator::Config{m_trackingGeometry}};
-  std::shared_ptr<Acts::ConstantBField> m_bField = std::make_shared<Acts::ConstantBField>(Acts::Vector3(0, 0, 1_T));
-  ChargedStepper m_chargedStepper{m_bField};
-  ChargedPropagator m_chargedPropagator{std::move(m_chargedStepper),
-                                        m_navigator};
-  NeutralPropagator m_neutralPropagator{NeutralStepper(), m_navigator};
-
-  // Acts simulators
-  ChargedSimulator m_chargedSimulator{std::move(m_chargedPropagator),
-                                      Acts::getDefaultLogger("Simulation", 
-                                      Acts::Logging::Level::VERBOSE)};
-  NeutralSimulator m_neutralSimulator{std::move(m_neutralPropagator),
-                                      Acts::getDefaultLogger("Simulation", 
-                                      Acts::Logging::Level::VERBOSE)};
-  Simulator m_simulator{std::move(m_chargedSimulator),
-                        std::move(m_neutralSimulator)};
-
-  // SimHit creator for Inner Detector
-  ToolHandle<iFatras::ISimHitCreator> m_simHitCreatorID;
-  
-  // Particle filtering
+  // ISF Tools
   PublicToolHandle<ISF::IParticleFilter> m_particleFilter{
-    this, "ParticleFilter", "", "Particle filter kinematic cuts, etc."};
+      this, "ParticleFilter", "", "Particle filter kinematic cuts, etc."};
 
-  // Properties
-  Gaudi::Property<bool> m_interactionMultiScatering{
-      this, "InteractionMultiScatering", false,
-      "Whether to consider multiple scattering in the interactor"};
-  Gaudi::Property<bool> m_interactionEloss{
-      this, "InteractionEloss", false,
-      "Whether to consider energy loss in the interactor"};
-  Gaudi::Property<bool> m_interactionRecord{
-      this, "InteractionRecord", false,
-      "Whether to record all material interactions"};
-  Gaudi::Property<double> m_maxStepSize{this, "MaxStepSize", 10,
-                                        "Max step size in Acts m unit"};
-  Gaudi::Property<double> m_maxStep{this, "MaxSteps", 4000,
-                                    "Max number of steps"};
-  Gaudi::Property<double> m_ptLoopers{
-      this, "PtLoopers", 300,
-      "pT loop protection threshold, converted to Acts MeV unit"};
+  Gaudi::Property<double> m_interact_minPt{this, "Interact_MinPt", 50.0,
+    "Min pT of the interactions (MeV)"};
+
 };
 
-} // namespace ISF
+}  // namespace ISF
 
 #endif
