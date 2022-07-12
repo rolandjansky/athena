@@ -36,6 +36,7 @@
 #include <QtCore/QUrl>
 #include <QtNetwork/QSslSocket>
 #include <QProcessEnvironment>
+#include <QDebug>
 
 #include <cassert>
 #include <iostream>
