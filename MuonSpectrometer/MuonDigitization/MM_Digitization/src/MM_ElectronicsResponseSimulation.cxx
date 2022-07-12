@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -14,6 +14,8 @@
 #include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "TF1.h"
+
+#include "CLHEP/Random/RandGaussZiggurat.h"
 
 /*******************************************************************************/
 MM_ElectronicsResponseSimulation::MM_ElectronicsResponseSimulation(ConfigModule&& module):
@@ -242,7 +244,7 @@ MM_DigitToolOutput MM_ElectronicsResponseSimulation::applyDeadTimeStrip(const MM
 }
 
 MM_ElectronicsToolTriggerOutput MM_ElectronicsResponseSimulation::applyARTTiming(
-    const MM_ElectronicsToolTriggerOutput& electronicsTriggerOutput, float jitter, float offset) {
+    const MM_ElectronicsToolTriggerOutput& electronicsTriggerOutput, CLHEP::HepRandomEngine* random_engine, float jitter, float offset) const {
     const std::vector<int>& electronicsTriggerStripPos = electronicsTriggerOutput.NumberOfStripsPos();
     const std::vector<float>& electronicsTriggerStripTime = electronicsTriggerOutput.chipTime();
     const std::vector<float>& electronicsTriggerStripCharge = electronicsTriggerOutput.chipCharge();
@@ -254,17 +256,11 @@ MM_ElectronicsToolTriggerOutput MM_ElectronicsResponseSimulation::applyARTTiming
     std::vector<int> electronicsTriggerAppliedTimingVMMId;
     std::vector<int> electronicsTriggerAppliedTimingMMFEId;
 
-    // bunchTime = bunchTime + artOffset + jitter;
-
-    TF1 gaussianSmearing("timingSmearing", "gaus", offset - jitter * 5, offset + jitter * 5);
-    gaussianSmearing.SetParameters(1, offset, jitter);
-
     for (size_t i = 0; i < electronicsTriggerStripPos.size(); i++) {
        
         electronicsTriggerAppliedTimingStripPos.push_back(electronicsTriggerStripPos.at(i));
-
         if (jitter || offset)
-            electronicsTriggerAppliedTimingStripTime.push_back(electronicsTriggerStripTime.at(i) + gaussianSmearing.GetRandom());
+            electronicsTriggerAppliedTimingStripTime.push_back(electronicsTriggerStripTime.at(i) + CLHEP::RandGaussZiggurat::shoot(random_engine, offset, jitter));
         else
             electronicsTriggerAppliedTimingStripTime.push_back(electronicsTriggerStripTime.at(i));
 
