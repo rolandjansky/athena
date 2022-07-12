@@ -200,8 +200,8 @@ stdJetModifiers.update(
     ecorr      = JetModifier( "EnergyCorrelatorTool", "ecorr", Beta = 1.0),
     ecorrR     = JetModifier( "EnergyCorrelatorRatiosTool", "ecorrR", ),
 
-    ecorrgeneral = JetModifier( "EnergyCorrelatorGeneralizedTool", "ecorrgeneral"),
-    ecorrgeneralratios = JetModifier( "EnergyCorrelatorGeneralizedRatiosTool", "ecorrgeneralratios"),
+    ecorrgeneral = JetModifier( "EnergyCorrelatorGeneralizedTool", "ecorrgeneral", DoLSeries = True),
+    ecorrgeneralratios = JetModifier( "EnergyCorrelatorGeneralizedRatiosTool", "ecorrgeneralratios",  DoLSeries = True),
 
     comshapes = JetModifier( "CenterOfMassShapesTool","comshapes"),
 

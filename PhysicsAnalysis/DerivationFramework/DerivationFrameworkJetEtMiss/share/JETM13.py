@@ -22,8 +22,6 @@ streamName = derivationFlags.WriteDAOD_JETM13Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_JETM13Stream )
 JETM13Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 JETM13Stream.AcceptAlgs(["JETM13MainKernel"])
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
 
 #====================================================================
 # SKIMMING TOOL
@@ -66,9 +64,24 @@ jetm13Seq = CfgMgr.AthSequencer("JETM13Sequence")
 DerivationFrameworkJob += jetm13Seq
 
 #=======================================
-# RESTORE AOD-REDUCED JET COLLECTIONS
+# UFO CHS
 #=======================================
-OutputJets["JETM13"] = []
+from JetRecConfig.JetRecConfig import getInputAlgs,reOrderAlgs
+from JetRecConfig.StandardJetConstits import stdConstitDic as cst
+from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+
+constit_algs = getInputAlgs(cst.UFO, configFlags=ConfigFlags)
+constit_algs = reOrderAlgs( [a for a in constit_algs if a is not None])
+
+for a in constit_algs:
+  if not hasattr(DerivationFrameworkJob,a.getName()):
+    DerivationFrameworkJob += conf2toConfigurable(a)
+
+#=======================================
+# Kernel
+#=======================================
+
 jetm13Seq += CfgMgr.DerivationFramework__DerivationKernel( name = "JETM13MainKernel",
                                                           SkimmingTools = [],
                                                           ThinningTools = jetm13thin)
@@ -108,16 +121,12 @@ JETM13SlimmingHelper.AppendToDictionary = {'GlobalChargedParticleFlowObjects':'x
                                            'GlobalNeutralParticleFlowObjects':'xAOD::FlowElementContainer', 'GlobalNeutralParticleFlowObjectsAux':'xAOD::FlowElementAuxContainer',
                                            'CHSGChargedParticleFlowObjects':'xAOD::FlowElementContainer','CHSGChargedParticleFlowObjectsAux':'xAOD::ShallowAuxContainer',
                                            'CHSGNeutralParticleFlowObjects':'xAOD::FlowElementContainer','CHSGNeutralParticleFlowObjectsAux':'xAOD::ShallowAuxContainer',
+                                           'UFOCSSK':'xAOD::FlowElementContainer','UFOCSSKAux':'xAOD::FlowElementAuxContainer',
+                                           'UFO':'xAOD::FlowElementContainer','UFOAux':'xAOD::FlowElementAuxContainer',
                                            'Kt4EMPFlowNeutEventShape':'xAOD::EventShape','Kt4EMPFlowNeutEventShapeAux':'xAOD::EventShapeAuxInfo'}
 
-JETM13SlimmingHelper.AppendToDictionary["CHSUFO"] = 'xAOD::TrackCaloClusterContainer'
-JETM13SlimmingHelper.AppendToDictionary['CHSUFOAux'] = 'xAOD::TrackCaloClusterAuxContainer'
-JETM13SlimmingHelper.ExtraVariables +=[ 'CHSUFO.pt.eta.phi.m.taste' ]
-
-JETM13SlimmingHelper.AppendToDictionary["CSSKUFO"] = 'xAOD::TrackCaloClusterContainer'
-JETM13SlimmingHelper.AppendToDictionary['CSSKUFOAux'] = 'xAOD::TrackCaloClusterAuxContainer'
-JETM13SlimmingHelper.ExtraVariables +=[ 'CSSKUFO.pt.eta.phi.m.taste' ]
-
+JETM13SlimmingHelper.ExtraVariables +=[ 'UFOCSSK.pt.eta.phi.m.signalType']
+JETM13SlimmingHelper.ExtraVariables +=[ 'UFO.pt.eta.phi.m.signalType' ]
 
 for truthc in [
   "TruthMuons",
@@ -138,6 +147,8 @@ for truthc in [
   JETM13SlimmingHelper.StaticContent.append("xAOD::TruthVertexContainer#"+truthc+"WithDecayVertices")
   JETM13SlimmingHelper.StaticContent.append("xAOD::TruthVertexAuxContainer#"+truthc+"WithDecayVerticesAux.")
       
+
+OutputJets["JETM13"] = ["AntiKt10TruthJets"]
 
 # Add the jet containers to the stream
 addJetOutputs(JETM13SlimmingHelper,["JETM13"])

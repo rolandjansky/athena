@@ -5,8 +5,7 @@
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob, buildFileName
 from DerivationFrameworkJetEtMiss.JetCommon import OutputJets, addJetOutputs, addDAODJets
-from JetRecConfig.StandardSmallRJets import AntiKt4EMPFlowLowPt, AntiKt4EMTopoLowPt, AntiKt4LCTopo
-from DerivationFrameworkJetEtMiss.METCommon import addMETTruthMap, scheduleMETAssocAlg, addMETOutputs
+from JetRecConfig.StandardSmallRJets import AntiKt4EMPFlowLowPt, AntiKt4EMTopoLowPt
 
 if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
@@ -171,16 +170,6 @@ addDAODJets(jetList,DerivationFrameworkJob)
 
 OutputJets["JETM3"] = ["AntiKt4EMPFlowLowPtJets","AntiKt4EMTopoLowPtJets"]
 
-#=======================================
-# SCHEDULE CUSTOM MET RECONSTRUCTION
-#=======================================
-if DerivationFrameworkIsMonteCarlo:
-  from JetRecConfig.StandardSmallRJets import calibmods, standardmods, clustermods
-  AntiKt4LCTopo_deriv = AntiKt4LCTopo.clone(modifiers = calibmods+("Filter:1","OriginSetPV")+standardmods+clustermods)
-  addDAODJets([AntiKt4LCTopo_deriv],DerivationFrameworkJob)
-  addMETTruthMap('AntiKt4EMPFlow',"JETMX")
-  scheduleMETAssocAlg(sequence=DerivationFrameworkJob,configlist="JETMX")
-
 #====================================================================
 # ADD PFLOW AUG INFORMATION 
 #====================================================================
@@ -212,6 +201,7 @@ JETM3SlimmingHelper.SmartCollections = ["EventInfo",
                                         "AntiKt10TruthTrimmedPtFrac5SmallR20Jets",
                                         "AntiKt10TruthSoftDropBeta100Zcut10Jets",
                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                                        "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets",
                                         "BTagging_AntiKt4EMPFlow"
 					]
 
@@ -250,8 +240,5 @@ addJetOutputs(
     contentlist = ["SmallR","JETM3"],
     smartlist = JETM3SlimmingHelper.SmartCollections
     )
-
-# Add the MET containers to the stream
-addMETOutputs(JETM3SlimmingHelper,["Diagnostic","Assocs","TruthAssocs","Track","JETM3"])
 
 JETM3SlimmingHelper.AppendContentToStream(JETM3Stream)
