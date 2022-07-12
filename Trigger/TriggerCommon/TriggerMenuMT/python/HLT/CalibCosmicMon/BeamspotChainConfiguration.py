@@ -1,19 +1,20 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger(__name__)
 
-from TriggerMenuMT.HLT.Config.ChainConfigurationBase import ChainConfigurationBase
-from TrigStreamerHypo.TrigStreamerHypoConfig import StreamerHypoToolGenerator
-from TrigStreamerHypo.TrigStreamerHypoConf import TrigStreamerHypoAlg
-from TriggerMenuMT.HLT.Config.MenuComponents import MenuSequence
 from AthenaCommon.CFElements import seqAND, parOR
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+
+from TriggerMenuMT.HLT.Config.ChainConfigurationBase import ChainConfigurationBase
+from TriggerMenuMT.HLT.Config.MenuComponents import MenuSequence
 from DecisionHandling.DecisionHandlingConf import ViewCreatorInitialROITool
 
-#----------------------------------------------------------------
+from TrigStreamerHypo.TrigStreamerHypoConfig import StreamerHypoToolGenerator
+from TrigStreamerHypo.TrigStreamerHypoConf import TrigStreamerHypoAlg
 
+#----------------------------------------------------------------
 # fragments generating configuration will be functions in New JO,
 # so let's make them functions already now
 #----------------------------------------------------------------
@@ -73,53 +74,92 @@ def allTE_trkfast( signature="FS" ):
                               HypoToolGen = beamspotHypoToolGen )
 
 
+def getBeamspotVtx():
+        signature = "BeamspotJet"
+
+        from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+        IDTrigConfig = getInDetTrigConfig("jet")
+
+        #-- Setting up inputMakerAlg
+        from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
+
+        # run at event level
+        inputMakerAlg         = InputMakerForRoI("IM_beamspotJet_"+signature)
+        inputMakerAlg.RoITool = ViewCreatorInitialROITool()
+
+        #-- Configuring Beamspot vertex alg
+        from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_activeAllTE
+        vertexAlg = T2VertexBeamSpot_activeAllTE( "vertex_"+signature )
+        vertexAlg.TrackCollection = IDTrigConfig.trkTracks_FTF()
+
+        #-- Setting up beamspotSequence
+        beamspotSequence = parOR( "beamspotJetSequence_"+signature, [vertexAlg] )
+        beamspotViewsSequence = seqAND( "beamspotJetViewsSequence"+signature, [ inputMakerAlg, beamspotSequence ])
+
+        #-- HypoAlg and Tool
+        beamspotHypoAlg = TrigStreamerHypoAlg("BeamspotHypoAlg_"+signature)
+        beamspotHypoToolGen= StreamerHypoToolGenerator
+
+        return  MenuSequence( Sequence    = beamspotViewsSequence,
+                              Maker       = inputMakerAlg,
+                              Hypo        = beamspotHypoAlg,
+                              HypoToolGen = beamspotHypoToolGen )
+
+
+def getBeamspotVtxCfg( flags ):
+        return getBeamspotVtx()
+
+
+#----------------------------------------------------------------
 # Class to configure chain
 #----------------------------------------------------------------
 class BeamspotChainConfiguration(ChainConfigurationBase):
 
-    def __init__(self, chainDict):
-        ChainConfigurationBase.__init__(self,chainDict)
+        def __init__(self, chainDict, jc_name = None):
+                ChainConfigurationBase.__init__(self,chainDict)
+                self.jc_name=jc_name
 
 
-    # ----------------------
-    # Assemble the chain depending on information from chainName
-    # ----------------------
-    def assembleChainImpl(self):
-        chainSteps = []
-        log.debug("Assembling chain for %s", self.chainName)
+        def assembleChainImpl(self):
+                chainSteps = []
+                log.debug("Assembling chain for %s", self.chainName)
+                stepDictionary = self.getStepDictionary()
+                key = ''
 
-        stepDictionary = self.getStepDictionary()
+                if self.chainPart['beamspotChain'] != '':
+                        stepName = f"Step4_{self.jc_name}_beamspotJet"
+                        chainSteps = [self.getStep(4, stepName, [getBeamspotVtxCfg])]
 
-        #key = self.chainPart['EFrecoAlg']
-        key = self.chainPart['addInfo'][0] + "_" + self.chainPart['l2IDAlg'][0]#TODO: hardcoded index
-        steps=stepDictionary[key]
-        for step in steps:
-            chainstep = getattr(self, step)()
-            chainSteps+=[chainstep]
+                else:
+                        key = self.chainPart['addInfo'][0] + "_" + self.chainPart['l2IDAlg'][0] #TODO: hardcoded index
 
-        myChain = self.buildChain(chainSteps)
-        return myChain
+                        steps=stepDictionary[key]
+                        for step in steps:
+                                chainstep = getattr(self, step)()
+                                chainSteps+=[chainstep]
+                        
+                myChain = self.buildChain(chainSteps)
+                return myChain
 
-    def getStepDictionary(self):
+        def getStepDictionary(self):
+                # --------------------
+                # define here the names of the steps and obtain the chainStep configuration
+                # --------------------
+                stepDictionary = {
+                        "allTE_trkfast":['getAllTEStep'],
+                        #"activeTE_trkfast":[self.activeTE_trkfast()],
+                        "trkFS_trkfast":['getTrkFSStep'],  
+                }
+                return stepDictionary
+                
         # --------------------
-        # define here the names of the steps and obtain the chainStep configuration
+        # Configuration TrkFS step
         # --------------------
-        stepDictionary = {
-            "allTE_trkfast":['getAllTEStep'],
-            #"activeTE_trkfast":[self.activeTE_trkfast()],
-            "trkFS_trkfast":['getTrkFSStep']
-        }
-        return stepDictionary
+        def getTrkFSStep(self):
+                return self.getStep(1,"trkFS_trkfast",[trkFS_trkfast_Cfg])
 
-    # --------------------
-    # Configuration of costmonitor (costmonitor ?? but isn't this is the actua chain configuration ??)
-    # --------------------
-    def getTrkFSStep(self):
-        return self.getStep(1,"trkFS_trkfast",[trkFS_trkfast_Cfg])
-
-
-    # --------------------
-    # Configuration of costmonitor (costmonitor ?? but isn't this is the actua chain configuration ??)
-    # --------------------
-    def getAllTEStep(self):
-        return self.getStep(1,"allTE_trkfast",[allTE_trkfast_Cfg])
+        # --------------------
+        # Configuration of costmonitor (costmonitor ?? but isn't this is the actua chain configuration ??)
+        # --------------------
+        def getAllTEStep(self):
+                return self.getStep(1,"allTE_trkfast",[allTE_trkfast_Cfg])

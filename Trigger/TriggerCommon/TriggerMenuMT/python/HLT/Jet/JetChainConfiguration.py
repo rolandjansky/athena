@@ -87,7 +87,7 @@ class JetChainConfiguration(ChainConfigurationBase):
         subJetChainDict = {}
         for subChainDict in splitChainDict(self.dict):
             for part in subChainDict["chainParts"]:
-                if part['signature'] in ["Jet", "Bjet"]:
+                if part['signature'] in ["Jet", "Bjet", "Beamspot"]:
                     subJetChainDict = subChainDict
                     break
         if not subJetChainDict:
