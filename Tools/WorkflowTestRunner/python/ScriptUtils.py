@@ -163,12 +163,7 @@ def get_test_setup(name: str, options: Namespace, log: logging.Logger) -> TestSe
 
     # Is an ATLAS release setup?
     if "AtlasPatchVersion" not in environ and "AtlasArea" not in environ and "AtlasBaseDir" not in environ and "AtlasVersion" not in environ:
-        log.error("Exit. Please setup the an ATLAS release")
-        exit(3)
-
-
-    if "AtlasPatchVersion" not in environ and "AtlasArea" not in environ and "AtlasBaseDir" in environ and "AtlasVersion" not in environ:
-        log.warning("Please be aware that you are running a release which seems to not be a Tier0 release, where in general q-tests are not guaranteed to work.")
+        log.warning("Not running in a standard ATLAS release setup.\n")
 
     # setup reference path
     setup.reference_run_path /= f"reference_test_{setup.unique_ID}"

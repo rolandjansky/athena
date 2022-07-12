@@ -188,6 +188,19 @@ class FrozenTier0PolicyCheck(WorkflowCheck):
 
             self.logger.error(f"Your change breaks the frozen tier0 policy in test {test.ID}.")
             self.logger.error("Please make sure this has been discussed in the correct meeting (RIG or Simulation) meeting and approved by the relevant experts.")
+
+            # copy the artifacts
+            if self.setup.disable_release_setup:
+                comparison_command = f"CopyCIArtifact.sh {validation_file}"
+                output, error = subprocess.Popen(["/bin/bash", "-c", comparison_command], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+                output, error = output.decode("utf-8"), error.decode("utf-8")
+
+                if error or not output:
+                    self.logger.error(f"Tried copying '{validation_file}' to the CI artifacts area but it failed.")
+                    self.logger.error(f"  {error.strip()}")
+                else:
+                    self.logger.error(output)
+
             with log_file.open() as file:
                 for line in file:
                     self.logger.info(f"  {line.strip()}")
