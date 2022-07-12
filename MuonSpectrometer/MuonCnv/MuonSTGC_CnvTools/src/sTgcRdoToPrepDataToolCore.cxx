@@ -124,8 +124,10 @@ StatusCode Muon::sTgcRdoToPrepDataToolCore::processCollection(Muon::sTgcPrepData
 
         NSWCalib::CalibratedStrip calibStrip;
         ATH_CHECK (m_calibTool->calibrateStrip(ctx, rdo, calibStrip));
-        
-        ATH_MSG_DEBUG("Adding a new STGC PRD, gasGap: " << gasGap << " channel: " << channel << " type: " << channelType );
+        if (calibStrip.charge < 0) {
+            ATH_MSG_WARNING("STGC RDO with pdo = "<<rdo->charge()<<" counts corresponds to a negative charge ("<<calibStrip.charge<<"). Skipping this RDO");
+            continue;
+        }
 
         double width{0.};
         if (channelType == 0) { // Pads
