@@ -8,10 +8,19 @@
 '''
 
 from math import pi
-def tauMonitoringConfig(inputFlags):
+
+def tauMonitoringConfig(inputFlags,**kwargs):
     '''Function to configures some algorithms in the monitoring system.'''
 
 
+    if not (inputFlags.Common.isOnline == 'online' or inputFlags.Input.isMC):
+        kwargs.setdefault('useReadyFilterTool', True)
+    else:
+        kwargs.setdefault('useReadyFilterTool', False)
+
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    from AthenaMonitoring.BadLBFilterToolConfig import LArBadLBFilterToolCfg
+    from AthenaMonitoring.AtlasReadyFilterConfig import AtlasReadyFilterCfg
 
     ### STEP 1 ###
 
@@ -19,6 +28,11 @@ def tauMonitoringConfig(inputFlags):
     # them to GenericMonitoringTools
     from AthenaMonitoring import AthMonitorCfgHelper
     cfgHelper = AthMonitorCfgHelper(inputFlags, monName='tauMonitorAlgFamily')
+    cfg = cfgHelper.result()
+
+    if kwargs['useReadyFilterTool'] and 'ReadyFilterTool' not in kwargs:
+        readyFilterTool = cfg.popToolsAndMerge(AtlasReadyFilterCfg(inputFlags))
+        kwargs['ReadyFilterTool'] = readyFilterTool
 
 
     ### STEP 2 ###
@@ -27,21 +41,22 @@ def tauMonitoringConfig(inputFlags):
     # helper. Then, the helper will instantiate an instance and set up the 
     # base class configuration following the inputFlags. The returned object 
     # is the algorithm.
-    from AthenaConfiguration.ComponentFactory import CompFactory
+
+
     tauMonitorAlgorithm = CompFactory.tauMonitorAlgorithm
-    tauMonAlgBA = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgBA')
-    tauMonAlgCR = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgCR')
-    tauMonAlgEC = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgEC')
-    tauMonAlgGlobal = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgGlobal')
-    tauMonAlgTauTrig1 = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgTauTrig1')
-    tauMonAlgTauTrig2 = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgTauTrig2')
-    tauMonAlgTauTrig3 = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgTauTrig3')
-    tauMonAlgTauTrig4 = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgTauTrig4')
-    tauMonAlgTauTrig5 = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgTauTrig5')
-    tauMonAlgTauTrig6 = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgTauTrig6')
-    tauMonAlgTauTrig7 = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgTauTrig7')
-    tauMonAlgEleTrig = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgEleTrig')
-    tauMonAlgJetTrig = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgJetTrig')
+    tauMonAlgBA = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgBA', addFilterTools = [LArBadLBFilterToolCfg(inputFlags)])
+    tauMonAlgCR = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgCR', addFilterTools = [LArBadLBFilterToolCfg(inputFlags)])
+    tauMonAlgEC = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgEC', addFilterTools = [LArBadLBFilterToolCfg(inputFlags)])
+    tauMonAlgGlobal = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgGlobal', addFilterTools = [LArBadLBFilterToolCfg(inputFlags)])
+    tauMonAlgTauTrig1 = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgTauTrig1', addFilterTools = [LArBadLBFilterToolCfg(inputFlags)])
+    tauMonAlgTauTrig2 = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgTauTrig2', addFilterTools = [LArBadLBFilterToolCfg(inputFlags)])
+    tauMonAlgTauTrig3 = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgTauTrig3', addFilterTools = [LArBadLBFilterToolCfg(inputFlags)])
+    tauMonAlgTauTrig4 = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgTauTrig4', addFilterTools = [LArBadLBFilterToolCfg(inputFlags)])
+    tauMonAlgTauTrig5 = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgTauTrig5', addFilterTools = [LArBadLBFilterToolCfg(inputFlags)])
+    tauMonAlgTauTrig6 = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgTauTrig6', addFilterTools = [LArBadLBFilterToolCfg(inputFlags)])
+    tauMonAlgTauTrig7 = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgTauTrig7', addFilterTools = [LArBadLBFilterToolCfg(inputFlags)])
+    tauMonAlgEleTrig = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgEleTrig', addFilterTools = [LArBadLBFilterToolCfg(inputFlags)])
+    tauMonAlgJetTrig = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgJetTrig', addFilterTools = [LArBadLBFilterToolCfg(inputFlags)])
 
 
 
@@ -53,13 +68,13 @@ def tauMonitoringConfig(inputFlags):
     # to enable a trigger filter, for example:
     #exampleMonAlg.TriggerChain = 'HLT_mu26_ivarmedium'
 
-    tauMonAlgTauTrig1.TriggerChain = "HLT_tau25_mediumRNN_tracktwoMVABDT_L1TAU12IM" #done #yes
-    tauMonAlgTauTrig2.TriggerChain = "HLT_tau160_mediumRNN_tracktwoMVABDT_L1TAU100" #done #yes
-    tauMonAlgTauTrig3.TriggerChain = "HLT_tau25_mediumRNN_tracktwoMVABDT_L1eTAU20M" #done #yes
-    tauMonAlgTauTrig4.TriggerChain = "HLT_tau160_mediumRNN_tracktwoMVABDT_L1eTAU140" #yes
-    tauMonAlgTauTrig5.TriggerChain = "HLT_tau80_mediumRNN_tracktwoMVA_tau35_mediumRNN_tracktwoMVA_03dRAB30_L1TAU60_DR-TAU20ITAU12I" #not exactly
-    tauMonAlgTauTrig6.TriggerChain = "HLT_tau35_mediumRNN_tracktwoMVABDT_tau25_mediumRNN_tracktwoMVABDT_03dRAB30_L1DR-TAU20ITAU12I-J25" #yes
-    tauMonAlgTauTrig7.TriggerChain = "HLT_tau200_mediumRNN_tracktwoMVABDT_L1TAU100"#no
+    tauMonAlgTauTrig1.TriggerChain = "HLT_tau25_mediumRNN_tracktwoMVABDT_L1TAU12IM"
+    tauMonAlgTauTrig2.TriggerChain = "HLT_tau160_mediumRNN_tracktwoMVABDT_L1TAU100"
+    tauMonAlgTauTrig3.TriggerChain = "HLT_tau25_mediumRNN_tracktwoMVABDT_L1eTAU20M"
+    tauMonAlgTauTrig4.TriggerChain = "HLT_tau160_mediumRNN_tracktwoMVABDT_L1eTAU140"
+    tauMonAlgTauTrig5.TriggerChain = "HLT_tau80_mediumRNN_tracktwoMVA_tau35_mediumRNN_tracktwoMVA_03dRAB30_L1TAU60_DR-TAU20ITAU12I"
+    tauMonAlgTauTrig6.TriggerChain = "HLT_tau35_mediumRNN_tracktwoMVABDT_tau25_mediumRNN_tracktwoMVABDT_03dRAB30_L1DR-TAU20ITAU12I-J25"
+    tauMonAlgTauTrig7.TriggerChain = "HLT_tau200_mediumRNN_tracktwoMVABDT_L1TAU100"
 
     tauMonAlgEleTrig.TriggerChain = "HLT_e[2-9][0-9]_.*"
     tauMonAlgJetTrig.TriggerChain = "HLT_j[2-9][0-9]_.*"
@@ -591,7 +606,9 @@ def tauMonitoringConfig(inputFlags):
     # any configuration other than the AthMonitorCfgHelper here, then we can 
     # just return directly (and not create "result" above)
 
-    return cfgHelper.result()
+    accumulator = cfgHelper.result()
+    cfg.merge(accumulator)
+    return cfg
     
     # # Otherwise, merge with result object and return
     # acc = cfgHelper.result()

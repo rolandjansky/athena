@@ -4,21 +4,17 @@
 
 #include "MM_Digitization/MM_IonizationCluster.h"
 
-
-MM_IonizationCluster::MM_IonizationCluster (float HitX, float IonizationX, float IonizationY) : m_HitX(HitX), m_IonizationStart(IonizationX, IonizationY) {}
-
+MM_IonizationCluster::MM_IonizationCluster(float HitX, float IonizationX, float IonizationY) :
+    m_HitX(HitX), m_IonizationStart(IonizationX, IonizationY) {}
 
 void MM_IonizationCluster::createElectrons(int nElectrons) {
-  m_Electrons.reserve(nElectrons);
-  for (int iElectron = 0; iElectron<nElectrons; iElectron++)
-    m_Electrons.push_back(std::make_unique<MM_Electron>(m_IonizationStart.X()+m_HitX, m_IonizationStart.Y()));
+    m_Electrons.reserve(nElectrons);
+    for (int iElectron = 0; iElectron < nElectrons; iElectron++)
+        m_Electrons.push_back(std::make_unique<MM_Electron>(m_IonizationStart.X() + m_HitX, m_IonizationStart.Y()));
 }
 
 void MM_IonizationCluster::propagateElectrons(float lorentzAngle, float driftVel) {
-
-  for (auto& Electron : m_Electrons)
-    Electron->propagateElectron(lorentzAngle, driftVel);
-
+    for (auto& Electron : m_Electrons) Electron->propagateElectron(lorentzAngle, driftVel);
 }
 
 // accessors

@@ -69,8 +69,8 @@ def CommonSimulationCfg(ConfigFlags, log):
                 from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoCnvAlgCfg
                 cfg.merge(EventInfoCnvAlgCfg(ConfigFlags))
             else:
-                from xAODEventInfoCnv.EventInfoBeamSpotDecoratorAlgConfig import EventInfoBeamSpotDecoratorAlgCfg
-                cfg.merge(EventInfoBeamSpotDecoratorAlgCfg(ConfigFlags))
+                from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoUpdateFromContextAlgCfg
+                cfg.merge(EventInfoUpdateFromContextAlgCfg(ConfigFlags))
             from McEventCollectionFilter.McEventCollectionFilterConfig import TruthResetAlgCfg
             cfg.merge(TruthResetAlgCfg(ConfigFlags))
             cfg.addSequence(CompFactory.AthSequencer('SimSequence'), parentName='AthAlgSeq')
