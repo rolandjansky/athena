@@ -38,6 +38,9 @@ def PhysValMonitoringCfg(flags):
     if flags.PhysVal.doTau:
         from TauDQA.TauDQAConfig import PhysValTauCfg
         monMan.AthenaMonTools += [ acc.popToolsAndMerge(PhysValTauCfg(flags))]
+    if flags.PhysVal.doJet:
+        from JetValidation.JetValidationConfig import PhysValJetCfg
+        monMan.AthenaMonTools += [ acc.popToolsAndMerge(PhysValJetCfg(flags)) ]
 
     acc.addEventAlgo(monMan, primary = True)
     return acc
