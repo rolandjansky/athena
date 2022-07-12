@@ -119,6 +119,10 @@ BichselData::interpolateCrossSection(std::pair<int, int> indices_BetaGammaLog10,
   if (indices_BetaGammaLog10.second < 0) {
     return -1;
   }
+  
+  if (indices_BetaGammaLog10.second == indices_BetaGammaLog10.first){ //either an exact value or the last one in the table
+    return std::pow(10., logHighestCrossSectionsVector.at(indices_BetaGammaLog10.first));
+  }
   double BetaGammaLog10_1 = logBetaGammaVector.at(indices_BetaGammaLog10.first);
   double BetaGammaLog10_2 = logBetaGammaVector.at(indices_BetaGammaLog10.second);
 
