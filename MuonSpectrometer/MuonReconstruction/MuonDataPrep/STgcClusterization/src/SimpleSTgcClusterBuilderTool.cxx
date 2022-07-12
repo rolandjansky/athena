@@ -78,7 +78,7 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
                 double sumWeight{0.0};
 
                 // cluster weighted position and charge
-                for (const auto& prd : cluster ) {
+                for (const Muon::sTgcPrepData& prd : cluster ) {
 
                     rdoList.push_back(prd.identify());
                     elementsCharge.push_back(prd.charge());
@@ -99,6 +99,16 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
                         maxCharge = prd.charge();
                         clusterId = prd.identify();
                     }
+                }
+                if (std::abs(sumWeight)<  1){
+                    std::stringstream sstr{};
+                    for (const Muon::sTgcPrepData& prd : cluster ) {
+                        sstr<<m_idHelperSvc->toString(prd.identify())<<", local pos: ("<< prd.localPosition().x()<<","<< prd.localPosition().y()<<"), charge: "<<prd.charge()<<
+                            ", time: "<<static_cast<int>(prd.time())<<std::endl;
+                    }
+                    ATH_MSG_VERBOSE("Reject cluster with zero charge... "<<std::endl<<std::endl<<std::endl<<sstr.str());
+                    continue;
+
                 }
  
                 weightedPosX /= sumWeight;
