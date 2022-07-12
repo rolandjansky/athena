@@ -58,7 +58,7 @@ Trk::Navigator::Navigator(const std::string &t, const std::string &n, const IInt
   m_outsideVolumeCase{},
   m_sucessfulBackPropagation{}
   {
-  declareInterface<INavigator>(this);
+  declareInterface<INavigator>(this); 
   // steering of algorithms
   declareProperty("TrackingGeometrySvc", m_trackingGeometrySvc);
   declareProperty("InsideVolumeTolerance", m_insideVolumeTolerance);
@@ -365,8 +365,12 @@ Trk::Navigator::atVolumeBoundary(const Trk::TrackParameters* parms,
         }
         // double good solution indicate tangential intersection : revert the attached volumes
         if (distSol.numberOfSolutions() > 1 && fabs(distSol.first()) < tol && fabs(distSol.second()) < tol) {
+         if (!nextVol) {
+            ATH_MSG_WARNING("Tracking volume "<<(*vol)<<" has loose ends. because the navigation of "<<std::endl<<(*parms)<<std::endl<<" failed. Please consult the experts or have a look at ATLASRECTS-7147");
+            continue;
+          } 
           //surfing the beampipe seems to happen particularly often in a Trigger test, see https://its.cern.ch/jira/browse/ATR-24234
-          //in this case, I downgrade the 'warning' to 'verbose'
+          //in this case, I downgrade the 'warning' to 'verbose'          
           const bool surfingTheBeamPipe = (vol->geometrySignature() == Trk::BeamPipe) or (nextVol->geometrySignature() == Trk::BeamPipe);
           if (not surfingTheBeamPipe) {
             ATH_MSG_WARNING("navigator detects tangential intersection: switch of volumes reverted ");
