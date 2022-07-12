@@ -19,7 +19,8 @@ atlas_add_xaod_smart_pointer_dicts(
 atlas_add_dictionary( xAODInDetMeasurementDict
     xAODInDetMeasurement/xAODInDetMeasurementDict.h
     ${_selectionFile}
-    LINK_LIBRARIES xAODCore xAODInDetMeasurement)
+    LINK_LIBRARIES xAODCore xAODInDetMeasurement
+    EXTRA_FILES Root/dict/*.cxx )
 
 # Test(s) in the package.
 atlas_add_test( xAODInDetMeasurement_PixelCluster_test
