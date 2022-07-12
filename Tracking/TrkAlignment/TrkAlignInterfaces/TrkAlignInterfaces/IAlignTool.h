@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKALIGNINTERFACES_ALIGNTOOL_IH
@@ -35,7 +35,7 @@ namespace Trk {
 
     virtual StatusCode firstEventInitialize() = 0;
 
-    virtual bool accumulate(const AlignTrack* alignTrack) = 0;
+    virtual bool accumulate(AlignTrack* alignTrack) = 0;
 
     virtual bool accumulateFromFiles() = 0;
     

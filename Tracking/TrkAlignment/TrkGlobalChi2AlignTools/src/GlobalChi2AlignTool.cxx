@@ -140,7 +140,7 @@ namespace Trk {
   }
   
   //________________________________________________________________________
-  bool GlobalChi2AlignTool::accumulate(const AlignTrack* alignTrack)
+  bool GlobalChi2AlignTool::accumulate(AlignTrack* alignTrack)
   {
     ATH_MSG_DEBUG("in GlobalChi2AlignTool::accumulate()");
 

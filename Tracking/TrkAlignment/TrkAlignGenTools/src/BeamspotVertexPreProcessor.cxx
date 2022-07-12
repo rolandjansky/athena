@@ -949,7 +949,7 @@ DataVector<Track> * BeamspotVertexPreProcessor::processTrackCollection(const Dat
 }
 
 //____________________________________________________________________________
-void BeamspotVertexPreProcessor::accumulateVTX(const AlignTrack* alignTrack) {
+void BeamspotVertexPreProcessor::accumulateVTX(AlignTrack* alignTrack) {
 
   if( !m_doFullVertexConstraint ) return;
 

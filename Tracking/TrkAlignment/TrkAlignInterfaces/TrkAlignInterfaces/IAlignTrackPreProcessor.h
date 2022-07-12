@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKALIGNMENT_ALIGNTRACKPREPROCESSOR_IH
@@ -54,7 +54,7 @@ namespace Trk {
     virtual StatusCode fillNtuple() { return StatusCode::SUCCESS; }
 
     /** methods added for the full VTX fit: */
-    virtual void accumulateVTX(const AlignTrack* ) {}
+    virtual void accumulateVTX(AlignTrack* ) {}
 
     virtual void solveVTX() {}
 

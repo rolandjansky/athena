@@ -367,7 +367,7 @@ StatusCode AlignAlg::execute()
     }
 
     // check if the eventual VTX solving was successful:
-    AlignVertex            * ptrVertex    = alignTrack->getVtx();
+    const AlignVertex        * ptrVertex    = alignTrack->getVtx();
     if ( ptrVertex && (ptrVertex->type() < AlignVertex::Refitted) ) {
       ATH_MSG_DEBUG("Vertex fit failed for this track. Skipping the track.");
       continue;

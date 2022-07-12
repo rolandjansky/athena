@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKGLOBALCHI2ALIGNTOOLS_GLOBALCHI2ALIGNTOOL_H
@@ -59,7 +59,7 @@ namespace Trk {
     virtual StatusCode solve();
 
     /** accumulates information from an AlignTrack */
-    bool accumulate(const AlignTrack* alignTrack);
+    bool accumulate(AlignTrack* alignTrack);
 
     /** accumulates information from binary files */
     bool accumulateFromFiles();

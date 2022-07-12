@@ -185,7 +185,8 @@ namespace Trk {
     const Trk::Track* trackWithoutScattering() const;
 
     /** set and get pointer to the associated vertex */
-    AlignVertex*    getVtx() const { return m_vtx; }
+    const AlignVertex*    getVtx() const { return m_vtx; }
+    AlignVertex*          getVtx()       { return m_vtx; }
     void setVtx(AlignVertex * const vtx)  { m_vtx = vtx; }
 
     /** get refit flags */
