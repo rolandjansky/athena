@@ -307,6 +307,9 @@ JetChainParts = {
     'bConfig'      : ['split',],
     'bMatching'    : ['antimatchdr05mu'],
     'tboundary'    : ['SHARED'], # simple scenario tree boundary marker
+
+    # beamspot
+    'beamspotChain'     : ['beamspotVtx'],
 }
 
 # ---- Jet Dictionary of default Values ----
@@ -350,6 +353,8 @@ JetChainParts_Default = {
     'bMatching'     : [],
     #
     'tboundary'     : '',
+
+    'beamspotChain' : '',
 }
 
 # ---- bJet Dictionary of default Values that are different to the ones for normal jet chains ----
@@ -357,8 +362,17 @@ bJetChainParts_Default = {
     'etaRange' : '0eta290',
     'sigFolder'     : ['Bjet'],
     'subSigs'       : ['Bjet'],
-
 }
+
+# ---- Beamspot Dictionary for chains confiugred through jets
+BeamspotJetChainParts_Default = {
+    'signature'      : 'Beamspot',
+    'alignmentGroup' : ['Beamspot'],
+    'sigFolder'     : ['CalibCosmicMon'],
+    'subSigs'       : ['Beamspot'],
+    'beamspotChain' : '',
+    'chainPartIndex': 0
+    }
 
 #==========================================================
 # Muon
@@ -1061,7 +1075,8 @@ BeamspotChainParts = {
     'extra'          : '',
     'sigFolder'     : ['CalibCosmicMon'],
     'subSigs'       : ['Beamspot'],
-    'chainPartIndex': list(range(0,10))
+    'chainPartIndex': list(range(0,10)),
+    'beamspotChain' : [],
     }
 
 # ---- Beamspot Chain Default Dictionary of all allowed Values ----
@@ -1079,9 +1094,10 @@ BeamspotChainParts_Default = {
     'location'       : 'vtx',
     'trigType'       : '',
     'extra'          : '',
-    'sigFolder'     : ['CalibCosmicMon'],
-    'subSigs'       : ['Beamspot'],
-    'chainPartIndex': 0
+    'sigFolder'      : ['CalibCosmicMon'],
+    'subSigs'        : ['Beamspot'],
+    'chainPartIndex' : 0,
+    'beamspotChain'  : '',
     }
 
 #==========================================================
@@ -1188,6 +1204,8 @@ def getSignatureInformation(signature):
         return [JetChainParts_Default, JetChainParts]
     if signature == "Bjet":
         return [bJetChainParts_Default, JetChainParts]
+    if signature == "Beamspot_Jet":
+        return [BeamspotJetChainParts_Default, JetChainParts]
     if signature == "Tau":
         return [TauChainParts_Default, TauChainParts]
     if (signature == "Muon"):

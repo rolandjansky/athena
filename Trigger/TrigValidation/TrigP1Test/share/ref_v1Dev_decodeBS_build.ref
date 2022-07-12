@@ -3457,6 +3457,10 @@ HLT_j0_HT50_pf_ftf_preseljHT450_L1HT190-J15s5pETA21:
   eventCount: 0
 HLT_j0_HT50_pf_ftf_preseljHT500_L1HT190-J15s5pETA21:
   eventCount: 0
+HLT_j0_perf_pf_ftf_beamspotVtx_BeamSpotPEB_L1J15:
+  eventCount: 0
+HLT_j0_perf_pf_ftf_beamspotVtx_BeamSpotPEB_L1J45p0ETA21_3J15p0ETA25:
+  eventCount: 0
 HLT_j100_0eta290_020jvt_bdl1d60_pf_ftf_xe50_cell_xe85_pfopufit_L1XE55:
   eventCount: 0
   stepFeatures:
