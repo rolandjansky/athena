@@ -84,7 +84,11 @@ atlas_add_citest( RecoRun2MC_PileUp
    DEPENDS_SUCCESS PileUpPresamplingRun2 )
 
 atlas_add_citest( RecoRun3Data_Collisions
-   SCRIPT RunWorkflowTests_Run3.py --CI -r -w DataReco -a q449 -e '--maxEvents 25 --inputBSFile=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/TCT_Run3/data22_900GeV.00424070.express_express.merge.RAW._lb0100._SFO-ALL._0001.1' --no-output-checks --threads 8
+   SCRIPT RunWorkflowTests_Run3.py --CI -r -w DataReco -a q449 -e '--maxEvents 500 --inputBSFile=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/TCT_Run3/data22_900GeV.00424070.express_express.merge.RAW._lb0100._SFO-ALL._0001.1' --threads 8 --no-output-checks
+   PROPERTIES PROCESSORS 8 )
+
+atlas_add_citest( RecoRun3Data_Collisions_Express
+   SCRIPT RunWorkflowTests_Run3.py --CI -r -w DataReco -a x658 -e '--maxEvents 25 --inputBSFile=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/TCT_Run3/data22_900GeV.00424070.express_express.merge.RAW._lb0100._SFO-ALL._0001.1' --threads 8 --no-output-checks
    PROPERTIES PROCESSORS 8 )
 
 atlas_add_citest( RecoRun3Data_Cosmics
