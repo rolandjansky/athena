@@ -63,6 +63,7 @@ class WorkflowType(Enum):
     MCPileUpReco = "MCPileUpReco"
     DataReco = "DataReco"
     PileUpPresampling = "PileUpPresampling"
+    Derivation = "Derivation"
 
     def __str__(self):
         return self.name
