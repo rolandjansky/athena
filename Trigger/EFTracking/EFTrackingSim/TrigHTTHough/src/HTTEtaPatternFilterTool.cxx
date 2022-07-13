@@ -47,18 +47,16 @@ StatusCode HTTEtaPatternFilterTool::initialize()
   m_nLayers = m_HTTMapping->PlaneMap_1st()->getNLogiLayers();
 
   // Check inputs
-  if (m_pattern_file_path.empty())
-    {
-      ATH_MSG_FATAL("No File Specified");
-      return StatusCode::FAILURE;
-    }
-
-  // Read pattern file, populate m_patternmap keys
-  readPatterns(m_pattern_file_path);
-
-  // Create inverse map from module to pattern counter, m_moduleHits
-  buildMap();
-
+  if (m_pattern_file_path.empty()) {    
+    ATH_MSG_WARNING("No File Specified for eta pattern filter tool");
+  }
+  else {
+    // Read pattern file, populate m_patternmap keys
+    readPatterns(m_pattern_file_path);
+    
+    // Create inverse map from module to pattern counter, m_moduleHits
+    buildMap();
+  }
   return StatusCode::SUCCESS;
 }
 

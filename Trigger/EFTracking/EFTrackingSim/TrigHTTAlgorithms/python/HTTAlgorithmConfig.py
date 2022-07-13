@@ -6,7 +6,7 @@
 '''
 
 from TrigHTTHough.TrigHTTHoughConf import HTTRoadUnionTool, HTTHoughTransformTool, HTTHough1DShiftTool
-from TrigHTTLLP.TrigHTTLLPConf import HTTHoughTransform_d0phi0_Tool, HTTLLPDoubletHoughTransformTool
+from TrigHTTLRT.TrigHTTLRTConf import HTTHoughTransform_d0phi0_Tool, HTTLLPDoubletHoughTransformTool
 
 import TrigHTTMaps.HTTMapConfig as HTTMaps
 
@@ -33,8 +33,8 @@ def applyTag(obj, tag):
                 'max_misses',
         ],
         'HTTTrackFitterTool': [
-                'chi2dofrecoverymin',
-                'chi2dofrecoverymax',
+                'chi2DofRecoveryMin',
+                'chi2DofRecoveryMax',
                 'doMajority',
                 'nHits_noRecovery',
                 'GuessHits',

@@ -7,7 +7,7 @@
 '''
 
 from TrigHTTBanks.TrigHTTBanksConf import TrigHTTBankSvc
-import TrigHTTConfig.HTTConfigCompInit as HTTConfig
+from TrigHTTConfTools import HTTConfigCompInit
 
 import os
 
@@ -52,8 +52,8 @@ def _applyTag(HTTBankSvc, mapTag, bankTag):
     ]
 
     formats = {
-            'region': HTTConfig.getRegionIndex(mapTag),
-            'regionName': mapTag['regionNames'][HTTConfig.getRegionIndex(mapTag)],            
+            'region': HTTConfigCompInit.getRegionIndex(mapTag),
+            'regionName': mapTag['regionNames'][HTTConfigCompInit.getRegionIndex(mapTag)],            
     }
 
     for param in filepaths:

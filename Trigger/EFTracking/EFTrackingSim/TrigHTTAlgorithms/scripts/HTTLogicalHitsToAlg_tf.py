@@ -1,6 +1,6 @@
-# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
-
 #!/usr/bin/env python
+
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 '''
 @file HTTLogicalHitsToAlg_tf.py

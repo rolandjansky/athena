@@ -32,27 +32,30 @@ HTTFitConstantBank::HTTFitConstantBank(HTTPlaneMap const * pmap, int ncoords, st
     m_isIdealCoordFit(true)
 {
   std::ifstream geocfile(fname);
-  if (!(geocfile.is_open())) ATH_MSG_ERROR("FitConstants file: " << fname << " invalid");
-  ATH_MSG_INFO("Reading " << fname);
-  
-  // Read the file header
-  readHeader(geocfile);
-  ATH_MSG_INFO("Settings: m_ncoords="<<m_ncoords<<" m_npars="<<m_npars);
-  
-  // Read the sector constants
-  readSectorInfo(geocfile);
-  
-  // Pre-calculate the majority logic elements
-  if (m_missingPlane == -1)
-    calculateMajority();
-  
-  if (sizeof(float) * CHAR_BIT != 32)
-    ATH_MSG_WARNING("Floating points on this computer are not 32 bit. This may cause a problem for the hardware agreement. Be careful!");
-
-  setIdealCoordFit(true);
-
-  prepareInvFitConstants();
-  
+  if (not geocfile.is_open()) {
+    ATH_MSG_WARNING("FitConstants file: " << fname << " cannot be opened");
+  }
+  else {
+    ATH_MSG_INFO("Reading " << fname);
+    
+    // Read the file header
+    readHeader(geocfile);
+    ATH_MSG_INFO("Settings: m_ncoords="<<m_ncoords<<" m_npars="<<m_npars);
+    
+    // Read the sector constants
+    readSectorInfo(geocfile);
+    
+    // Pre-calculate the majority logic elements
+    if (m_missingPlane == -1)
+      calculateMajority();
+    
+    if (sizeof(float) * CHAR_BIT != 32)
+      ATH_MSG_WARNING("Floating points on this computer are not 32 bit. This may cause a problem for the hardware agreement. Be careful!");
+    
+    setIdealCoordFit(true);
+    
+    prepareInvFitConstants();
+  }
 }
 
 
