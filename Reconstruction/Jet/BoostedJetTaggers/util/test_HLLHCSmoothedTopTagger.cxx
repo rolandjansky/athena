@@ -179,12 +179,12 @@ int main( int argc, char* argv[] ) {
 
   // 50% efficiency setup 
   if (taggerEfficiency == "50") {
-    configFile = "SmoothedTopTaggers/HLLHCSmoothedContainedTopTagger_AntiKt10LCTopoTrimmed_MassSphericityFixedSignalEfficiency50_20220413.dat";
+    configFile = "HLLHCSmoothedContainedTopTagger_AntiKt10LCTopoTrimmed_MassSphericityFixedSignalEfficiency50_20220413.dat";
     decorationName = "HLLHCSmoothedTop50MassSphericity";
   }
   // 80% efficiency setup
   else if (taggerEfficiency == "80") {
-    configFile = "SmoothedTopTaggers/HLLHCSmoothedContainedTopTagger_AntiKt10LCTopoTrimmed_MassSphericityFixedSignalEfficiency80_20220413.dat";
+    configFile = "HLLHCSmoothedContainedTopTagger_AntiKt10LCTopoTrimmed_MassSphericityFixedSignalEfficiency80_20220413.dat";
     decorationName = "HLLHCSmoothedTop80MassSphericity";
   }
 
@@ -218,6 +218,7 @@ int main( int argc, char* argv[] ) {
   if(verbose) m_Tagger.setProperty("OutputLevel", MSG::DEBUG);
   m_Tagger.setProperty( "ConfigFile", configFile);
   if (useLocalCalibArea) m_Tagger.setProperty("CalibArea", "Local"); 
+  else m_Tagger.setProperty("CalibArea", "SmoothedTopTaggers/HLLHC/July2022/"); 
   if (decorateJets) m_Tagger.setProperty("DecorateJet", decorateJets);
   m_Tagger.retrieve();
 
