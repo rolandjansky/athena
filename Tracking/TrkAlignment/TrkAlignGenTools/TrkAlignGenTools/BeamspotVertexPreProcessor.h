@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRKALIGNGENTOOLS_BEAMSPOTVERTEXPREPROCESSOR_H
@@ -64,7 +64,7 @@ namespace Trk {
 
     virtual DataVector<Track> * processTrackCollection(const DataVector<Track> * trks);
 
-    void accumulateVTX(const AlignTrack* alignTrack);
+    void accumulateVTX(AlignTrack* alignTrack);
 
     void solveVTX();
 

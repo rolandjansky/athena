@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkTrack/TrackCollection.h"
@@ -360,14 +360,14 @@ StatusCode AlignAlg::execute()
 
 
     // check if the dressing was successful:
-    Amg::SymMatrixX    * ptrWeights   = alignTrack->weightMatrix(); //Symmetric Matrix
+    const Amg::SymMatrixX    * ptrWeights   = alignTrack->weightMatrix(); //Symmetric Matrix
     if ( !ptrWeights ) {
       ATH_MSG_DEBUG("dressAlignTrack failed, Skipping the track.");
       continue;
     }
 
     // check if the eventual VTX solving was successful:
-    AlignVertex            * ptrVertex    = alignTrack->getVtx();
+    const AlignVertex        * ptrVertex    = alignTrack->getVtx();
     if ( ptrVertex && (ptrVertex->type() < AlignVertex::Refitted) ) {
       ATH_MSG_DEBUG("Vertex fit failed for this track. Skipping the track.");
       continue;
