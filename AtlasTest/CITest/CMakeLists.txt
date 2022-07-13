@@ -26,3 +26,6 @@ foreach( project Athena AnalysisBase AthGeneration AthSimulation )
       include( ${project}.cmake )
    endif()
 endforeach()
+
+# Install scripts
+atlas_install_runtime( scripts/*.sh )
