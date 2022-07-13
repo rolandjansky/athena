@@ -30,9 +30,10 @@ rcParams['mathtext.default'] = 'rm'
 rcParams['font.sans-serif'] = 'helvetica, Helvetica, Nimbus Sans L, Mukti Narrow, FreeSans'
 
 # axes
+# all commented lines should stay to remember available options
 rcParams['axes.labelsize'] = 20
-rcParams['xtick.minor.visible'] = True
-rcParams['ytick.minor.visible'] = True
+#rcParams['xtick.minor.visible'] = True
+#rcParams['ytick.minor.visible'] = True
 rcParams['xtick.direction'] = 'in'
 rcParams['ytick.direction'] = 'in'
 rcParams['xtick.labelsize'] = 19
@@ -42,8 +43,8 @@ rcParams['ytick.labelsize'] = 19
 rcParams['ytick.major.size'] = 14
 rcParams['ytick.minor.size'] = 7
 rcParams['lines.markersize'] = 8
-rcParams['ytick.right'] = True
-rcParams['xtick.top'] = True
+#rcParams['ytick.right'] = True
+#rcParams['xtick.top'] = True
 # rcParams['lines.markeredgewidth'] = 0. # not working, it changes other stuff
 
 # legend
@@ -403,13 +404,13 @@ def plot_all_syst_eta_slice(etabins, supersampling_eta=3, esmodel='es2012c', dec
                 ax.legend(bbox_to_anchor=(0., 1., 1, 0.2), mode='expand', borderaxespad=0.,
                           loc=3, frameon=True, fontsize=17 if only_up else 14, borderpad=1, ncol=1 if only_up else 2)
                 f.subplots_adjust(top=0.65)
-                plot_ATLAS(f, 0.2, 0.58, label=atlas_label)
+                #plot_ATLAS(f, 0.2, 0.58, label=atlas_label)
                 f.text(0.2, 0.2, beautify_particle(ptype), transform=ax.transAxes, fontsize=16)
                 f.text(0.2, 0.25, r'$%.2f < \eta < %.2f$' % (etamin, etamax), transform=ax.transAxes, fontsize=16)
             else:
                 ax.legend(loc=1, frameon=False, fontsize=13 if only_up else 9, borderpad=1, ncol=1 if only_up else 2)
 
-                plot_ATLAS(f, 0.16, 0.80, label=atlas_label, fontsize=19)
+                #plot_ATLAS(f, 0.16, 0.80, label=atlas_label, fontsize=19)
                 f.text(0.16, 0.74, beautify_particle(ptype), transform=ax.transAxes, fontsize=16)
                 f.text(0.16, 0.68, r'$%.2f < \eta < %.2f$' % (etamin, etamax), transform=ax.transAxes, fontsize=16)
 
@@ -1279,7 +1280,7 @@ def plot_resolution_error_bin(eta_min, eta_max, particle, esmodel, basedir, tool
     ax.legend(loc=3, bbox_to_anchor=(0., -0.5, 1, 0.2), mode="expand",
               ncol=4, borderaxespad=0., fontsize=10)
 
-    plot_ATLAS(fig, 0.16, 0.8, 'Internal', fontsize=19)
+    #plot_ATLAS(fig, 0.16, 0.8, 'Internal', fontsize=19)
 
     if kwargs['grid']:
         ax.grid()

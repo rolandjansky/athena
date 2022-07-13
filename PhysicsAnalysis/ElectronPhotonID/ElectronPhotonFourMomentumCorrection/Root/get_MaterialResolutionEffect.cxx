@@ -104,7 +104,7 @@ double get_MaterialResolutionEffect::getDelta(int particle_type, double energy, 
 
    float aeta=fabs(eta);
    double energyGeV = energy*0.001;
-   double et = energyGeV/cosh(eta);
+   double et = energyGeV/std::cosh(eta);
 
 // IBL+PP0
    if (isyst==5) {

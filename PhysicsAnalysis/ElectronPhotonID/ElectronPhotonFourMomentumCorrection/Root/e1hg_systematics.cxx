@@ -68,7 +68,7 @@ double e1hg_systematics::getAlpha(int particle_type, double energy, double eta, 
 
 
    double energyGeV = energy*0.001;
-   double et = energyGeV/cosh(eta);
+   double et = energyGeV/std::cosh(eta);
 
    int ibinEt=m_etBins->GetSize()-2;
    for (int i=1;i<m_etBins->GetSize();i++) {

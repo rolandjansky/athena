@@ -2,6 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <iostream>
+
 #include <ElectronPhotonFourMomentumCorrection/egammaEnergyCorrectionTool.h>
 
 #include "TProfile.h"

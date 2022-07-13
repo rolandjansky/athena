@@ -1,7 +1,7 @@
 // Dear emacs, this is -*-c++-*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////
@@ -15,36 +15,25 @@
 
 // STL includes
 #include <string>
-#include <vector>
-#include <iostream>
-#include <fstream>
-#include <cstdlib>
-#include <iomanip>
-#include <cmath>
-#include <cctype>
-#include <cstddef>
+#include <memory>
+#include <utility>
 
 // PAT includes
 #include "PATCore/PATCoreEnums.h"
 #include <AsgTools/AsgMessaging.h>
 
-
 // ROOT includes
 #include "TRandom3.h"
-//#include "TList.h"
-//#include "TFile.h"
-//#include "TGraphErrors.h"
-#include "TSystem.h"
 
 // Forward declarations
 class eg_resolution;
 class get_MaterialResolutionEffect;
 class e1hg_systematics;
+class LinearityADC;
 
 class TH1;
 class TH2;
 class TAxis;
-class TFile;
 class TList;
 
 namespace egGain { class GainTool;            // run1 tool
@@ -178,14 +167,20 @@ namespace egEnergyCorr {
       // AF2 systematics
       af2Up, af2Down,
 
-      // The following apply to photons only
+      // ... ADC non linearity correction
+      ADCLinUp, ADCLinDown,
 
-      // ... Leakage
+      // ... Leakage : electron
+      LeakageElecUp, LeakageElecDown,
+
+      // The following apply to photons only
+      // ... Leakage : photon
       LeakageUnconvUp, LeakageUnconvDown, LeakageConvUp, LeakageConvDown,
 
       // ... Conversion efficiency (-> vary unconverted photon calib), fake rate (-> vary converted photon calib)
       ConvEfficiencyUp, ConvEfficiencyDown, ConvFakeRateUp, ConvFakeRateDown, ConvRadiusUp, ConvRadiusDown,
-
+      // ... in R21, 2022, Precision : NP is correlated between conv and unconv, let's call it ConvReco
+      ConvRecoUp, ConvRecoDown,
 
       AllUp, AllDown,
       AllCorrelatedUp, AllCorrelatedDown,
@@ -237,7 +232,10 @@ namespace egEnergyCorr {
     es2017_R21_v1,          // Release 21 model July 2018 adding forward, AFII, mc16d/reproc data, new mat syst 
     es2017_R21_ofc0_v1,  // Release 21 model calibration extrapolated for OFC(mu=0), coveering 2015,2016,2017 and 2018 data
     es2018_R21_v0,
+    es2018_R21_lowmu_v0, // model for 2017 and 2018 mu = 2 dataset at sqrt(s) = 13TeV and 5TeV
     es2018_R21_v1,     // model with new E1/E2 muon calibration from full run 2 low+high mu data
+
+    es2022_R21_Precision,     // Precision Recomandation Rel21 model E1/E2 muon+Electron combination ; PS scale with Low-mu runs muons
 
     UNDEFINED
 
@@ -293,6 +291,9 @@ namespace AtlasRoot {
     // ... set input file
     inline void setFileName ( const std::string& val ){ m_rootFileName = val; }
 
+    // ... set runnumber
+    void setRunnumber( long int runn=0 ) { m_RunNumber = runn; }
+
     // ... set a seed for the random number generator
     void setRandomSeed( unsigned seed=0 ) { m_random3.SetSeed(seed); }
 
@@ -334,16 +335,31 @@ namespace AtlasRoot {
                       PATCore::ParticleType::Type ptype,
 		      bool withCT,
 		      bool fast,
-                      egEnergyCorr::Resolution::resolutionType resType = egEnergyCorr::Resolution::SigmaEff90 ) const;
+                      egEnergyCorr::Resolution::resolutionType resType = egEnergyCorr::Resolution::SigmaEff90) const;
 
     // new for mc12c model. Return relative uncertainty on the resolution
-    double getResolutionError(PATCore::ParticleDataType::DataType dataType,double energy, double eta, double etaCalo, PATCore::ParticleType::Type ptype, egEnergyCorr::Resolution::Variation value,
-                              egEnergyCorr::Resolution::resolutionType resType = egEnergyCorr::Resolution::Gaussian) const;
+    double getResolutionError(PATCore::ParticleDataType::DataType dataType,
+			      double energy, double eta, double etaCalo,
+			      PATCore::ParticleType::Type ptype,
+			      egEnergyCorr::Resolution::Variation value,
+                              egEnergyCorr::Resolution::resolutionType resType = egEnergyCorr::Resolution::SigmaEff90) const;
 
 
     std::string variationName(egEnergyCorr::Scale::Variation& var) const;
     std::string variationName(egEnergyCorr::Resolution::Variation& var) const;
 
+    // For run2, precision final recommendation, when we correct for L2Gain,
+    // we do not use the size of the effect as systematic uncertainty, but the estimated uncertainty
+    void setApplyL2GainCorrection() { m_useL2GainCorrection = true; }
+
+    // Idem for leakage correction
+    void setApplyLeakageCorrection(bool interp = false)
+    {
+      m_useLeakageCorrection = true;
+      m_usepTInterpolationForLeakage = interp;
+    }
+
+    void setADCTool(std::shared_ptr<LinearityADC> t) { m_ADCLinearity_tool = t; }
 
     // convenient method for decorrelation of statistical error
     const TAxis& get_ZeeStat_eta_axis() const;
@@ -352,6 +368,7 @@ namespace AtlasRoot {
     // TODO: remove mutable
     mutable std::unique_ptr<egGain::GainTool> m_gain_tool;                    // run 1
     std::unique_ptr<egGain::GainUncertainty> m_gain_tool_run2;        // based on special run for run2
+    std::shared_ptr<LinearityADC> m_ADCLinearity_tool;
     mutable std::unique_ptr<eg_resolution> m_resolution_tool;
     mutable std::unique_ptr<get_MaterialResolutionEffect> m_getMaterialDelta;
     mutable std::unique_ptr<e1hg_systematics> m_e1hg_tool;
@@ -434,6 +451,10 @@ namespace AtlasRoot {
 
     double getAlphaLeakage(double cl_eta, PATCore::ParticleType::Type ptype,
 			   egEnergyCorr::Scale::Variation var = egEnergyCorr::Scale::Nominal, double varSF = 1. ) const;
+    double getAlphaLeakage2D(double cl_eta, double et, PATCore::ParticleType::Type ptype,
+			     egEnergyCorr::Scale::Variation var = egEnergyCorr::Scale::Nominal,
+			     double varSF = 1.) const;
+    std::pair<double,double> getAlphaUncAlpha(TH1 *hh, double cl_eta, double et, bool useInterp) const;
 
     double getAlphaConvSyst(double cl_eta, double energy, PATCore::ParticleType::Type ptype,
 			    egEnergyCorr::Scale::Variation var = egEnergyCorr::Scale::Nominal, double varSF = 1. ) const;
@@ -445,6 +466,7 @@ namespace AtlasRoot {
 			    egEnergyCorr::Scale::Variation var = egEnergyCorr::Scale::Nominal, double varSF = 1. ) const;
     double get_ZeeSyst(double eta) const;
     bool isInCrack( double cl_eta ) const;
+
     double nearestEtaBEC( double cl_eta ) const;
 
  /** @brief get resolution and its uncertainty)
@@ -463,16 +485,15 @@ namespace AtlasRoot {
 
   private:
 
-
-    std::unique_ptr<TFile> m_rootFile;
     std::string m_rootFileName;
 
     mutable TRandom3   m_random3;
 
     unsigned int  m_begRunNumber;
     unsigned int  m_endRunNumber;
+    unsigned int  m_RunNumber;
 
-   std::unique_ptr<TH1>         m_trkSyst;
+    std::unique_ptr<TH1>         m_trkSyst;
 
     std::unique_ptr<TH1>         m_aPSNom;
     std::unique_ptr<TH1>         m_daPSCor;
@@ -493,6 +514,7 @@ namespace AtlasRoot {
     std::unique_ptr<TH1>         m_uA2MeV_2015_first2weeks_correction;
 
     std::unique_ptr<TH1>         m_resNom;
+    std::unique_ptr<TH1>         m_resNom_datalowmu;
     std::unique_ptr<TH1>         m_resSyst;
     std::unique_ptr<TH1>         m_peakResData;
     std::unique_ptr<TH1>         m_peakResMC;
@@ -545,6 +567,7 @@ namespace AtlasRoot {
 
     std::unique_ptr<TH1>         m_leakageConverted;
     std::unique_ptr<TH1>         m_leakageUnconverted;
+    std::unique_ptr<TH1>         m_leakageElectron;
 
     std::unique_ptr<TH1>         m_zeeES2Profile;
 
@@ -629,6 +652,10 @@ namespace AtlasRoot {
     bool m_initialized;
     bool m_use_new_resolution_model;
     bool m_use_stat_error_scaling;  // default = false
+
+    bool m_useL2GainCorrection;
+    bool m_useLeakageCorrection;
+    bool m_usepTInterpolationForLeakage;
 
     bool m_use_temp_correction201215;  // default = true (used only for es2015PRE)
     bool m_use_temp_correction201516;
