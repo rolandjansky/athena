@@ -91,6 +91,12 @@ namespace CP
                           const CP::SystematicSet& sys) const;
 
 
+    /// \brief const retrieve the object for the given name
+  public:
+    ::StatusCode getCopy (const T*& object,
+                          const CP::SystematicSet& sys) const;
+
+
 
     //
     // inherited interface

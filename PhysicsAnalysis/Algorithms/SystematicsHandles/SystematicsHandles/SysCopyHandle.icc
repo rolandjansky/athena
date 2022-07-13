@@ -117,6 +117,43 @@ namespace CP
     }
   }
 
+  template<typename T> ::StatusCode SysCopyHandle<T> ::
+  getCopy (const T*& object, const CP::SystematicSet& sys) const
+  {
+    auto cache = m_nameCache.find (sys);
+    if (cache == m_nameCache.end())
+    {
+      if (m_nameCache.empty())
+        throw std::logic_error ("uninitialized SysCopyHandle (" + m_inputName + ")");
+      else
+        throw std::logic_error ("unsupported systematic in SysCopyHandle (" + m_inputName + "): (" + sys.name() + ")");
+    }
+    assert (m_evtStore);
+    if (std::get<1>(cache->second).empty())
+    {
+      // if no output name is configured, act like an update handle
+      return m_evtStore->retrieve (object, std::get<0>(cache->second));
+    } else
+    {
+      // if an output name is configured, retrieve the input object as
+      // a const object, (shallow) copy it, record the copy and return
+      // it.
+
+      const T *inputObject = nullptr;
+      if (m_evtStore->retrieve (inputObject, std::get<0>(cache->second)).isFailure())
+        return StatusCode::FAILURE;
+
+      T *tmpObject = nullptr;
+
+      if (detail::ShallowCopy<T>::getCopy
+        (msg(), *m_evtStore, tmpObject, inputObject,
+         std::get<1>(cache->second), std::get<2>(cache->second)).isFailure())
+        return StatusCode::FAILURE;
+      object = tmpObject;
+      return StatusCode::SUCCESS;
+    }
+  }
+
 
 
   template<typename T> CP::SystematicSet SysCopyHandle<T> ::
