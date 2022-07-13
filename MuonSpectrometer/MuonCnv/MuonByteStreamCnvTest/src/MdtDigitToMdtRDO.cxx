@@ -30,6 +30,7 @@ namespace {
    /// geometry but not implemented in the cabling. That should only happen in
    /// mc16a like setups.
    std::atomic<bool> bmgWarningPrinted = false;
+   std::atomic<bool> bisWarningPrinted = false;
    
 }
 
@@ -204,8 +205,11 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata(const EventContext& ctx) const {
           // as long as there is no BIS sMDT cabling, to avoid a hard crash, replace the tubeNumber
           // of tubes not covered in the cabling by 1
           if (m_idHelperSvc->mdtIdHelper().stationName(channelId)== m_BIS_station_name && m_idHelperSvc->issMdt(channelId)) {
-                ATH_MSG_WARNING("Found BIS sMDT with tubeLayer="<<cabling_data.layer<<" and tubeNumber="<<cabling_data.tube
-                                <<". Setting to "<<cabling_data.layer<<",1. This should only happen in the Phase-II geometry.");
+                if (!bisWarningPrinted){
+                    ATH_MSG_WARNING("Found BIS sMDT with tubeLayer="<<cabling_data.layer<<" and tubeNumber="<<cabling_data.tube
+                                    <<". Setting to "<<cabling_data.layer<<",1. This should only happen in the Phase-II geometry.");
+                    bisWarningPrinted = true;
+                }
                 continue;
              
 
