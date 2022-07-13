@@ -56,7 +56,8 @@ namespace xAODMaker {
         ElementLink< ::Trk::SegmentCollection > link(*segments,index);
         m_muonSegmentConverterTool->convert(link,xaod.ptr());
      }
-     ATH_MSG_DEBUG( "Recorded MuonSegments with key: " << m_xaodContainerName.key() << " size " << xaod->size() );
+     ATH_MSG_DEBUG( "Recorded MuonSegments with key: " << m_xaodContainerName.key() << " size " << xaod->size() 
+        << " from input: "<< m_muonSegmentLocation.key() << " size " <<segments->size());
 
      return StatusCode::SUCCESS;
   }
