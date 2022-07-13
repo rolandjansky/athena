@@ -218,9 +218,11 @@ void HLTResultMTMaker::validatePEBInfo(HLT::HLTResultMT& hltResult) const {
     }
   }
   for (const eformat::helper::StreamTag& st : streamTagsToRemove) {
-    std::remove(hltResult.getStreamTagsNonConst().begin(),
-                hltResult.getStreamTagsNonConst().end(),
-                st);
+    auto it = 
+      std::remove(hltResult.getStreamTagsNonConst().begin(),
+                  hltResult.getStreamTagsNonConst().end(),
+                  st);
+    hltResult.getStreamTagsNonConst().resize (it - hltResult.getStreamTagsNonConst().begin());
   }
 }
 
