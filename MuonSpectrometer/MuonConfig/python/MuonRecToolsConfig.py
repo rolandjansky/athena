@@ -147,7 +147,7 @@ def MuonAmbiProcessorCfg(flags, name="MuonAmbiProcessor", **kwargs):
 def MuonTrackCleanerCfg(flags, name="MuonTrackCleaner", **kwargs):
     Muon__MuonTrackCleaner=CompFactory.Muon.MuonTrackCleaner
     from MuonConfig.MuonRIO_OnTrackCreatorToolConfig import MdtDriftCircleOnTrackCreatorCfg, TriggerChamberClusterOnTrackCreatorCfg
-    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+    from TrkConfig.AtlasExtrapolatorConfig import MuonStraightLineExtrapolatorCfg
 
     result=ComponentAccumulator()
     
@@ -159,14 +159,14 @@ def MuonTrackCleanerCfg(flags, name="MuonTrackCleaner", **kwargs):
     
     # For PullCalculator, just let it get default for moment.
     
-    extrapolator = result.getPrimaryAndMerge(AtlasExtrapolatorCfg(flags)) 
+    extrapolator = result.getPrimaryAndMerge(MuonStraightLineExtrapolatorCfg(flags)) 
     kwargs.setdefault("Extrapolator", extrapolator)
 
-    from TrkConfig.TrkGlobalChi2FitterConfig import MCTBSLFitterMaterialFromTrackCfg, MCTBFitterCfg
+    from TrkConfig.TrkGlobalChi2FitterConfig import MCTBSLFitterMaterialFromTrackCfg, MCTBFitterMaterialFromTrackCfg
     slfitter = result.popToolsAndMerge(MCTBSLFitterMaterialFromTrackCfg(flags))
     kwargs.setdefault("SLFitter", slfitter)
 
-    fitter = result.popToolsAndMerge(MCTBFitterCfg(flags))
+    fitter = result.popToolsAndMerge(MCTBFitterMaterialFromTrackCfg(flags))
     kwargs.setdefault("Fitter", fitter)
 
     kwargs.setdefault("Printer", result.popToolsAndMerge(MuonEDMPrinterToolCfg(flags)) ) #private here
@@ -243,7 +243,7 @@ def MuonTrackExtrapolationToolCfg(flags, name="MuonTrackExtrapolationTool", **kw
 
 def MuonRefitToolCfg(flags, name="MuonRefitTool", **kwargs):
     from MuonConfig.MuonRIO_OnTrackCreatorToolConfig import MdtDriftCircleOnTrackCreatorCfg, TriggerChamberClusterOnTrackCreatorCfg
-    from TrkConfig.TrkGlobalChi2FitterConfig import MCTBFitterCfg
+    from TrkConfig.TrkGlobalChi2FitterConfig import MCTBFitterMaterialFromTrackCfg
     from TrkConfig.AtlasExtrapolatorConfig import MuonExtrapolatorCfg
 
     result = ComponentAccumulator()
@@ -254,7 +254,7 @@ def MuonRefitToolCfg(flags, name="MuonRefitTool", **kwargs):
     printer =  result.popToolsAndMerge(MuonEDMPrinterToolCfg(flags))
     kwargs.setdefault('Printer', printer) #PublicToolHandle
     result.addPublicTool(printer)
-    kwargs.setdefault("Fitter", result.popToolsAndMerge(MCTBFitterCfg(flags)))
+    kwargs.setdefault("Fitter", result.popToolsAndMerge(MCTBFitterMaterialFromTrackCfg(flags)))
     kwargs.setdefault("MuonExtrapolator", result.popToolsAndMerge( MuonExtrapolatorCfg(flags) ) )
     kwargs.setdefault("MdtRotCreator", result.popToolsAndMerge( MdtDriftCircleOnTrackCreatorCfg(flags) ) )
     kwargs.setdefault("CompClusterCreator", result.popToolsAndMerge( TriggerChamberClusterOnTrackCreatorCfg(flags) ) )

@@ -54,6 +54,8 @@ StatusCode MuonSegContainerMergerAlg::execute(const EventContext& ctx) const {
         if (!candidate_coll.isValid()) {
             ATH_MSG_FATAL("Failed to retrieve Muon segment candidates " << candidate_coll.fullKey());
             return StatusCode::FAILURE;
+        } else {
+            ATH_MSG_VERBOSE("Retrieved "<<candidate_coll.fullKey()<< " with size "<<candidate_coll->size());
         }
         for (const MuonCombined::MuonCandidate* ms_cand : *candidate_coll) {
             const std::vector<const Muon::MuonSegment*>& assoc_segs = ms_cand->getSegments();
@@ -67,6 +69,8 @@ StatusCode MuonSegContainerMergerAlg::execute(const EventContext& ctx) const {
         if (!tag_map.isValid()) {
             ATH_MSG_FATAL("Failed to retrieve combined tag map "<<tag_map.fullKey());
             return StatusCode::FAILURE;
+        } else {
+            ATH_MSG_VERBOSE("Retrieved "<<tag_map.fullKey()<< " with size "<<tag_map->size());
         }
         good_tags.reserve(tag_map->size() + good_tags.size());
         for (const auto& tag_pair : *tag_map) {
