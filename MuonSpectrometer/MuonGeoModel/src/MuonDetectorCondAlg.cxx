@@ -75,7 +75,7 @@ StatusCode MuonDetectorCondAlg::execute() {
     // =======================
     MuonGM::MuonDetectorFactory001 theFactory(detStore().operator->());
     MuonGM::MuonDetectorManager *mgr;
-    if (MuDetTool->createFactory(mgr).isFailure()) {
+    if (m_iGeoModelTool->createFactory(mgr).isFailure()) {
         ATH_MSG_FATAL("unable to create MuonDetectorFactory001 ");
         return StatusCode::FAILURE;
     }
