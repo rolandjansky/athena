@@ -48,8 +48,8 @@ private:
   ServiceHandle<ITrigHTTMappingSvc>   m_HTTMapping{this,"TrigHTTMappingSvc","TrigHTTMappingSvc"};
   ServiceHandle<ITrigHTTBankSvc>   m_HTTBank{this,"TrigHTTBankSvc","TrigHTTBankSvc"};
 
-  Gaudi::Property <int> m_chi2dof_recovery_min {this, "chi2dofrecoverymin", 40, "min chi^2 cut for attempting recovery fits"};
-  Gaudi::Property <int> m_chi2dof_recovery_max {this, "chi2dofrecoverymin", 1e30, "max chi^2 cut for attempting recovery fits"};
+  Gaudi::Property <int> m_chi2dof_recovery_min {this, "chi2DofRecoveryMin", 40, "min chi^2 cut for attempting recovery fits"};
+  Gaudi::Property <int> m_chi2dof_recovery_max {this, "chi2DofRecoveryMax", 1e30, "max chi^2 cut for attempting recovery fits"};
   Gaudi::Property <bool> m_do2ndStage {this, "Do2ndStageTrackFit", false, "Do 2nd stage track fit"};
   Gaudi::Property <int> m_doMajority {this, "doMajority", 1, "Do Majority fits"};
   Gaudi::Property <int> m_maxNhitsPerPlane { this, "maxHitsPerPlane", -1, "if >0, max hits per plane to consider"};

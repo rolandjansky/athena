@@ -211,15 +211,12 @@ bool HTTEventSelectionSvc::passZ0(const HTTOfflineTrack& offlineTrack) const
 
 bool HTTEventSelectionSvc::passCuts(const HTTTruthTrack& truthTrack) const
 {
-  //return (m_regions->inRegion(m_regionID, truthTrack));
   // Want a version that allows us to modify the selection parameters here.
   // If m_trackmin and m_trackmax are unmodified from the region definitions
   // this should return exactly the same.
   HTTTrackPars cur = truthTrack.getPars();
   for (unsigned i = 0; i < HTTTrackPars::NPARS; i++)
     {
-      //if (cur[i] < m_trackmin[i]) return false;
-      //if (cur[i] > m_trackmax[i]) return false;
       if (cur[i] < m_trackmin[i]) {
         return false;
       }
@@ -309,28 +306,29 @@ void HTTEventSelectionSvc::createRegions()
 }
 
 bool HTTEventSelectionSvc::checkTruthTracks(const std::vector<HTTTruthTrack>& truthTracks) const
-{
-  
+{  
 // find at least one track in the region
   bool good=false;
   for (auto track : truthTracks){
     if(m_regions->inRegion(m_regionID, track)){      
-        good=true;
-        if (std::abs(track.getPDGCode()) != static_cast<int>(m_st)){
-          ATH_MSG_WARNING("selectEvent(): TruthTrack PDGCode != sampleType");
-          good=false;
-        } 
-        else {    
-          ATH_MSG_DEBUG("selectEvent(): found one truth track, in region "
-                  <<getRegionID() <<"; track pars: "<< truthTracks.front().getPars());
-          break;
-        }
+      good=true;
+      if (std::abs(track.getPDGCode()) != static_cast<int>(m_st)) {
+	      ATH_MSG_WARNING("selectEvent(): TruthTrack PDGCode != sampleType");
+	      good=false;
+      } 
+      else {    
+	    ATH_MSG_DEBUG("selectEvent(): found one truth track, in region "
+		      <<getRegionID() <<"; track pars: "<< truthTracks.front().getPars());
+	    break;
+      }
     }
-    else ATH_MSG_DEBUG("selectEvent(): found one truth track over "<<truthTracks.size()<<", out of region "
-                  <<getRegionID() <<"; track pars: "<< truthTracks.front().getPars());
+    else {
+      ATH_MSG_DEBUG("selectEvent(): found one truth track over "<<truthTracks.size()<<", out of region "
+		    <<getRegionID() <<"; track pars: "<< truthTracks.front().getPars());
+    }
   }
   return good;
-
+  
 }
 
 bool HTTEventSelectionSvc::checkTruthTracksLRT(const std::vector<HTTTruthTrack>& truthTracks) const

@@ -104,7 +104,7 @@ StatusCode HTTRawToLogicalHitsTool::convert(unsigned stage, const HTTEventInputH
 
       bool mapped=false;
       for (unsigned int ireg=0;ireg!=m_towers.size();++ireg){
-          if (rmap->isInRegion(ireg, hit)) {
+	        if (rmap->isInRegion(ireg, hit)) {
               // if the equivalent hit is compatible with this tower the hit is saved                            
               logicEventHeader.getTower( ireg )->addHit(hit);
               ATH_MSG_VERBOSE ("Hit mapped to tower="<<ireg << ", nHits now=" << logicEventHeader.getTower(ireg)->nHits());

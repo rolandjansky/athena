@@ -61,14 +61,14 @@ class HTTLogicalHitsProcessAlg : public AthAlgorithm
 
         // Handles
         ToolHandle<IHTTEventInputHeaderTool>    m_hitInputTool {this, "InputTool", "HTTSGToRawHitsTool/HTTSGToRawHitsTool", "Input Tool"};
-        ToolHandle<HTTReadRawRandomHitsTool>    m_hitInputTool2 {this, "InputTool2", "HTT_RandRawHitsFromInvConstsTool/HTT_RandRawHitsFromInvConstsTool", "Input Tool 2"};
+	ToolHandle<HTTReadRawRandomHitsTool>    m_hitInputTool2 {this, "InputTool2", "HTTReadRawRandomHitsTool/HTTReadRawRandomHitsTool", "Potential 2nd input Tool to load data from more than one source"};
         ToolHandle<HTTRawToLogicalHitsTool>     m_hitMapTool {this, "RawToLogicalHitsTool", "HTT_RawToLogicalHitsTool/HTT_RawToLogicalHitsTool", "Raw To Logical Tool"};
         ToolHandle<IHTTHitFilteringTool>        m_hitFilteringTool {this, "HitFilteringTool", "HTTHitFilteringTool/HTTHitFilteringTool", "Hit Filtering Tool"};
         ToolHandle<HTTClusteringToolI>          m_clusteringTool {this, "ClusteringTool", "HTTClusteringTool/HTTClusteringTool", "Hit Clustering Tool"};
         ToolHandle<HTTSpacePointsToolI>         m_spacepointsTool {this, "SpacePointTool", "HTTSpacePointsTool/HTTSpacePointsTool", "Space Points Tool"};
         ToolHandle<IHTTRoadFinderTool>          m_roadFinderTool {this, "RoadFinder", "HTTPatternMatchTool", "Road Finder Tool"};
-        ToolHandle<HTTLLPRoadFilterTool>        m_LRTRoadFilterTool {this, "LRTRoadFilter", "HTTLRTRoadFilterTool", "LRT Road Filter Tool"};
-        ToolHandle<IHTTRoadFinderTool>          m_LRTRoadFinderTool {this, "LRTRoadFinder", "HTTLRTRoadFinderTool", "LRT Road Finder Tool"};
+        ToolHandle<HTTLLPRoadFilterTool>        m_LRTRoadFilterTool {this, "LRTRoadFilter", "HTTLLPRoadFilterTool/HTTLLPRoadFilterTool", "LRT Road Filter Tool"};
+        ToolHandle<IHTTRoadFinderTool>          m_LRTRoadFinderTool {this, "LRTRoadFinder", "HTTHoughTransform_d0phi0_Tool/HTTHoughTransform_d0phi0_Tool", "LRT Road Finder Tool"};
         ToolHandle<IHTTRoadFilterTool>          m_roadFilterTool {this, "RoadFilter", "HTTEtaPatternFilterTool", "Road Filter Tool"};
         ToolHandle<IHTTRoadFilterTool>          m_roadFilterTool2 {this, "RoadFilter2", "HTTPhiRoadFilterTool", "Road Filter2 Tool"};
         ToolHandle<HTTNNTrackTool>              m_NNTrackTool {this, "NNTrackTool", "HTTNNTrackTool/HTTNNTrackTool", "NN Track Tool"};

@@ -64,8 +64,8 @@ empty_tag = { # template to add a new tag, and some description of the fields
     'barcodeFracMatch' : 0.5,    
 
     # Track Fitter
-    'chi2dofrecoverymin' : None,
-    'chi2dofrecoverymax' : None,
+    'chi2DofRecoveryMin' : None,
+    'chi2DofRecoveryMax' : None,
 
     'doMajority': None,
 
@@ -171,8 +171,8 @@ HTTAlgorithmTags = {
             'radiiFile' : None,
 
             # Track Fitter
-            'chi2dofrecoverymin': 40,
-            'chi2dofrecoverymax': 100000000000,
+            'chi2DofRecoveryMin': 40,
+            'chi2DofRecoveryMax': 100000000000,
             'doMajority': 1,
             'nHits_noRecovery': -1,
             'GuessHits': True,
@@ -256,8 +256,8 @@ HTTAlgorithmTags = {
             'fieldCorrection': True,
 
             # Track Fitter
-            'chi2dofrecoverymin': 40,
-            'chi2dofrecoverymax': 100000000000,
+            'chi2DofRecoveryMin': 40,
+            'chi2DofRecoveryMax': 20000,
             'doMajority': 1,
             'nHits_noRecovery': -1,
             'GuessHits': True,
@@ -378,8 +378,8 @@ HTTAlgorithmTags = {
             'barcodeFracMatch' : 0.5,
 
             # Track Fitter
-            'chi2dofrecoverymin': 40,
-            'chi2dofrecoverymax': 100000000000,
+            'chi2DofRecoveryMin': 40,
+            'chi2DofRecoveryMax': 100000000000,
             'doMajority': 0,
             'nHits_noRecovery': -1,
             'GuessHits': True,
