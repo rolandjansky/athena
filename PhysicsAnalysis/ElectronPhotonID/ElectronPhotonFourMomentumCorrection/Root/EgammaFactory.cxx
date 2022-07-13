@@ -194,11 +194,11 @@ xAOD::Photon* EgammaFactory::create_converted_photon(float eta, float phi, float
 {
   assert(m_histo_rconv);
   assert(m_histo_zconv);
-  const int bin = m_histo_rconv->FindBin(e / cosh(eta), std::abs(eta));
+  const int bin = m_histo_rconv->FindBin(e / std::cosh(eta), std::abs(eta));
   if (m_histo_rconv->IsBinOverflow(bin)) { return create_photon(eta, phi, e, 0, 0); }
   else {
     const double rconv = m_histo_rconv->GetBinContent(bin);
-    const double zconv = m_histo_zconv->GetBinContent(m_histo_zconv->FindBin(e / cosh(eta), std::abs(eta)));
+    const double zconv = m_histo_zconv->GetBinContent(m_histo_zconv->FindBin(e / std::cosh(eta), std::abs(eta)));
     assert(rconv > 0);
     return create_photon(eta, phi, e, rconv, zconv);
   }
@@ -208,13 +208,13 @@ xAOD::Photon* EgammaFactory::create_converted_photon(float eta, float phi, float
 xAOD::Photon* EgammaFactory::create_photon(float eta, float phi, float e, float rconv, float zconv)
 {
   const bool isconv = (rconv > 0 and rconv < 800);
-  const auto l = get_layers_fraction(isconv ? m_histos_conv : m_histos_unconv, eta, e / cosh(eta));
+  const auto l = get_layers_fraction(isconv ? m_histos_conv : m_histos_unconv, eta, e / std::cosh(eta));
   return create_photon(eta, phi, l[0] * e, l[1] * e, l[2] * e, l[3] * e, e, rconv, zconv);
 }
 
 xAOD::Electron* EgammaFactory::create_electron(float eta, float phi, float e)
 {
-  const auto l = get_layers_fraction(m_histos_electron, eta, e / cosh(eta));
+  const auto l = get_layers_fraction(m_histos_electron, eta, e / std::cosh(eta));
   return create_electron(eta, phi, l[0] * e, l[1] * e, l[2] * e, l[3] * e, e);
 }
 
@@ -231,8 +231,8 @@ xAOD::Photon* EgammaFactory::create_photon(float eta, float phi, float e0, float
     vertex->setX(rconv);
     vertex->setY(0);
     // decorate with pt1, pt2
-    vertex->auxdata<float>("pt1") = e / cosh(eta) * 0.7;
-    vertex->auxdata<float>("pt2") = e / cosh(eta) * 0.3;
+    vertex->auxdata<float>("pt1") = e / std::cosh(eta) * 0.7;
+    vertex->auxdata<float>("pt2") = e / std::cosh(eta) * 0.3;
     m_vertexes->push_back(vertex);
   }
 
@@ -266,7 +266,7 @@ xAOD::Photon* EgammaFactory::create_photon(float eta, float phi, float e0, float
   ph->setEta(eta);
   ph->setPhi(phi);
   ph->setM(0);
-  ph->setPt(e / cosh(eta));
+  ph->setPt(e / std::cosh(eta));
 
   return ph;
 }
@@ -305,7 +305,7 @@ xAOD::Electron* EgammaFactory::create_electron(float eta, float phi, float e0, f
   el->setEta(eta);
   el->setPhi(phi);
   el->setM(0);
-  el->setPt(e / cosh(eta));
+  el->setPt(e / std::cosh(eta));
 
   return el;
 }

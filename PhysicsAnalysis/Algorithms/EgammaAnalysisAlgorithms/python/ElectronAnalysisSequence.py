@@ -151,7 +151,7 @@ def makeElectronCalibrationSequence( seq, dataType, postfix = '',
                            'ElectronCalibrationAndSmearingAlg' + postfix )
     addPrivateTool( alg, 'calibrationAndSmearingTool',
                     'CP::EgammaCalibrationAndSmearingTool' )
-    alg.calibrationAndSmearingTool.ESModel = 'es2018_R21_v0'
+    alg.calibrationAndSmearingTool.ESModel = 'es2022_R21_Precision'
     alg.calibrationAndSmearingTool.decorrelationModel = '1NP_v1'
     if dataType == 'afii':
         alg.calibrationAndSmearingTool.useAFII = 1

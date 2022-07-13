@@ -1,9 +1,8 @@
 // Dear Emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
 
 #ifndef EGAMMA_CALIB_TOOL_H_
 #define EGAMMA_CALIB_TOOL_H_
@@ -12,6 +11,7 @@
 #include <string>
 #include <array>
 #include <memory>
+#include <map>
 
 #include "EgammaAnalysisInterfaces/IEgammaCalibrationAndSmearingTool.h"
 #include "AsgTools/AsgTool.h"
@@ -31,48 +31,50 @@
 // Forward declarations
 class egammaMVATool;
 class egammaLayerRecalibTool;
-namespace egGain { class GainTool; }
+namespace egGain { class GainTool; class GainUncertainty; }
+class LinearityADC;
+class TH2;
 
 namespace xAOD {
   inline float get_phi_calo(const xAOD::CaloCluster& cluster, int author, bool do_throw=false)
-	{
-	  double phi_calo;
-	  if(author== xAOD::EgammaParameters::AuthorFwdElectron){
-	    phi_calo = cluster.phi();
-	  }
-	  else if (cluster.retrieveMoment(xAOD::CaloCluster::PHICALOFRAME, phi_calo)) { }
-	  else if (cluster.isAvailable<float>("phiCalo")) {
-	    phi_calo = cluster.auxdata<float>("phiCalo");
-	  }
-	  else {
-			asg::AsgMessaging msg("get_phi_calo");
-			msg.msg(MSG::ERROR) << "phiCalo not available as auxilliary variable" << endmsg;
-	    if (do_throw) { throw std::runtime_error("phiCalo not available as auxilliary variable"); }
-			msg.msg(MSG::WARNING) << "using phi as phiCalo" << endmsg;
-	    phi_calo = cluster.phi();
-	  }
-	  return phi_calo;
-	}
+  {
+    double phi_calo;
+    if(author== xAOD::EgammaParameters::AuthorFwdElectron){
+      phi_calo = cluster.phi();
+    }
+    else if (cluster.retrieveMoment(xAOD::CaloCluster::PHICALOFRAME, phi_calo)) { }
+    else if (cluster.isAvailable<float>("phiCalo")) {
+      phi_calo = cluster.auxdata<float>("phiCalo");
+    }
+    else {
+      asg::AsgMessaging msg("get_phi_calo");
+      msg.msg(MSG::ERROR) << "phiCalo not available as auxilliary variable" << endmsg;
+      if (do_throw) { throw std::runtime_error("phiCalo not available as auxilliary variable"); }
+      msg.msg(MSG::WARNING) << "using phi as phiCalo" << endmsg;
+      phi_calo = cluster.phi();
+    }
+    return phi_calo;
+  }
 
   inline float get_eta_calo(const xAOD::CaloCluster& cluster, int author, bool do_throw=false)
-	{
-	  double eta_calo;
-	  if(author== xAOD::EgammaParameters::AuthorFwdElectron){ 
-            eta_calo = cluster.eta();
-          }
-	  else if (cluster.retrieveMoment(xAOD::CaloCluster::ETACALOFRAME,
-				       eta_calo)) { }
-	  else if (cluster.isAvailable<float>("etaCalo")) {
-	    eta_calo = cluster.auxdata<float>("etaCalo");
-	  }
-	  else {
-			asg::AsgMessaging msg("get_eta_calo");
-			msg.msg(MSG::ERROR) << "etaCalo not available as auxilliary variable" << endmsg;
-	    if (do_throw) { throw std::runtime_error("etaCalo not available as auxilliary variable"); }
-			msg.msg(MSG::WARNING) << "using eta as etaCalo" << endmsg;
-	  }
-	  return eta_calo;
-	}
+  {
+    double eta_calo;
+    if(author== xAOD::EgammaParameters::AuthorFwdElectron){
+      eta_calo = cluster.eta();
+    }
+    else if (cluster.retrieveMoment(xAOD::CaloCluster::ETACALOFRAME,
+				    eta_calo)) { }
+    else if (cluster.isAvailable<float>("etaCalo")) {
+      eta_calo = cluster.auxdata<float>("etaCalo");
+    }
+    else {
+      asg::AsgMessaging msg("get_eta_calo");
+      msg.msg(MSG::ERROR) << "etaCalo not available as auxilliary variable" << endmsg;
+      if (do_throw) { throw std::runtime_error("etaCalo not available as auxilliary variable"); }
+      msg.msg(MSG::WARNING) << "using eta as etaCalo" << endmsg;
+    }
+    return eta_calo;
+  }
 }
 
 namespace CP {
@@ -83,8 +85,8 @@ class EgammaCalibrationAndSmearingTool : virtual public IEgammaCalibrationAndSme
 
 public:
 
-	enum class ScaleDecorrelation {FULL, ONENP, FULL_ETA_CORRELATED, ONENP_PLUS_UNCONR};
-	enum class ResolutionDecorrelation {FULL, ONENP};
+  enum class ScaleDecorrelation {FULL, ONENP, FULL_ETA_CORRELATED, ONENP_PLUS_UNCONR};
+  enum class ResolutionDecorrelation {FULL, ONENP};
   static const int AUTO = 2;  // this is used as a third state for boolean propertis (true/false/automatic)
   typedef unsigned int RandomNumber;
   typedef std::function<int(const EgammaCalibrationAndSmearingTool&, const xAOD::Egamma&, const xAOD::EventInfo&)> IdFunction;
@@ -121,7 +123,7 @@ public:
   virtual CP::SystematicCode applySystematicVariation(const CP::SystematicSet& systConfig) override;
   virtual void setRandomSeed(unsigned seed=0) override;
   virtual void setRandomSeedFunction(const IdFunction&& function) { m_set_seed_function = function; }
-	const IdFunction getRandomSeedFuction() const { return m_set_seed_function; }
+  const IdFunction getRandomSeedFuction() const { return m_set_seed_function; }
 
   virtual double resolution( double energy, double cl_eta, double cl_etaCalo,
                              PATCore::ParticleType::Type ptype = PATCore::ParticleType::Electron, bool withCT=false) const override;
@@ -151,7 +153,10 @@ private:
   int m_useLayer2Recalibration;
   int m_useIntermoduleCorrection;
   int m_usePhiUniformCorrection;
+  int m_useCaloDistPhiUnifCorrection;
   int m_useGainCorrection;
+  int m_doADCLinearityCorrection;
+  int m_doLeakageCorrection;
   bool m_use_ep_combination;
   int m_use_mva_calibration;
   bool m_use_full_statistical_error;
@@ -160,14 +165,17 @@ private:
   bool m_use_mapping_correction;
   int m_user_random_run_number;
 
+  // 2D histrogram (eta,phi) for a correction to cope with calo distortion (sagging)
+  std::unique_ptr<TH2> m_caloDistPhiUnifCorr;
+
   void setupSystematics();
 
   StatusCode get_simflavour_from_metadata(PATCore::ParticleDataType::DataType& result) const;
 
-	// this is needed (instead of a simpler lambda since a clang bug, see https://its.cern.ch/jira/browse/ATLASG-688)
-	struct AbsEtaCaloPredicate
+  // this is needed (instead of a simpler lambda since a clang bug, see https://its.cern.ch/jira/browse/ATLASG-688)
+  struct AbsEtaCaloPredicate
   {
-		AbsEtaCaloPredicate(double eta_min, double eta_max) : m_eta_min(eta_min), m_eta_max(eta_max) {}
+    AbsEtaCaloPredicate(double eta_min, double eta_max) : m_eta_min(eta_min), m_eta_max(eta_max) {}
     bool operator()(const xAOD::Egamma& p) {
       const double aeta = std::abs(xAOD::get_eta_calo(*p.caloCluster(),p.author()));
       return (aeta >= m_eta_min and aeta < m_eta_max);
@@ -178,10 +186,10 @@ private:
 
   const EgammaPredicate AbsEtaCaloPredicateFactory(double eta_min, double eta_max) const
 	{
-		/*return [eta_min, eta_max](const xAOD::Egamma& p) {
-			const double aeta = std::abs(xAOD::get_eta_calo(*p.caloCluster()));
-			return (aeta >= eta_min and aeta < eta_max); };*/
-		return AbsEtaCaloPredicate(eta_min, eta_max);
+	  /*return [eta_min, eta_max](const xAOD::Egamma& p) {
+	    const double aeta = std::abs(xAOD::get_eta_calo(*p.caloCluster()));
+	    return (aeta >= eta_min and aeta < eta_max); };*/
+	  return AbsEtaCaloPredicate(eta_min, eta_max);
 	}
 
 	const EgammaPredicate AbsEtaCaloPredicateFactory(std::pair<double, double> edges) const
@@ -220,11 +228,12 @@ public:
   double intermodule_correction(double Ecl, double phi, double eta) const;
   double correction_phi_unif(double eta, double phi) const;
 
-
 private:
   // use raw pointer to use forward declaration, TODO: better solution?
   mutable egammaMVATool* m_mva_tool = nullptr; //!
   egGain::GainTool* m_gain_tool = nullptr; //!
+  std::unique_ptr<egGain::GainUncertainty> m_gain_tool_run2;
+  std::shared_ptr<LinearityADC> m_ADCLinearity_tool;
   egammaLayerRecalibTool* m_layer_recalibration_tool = nullptr; //!
   std::string m_layer_recalibration_tune; //!
 

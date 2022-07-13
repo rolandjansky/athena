@@ -396,27 +396,28 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
                                         'EG_SCALE_LARCALIB_EXTRA2015PRE__1down', 'EG_SCALE_LARCALIB_EXTRA2015PRE__1up',
                                         'EG_SCALE_LARTEMPERATURE_EXTRA2015PRE__1down', 'EG_SCALE_LARTEMPERATURE_EXTRA2015PRE__1up',
                                         'EG_SCALE_LARTEMPERATURE_EXTRA2016PRE__1down', 'EG_SCALE_LARTEMPERATURE_EXTRA2016PRE__1up']
-        _test_list_syst("es2015PRE", "1NP_v1", None, None, list_1NP_scale + list_1NP_resolution)
-        _test_list_syst("es2012c", "1NP_v1", None, None, list_1NP_scale + list_1NP_resolution)
-        _test_list_syst("es2016PRE", None, "1NP_v1", "1NP_v1", list_1NP_scale + list_1NP_resolution)
-        _test_list_syst("es2016PRE", None, "1NP_v1", "FULL_v1", list_1NP_scale + list_FULL_resolution)
-        _test_list_syst("es2015PRE", "1NPCOR_PLUS_UNCOR", None, None, list_1NP_resolution + list_1NPCOR_PLUS_UNCOR_scale)
-        _test_list_syst("es2015PRE", "1NP_v1", "1NPCOR_PLUS_UNCOR", None, list_1NP_resolution + list_1NPCOR_PLUS_UNCOR_scale)
-        _test_list_syst("es2015c_summer", "1NP_v1", None, None, list_1NP_scale + list_1NP_resolution)
+        # _test_list_syst("es2015PRE", "1NP_v1", None, None, list_1NP_scale + list_1NP_resolution)
+        # _test_list_syst("es2012c", "1NP_v1", None, None, list_1NP_scale + list_1NP_resolution)
+        # _test_list_syst("es2016PRE", None, "1NP_v1", "1NP_v1", list_1NP_scale + list_1NP_resolution)
+        # _test_list_syst("es2016PRE", None, "1NP_v1", "FULL_v1", list_1NP_scale + list_FULL_resolution)
+        # _test_list_syst("es2015PRE", "1NPCOR_PLUS_UNCOR", None, None, list_1NP_resolution + list_1NPCOR_PLUS_UNCOR_scale)
+        # _test_list_syst("es2015PRE", "1NP_v1", "1NPCOR_PLUS_UNCOR", None, list_1NP_resolution + list_1NPCOR_PLUS_UNCOR_scale)
+        # _test_list_syst("es2015c_summer", "1NP_v1", None, None, list_1NP_scale + list_1NP_resolution)
 
-        _test_list_syst("es2015PRE", "FULL_ETACORRELATED_v1", None, None, 58)
-        _test_list_syst("es2012c", "FULL_ETACORRELATED_v1", None, None, 54)
-        _test_list_syst("es2016PRE", "FULL_ETACORRELATED_v1", None, None, 62)
-        _test_list_syst("es2015c_summer", "FULL_ETACORRELATED_v1", None, None, 60)
-        _test_list_syst("es2016data_mc15c",  "FULL_ETACORRELATED_v1", None, None, 68)
-        _test_list_syst("es2012c", "FULL_v1", None, None, 148)
-        _test_list_syst("es2012c", None, "FULL_v1", "FULL_v1", 148)
-        _test_list_syst("es2015PRE", "FULL_v1", None, None, 158)
-        _test_list_syst("es2015PRE", None, "FULL_v1", "FULL_v1", 158)
-        _test_list_syst("es2015PRE", None, None, None, 158)
+        # _test_list_syst("es2015PRE", "FULL_ETACORRELATED_v1", None, None, 58)
+        # _test_list_syst("es2012c", "FULL_ETACORRELATED_v1", None, None, 54)
+        # _test_list_syst("es2016PRE", "FULL_ETACORRELATED_v1", None, None, 62)
+        # _test_list_syst("es2015c_summer", "FULL_ETACORRELATED_v1", None, None, 60)
+        # _test_list_syst("es2016data_mc15c",  "FULL_ETACORRELATED_v1", None, None, 68)
+        # _test_list_syst("es2012c", "FULL_v1", None, None, 148)
+        # _test_list_syst("es2012c", None, "FULL_v1", "FULL_v1", 148)
+        # _test_list_syst("es2015PRE", "FULL_v1", None, None, 158)
+        # _test_list_syst("es2015PRE", None, "FULL_v1", "FULL_v1", 158)
+        # _test_list_syst("es2015PRE", None, None, None, 158)
+        _test_list_syst("es2022_R21_Precision", None, None, None, 156)
 
         # these works, but generate FATALS, as expected
-        _test_list_syst("es2016PRE", "1NP_v1", "1NP_v1", "1NP_v1", [], success=False)
+        # _test_list_syst("es2016PRE", "1NP_v1", "1NP_v1", "1NP_v1", [], success=False)
 
 
 

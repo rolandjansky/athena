@@ -256,7 +256,7 @@ namespace egGain {
       }
     }
     
-    double ets2 = energy_layer2_input/cosh(eta_input);
+    double ets2 = energy_layer2_input/std::cosh(eta_input);
     double valTO = (m_funcTO[id_eta])->Eval(ets2);
     if (valTO < 0) {
       valTO=0;
