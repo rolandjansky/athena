@@ -7,42 +7,42 @@
 #include <string>
 #include <vector>
 
-#include "MMClusterization/IMMClusterBuilderTool.h"
-#include "MuonPrepRawData/MMPrepData.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-
 #include "GaudiKernel/ServiceHandle.h"
+#include "MMClusterization/IMMClusterBuilderTool.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonPrepRawData/MMPrepData.h"
 
+namespace Muon {
+    class ConstraintAngleMMClusterBuilderTool : virtual public IMMClusterBuilderTool, public AthAlgTool {
+    public:
+        ConstraintAngleMMClusterBuilderTool(const std::string&, const std::string&, const IInterface*);
 
-namespace Muon{
-    class ConstraintAngleMMClusterBuilderTool: virtual public IMMClusterBuilderTool, public AthAlgTool {
+        /** Default destructor */
+        virtual ~ConstraintAngleMMClusterBuilderTool() = default;
 
-        public:
-            ConstraintAngleMMClusterBuilderTool(const std::string&, const std::string&, const IInterface*);
+        /** standard initialize method */
+        virtual StatusCode initialize() override;
 
-            /** Default destructor */
-            virtual ~ConstraintAngleMMClusterBuilderTool() = default;
+        virtual StatusCode getClusters(std::vector<Muon::MMPrepData>& MMprds,
+                                       std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVec) const override;
 
-            /** standard initialize method */
-            virtual StatusCode initialize() override;
+    private:
+        ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+        bool m_writeStripProperties;
 
+        StatusCode getCalibratedClusterPosition(const Muon::MMPrepData* cluster, std::vector<NSWCalib::CalibratedStrip>&, const float theta,
+                                                Amg::Vector2D& clusterLocalPosition, Amg::MatrixX& covMatrix) const override;
+        StatusCode sortHitsToLayer(const std::vector<Muon::MMPrepData>& MMprds,
+                                   std::vector<std::vector<Muon::MMPrepData>>& prdsPerLayer) const;
+        StatusCode scanLayer(const std::vector<Muon::MMPrepData>& mmPrdsPerLayer, std::vector<std::vector<uint>>& idxClusters,
+                             std::vector<double>& clusterTheta) const;
+        StatusCode fitCluster(const std::vector<Muon::MMPrepData>& prdPerLayer, const std::vector<uint>& idxCluster,
+                              const double& clusterTheta, std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVec) const;
 
-            virtual
-            StatusCode getClusters(std::vector<Muon::MMPrepData>& MMprds, 
-			   std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVec) const override;
-
-            
-        private:
-            ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-            bool m_writeStripProperties;
-            StatusCode sortHitsToLayer(const std::vector<Muon::MMPrepData>& MMprds, std::vector<std::vector<Muon::MMPrepData>>& prdsPerLayer ) const; 
-            StatusCode scanLayer(const std::vector<Muon::MMPrepData> &mmPrdsPerLayer,std::vector<std::vector<uint>> &idxClusters, std::vector<double> &clusterTheta)const ;
-            StatusCode fitCluster(const std::vector<Muon::MMPrepData> &prdPerLayer,const std::vector<uint>& idxCluster,const double &clusterTheta,std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVec) const;
-
-            int m_nSigmaSelection;
-            double m_sigmaTheta;
-            double m_fitAngleCut;
+        int m_nSigmaSelection;
+        double m_sigmaTheta;
+        double m_fitAngleCut;
     };  // class ConstraintAngleMMClusterBuilderTool
 
 }  // namespace Muon
