@@ -8,63 +8,63 @@
 #include <string>
 #include <vector>
 
-#include "MMClusterization/IMMClusterBuilderTool.h"
-#include "MuonPrepRawData/MMPrepData.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-
 #include "GaudiKernel/ServiceHandle.h"
+#include "MMClusterization/IMMClusterBuilderTool.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonPrepRawData/MMPrepData.h"
 
 class MmIdHelper;
-namespace MuonGM
-{
-  class MuonDetectorManager;
+namespace MuonGM {
+    class MuonDetectorManager;
 }
 
 //
 // fixed angle projection cluster builder tool for MicroMegas
 //
-namespace Muon
-{
-  
-  class ProjectionMMClusterBuilderTool : virtual public IMMClusterBuilderTool, public AthAlgTool {
+namespace Muon {
 
-  public:
-    /** Default constructor */
-    ProjectionMMClusterBuilderTool(const std::string&, const std::string&, const IInterface*);
-     
-    /** Default destructor */
-    virtual ~ProjectionMMClusterBuilderTool()=default;
+    class ProjectionMMClusterBuilderTool : virtual public IMMClusterBuilderTool, public AthAlgTool {
+    public:
+        /** Default constructor */
+        ProjectionMMClusterBuilderTool(const std::string&, const std::string&, const IInterface*);
 
-    /** standard initialize method */
-    virtual StatusCode initialize() override;
-    
-    /**Interface fuction to IMMClusterBuilderTool; calling function manages the pointers inside clustersVec  */
-    StatusCode getClusters(std::vector<Muon::MMPrepData>& MMprds, std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVec) const override;
+        /** Default destructor */
+        virtual ~ProjectionMMClusterBuilderTool() = default;
 
-  private: 
+        /** standard initialize method */
+        virtual StatusCode initialize() override;
 
-    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-    bool m_writeStripProperties;
+        /**Interface fuction to IMMClusterBuilderTool; calling function manages the pointers inside clustersVec  */
+        StatusCode getClusters(std::vector<Muon::MMPrepData>& MMprds,
+                               std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVec) const override;
 
-    double m_tmin,m_tmax,m_tOffset;
-    double m_p0, m_p1, m_p2;
+        StatusCode getCalibratedClusterPosition(const Muon::MMPrepData* cluster, std::vector<NSWCalib::CalibratedStrip>&, const float theta,
+                                                Amg::Vector2D& clusterLocalPosition, Amg::MatrixX& covMatrix) const override;
+    private:
+        ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+        bool m_writeStripProperties;
 
-    int m_t0;
+        double m_tmin, m_tmax, m_tOffset;
+        double m_p0, m_p1, m_p2;
 
-    uint m_minClusterSize;
+        int m_t0;
 
+        uint m_minClusterSize;
 
-    StatusCode calculateCorrection(const std::vector<Muon::MMPrepData> &prdsOfLayer,std::vector<double>& v_posxc,std::vector<double>& v_cor) const ;
-    StatusCode doFineScan(std::vector<int>& flag,const std::vector<double>& v_posxc, const std::vector<double>& v_cor, std::vector<int>& idx_selected) const ;   
-    StatusCode doPositionCalculation(std::vector<double>& v_posxc, const std::vector<double>& v_cor, const std::vector<int>& idx_selected,double& xmean, double& xmeanErr, double &  qtot,const std::vector<Muon::MMPrepData>& prdsOfLayer) const;
-    
-    StatusCode writeNewPrd(std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVect,double xmean, double xerr,double qtot,const std::vector<int>& idx_selected,const std::vector<Muon::MMPrepData>& prdsOfLayer) const ;
-    
-    static double getSigma(double correction);
+        StatusCode calculateCorrection(const std::vector<Muon::MMPrepData>& prdsOfLayer, std::vector<double>& v_posxc,
+                                       std::vector<double>& v_cor) const;
+        StatusCode doFineScan(std::vector<int>& flag, const std::vector<double>& v_posxc, const std::vector<double>& v_cor,
+                              std::vector<int>& idx_selected) const;
+        StatusCode doPositionCalculation(std::vector<double>& v_posxc, const std::vector<double>& v_cor,
+                                         const std::vector<int>& idx_selected, double& xmean, double& xmeanErr, double& qtot,
+                                         const std::vector<Muon::MMPrepData>& prdsOfLayer) const;
 
-};
+        StatusCode writeNewPrd(std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVect, double xmean, double xerr, double qtot,
+                               const std::vector<int>& idx_selected, const std::vector<Muon::MMPrepData>& prdsOfLayer) const;
 
+        static double getSigma(double correction);
+    };
 
-}
+}  // namespace Muon
 #endif
