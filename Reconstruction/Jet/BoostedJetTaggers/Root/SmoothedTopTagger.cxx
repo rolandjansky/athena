@@ -265,6 +265,7 @@ Root::TAccept& SmoothedTopTagger::tag( const xAOD::Jet& jet ) const {
         m_accept.setCutResult("PassSphericity", true);
       }
 
+      break;
     }
     default:
       break;
