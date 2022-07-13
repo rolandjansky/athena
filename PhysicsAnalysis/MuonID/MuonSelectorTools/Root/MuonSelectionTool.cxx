@@ -1286,7 +1286,7 @@ namespace CP {
               // pT-dependent cut below 20 GeV
               // The pT-dependent cut is based on a fit of a third-degree polynomial, with coefficients as given below
               
-              if(m_CaloScoreWP==3) return (CaloMuonScore >= (-1.98e-4 * std::pow(pT, 3) -6.04e-3 * std::pow(pT, 2) -6.13e-2 * pT + 1.16));
+              if(m_CaloScoreWP==3) return (CaloMuonScore >= (-1.98e-4 * std::pow(pT, 3) +6.04e-3 * std::pow(pT, 2) -6.13e-2 * pT + 1.16));
               if(m_CaloScoreWP==4) return (CaloMuonScore >= (-1.80e-4 * std::pow(pT, 3) +5.02e-3 * std::pow(pT, 2) -4.62e-2 * pT + 1.12));
           }
         }
