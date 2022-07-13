@@ -43,13 +43,13 @@
         "chains" : "HLT_e5_idperf_tight_L1EM3_HLT_IDTrack_Electron_FTF_HLT_Roi_FastElectron HLT_e5_idperf_tight_L1EM3_HLT_IDTrack_Electron_IDTrig HLT_e5_idperf_loose_L1EM3_HLT_IDTrack_Electron_IDTrig" 
     },
     "L2tauLRT":{
-        "chains" : "HLT_tau25_idperf_mediumRNN_trackLRT_L1TAU12IM:HLT_IDTrack_TauLRT_FTF:HLT_Roi_TauLRT HLT_tau25_idperf_mediumRNN_tracktwoLLP_L1TAU12IM:HLT_IDTrack_TauCore_FTF:HLT_Roi_TauCore HLT_tau25_idperf_mediumRNN_tracktwoLLP_L1TAU12IM:HLT_IDTrack_TauIso_FTF:HLT_Roi_TauIso"
+        "chains" : "HLT_tau25_idperf_mediumRNN_trackLRT_L1TAU12IM:HLT_IDTrack_TauLRT_FTF:HLT_Roi_TauLRT HLT_tau25_idperf_mediumRNN_tracktwoLLP_L1TAU12IM:HLT_IDTrack_TauCore_FTF:HLT_Roi_TauCore HLT_tau25_idperf_mediumRNN_tracktwoLLP_L1TAU12IM:HLT_IDTrack_TauIso_FTF:HLT_Roi_TauIso HLT_tau25_idperf_mediumRNN_trackLRT_L1TAU12IM:HLT_IDTrack_TauLRT_FTF:HLT_Roi_TauLRT"
     },
     "L2tau":{
-        "chains" : "HLT_tau25_idperf_tracktwoMVA_L1TAU12IM:HLT_IDTrack_TauCore_FTF:HLT_Roi_TauCore HLT_tau25_idperf_tracktwoMVA_L1TAU12IM:HLT_IDTrack_TauIso_FTF:HLT_Roi_TauIso HLT_tau25_idperf_mediumRNN_tracktwoLLP_L1TAU12IM:HLT_IDTrack_TauCore_FTF:HLT_Roi_TauCore HLT_tau25_idperf_mediumRNN_tracktwoLLP_L1TAU12IM:HLT_IDTrack_TauIso_FTF:HLT_Roi_TauIso HLT_tau25_idperf_mediumRNN_trackLRT_L1TAU12IM:HLT_IDTrack_TauLRT_FTF:HLT_Roi_TauLRT"
+        "chains" : "HLT_tau25_idperf_tracktwoMVA_L1TAU12IM:HLT_IDTrack_TauCore_FTF:HLT_Roi_TauCore HLT_tau25_idperf_tracktwoMVA_L1TAU12IM:HLT_IDTrack_TauIso_FTF:HLT_Roi_TauIso HLT_tau25_idperf_tracktwoMVABDT_L1TAU12IM:HLT_IDTrack_TauCore_FTF:HLT_Roi_TauCore HLT_tau25_idperf_tracktwoMVABDT_L1TAU12IM:HLT_IDTrack_TauIso_FTF:HLT_Roi_TauIso "
     },
     "EFtau":{
-        "chains" : "HLT_tau25_idperf_tracktwoMVA_L1TAU12IM:HLT_IDTrack_TauIso_FTF:HLT_Roi_TauIso HLT_tau25_idperf_tracktwoMVA_L1TAU12IM:HLT_IDTrack_Tau_IDTrig:HLT_Roi_TauIso HLT_tau25_idperf_mediumRNN_tracktwoLLP_L1TAU12IM:HLT_IDTrack_TauCore_FTF:HLT_Roi_TauCore HLT_tau25_idperf_mediumRNN_tracktwoLLP_L1TAU12IM:HLT_IDTrack_TauIso_FTF:HLT_Roi_TauIso HLT_tau25_idperf_mediumRNN_trackLRT_L1TAU12IM:HLT_IDTrack_TauLRT_FTF:HLT_Roi_TauLRT"
+        "chains" : "HLT_tau25_idperf_tracktwoMVA_L1TAU12IM:HLT_IDTrack_TauIso_FTF:HLT_Roi_TauIso HLT_tau25_idperf_tracktwoMVA_L1TAU12IM:HLT_IDTrack_Tau_IDTrig:HLT_Roi_TauIso HLT_tau25_idperf_tracktwoMVABDT_L1TAU12IM:HLT_IDTrack_TauIso_FTF:HLT_Roi_TauIso HLT_tau25_idperf_tracktwoMVABDT_L1TAU12IM:HLT_IDTrack_Tau_IDTrig:HLT_Roi_TauIso "
     },
     "EFtauvtx":{
         "chains" : "HLT_tau25_idperf_tracktwoMVA_L1TAU12IM:HLT_IDTrack_Tau_IDTrig:HLT_Roi_TauIso:HLT_IDVertex_Tau/HLT_IDVertex_Tau"

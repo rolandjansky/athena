@@ -34,7 +34,7 @@ StatusCode MuonDetectorCondAlg::initialize() {
     // Read Handles
     ATH_CHECK(m_iGeoModelTool.retrieve());
 
-    ATH_CHECK(m_readALineKey.initialize());
+    ATH_CHECK(m_readALineKey.initialize(m_applyALines));
     ATH_CHECK(m_readBLineKey.initialize());
     ATH_CHECK(m_readILineKey.initialize(MuonDetMgrDS->applyCscIntAlignment()));
     ATH_CHECK(m_readMdtAsBuiltKey.initialize(MuonDetMgrDS->applyMdtAsBuiltParams()));
@@ -54,11 +54,12 @@ StatusCode MuonDetectorCondAlg::initialize() {
 
 StatusCode MuonDetectorCondAlg::execute() {
     ATH_MSG_DEBUG("execute " << name());
+    const EventContext& ctx = Gaudi::Hive::currentContext();
 
     // =======================
     // Write ILine Cond Handle
     // =======================
-    SG::WriteCondHandle<MuonGM::MuonDetectorManager> writeHandle{m_writeDetectorManagerKey};
+    SG::WriteCondHandle<MuonGM::MuonDetectorManager> writeHandle{m_writeDetectorManagerKey, ctx};
     if (writeHandle.isValid()) {
         ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
                                     << ". In theory this should not be called, but may happen"
@@ -72,10 +73,9 @@ StatusCode MuonDetectorCondAlg::execute() {
     // =======================
     // Create the MuonDetectorManager by calling the MuonDetectorFactory001
     // =======================
-    const MuonDetectorTool *MuDetTool = m_iGeoModelTool.get();
     MuonGM::MuonDetectorFactory001 theFactory(detStore().operator->());
     MuonGM::MuonDetectorManager *mgr;
-    if (MuDetTool->createFactory(mgr).isFailure()) {
+    if (m_iGeoModelTool->createFactory(mgr).isFailure()) {
         ATH_MSG_FATAL("unable to create MuonDetectorFactory001 ");
         return StatusCode::FAILURE;
     }
@@ -86,10 +86,9 @@ StatusCode MuonDetectorCondAlg::execute() {
     // Add NSW to the MuonDetectorManager by calling BuildReadoutGeometry from MuonAGDDToolHelper
     // =======================
     if (MuonMgrData->mmIdHelper() && MuonMgrData->stgcIdHelper()) {
-        BuildNSWReadoutGeometry theBuilder = BuildNSWReadoutGeometry();
+        BuildNSWReadoutGeometry theBuilder{};
         bool success=false;
-        if(m_applyMmPassivation){
-            const EventContext& ctx = Gaudi::Hive::currentContext();
+        if(m_applyMmPassivation){           
             SG::ReadCondHandle<NswPassivationDbData> readMmPass{m_condMmPassivKey, ctx};
             if(!readMmPass.isValid()){
               ATH_MSG_ERROR("Cannot find conditions data container for MM passivation!");
@@ -101,8 +100,10 @@ StatusCode MuonDetectorCondAlg::execute() {
         else {
             success = theBuilder.BuildReadoutGeometry(MuonMgrData.get(), nullptr);
         }
-        if(!success)
+        if(!success){
             ATH_MSG_FATAL("unable to add NSW ReadoutGeometry in the MuonDetectorManager in conditions store");
+            return StatusCode::FAILURE;
+        }
     }
 
     // =======================
@@ -110,68 +111,67 @@ StatusCode MuonDetectorCondAlg::execute() {
     // =======================
 
     if (MuonMgrData->applyCscIntAlignment()) {
-        SG::ReadCondHandle<CscInternalAlignmentMapContainer> readILinesHandle{m_readILineKey};
-        const CscInternalAlignmentMapContainer *readILinesCdo{*readILinesHandle};
-
+        SG::ReadCondHandle<CscInternalAlignmentMapContainer> readILinesHandle{m_readILineKey, ctx};
+        if (!readILinesHandle.isValid()){
+            ATH_MSG_FATAL("Failed to retrieve the CSC I-line container "<<readILinesHandle.fullKey());
+            return StatusCode::FAILURE;
+        }        
         writeHandle.addDependency(readILinesHandle);
-
-        if (MuonMgrData->updateCSCInternalAlignmentMap(*readILinesCdo).isFailure())
-            ATH_MSG_ERROR("Unable to update CSC/ILINES");
-        else
-            ATH_MSG_DEBUG("update CSC/ILINES DONE");
+        ATH_CHECK(MuonMgrData->updateCSCInternalAlignmentMap(**readILinesHandle));
     }
 
     // =======================
     // Update MdtAsBuiltMapContainer if requested BEFORE updating ALINES and BLINES
     // =======================
     if (MuonMgrData->applyMdtAsBuiltParams()) {
-        SG::ReadCondHandle<MdtAsBuiltMapContainer> readMdtAsBuiltHandle{m_readMdtAsBuiltKey};
-        const MdtAsBuiltMapContainer *readMdtAsBuiltCdo{*readMdtAsBuiltHandle};
+        SG::ReadCondHandle<MdtAsBuiltMapContainer> readMdtAsBuiltHandle{m_readMdtAsBuiltKey, ctx};
+        if (!readMdtAsBuiltHandle.isValid()) {
+            ATH_MSG_FATAL("Failed to load Mdt as-built container "<<m_readMdtAsBuiltKey.fullKey());
+            return StatusCode::FAILURE;
+        }
         writeHandle.addDependency(readMdtAsBuiltHandle);
-
-        if (MuonMgrData->updateMdtAsBuiltParams(*readMdtAsBuiltCdo).isFailure())
-            ATH_MSG_ERROR("Unable to update MDT AsBuilt parameters");
-        else
-            ATH_MSG_DEBUG("update MDT AsBuilt parameters DONE");
+        ATH_CHECK(MuonMgrData->updateMdtAsBuiltParams(**readMdtAsBuiltHandle));
     }
 
     // =======================
     // Set NSW as-built geometry if requested
     // =======================
     if (MuonMgrData->applyNswAsBuiltParams()) {
-        SG::ReadCondHandle<NswAsBuiltDbData> readNswAsBuilt{m_readNswAsBuiltKey};
-        if(!readNswAsBuilt.isValid())
-          ATH_MSG_ERROR("Cannot find conditions data container for NSW as-built!");
-        else
-            ATH_MSG_DEBUG("Retrieved conditions data container for NSW as-built");
+        SG::ReadCondHandle<NswAsBuiltDbData> readNswAsBuilt{m_readNswAsBuiltKey, ctx};
+        if(!readNswAsBuilt.isValid()) {
+            ATH_MSG_ERROR("Cannot find conditions data container for NSW as-built!");
+            return StatusCode::FAILURE;
+        }
         writeHandle.addDependency(readNswAsBuilt);
-        const NswAsBuiltDbData* nswAsBuiltData = readNswAsBuilt.cptr();
-        MuonMgrData->setMMAsBuiltCalculator(nswAsBuiltData);
+        MuonMgrData->setMMAsBuiltCalculator(*readNswAsBuilt);
     }
 
     // =======================
     // Update Alignment, ALINES
     // =======================
-
-    SG::ReadCondHandle<ALineMapContainer> readALinesHandle{m_readALineKey};
-    if (MuonMgrData->updateAlignment(**readALinesHandle, m_isData).isFailure())
-        ATH_MSG_ERROR("Unable to update Alignment");
-    else
-        ATH_MSG_DEBUG("update Alignment DONE");
-
+    if (m_applyALines) {
+        SG::ReadCondHandle<ALineMapContainer> readALinesHandle{m_readALineKey, ctx};
+        if (!readALinesHandle.isValid()) {
+            ATH_MSG_FATAL("Failed to load ALine container "<<m_readALineKey.fullKey());
+            return StatusCode::FAILURE;
+        }
+        writeHandle.addDependency(readALinesHandle);
+        ATH_CHECK(MuonMgrData->updateAlignment(**readALinesHandle, m_isData));     
+    } else ATH_MSG_INFO("Do not apply the A Lines of the alignment");
+ 
     // =======================
     // Update Deformations, BLINES
     // =======================
-
-    SG::ReadCondHandle<BLineMapContainer> readBLinesHandle{m_readBLineKey};
-
-    writeHandle.addDependency(readALinesHandle, readBLinesHandle);
-
-    if (MuonMgrData->updateDeformations(**readBLinesHandle, m_isData).isFailure())
-        ATH_MSG_ERROR("Unable to update Deformations");
-    else
-        ATH_MSG_DEBUG("update Deformations DONE");
-
+    if (m_applyBLines) {
+        SG::ReadCondHandle<BLineMapContainer> readBLinesHandle{m_readBLineKey, ctx};
+        if (!readBLinesHandle.isValid()) {
+            ATH_MSG_FATAL("Failed to load B line container "<<m_readBLineKey.fullKey());
+            return StatusCode::FAILURE;
+        }
+        writeHandle.addDependency(readBLinesHandle);
+        ATH_CHECK (MuonMgrData->updateDeformations(**readBLinesHandle, m_isData));  
+    } else ATH_MSG_INFO("Do not apply the B Lines of the alignment");
+    
     // !!!!!!!! UPDATE ANYTHING ELSE ???????
 
     if (writeHandle.record(std::move(MuonMgrData)).isFailure()) {

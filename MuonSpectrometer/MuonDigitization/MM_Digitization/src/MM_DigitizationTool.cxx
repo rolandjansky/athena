@@ -813,7 +813,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
         // To apply an arbitrary time-smearing of VMM signals
         //
         MM_ElectronicsToolTriggerOutput electronicsTriggerOutputAppliedARTTiming(
-            m_ElectronicsResponseSimulation->applyARTTiming(electronicsTriggerOutputAppliedARTDeadTime, 0., 0.));
+            m_ElectronicsResponseSimulation->applyARTTiming(electronicsTriggerOutputAppliedARTDeadTime, rndmEngine, 0., 0.));
 
         const MM_ElectronicsToolTriggerOutput& finalElectronicsTriggerOutput(electronicsTriggerOutputAppliedARTTiming);
 

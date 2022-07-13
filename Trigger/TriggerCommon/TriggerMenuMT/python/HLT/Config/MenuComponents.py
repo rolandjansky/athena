@@ -589,6 +589,12 @@ class Chain(object):
         self.steps = self.steps + new_steps
         self.nSteps = [len(self.steps)]
 
+    def append_step_to_jet(self,new_steps):
+        assert len(self.nSteps) == 1, "[Chain.append_step_to_jet] appending already-merged step lists - chain object will be broken. This is used either for appending Beamspot algorithms to jets!"
+        self.steps = self.steps + new_steps
+        self.nSteps = [len(self.steps)]
+
+
     def numberAllSteps(self):
         if len(self.steps)==0:
             return

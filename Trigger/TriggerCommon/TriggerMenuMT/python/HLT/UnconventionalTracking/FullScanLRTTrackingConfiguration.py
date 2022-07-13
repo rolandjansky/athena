@@ -10,21 +10,21 @@ log = logging.getLogger(__name__)
 
 def FullScanLRTTriggerSequence(ConfigFlags):
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
-    fscfg = getInDetTrigConfig("jet")
-    lrtcfg = getInDetTrigConfig( 'fullScanLRT' )
+    lrtcfg = getInDetTrigConfig("fullScanLRT")
 
-    from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTrackingNoView
-    ft_reco_algs = makeInDetTrigFastTrackingNoView( config = fscfg, rois=trkFSRoI, secondStageConfig = lrtcfg)
+    from TriggerMenuMT.HLT.UnconventionalTracking.CommonConfiguration import getCommonInDetFullScanLRTSequence
 
-    from TriggerMenuMT.HLT.Jet.JetMenuSequences import getTrackingInputMaker
-    im_alg = getTrackingInputMaker("ftf")
+    ftf_seqs, im_alg, seqOut = RecoFragmentsPool.retrieve(getCommonInDetFullScanLRTSequence,ConfigFlags)
+
 
     from TrigInDetConfig.InDetTrigPrecisionTracking import makeInDetTrigPrecisionTracking
 
     tracks_name, track_particles_names, pt_reco_algs = makeInDetTrigPrecisionTracking(config = lrtcfg, rois = trkFSRoI)
 
 
-    TrkSeq = parOR("UncTrkrecoSeqFSLRT", [im_alg, ft_reco_algs, pt_reco_algs])
+    pt_seq = parOR("UncTrkrecoSeqfslrtpt", [pt_reco_algs])
+
+    TrkSeq = parOR("UncTrkrecoSeqFSLRT", [ftf_seqs, pt_seq])
     sequenceOut = track_particles_names[0]
 
     return (TrkSeq,im_alg, sequenceOut)
