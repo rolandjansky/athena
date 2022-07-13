@@ -1074,6 +1074,7 @@ void TrigFastTrackFinder::fillMon(const TrackCollection& tracks, const TrigVerte
   std::vector<float> mnt_trk_nPIXHits;
   std::vector<float> mnt_trk_nSCTHits;
   std::vector<float> mnt_trk_a0beam;
+  std::vector<float> mnt_trk_z0beam;
   std::vector<float> mnt_trk_dPhi0;
   std::vector<float> mnt_trk_dEta;
 
@@ -1087,10 +1088,11 @@ void TrigFastTrackFinder::fillMon(const TrackCollection& tracks, const TrigVerte
   auto mon_nPIXHits = Monitored::Collection("trk_nPIXHits", mnt_trk_nPIXHits);
   auto mon_nSCTHits = Monitored::Collection("trk_nSCTHits", mnt_trk_nSCTHits);
   auto mon_a0beam   = Monitored::Collection("trk_a0beam",   mnt_trk_a0beam);
+  auto mon_z0beam   = Monitored::Collection("trk_z0beam",   mnt_trk_z0beam);
   auto mon_dPhi0    = Monitored::Collection("trk_dPhi0",    mnt_trk_dPhi0);
   auto mon_dEta     = Monitored::Collection("trk_dEta",     mnt_trk_dEta);
   auto monTrk       = Monitored::Group(m_monTool, mon_pt, mon_a0, mon_z0, mon_phi0, mon_eta, mon_chi2dof,
-				       mon_nSiHits, mon_nPIXHits, mon_nSCTHits, mon_a0beam, mon_dPhi0, mon_dEta);
+				       mon_nSiHits, mon_nPIXHits, mon_nSCTHits, mon_a0beam, mon_z0beam, mon_dPhi0, mon_dEta);
 
   std::vector<float> mnt_roi_zVertices;
   auto mon_roi_nZvertices = Monitored::Scalar<int>("roi_nZvertices", 0);
@@ -1121,7 +1123,8 @@ void TrigFastTrackFinder::fillMon(const TrackCollection& tracks, const TrigVerte
     mnt_trk_a0.push_back(a0);
     mnt_trk_z0.push_back(z0);
     mnt_trk_phi0.push_back(phi0);
-    mnt_trk_a0beam.push_back(a0+shift_x*sin(phi0)-shift_y*cos(phi0));
+    mnt_trk_a0beam.push_back(a0+shift_x*std::sin(phi0)-shift_y*std::cos(phi0));
+    mnt_trk_z0beam.push_back(z0+(shift_x*std::cos(phi0)+shift_y*std::sin(phi0))/std::tan(theta));
     mnt_trk_eta.push_back(eta);
     for(unsigned int i=0; i<roi.size(); i++) {
        mnt_trk_dPhi0.push_back(CxxUtils::wrapToPi(phi0 - (roi.at(i))->phi()));
