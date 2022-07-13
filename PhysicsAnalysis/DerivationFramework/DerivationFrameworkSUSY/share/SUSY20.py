@@ -46,6 +46,7 @@ from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 SUSY20ThinningHelper = ThinningHelper( "SUSY20ThinningHelper" )
 thinningTools       = []
 AugmentationTools   = []
+DecorationTools     = []
 
 # stream-specific sequence for on-the-fly jet building
 SeqSUSY20 = CfgMgr.AthSequencer("SeqSUSY20")
@@ -155,6 +156,91 @@ if DerivationFrameworkHasTruth:
   thinningTools.append(SUSY20TruthThinningTool)
 
 
+# #====================================================================
+# # Track Isolation Decorations ( copied from DerivationFrameworkMuons/TrackIsolationDecorator.py )
+# #====================================================================
+
+# from IsolationTool.IsolationToolConf import xAOD__TrackIsolationTool
+# SUSY20TrackIsoTool = xAOD__TrackIsolationTool("SUSY20TrackIsoTool")
+# SUSY20TrackIsoTool.TrackSelectionTool.maxZ0SinTheta= 1.5
+# SUSY20TrackIsoTool.TrackSelectionTool.maxD0= 1.5
+# SUSY20TrackIsoTool.TrackSelectionTool.minPt= 1000.
+# SUSY20TrackIsoTool.TrackSelectionTool.CutLevel= "TightPrimary"
+# ToolSvc += SUSY20TrackIsoTool
+
+# if DerivationFrameworkIsDataOverlay:
+#     raise RuntimeError('Not sure how to run over overlay data for SUSY20!')
+# from IsolationCorrections.IsolationCorrectionsConf import CP__IsolationCorrectionTool
+# SUSY20IsoCorrectionTool = CP__IsolationCorrectionTool (name = "SUSY20IsoCorrectionTool", IsMC = DerivationFrameworkHasTruth)
+# ToolSvc += SUSY20IsoCorrectionTool
+
+# # tool to collect topo clusters in cone
+# from ParticlesInConeTools.ParticlesInConeToolsConf import xAOD__CaloClustersInConeTool
+# SUSY20CaloClustersInConeTool = xAOD__CaloClustersInConeTool("SUSY20CaloClustersInConeTool",CaloClusterLocation = "CaloCalTopoClusters")
+# ToolSvc += SUSY20CaloClustersInConeTool
+
+# from CaloIdentifier import SUBCALO
+
+# from IsolationTool.IsolationToolConf import xAOD__CaloIsolationTool
+# SUSY20CaloIsoTool = xAOD__CaloIsolationTool("SUSY20CaloIsoTool")
+# SUSY20CaloIsoTool.IsoLeakCorrectionTool = ToolSvc.SUSY20IsoCorrectionTool
+# SUSY20CaloIsoTool.ClustersInConeTool = ToolSvc.SUSY20CaloClustersInConeTool
+# SUSY20CaloIsoTool.EMCaloNums  = [SUBCALO.LAREM]
+# SUSY20CaloIsoTool.HadCaloNums = [SUBCALO.LARHEC, SUBCALO.TILE]
+# SUSY20CaloIsoTool.UseEMScale  = True
+# SUSY20CaloIsoTool.UseCaloExtensionCaching = False
+# SUSY20CaloIsoTool.saveOnlyRequestedCorrections = True
+# SUSY20CaloIsoTool.addCaloExtensionDecoration = False
+# ToolSvc += SUSY20CaloIsoTool
+
+# import ROOT, PyCintex
+# PyCintex.loadDictionary('xAODCoreRflxDict')
+# PyCintex.loadDictionary('xAODPrimitivesDict')
+# isoPar = ROOT.xAOD.Iso
+
+# # Calculate ptcone&ptvarcone, etcone&topoetcone
+# deco_ptcones = [isoPar.ptcone40, isoPar.ptcone30, isoPar.ptcone20]
+# deco_topoetcones = [isoPar.topoetcone40, isoPar.topoetcone30, isoPar.topoetcone20]
+# deco_prefix = ''  #'SUSY20_'
+
+# from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__TrackParametersKVU
+# SUSY20KVU = DerivationFramework__TrackParametersKVU(name = "SUSY20KVU",
+#                                                              TrackParticleContainerName = "InDetPixelPrdAssociationTrackParticles",
+#                                                              VertexContainerName = "PrimaryVertices" )
+
+
+# ToolSvc += SUSY20KVU
+# AugmentationTools.append(SUSY20KVU)
+# DecorationTools.append(SUSY20KVU)
+
+# from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__CaloIsolationDecorator
+# SUSY20IDTrackDecorator = DerivationFramework__CaloIsolationDecorator(name = "SUSY20IDTrackDecorator",
+#                                                                     TrackIsolationTool = SUSY20TrackIsoTool,
+#                                                                     CaloIsolationTool = SUSY20CaloIsoTool,
+#                                                                     TargetContainer = "InDetTrackParticles",
+#                                                                     SelectionString = "InDetTrackParticles.pt>.5*GeV",
+#                                                                     ptcones = deco_ptcones,
+#                                                                     topoetcones = deco_topoetcones,
+#                                                                     Prefix = deco_prefix,
+#                                                                     )
+# ToolSvc += SUSY20IDTrackDecorator
+# AugmentationTools.append(SUSY20IDTrackDecorator)
+# DecorationTools.append(SUSY20IDTrackDecorator)
+
+
+# SUSY20PixelTrackDecorator = DerivationFramework__CaloIsolationDecorator(name = "SUSY20PixelTrackDecorator",
+#                                                                        TrackIsolationTool = SUSY20TrackIsoTool,
+#                                                                        CaloIsolationTool = SUSY20CaloIsoTool,
+#                                                                        TargetContainer = "InDetPixelPrdAssociationTrackParticles",
+#                                                                        SelectionString = "InDetPixelPrdAssociationTrackParticles.pt>.5*GeV",
+#                                                                        ptcones = deco_ptcones,
+#                                                                        topoetcones = deco_topoetcones,
+#                                                                        Prefix = deco_prefix,
+#                                                                        )
+# ToolSvc += SUSY20PixelTrackDecorator
+# AugmentationTools.append(SUSY20PixelTrackDecorator)
+# DecorationTools.append(SUSY20PixelTrackDecorator)
+
 #====================================================================
 # SKIMMING TOOL 
 #====================================================================
@@ -168,6 +254,35 @@ SUSY20JetSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUS
                                                                      expression = jetSelection)
 ToolSvc += SUSY20JetSkimmingTool
 
+#-------------------------------------------------------------
+# Lepton and track skimming for 1L1T
+#-------------------------------------------------------------
+muonRequirements = '(Muons.pt > 2.*GeV) && (abs(Muons.eta) < 2.7) && (Muons.DFCommonMuonsPreselection)'
+electronRequirements = '(Electrons.pt > 2*GeV) && (abs(Electrons.eta) < 2.7) && ((Electrons.Loose) || (Electrons.DFCommonElectronsLHVeryLoose))'
+leptonSelection = '(count('+electronRequirements+') + count('+muonRequirements+') >= 1)'
+#stdTrackRequirements = ' ( InDetTrackParticles.pt >= 1*GeV ) && ( ( InDetTrackParticles.ptcone20 / InDetTrackParticles.pt ) < 0.2 )' # >= 0.5*GeV if possible? (20220711)
+stdTrackRequirements = ' ( InDetTrackParticles.pt >= 1*GeV )' # remove isolation for test (20220711)
+#pixTrackRequirements = ' ( InDetPixelPrdAssociationTrackParticles.pt >= 1*GeV ) && ( ( InDetPixelPrdAssociationTrackParticles.ptcone20 / InDetPixelPrdAssociationTrackParticles.pt ) < 0.2 ) ' # >= 0.5*GeV if possible? (20220711)
+pixTrackRequirements = ' ( InDetPixelPrdAssociationTrackParticles.pt >= 1*GeV )' # remove isolation for test (20220711)
+trackSelection ='( count('+stdTrackRequirements+') + count('+pixTrackRequirements+')>= 2 )' # Is this really OK? (20220711)
+leptonTrackExpression='('+leptonSelection+' && '+trackSelection+')'
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+
+SUSY20LeptonSkimmingTool_1L1T = DerivationFramework__xAODStringSkimmingTool( name = "SUSY20LeptonSkimmingTool_1L1T",
+                                                                             expression = leptonTrackExpression)
+ToolSvc += SUSY20LeptonSkimmingTool_1L1T
+
+#-------------------------------------------------------------
+# 2L(2mu or 2e) skimming for Z->4L
+#-------------------------------------------------------------
+muonRequirements_Z4L = '(Muons.pt > 2.*GeV) && (abs(Muons.eta) < 2.7) && (Muons.DFCommonMuonsPreselection)'
+electronRequirements_Z4L = '(Electrons.pt > 2.*GeV) && (abs(Electrons.eta) < 2.7) && ((Electrons.Loose) || (Electrons.DFCommonElectronsLHVeryLoose))'
+leptonSelection_Z4L = '(count('+electronRequirements+')>=2) || (count('+muonRequirements+') >= 2)'
+SUSY20LeptonSkimmingTool_Z4L = DerivationFramework__xAODStringSkimmingTool( name = "SUSY20LeptonSkimmingTool_Z4L",
+                                                                             expression = leptonSelection_Z4L)
+ToolSvc += SUSY20LeptonSkimmingTool_Z4L
+
+
 # Trigger skimming
 # ------------------------------------------------------------
 from DerivationFrameworkSUSY.SUSY20TriggerList import triggersMET, triggersSingleLepton, triggersPhoton
@@ -177,7 +292,16 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFram
 
 SUSY20TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool( name = "SUSY20TriggerSkimmingTool",
                                                                       TriggerListOR = trigReq)
-ToolSvc += SUSY20TriggerSkimmingTool 
+ToolSvc += SUSY20TriggerSkimmingTool
+
+SUSY20TriggerSkimmingTool_1L1T = DerivationFramework__TriggerSkimmingTool( name = "SUSY20TriggerSkimmingTool_1L1T",
+                                                                           TriggerListOR = triggersMET)
+ToolSvc += SUSY20TriggerSkimmingTool_1L1T
+
+SUSY20TriggerSkimmingTool_Z4L = DerivationFramework__TriggerSkimmingTool( name = "SUSY20TriggerSkimmingTool_Z4L",
+                                                                           TriggerListOR = triggersSingleLepton)
+ToolSvc += SUSY20TriggerSkimmingTool_Z4L
+
 
 # Final skim selection, with trigger selection and jet selection
 # ------------------------------------------------------------
@@ -185,6 +309,19 @@ SUSY20SkimmingTool = DerivationFramework__FilterCombinationAND(name = "SUSY20Ski
                                                                FilterList = [SUSY20JetSkimmingTool, SUSY20TriggerSkimmingTool])
 ToolSvc += SUSY20SkimmingTool
 
+SUSY20SkimmingTool_1L1T = DerivationFramework__FilterCombinationAND(name = "SUSY20SkimmingTool_1L1T",
+                                                                    FilterList = [SUSY20LeptonSkimmingTool_1L1T, SUSY20TriggerSkimmingTool_1L1T])
+ToolSvc += SUSY20SkimmingTool_1L1T
+
+SUSY20SkimmingTool_Z4L = DerivationFramework__FilterCombinationAND(name = "SUSY20SkimmingTool_Z4L",
+                                                                    FilterList = [SUSY20LeptonSkimmingTool_Z4L, SUSY20TriggerSkimmingTool_Z4L])
+ToolSvc += SUSY20SkimmingTool_Z4L
+
+# SUSY20SkimmingTool_combined = DerivationFramework__FilterCombinationOR(name = "SUSY20SkimmingTool_combined",
+#                                                                        FilterList = [SUSY20SkimmingTool, SUSY20SkimmingTool_1L1T])
+SUSY20SkimmingTool_combined = DerivationFramework__FilterCombinationOR(name = "SUSY20SkimmingTool_combined",
+                                                                       FilterList = [SUSY20SkimmingTool, SUSY20SkimmingTool_1L1T, SUSY20SkimmingTool_Z4L])
+ToolSvc += SUSY20SkimmingTool_combined
 
 #====================================================================
 # SUSY skimming selection
@@ -192,7 +329,8 @@ ToolSvc += SUSY20SkimmingTool
 # run CPU-intensive algorithms afterwards to restrict those to skimmed events
 SeqSUSY20 += CfgMgr.DerivationFramework__DerivationKernel(
   "SUSY20KernelSkim",
-  SkimmingTools = [SUSY20SkimmingTool]
+#  AugmentationTools = DecorationTools,
+  SkimmingTools = [SUSY20SkimmingTool_combined]
 )
 
 
