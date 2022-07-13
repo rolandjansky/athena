@@ -41,6 +41,12 @@ def PhysValMonitoringCfg(flags):
     if flags.PhysVal.doJet:
         from JetValidation.JetValidationConfig import PhysValJetCfg
         monMan.AthenaMonTools += [ acc.popToolsAndMerge(PhysValJetCfg(flags)) ]
+    if flags.PhysVal.doTopoCluster:
+        from PFODQA.ClusterDQAConfig import  ClusterDQACfg
+        monMan.AthenaMonTools += [ acc.popToolsAndMerge(ClusterDQACfg(flags))]
+    if flags.PhysVal.doZee:
+        from ZeeValidation.ZeeValidationMonToolConfig import ZeeValidationMonToolCfg
+        monMan.AthenaMonTools += [ acc.merge(ZeeValidationMonToolCfg(flags)) ]
 
     acc.addEventAlgo(monMan, primary = True)
     return acc
