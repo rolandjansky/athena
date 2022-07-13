@@ -37,9 +37,10 @@ def sTGC_RangeCfg(flags, name="sTgcRange", **kwargs):
 
 def sTGC_DigitizationToolCfg(flags, name="sTgcDigitizationTool", **kwargs):
     """Return ComponentAccumulator with configured sTgcDigitizationTool"""
-    from MuonConfig.MuonCalibrationConfig import NSWCalibToolCfg
+    from MuonConfig.MuonCalibrationConfig import NSWCalibToolCfg, STgcCalibSmearingToolCfg
     result = ComponentAccumulator()
     kwargs.setdefault("CalibrationTool", result.popToolsAndMerge(NSWCalibToolCfg(flags)))
+    kwargs.setdefault("SmearingTool", result.popToolsAndMerge(STgcCalibSmearingToolCfg(flags)))
     if flags.Digitization.PileUp:
         intervals = []
         if flags.Digitization.DoXingByXingPileUp:

@@ -157,3 +157,18 @@ def NSWCalibToolCfg(flags, name="NSWCalibTool", **kwargs):
     result.setPrivateTools(the_tool)
     return result
 
+def MMCalibSmearingToolCfg(flags, name="MMCalibSmearingTool", **kwargs):
+    """Return ComponentAccumulator configured for MM smearing with NSWCalibSmearing as PrivateTools"""
+    result = ComponentAccumulator()
+    kwargs.setdefault("EtaSectors", [True, True, True, True])
+    the_tool = CompFactory.Muon.NSWCalibSmearingTool(name,**kwargs)
+    result.setPrivateTools(the_tool)
+    return result
+
+def STgcCalibSmearingToolCfg(flags, name="STgcCalibSmearingTool", **kwargs):
+    """Return ComponentAccumulator configured for sTGC smearing with NSWCalibSmearing as PrivateTools"""
+    result = ComponentAccumulator()
+    kwargs.setdefault("EtaSectors", [True, True, True, True, True, True])
+    the_tool = CompFactory.Muon.NSWCalibSmearingTool(name,**kwargs)
+    result.setPrivateTools(the_tool)
+    return result

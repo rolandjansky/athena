@@ -5,6 +5,9 @@
 #include "NSWCalibSmearingTool.h"
 #include "PathResolver/PathResolver.h"
 
+#include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -18,23 +21,6 @@ Muon::NSWCalibSmearingTool::NSWCalibSmearingTool(const std::string& t,
   AthAlgTool(t,n,p)
 {
   declareInterface<INSWCalibSmearingTool>(this);
-  
-  declareProperty("TimeSmear",   m_timeSmear   = {0.,0.,0.,0.,0.,0.,0.,0.});
-  declareProperty("ChargeSmear", m_chargeSmear = {0.,0.,0.,0.,0.,0.,0.,0.});
-  declareProperty("ChannelEfficiency",  m_channelEfficiency  = {1.,1.,1.,1.,1.,1.,1.,1.});
-  declareProperty("ClusterEfficiency",  m_clusterEfficiency  = {1.,1.,1.,1.,1.,1.,1.,1.});
-
-  declareProperty("GainFraction",  m_gainFraction  = {1.,1.,1.,1.,1.,1.,1.,1.});
-  
-  declareProperty("PhiSectors", m_phiSectors = {true,true,true,true,true,true,true,true} );
-  // first two eta sectors are side-C, second two are side-A
-  declareProperty("EtaSectors", m_etaSectors = {true,true,true,true} );
-
-  //initialize the efficiency values reading from a file
-  declareProperty("ReadEfficiencyFromFile",m_readEfficiencyFromFile=false);
-  declareProperty("ReadGainFractionFromFile",m_readGainFractionFromFile=false);
-  declareProperty("FileName",m_fileName);
-
 }
 
 StatusCode Muon::NSWCalibSmearingTool::initialize()
@@ -47,7 +33,6 @@ StatusCode Muon::NSWCalibSmearingTool::initialize()
     return StatusCode::FAILURE;
   }
  
-  m_random = TRandom3();
 
   if (m_readEfficiencyFromFile || m_readGainFractionFromFile) {
     ATH_CHECK(readHighVoltagesStatus());
@@ -59,7 +44,7 @@ StatusCode Muon::NSWCalibSmearingTool::initialize()
 //
 // check if a hit is acceppted
 //
-StatusCode Muon::NSWCalibSmearingTool::isAccepted(const Identifier id, bool& accepted)
+StatusCode Muon::NSWCalibSmearingTool::isAccepted(const Identifier id, bool& accepted, CLHEP::HepRandomEngine* rndmEngine) const
 {
   accepted = true;
   
@@ -99,7 +84,7 @@ StatusCode Muon::NSWCalibSmearingTool::isAccepted(const Identifier id, bool& acc
   }
 
   /// check if a full hit can be accepted
-  if ( m_random.Rndm() > efficiencyCut ) {
+  if ( CLHEP::RandFlat::shoot(rndmEngine, 0. , 1.) > efficiencyCut ) {
     accepted = false;
   }
 
@@ -111,7 +96,7 @@ StatusCode Muon::NSWCalibSmearingTool::isAccepted(const Identifier id, bool& acc
 //
 // smear only the charge
 //
-StatusCode Muon::NSWCalibSmearingTool::smearCharge(Identifier id, float& charge, bool& accepted)
+StatusCode Muon::NSWCalibSmearingTool::smearCharge(Identifier id, float& charge, bool& accepted, CLHEP::HepRandomEngine* rndmEngine) const
 {
 
   ATH_MSG_DEBUG("Smearing the strips charge");
@@ -154,11 +139,11 @@ StatusCode Muon::NSWCalibSmearingTool::smearCharge(Identifier id, float& charge,
   if ( m_phiSectors.value()[phiSector-1] && m_etaSectors.value()[etaSector-1] ) {
     // smear charge
     double chargeSmear = m_chargeSmear.value()[gasGap-1];
-    charge = charge+m_random.Gaus(0.0,chargeSmear);
+    charge = charge +  CLHEP::RandGaussZiggurat::shoot(rndmEngine,0.0, chargeSmear);
     
     // check if the single strip can be accepted
     accepted = true;
-    if ( m_random.Rndm() > efficiencyCut ) {
+    if ( CLHEP::RandFlat::shoot(rndmEngine, 0. , 1.) > efficiencyCut ) {
       accepted = false;
     }
   }
@@ -169,7 +154,7 @@ StatusCode Muon::NSWCalibSmearingTool::smearCharge(Identifier id, float& charge,
 //
 // smear time and charge
 //
-StatusCode Muon::NSWCalibSmearingTool::smearTimeAndCharge(Identifier id, float& time, float& charge, bool& accepted)
+StatusCode Muon::NSWCalibSmearingTool::smearTimeAndCharge(Identifier id, float& time, float& charge, bool& accepted, CLHEP::HepRandomEngine* rndmEngine) const
 {
   
   if ( m_idHelperSvc->issTgc(id) ) {
@@ -192,12 +177,12 @@ StatusCode Muon::NSWCalibSmearingTool::smearTimeAndCharge(Identifier id, float& 
     double timeSmear   = m_timeSmear.value()[gasGap-1];
     double chargeSmear = m_chargeSmear.value()[gasGap-1];
     
-    time = time+m_random.Gaus(0.0,timeSmear);
-    charge = charge+m_random.Gaus(0.0,chargeSmear);
+    time = time + CLHEP::RandGaussZiggurat::shoot(rndmEngine,0.0, timeSmear);      
+    charge = charge + CLHEP::RandGaussZiggurat::shoot(rndmEngine,0.0, chargeSmear);
 
     // check if the RDO can be accepted
     accepted = true;
-    if ( m_random.Rndm() > m_channelEfficiency.value()[gasGap-1] ) {
+    if ( CLHEP::RandFlat::shoot(rndmEngine, 0. , 1.) > m_channelEfficiency.value()[gasGap-1] ) {
       accepted = false;
     }
   }
@@ -246,27 +231,28 @@ StatusCode Muon::NSWCalibSmearingTool::getGainFraction(Identifier id, float& gai
 //
 // get id fields for both STGC and MM
 //
-bool NSWCalibSmearingTool::getIdFields(const Identifier id, int& etaSector, int& phiSector, int& gasGap)
+bool NSWCalibSmearingTool::getIdFields(const Identifier id, int& etaSector, int& phiSector, int& gasGap) const
 {
   if ( m_idHelperSvc->isMM(id) ) {
     int multilayer = m_idHelperSvc->mmIdHelper().multilayer(id);
     gasGap = (multilayer-1)*4+m_idHelperSvc->mmIdHelper().gasGap(id);
     etaSector = m_idHelperSvc->mmIdHelper().stationEta(id);
     phiSector = m_idHelperSvc->mmIdHelper().stationPhi(id);
+    // transform the eta sector
+    etaSector < 0 ? etaSector = etaSector + 3 : etaSector = etaSector + 2;
   } 
   else if ( m_idHelperSvc->issTgc(id) ) {
     int multilayer = m_idHelperSvc->stgcIdHelper().multilayer(id);
     gasGap = (multilayer-1)*4+m_idHelperSvc->stgcIdHelper().gasGap(id);
     etaSector = m_idHelperSvc->stgcIdHelper().stationEta(id);
     phiSector = m_idHelperSvc->stgcIdHelper().stationPhi(id);
+    // transform the eta sector
+    etaSector < 0 ? etaSector = etaSector + 4 : etaSector = etaSector + 3;
   } 
   else {
     ATH_MSG_WARNING("Wrong identifier: should be MM or STGC");
     return false;
   }
-
-  // transform the eta sector
-  etaSector < 0 ? etaSector = etaSector + 3 : etaSector = etaSector + 2;
 
 
   if ( phiSector < 1 || phiSector> (int) m_phiSectors.value().size() 
