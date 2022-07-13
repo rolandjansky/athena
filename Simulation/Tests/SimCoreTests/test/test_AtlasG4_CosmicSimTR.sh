@@ -43,7 +43,7 @@ AtlasG4_tf.py \
 --postInclude 'PyJobTransforms/UseFrontier.py' \
 --truthStrategy 'MC15aPlus' \
 --imf False \
--athenaopts '"--config-only=ConfigSimCG.pkl"'
+--athenaopts '"--config-only=ConfigSimCG.pkl"'
 
 AtlasG4_tf.py \
 --inputEVNT_TRFile '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/Cosmics.TR.pool.root' \
