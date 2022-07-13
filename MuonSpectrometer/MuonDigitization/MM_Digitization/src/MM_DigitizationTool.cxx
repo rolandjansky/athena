@@ -441,7 +441,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
             /// check if the hit has to be dropped, based on efficiency
             if (m_doSmearing) {
                 bool acceptHit = true;
-                ATH_CHECK(m_smearingTool->isAccepted(layerID, acceptHit));
+                ATH_CHECK(m_smearingTool->isAccepted(layerID, acceptHit,rndmEngine));
                 if (!acceptHit) {
                     ATH_MSG_DEBUG("Dropping the hit - smearing tool");
                     continue;
@@ -848,7 +848,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
                 bool acceptStrip = true;
 
                 /// use the smearing tool to update time and charge
-                ATH_CHECK(m_smearingTool->smearTimeAndCharge(digitId, time, charge, acceptStrip));
+                ATH_CHECK(m_smearingTool->smearTimeAndCharge(digitId, time, charge, acceptStrip,rndmEngine));
 
                 if (acceptStrip) {
                     stripPosSmeared.push_back(pos);

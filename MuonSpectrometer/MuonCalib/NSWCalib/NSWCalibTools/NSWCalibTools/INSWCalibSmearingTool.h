@@ -6,7 +6,7 @@
 
 #include "GaudiKernel/IAlgTool.h"
 
-static const InterfaceID IID_INSWCalibSmearingTool("Muon::INSWCalibSmearingTool",1,0);
+#include "CLHEP/Random/RandomEngine.h"
 
 class Identifier;
 
@@ -16,15 +16,15 @@ namespace Muon {
     
   public:  // static methods
 
-    static const InterfaceID& interfaceID()  {return IID_INSWCalibSmearingTool;}
+    static const InterfaceID& interfaceID()  {static const InterfaceID IID_INSWCalibSmearingTool("Muon::INSWCalibSmearingTool",1,0); return IID_INSWCalibSmearingTool;}
 
   public:  // interface methods 
 
-    virtual StatusCode  isAccepted(const Identifier id, bool& accepted) = 0;
+    virtual StatusCode  isAccepted(const Identifier id, bool& accepted, CLHEP::HepRandomEngine* rndmEngine) const  = 0;
   
-    virtual StatusCode  smearTimeAndCharge(const Identifier id, float& time, float& charge, bool& accepted) = 0;
+    virtual StatusCode  smearTimeAndCharge(const Identifier id, float& time, float& charge, bool& accepted, CLHEP::HepRandomEngine* rndmEngine) const = 0;
 
-    virtual StatusCode  smearCharge(const Identifier id, float& charge, bool& accepted) = 0;
+    virtual StatusCode  smearCharge(const Identifier id, float& charge, bool& accepted, CLHEP::HepRandomEngine* rndmEngine) const = 0;
 
     virtual StatusCode  getGainFraction(const Identifier id, float& gainFraction) = 0;
     

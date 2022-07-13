@@ -112,6 +112,7 @@ StatusCode sTgcDigitizationTool::initialize() {
 
   ATH_MSG_INFO (" sTgcDigitizationTool  retrieved");
   ATH_MSG_INFO ( "Configuration  sTgcDigitizationTool" );
+  ATH_MSG_INFO ( "doSmearing             "<< m_doSmearing);
   ATH_MSG_INFO ( "RndmSvc                " << m_rndmSvc             );
   ATH_MSG_INFO ( "RndmEngine             " << m_rndmEngineName      );
   ATH_MSG_INFO ( "InputObjectName        " << m_hitsContainerKey.key());
@@ -426,7 +427,7 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
       /// based on layer efficiency
       if ( m_doSmearing ) {
         bool acceptHit = true;
-        ATH_CHECK(m_smearingTool->isAccepted(layid,acceptHit));
+        ATH_CHECK(m_smearingTool->isAccepted(layid,acceptHit,rndmEngine));
         if ( !acceptHit ) {
           ATH_MSG_DEBUG("Dropping the hit - smearing tool");
           continue;
@@ -1055,7 +1056,7 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
   float chargeAfterSmearing(it_digit->charge());
 
   if ( m_doSmearing ) {
-    ATH_CHECK(m_smearingTool->smearCharge(it_digit->identify(), chargeAfterSmearing, acceptDigit) );
+    ATH_CHECK(m_smearingTool->smearCharge(it_digit->identify(), chargeAfterSmearing, acceptDigit, rndmEngine) );
   } 
 
   if ( acceptDigit ) { 
