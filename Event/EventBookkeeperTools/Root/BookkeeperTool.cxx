@@ -300,7 +300,7 @@ StatusCode BookkeeperTool::loadXAODMetaData()
     ATH_CHECK(inputMetaStore()->retrieve(fileMetaData, "FileMetaData"));
     float fltChannelNumber{-1};
     if (fileMetaData->value(xAOD::FileMetaData::mcProcID, fltChannelNumber)) {
-      mcChannelNumber = static_cast<uint32_t>(mcChannelNumber);
+      mcChannelNumber = static_cast<uint32_t>(fltChannelNumber);
     }
   }
   if (mcChannelNumber == uint32_t(-1)) {
