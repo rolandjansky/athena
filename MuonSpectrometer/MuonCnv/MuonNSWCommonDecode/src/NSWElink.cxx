@@ -17,7 +17,8 @@
 Muon::nsw::NSWElink::NSWElink (const uint32_t *bs, const uint32_t remaining)
   : m_wordCount (0)
 {
-  m_rocId=0;//Fix coverity warning
+  m_rocId=0; // Fix coverity warning
+
   // Felix header (2 words)
   // Packet length includes Felix header
 
@@ -59,6 +60,15 @@ Muon::nsw::NSWElink::NSWElink (const uint32_t *bs, const uint32_t remaining)
 
     ERS_DEBUG (2, "ROC HEADER: | NULL = " << m_isNull <<
 	       " | ROCID = " << m_rocId << " | L1ID = " << m_l1Id);
+
+    // It may happen that the packet is flagged as a null packet but there are additional bytes
+
+    if (packet_nbytes != s_null_packet_length)
+    {
+      // Additional words are ignored
+
+      m_wordCount = packet_nbytes / sizeof (uint32_t);
+    }
   }
   else
   {
