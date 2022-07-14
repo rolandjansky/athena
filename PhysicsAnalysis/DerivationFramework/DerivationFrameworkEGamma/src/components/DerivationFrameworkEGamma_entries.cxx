@@ -9,6 +9,8 @@
 #include "DerivationFrameworkEGamma/TruthCaloShowerDecorator.h"
 #include "DerivationFrameworkEGamma/EGElectronAmbiguityTool.h"
 #include "DerivationFrameworkEGamma/PhotonVertexSelectionWrapper.h"
+#include "DerivationFrameworkEGamma/ElectronMergerTool.h"
+#include "DerivationFrameworkEGamma/ElectronMergerAlgorithm.h"
 
 using namespace DerivationFramework; 
 DECLARE_COMPONENT( PhotonsDirectionTool )
@@ -22,4 +24,5 @@ DECLARE_COMPONENT( BkgElectronClassification )
 DECLARE_COMPONENT( TruthCaloShowerDecorator )
 DECLARE_COMPONENT( EGElectronAmbiguityTool )
 DECLARE_COMPONENT( PhotonVertexSelectionWrapper )
-
+DECLARE_COMPONENT( ElectronMergerTool )
+DECLARE_COMPONENT( ElectronMergerAlgorithm )

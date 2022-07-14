@@ -42,6 +42,8 @@ def GetUpdatedIsoTrackCones(postfix="", object_types=("Electrons", "Photons", "M
                 kwargs["ElCorTypes"] = trkcor_list
                 kwargs["ElCorTypesExtra"] = [[]]
                 kwargs["CustomConfigurationNameEl"] = name
+            if "Electrons" in object_types and "LRT" in postfix:
+                kwargs["ElectronCollectionContainerName"] = "LRTElectrons"
             if "Photons" in object_types:
                 kwargs["PhIsoTypes"] = ptcone_list
                 kwargs["PhCorTypes"] = trkcor_list
@@ -52,6 +54,8 @@ def GetUpdatedIsoTrackCones(postfix="", object_types=("Electrons", "Photons", "M
                 kwargs["MuCorTypes"] = trkcor_list
                 kwargs["MuCorTypesExtra"] = [[]]
                 kwargs["CustomConfigurationNameMu"] = name
+            if "Muons" in object_types and not loose_cone and "LRT" in postfix:
+                kwargs["MuonCollectionContainerName"] = "MuonsLRT"
             toolkwargs = {}
             if jobproperties.Beam.beamType == 'cosmics':
                 toolkwargs['VertexLocation'] = ''

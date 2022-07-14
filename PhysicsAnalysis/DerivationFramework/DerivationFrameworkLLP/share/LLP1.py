@@ -7,7 +7,6 @@
 # of physics analyses in ATLAS.
 # It requires the reductionConf flag LLP1 in Reco_tf.py   
 #====================================================================
-
 from AthenaCommon import Logging
 nanolog = Logging.logging.getLogger('LLP1')
 
@@ -15,8 +14,8 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import buildFileName
 from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob
 from DerivationFrameworkPhys import PhysCommon
 from DerivationFrameworkPhys import PhysCommonTrigger
-from DerivationFrameworkEGamma import ElectronsCPDetailedContent
-from DerivationFrameworkEGamma import LargeD0ElectronsCPDetailedContent
+from DerivationFrameworkEGamma import EGammaLRT
+EGammaLRT.makeLRTEGammaDF()
 from DerivationFrameworkJetEtMiss import METCommon
 from DerivationFrameworkJetEtMiss.METCommon import scheduleMETAssocAlg
 from DerivationFrameworkCore import LHE3WeightMetadata
@@ -65,6 +64,20 @@ LRTAndStandardTrackParticleMerger = DerivationFramework__TrackParticleMerger(nam
 ToolSvc += LRTAndStandardTrackParticleMerger
 SeqLLP1 += CfgMgr.DerivationFramework__CommonAugmentation("InDetWithLRTLRTMerge",
                                                                          AugmentationTools = [LRTAndStandardTrackParticleMerger])
+
+
+#====================================================================
+# Run the LRT Electron merger
+#====================================================================
+
+from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__ElectronMergerTool
+ToolSvc += DerivationFramework__ElectronMergerTool(name         = "LRTAndStandardElectronMergerTool",
+                                           InCollectionsLocation= ["Electrons","LRTElectrons"],
+                                           OutputCollectionName = "StdWithLRTElectrons",
+                                           CreateViewCollection = True)
+
+SeqLLP1 += CfgMgr.ElectronMergerAlgorithm(name="LRTAndStdElectronMergerAlgo",ElectronMergerTool=ToolSvc.LRTAndStandardElectronMergerTool)
+
 
 #====================================================================
 # Run VSI
@@ -260,7 +273,6 @@ LLP1LD0VSITPThinningTool = DerivationFramework__VSITrackParticleThinning( name  
 ToolSvc += LLP1LD0VSITPThinningTool
 thinningTools.append(LLP1LD0VSITPThinningTool)
 
-
 #====================================================================
 # Max Cell sum decoration tool
 #====================================================================
@@ -283,6 +295,8 @@ LLP1_LRTMaxCellDecoratorTool = DerivationFramework__MaxCellDecorator( name = "LL
                                                                       )
 ToolSvc += LLP1_LRTMaxCellDecoratorTool
 augmentationTools.append(LLP1_LRTMaxCellDecoratorTool)
+
+
 
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
@@ -331,18 +345,8 @@ LLP1SlimmingHelper.SmartCollections = ["EventInfo",
                                        "AntiKtVR30Rmax4Rmin02PV0TrackJets",
                                       ]
 
-#LLP1SlimmingHelper.AllVariables =  [#"CaloCalTopoClusters", 
-                                       #"EMOriginTopoClusters",
-                                       #"MSDisplacedVertex",
-                                       #"MuonSpectrometerTrackParticles",
-                                       #"MuonSegments",
-                                       #"MSonlyTracklets",
-LLP1SlimmingHelper.AllVariables =  [#"LRTElectrons",
-                                    #"MuonsLRT",
-                                    #"LRTGSFTrackParticles",
-                                    #"LRTegammaClusters",
-                                    "MuonSegments",
-                                      ]
+LLP1SlimmingHelper.AllVariables =  ["MuonSegments"]
+
 
 
 excludedVertexAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
@@ -402,26 +406,29 @@ if DerivationFrameworkIsMonteCarlo:
    LLP1SlimmingHelper.AllVariables += ['TruthHFWithDecayParticles','TruthHFWithDecayVertices','TruthCharm','TruthPileupParticles','InTimeAntiKt4TruthJets','OutOfTimeAntiKt4TruthJets']
 
 LLP1SlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.Tau1_wta.Tau2_wta.Tau3_wta.D2.GhostBHadronsFinalCount",
-                                      "Electrons.TruthLink",
+                                      "Electrons.TruthLink","LRTElectrons.TruthLink",
                                       "Electrons.maxEcell_time.maxEcell_energy.maxEcell_gain.maxEcell_onlId.maxEcell_x.maxEcell_y.maxEcell_z.f3",
-				      "LRTElectrons.maxEcell_time.maxEcell_energy.maxEcell_gain.maxEcell_onlId.maxEcell_x.maxEcell_y.maxEcell_z.f3",
+                                      "LRTElectrons.maxEcell_time.maxEcell_energy.maxEcell_gain.maxEcell_onlId.maxEcell_x.maxEcell_y.maxEcell_z.f3",
                                       "Photons.maxEcell_time.maxEcell_energy.maxEcell_gain.maxEcell_onlId.maxEcell_x.maxEcell_y.maxEcell_z.f3",
                                       "egammaClusters.phi_sampl",
                                       "LRTegammaClusters.phi_sampl",
-                                      "Muons.TruthLink",
+                                      "Muons.TruthLink", "MuonsLRT.TruthLink",
                                       "Photons.TruthLink",
                                       "AntiKt4EMTopoJets.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_eta.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1.PartonTruthLabelID.ConeExclBHadronsFinal.ConeExclCHadronsFinal.GhostBHadronsFinal.GhostCHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostBHadronsFinal.GhostCHadronsFinal.GhostTrack.GhostTrackCount.GhostTrackLRT.GhostTrackLRTCount",
                                       "AntiKt4EMPFlowJets.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_eta.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1.PartonTruthLabelID.DFCommonJets_fJvt.ConeExclBHadronsFinal.ConeExclCHadronsFinal.GhostBHadronsFinal.GhostCHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostBHadronsFinal.GhostCHadronsFinal",
-                                     "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903.GhostBHadronsFinal.GhostCHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostTausFinal.GhostTausFinalCount",
-                                     "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810.GhostBHadronsFinal.GhostCHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostTausFinal.GhostTausFinalCount",
+                                      "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903.GhostBHadronsFinal.GhostCHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostTausFinal.GhostTausFinalCount",
+                                      "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810.GhostBHadronsFinal.GhostCHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostTausFinal.GhostTausFinalCount",
                                       "TruthPrimaryVertices.t.x.y.z",
                                       "PrimaryVertices.t.x.y.z",
+                                      "GSFTrackParticles.numberOfPixelHoles.numberOfSCTHoles.numberDoF.chiSquared",
+                                      "LRTGSFTrackParticles.numberOfPixelHoles.numberOfSCTHoles.numberDoF.chiSquared",
                                       "InDetTrackParticles.d0.z0.vz.TTVA_AMVFVertices.TTVA_AMVFWeights.eProbabilityHT.is_selected.is_associated.is_svtrk_final.pt_wrtSV.eta_wrtSV.phi_wrtSV.d0_wrtSV.z0_wrtSV.errP_wrtSV.errd0_wrtSV.errz0_wrtSV.chi2_toSV.truthParticleLink.parameterX.parameterY.parameterZ.parameterPX.parameterPY.parameterPZ.parameterPosition.truthMatchProbability.radiusOfFirstHit",
                                       "InDetLargeD0TrackParticles.d0.z0.vz.TTVA_AMVFVertices.TTVA_AMVFWeights.eProbabilityHT.is_selected.is_associated.is_svtrk_final.pt_wrtSV.eta_wrtSV.phi_wrtSV.d0_wrtSV.z0_wrtSV.errP_wrtSV.errd0_wrtSV.errz0_wrtSV.chi2_toSV.truthParticleLink.parameterX.parameterY.parameterZ.parameterPX.parameterPY.parameterPZ.parameterPosition.truthMatchProbability.radiusOfFirstHit",
                                       "EventInfo.hardScatterVertexLink.timeStampNSOffset",
                                       "TauJets.dRmax.etOverPtLeadTrk",
                                       "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET.ex.ey",
                                       "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht.ex.ey"]
+
 
 # Add trigger matching
 # Run 2
@@ -433,9 +440,9 @@ from DerivationFrameworkTrigger.TriggerMatchingHelper import TriggerMatchingHelp
 lrt_tm_helper = TriggerMatchingHelper(
     PhysCommonTrigger.trigger_names_notau,
     name="LRTDFTriggerMatchingTool",
-    OutputContainerPrefix="TrigMatchLRT_",
-    InputElectrons="LRTElectrons",
-    InputMuons="MuonsLRT",
+    OutputContainerPrefix="LRTTrigMatch_",
+    InputElectrons="StdWithLRTElectrons",
+    InputMuons="MuonsLRT", # TODO Important, change to transient collection name after !53881 is merged
     add_to_df_job=True
 )
 lrt_tm_helper.add_to_slimming(LLP1SlimmingHelper)
