@@ -40,6 +40,7 @@ namespace Muon
       // used 
       virtual StatusCode convert(const EventContext&) const override;
       virtual StatusCode convert(const std::vector<IdentifierHash>&, const EventContext&) const override;
+      virtual StatusCode convert(const std::vector<uint32_t>&, const EventContext&) const override;
 
     protected:
 

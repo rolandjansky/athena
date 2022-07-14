@@ -44,6 +44,7 @@ namespace Muon
     virtual StatusCode decode( const std::vector<uint32_t>& robIds ) const override;
     
     StatusCode processCollection(Muon::MMPrepDataContainer* mmPrepDataContainer,
+                                 const std::vector<IdentifierHash>& idsToDecode,
                                  const MM_RawDataCollection *rdoColl, 
    				 std::vector<IdentifierHash>& idWithDataVect) const;
 
@@ -57,6 +58,7 @@ namespace Muon
     const MM_RawDataContainer* getRdoContainer() const;
 
     void processRDOContainer( Muon::MMPrepDataContainer* mmPrepDataContainer,
+                              const std::vector<IdentifierHash>& idsToDecode,
                               std::vector<IdentifierHash>& idWithDataVect ) const;
 
     SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_muDetMgrKey {this, "DetectorManagerKey", "MuonDetectorManager", "Key of input MuonDetectorManager condition data"}; 
