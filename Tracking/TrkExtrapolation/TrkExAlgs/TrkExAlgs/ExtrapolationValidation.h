@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -105,46 +105,46 @@ namespace Trk
  
       int                       m_particleType;   //!< the particle typre for the extrap.
 
-      mutable int               m_parameters;          //!< maximum 3 : start - destination - backward
-      mutable float             m_parameterLoc1[TRKEXALGS_MAXPARAMETERS];    //!< start local 1 
-      mutable float             m_parameterLoc2[TRKEXALGS_MAXPARAMETERS];    //!< start local 2 
-      mutable float             m_parameterPhi[TRKEXALGS_MAXPARAMETERS];     //!< start phi 
-      mutable float             m_parameterTheta[TRKEXALGS_MAXPARAMETERS];   //!< start theta
-      mutable float             m_parameterEta[TRKEXALGS_MAXPARAMETERS];     //!< start eta
-      mutable float             m_parameterQoverP[TRKEXALGS_MAXPARAMETERS];  //!< start qOverP
+      int               m_parameters;          //!< maximum 3 : start - destination - backward
+      float             m_parameterLoc1[TRKEXALGS_MAXPARAMETERS];    //!< start local 1
+      float             m_parameterLoc2[TRKEXALGS_MAXPARAMETERS];    //!< start local 2
+      float             m_parameterPhi[TRKEXALGS_MAXPARAMETERS];     //!< start phi
+      float             m_parameterTheta[TRKEXALGS_MAXPARAMETERS];   //!< start theta
+      float             m_parameterEta[TRKEXALGS_MAXPARAMETERS];     //!< start eta
+      float             m_parameterQoverP[TRKEXALGS_MAXPARAMETERS];  //!< start qOverP
 
-      mutable float             m_covarianceLoc1[TRKEXALGS_MAXPARAMETERS];    //!< start local 1 
-      mutable float             m_covarianceLoc2[TRKEXALGS_MAXPARAMETERS];    //!< start local 2 
-      mutable float             m_covariancePhi[TRKEXALGS_MAXPARAMETERS];     //!< start phi 
-      mutable float             m_covarianceTheta[TRKEXALGS_MAXPARAMETERS];   //!< start theta
-      mutable float             m_covarianceQoverP[TRKEXALGS_MAXPARAMETERS];  //!< start qOverP
-      mutable float             m_covarianceDeterminant[TRKEXALGS_MAXPARAMETERS];  //!< start qOverP
+      float             m_covarianceLoc1[TRKEXALGS_MAXPARAMETERS];    //!< start local 1
+      float             m_covarianceLoc2[TRKEXALGS_MAXPARAMETERS];    //!< start local 2
+      float             m_covariancePhi[TRKEXALGS_MAXPARAMETERS];     //!< start phi
+      float             m_covarianceTheta[TRKEXALGS_MAXPARAMETERS];   //!< start theta
+      float             m_covarianceQoverP[TRKEXALGS_MAXPARAMETERS];  //!< start qOverP
+      float             m_covarianceDeterminant[TRKEXALGS_MAXPARAMETERS];  //!< start qOverP
 
-      mutable int               m_destinationSurfaceType;  //!< destination surface type 
-      mutable float             m_startX;      //!< startX
-      mutable float             m_startY;      //!< startX
-      mutable float             m_startR;      //!< startX
-      mutable float             m_startZ;      //!< startX
-      mutable float             m_startP;      //!< startP
+      int               m_destinationSurfaceType;  //!< destination surface type
+      float             m_startX;      //!< startX
+      float             m_startY;      //!< startX
+      float             m_startR;      //!< startX
+      float             m_startZ;      //!< startX
+      float             m_startP;      //!< startP
  
-      mutable float             m_estimationX;      //!< estimation in X
-      mutable float             m_estimationY;      //!< estimation in Y
-      mutable float             m_estimationR;      //!< estimation in R
-      mutable float             m_estimationZ;      //!< estimation in Z
+      float             m_estimationX;      //!< estimation in X
+      float             m_estimationY;      //!< estimation in Y
+      float             m_estimationR;      //!< estimation in R
+      float             m_estimationZ;      //!< estimation in Z
  
-      mutable float             m_destinationX;      //!< destination in X
-      mutable float             m_destinationY;      //!< destination in Y
-      mutable float             m_destinationR;      //!< destination in R
-      mutable float             m_destinationZ;      //!< destination in Z
+      float             m_destinationX;      //!< destination in X
+      float             m_destinationY;      //!< destination in Y
+      float             m_destinationR;      //!< destination in R
+      float             m_destinationZ;      //!< destination in Z
       
       // ---- output statistics
-      mutable unsigned int     m_triesFront;    //!< events front
-      mutable unsigned int     m_breaksFront;  //!< breaks front
-      mutable unsigned int     m_triesBack;    //!< events back
-      mutable unsigned int     m_breaksBack;   //!< breaks
+      unsigned int     m_triesFront;    //!< events front
+      unsigned int     m_breaksFront;  //!< breaks front
+      unsigned int     m_triesBack;    //!< events back
+      unsigned int     m_breaksBack;   //!< breaks
 
-      mutable unsigned int     m_collectedLayerFront;    //!< collected material layers forward
-      mutable unsigned int     m_collectedLayerBack;    //!< collected material layers backwards
+      unsigned int     m_collectedLayerFront;    //!< collected material layers forward
+      unsigned int     m_collectedLayerBack;    //!< collected material layers backwards
 
       //AmgSymMatrix(5) * m_covariance; 
       

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -108,7 +108,7 @@ namespace Trk
       double                    m_maximumZ;                  //!< maximum halfZ of the highest tracking volume
 
 
-      mutable size_t            m_cylinders;      //!< number of cylinder layers
+      size_t                    m_cylinders;      //!< number of cylinder layers
       bool                      m_onion;          //!< strictly hierarchical ordering (onion-like)
       float                     m_momentum;       //!< momentum value
       bool                      m_usePt;          //!< use pt instead of p
@@ -123,31 +123,31 @@ namespace Trk
       int                       m_particleType;   //!< the particle type for the extrapolation
 
       // ---- variables for the ROOT event tree
-      mutable size_t            m_entries;         //!< effective number of used entries (recorded layers) in this event
-      mutable float             m_energy[TRKEXALGS_MAXPARAMETERS];           //!< energy
-      mutable float             m_energyLoss[TRKEXALGS_MAXPARAMETERS];       //!< energy loss
-      mutable float             m_parameterX0[TRKEXALGS_MAXPARAMETERS];      //!< thickness in X0
-      mutable float             m_radius[TRKEXALGS_MAXPARAMETERS];           //!< position radius
-//      mutable float             m_parameterLoc1[TRKEXALGS_MAXPARAMETERS];    //!< local 1
-//      mutable float             m_parameterLoc2[TRKEXALGS_MAXPARAMETERS];    //!< local 2
-      mutable float             m_positionX[TRKEXALGS_MAXPARAMETERS];        //!< position X
-      mutable float             m_positionY[TRKEXALGS_MAXPARAMETERS];        //!< position Y
-      mutable float             m_positionZ[TRKEXALGS_MAXPARAMETERS];        //!< position Z
-      mutable float             m_parameterPhi[TRKEXALGS_MAXPARAMETERS];     //!< phi
-      mutable float             m_parameterEta[TRKEXALGS_MAXPARAMETERS];     //!< eta
-      mutable float             m_parameterTheta[TRKEXALGS_MAXPARAMETERS];   //!< theta
-      mutable float             m_parameterQoverP[TRKEXALGS_MAXPARAMETERS];  //!< qOverP
-      mutable float             m_parameterP[TRKEXALGS_MAXPARAMETERS];       //!< P
-      mutable size_t            m_layer[TRKEXALGS_MAXPARAMETERS];            //!< layer id
+      size_t            m_entries;         //!< effective number of used entries (recorded layers) in this event
+      float             m_energy[TRKEXALGS_MAXPARAMETERS];           //!< energy
+      float             m_energyLoss[TRKEXALGS_MAXPARAMETERS];       //!< energy loss
+      float             m_parameterX0[TRKEXALGS_MAXPARAMETERS];      //!< thickness in X0
+      float             m_radius[TRKEXALGS_MAXPARAMETERS];           //!< position radius
+//      float             m_parameterLoc1[TRKEXALGS_MAXPARAMETERS];    //!< local 1
+//      float             m_parameterLoc2[TRKEXALGS_MAXPARAMETERS];    //!< local 2
+      float             m_positionX[TRKEXALGS_MAXPARAMETERS];        //!< position X
+      float             m_positionY[TRKEXALGS_MAXPARAMETERS];        //!< position Y
+      float             m_positionZ[TRKEXALGS_MAXPARAMETERS];        //!< position Z
+      float             m_parameterPhi[TRKEXALGS_MAXPARAMETERS];     //!< phi
+      float             m_parameterEta[TRKEXALGS_MAXPARAMETERS];     //!< eta
+      float             m_parameterTheta[TRKEXALGS_MAXPARAMETERS];   //!< theta
+      float             m_parameterQoverP[TRKEXALGS_MAXPARAMETERS];  //!< qOverP
+      float             m_parameterP[TRKEXALGS_MAXPARAMETERS];       //!< P
+      size_t            m_layer[TRKEXALGS_MAXPARAMETERS];            //!< layer id
 
       // ---- output statistics
-      mutable size_t            m_triesForward;      //!< extrapolation events forward
-      mutable size_t            m_breaksForward;     //!< extrapolation breaks forward
-      mutable size_t            m_triesBack;         //!< extrapolation events backward
-      mutable size_t            m_breaksBack;        //!< extrapolation breaks backward
+      size_t            m_triesForward;      //!< extrapolation events forward
+      size_t            m_breaksForward;     //!< extrapolation breaks forward
+      size_t            m_triesBack;         //!< extrapolation events backward
+      size_t            m_breaksBack;        //!< extrapolation breaks backward
 
-      mutable size_t            m_collectedLayerForward;   //!< collected material layers forward
-      mutable size_t            m_collectedLayerBack;    //!< collected material layers backward
+      size_t            m_collectedLayerForward;   //!< collected material layers forward
+      size_t            m_collectedLayerBack;    //!< collected material layers backward
 
 
       // ---- cylinders and discs

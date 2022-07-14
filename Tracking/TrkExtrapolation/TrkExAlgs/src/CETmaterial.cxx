@@ -26,7 +26,6 @@
 Trk::CETmaterial::CETmaterial(const std::string& name, ISvcLocator* pSvcLocator)
   :
   AthAlgorithm(name,pSvcLocator),
-  m_log(msgSvc(),name),
   m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
   m_extraprec("Trk::Extrapolator/MuonExtrapolator"),
   m_gaussDist(nullptr),
@@ -112,7 +111,6 @@ StatusCode Trk::CETmaterial::initialize()
 {
   // Code entered here will be executed once at program start.
 
-//  m_log.setLevel(outputLevel());
   ATH_MSG_INFO( "initialize()" );
 
   // Get Extrapolator from ToolService
@@ -437,7 +435,7 @@ void Trk::CETmaterial::printMatScan(double theta, double phi, double r, double z
   myfilemat << theta << " " << phi << " " << r << " " << z << " " << mat << " " << name << std::endl;
 }
 
-void Trk::CETmaterial::printMatPrec(double theta, double phi, const Trk::TrackParameters* nextPar, const Trk::TrackParameters* mdest, double mat, int id, const std::string& name) const {
+void Trk::CETmaterial::printMatPrec(double theta, double phi, const Trk::TrackParameters* nextPar, const Trk::TrackParameters* mdest, double mat, int id, const std::string& name) {
 
   if (name.empty()) {}; // dummy to get rid of warning message (unused variable name)
   std::ofstream myfilemat;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -55,12 +55,9 @@ namespace Trk
        void printMat(double th, double ph, double mat,double dtheta=0.,double dphi=0.) const;
        void printMatScan(double theta, double phi, double r, double z, double mat, const std::string& name) const;
        void printMatPrec(double theta, double phi, const Trk::TrackParameters*, const Trk::TrackParameters*, 
-			 double mat, int id, const std::string& name) const;
+			 double mat, int id, const std::string& name);
        void printMatComp(double theta, double phi, const Trk::TrackParameters* currPar, const std::string& name, double mat, double matApp,double dx, double dy) const;
             
-      /** class member version of retrieving MsgStream */
-      mutable MsgStream                 m_log;
-
       /** The Extrapolator(s) to be retrieved */
       ToolHandle<IExtrapolator>         m_extrapolator;
       ToolHandle<IExtrapolator>         m_extraprec;
@@ -85,23 +82,23 @@ namespace Trk
       bool                     m_checkStepWise; 
       bool                     m_printMaterial;
       bool                     m_printActive;
-      mutable const char*              m_matTotFile;
-      mutable const char*              m_matScanFile;
-      mutable const char*              m_matActiveFile;
-      mutable const char*              m_matCompFile;
+      const char*              m_matTotFile;
+      const char*              m_matScanFile;
+      const char*              m_matActiveFile;
+      const char*              m_matCompFile;
       bool                     m_backward;
       bool                     m_domsentry;
       bool                     m_doprecision;
-      mutable double           m_th;
-      mutable double           m_ph;                         // 
-      mutable int              m_id;
-      mutable double           m_matSaved;
-      mutable Trk::TrackParameters* m_next;
-      mutable Amg::MatrixX* m_err;
+      double                   m_th;
+      double                   m_ph;
+      int                      m_id;
+      double                   m_matSaved;
+      Trk::TrackParameters*    m_next;
+      Amg::MatrixX*            m_err;
 
-      const Trk::Surface*                        m_outerBoundary;
-      mutable const Trk::TrackingGeometry*       m_trackingGeometry;
-      mutable const Trk::TrackingVolume*         m_msentry;
+      const Trk::Surface*                m_outerBoundary;
+      const Trk::TrackingGeometry*       m_trackingGeometry;
+      const Trk::TrackingVolume*         m_msentry;
 
       int                      m_particleType;               //!< the particle typre for the extrap.
 

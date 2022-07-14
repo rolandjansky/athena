@@ -19,7 +19,6 @@
 
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/ISvcLocator.h"
-#include "AthenaKernel/RNGWrapper.h"
 
 // ACTS
 #include "Acts/Surfaces/Surface.hpp"
@@ -38,6 +37,7 @@
 
 // OTHER
 #include "CLHEP/Random/RandomEngine.h"
+#include "CLHEP/Random/Randomize.h"
 
 // STL
 #include <string>
@@ -52,9 +52,7 @@ using xclock = std::chrono::steady_clock;
 Trk::ExtrapolatorComparisonTest::ExtrapolatorComparisonTest(const std::string& name, ISvcLocator* pSvcLocator)
   :
   AthReentrantAlgorithm(name,pSvcLocator),
-  m_gaussDist(nullptr),
-  m_flatDist(nullptr),
-  m_sigmaD0(17.*Gaudi::Units::micrometer),                   
+  m_sigmaD0(17.*Gaudi::Units::micrometer),
   m_sigmaZ0(50.*Gaudi::Units::millimeter),
   m_minPhi(-M_PI),                    
   m_maxPhi(M_PI),                    
@@ -66,7 +64,8 @@ Trk::ExtrapolatorComparisonTest::ExtrapolatorComparisonTest(const std::string& n
   m_referenceSurfaces(0),
   m_eventsPerExecute(1),
   m_atlasPropResultWriterSvc("ATLASPropResultRootWriterSvc", name),
-  m_actsPropResultWriterSvc("ACTSPropResultRootWriterSvc", name)
+  m_actsPropResultWriterSvc("ACTSPropResultRootWriterSvc", name),
+  m_rndmSvc("AthRNGSvc", name)
 {
   // algorithm steering
   declareProperty("StartPerigeeSigmaD0"       , m_sigmaD0                   );
@@ -83,15 +82,13 @@ Trk::ExtrapolatorComparisonTest::ExtrapolatorComparisonTest(const std::string& n
   declareProperty("EventsPerExecute"          , m_eventsPerExecute          );
   declareProperty("ATLASPropResultRootWriter" , m_atlasPropResultWriterSvc  );
   declareProperty("ACTSPropResultRootWriter"  , m_actsPropResultWriterSvc   );
+  declareProperty("RndmSvc"                   , m_rndmSvc                   );
 }
 
 //================ Destructor =================================================
 
 Trk::ExtrapolatorComparisonTest::~ExtrapolatorComparisonTest()
 {
-  delete m_gaussDist;
-  delete m_flatDist;
-  
   // cleanup of the Trk::Surfaces
   std::vector< std::vector< const Trk::Surface* > >::const_iterator atlasSurfaceTripleIter    = m_atlasReferenceSurfaceTriples.begin();
   std::vector< std::vector< const Trk::Surface* > >::const_iterator atlasSurfaceTripleIterEnd = m_atlasReferenceSurfaceTriples.end();
@@ -158,13 +155,10 @@ StatusCode Trk::ExtrapolatorComparisonTest::initialize()
     return StatusCode::FAILURE;
   }
 
-  m_gaussDist = new Rndm::Numbers(randSvc(), Rndm::Gauss(0.,1.));
-  m_flatDist  = new Rndm::Numbers(randSvc(), Rndm::Flat(0.,1.));
-  
   ATH_CHECK( m_atlasPropResultWriterSvc.retrieve() );
   ATH_CHECK( m_actsPropResultWriterSvc.retrieve() );
-  
-  ATH_MSG_INFO("initialize() successful!!");
+  ATH_CHECK( m_rndmSvc.retrieve() );
+  m_randomEngine = m_rndmSvc->getEngine (this, "ExtrapolatorComparisonTest");
 
   return StatusCode::SUCCESS;
 }
@@ -183,17 +177,18 @@ StatusCode Trk::ExtrapolatorComparisonTest::execute(const EventContext& ctx) con
   
   float milliseconds_to_seconds = 1000.;
   
-  // generate perigees with random number generator 
-  
+  // generate perigees with random number generator
+  CLHEP::HepRandomEngine* engine = m_randomEngine->getEngine(ctx);
+
   std::vector<perigeeParameters> parameters = {};
   for (int ext = 0; ext<m_eventsPerExecute; ext++) {
     // generate with random number generator
-    double d0 = m_gaussDist->shoot() * m_sigmaD0;
-    double z0 = m_gaussDist->shoot() * m_sigmaZ0;
-    double phi = m_minPhi + (m_maxPhi-m_minPhi)* m_flatDist->shoot();
-    double eta = m_minEta + m_flatDist->shoot()*(m_maxEta-m_minEta);
-    double pt = m_minPt + m_flatDist->shoot()*(m_maxPt-m_minPt);
-    double charge = (m_flatDist->shoot() > 0.5 ) ? -1. : 1.;
+    double d0 = CLHEP::RandGauss::shoot(engine) * m_sigmaD0;
+    double z0 = CLHEP::RandGauss::shoot(engine) * m_sigmaZ0;
+    double phi = m_minPhi + (m_maxPhi-m_minPhi)* CLHEP::RandFlat::shoot(engine);
+    double eta = m_minEta + CLHEP::RandFlat::shoot(engine)*(m_maxEta-m_minEta);
+    double pt = m_minPt + CLHEP::RandFlat::shoot(engine)*(m_maxPt-m_minPt);
+    double charge = (CLHEP::RandFlat::shoot(engine) > 0.5 ) ? -1. : 1.;
     parameters.emplace_back(d0, z0, phi, eta, pt, charge);
   }
   
