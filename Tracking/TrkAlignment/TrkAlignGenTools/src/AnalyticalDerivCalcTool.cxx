@@ -102,10 +102,10 @@ namespace Trk {
 
     // loop over AlignTSOSCollection, 
     // find modules that are in the AlignModuleList,
-    std::vector<const AlignModule *> alignModules;    
-    AlignTSOSCollection::const_iterator atsosItr = alignTrack->firstAtsos();
+    std::vector<AlignModule *> alignModules;
+    AlignTSOSCollection::iterator atsosItr = alignTrack->firstAtsos();
     for (; atsosItr != alignTrack->lastAtsos(); ++atsosItr) {      
-      const AlignModule * module=(*atsosItr)->module();
+      AlignModule * module=(*atsosItr)->module();
       if (module)
         ATH_MSG_DEBUG("have ATSOS for module "<<module->identify());
       else
@@ -123,7 +123,7 @@ namespace Trk {
 
     // Determine derivatives from shifting these modules
     std::vector<AlignModuleDerivatives> * derivatives = new std::vector<AlignModuleDerivatives>;
-    std::vector<const AlignModule *>::const_iterator moduleIt = alignModules.begin();
+    std::vector<AlignModule *>::iterator moduleIt = alignModules.begin();
     for ( ; moduleIt!=alignModules.end(); ++moduleIt) {
       std::vector<Amg::VectorX> deriv_vec = getDerivatives(alignTrack,*moduleIt);
       derivatives->push_back(make_pair(*moduleIt,deriv_vec));

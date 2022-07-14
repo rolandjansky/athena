@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonAlignEvent/RpcAlignModule.h"
@@ -8,10 +8,6 @@
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 
 namespace Muon {
-    //________________________________________________________________________
-    RpcAlignModule::RpcAlignModule(MsgStream* log, const Amg::Transform3D& transform) :
-        CombinedMuonAlignModule(log, transform), m_log(new MsgStream(*log)) {}
-
     //________________________________________________________________________
     RpcAlignModule::RpcAlignModule(const AlgTool* algtool, const Amg::Transform3D& transform) :
         CombinedMuonAlignModule(algtool, transform), m_log(new MsgStream(algtool->msgSvc(), "RpcAlignModule")) {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkTrack/Track.h"
@@ -95,7 +95,7 @@ namespace Trk {
     , m_derivativeErr(atrack.m_derivativeErr ?
         new std::vector<AlignModuleDerivatives>(*(atrack.m_derivativeErr)) : nullptr)
     , m_actualSecondDerivatives(atrack.m_actualSecondDerivatives ?
-        new std::vector<std::pair<const AlignModule*,std::vector<double> > > (*(atrack.m_actualSecondDerivatives)) : nullptr)
+        new std::vector<std::pair<AlignModule*,std::vector<double> > > (*(atrack.m_actualSecondDerivatives)) : nullptr)
     , m_residuals(atrack.m_residuals ?
         new Amg::VectorX(*(atrack.m_residuals)) : nullptr)
     , m_weights(atrack.m_weights ?
@@ -191,7 +191,7 @@ namespace Trk {
           new std::vector<AlignModuleDerivatives>(*(atrack.m_derivativeErr)) : nullptr;
       delete m_actualSecondDerivatives;
       m_actualSecondDerivatives = atrack.m_actualSecondDerivatives ?
-          new std::vector<std::pair<const AlignModule*,std::vector<double> > > (*(atrack.m_actualSecondDerivatives)) : nullptr;
+          new std::vector<std::pair<AlignModule*,std::vector<double> > > (*(atrack.m_actualSecondDerivatives)) : nullptr;
       delete m_localErrorMat;
       m_localErrorMat = atrack.m_localErrorMat ?
           new Amg::SymMatrixX(*(atrack.m_localErrorMat)) : nullptr;

@@ -36,7 +36,7 @@ namespace Trk {
 
   typedef DataVector<AlignTSOS> AlignTSOSCollection;
   typedef DataVector<AlignTSOS>::const_iterator AlignTSOSIt;
-  typedef std::pair<const AlignModule*, std::vector<Amg::VectorX> > AlignModuleDerivatives;
+  typedef std::pair<AlignModule*, std::vector<Amg::VectorX> > AlignModuleDerivatives;
   
   class AlignTrack : public Track {
 
@@ -143,8 +143,8 @@ namespace Trk {
     /** The Amg::VectorX is a vector of first-derivatives of the alignTSOS on the alignTrack 
         w.r.t. a particular alignment parameter.  There is one Amg::VectorX in the vector for 
         each alignment parameter of each align module. Set by DerivCalcTool. */
-    const std::vector<std::pair<const AlignModule*,std::vector<double> > >* actualSecondDerivatives() const { return m_actualSecondDerivatives; }
-    void setActualSecondDerivatives(std::vector<std::pair<const AlignModule*,std::vector<double> > >* vec) { m_actualSecondDerivatives=vec; }
+    const std::vector<std::pair<AlignModule*,std::vector<double> > >* actualSecondDerivatives() const { return m_actualSecondDerivatives; }
+    void setActualSecondDerivatives(std::vector<std::pair<AlignModule*,std::vector<double> > >* vec) { m_actualSecondDerivatives=vec; }
     
     /** Vector of residuals of the alignTSOS on the alignTrack, to be set by AlignTrackDresser.  Owned by AlignTrack. */
     const Amg::VectorX* residualVector() const { return m_residuals; }
@@ -236,7 +236,7 @@ namespace Trk {
 
     std::vector<AlignModuleDerivatives > * m_derivatives;  
     std::vector<AlignModuleDerivatives > * m_derivativeErr; 
-    std::vector<std::pair<const AlignModule *,std::vector<double> > > * m_actualSecondDerivatives;
+    std::vector<std::pair<AlignModule *,std::vector<double> > > * m_actualSecondDerivatives;
 
     Amg::VectorX *        m_residuals;
     Amg::MatrixX *        m_weights;              //Symmetric Matrix
@@ -276,8 +276,8 @@ namespace Trk {
     m_fullCovarianceMatrix=new Amg::SymMatrixX(*matrix); 
   }
 
-  inline AlignTSOSCollection::const_iterator AlignTrack::firstAtsos() const { return m_alignTSOSCollection->begin(); }
-  inline AlignTSOSCollection::const_iterator AlignTrack::lastAtsos()  const { return m_alignTSOSCollection->end(); }
+  inline AlignTSOSCollection::const_iterator AlignTrack::firstAtsos() const { return m_alignTSOSCollection->cbegin(); }
+  inline AlignTSOSCollection::const_iterator AlignTrack::lastAtsos()  const { return m_alignTSOSCollection->cend(); }
 
   inline AlignTSOSCollection::iterator AlignTrack::firstAtsos() { return m_alignTSOSCollection->begin(); }
   inline AlignTSOSCollection::iterator AlignTrack::lastAtsos()  { return m_alignTSOSCollection->end(); }

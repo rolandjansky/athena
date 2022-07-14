@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonAlignEvent/MdtAlignModule.h"
@@ -8,10 +8,6 @@
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 
 namespace Muon {
-
-    //________________________________________________________________________
-    MdtAlignModule::MdtAlignModule(MsgStream* log, const Amg::Transform3D& transform) :
-        CombinedMuonAlignModule(log, transform), m_rootfile(nullptr), m_tubePositionTree(nullptr), m_log(new MsgStream(*log)) {}
 
     //________________________________________________________________________
     MdtAlignModule::MdtAlignModule(const AlgTool* algtool, const Amg::Transform3D& transform) :

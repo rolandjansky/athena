@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKALIGNEVENT_ALIGNTSOS_H
@@ -45,11 +45,11 @@ namespace Trk {
         4) the RIO if the TSOS is a RIO, or the leading RIO if a CompetingRIOsOnTrack,
         5) and the detector type (from TrackStateDefs.h)
     */
-    AlignTSOS(const TrackStateOnSurface& tsos, const AlignModule * module, 
+    AlignTSOS(const TrackStateOnSurface& tsos, AlignModule * module,
 	      const RIO_OnTrack * rio, 
 	      TrackState::MeasurementType detType);	      
 
-    AlignTSOS(const TrackStateOnSurface& tsos, const AlignModule * module, 
+    AlignTSOS(const TrackStateOnSurface& tsos, AlignModule * module,
 	      const CompetingRIOsOnTrack * crio, 
 	      TrackState::MeasurementType detType);
 
@@ -67,6 +67,7 @@ namespace Trk {
 
     /** accessor method for AlignModule to which tsos belongs */
     const AlignModule* module() const { return m_module; }
+    AlignModule* module() { return m_module; }
 
     /** set and retrieve flag to indicate whether hit valid for alignment */
     void setValid(bool isvalid) { m_isvalid=isvalid; }    
@@ -155,7 +156,7 @@ namespace Trk {
     AlignTSOS();  // don't use this one
 
     // private variables    
-    const AlignModule * m_module;
+    AlignModule * m_module;
     const RIO_OnTrack * m_rio;   
     const CompetingRIOsOnTrack * m_crio;
 

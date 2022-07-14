@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -23,7 +23,8 @@ namespace Trk {
   AlignModule::AlignModule(const AlgTool* algtool, 
                            const Amg::Transform3D& transform,
                            const std::string& name)
-    : m_detelements(AlignModule::NDetectorTypes,(DetElementCollection*)nullptr)
+    : AthMessaging("AlignModule")
+    , m_detelements(AlignModule::NDetectorTypes,(DetElementCollection*)nullptr)
     , m_detIdentifiers(AlignModule::NDetectorTypes,(IdentifierCollection*)nullptr)
     , m_alignModuleToDetElementTransforms(AlignModule::NDetectorTypes, (std::vector<Amg::Transform3D>*)nullptr)
     , m_nChamberShifts(8)
@@ -35,44 +36,16 @@ namespace Trk {
     , m_nhits(0)
     , m_trackchi2(0.)
     , m_nDoF(0)
-    , m_log(new MsgStream(algtool->msgSvc(),"AlignModule"))
   {
     for (int i=0;i<(int)TrackState::NumberOfMeasurementTypes;i++)
       m_chi2VAlignParamMeasType[i]=nullptr;
     
     const AthAlgTool* athAlgTool=dynamic_cast<const AthAlgTool*>(algtool); 
     if (athAlgTool) 
-      m_log->setLevel(athAlgTool->msg().level());
+      this->setLevel(athAlgTool->msg().level());
     
     setGlobalFrameToAlignFrameTransform(transform);
   } 
-  
-  //________________________________________________________________________
-  AlignModule::AlignModule(MsgStream* log,
-                           const Amg::Transform3D& transform,
-                           const std::string& name)
-    : m_detelements(AlignModule::NDetectorTypes,(DetElementCollection*)nullptr)
-    , m_detIdentifiers(AlignModule::NDetectorTypes,(IdentifierCollection*)nullptr)
-    , m_alignModuleToDetElementTransforms(AlignModule::NDetectorTypes, (std::vector<Amg::Transform3D>*)nullptr)
-    , m_nChamberShifts(8)
-    , m_chi2VAlignParam(nullptr)
-    , m_chi2VAlignParamX(nullptr)
-    , m_chi2VAlignParamMeasType (new double**[TrackState::NumberOfMeasurementTypes])
-    , m_name(name)
-    , m_ntracks(0)
-    , m_nhits(0)
-    , m_trackchi2(0.)
-    , m_nDoF(0)
-    , m_log(new MsgStream(*log))
-  {
-    for (int i=0;i<TrackState::NumberOfMeasurementTypes;i++)
-      m_chi2VAlignParamMeasType[i]=nullptr;
-    
-    setGlobalFrameToAlignFrameTransform(transform);
-    
-    *m_log<<MSG::INFO<<"done with c'tor"<<endmsg;
-  }
-
   
   //________________________________________________________________________
   AlignModule::~AlignModule()
@@ -157,8 +130,7 @@ namespace Trk {
                                   const Amg::Transform3D& transform,
                                   const Identifier id)
   {
-    *m_log << MSG::DEBUG << "adding detElement "<<det->identify()
-           <<", detType "<<detType<<endmsg;
+    ATH_MSG_DEBUG("adding detElement "<<det->identify()<<", detType "<<detType);
     if (!m_detelements[detType]) 
       m_detelements[detType]=new DetElementCollection; 
     
@@ -170,14 +142,10 @@ namespace Trk {
       m_detIdentifiers[detType]->push_back(id);
     }
 
-    *m_log << MSG::DEBUG<<"adding transform"<<endmsg;
     if (!m_alignModuleToDetElementTransforms[detType])
       m_alignModuleToDetElementTransforms[detType]=new std::vector<Amg::Transform3D>;
     
-    m_alignModuleToDetElementTransforms[detType]->push_back(transform); 
-  
-
-    *m_log<<MSG::DEBUG<<"done adding transform"<<endmsg;
+    m_alignModuleToDetElementTransforms[detType]->push_back(transform);
  }
 
   //________________________________________________________________________
@@ -267,8 +235,8 @@ namespace Trk {
         sumRx += trans[3];
         sumRy += trans[4];
         sumRz += trans[5];
-        *m_log << MSG::DEBUG  << n << " " << trans[0] << "  "<< trans[1] << "  " << trans[2]
-               << "  "<< trans[3] << "  " << trans[4] << "  "<< trans[5] << endmsg; 
+        ATH_MSG_DEBUG(n << " " << trans[0] << "  "<< trans[1] << "  " << trans[2]
+                      << "  "<< trans[3] << "  " << trans[4] << "  "<< trans[5]);
         ++n;
          
 //         Amg::Translation3D surfaceCentre( trans[0],trans[1],trans[2] );
@@ -301,8 +269,8 @@ namespace Trk {
     
     double oneOnN = 1./(double)n;
   
-    *m_log << MSG::DEBUG << " SUM  " << oneOnN << "  "  << sumx*oneOnN << "  "<< sumy*oneOnN 
-                         << "  " << sumz*oneOnN << "  "<< sumRx*oneOnN << "  " << sumRy*oneOnN << "  "<< sumRz*oneOnN << endmsg; 
+    ATH_MSG_DEBUG(" SUM  " << oneOnN << "  "  << sumx*oneOnN << "  "<< sumy*oneOnN
+                  << "  " << sumz*oneOnN << "  "<< sumRx*oneOnN << "  " << sumRy*oneOnN << "  "<< sumRz*oneOnN);
   
     
     Amg::Translation3D surfaceCentre( sumx*oneOnN, sumy*oneOnN, sumz*oneOnN );
@@ -337,8 +305,8 @@ namespace Trk {
 
         double trans[6];
         decomposeTransform( (*m_alignModuleToDetElementTransforms[i])[j] , trans);
-        *m_log << MSG::DEBUG << j << " " << trans[0] << "  "<< trans[1] << "  " << trans[2] 
-                                  << "  "<< trans[3] << "  " << trans[4] << "  "<< trans[5] << endmsg; 
+        ATH_MSG_DEBUG(j << " " << trans[0] << "  "<< trans[1] << "  " << trans[2]
+                      << "  "<< trans[3] << "  " << trans[4] << "  "<< trans[5]);
       } 
     } 
   }
