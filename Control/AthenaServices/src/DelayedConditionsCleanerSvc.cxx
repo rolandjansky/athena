@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-/*
- */
 /**
  * @file AthenaServices/src/DelayedConditionsCleanerSvc.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -19,6 +17,7 @@
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include <algorithm>
+#include <unordered_set>
 
 
 // We wanted to try to allow cleaning to run as asynchronous tasks,
@@ -208,7 +207,6 @@ DelayedConditionsCleanerSvc::event (const EventContext& ctx, bool allowAsync)
   }
 
   // Collect conditions containers in need of cleaning.
-  // Separate lists for those using timestamps and those using run+LBN.
   std::vector<CondContInfo*> ci_vec;
   {
     lock_t lock (m_workMutex);
@@ -423,10 +421,37 @@ DelayedConditionsCleanerSvc::scheduleClean (std::vector<CondContInfo*>&& cis,
  */
 void
 DelayedConditionsCleanerSvc::cleanContainers (std::vector<CondContInfo*>&& cis,
-					      twoKeys_t&& twoKeys) const
+					      twoKeys_t&& twoKeys)
 {
-  for (CondContInfo* ci : cis) {
-    cleanContainer (ci, twoKeys);
+  // FIXME: Some conditions objects have pointers to parts of other
+  // conditions objects, which violates the lifetime guarantees of
+  // conditions containers (a pointer you get from a conditions container
+  // is guaranteed to be valid until the end of the current event, but
+  // not past that).  In some cases, this can be dealt with by replacing
+  // the pointers with CondLink, but that is sometimes rather inconvenient.
+  // Try to work around this for now by ensuring that when we delete an object,
+  // we also try to clean the containers of other objects that may depend
+  // on it.
+  std::vector<CondContInfo*> toclean = std::move (cis);
+  std::unordered_set<CondContInfo*> cleaned (toclean.begin(), toclean.end());
+  while (!toclean.empty()) {
+    std::vector<CondContInfo*> newclean;
+    for (CondContInfo* ci : toclean) {
+      if (cleanContainer (ci, twoKeys)) {
+        lock_t lock (m_workMutex);
+        for (CondContBase* dep : ci->m_cc.getDeps()) {
+          CCInfoMap_t::iterator it = m_ccinfo.find (dep);
+          // If we don't find it, then dep must have no conditions objects.
+          if (it != m_ccinfo.end()) {
+            CondContInfo* ci_dep = &it->second;
+            if (cleaned.insert (ci_dep).second) {
+              newclean.push_back (ci_dep);
+            }
+          }
+        }
+      }
+    }
+    toclean = std::move (newclean);
   }
 }
 
@@ -436,8 +461,10 @@ DelayedConditionsCleanerSvc::cleanContainers (std::vector<CondContInfo*>&& cis,
  * @param ci The container to clean.
  * @param keyType Run+LBN or timestamp keys?
  * @param keys Set of IOV keys for recent events.
+ *
+ * Returns true if anything was removed from the container,
  */
-void
+bool
 DelayedConditionsCleanerSvc::cleanContainer (CondContInfo* ci,
                                              const  twoKeys_t& twoKeys) const
 {
@@ -455,6 +482,8 @@ DelayedConditionsCleanerSvc::cleanContainer (CondContInfo* ci,
   default:
     ++ci->m_removed2plus;
   }
+
+  return n > 0;
 }
   
 /**
