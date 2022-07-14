@@ -20,9 +20,6 @@
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 
-#include "CxxUtils/checker_macros.h"
-ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // testing code
-
 void make_dd (IdDictParser& parser)
 {
   ISvcLocator* svcLoc = Gaudi::svcLocator();
