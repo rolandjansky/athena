@@ -91,9 +91,10 @@ if MuonGeometryFlags.hasCSC():
                                                                                                       "HLT_noalg_L12MU4","HLT_noalg_L12MU6","HLT_noalg_L12MU10"] )
 else:
     MuonNoAlgTrig_TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name = "MuonNoAlgTrig_TriggerSkimmingTool",
-                                                                                    TriggerListOR =  [ "HLT_noalg_L1[0-9]?MU[0-9]*(FCH|RFCH|VF|F|VC|FC|BOM|EOF)"
+                                                                                    TriggerListOR =  [ "HLT_noalg_L1MU.*",
+                                                                                                       "HLT_noalg_L12MU.*",
                                                                                                        "HLT_noalg_L1TGC_BURST",
-                                                                                                       "HLT_noalg_L1XE40" ] )
+                                                                                                       "HLT_noalg_L1XE.*" ] )
 ToolSvc += MuonNoAlgTrig_TriggerSkimmingTool
 print(MuonNoAlgTrig_TriggerSkimmingTool)
 
@@ -143,7 +144,11 @@ else:
                                                                                                  "HLT_ht.*",
                                                                                                  "HLT_te.*",
                                                                                                  "HLT_xs.*",
-                                                                                                 "HLT_mb.*"] )
+                                                                                                 "HLT_mb.*",
+                                                                                                 "HLT_noalg_L1J.*",
+                                                                                                 "HLT_noalg_L1TAU.*",
+                                                                                                 "HLT_noalg_L1EM.*",
+                                                                                                 "HLT_noalg_L1XE.*"] )
 
 ToolSvc += OrthoTrig_TriggerSkimmingTool
 print(OrthoTrig_TriggerSkimmingTool)
