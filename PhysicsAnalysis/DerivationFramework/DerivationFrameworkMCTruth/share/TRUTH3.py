@@ -57,6 +57,10 @@ TRUTH3Stream.AddMetaDataItem( [ "xAOD::TruthMetaDataContainer#TruthMetaData", "x
 # In master, this is safe and saves us another 0.75kB/event or so
 TRUTH3Stream.RemoveItem('EventInfo#*')
 
+# New-style event info, though, we do need to keep!
+TRUTH3Stream.AddItem("xAOD::EventInfo#*")
+TRUTH3Stream.AddItem("xAOD::EventAuxInfo#*")
+
 # If we don't have a conditions tag set by now, then assume this job isn't going to have one and kill the conditions service
 if len(globalflags.ConditionsTag())==0:
     svcMgr.PoolSvc.ReadCatalog = []
