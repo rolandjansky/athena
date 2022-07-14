@@ -39,7 +39,9 @@ svcMgr += CondSvc()
 condSeq = AthSequencer("AthCondSeq")
 if not hasattr(condSeq, "CondInputLoader"):
     condInputLoader = CondInputLoader( "CondInputLoader")
-    condSeq += condInputLoader
+    # We always want CondInputLoader to be first in the condSeq
+    # for serial running
+    condSeq.insert(0, condInputLoader)
 else:
     condInputLoader = condSeq.CondInputLoader
 

@@ -406,7 +406,7 @@ namespace dqutils {
     static void mergeObjsMultiCycles(const std::string&, 
 					 const std::vector<int>&, 
 					 TDirectory*, const std::string&, 
-					 std::shared_ptr<TObject>&);
+					 std::unique_ptr<TObject>&);
     static int mergeObjs(TObject*, TObject*, const std::string &, debugLevel_t debugLevel = none);
     static int mergeLB_createListOfHistos(TDirectory*, TDirectory*, std::vector<std::string>&, debugLevel_t&);
     static int mergeLB_recursiveDirCopy(TDirectory*, TDirectory*, TDirectory*, std::vector<std::string>&, debugLevel_t&);

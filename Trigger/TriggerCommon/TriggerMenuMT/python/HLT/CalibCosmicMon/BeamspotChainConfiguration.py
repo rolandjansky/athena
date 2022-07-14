@@ -147,7 +147,6 @@ class BeamspotChainConfiguration(ChainConfigurationBase):
                 # --------------------
                 stepDictionary = {
                         "allTE_trkfast":['getAllTEStep'],
-                        #"activeTE_trkfast":[self.activeTE_trkfast()],
                         "trkFS_trkfast":['getTrkFSStep'],  
                 }
                 return stepDictionary

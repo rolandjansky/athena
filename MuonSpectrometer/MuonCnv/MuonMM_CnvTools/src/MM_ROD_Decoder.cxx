@@ -68,9 +68,6 @@ StatusCode Muon::MM_ROD_Decoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPAC
   // loop on elinks. we need an RDO (collection) per quadruplet!
   for (auto* elink : elinks) {
 
-    // skip null packets
-    if (elink->isNull()) continue;
-
     // get the offline ID hash (module ctx) to be passed to the RDO 
     // also specifies the index of the RDO in the container.
     bool         is_validID(false);

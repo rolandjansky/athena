@@ -24,7 +24,7 @@ def MuonDetectorToolCfg(flags):
         HasMM=flags.Detector.GeometryMM
         )
     detTool.UseConditionDb = 1
-    detTool.UseIlinesFromGM = 1
+    detTool.UseIlinesFromGM = False
 
     if flags.Muon.enableAlignment:
         # Condition DB is needed only if A-lines or B-lines are requested
@@ -142,8 +142,8 @@ def MuonAlignmentCondAlgCfg(flags):
                 acc.merge(addFolders( flags, ['/MUONALIGN/Onl/CSC/ILINES'], 'MUONALIGN', className='CondAttrListCollection'))
             else:
                 acc.merge(addFolders( flags, ['/MUONALIGN/CSC/ILINES'], 'MUONALIGN_OFL', className='CondAttrListCollection'))
-                MuonAlign.ParlineFolders += ["/MUONALIGN/CSC/ILINES"]
-                MuonAlign.ILinesFromCondDB = True
+            MuonAlign.ParlineFolders += ["/MUONALIGN/CSC/ILINES"]
+            MuonAlign.ILinesFromCondDB = True
 
     # here define if As-Built (MDT chamber alignment) are enabled
     if flags.Muon.Align.UseAsBuilt:

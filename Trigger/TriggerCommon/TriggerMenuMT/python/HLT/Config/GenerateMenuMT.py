@@ -377,7 +377,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
                 log.error('Available signature(s): %s', self.availableSignatures)
                 raise Exception('Stopping the execution. Please correct the configuration.')
 
-            #log.debug("Chain %s \n chain configs: %s",chainPartDict['chainName'],chainPartConfig)
+            log.debug("Chain %s \n chain configs: %s",chainPartDict['chainName'],chainPartConfig)
             if isRun3Cfg() and \
                 (chainPartConfig is None or (any(["_MissingCA" in step.name for step in chainPartConfig.steps]) \
                     and "_MissingCA" not in chainPartConfig.steps[-1].name )):      

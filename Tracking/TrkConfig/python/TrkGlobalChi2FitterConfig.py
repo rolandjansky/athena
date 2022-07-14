@@ -259,16 +259,16 @@ def MuonChi2TrackFitterCfg(flags,
 
 
 def MCTBFitterCfg(flags,
-                  name='MCTBFitterMaterialFromTrack',
+                  name='MCTBFitter',
                   **kwargs):
-    result = ComponentAccumulator()
-
     from TrkConfig.AtlasExtrapolatorConfig import MCTBExtrapolatorCfg
-    mctbExtrapolator = result.popToolsAndMerge(MCTBExtrapolatorCfg(flags))
-
-    kwargs.setdefault("ExtrapolationTool", mctbExtrapolator)
+    result = MCTBExtrapolatorCfg(flags)
     kwargs.setdefault("GetMaterialFromTrack", True)
+    kwargs.setdefault("ExtrapolationTool", result.popPrivateTools())
     return MuonChi2TrackFitterCfg(flags, name=name, **kwargs)
+
+def MCTBFitterMaterialFromTrackCfg(flags, name='MCTBFitterMaterialFromTrack', **kwargs):
+    return MCTBFitterCfg(flags, name, GetMaterialFromTrack=True, **kwargs)
 
 def MCTBSLFitterCfg(flags, name = 'MCTBSLFitter', **kwargs):
     kwargs["StraightLine"] = True       # always set
@@ -279,13 +279,11 @@ def MCTBSLFitterMaterialFromTrackCfg(flags,
                                      name='MCTBSLFitterMaterialFromTrack',
                                      **kwargs):
     result = ComponentAccumulator()
-    kwargs["StraightLine"] = True       # always set
     kwargs["GetMaterialFromTrack"] = True  # always set
     from TrkConfig.AtlasExtrapolatorConfig import (
         MuonStraightLineExtrapolatorCfg)
     extrapolator = result.popToolsAndMerge(
         MuonStraightLineExtrapolatorCfg(flags))
-    result.addPublicTool(extrapolator)
     kwargs.setdefault("ExtrapolationTool", extrapolator)
 
     from TrkConfig.TrkExRungeKuttaPropagatorConfig import (
@@ -295,7 +293,7 @@ def MCTBSLFitterMaterialFromTrackCfg(flags,
     kwargs["PropagatorTool"] = propagator
 
     result.setPrivateTools(result.popToolsAndMerge(
-        MCTBFitterCfg(flags, name, **kwargs)))
+        MCTBSLFitterCfg(flags, name, **kwargs)))
     return result
 
 

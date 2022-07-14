@@ -179,7 +179,9 @@ def execute(run, sfile, lb_max):
     shits.append("InnerDetector/Pixel/ECC/Hits/AvgOccActivePerLumi_ECC")
 
     sbtagdeg = "InnerDetector/Pixel/PixelExpert/BTagDegEstimation/TotalDegradationPerLumi"
- 
+
+    sclus = "Global/Luminosity/AnyTrigger/nClustersAll_vs_LB"
+
     nlayer = 6
     hhits = []
     fexist_hhits = True
@@ -217,9 +219,13 @@ def execute(run, sfile, lb_max):
         assign_btagdegdef(db, "PERFORMANCE_TOLERABLE", run, btagdegestim_tolerable_lb)
         assign_btagdegdef(db, "PERFORMANCE_INTOLERABLE", run, btagdegestim_intolerable_lb)
 
-
-    #nevent = hmu.GetEntries()
-    # if nevent < 100000:
-    #assign_lowstat(db, run, "assign lowstat")
+    fexist_hclus = True
+    hclus = file.Get(sclus)
+    if not hclus:
+        fexist_hclus = False
+    if fexist_hclus is True:
+        nevent = hclus.GetEntries()
+        if nevent < 100000:
+            assign_lowstat(db, run, "assign PIXEL_LOWSTAT")
 
     return db

@@ -11,9 +11,11 @@
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
+
+
 #include "MuonPrepRawData/MuonCluster.h"
 
-#include "TRandom3.h"
+
 
 #include <map>
 
@@ -29,19 +31,19 @@ namespace Muon {
 
     virtual StatusCode initialize();
 
-    StatusCode isAccepted(const Identifier id, bool& accepted);
+    StatusCode isAccepted(const Identifier id, bool& accepted, CLHEP::HepRandomEngine* rndmEngine) const ;
 
     double getHighVoltage(Identifier id) const;
 
-    StatusCode smearTimeAndCharge(const Identifier id, float& time, float& charge, bool& accepted);
-    StatusCode smearCharge(const Identifier id, float& charge, bool& accepted);
+    StatusCode smearTimeAndCharge(const Identifier id, float& time, float& charge, bool& accepted, CLHEP::HepRandomEngine* rndmEngine) const override;
+    StatusCode smearCharge(const Identifier id, float& charge, bool& accepted, CLHEP::HepRandomEngine* rndmEngine) const override;
 
     StatusCode getGainFraction(const Identifier id, float& charge);
-
+ 
   private:
     
     bool getIdFields(const Identifier id, int& etaSector, int& phiSector,
-		     int& gasGap);
+		     int& gasGap) const;
 
     bool getPCBIdentifier(const Identifier id, Identifier& pcb_id) const;
 
@@ -52,22 +54,20 @@ namespace Muon {
 
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-    DoubleArrayProperty m_timeSmear;
-    DoubleArrayProperty m_chargeSmear;
+    Gaudi::Property<std::vector<double>> m_timeSmear {this, "TimeSmear" ,{0.,0.,0.,0.,0.,0.,0.,0.}};
+    Gaudi::Property<std::vector<double>> m_chargeSmear {this, "ChargeSmear" ,{0.,0.,0.,0.,0.,0.,0.,0.}};
 
-    DoubleArrayProperty m_channelEfficiency;
-    DoubleArrayProperty m_clusterEfficiency;
+    Gaudi::Property<std::vector<double>> m_channelEfficiency {this, "ChannelEfficiency", {1.,1.,1.,1.,1.,1.,1.,1.}};
+    Gaudi::Property<std::vector<double>> m_clusterEfficiency {this, "ClusterEfficiency", {1.,1.,1.,1.,1.,1.,1.,1.}};
 
-    DoubleArrayProperty m_gainFraction;
+    Gaudi::Property<std::vector<double>> m_gainFraction {this, "GainFraction", {1.,1.,1.,1.,1.,1.,1.,1.}};
 
-    BooleanArrayProperty m_phiSectors;
-    BooleanArrayProperty m_etaSectors;
+    Gaudi::Property<std::vector<bool>> m_phiSectors {this, "PhiSectors", {true,true,true,true,true,true,true,true}};
+    Gaudi::Property<std::vector<bool>> m_etaSectors {this, "EtaSectors", {}}; // needs to be set via config since it differs for MMs and sTGCs
 
-    BooleanProperty m_readEfficiencyFromFile;
-    BooleanProperty m_readGainFractionFromFile;
-    StringProperty m_fileName;
-
-    TRandom3 m_random;
+    Gaudi::Property<bool> m_readEfficiencyFromFile {this, "ReadEfficiencyFromFile", false};
+    Gaudi::Property<bool> m_readGainFractionFromFile {this, "ReadGainFractionFromFile", false};
+    Gaudi::Property<std::string> m_fileName{this, "FileName", ""};
 
     // HV maps ( for MM efficiencies )
     std::map<Identifier,float> m_hvMap;

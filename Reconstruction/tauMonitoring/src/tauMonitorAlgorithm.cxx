@@ -139,7 +139,6 @@ StatusCode tauMonitorAlgorithm::fillHistograms(const EventContext &ctx) const {
   auto panPhi = Monitored::Scalar<float>("panPhi", 0.0);
   auto panPt = Monitored::Scalar<float>("panPt", 0.0);
   auto d0 = Monitored::Scalar<float>("d0", 0.0);
-  auto eProbabilityHT = Monitored::Scalar<float>("eProbabilityHT", 0.0);
   auto dRJetSeedAxis = Monitored::Scalar<float>("dRJetSeedAxis", 0.0);
   auto z0 = Monitored::Scalar<float>("z0", 0.0);
 
@@ -359,12 +358,21 @@ StatusCode tauMonitorAlgorithm::fillHistograms(const EventContext &ctx) const {
         trkWidth2 = tau->detail<float>(xAOD::TauJetParameters::trkWidth2);
         trFlightPathSig =
             tau->detail<float>(xAOD::TauJetParameters::trFlightPathSig);
-        ipSigLeadTrk =
-            tau->detail<float>(xAOD::TauJetParameters::
-                                   ipSigLeadTrk); // tau->track(0)->d0SigTJVA();
-        ipZ0SinThetaSigLeadTrk = tau->detail<float>(
-            xAOD::TauJetParameters::
-                ipZ0SinThetaSigLeadTrk); // tau->track(0)->z0sinthetaSigTJVA()
+
+	if (tau->track(0)->isAvailable<float>("d0SigTJVA")) {
+	  ipSigLeadTrk = tau->track(0)->d0SigTJVA();
+	}
+	else {
+	  ipSigLeadTrk = tau->detail<float>(xAOD::TauJetParameters::ipSigLeadTrk);
+	}
+
+	if (tau->track(0)->isAvailable<float>("z0sinthetaSigTJVA")) {
+	  ipZ0SinThetaSigLeadTrk = tau->track(0)->z0sinthetaSigTJVA();
+	}
+	else {
+	  ipZ0SinThetaSigLeadTrk = tau->detail<float>(xAOD::TauJetParameters::ipZ0SinThetaSigLeadTrk);
+	}
+
         etOverPtLeadTrack =
             tau->detail<float>(xAOD::TauJetParameters::etOverPtLeadTrk);
         leadTrkPt = tau->detail<float>(xAOD::TauJetParameters::leadTrkPt) / GeV;
@@ -502,10 +510,10 @@ StatusCode tauMonitorAlgorithm::fillHistograms(const EventContext &ctx) const {
         uint8_t numberOfSCTHoles = 0;
         trackParticle->summaryValue(numberOfSCTHoles, xAOD::numberOfSCTHoles);
         float eProbabilityHT = 0.;
-        trackParticle->summaryValue(trackeProbabilityHT, xAOD::eProbabilityHT);
+        trackParticle->summaryValue(eProbabilityHT, xAOD::eProbabilityHT);
         float eProbabilityNN = -1.;
         if (trackParticle->isAvailable<float>("eProbabilityNN"))
-          trackeProbabilityNN = trackParticle->auxdata<float>("eProbabilityNN");
+	  eProbabilityNN = trackParticle->auxdata<float>("eProbabilityNN");
         // hybrid variable (eProbabilityNN is not computed for tracks with pt
         // < 2 GeV)
         trackeProbabilityHTorNN =
