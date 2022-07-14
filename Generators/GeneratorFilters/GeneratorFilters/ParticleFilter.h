@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GENERATORFILTERS_PARTICLEFILTER_H
@@ -20,13 +20,14 @@ public:
 
 private:
 
-  double m_Ptmin;
-  double m_EtaRange;
-  double m_EnergyRange;
-  int    m_PDGID;
-  int    m_StatusReq;
-  int    m_MinParts;
-  bool   m_Exclusive;
+  Gaudi::Property<double> m_Ptmin{this, "Ptcut", 10000.};
+  Gaudi::Property<double> m_EtaRange{this, "Etacut", 10.0};
+  Gaudi::Property<double> m_EnergyRange{this, "Energycut", 100000000.0};
+  Gaudi::Property<int>    m_PDGID{this, "PDG", 11};
+  Gaudi::Property<int>    m_StatusReq{this, "StatusReq", 1};
+  Gaudi::Property<int>    m_MinParts{this, "MinParts", 1};
+  Gaudi::Property<bool>   m_Exclusive{this, "Exclusive", false};
+  Gaudi::Property<int>    m_simBarcodeOffset{this, "SimBarcodeOffset", 200000};
 };
 
 #endif
