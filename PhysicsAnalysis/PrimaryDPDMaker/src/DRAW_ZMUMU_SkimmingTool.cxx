@@ -18,21 +18,13 @@
 DerivationFramework::DRAW_ZMUMUSkimmingTool::DRAW_ZMUMUSkimmingTool( const std::string& t,
                                                  const std::string& n,
                                                  const IInterface* p ) : 
-  AthAlgTool(t,n,p),
-  m_muonSelectionTool("CP::MuonSelectionTool/MuonSelectionTool"),
-  m_nMuons(1),
-  m_muonPtCut(20.0)
-  {
+  AthAlgTool(t,n,p) {
     declareInterface<DerivationFramework::ISkimmingTool>(this);
-    declareProperty("MuonSelectorTool", m_muonSelectionTool); 
-    declareProperty("MinimumNumberOfMuons", m_nMuons);
-    declareProperty("MuonPtCut", m_muonPtCut);	
+ 
   }
   
 // Destructor
-DerivationFramework::DRAW_ZMUMUSkimmingTool::~DRAW_ZMUMUSkimmingTool() {
-}  
-
+DerivationFramework::DRAW_ZMUMUSkimmingTool::~DRAW_ZMUMUSkimmingTool() = default;
 // Athena initialize and finalize
 StatusCode DerivationFramework::DRAW_ZMUMUSkimmingTool::initialize()
 {
@@ -51,19 +43,17 @@ StatusCode DerivationFramework::DRAW_ZMUMUSkimmingTool::finalize()
 bool DerivationFramework::DRAW_ZMUMUSkimmingTool::eventPassesFilter() const
 {
      ++m_ntot;
-
      SG::ReadHandle<xAOD::MuonContainer> muons{m_muonSGKey};
      // Loop over muons, count up and set decision
      unsigned int nGoodMu(0);
      for (const xAOD::Muon* muItr : *muons) {
-	if ( m_muonSelectionTool->accept(*muItr) && muItr->pt() > m_muonPtCut ) ++nGoodMu;
+	    nGoodMu += muItr->pt() > m_muonPtCut && m_muonSelectionTool->accept(*muItr);
      }
-     bool acceptEvent(false);
+     bool acceptEvent{false};
      if (nGoodMu >= m_nMuons) { 
-	acceptEvent = true;
-	++m_npass;
+	     acceptEvent = true;
+	     ++m_npass;
      }
      return acceptEvent; 
-
 }  
   

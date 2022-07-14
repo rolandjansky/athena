@@ -21,14 +21,13 @@ namespace DerivationFramework {
     public: 
       TriggerSkimmingTool(const std::string& t, const std::string& n, const IInterface* p);
 
-      StatusCode initialize();
-      StatusCode finalize();
-      virtual bool eventPassesFilter() const;
+      bool eventPassesFilter() const override;
+      StatusCode initialize() override;
 
     private:
-      std::vector<std::string> m_triggerListAND;
-      std::vector<std::string> m_triggerListOR;
-      ToolHandle<Trig::TrigDecisionTool> m_trigDec;
+      Gaudi::Property<std::vector<std::string>> m_triggerListAND{this,"TriggerListAND", {}};
+      Gaudi::Property<std::vector<std::string>> m_triggerListOR{this,"TriggerListOR", {}};
+      PublicToolHandle<Trig::TrigDecisionTool> m_trigDec{this, "TrigDecisionTool", "Trig::TrigDecisionTool/TrigDecisionTool"};
 
   }; 
 }
