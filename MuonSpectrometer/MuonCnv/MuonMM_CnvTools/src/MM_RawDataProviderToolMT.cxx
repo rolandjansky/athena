@@ -64,11 +64,27 @@ StatusCode Muon::MM_RawDataProviderToolMT::initRdoContainer(const EventContext& 
   return StatusCode::SUCCESS;
 }
 
+//==============================================================================
+StatusCode Muon::MM_RawDataProviderToolMT::convert(const std::vector<uint32_t>& robIds, const EventContext& ctx) const {
+  // method for RoI-seeded mode via ROB IDs
+  MM_RawDataContainer* rdoContainer{nullptr};
+  ATH_CHECK(initRdoContainer(ctx, rdoContainer));
+
+  if (robIds.empty()) return StatusCode::SUCCESS;
+  
+  std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> vecRobf;
+
+  m_robDataProvider->getROBData(robIds, vecRobf);
+
+  // pass empty list of ID hashes, every ROB ID in list will be decoded
+  const std::vector<IdentifierHash> hashIDList;
+  return convertIntoContainer(vecRobf, hashIDList, *rdoContainer);
+}
 
 //==============================================================================
 StatusCode Muon::MM_RawDataProviderToolMT::convert(const std::vector<IdentifierHash>& rdoIdhVect, const EventContext& ctx) const
 {
-  // method for RoI-seeded mode. we don't let empty hash containers reach the decoder, 
+  // method for RoI-seeded mode via hash IDs. we don't let empty hash containers reach the decoder, 
   // since an empty container means unseeded mode (decode everything).
 
   MM_RawDataContainer* rdoContainer{nullptr};
