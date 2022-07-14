@@ -1,8 +1,8 @@
 DelayedConditionsCleanerSvc_test
 
 
-Initializing Gaudi ApplicationMgr using job opts ../share/DelayedConditionsCleanerSvc_test.txt
-JobOptionsSvc        INFO # =======> /home/sss/atlas/dvtest/build/../tests/../share/DelayedConditionsCleanerSvc_test.txt
+Initializing Gaudi ApplicationMgr using job opts /home/sss/atlas/dvtest/build/joboptions/AthenaServices/DelayedConditionsCleanerSvc_test.txt
+JobOptionsSvc        INFO # =======> /home/sss/atlas/dvtest/build/joboptions/AthenaServices/DelayedConditionsCleanerSvc_test.txt
 JobOptionsSvc        INFO # (3,1): MessageSvc.OutputLevel = 2
 JobOptionsSvc        INFO # (5,1): TestConditionsCleanerSvc.RingSize = 5
 JobOptionsSvc        INFO # (6,1): TestConditionsCleanerSvc.CleanDelay = 100
@@ -10,13 +10,13 @@ JobOptionsSvc        INFO # (7,1): TestConditionsCleanerSvc.LookAhead = 10
 JobOptionsSvc        INFO # (9,1): Athena::ConditionsCleanerSvc.CleanerSvc = "Athena::DelayedConditionsCleanerSvc"
 JobOptionsSvc        INFO # (11,1): Athena::RCUSvc.HiveWhiteBoardSvc = "DummyWhiteBoardSvc"
 JobOptionsSvc        INFO # (12,1): Athena::RCUSvc.IncidentSvc = "DummyIncidentSvc"
-JobOptionsSvc        INFO Job options successfully read in from ../share/DelayedConditionsCleanerSvc_test.txt
+JobOptionsSvc        INFO Job options successfully read in from /home/sss/atlas/dvtest/build/joboptions/AthenaServices/DelayedConditionsCleanerSvc_test.txt
 MessageSvc          DEBUG Service base class initialized successfully
 ApplicationMgr      DEBUG Getting my own properties
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
-                                          running on karma on Wed May 30 09:00:24 2018
+                                          running on karma on Thu Jun 30 14:16:18 2022
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 ServiceManager      DEBUG Initializing service AppMgrRunable
@@ -32,17 +32,19 @@ EventLoopMgr      WARNING Unable to locate service "EventSelector"
 EventLoopMgr      WARNING No events will be processed from external input.
 HistogramDataSvc    DEBUG Service base class initialized successfully
 HistogramPersis...  DEBUG Service base class initialized successfully
-HistogramPersis...WARNING Histograms saving not required.
+HistogramPersis...  DEBUG Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
+Athena::RCUSvc      DEBUG Service base class initialized successfully
 DummyWhiteBoardSvc  DEBUG Service base class initialized successfully
 DummyIncidentSvc    DEBUG Service base class initialized successfully
 test1
+test2
 threaded_test
 ClassIDSvc          DEBUG Service base class initialized successfully
 IncidentSvc         DEBUG Adding [ModuleLoaded] listener 'ClassIDSvc' with priority 100
-ClassIDSvc           INFO  getRegistryEntries: read 2827 CLIDRegistry entries for module ALL
-ClassIDSvc          DEBUG processCLIDDB: read 597 entries from CLIDDB file: /home/sss/atlas/dvtest/build/share/clid.db
+ClassIDSvc          DEBUG processCLIDDB: read 1556 entries from CLIDDB file: /home/sss/atlas/dvtest/build/share/clid.db
+ClassIDSvc           INFO getRegistryEntries: read 3429 CLIDRegistry entries for module ALL
 Athena::Delayed...   INFO Conditions container statistics
 Athena::Delayed...   INFO   Work q: Max size: 28  (581 queries) 
 Athena::Delayed...   INFO           Avg size: 23.19 / Avg removed: 3.76

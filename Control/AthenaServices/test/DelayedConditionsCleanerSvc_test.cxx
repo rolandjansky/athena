@@ -254,6 +254,33 @@ void test1 (Athena::IConditionsCleanerSvc& svc)
 }
 
 
+// Testing dependency workaround in cleanContainers(). 
+void test2 (Athena::IConditionsCleanerSvc& svc)
+{
+  std::cout << "test2\n";
+
+  using key_type = CondContBase::key_type;
+  RCUTest rcu;
+  DataObjID id;
+
+  CondContTest cc1 (rcu, id, 10, CondContBase::KeyType::TIMESTAMP);
+  CondContTest cc2 (rcu, id, 10, CondContBase::KeyType::TIMESTAMP);
+
+  cc1.addDeps (std::vector<CondContBase*> { &cc2 });
+
+  assert( svc.condObjAdded (makeCtx(1000), cc1).isSuccess() );
+  assert( svc.condObjAdded (makeCtx(2000), cc2).isSuccess() );  
+
+  assert (cc1.nkeys() == 0);
+  assert (cc2.nkeys() == 0);
+  assert( svc.event (makeCtx(1100), false).isSuccess() );
+  assert (cc1.nkeys() == 1);
+  assert (cc2.nkeys() == 1);
+  assert (cc1.keys() == (std::vector<key_type> { 0, 3100 }));
+  assert (cc2.keys() == (std::vector<key_type> { 0, 3100 }));
+}
+
+
 //****************************************************************************
 // multi-threaded test.
 //
@@ -649,6 +676,7 @@ int main()
   }
 
   test1 (*svc);
+  test2 (*svc);
 
   ServiceHandle<Athena::IConditionsCleanerSvc> facadeSvc
     ("Athena::ConditionsCleanerSvc", "test");
