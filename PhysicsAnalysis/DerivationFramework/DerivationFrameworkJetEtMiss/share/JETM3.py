@@ -5,7 +5,7 @@
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob, buildFileName
 from DerivationFrameworkJetEtMiss.JetCommon import OutputJets, addJetOutputs, addDAODJets
-from JetRecConfig.StandardSmallRJets import AntiKt4EMPFlowLowPt, AntiKt4EMTopoLowPt
+from JetRecConfig.StandardSmallRJets import AntiKt4EMPFlowLowPt, AntiKt4EMTopoLowPt, AntiKt4EMPFlow
 
 if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
@@ -181,6 +181,16 @@ jetm3Seq += CfgMgr.DerivationFramework__DerivationKernel(	name = "JETM3Kernel",
                                                                 AugmentationTools = [TrigMatchAug])
 
 #=======================================
+# SCHEDULE ADDITIONAL JET DECORATIONS
+#=======================================
+
+from JetRecConfig.StandardJetMods import stdJetModifiers
+from JetRecConfig.JetRecConfig import getModifier
+
+bJVTTool = getModifier(AntiKt4EMPFlow, stdJetModifiers['bJVT'], stdJetModifiers['bJVT'].modspec)
+jetm3Seq += CfgMgr.JetDecorationAlg('bJVTAlg', JetContainer='AntiKt4EMPFlowJets', Decorators=[bJVTTool])
+
+#=======================================
 # SCHEDULE SMALL-R JETS WITH LOW PT CUT
 #=======================================
 
@@ -240,6 +250,7 @@ JETM3SlimmingHelper.ExtraVariables = [
   'HLT_xAOD__JetContainer_a4tcemsubjesISFS.ActiveArea.ActiveArea4vec_eta.ActiveArea4vec_m.ActiveArea4vec_phi.ActiveArea4vec_pt.AlgorithmType.AverageLArQF.BchCorrCell.CentroidR.ConstituentScale.DetectorEta.EMFrac.EnergyPerSampling.FracSamplingMax.FracSamplingMaxIndex.HECFrac.HECQuality.InputType.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_m.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_m.JetEMScaleMomentum_phi.JetEMScaleMomentum_pt.JetEtaJESScaleMomentum_eta.JetEtaJESScaleMomentum_m.JetEtaJESScaleMomentum_phi.JetEtaJESScaleMomentum_pt.JetPileupScaleMomentum_eta.JetPileupScaleMomentum_m.JetPileupScaleMomentum_phi.JetPileupScaleMomentum_pt.LArQuality.N90Constituents.NegativeE.OriginCorrected.PileupCorrected.SizeParameter.Timing.eta.kinematics.m.phi.pt',
   "Electrons."+NewTrigVars["Electrons"],
   "Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus."+NewTrigVars["Muons"],
+  "AntiKt4EMPFlowJets.passOnlyBJVT","AntiKt4EMPFlowJets.DFCommonJets_bJvt",
 ]
 for truthc in [
     "TruthMuons",

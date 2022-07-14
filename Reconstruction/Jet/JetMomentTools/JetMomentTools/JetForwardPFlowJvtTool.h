@@ -110,14 +110,15 @@ namespace pflow {
     bool isCentralJet(const xAOD::Jet *jet) const;
 
     StatusCode tagTruth(const xAOD::JetContainer *jets,const xAOD::JetContainer *truthJets);
-    std::vector<TVector2> calculateVertexMomenta(const xAOD::JetContainer *jets,int pvind, int vertices) const;
+    virtual std::vector<TVector2> calculateVertexMomenta(const xAOD::JetContainer *jets,int pvind, int vertices) const;
     pflow::puJets buildPFlowPUjets(const xAOD::Vertex &vx) const;
     bool hasCloseByHSjet(const xAOD::Jet *jet, const xAOD::JetContainer *pjets ) const;
     double getRpt(const xAOD::Jet *jet) const;
     fastjet::PseudoJet pfoToPseudoJet(const xAOD::PFO* pfo, const CP::PFO_JetMETConfig_charge& theCharge, const xAOD::Vertex *vx) const;
     fastjet::PseudoJet feToPseudoJet(const xAOD::FlowElement* fe, const CP::PFO_JetMETConfig_charge& theCharge, const xAOD::Vertex *vx) const;
+    std::size_t getPV() const;
 
-  private:
+  protected:
 
     SG::ReadHandleKey<jet::TrackVertexAssociation> m_tvaKey{this, "TrackVertexAssociation", "", "Input track-vertex association"};
     Gaudi::Property<std::string> m_jetContainerName{this, "JetContainer", "", "SG key for the input jet container"};
@@ -168,8 +169,6 @@ namespace pflow {
     
     ToolHandle<CP::WeightPFOTool> m_wpfotool{this,"WeightPFOTool", "", "Weight PFO tool name"};
     ToolHandle<IJetCalibrationTool> m_pfoJES{this,"JetCalibrationTool", "", "Jet calibration tool name"};
-
-    std::size_t getPV() const;
 
   };
 #endif //> !FORWARDJVTTOOL_JVT_FORWARDJVTTOOL_H
