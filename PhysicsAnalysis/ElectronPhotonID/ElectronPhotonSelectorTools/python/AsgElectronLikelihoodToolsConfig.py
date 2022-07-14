@@ -14,7 +14,7 @@ def AsgElectronLikelihoodToolCfg(
         flag,
         name,
         quality,
-        menu=electronLHmenu.offlineMC16):
+        menu=electronLHmenu.offlineMC21):
 
     mlog = logging.getLogger('AsgElectronLikelihoodTool')
     mlog.debug('Start configuration')

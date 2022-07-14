@@ -10,6 +10,7 @@ namespace LikeEnum {
   enum Menu {
     VeryLoose,
     Loose,
+    LooseBL,
     Medium,
     Tight,
     VeryTight,

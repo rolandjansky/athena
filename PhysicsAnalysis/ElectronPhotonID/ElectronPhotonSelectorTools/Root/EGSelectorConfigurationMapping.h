@@ -32,6 +32,21 @@ const std::map<std::string, std::string> LHPointToConfFile = {
   { "TightLHElectron",
     "ElectronPhotonSelectorTools/offline/mc20_20210514/"
     "ElectronLikelihoodTightOfflineConfig2017_Smooth.conf" },
+  { "VeryLooseLHElectron_Run2",
+    "ElectronPhotonSelectorTools/offline/mc20_20210514/"
+    "ElectronLikelihoodVeryLooseOfflineConfig2017_Smooth.conf" },
+  { "LooseLHElectron_Run2",
+    "ElectronPhotonSelectorTools/offline/mc20_20210514/"
+    "ElectronLikelihoodLooseOfflineConfig2017_Smooth.conf" },
+  { "LooseBLLHElectron_Run2",
+    "ElectronPhotonSelectorTools/offline/mc20_20210514/"
+    "ElectronLikelihoodLooseOfflineConfig2017_CutBL_Smooth.conf" },
+  { "MediumLHElectron_Run2",
+    "ElectronPhotonSelectorTools/offline/mc20_20210514/"
+    "ElectronLikelihoodMediumOfflineConfig2017_Smooth.conf" },
+  { "TightLHElectron_Run2",
+    "ElectronPhotonSelectorTools/offline/mc20_20210514/"
+    "ElectronLikelihoodTightOfflineConfig2017_Smooth.conf" },
 };
 const std::map<std::string, std::string> PhotonCutPointToConfFile = {
   { "LoosePhoton",
