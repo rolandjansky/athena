@@ -7,6 +7,18 @@ def TrigBjetBtagHypoToolMonitoring(histPath):
     montool.defineHistogram('btag_pc', title=': Probability jets are Charm-jets', xbins=100, xmin=0, xmax=1, path='EXPERT', type='TH1F' )
     montool.defineHistogram('btag_pu', title=': Probability jets are Light-jets', xbins=100, xmin=0, xmax=1, path='EXPERT', type='TH1F' )
     montool.defineHistogram('btag_llr', title=': Log(P_{b}/P_{light}), Likelihood Ratio between the B-jet and Light-flavour Jet Hypotheses', xbins=100, xmin=-10, xmax=50, path='EXPERT', type='TH1F' )
+    montool.defineHistogram('JetFitter_mass',
+        title='JetFitter: Invariant Mass of All Tracks Associated to Vertex',
+        path='EXPERT', type='TH1F', xbins=1000, xmin=0, xmax=20000)
+    montool.defineHistogram('JetFitter_energyFraction',
+        title='JetFitter: Fraction of Charged Jet Energy in Secondary Vertices',
+        path='EXPERT', type='TH1F', xbins=100, xmin=0, xmax=1.1)
+    montool.defineHistogram('SV1_masssvx',
+        title='SV1: Invariant Mass of All Tracks Associated to Vertex',
+        path='EXPERT', type='TH1F', xbins=1000, xmin=0, xmax=10000)
+    montool.defineHistogram('SV1_efracsvx',
+        title='SV1: Ratio of Energy in Vertex Tracks to All Tracks in Jet ',
+        path='EXPERT', type='TH1F', xbins=100, xmin=0, xmax=1.1)
     # hypo stage histogram
     montool.defineHistogram(
         'stage',
@@ -26,6 +38,11 @@ def TrigBjetOnlineMonitoring(name="TrigBjetOnlineMonitoring"):
         montool.defineHistogram('btag_'+tagger+'_pc', title=tagger+': Probability jets are Charm-jets', type='TH1F', path='EXPERT', xbins=100, xmin=0, xmax=1)
         montool.defineHistogram('btag_'+tagger+'_pu', title=tagger+': Probability jets are Light-jets', type='TH1F', path='EXPERT', xbins=100, xmin=0, xmax=1)
         montool.defineHistogram('btag_'+tagger+'_llr', title=tagger+': Log(P_{b}/P_{light}), Likelihood Ratio between the B-jet and Light-flavour Jet Hypotheses', type='TH1F', path='EXPERT', xbins=100, xmin=-10, xmax=50)
+
+    def make_b_flavor_hists(montool, tagger):
+        montool.defineHistogram('bbtag_'+tagger+'_pb', title=tagger+': Probability jets are B-jets', type='TH1F', path='EXPERT', xbins=100, xmin=0, xmax=1)
+        montool.defineHistogram('bbtag_'+tagger+'_pbb', title=tagger+': Probability jets are BB-jets', type='TH1F', path='EXPERT', xbins=100, xmin=0, xmax=1)
+
 
     montool = GenericMonitoringTool(name, HistPath = name)
     default_bin_count = 100
@@ -74,7 +91,8 @@ def TrigBjetOnlineMonitoring(name="TrigBjetOnlineMonitoring"):
 
 
     # B-Tagging Histograms
-    for tagger in ['IP2D', 'IP3D', 'DL1r', 'rnnip']: make_flavor_hists(montool, tagger)
+    for tagger in ['IP2D', 'IP3D', 'DL1r', 'rnnip', 'DL1d20211216', 'dips20211116']: make_flavor_hists(montool, tagger)
+    for tagger in ['DL1bb20220331']: make_b_flavor_hists(montool, tagger)
 
 
     montool.defineHistogram('JetFitter_N2Tpair',
@@ -210,4 +228,5 @@ def TrigBjetOnlineMonitoring(name="TrigBjetOnlineMonitoring"):
     montool.defineHistogram('IP3D_valZ0wrtPVofTracks', title="Track z_{0} w/ Respect to PV of Tracks of IP3D;z_{0} (mm)", xmin=-2, xmax=2, xbins = default_bin_count, path='EXPERT', type='TH1F')
     montool.defineHistogram('IP3D_sigZ0wrtPVofTracks', title="Track z_{0} Significance w/ Respect to PV of Tracks of IP3D;z_{0} #sigma", xmin=-100, xmax=100, xbins = default_bin_count, path='EXPERT', type='TH1F')
 
+    
     return montool
