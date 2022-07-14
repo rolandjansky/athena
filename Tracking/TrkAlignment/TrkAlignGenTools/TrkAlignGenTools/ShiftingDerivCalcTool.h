@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRK_SHIFTINGDERIVCALCTOOL_H
@@ -71,7 +71,7 @@ namespace Trk {
     
     // protected methods
     Amg::VectorX getDerivatives(AlignTrack* alignTrack, 
-                                int ipar, const AlignPar* alignPar,
+                                int ipar, AlignPar* alignPar,
                                 Amg::VectorX& derivativeErr, bool& resetIPar,
                                 double& actualSecondDerivative);
 
@@ -87,7 +87,7 @@ namespace Trk {
     // private methods
     const Trk::Track* bestPerigeeTrack(const Track* track) const;
     bool scanShifts(const AlignTrack* alignTrack, 
-    const std::vector<const AlignModule*>& alignModules);
+    const std::vector<AlignModule*>& alignModules);
 
     bool getAllDerivatives(AlignTrack* alignTrack, const AlignModule* alignModule,
                            std::vector<Amg::VectorX>& deriv_vec,

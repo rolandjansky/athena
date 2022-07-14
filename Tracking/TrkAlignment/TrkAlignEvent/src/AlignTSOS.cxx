@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkAlignEvent/AlignTSOS.h"
@@ -14,7 +14,7 @@ namespace Trk {
 
   //________________________________________________________________________
   AlignTSOS::AlignTSOS(const TrackStateOnSurface& tsos, 
-                       const AlignModule * module, 
+                       AlignModule * module,
                        const RIO_OnTrack * rio,
                        TrackState::MeasurementType measType)
     : TrackStateOnSurface(tsos)
@@ -40,7 +40,7 @@ namespace Trk {
 
   //________________________________________________________________________
   AlignTSOS::AlignTSOS(const TrackStateOnSurface& tsos, 
-                       const AlignModule* module, 
+                       AlignModule* module,
                        const CompetingRIOsOnTrack* crio,
                        TrackState::MeasurementType measType)           
     : TrackStateOnSurface(tsos)

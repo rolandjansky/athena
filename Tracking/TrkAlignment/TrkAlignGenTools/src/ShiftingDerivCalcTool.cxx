@@ -162,7 +162,7 @@ namespace Trk {
 
   //________________________________________________________________________
   bool ShiftingDerivCalcTool::scanShifts(const AlignTrack* alignTrack,
-           const std::vector<const AlignModule*>& alignModules)
+           const std::vector<AlignModule*>& alignModules)
   {
     ATH_MSG_DEBUG("in scanShifts");
 
@@ -201,7 +201,7 @@ namespace Trk {
 
     // loop over AlignModules
     int imod(0);
-    for (std::vector<const AlignModule*>::const_iterator moduleIt=alignModules.begin();
+    for (std::vector<AlignModule*>::const_iterator moduleIt=alignModules.begin();
    moduleIt!=alignModules.end(); ++moduleIt,imod++) {
 
       // loop over AlignPar
@@ -332,12 +332,12 @@ bool ShiftingDerivCalcTool::setDerivatives(AlignTrack* alignTrack)
 
   // loop over AlignTSOSCollection,
   // find modules that are in the AlignModuleList,
-  std::vector<const AlignModule*> alignModules;
-  for (AlignTSOSCollection::const_iterator atsosItr=alignTrack->firstAtsos();
+  std::vector<AlignModule*> alignModules;
+  for (AlignTSOSCollection::iterator atsosItr=alignTrack->firstAtsos();
       atsosItr != alignTrack->lastAtsos(); ++atsosItr) {
 
     ATH_MSG_VERBOSE("getting module");
-    const AlignModule* module=(*atsosItr)->module();
+    AlignModule* module=(*atsosItr)->module();
     if (module)
       ATH_MSG_VERBOSE("have ATSOS for module "<<module->identify());
     else
@@ -367,10 +367,10 @@ bool ShiftingDerivCalcTool::setDerivatives(AlignTrack* alignTrack)
   // Determine derivatives from shifting these modules
   std::vector<AlignModuleDerivatives> * derivatives = new std::vector<AlignModuleDerivatives>;
   std::vector<AlignModuleDerivatives> * derivativeErr = new std::vector<AlignModuleDerivatives>;
-  std::vector<std::pair<const AlignModule*, std::vector<double> > > * actualSecondDerivatives =
-      new std::vector<std::pair<const AlignModule*, std::vector<double> > >;
+  std::vector<std::pair<AlignModule*, std::vector<double> > > * actualSecondDerivatives =
+      new std::vector<std::pair<AlignModule*, std::vector<double> > >;
   deleteChi2VAlignParam();
-  for (std::vector<const AlignModule*>::const_iterator moduleIt=alignModules.begin();
+  for (std::vector<AlignModule*>::const_iterator moduleIt=alignModules.begin();
     moduleIt!=alignModules.end(); ++moduleIt) {
 
     ATH_MSG_DEBUG("finding derivatives for module "<<(**moduleIt).identify());
@@ -496,7 +496,7 @@ bool ShiftingDerivCalcTool::setDerivatives(AlignTrack* alignTrack)
 //________________________________________________________________________
 Amg::VectorX ShiftingDerivCalcTool::getDerivatives(
               AlignTrack* alignTrack,
-              int ipar, const AlignPar* alignPar,
+              int ipar, AlignPar* alignPar,
               Amg::VectorX& derivativeErr,
               bool& resetIPar,
               double& actualSecondDeriv)
@@ -511,7 +511,7 @@ Amg::VectorX ShiftingDerivCalcTool::getDerivatives(
   if (!m_fitter)
     ATH_MSG_ERROR("set m_fitter before calling getDerivatives (by calling setUnshiftedResiduals)");
 
-  const AlignModule* module=alignPar->alignModule();
+  AlignModule* module=alignPar->alignModule();
 
   // set derivatives for 2 shifts up and 2 shifts down
   const int NFITS = m_nFits;

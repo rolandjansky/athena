@@ -236,7 +236,7 @@ namespace Trk {
     const Amg::VectorX&                  residuals     = *ptrResiduals;
     std::vector<AlignModuleDerivatives>  derivatives   = *ptrDerivs;
     const std::vector<AlignModuleDerivatives>* derivativeErr = alignTrack->derivativeErr();
-    const std::vector<std::pair<const AlignModule*,std::vector<double> > >* secDerivs = alignTrack->actualSecondDerivatives();
+    const std::vector<std::pair<AlignModule*,std::vector<double> > >* secDerivs = alignTrack->actualSecondDerivatives();
 
 
 
@@ -254,13 +254,13 @@ namespace Trk {
     std::vector<AlignModuleDerivatives>::iterator derivIt_end = derivatives.end();
 
     std::vector<AlignModuleDerivatives>::const_iterator derivErrIt;
-    std::vector<std::pair<const AlignModule*,std::vector<double> > >::const_iterator secDerivIt;
+    std::vector<std::pair<AlignModule*,std::vector<double> > >::const_iterator secDerivIt;
     if (derivativeErr) derivErrIt=derivativeErr->begin();
     if (secDerivs)     secDerivIt=secDerivs->begin();
     for ( ; derivIt!=derivIt_end ; ++derivIt) {
 
       // get AlignModule
-      const AlignModule* module=derivIt->first;
+      AlignModule* module=derivIt->first;
 
       // increment track counter
       module->addTrack();
@@ -305,8 +305,8 @@ namespace Trk {
     }
 
     // increment hit counters in modules
-    AlignTSOSCollection::const_iterator iatsos      = alignTrack->firstAtsos();
-    AlignTSOSCollection::const_iterator iatsos_last = alignTrack->lastAtsos();
+    AlignTSOSCollection::iterator iatsos      = alignTrack->firstAtsos();
+    AlignTSOSCollection::iterator iatsos_last = alignTrack->lastAtsos();
     for (; iatsos != iatsos_last; ++iatsos)
       if ((*iatsos)->module())
         (*iatsos)->module()->addHit();

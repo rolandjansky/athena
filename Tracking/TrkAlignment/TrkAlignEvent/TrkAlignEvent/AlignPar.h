@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKALIGNEVENT_ALIGNPAR_H
@@ -27,7 +27,7 @@ namespace Trk {
   public:
     
     /** constructor for alignment parameters of AlignModule */
-    AlignPar(const AlignModule* alignModule, 
+    AlignPar(AlignModule* alignModule,
 	     AlignModule::TransformParameters paramType);
     
     /** constructor for alignment parameters of TrkDetElementBase */
@@ -38,6 +38,7 @@ namespace Trk {
     
     /** returns the AlignModule */
     const AlignModule* alignModule() const { return m_alignModule; }
+    AlignModule* alignModule() { return m_alignModule; }
     
     /** returns the detElement */
     const TrkDetElementBase* detElement() const { return m_detElement; }
@@ -99,7 +100,7 @@ namespace Trk {
 
   private:
 
-    const AlignModule*       m_alignModule;
+    AlignModule*       m_alignModule;
     const TrkDetElementBase* m_detElement;
 
     AlignModule::TransformParameters m_paramType;
@@ -122,7 +123,7 @@ namespace Trk {
   /** overload of << operator for MsgStream for debug output */
   MsgStream& operator << (MsgStream& sl, const AlignPar& alignPar);
 
-  inline AlignPar::AlignPar(const AlignModule* alignModule, AlignModule::TransformParameters paramType) : m_alignModule(alignModule), m_detElement(0), m_paramType(paramType), m_initPar(0.), m_initErr(0.), m_par(0.), m_err(0.), m_finalPar(0.), m_finalErr(0.), m_sigma(1.), m_softCut(1.), m_firstDeriv(0.), m_secndDeriv(0.), m_index(-1) {}
+  inline AlignPar::AlignPar(AlignModule* alignModule, AlignModule::TransformParameters paramType) : m_alignModule(alignModule), m_detElement(0), m_paramType(paramType), m_initPar(0.), m_initErr(0.), m_par(0.), m_err(0.), m_finalPar(0.), m_finalErr(0.), m_sigma(1.), m_softCut(1.), m_firstDeriv(0.), m_secndDeriv(0.), m_index(-1) {}
 
   inline AlignPar::AlignPar(const TrkDetElementBase* detElement, AlignModule::TransformParameters paramType) : m_alignModule(0), m_detElement(detElement), m_paramType(paramType), m_initPar(0.), m_initErr(0.), m_par(0.), m_err(0.), m_finalPar(0.), m_finalErr(0.), m_sigma(1.), m_softCut(1.), m_firstDeriv(0.), m_secndDeriv(0.), m_index(-1) {}
 
