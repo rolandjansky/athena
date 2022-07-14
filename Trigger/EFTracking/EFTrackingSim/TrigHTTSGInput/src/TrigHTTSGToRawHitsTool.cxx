@@ -699,7 +699,7 @@ TrigHTTSGToRawHitsTool::readTruthTracks(std::vector <HTTTruthTrack>& truth, cons
       // categorize particle (prompt, secondary, etc.) based on InDetPerformanceRTT/detector paper criteria.
       bool isPrimary = true;
       if (std::abs(truth_d0corr) > 2.) { isPrimary = false; }
-      if (HepMC::barcode(particle) > 100000 || HepMC::barcode(particle) == 0) { isPrimary = false; }
+      if (HepMC::barcode(particle) > m_simBarcodeOffset || HepMC::barcode(particle) == 0) { isPrimary = false; }
 
       if (isPrimary && particle->production_vertex()) {
         const HepGeom::Point3D<double> startVertex(particle->production_vertex()->position().x(), particle->production_vertex()->position().y(), particle->production_vertex()->position().z());
@@ -756,7 +756,7 @@ void TrigHTTSGToRawHitsTool::getTruthInformation(InDetSimDataCollection::const_i
     // reject unstable particles
     if (particleLink->status() % 1000 != 1) { continue; }
     // reject secondaries and low pT (<400 MeV) pileup
-    if (HepMC::barcode(particleLink.cptr()) > 100000 || HepMC::barcode(particleLink.cptr()) == 0) { continue; }
+    if (HepMC::barcode(particleLink.cptr()) > m_simBarcodeOffset || HepMC::barcode(particleLink.cptr()) == 0) { continue; }
     // reject far forward particles
     if (fabs(genEta) > m_maxEta) { continue; }
     // "bestParent" is the highest pt particle

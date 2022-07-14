@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef KINEHEPMCMAP_H
@@ -16,8 +16,8 @@ public:
     int  		                  	giveParticle_getkine	(HepMC::ConstGenParticlePtr p ) const;
     HepMC::ConstGenParticlePtr  	givekine_getParticle	( const int ikine ) const;
 private:
-    const HepMC::GenEvent*	m_evt;
-    const int 	m_kine_offset;
+  const HepMC::GenEvent*	m_evt{};
+  const int 	m_kine_offset{200000};
 };
 
 

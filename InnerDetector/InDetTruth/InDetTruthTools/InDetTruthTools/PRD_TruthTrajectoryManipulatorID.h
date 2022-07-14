@@ -43,6 +43,7 @@ namespace InDet {
     private:
         /**ID pixel helper*/
         const AtlasDetectorID* m_atlasId{};
+        Gaudi::Property<int>    m_simBarcodeOffset{this, "SimBarcodeOffset", 200000};
     };
 }
 
