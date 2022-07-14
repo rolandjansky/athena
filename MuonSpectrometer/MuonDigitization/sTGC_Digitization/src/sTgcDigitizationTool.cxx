@@ -50,60 +50,13 @@
 
 using namespace MuonGM;
 
-struct structDigitType{
-  uint16_t bcTag; // 001 --> PREVIOUS BC, 010 --> CURRENT BC, 100 --> NEXT BC ==> if digitTime inside the overlap of the PREVIOUS and CURRENT BC, bcTag = 011 (=3)
-  float charge;  // for pad/wire response, charge = 0. 
-  int channelType; // 0 --> pad, 1 --> strip,  2 --> wire
-  MuonSimData::Deposit Dep;
-  double Edep; 
-  int keep;  // a flag used to label this digit object is kept or not (could be removed by the electronics threshold / deadtime) 0 --> do not keep, 1 --> keep if the strip is turned on by neighborOn mode; 2 --> keep because of a signal over threshold 
-  bool isDead;
-  bool isPileup;
-} ; 
-
-using tempDigitType = std::pair<float, structDigitType>; // pair<float digitTime, structDigitType>  
-
-struct structReadoutElement{
-
-  int readLevel;
-
-  float deadtimeStart;
-
-  float neighborOnTime;
-
-};
-using tempDigitCollectionType = std::map<Identifier, std::pair<structReadoutElement, std::vector<tempDigitType> > >; // map<ReadoutElementID, pair< read or not,  all DigitObject with the identical ReadoutElementId but at different time>>; for the int(read or not) : 0 --> do not read this strip, 1 --> turned on by neighborOn mode; 2 --> this channel has signal over threshold
-using tempDigitContainerType = std::map<IdentifierHash, tempDigitCollectionType>; // use IdentifierHashId, similar structure as the <sTgcDigitCollection>
-using tempHitEventMap = std::map<sTGCSimHit *, int>; // use IdentifierHashId, similar structure as the <sTgcDigitCollection>
-
-inline bool sort_EarlyToLate(const tempDigitType& a, const tempDigitType& b){
-  return a.first < b.first;
-}
-
 inline bool sort_digitsEarlyToLate(const sTgcSimDigitData &a, const sTgcSimDigitData &b){
   return a.getSTGCDigit().time() < b.getSTGCDigit().time();
 }
 
 /*******************************************************************************/
 sTgcDigitizationTool::sTgcDigitizationTool(const std::string& type, const std::string& name, const IInterface* parent) :
-    PileUpToolBase(type, name, parent),
-    m_chargeThreshold(0.02),
-    m_readoutThreshold(0),
-    m_neighborOnThreshold(0),
-    m_saturation(0),
-    m_deadtimeON(true),
-    m_produceDeadDigits(false),
-    m_deadtimeWire(5.),
-    m_readtimeStrip(6.25),
-    m_readtimePad(6.25),
-    m_readtimeWire(6.25),
-    m_timeWindowOffsetPad(0),
-    m_timeWindowOffsetStrip(0),
-    m_bunchCrossingTime(0),
-    m_timeJitterElectronicsStrip(0),
-    m_timeJitterElectronicsPad(0),
-    m_hitTimeMergeThreshold(0),
-    m_hitSourceVec() {}
+    PileUpToolBase(type, name, parent) {}
 
 /*******************************************************************************/
 // member function implementation
@@ -162,18 +115,6 @@ StatusCode sTgcDigitizationTool::initialize() {
   ATH_MSG_DEBUG("Getting random number engine : <" << m_rndmEngineName << ">");
 
   readDeadtimeConfig();
-
-  // initialize digit parameters
-  m_readoutThreshold = 0.05; 
-  m_neighborOnThreshold = 0.01;
-  m_saturation = 1.75; // = 3500. / 2000.;
-  m_hitTimeMergeThreshold = 30; //30ns = resolution of peak finding descriminator
-  m_timeWindowOffsetPad    = 0.;
-  m_timeWindowOffsetStrip   = 25.;
-  m_bunchCrossingTime       = 24.95; // 24.95 ns =(40.08 MHz)^(-1)
-  m_timeJitterElectronicsPad = 2.; //ns
-  m_timeJitterElectronicsStrip= 2.; //ns
-
   return StatusCode::SUCCESS;
 }
 /*******************************************************************************/ 
@@ -1212,7 +1153,9 @@ CLHEP::HepRandomEngine* sTgcDigitizationTool::getRandomEngine(const std::string&
   ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this, streamName);
   std::string rngName = name()+streamName;
   rngWrapper->setSeed( rngName, ctx );
-  return rngWrapper->getEngine(ctx);
+  CLHEP::HepRandomEngine* engine = rngWrapper->getEngine(ctx);
+  ATH_MSG_VERBOSE(streamName<<" rngName "<<rngName<<" "<<engine);
+  return engine;
 }
 
 

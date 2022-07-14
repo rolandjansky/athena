@@ -143,26 +143,27 @@ private:
   Gaudi::Property<double> m_energyDepositThreshold{this,"energyDepositThreshold",300.0*CLHEP::eV,"Minimum energy deposit for hit to be digitized"};
   Gaudi::Property<double> m_limitElectronKineticEnergy{this,"limitElectronKineticEnergy",5.0*CLHEP::MeV,"Minimum kinetic energy for electron hit to be digitized"};
 
-  float m_chargeThreshold;
-  float m_readoutThreshold;
-  float m_neighborOnThreshold;
-  float m_saturation;
+  const float m_chargeThreshold{0.02f};
+  const float m_readoutThreshold{0.05f};
+  const float m_neighborOnThreshold{0.01f};
+
+  const float m_saturation{1.75f};// = 3500. / 2000.;
   
-  bool m_deadtimeON;
-  bool m_produceDeadDigits;
+  const float m_timeWindowOffsetPad{0.f};
+  const float m_timeWindowOffsetStrip{25.f};
+  const float m_bunchCrossingTime{24.95f}; // 24.95 ns =(40.08 MHz)^(-1)
+  const float m_timeJitterElectronicsStrip{2.f}; //ns
+  const float m_timeJitterElectronicsPad{2.f}; //ns
+  const float m_hitTimeMergeThreshold{30.f}; //30ns = resolution of peak finding descriminator
 
-  float m_deadtimeWire;
-  float m_readtimeStrip;
-  float m_readtimePad;
-  float m_readtimeWire;
-  float m_timeWindowOffsetPad;
-  float m_timeWindowOffsetStrip;
-  float m_bunchCrossingTime;
-  float m_timeJitterElectronicsStrip;
-  float m_timeJitterElectronicsPad;
-  float m_hitTimeMergeThreshold;
-
-  std::map< Identifier, int > m_hitSourceVec;
+  
+  bool m_deadtimeON{true};
+  bool m_produceDeadDigits{false};
+  
+  float m_deadtimeWire{5.f};
+  float m_readtimeStrip{6.25f};
+  float m_readtimePad{6.25f};
+  float m_readtimeWire{6.25f};
 
   void readDeadtimeConfig();
 

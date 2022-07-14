@@ -53,13 +53,10 @@ class sTgcDigitMaker : public AthMessaging {
   /**
      Digitize a given hit, determining the time and charge spread on wires, pads and strips.
   */
-  std::unique_ptr<sTgcDigitCollection> executeDigi(const sTGCSimHit* hit, const float globalHitTime, CLHEP::HepRandomEngine* rndmEngine);
+  std::unique_ptr<sTgcDigitCollection> executeDigi(const sTGCSimHit* hit, const float globalHitTime, CLHEP::HepRandomEngine* rndmEngine) const;
 
   //====== for private
  private:
-
-  int m_channelTypes; // 1 -> strips, 2 -> strips+wires, 3 -> strips/wires/pads
-  double m_theta, m_mean;  
   enum NumberOfDimensions {
     N_STATIONNAME = 2,
     OFFSET_STATIONNAME = 0,
@@ -80,9 +77,9 @@ class sTgcDigitMaker : public AthMessaging {
    *  More detail in the dat file.
    */
   struct GammaParameter {
-    double lowEdge; // low side of the interval in ns
-    double kParameter;
-    double thetaParameter;
+    double lowEdge{0.}; // low side of the interval in ns
+    double kParameter{0.};
+    double thetaParameter{0.};
   };
 
   /** Ionization object with distance, position on the hit segment and 
@@ -125,8 +122,8 @@ class sTgcDigitMaker : public AthMessaging {
   //void randomCrossTalk(const Identifier elemId, const int gasGap, const int channelType, const int channel,
   //                     const float posInStrip, const double digitTime);
   /** Method to check a chamber is dead or active */
-  bool isDeadChamber(const std::string& stationName, int stationEta, int stationPhi, int multiPlet, int gasGap);
-  float getChamberEfficiency(int stationName, int stationEta, int stationPhi, int multiPlet, int gasGap);
+  bool isDeadChamber(const std::string& stationName, int stationEta, int stationPhi, int multiPlet, int gasGap) const;
+  float getChamberEfficiency(int stationName, int stationEta, int stationPhi, int multiPlet, int gasGap) const;
   double getTimeWindowOffset(const std::string& stationName, int stationEta, int channelType) const;
   /** Get stationName integer from stationName string */
   int getIStationName(const std::string& staionName) const;
@@ -196,8 +193,7 @@ class sTgcDigitMaker : public AthMessaging {
   const sTgcHitIdHelper* m_hitIdHelper{}; // not owned here
   const MuonGM::MuonDetectorManager* m_mdManager{}; // not owned here
   const sTgcIdHelper* m_idHelper{}; // not owned here
-  float m_IntegralTimeOfElectr;
-  bool m_doEfficiencyCorrection;
+  bool m_doEfficiencyCorrection{false};
  
   /**
      define offsets and widths of time windows for signals from
@@ -205,21 +201,22 @@ class sTgcDigitMaker : public AthMessaging {
      diffference with respect to the time after TOF and cable
      length corrections. Bunch crossing time is specified.
   */
-  bool m_doTimeCorrection;
+ 
+  int m_channelTypes{3}; // 1 -> strips, 2 -> strips+wires, 3 -> strips/wires/pads
+  double m_theta{0.8}; // theta=0.8 value best matches the PDF
+  double m_mean{2.e5};  // mean gain estimated from ATLAS note "ATL-MUON-PUB-2014-001" 
+  float m_IntegralTimeOfElectr{20.0}; //ns
+ 
+
+  bool m_doTimeCorrection{true};
   // Flag to enable strip time offset 
-  bool m_doTimeOffsetStrip;
-  //double m_timeWindowWire;
-  //double m_timeWindowStrip;
-  //double m_bunchCrossingTime;
-  //double m_timeJitterElectronicsStrip;
-  //double m_timeJitterElectronicsPad;
-  double m_GausMean;
-  double m_GausSigma;
-  double m_CrossTalk;
-  double m_StripResolution;
-  double m_ChargeSpreadFactor;
-  double m_posResIncident;
-  double m_posResAngular;
+  bool m_doTimeOffsetStrip{false};
+  double m_GausMean{2.27};  //mm; VMM response from Oct/Nov 2013 test beam
+  double m_GausSigma{0.1885}; //mm; VMM response from Oct/Nov 2013 test beam
+  double m_CrossTalk{0.};  // Turn off cross-talk. Old guesstimate was 0.03: Alexandre Laurier 2020-10-11 
+  double m_StripResolution{0.07}; // Angular strip resolution parameter 
+  double m_posResIncident{1.};
+  double m_posResAngular{12.};
 };
 
 #endif

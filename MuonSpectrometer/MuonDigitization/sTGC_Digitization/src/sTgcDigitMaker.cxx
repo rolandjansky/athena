@@ -35,41 +35,19 @@
 sTgcDigitMaker::sTgcDigitMaker(const sTgcHitIdHelper* hitIdHelper, 
                                const MuonGM::MuonDetectorManager* mdManager, 
                                bool doEfficiencyCorrection)
-  : AthMessaging ("sTgcDigitMaker")
-{
-  m_hitIdHelper             = hitIdHelper;
-  m_mdManager               = mdManager;
-  m_doEfficiencyCorrection  = doEfficiencyCorrection;
-  m_doTimeCorrection        = true;
-  m_doTimeOffsetStrip       = false;
-  //m_timeWindowPad          = 30.; // TGC  29.32; // 29.32 ns = 26 ns +  4 * 0.83 ns
-  //m_timeWindowStrip         = 30.; // TGC  40.94; // 40.94 ns = 26 ns + 18 * 0.83 ns
-  //m_bunchCrossingTime       = 24.95; // 24.95 ns =(40.08 MHz)^(-1)
-  //m_timeJitterElectronicsStrip   = 2.; // 2ns jitter of electronics from the threshold to peak
-  //m_timeJitterElectronicsPad     = 2.; // 2ns jitter of electronics for passing the threshold
-  m_GausMean                = 2.27;  //mm; VMM response from Oct/Nov 2013 test beam
-  m_GausSigma               = 0.1885;//mm; VMM response from Oct/Nov 2013 test beam
-  m_IntegralTimeOfElectr    = 20.00; // ns
-  m_CrossTalk               = 0.00; // Turn off cross-talk. Old guesstimate was 0.03: Alexandre Laurier 2020-10-11 
-  m_StripResolution         = 0.07; // Angular strip resolution parameter
-  m_ChargeSpreadFactor      = 0.;
-  m_channelTypes            = 3; // 1 -> strips, 2 -> strips+pad, 3 -> strips/wires/pads
-  m_theta = 0.8; // theta=0.8 value best matches the PDF
-  m_mean = 2E5;  // mean gain estimated from ATLAS note "ATL-MUON-PUB-2014-001" 
-  m_posResIncident = 1.0;
-  m_posResAngular = 12.0;
-}
-
+  : AthMessaging ("sTgcDigitMaker"),
+  m_hitIdHelper{hitIdHelper},
+  m_mdManager{mdManager},
+  m_doEfficiencyCorrection{doEfficiencyCorrection} {}
 //----- Destructor
-sTgcDigitMaker::~sTgcDigitMaker()
-{}
+sTgcDigitMaker::~sTgcDigitMaker() = default;
 //------------------------------------------------------
 // Initialize
 //------------------------------------------------------
 StatusCode sTgcDigitMaker::initialize(const int channelTypes)
 {
   // Initialize TgcIdHelper
-  if (m_hitIdHelper == nullptr) {
+  if (!m_hitIdHelper) {
     m_hitIdHelper = sTgcHitIdHelper::GetHelper();
   }
 
@@ -119,7 +97,7 @@ StatusCode sTgcDigitMaker::initialize(const int channelTypes)
 //---------------------------------------------------
 std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHit* hit, 
                                                                  const float /*globalHitTime*/, 
-                                                                 CLHEP::HepRandomEngine* rndmEngine) 
+                                                                 CLHEP::HepRandomEngine* rndmEngine) const
 { 
 
   // check the digitization channel type
@@ -477,7 +455,7 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
   // The angle dependance on strip resolution goes as tan^2(angle)
   const double angle_dependency = std::sqrt(m_posResIncident + m_posResAngular * tan_theta*tan_theta);
   // Smearing of the charge, no noise is considered yet
-  m_ChargeSpreadFactor = m_StripResolution * angle_dependency;
+  const double chargeSpreadFactor = m_StripResolution * angle_dependency;
 
   // Get the nominal strip width, which is 2.7 mm, while the strip pitch is 3.2 mm.
   const double stripWidth = detEl->getDesign(newId)->inputWidth;
@@ -561,7 +539,7 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
           if (stripnum >= middleStrip[1]) createNeighbor2 = false;
           continue;
         }
-        charge = CLHEP::RandGaussZiggurat::shoot(rndmEngine, charge, m_ChargeSpreadFactor*charge);
+        charge = CLHEP::RandGaussZiggurat::shoot(rndmEngine, charge, chargeSpreadFactor*charge);
         // Workaround to prevent negative charge
         if (charge < 0.0) charge = 0.;
 
@@ -584,7 +562,7 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
         ATH_MSG_VERBOSE("Created a strip digit: strip number = " << stripnum << ", charge = " << charge 
                         << ", time = " << strip_time << ", time offset = " << strip_time-sDigitTimeStrip 
                         << ", neighbor index = " << neighbor
-                        << ", charge stdev = " << m_ChargeSpreadFactor
+                        << ", charge stdev = " << chargeSpreadFactor
                         << ", strip position = (" << locpos.x() << "," << locpos.y() << ")");
 
         ++counter_strip;
@@ -1279,7 +1257,7 @@ double sTgcDigitMaker::getEnergyThreshold(const std::string& stationName, int st
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++
-bool sTgcDigitMaker::isDeadChamber(const std::string& stationName, int stationEta, int stationPhi, int multiPlet, int gasGap) {
+bool sTgcDigitMaker::isDeadChamber(const std::string& stationName, int stationEta, int stationPhi, int multiPlet, int gasGap) const {
   bool v_isDeadChamber = true;
 
   // Convert std::string stationName to int iStationName from 41 to 48
@@ -1314,7 +1292,7 @@ bool sTgcDigitMaker::isDeadChamber(const std::string& stationName, int stationEt
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++
-float sTgcDigitMaker::getChamberEfficiency(int stationName, int stationEta, int stationPhi, int multiPlet, int gasGap) {
+float sTgcDigitMaker::getChamberEfficiency(int stationName, int stationEta, int stationPhi, int multiPlet, int gasGap) const {
 
   // If the indices are valid, the energyThreshold array is fetched.
   if((stationName>=0 && stationName<2 ) &&
