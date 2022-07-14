@@ -42,6 +42,7 @@
 #include "DerivationFrameworkBPhys/MuPlusDpstCascade.h"
 #include "DerivationFrameworkBPhys/BPhysBGammaFinder.h"
 #include "DerivationFrameworkBPhys/JpsiPlusPsiCascade.h"
+#include "DerivationFrameworkBPhys/PsiPlusPsiCascade.h"
 
 using namespace DerivationFramework;
 
@@ -88,6 +89,7 @@ DECLARE_TOOL_FACTORY( MuPlusDsCascade )
 DECLARE_TOOL_FACTORY( MuPlusDpstCascade )
 DECLARE_TOOL_FACTORY( BPhysBGammaFinder )
 DECLARE_TOOL_FACTORY( JpsiPlusPsiCascade )
+DECLARE_TOOL_FACTORY( PsiPlusPsiCascade )
 
 DECLARE_FACTORY_ENTRIES( DerivationFrameworkBPhys ) {
    DECLARE_TOOL( Reco_mumu )
@@ -133,4 +135,5 @@ DECLARE_FACTORY_ENTRIES( DerivationFrameworkBPhys ) {
    DECLARE_TOOL( MuPlusDpstCascade )
    DECLARE_TOOL( BPhysBGammaFinder )
    DECLARE_TOOL( JpsiPlusPsiCascade )
+   DECLARE_TOOL( PsiPlusPsiCascade )
 }

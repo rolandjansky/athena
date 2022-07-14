@@ -123,7 +123,7 @@ namespace DerivationFramework {
     SG::AuxElement::Decorator<float> Pt_decor("Pt");
     SG::AuxElement::Decorator<float> PtErr_decor("PtErr");
 
-    // Get Jpsi container and identify the input Jpsi
+    // Get the containers and identify the input Jpsi and Psi
     const xAOD::VertexContainer  *jpsiContainer(nullptr);
     ATH_CHECK(evtStore()->retrieve(jpsiContainer, m_vertexContainerKey));
     const xAOD::VertexContainer  *psiContainer(nullptr);
@@ -227,9 +227,9 @@ namespace DerivationFramework {
     m_jpsi2MassLower(0.0),
     m_jpsi2MassUpper(20000.0),
     m_psiMassLower(0.0),
-    m_psiMassUpper(20000.0),
+    m_psiMassUpper(25000.0),
     m_MassLower(0.0),
-    m_MassUpper(20000.0),
+    m_MassUpper(31000.0),
     m_vtx1Daug1MassHypo(-1),
     m_vtx1Daug2MassHypo(-1),
     m_vtx1Daug3MassHypo(-1),
@@ -292,7 +292,7 @@ namespace DerivationFramework {
 
   StatusCode JpsiPlusPsiCascade::performSearch(std::vector<Trk::VxCascadeInfo*> *cascadeinfoContainer, std::vector<Trk::VxCascadeInfo*> *cascadeinfoContainer_noConstr) const {
     ATH_MSG_DEBUG( "JpsiPlusPsiCascade::performSearch" );
-    assert(cascadeinfoContainer!=nullptr);
+    assert(cascadeinfoContainer!=nullptr && cascadeinfoContainer_noConstr!=nullptr);
 
     // Get TrackParticle container (for setting links to the original tracks)
     const xAOD::TrackParticleContainer  *trackContainer(nullptr);
@@ -430,14 +430,14 @@ namespace DerivationFramework {
 	  std::vector<Trk::VertexID> cnstV;
 	  cnstV.clear();
 	  if ( !m_iVertexFitter->addMassConstraint(vID,tracksJpsi,cnstV,m_mass_jpsi).isSuccess() ) {
-	    ATH_MSG_WARNING("addMassConstraint for Jpsi2 failed");
+	    ATH_MSG_WARNING("addMassConstraint for Jpsi1 failed");
 	  }
 	}
 	if (m_constrJpsi2) {
 	  std::vector<Trk::VertexID> cnstV;
 	  cnstV.clear();
 	  if ( !m_iVertexFitter->addMassConstraint(vID2,tracksJpsi2,cnstV,m_mass_jpsi2).isSuccess() ) {
-	    ATH_MSG_WARNING("addMassConstraint for Jpsi failed");
+	    ATH_MSG_WARNING("addMassConstraint for Jpsi2 failed");
 	  }
 	}
 	// Do the work
