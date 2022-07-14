@@ -10,6 +10,10 @@
  * @author Frank Berghaus <fberghaus@anl.gov>
  * @date Dec 4, 2020
  */
+
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
 #include <ostream>
 #include <memory>
 #include <set>

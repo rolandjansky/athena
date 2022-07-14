@@ -89,6 +89,7 @@ atlas_add_test( ByteStreamMetadataToolTest
     GaudiKernel
     GoogleTestTools
     TestTools
+    CxxUtils
   POST_EXEC_SCRIPT noerror.sh )
 
 
