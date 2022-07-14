@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONALIGNGENALGS_COMBINEDMUONALIGNMODULE_H
@@ -34,10 +34,6 @@ namespace Muon {
         /** Constructor using AlgTool gives a MsgStream with CombinedMuonAlignModule for name
             and the the same output level as the AlgTool. */
         CombinedMuonAlignModule(const AlgTool* algtool, const Amg::Transform3D& transform = Amg::Transform3D::Identity());
-
-        /** This constructor gives a MsgStream with the name of the tool that created
-            the CombinedMuonAlignModule and the same output level. */
-        CombinedMuonAlignModule(MsgStream* log, const Amg::Transform3D& transform = Amg::Transform3D::Identity());
 
         virtual ~CombinedMuonAlignModule();
 

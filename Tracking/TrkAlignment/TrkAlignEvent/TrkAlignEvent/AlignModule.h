@@ -8,12 +8,11 @@
 #include "TrkEventPrimitives/ParamDefs.h"
 
 
-//#include "TrkDetElementBase/TrkDetElementBase.h"
+#include "AthenaBaseComps/AthMessaging.h"
 #include "Identifier/Identifier.h"
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkEventPrimitives/TrackStateDefs.h"
 
-//#include <algorithm>
 #include <vector>
 #include <string>
 
@@ -43,7 +42,7 @@ namespace Trk {
 
   void decomposeTransform(const Amg::Transform3D& transform, double* values);
   
-  class AlignModule {
+  class AlignModule : public AthMessaging {
        
   public:
     
@@ -71,11 +70,6 @@ namespace Trk {
                 const Amg::Transform3D& globalToAlignXform=Amg::Transform3D::Identity(),
                 const std::string& name="");
 
-    /** constructor gets msgSvc from parent and creates MsgStream with name AlignModule.  Transform is global to align frame transform */
-    AlignModule(MsgStream* log, 
-                const Amg::Transform3D& globalToAlignXform=Amg::Transform3D::Identity(),
-                const std::string& name="");
-                
     AlignModule() = delete; // don't allow constructor without IMessageSvc
     
     /**forbid copy constructor **/
@@ -247,8 +241,6 @@ namespace Trk {
 
     double m_trackchi2; // chi2 of tracks going through module
     int    m_nDoF;    // number of degrees of freedom for tracks going through module
-
-    MsgStream* m_log;
     
   }; // end class
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonAlignEvent/TgcAlignModule.h"
@@ -8,9 +8,6 @@
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
 
 namespace Muon {
-    //________________________________________________________________________
-    TgcAlignModule::TgcAlignModule(MsgStream* log, const Amg::Transform3D& transform) :
-        CombinedMuonAlignModule(log, transform), m_rootfile(nullptr), m_stripPositionTree(nullptr), m_wirePositionTree(nullptr), m_log(new MsgStream(*log)) {}
 
     //________________________________________________________________________
     TgcAlignModule::TgcAlignModule(const AlgTool* algtool, const Amg::Transform3D& transform) :
