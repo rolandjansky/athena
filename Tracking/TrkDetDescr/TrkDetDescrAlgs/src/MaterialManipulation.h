@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -43,19 +43,19 @@ namespace Trk {
         ~MaterialManipulation();
 
         /** standard Athena-Algorithm method */
-        StatusCode          initialize();
+        virtual StatusCode          initialize() override;
         
         /** standard Athena-Algorithm method */
-        StatusCode          execute();
+        virtual StatusCode          execute() override;
         
         /** standard Athena-Algorithm method */
-        StatusCode          finalize();
+        virtual StatusCode          finalize() override;
 
       private:
                  
          //!< input material properties
          std::string                           m_inputLayerMaterialMapName;
-         mutable const LayerMaterialMap*       m_inputLayerMaterialMap;
+         const LayerMaterialMap*               m_inputLayerMaterialMap;
 
          //!< output material properties
          std::string                           m_outputLayerMaterialMapName;
