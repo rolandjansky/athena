@@ -4,7 +4,7 @@ ExtraLRTElectronShowerShapes = ["LRTElectrons.Rhad.Rhad1.e277.Reta.Rphi.weta2.f1
 ExtraLRTElectronTruthInfo = ["LRTElectrons.lastEgMotherTruthType.lastEgMotherTruthOrigin.lastEgMotherTruthParticleLink.lastEgMotherPdgId"]
 LRTElectronsCPDetailedContent = ExtraLRTElectronShowerShapes + ExtraLRTElectronTruthInfo
 
-ExtraLRTElectronGSFVar = ["LRTGSFTrackParticles.parameterX.parameterPX.parameterPY.parameterPZ.parameterPosition.numberOfTRTHits.numberOfTRTOutliers.numberOfTRTHighThresholdHits.numberOfTRTHighThresholdOutliers.numberOfTRTXenonHits.eProbabilityComb.eProbabilityHT"]  
+ExtraLRTElectronGSFVar = ["LRTGSFTrackParticles.parameterX.parameterPX.parameterPY.parameterPZ.parameterPosition.numberOfTRTHits.numberOfTRTOutliers.numberOfTRTHighThresholdHits.numberOfTRTHighThresholdOutliers.numberOfTRTXenonHits.eProbabilityComb.eProbabilityHT.eProbabilityNN"]
 LRTGSFTracksCPDetailedContent = ExtraLRTElectronGSFVar
 
 LRTElectronsAddAmbiguityContent = ["LRTElectrons.DFCommonSimpleConvRadius.DFCommonSimpleConvPhi.DFCommonSimpleMee.DFCommonSimpleMeeAtVtx.DFCommonSimpleSeparation.DFCommonProdTrueRadius.DFCommonProdTruePhi.DFCommonProdTrueZ"]

@@ -69,6 +69,8 @@ def DerivationTrackIsoCfg(flags,**jwarg):
                 kwargs["ElCorTypes"] = trkcor_list
                 kwargs["ElCorTypesExtra"] = [[]]
                 kwargs["CustomConfigurationNameEl"] = name
+            if "Electrons" in object_types and "LRT" in postfix:
+                kwargs["ElectronCollectionContainerName"] = "LRTElectrons"
             if "Photons" in object_types:
                 kwargs["PhIsoTypes"] = ptcone_list
                 kwargs["PhCorTypes"] = trkcor_list
@@ -79,7 +81,9 @@ def DerivationTrackIsoCfg(flags,**jwarg):
                 kwargs["MuCorTypes"] = trkcor_list
                 kwargs["MuCorTypesExtra"] = [[]]
                 kwargs["CustomConfigurationNameMu"] = name
-
+            if "Muons" in object_types and not loose_cone and "LRT" in postfix:
+                kwargs["MuonCollectionContainerName"] = "MuonsLRT"
+                
             ## Track isolation tool 
             toolkwargs = {}
             # the TTVA tool is not the default choice
