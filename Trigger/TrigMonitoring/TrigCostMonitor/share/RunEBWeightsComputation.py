@@ -11,52 +11,71 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger('RunEBWeightsComputation.py')
 
 
-def ebComputingAlg(flags):
+def ebComputingAlg(flags, itemsMap = {}):
     acc = ComponentAccumulator()
 
     ebAlg = CompFactory.EnhancedBiasWeightCompAlg()
+    ebAlg.ChainToItemMap = itemsMap
     # To run with AOD
-    ebAlg.TrigDecisionTool = "Trig::TrigDecisionTool/TrigDecisionTool"
+    #ebAlg.TrigDecisionTool = "Trig::TrigDecisionTool/TrigDecisionTool"
     # To run with Run3 EB data
-    #ebAlg.FinalDecisionKey = "HLTNav_Summary"
+    from TrigDecisionTool.TrigDecisionToolConfig import getRun3NavigationContainerFromInput
+    ebAlg.FinalDecisionKey = getRun3NavigationContainerFromInput(ConfigFlags) #"HLTNav_Summary"
+    ebAlg.OutputLevel = ConfigFlags.Exec.OutputLevel
     acc.addEventAlgo(ebAlg)
 
     return acc
 
 
-def hltConfigSvcCfg(menuFile):
+def hltConfigSvcCfg(smk = -1, db = "", menuFile = ""):
     acc = ComponentAccumulator()
 
     hltConfigSvc = CompFactory.getComp("TrigConf::HLTConfigSvc")("HLTConfigSvc")
-    hltConfigSvc.InputType = "FILE"
-    hltConfigSvc.HLTJsonFileName = menuFile
+    if menuFile:
+        hltConfigSvc.InputType = "FILE"
+        hltConfigSvc.HLTJsonFileName = menuFile
+    elif smk > 0 and db:
+        hltConfigSvc.InputType = "DB"
+        hltConfigSvc.TriggerDB = db
+        hltConfigSvc.SMK = smk
 
     acc.addService(hltConfigSvc, False, True)
     return acc
 
 
-def l1PrescalesCfg(pskFile):
+def l1PrescalesCfg(psk = -1, db = "", pskFile = ""):
     acc = ComponentAccumulator()
 
     l1PrescaleCondAlg = CompFactory.getComp("TrigConf::L1PrescaleCondAlg")("L1PrescaleCondAlg")
-    l1PrescaleCondAlg.Source = "FILE"
-    l1PrescaleCondAlg.Filename = pskFile
+    if pskFile:
+        l1PrescaleCondAlg.Source = "FILE"
+        l1PrescaleCondAlg.Filename = pskFile
+    elif psk > 0 and db:
+        l1PrescaleCondAlg.Source = "DB"
+        l1PrescaleCondAlg.TriggerDB = db
+        l1PrescaleCondAlg.L1Psk = psk
 
     acc.addCondAlgo(l1PrescaleCondAlg)
     return acc
 
 
-def hltPrescalesCfg(pskFile):
+def hltPrescalesCfg(psk = -1, db = "", pskFile = ""):
     acc = ComponentAccumulator()
 
     hltPrescaleCondAlg = CompFactory.getComp("TrigConf::HLTPrescaleCondAlg")("HLTPrescaleCondAlg")
-    hltPrescaleCondAlg.Source = "FILE"
-    hltPrescaleCondAlg.Filename = pskFile
+    if pskFile:
+        hltPrescaleCondAlg.Source = "FILE"
+        hltPrescaleCondAlg.Filename = pskFile
+    elif psk > 0 and db:
+        hltPrescaleCondAlg.Source = "DB"
+        hltPrescaleCondAlg.TriggerDB = db
+        hltPrescaleCondAlg.HLTPsk = psk
 
     acc.addCondAlgo(hltPrescaleCondAlg)
     return acc
 
 
+# Look for ljson file in current dir
 def getJsonFile(name):
     # Try to find local menu file
     fileName = name + '.*json'
@@ -72,39 +91,29 @@ def getJsonFile(name):
     return foundFiles[0] if len(foundFiles) > 0 else ""
 
 
-def getConfigFiles(inputFile):
-    hltMenu = getJsonFile("HLTMenu")
-    hltPsk = getJsonFile("HLTPrescalesSet")
-    l1Psk = getJsonFile("L1PrescalesSet")
-
-    if not hltMenu or not hltPsk or not l1Psk:
-        log.info("Files not found - retrieving configuration from db")
-
-        import subprocess
-        configKeys = getConfigKeys(inputFile)
-        cmd = "TrigConfReadWrite -i {DB} {SMK},{L1PSK},{HLTPSK},{BGSK} -o r3json > Run3ConfigFetchJSONFiles.log".format(**configKeys)
-        log.info("Running command '%s'", cmd)
-        filesFetchStatus = subprocess.run(cmd, shell=True)
-        assert filesFetchStatus.returncode == 0, "TrigConfReadWrite failed to fetch JSON files"
-
-        hltMenu = getJsonFile("HLTMenu")
-        hltPsk = getJsonFile("HLTPrescalesSet")
-        l1Psk = getJsonFile("L1PrescalesSet")
-
-    log.info("Found files {0}, {1}, {2}".format(hltMenu, hltPsk, l1Psk))
-    return (hltMenu, hltPsk, l1Psk)
-
-
+# Read the keys from the COOL database
+# TODO - what if the prescales change?
 def getConfigKeys(inputFile):
     run = GetFileMD(inputFile)['runNumbers'][0]
     lb = GetFileMD(inputFile)['lumiBlockNumbers'][0]
 
     from TrigConfigSvc.TrigConfigSvcCfg import getTrigConfFromCool
-    triggerDBKeys = getTrigConfFromCool(run, lb)
-    triggerDBKeys['DB'] = 'TRIGGERDB' if run > 230000 else 'TRIGGERDB_RUN1'
+    return getTrigConfFromCool(run, lb)
 
-    return triggerDBKeys
 
+# Read the seeds of low and medium chain, not available in the menu (they are hlt seeded)
+def readHLTSeeds(smk=-1, db=""):
+    from TrigConfIO.HLTTriggerConfigAccess import HLTJobOptionsAccess
+    joData = HLTJobOptionsAccess(dbalias = db, smkey = smk)
+
+    import ast
+
+    chainToItem = {}
+    chainToItem["HLT_eb_low_L1RD2_FILLED"] = ast.literal_eval(joData.properties("EnhancedBiasHypo.HLT_eb_low_L1RD2_FILLED")["L1ItemNames"])
+    chainToItem["HLT_eb_medium_L1RD2_FILLED"] = ast.literal_eval(joData.properties("EnhancedBiasHypo.HLT_eb_medium_L1RD2_FILLED")["L1ItemNames"])
+
+    return chainToItem
+    
 
 if __name__=='__main__':
     import sys
@@ -112,31 +121,46 @@ if __name__=='__main__':
     parser = ArgumentParser()
     parser.add_argument('--maxEvents', type=int, help='Maximum number of events to process')
     parser.add_argument('--skipEvents',type=int, help='Number of events to skip')
-    parser.add_argument('--loglevel', type=int, default=3, help='Verbosity level')
+    parser.add_argument('--loglevel', type=int, default=3, help='Verbosity level: 1 - VERBOSE, 2 - DEBUG, 3 - INFO')
     parser.add_argument('flags', nargs='*', help='Config flag overrides')  
     args = parser.parse_args()
 
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     ConfigFlags.fillFromArgs(args.flags)
+    ConfigFlags.Trigger.triggerConfig = 'DB'
+    ConfigFlags.Exec.OutputLevel = args.loglevel
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
     cfg = MainServicesCfg(ConfigFlags)
 
-    hltMenuFile, hltPskFile, l1PskFile = getConfigFiles(ConfigFlags.Input.Files)
-    cfg.merge(hltConfigSvcCfg(hltMenuFile))
-    cfg.merge(l1PrescalesCfg(l1PskFile))
-    cfg.merge(hltPrescalesCfg(hltPskFile))
+    # TODO use main stream deserialisation when running from RAW and TDT when running from AOD
+    from TriggerJobOpts.TriggerRecoConfig import TriggerRecoCfg
+    cfg.merge( TriggerRecoCfg(ConfigFlags) )
 
     # TDT will be used until we get Run3 RAW EB data
-    from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    from AthenaMonitoring.TriggerInterface import TrigDecisionToolCfg
-    cfg.merge(PoolReadCfg(ConfigFlags))
-    cfg.merge(TrigDecisionToolCfg(ConfigFlags))
+    # from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
+    # from AthenaMonitoring.TriggerInterface import TrigDecisionToolCfg
+    # cfg.merge(PoolReadCfg(ConfigFlags))
+    # cfg.merge(TrigDecisionToolCfg(ConfigFlags))
 
-    cfg.merge(ebComputingAlg(ConfigFlags))
+    hltMenuFile, hltPskFile, l1PskFile = (getJsonFile("HLTMenu"), getJsonFile("HLTPrescalesSet"), getJsonFile("L1PrescalesSet"))
+    if not hltMenuFile or not hltPskFile or not l1PskFile:
+        log.info("Local files not found - retrieving configuration from db")
+        configKeys = getConfigKeys(ConfigFlags.Input.Files)
+        cfg.merge(hltConfigSvcCfg(smk = configKeys["SMK"], db = configKeys["DB"]))
+        cfg.merge(l1PrescalesCfg(psk = configKeys["L1PSK"], db = configKeys["DB"]))
+        cfg.merge(hltPrescalesCfg(psk = configKeys["HLTPSK"], db = configKeys["DB"]))
+    else:
+        cfg.merge(hltConfigSvcCfg(menuFile = hltMenuFile))
+        cfg.merge(l1PrescalesCfg(pskFile = l1PskFile))
+        cfg.merge(hltPrescalesCfg(pskFile = hltPskFile))
+
+    itemsMap = readHLTSeeds(smk = configKeys["SMK"], db = configKeys["DB"])
+
+    cfg.merge(ebComputingAlg(ConfigFlags, itemsMap))
 
     # If you want to turn on more detailed messages ...
     # exampleMonitorAcc.getEventAlgo('ExampleMonAlg').OutputLevel = 2 # DEBUG
