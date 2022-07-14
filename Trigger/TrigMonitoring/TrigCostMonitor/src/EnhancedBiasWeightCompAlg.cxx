@@ -37,13 +37,17 @@ StatusCode EnhancedBiasWeightCompAlg::start() {
     ATH_CHECK( hltMenuHandle.isValid() );
 
     // Save ids of EB chains - that contain "_eb_"
-    m_EBChainIds = std::vector<TrigCompositeUtils::DecisionID>();
+    m_EBChainIds = std::vector<HLT::Identifier>();
     for (const TrigConf::Chain& chain : *hltMenuHandle){
         std::vector<std::string> streams = chain.streams();
         if (std::find(streams.begin(), streams.end(), "EnhancedBias") != streams.end()){
             auto chainId = HLT::Identifier(chain.name());
             m_EBChainIds.push_back(chainId);
-            m_EBChainIdToItem[chainId] = parseItems(chain.l1item());
+            if ((chain.name().find("_eb_") != std::string::npos) && (!m_chainToItem.empty())) {
+                m_EBChainIdToItem[chainId] = m_chainToItem[chain.name()];
+            } else {
+                m_EBChainIdToItem[chainId] = parseItems(chain.l1item());
+            }
         }
     }
 
@@ -99,15 +103,23 @@ StatusCode EnhancedBiasWeightCompAlg::execute(const EventContext& context) const
         ATH_CHECK(decisionObject != nullptr);
         EBChains = getPassedEBChains(*decisionObject);
 
-        // Setup output handle
-        outputHandle = TrigCompositeUtils::createAndStore(m_EBWeightKey, context);
+        // Setup output handle, used when running the algorithm online - the chainToItem map is only filled when running online
+        // To be removed - kept due to frozen T0 policy
+        if (m_chainToItem.empty()){
+            outputHandle = TrigCompositeUtils::createAndStore(m_EBWeightKey, context);
+        }
     }
 
+    ATH_MSG_DEBUG("Number of eb chains that passed int this event: " << EBChains.size());
+
     // None of EB chains passed the algorithm
-    if (EBChains.empty()) return StatusCode::SUCCESS;
+    if (EBChains.empty()) {
+        ATH_MSG_DEBUG("Empty event!");
+        return StatusCode::SUCCESS;
+    }
 
     // Retrieve L1 and HLT prescales
-    ATH_CHECK( getPrescales(context, EBChains) );
+    ATH_CHECK( fillTotalPrescaleForChains(context, EBChains) );
     
     // Calculate EB weight
     EBResult result = calculateEBWeight(EBChains);
@@ -121,19 +133,21 @@ StatusCode EnhancedBiasWeightCompAlg::execute(const EventContext& context) const
         tc->setDetail<float>("EBWeight", result.weight);
         tc->setDetail<uint8_t>("EBUnbiased", result.isUnbiased);
     } else {
-
-        // Create xml filename (run number necessary)
+        // Save to xml file
+        // Create filename (run number necessary)
         if ( context.evt() == 0 ){
             std::stringstream filename;
             filename << "EnhancedBiasWeights_" << context.eventID().run_number() << ".xml";
             m_outputFilename = filename.str();
+            ATH_MSG_INFO("The output file name is " << m_outputFilename);
         }
 
         // Save to containers to be saved to xml
-        auto resultPair = std::make_pair<int, bool>(result.weight, result.isUnbiased);
+        auto resultPair = std::pair<double, bool>(result.weight, result.isUnbiased);
         auto newPair = std::find(m_ebWeights.begin(), m_ebWeights.end(), resultPair);
         if (newPair == m_ebWeights.end()){
             newPair = m_ebWeights.push_back(resultPair);
+            ATH_MSG_DEBUG("New weight value: " << result.weight << " with id " << (m_ebWeights.size()-1));
         }
         m_eventToWeight[context.eventID().event_number()] = std::distance(m_ebWeights.begin(), newPair);
     }
@@ -144,7 +158,7 @@ StatusCode EnhancedBiasWeightCompAlg::execute(const EventContext& context) const
 }
 
 
-StatusCode EnhancedBiasWeightCompAlg::getPrescales(const EventContext& context, std::vector<EBChainInfo>& EBChains) const {
+StatusCode EnhancedBiasWeightCompAlg::fillTotalPrescaleForChains(const EventContext& context, std::vector<EBChainInfo>& EBChains) const {
 
     SG::ReadCondHandle<TrigConf::HLTPrescalesSet> HLTPrescalesSet (m_HLTPrescaleSetInputKey, context);
     ATH_CHECK( HLTPrescalesSet.isValid() );
@@ -153,16 +167,17 @@ StatusCode EnhancedBiasWeightCompAlg::getPrescales(const EventContext& context, 
     ATH_CHECK( L1PrescalesSet.isValid() );
 
     for (EBChainInfo& chain : EBChains) {
-
+        ATH_MSG_DEBUG("Items  for " << chain.getName());
         double HLTPrescale = HLTPrescalesSet->prescale(chain.getId()).prescale;
         double L1Prescale = 1.0;
         if (!chain.getIsNoPS()) {
             for (const std::string& item : m_EBChainIdToItem.at(chain.getId())){
+                ATH_MSG_DEBUG("     " << item << " PS " << L1PrescalesSet->prescale(item).prescale);
                 L1Prescale *= L1PrescalesSet->prescale(item).prescale;
             }
         }
 
-        chain.setPrescale(HLTPrescale * L1Prescale);
+        chain.setTotalPrescale(HLTPrescale * L1Prescale);
     }
 
     return StatusCode::SUCCESS;
@@ -174,7 +189,8 @@ EnhancedBiasWeightCompAlg::EBResult EnhancedBiasWeightCompAlg::calculateEBWeight
     double weight = 1.;
 
     for (const EBChainInfo& chain : EBChains){
-       weight *= 1. - ( 1. / chain.getPrescale() );
+        ATH_MSG_DEBUG("Chain " << chain.getName() << " total prescale " << chain.getTotalPrescale());
+        weight *= 1. - ( 1. / chain.getTotalPrescale() );
     }
 
     weight = (std::fabs(1.0 - weight) < 1e-10) ? 0. : (1. / (1. - weight));
@@ -182,7 +198,7 @@ EnhancedBiasWeightCompAlg::EBResult EnhancedBiasWeightCompAlg::calculateEBWeight
     // Check if the event was triggered by EB noalg random chain
     bool isUnbiased = checkIfTriggeredByRandomChain(EBChains);
     
-    return {float(weight), isUnbiased}; 
+    return {double(weight), isUnbiased}; 
 }
 
 
@@ -190,9 +206,10 @@ std::vector<EnhancedBiasWeightCompAlg::EBChainInfo> EnhancedBiasWeightCompAlg::g
     
     std::vector<EBChainInfo> passedEBChains;
 
-    for (const TrigCompositeUtils::DecisionID& chainId : m_EBChainIds) {
+    for (const HLT::Identifier& chainId : m_EBChainIds) {
         if (std::find(decisionObject.decisions().begin(), decisionObject.decisions().end(), chainId) != decisionObject.decisions().end()) {
             passedEBChains.push_back(EBChainInfo(HLT::Identifier(chainId)));
+            ATH_MSG_DEBUG("Chain " << HLT::Identifier(chainId).name() << " passed in this event");
         }
     }
 

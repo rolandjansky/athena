@@ -145,6 +145,16 @@ void AFPSiDBasicKalmanTool::fillLayersWithClusters(AFPLocRecoStationBasicObj& my
   return;
 }
 
+bool AFPSiDBasicKalmanTool::areNeighbours(const xAOD::AFPSiHitsCluster* a, const xAOD::AFPSiHitsCluster* b) const
+{
+  const double dx = a->xLocal() - b->xLocal();
+  const double dy = a->yLocal() - b->yLocal();
+  const double maxDistanceSq = m_allowedDistanceBetweenClustersInSeed * m_allowedDistanceBetweenClustersInSeed;
+  
+  if (dx * dx + dy * dy > maxDistanceSq) { return false; }
+  return true;
+}
+
 StatusCode AFPSiDBasicKalmanTool::reconstructTracks(std::unique_ptr<xAOD::AFPTrackContainer>& outputContainer, const EventContext& ctx) const
 {
   SG::ReadHandle<xAOD::AFPSiHitsClusterContainer> hitsClusterContainer( m_hitsClusterContainerKey, ctx );
@@ -182,6 +192,10 @@ StatusCode AFPSiDBasicKalmanTool::reconstructTracks(std::unique_ptr<xAOD::AFPTra
 
   for (const xAOD::AFPSiHitsCluster* firstCluster : firstLayer)
     for (const xAOD::AFPSiHitsCluster* secondCluster : secondLayer) {
+    
+      // skip if clusters are too far
+      if(!areNeighbours(firstCluster, secondCluster)) continue;
+      
       // make the seed
       reconstructedTracks.emplace_back(firstCluster, secondCluster, m_observationModel, m_observationNoise, m_aposterioriCov);
       AFPSiDBasicKalmanToolTrack& theTrack = reconstructedTracks.back();

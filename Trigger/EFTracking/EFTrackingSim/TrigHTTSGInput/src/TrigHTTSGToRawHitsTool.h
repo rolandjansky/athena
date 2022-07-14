@@ -82,7 +82,7 @@ private:
   Gaudi::Property<bool>        m_UseNominalOrigin { this, "UseNominalOrigin", false, "if true truth values are always with respect to (0,0,0)" };
   Gaudi::Property<double>      m_maxEta { this, "maxEta", 3.3 };
   Gaudi::Property<double>      m_minPt { this, "minPt", .8*CLHEP::GeV };
-
+  Gaudi::Property<int>    m_simBarcodeOffset{this, "SimBarcodeOffset",200000};
 
   //internal pointers
   AtlasDetectorID* m_idHelper = nullptr;

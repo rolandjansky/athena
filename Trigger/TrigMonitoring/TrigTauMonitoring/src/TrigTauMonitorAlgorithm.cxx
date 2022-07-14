@@ -291,19 +291,19 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, const s
       fillRNNInputVars( trigger, offline_for_hlt_tau_vec_1p,"1P", false );
       fillRNNTrack( trigger, offline_for_hlt_tau_vec_1p, false );
       fillRNNCluster( trigger, offline_for_hlt_tau_vec_1p, false );
-      fillbasicVars( trigger, offline_for_hlt_tau_vec_1p, "1P", false);
+      fillbasicVars( ctx, trigger, offline_for_hlt_tau_vec_1p, "1P", false);
     }
 
     if( !offline_for_hlt_tau_vec_3p.empty()){
       fillRNNInputVars( trigger, offline_for_hlt_tau_vec_3p,"3P", false );
       fillRNNTrack( trigger, offline_for_hlt_tau_vec_3p, false );
       fillRNNCluster( trigger, offline_for_hlt_tau_vec_3p, false );
-      fillbasicVars( trigger, offline_for_hlt_tau_vec_3p, "3P", false);
+      fillbasicVars( ctx, trigger, offline_for_hlt_tau_vec_3p, "3P", false);
     }
 
     // fill information for online 0 prong taus
     if(!online_tau_vec_0p.empty()){
-      fillbasicVars( trigger, online_tau_vec_0p, "0P", true);
+      fillbasicVars( ctx, trigger, online_tau_vec_0p, "0P", true);
       fillRNNInputVars( trigger, online_tau_vec_0p,"0P", true );
       fillRNNTrack( trigger, online_tau_vec_0p, true );
       fillRNNCluster( trigger, online_tau_vec_0p, true );
@@ -311,7 +311,7 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, const s
 
     // fill information for online 1 prong taus
     if(!online_tau_vec_1p.empty()){
-      fillbasicVars( trigger, online_tau_vec_1p, "1P", true);
+      fillbasicVars( ctx, trigger, online_tau_vec_1p, "1P", true);
       fillRNNInputVars( trigger, online_tau_vec_1p,"1P", true );
       fillRNNTrack( trigger, online_tau_vec_1p, true );
       fillRNNCluster( trigger, online_tau_vec_1p, true );
@@ -319,7 +319,7 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, const s
 
     // fill information for online multiprong prong taus 
     if(!online_tau_vec_mp.empty()){
-      fillbasicVars( trigger, online_tau_vec_mp, "MP", true);
+      fillbasicVars( ctx, trigger, online_tau_vec_mp, "MP", true);
       fillRNNInputVars( trigger, online_tau_vec_mp,"MP", true );
       fillRNNTrack( trigger, online_tau_vec_mp, true );
       fillRNNCluster( trigger, online_tau_vec_mp, true );
@@ -976,7 +976,7 @@ void TrigTauMonitorAlgorithm::fillRNNCluster(const std::string& trigger, const s
   ATH_MSG_DEBUG("After fill  RNN input Cluster: " << trigger);
 }
 
-void TrigTauMonitorAlgorithm::fillbasicVars(const std::string& trigger, const std::vector<const xAOD::TauJet*>& tau_vec,const std::string& nProng, bool online) const
+void TrigTauMonitorAlgorithm::fillbasicVars(const EventContext& ctx, const std::string& trigger, const std::vector<const xAOD::TauJet*>& tau_vec,const std::string& nProng, bool online) const
 {
   ATH_MSG_DEBUG("Fill Basic Variables: " << trigger); 
 
@@ -1000,7 +1000,22 @@ void TrigTauMonitorAlgorithm::fillbasicVars(const std::string& trigger, const st
   auto hRNNScore = Monitored::Collection("hRNNScore", tau_vec, [] (const xAOD::TauJet* tau){ return tau->discriminant(xAOD::TauJetParameters::RNNJetScore);});
   auto hRNNScoreSigTrans = Monitored::Collection("hRNNScoreSigTrans", tau_vec, [] (const xAOD::TauJet* tau){ return tau->discriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans);});
 
-  fill(monGroup, hEFEt,hEFEta,hEFPhi,hEFnTrack,hEFnWideTrack, hRNNScore, hRNNScoreSigTrans);
+  auto haverageMu = Monitored::Scalar<float>("haverageMu",0.0); 
+  haverageMu = lbAverageInteractionsPerCrossing(ctx);
+ 
+  auto hTauVertexX =  Monitored::Collection("hTauVertexX", tau_vec,  [] (const xAOD::TauJet* tau){ double vtx = -999.;
+                                                                                             if( tau->vertex() != nullptr ) {vtx = tau->vertex()->x();}
+                                                                                             return vtx;});
+
+  auto hTauVertexY =  Monitored::Collection("hTauVertexY", tau_vec,  [] (const xAOD::TauJet* tau){ double vty = -999.;
+                                                                                             if( tau->vertex() != nullptr ) {vty = tau->vertex()->y();}
+                                                                                             return vty;});
+  
+  auto hTauVertexZ =  Monitored::Collection("hTauVertexZ", tau_vec,  [] (const xAOD::TauJet* tau){ double vtz = -999.;
+                                                                                             if( tau->vertex() != nullptr ) {vtz = tau->vertex()->z();}
+                                                                                             return vtz;});
+
+  fill(monGroup, hEFEt,hEFEta,hEFPhi,hEFnTrack,hEFnWideTrack, hRNNScore, hRNNScoreSigTrans, haverageMu, hTauVertexX, hTauVertexY, hTauVertexZ);
 
   ATH_MSG_DEBUG("After fill Basic variables: " << trigger);
 

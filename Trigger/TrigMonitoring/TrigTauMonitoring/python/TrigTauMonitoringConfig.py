@@ -421,7 +421,7 @@ class TrigTauMonAlgBuilder:
                             xbins=140,xmin=10,xmax=80,
                              ybins=42,ymin=-1,ymax=20,opt='kAlwaysCreate')
     monGroup.defineHistogram('L1RoIEt', title='L1 RoI Tau Clust Energy; E_{T}[GeV]; N RoI',xbins=30,xmin=0,xmax=150,opt='kAlwaysCreate')
-    monGroup.defineHistogram('L1RoIRCore', title='L1 RoI RCore isolation; rCore isolation; N RoI',xbins=20,xmin=0,xmax=2,opt='kAlwaysCreate')
+    monGroup.defineHistogram('L1RoIRCore', title='L1 RoI RCore isolation; rCore isolation; N RoI',xbins=40,xmin=0,xmax=4,opt='kAlwaysCreate')
     monGroup.defineHistogram('L1RoIRHad' , title='L1 RoI RHAD isolation; rHad isolation; N RoI'  ,xbins=20,xmin=0,xmax=2,opt='kAlwaysCreate')
     monGroup.defineHistogram('L1RoIIso', title='L1 RoI isolation; isolation [GeV]; N RoI'  ,xbins=15,xmin=0,xmax=30,opt='kAlwaysCreate')
                              
@@ -524,6 +524,10 @@ class TrigTauMonAlgBuilder:
 
     monGroup.defineHistogram('hRNNScore', title='EF RNN score; RNN score;Nevents',xbins=20,xmin=0,xmax=1,opt='kAlwaysCreate')
     monGroup.defineHistogram('hRNNScoreSigTrans', title='EF RNN trans score; RNN Trans score;Nevents',xbins=20,xmin=0,xmax=1,opt='kAlwaysCreate')
+    monGroup.defineHistogram('haverageMu', title='EF averageMu; averageMu; Nevents',xbins=20,xmin=0,xmax=80,opt='kAlwaysCreate')
+    monGroup.defineHistogram('hTauVertexX', title='EF Tau Vertex X; Tau Vertex X; Nevents', xbins=100, xmin=-1, xmax=1, opt='kAlwaysCreate')
+    monGroup.defineHistogram('hTauVertexY', title='EF Tau Vertex Y; Tau Vertex Y; Nevents', xbins=100, xmin=-2, xmax=0, opt='kAlwaysCreate')
+    monGroup.defineHistogram('hTauVertexZ', title='EF Tau Vertex Z; Tau Vertex Z; Nevents', xbins=120, xmin=-120, xmax=120, opt='kAlwaysCreate')
 
   def bookDiTauVars(self, monAlg, trigger):
     

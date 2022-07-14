@@ -102,7 +102,7 @@ def MooTrackBuilderCfg(flags, name="MooTrackBuilderTemplate", prefix="", **kwarg
     kwargs.setdefault("CompetingClustersCreator", muon_comp_cluster_creator)    
     
     from TrkConfig.TrkExSTEP_PropagatorConfig import AtlasSTEP_PropagatorCfg
-    muon_prop = result.popToolsAndMerge(AtlasSTEP_PropagatorCfg(flags))
+    muon_prop = result.popToolsAndMerge(AtlasSTEP_PropagatorCfg(flags, name = 'MuonStraightLinePropagator'))
     kwargs.setdefault("Propagator", muon_prop) 
     kwargs.setdefault("ChamberHoleRecoveryTool",  
                      result.popToolsAndMerge(MuonChamberHoleRecoveryToolCfg(flags))) 

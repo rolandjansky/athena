@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GENERATORFILTERS_DecayPositionFilter_H
@@ -22,9 +22,10 @@ public:
 
 private:
 
-  double m_RCut;
-  int    m_PDGID;
-  int    m_MinPass;
+  Gaudi::Property<double> m_RCut{this, "RCut", 400.};
+  Gaudi::Property<int>    m_PDGID{this, "PDG", 3000001};
+  Gaudi::Property<int>    m_MinPass{this, "MinPass", 2};
+  Gaudi::Property<int>    m_simBarcodeOffset{this, "SimBarcodeOffset",200000};
 };
 
 #endif

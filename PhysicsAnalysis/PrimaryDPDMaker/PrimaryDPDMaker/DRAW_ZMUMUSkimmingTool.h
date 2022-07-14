@@ -38,20 +38,21 @@ namespace DerivationFramework {
     ~DRAW_ZMUMUSkimmingTool();
     
     // Athena algtool's Hooks
-    StatusCode  initialize();
-    StatusCode  finalize();
+    StatusCode  initialize() override;
+    StatusCode  finalize() override;
     
     /** Check that the current event passes this filter */
-    virtual bool eventPassesFilter() const;
+    bool eventPassesFilter() const override;
     
   private:
     mutable std::atomic<unsigned int> m_ntot{0};
     mutable std::atomic<unsigned int> m_npass{0};
 
     SG::ReadHandleKey<xAOD::MuonContainer> m_muonSGKey{this,"MuonContainerKey","Muons"};
-    ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
-    unsigned int m_nMuons;
-    double m_muonPtCut;
+
+    ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool{this,"MuonSelectorTool", "CP::MuonSelectionTool/MuonSelectionTool"};
+    Gaudi::Property<unsigned int> m_nMuons{this, "MinimumNumberOfMuons", 1};
+    Gaudi::Property<float> m_muonPtCut{this, "MuonPtCut", 20.};
 
   }; 
   

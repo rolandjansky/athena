@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -136,7 +136,9 @@ class LumiblockHistogramProviderTestSuite {
         TNamed* const result = testObj.histogram();
         VALUE(result) EXPECTED(&histogram);
       }
-      VALUE( m_gmTool->histSvc().mock_registered.size() ) EXPECTED ( 1 );
+      // We keep histograms active for the last 5 LBs. That means on LB 9 we have
+      // histograms covering LBs 5-9 registered, i.e. the last 3 from expectedFlow.
+      VALUE( m_gmTool->histSvc().mock_registered.size() ) EXPECTED ( 3 );
     }
 
     void test_shouldCreateNewHistogramWithUpdatedLumiBlock() {

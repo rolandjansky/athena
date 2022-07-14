@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Allows the user to search for particles with specified decay positions
@@ -19,9 +19,6 @@
 DecayPositionFilter::DecayPositionFilter(const std::string& name, ISvcLocator* pSvcLocator)
   : GenFilter(name, pSvcLocator)
 {
-  declareProperty("RCut",m_RCut = 400.);
-  declareProperty("PDG",m_PDGID = 3000001);
-  declareProperty("MinPass",m_MinPass=2);
 }
 
 
@@ -42,7 +39,7 @@ StatusCode DecayPositionFilter::filterEvent() {
         bool notSelfDecay = true;
         if (!pitr->end_vertex()) continue;
         for ( auto child:  *(pitr->end_vertex())) {
-                if ( child->pdg_id() == pitr->pdg_id() && HepMC::barcode(child)!=HepMC::barcode(pitr) && HepMC::barcode(child) < 100000) {
+                if ( child->pdg_id() == pitr->pdg_id() && HepMC::barcode(child)!=HepMC::barcode(pitr) && HepMC::barcode(child) < m_simBarcodeOffset) {
                   notSelfDecay = false;
                   break;
                 }

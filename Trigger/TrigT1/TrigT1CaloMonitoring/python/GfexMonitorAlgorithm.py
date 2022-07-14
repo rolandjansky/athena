@@ -28,109 +28,158 @@ def GfexMonitoringConfig(inputFlags):
     mainDir = 'L1Calo'
     trigPath = 'Gfex/'
 
+    etabins=32
+    etamin=-3.3
+    etamax=3.3
+    phibins=34
+    phimin=-3.3
+    phimax=3.3
+
     # add monitoring algorithm to group, with group name and main directory 
     myGroup = helper.addGroup(GfexMonAlg, groupName , mainDir)
 
     # define gfex histograms
     myGroup.defineHistogram('gFexLRJetTransverseEnergy;h_gFexLRJetTransverseEnergy',
-                            title='gFex LRJet Transverse Energy [MeV]',
+                            title='gFex LRJet Transverse Energy; gFexLRJet Et [MeV]; counts',
                             type='TH1F', path=trigPath,
-                            xbins=100,xmin=0,xmax=1000)
+                            xbins=100,xmin=0,xmax=819200)
 
     myGroup.defineHistogram('gFexLRJetEta;h_gFexLRJetEta',
-                            title='gFex LRJet Eta',
+                            title='gFex LRJet #eta; #eta; counts',
                             type='TH1F', path=trigPath,
-                            xbins=60,xmin=-3.0,xmax=3.0)
+                            xbins=etabins,xmin=etamin,xmax=etamax)
 
     myGroup.defineHistogram('gFexLRJetPhi;h_gFexLRJetPhi',
-                            title='gFex LRJet Phi',
+                            title='gFex LRJet #phi;  #phi; counts',
                             type='TH1F', path=trigPath,
-                            xbins=100,xmin=-math.pi,xmax=math.pi)
+                            xbins=phibins,xmin=phimin,xmax=phimax)
 
     myGroup.defineHistogram('gFexRhoTransverseEnergy;h_gFexRhoTransverseEnergy',
-                            title='gFex Rho Transverse Energy [MeV]',
+                            title='gFex Rho Transverse Energy; gFexRho Et [MeV]; counts',
                             type='TH1F', path=trigPath,
-                            xbins=100,xmin=0,xmax=1000)
+                            xbins=100,xmin=-300000,xmax=300000)
+
 
     myGroup.defineHistogram('gFexSRJetTransverseEnergy;h_gFexSRJetTransverseEnergy',    
-                            title='gFex SRJet Transverse Energy [MeV]',
+                            title='gFex SRJet Transverse Energy; gFexSRJet Et [MeV]; counts',
                             type='TH1F', path=trigPath,
-                            xbins=100,xmin=-100,xmax=1000)
+                            xbins=100,xmin=-100,xmax=819200)
 
     myGroup.defineHistogram('gFexSRJetEta;h_gFexSRJetEta',
-                            title='gFex SRJet Eta',
+                            title='gFex SRJet #eta; #eta; counts',
                             type='TH1F', path=trigPath,
-                            xbins=60,xmin=-3.0,xmax=3.0)
+                            xbins=etabins,xmin=etamin,xmax=etamax)
 
     myGroup.defineHistogram('gFexSRJetPhi;h_gFexSRJetPhi',
-                            title='gFex SRJet Phi',
+                            title='gFex SRJet #phi; #phi; counts',
                             type='TH1F', path=trigPath,
-                            xbins=100,xmin=-math.pi,xmax=math.pi)
+                            xbins=32,xmin=-math.pi,xmax=math.pi)
 
     myGroup.defineHistogram('gFexType;h_gFexType',
-                            title='gFex Type for all Trigger Objects',
+                            title='gFex Type for all Trigger Objects; gFex Types',
+                            xlabels=["gRho", "gBlockLead", "gBlockSub", "gJet"],
                             type='TH1F', path=trigPath,
                             xbins=4,xmin=0,xmax=4)
 
     myGroup.defineHistogram('gFexLRJetEta,gFexLRJetPhi;h_gFexLRJetEtaPhiMap_weighted',
-                            title="gFexLRJet Eta vs Phi;gFexLRJet Eta;gFexLRJet Phi;gFexLRJet TransverseEnergy",
+                            title="gFexLRJet #eta vs #phi;gFexLRJet #eta;gFexLRJet #phi;gFexLRJet TransverseEnergy",
                             type='TH2F',path=trigPath,weight="gFexLRJetTransverseEnergy",
-                            xbins=60,xmin=-3.0,xmax=3.0,ybins=64,ymin=0,ymax=math.pi)
+                            xbins=etabins,xmin=etamin,xmax=etamax,ybins=32,ymin=0,ymax=math.pi)
 
     myGroup.defineHistogram('gFexSRJetEta,gFexSRJetPhi;h_gFexSRJetEtaPhiMap_weighted',
-                            title="gFexSRJet Eta vs Phi;gFexSRJet Eta;gFexSRJet Phi;gFexSRJet TransverseEnergy",
+                            title="gFexSRJet #eta vs #phi;gFexSRJet #eta;gFexSRJet #phi;gFexSRJet TransverseEnergy",
                             type='TH2F',path=trigPath,weight="gFexSRJetTransverseEnergy",
-                            xbins=60,xmin=-3.0,xmax=3.0,ybins=64,ymin=0,ymax=math.pi)
+                            xbins=etabins,xmin=etamin,xmax=etamax,ybins=32,ymin=0,ymax=math.pi)
     
     myGroup.defineHistogram('gFexLRJetEta,gFexLRJetPhi;h_gFexLRJetEtaPhiMap',
-                            title="gFexLRJe Eta vs Phi;gFexLRJet Eta;gFexLRJet Phi",
+                            title="gFexLRJe #eta vs #phi;gFexLRJet #eta;gFexLRJet #phi",
                             type='TH2F',path=trigPath,
-                            xbins=60,xmin=-3.0,xmax=3.0,ybins=64,ymin=0,ymax=math.pi)
+                            xbins=etabins,xmin=etamin,xmax=etamax,ybins=32,ymin=0,ymax=math.pi)
 
     myGroup.defineHistogram('gFexSRJetEta,gFexSRJetPhi;h_gFexSRJetEtaPhiMap',
-                            title="gFexSRJe Eta vs Phi;gFexSRJet Eta;gFexSRJet Phi",
+                            title="gFexSRJet #eta vs #phi;gFexSRJet #eta;gFexSRJet #phi",
                             type='TH2F',path=trigPath,
-                            xbins=60,xmin=-3.0,xmax=3.0,ybins=64,ymin=0,ymax=math.pi)
+                            xbins=etabins,xmin=etamin,xmax=etamax,ybins=32,ymin=0,ymax=math.pi)
 
     myGroup.defineHistogram('gFexMET;h_gFexMET',
-                            title='gFex MET [MeV]',
+                            title='gFex MET obtained with jets without jets algorithm;MET [MeV];counts',
                             type='TH1F', path=trigPath,
                             xbins=100,xmin=0,xmax=600000)
 
     myGroup.defineHistogram('gFexSumET;h_gFexSumET',
-                            title='gFex SumET [MeV]',
+                            title='gFex SumET obtained with jets without jets algorithm ; SumET [MeV];counts',
                             type='TH1F', path=trigPath,
                             xbins=100,xmin=0,xmax=5000000)
 
     myGroup.defineHistogram('gFexMETx;h_gFexMETx',
-                            title='gFex MET x',
+                            title='gFex MET x obtained with jets without jets algorithm ; MET x [MeV];counts',
                             type='TH1F', path=trigPath,
                             xbins=100,xmin=-300000,xmax=300000)
 
     myGroup.defineHistogram('gFexMETy;h_gFexMETy',
-                            title='gFex MET y',
+                            title='gFex MET y obtained with jets without jets algorithm ; MET y [MeV];counts',
                             type='TH1F', path=trigPath,
                             xbins=100,xmin=-300000,xmax=300000)
 
     myGroup.defineHistogram('gFexMHTx;h_gFexMHTx',
-                            title='gFex MHT x',
+                            title='gFex MHT x obtained with jets without jets algorithm; MHT x [MeV];counts',
                             type='TH1F', path=trigPath,
                             xbins=100,xmin=-300000,xmax=300000)
 
     myGroup.defineHistogram('gFexMHTy;h_gFexMHTy',
-                            title='gFex MHT y',
+                            title='gFex MHT y obtained with jets without jets algorithm;MHT y [MeV];counts',
                             type='TH1F', path=trigPath,
                             xbins=100,xmin=-300000,xmax=300000)
 
     myGroup.defineHistogram('gFexMSTx;h_gFexMSTx',
-                            title='gFex MST x',
+                            title='gFex MST x obtained with jets without jets algorithm;MST x [MeV];counts',
                             type='TH1F', path=trigPath,
                             xbins=100,xmin=-200000,xmax=200000)
 
     myGroup.defineHistogram('gFexMSTy;h_gFexMSTy',
-                            title='gFex MST y',
+                            title='gFex MST y obtained with jets without jets algorithm;MST y [MeV];counts',
                             type='TH1F', path=trigPath,
                             xbins=100,xmin=-200000,xmax=200000)
+
+    myGroup.defineHistogram('gFexMETx_NoiseCut;h_gFexMETx_NoiseCut',
+                            title='gFex MET x obtained with noise cut algorithm;MET x [MeV]; counts',
+                            type='TH1F', path=trigPath,
+                            xbins=100,xmin=-600000,xmax=600000)
+
+    myGroup.defineHistogram('gFexMETy_NoiseCut;h_gFexMETy_NoiseCut',
+                            title='gFex MET y obtained with noise cut algorithm;MET y [MeV]; counts',
+                            type='TH1F', path=trigPath,
+                            xbins=100,xmin=-600000,xmax=600000)
+
+    myGroup.defineHistogram('gFexMETx_ComponentsRms;h_gFexMETx_ComponentsRms',
+                            title='gFex MET x obtained with Rho+RMS algorithm;MET x [MeV]; counts',
+                            type='TH1F', path=trigPath,
+                            xbins=100,xmin=-600000,xmax=600000)
+
+    myGroup.defineHistogram('gFexMETy_ComponentsRms;h_gFexMETy_ComponentsRms',
+                            title='gFex MET y obtained with Rho+RMS algorithm;MET y [MeV]; counts',
+                            type='TH1F', path=trigPath,
+                            xbins=100,xmin=-600000,xmax=600000)
+
+    myGroup.defineHistogram('gFexMET_NoiseCut;h_gFexMET_NoiseCut',
+                            title='gFex MET [MeV] obtained with noise cut algorithm;MET [MeV]; counts',
+                            type='TH1F', path=trigPath,
+                            xbins=100,xmin=-10000,xmax=1000000)
+
+    myGroup.defineHistogram('gFexSumET_NoiseCut;h_gFexSumET_NoiseCut',
+                            title='gFex SumET [MeV] obtained with noise cut algorithm;Sum ET [MeV]; counts',
+                            type='TH1F', path=trigPath,
+                            xbins=100,xmin=0,xmax=2500000)
+
+    myGroup.defineHistogram('gFexMET_Rms;h_gFexMET_Rms',
+                            title='gFex MET [MeV] obtained with Rho+RMS algorithm;MET [MeV]; counts',
+                            type='TH1F', path=trigPath,
+                            xbins=100,xmin=-100000,xmax=1000000)
+
+    myGroup.defineHistogram('gFexSumET_Rms;h_gFexSumET_Rms',
+                            title='gFex SumET [MeV] obtained with Rho+RMS algorithm;Sum ET [MeV]; counts',
+                            type='TH1F', path=trigPath,
+                            xbins=100,xmin=0,xmax=2000000)
 
     acc = helper.result()
     result.merge(acc)
