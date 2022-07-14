@@ -93,14 +93,17 @@ def TrigFastTrackFinderMonitoring(name, doResMon=False):
             montool.defineHistogram('trk_a0',     path='EXPERT',type='TH1F',title="a0",xbins = 100, xmin=-300, xmax=300)
             montool.defineHistogram('trk_a0beam', path='EXPERT',type='TH1F',title="a0beam",xbins = 100, xmin=-300, xmax=300)
             montool.defineHistogram('trk_z0',     path='EXPERT',type='TH1F',title="z0",xbins = 100, xmin=-800, xmax=800)
+            montool.defineHistogram('trk_z0beam', path='EXPERT',type='TH1F',title="z0beam",xbins = 100, xmin=-800, xmax=800)
         elif name=='fullScanLRT':
             montool.defineHistogram('trk_a0',     path='EXPERT',type='TH1F',title="a0",xbins = 100, xmin=-300, xmax=300)
             montool.defineHistogram('trk_a0beam', path='EXPERT',type='TH1F',title="a0beam",xbins = 100, xmin=-300, xmax=300)
             montool.defineHistogram('trk_z0',     path='EXPERT',type='TH1F',title="z0",xbins = 100, xmin=-550, xmax=550)
+            montool.defineHistogram('trk_z0beam', path='EXPERT',type='TH1F',title="z0beam",xbins = 100, xmin=-550, xmax=550)
         else:
             montool.defineHistogram('trk_a0',     path='EXPERT',type='TH1F',title="a0",xbins = 200, xmin=-10, xmax=10)
             montool.defineHistogram('trk_a0beam', path='EXPERT',type='TH1F',title="a0beam",xbins = 200, xmin=-10, xmax=10)
             montool.defineHistogram('trk_z0',     path='EXPERT',type='TH1F',title="z0",xbins = 200, xmin=-400, xmax=400)
+            montool.defineHistogram('trk_z0beam', path='EXPERT',type='TH1F',title="z0beam",xbins = 200, xmin=-400, xmax=400)
 
     def addResidualHistograms(self):
         montool.defineHistogram('layer_IBL',                 path='EXPERT',type='TH1F',title="IBL layer",xbins = 10, xmin=0., xmax=10.)

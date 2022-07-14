@@ -8,18 +8,18 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 
 from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
 
-def ParticleCaloExtensionToolCfg(flags, **kwargs):
+def ParticleCaloExtensionToolCfg(flags, name='ParticleCaloExtensionTool', **kwargs):
     acc=ComponentAccumulator()
 
     if "Extrapolator" not in kwargs:
         kwargs["Extrapolator"] = acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags))
 
-    caloExtensionTool = CompFactory.Trk.ParticleCaloExtensionTool(**kwargs)
+    caloExtensionTool = CompFactory.Trk.ParticleCaloExtensionTool(name, **kwargs)
 
     acc.setPrivateTools(caloExtensionTool)
     return acc
 
-def ParticleCaloCellAssociationToolCfg(flags, **kwargs):
+def ParticleCaloCellAssociationToolCfg(flags, name='ParticleCaloCellAssociationTool', **kwargs):
     acc=ComponentAccumulator()
 
     if "ParticleCaloExtensionTool" not in kwargs:
@@ -29,13 +29,8 @@ def ParticleCaloCellAssociationToolCfg(flags, **kwargs):
     # should this be a more global flag? It depends on whether you are in AOD
     kwargs.setdefault("CaloCellContainer", flags.Egamma.Keys.Input.CaloCells)
 
-    cellAssocTool = CompFactory.Rec.ParticleCaloCellAssociationTool(**kwargs)
+    cellAssocTool = CompFactory.Rec.ParticleCaloCellAssociationTool(name, **kwargs)
 
     acc.setPrivateTools(cellAssocTool)
     return acc
-
-# Still to do, ParticleCaloClusterAssociationToolCfg and MuonCaloEnergyToolCfg
-# They still have public tools
-
-#---------------------------------------
 

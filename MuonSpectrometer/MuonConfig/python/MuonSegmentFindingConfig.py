@@ -22,7 +22,7 @@ from AthenaConfiguration.Enums import BeamType, Format
 
 #Local
 from MuonConfig.MuonCalibrationConfig import MdtCalibrationDbToolCfg
-from TrkConfig.TrkGlobalChi2FitterConfig import MCTBFitterCfg, MCTBSLFitterMaterialFromTrackCfg
+from TrkConfig.TrkGlobalChi2FitterConfig import MCTBFitterCfg, MCTBSLFitterCfg, MCTBSLFitterMaterialFromTrackCfg
 from MuonConfig.MuonRecToolsConfig import MuonAmbiProcessorCfg, MuonTrackCleanerCfg, MuonEDMPrinterToolCfg
 from MuonConfig.MuonCondAlgConfig import MuonStationIntersectCondAlgCfg
 from TrkConfig.AtlasExtrapolatorConfig import MuonStraightLineExtrapolatorCfg
@@ -108,9 +108,9 @@ def MuonSegmentFittingToolCfg(flags, name = "MuonSegmentFittingTool",  **kwargs)
     kwargs.setdefault("SLPropagator", 
                       result.popPrivateTools())
     kwargs.setdefault("SLFitter", 
-                      result.popToolsAndMerge(MCTBFitterCfg(flags, name = "MCTBSLFitter", StraightLine=True)))
+                      result.popToolsAndMerge(MCTBSLFitterCfg(flags)))
     kwargs.setdefault("CurvedFitter", 
-                      result.popToolsAndMerge(MCTBFitterCfg(flags, name = "MCTBFitter")))
+                      result.popToolsAndMerge(MCTBFitterCfg(flags)))
     kwargs.setdefault("TrackCleaner", result.popToolsAndMerge(MuonTrackCleanerCfg(flags)))
   
     result.setPrivateTools(CompFactory.Muon.MuonSegmentFittingTool(name,**kwargs))    
@@ -479,7 +479,11 @@ def MuonClusterSegmentFinderToolCfg(flags, **kwargs):
     kwargs.setdefault('SLFitter', result.popToolsAndMerge( MCTBSLFitterMaterialFromTrackCfg(flags) ) ) 
     kwargs.setdefault("TrackToSegmentTool", result.popToolsAndMerge( MuonTrackToSegmentToolCfg(flags) ) )
     kwargs.setdefault("Printer", result.popToolsAndMerge(MuonEDMPrinterToolCfg(flags)) )
-    kwargs.setdefault('TrackCleaner', result.popToolsAndMerge( MuonTrackCleanerCfg(flags) ) ) 
+
+    kwargs.setdefault('TrackCleaner', result.popToolsAndMerge( MuonTrackCleanerCfg(flags, "MuonTrackCleaner_seg",
+                              PullCut = 3,
+                              PullCutPhi = 3,
+                              UseSLFit = True) ) ) 
     kwargs.setdefault('TrackSummaryTool', result.popToolsAndMerge( MuonCombinedTrackSummaryToolCfg(flags) ) ) 
     from MuonConfig.MuonRIO_OnTrackCreatorToolConfig import MuonClusterOnTrackCreatorCfg, MMClusterOnTrackCreatorCfg
         
@@ -516,7 +520,7 @@ def MuonClusterSegmentFinderCfg(flags, name = " MuonClusterSegmentFinder", **kwa
     # Won't explicitly configure MuonClusterizationTool
     kwargs.setdefault("MuonClusterOnTrackCreator", result.popToolsAndMerge(MuonClusterOnTrackCreatorCfg(flags)) )
     kwargs.setdefault("TrackToSegmentTool", result.popToolsAndMerge( MuonTrackToSegmentToolCfg(flags) ) )
-    kwargs.setdefault('SLFitter', result.popToolsAndMerge( MCTBFitterCfg(flags, name = "SLFitter", StraightLine=True) ) ) 
+    kwargs.setdefault('SLFitter', result.popToolsAndMerge( MCTBSLFitterCfg(flags) ) ) 
     kwargs.setdefault('AmbiguityProcessor', result.popToolsAndMerge( MuonAmbiProcessorCfg(flags) ) ) 
     kwargs.setdefault('TrackCleaner', result.popToolsAndMerge( MuonTrackCleanerCfg(flags) ) ) 
     kwargs.setdefault('MuonSegmentOverlapRemovalTool', CompFactory.Muon.MuonSegmentOverlapRemovalTool(Printer=edm_printer)) 
@@ -672,13 +676,10 @@ def MuonSegmentFinderAlgCfg(flags, name="MuonSegmentMaker", **kwargs):
     # Configure subtools needed by MuonClusterSegmentFinderTool
     extrapolator = result.getPrimaryAndMerge(MuonStraightLineExtrapolatorCfg(flags))
     result.addPublicTool(extrapolator)
-    slfitter = result.getPrimaryAndMerge(MCTBSLFitterMaterialFromTrackCfg(flags))
     cleaner = result.getPrimaryAndMerge(MuonTrackCleanerCfg(flags, "MuonTrackCleaner_seg",
                               PullCut = 3,
                               PullCutPhi = 3,
-                              UseSLFit = True,
-                              Extrapolator = extrapolator,
-                              Fitter = slfitter))
+                              UseSLFit = True))
     segment_finder = result.getPrimaryAndMerge(MuonClusterSegmentFinderToolCfg(flags, name ="MuonClusterSegmentFinderTool", 
                                           TrackCleaner = cleaner))
     kwargs.setdefault("MuonClusterSegmentFinderTool", segment_finder)

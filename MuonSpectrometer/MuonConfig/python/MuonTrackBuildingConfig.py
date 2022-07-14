@@ -24,7 +24,7 @@ def MooTrackFitterCfg(flags, name = 'MooTrackFitter', prefix='', **kwargs):
     kwargs.setdefault("HitTool", mu_pat_hit_tool)
     
     from TrkConfig.TrkExSTEP_PropagatorConfig import AtlasSTEP_PropagatorCfg
-    muon_prop =  result.popToolsAndMerge(AtlasSTEP_PropagatorCfg(flags))
+    muon_prop =  result.popToolsAndMerge(AtlasSTEP_PropagatorCfg(flags, name='MuonPropagator'))
     
     kwargs.setdefault("Propagator",      muon_prop)
     kwargs.setdefault("SLFit" ,   not (flags.BField.barrelToroidOn and flags.BField.endcapToroidOn) )

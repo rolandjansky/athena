@@ -184,6 +184,8 @@ def MuonInDetToMuonSystemExtensionAlgCfg(flags, name="MuonInDetToMuonSystemExten
         MuonSystemExtensionToolCfg(flags))
     kwargs.setdefault("MuonSystemExtensionTool", muon_ext_tool)
     kwargs.setdefault("WriteStauCandidates", "InDetCandidatesStaus")
+    kwargs.setdefault("UseOnlyHitSectors", flags.Beam.Type is BeamType.Collisions)
+    
     alg = CompFactory.MuonInDetToMuonSystemExtensionAlg(name, **kwargs)
     result.addEventAlgo(alg, primary=True)
     return result
@@ -705,11 +707,12 @@ if __name__ == "__main__":
     cfg.merge(MuonPrepDataConvCfg(ConfigFlags))
 
     # "Fixes" to get this working standalone i.e. from ESD
-    # Configure topocluster algorithmsm, and associated conditions
+    # Configure topocluster algorithms, and associated conditions
     acc = MuonCombinedReconstructionCfg(ConfigFlags)
     cfg.merge(acc)
 
-    
+    # This causes a stall due to missing HoughDataPerSectorVec
+    cfg.getEventAlgo('MuonInDetToMuonSystemExtensionAlg').UseOnlyHitSectors = False 
 
     # This causes a stall. See https://its.cern.ch/jira/browse/ATEAM-825
     # Leaving here for the moment, for convenience investigating this bug.

@@ -694,13 +694,11 @@ def dictFromChainName(chainInfo):
         thisExtra = chainPart['extra']
         thisL1 = chainPart['L1threshold']
         thisChainPartName = chainPart['chainPartName']
-        #incorrectL1=False
 
         if thisSignature in ['Muon','Bphysics']:
             if 'MuonnoL1' in thisAlignGroup or 'lateMu' in thisExtra:
                 if 'FSNOSEED' not in thisL1:
                     log.error("Muon noL1 and lateMu chain should be seeded from FSNOSEED. Check %s seeded from %s (defined L1: %s), signature %s",chainDict['chainName'],thisL1,l1Thresholds,thisSignature)
-                    #incorrectL1=True
             else:
                 if 'MU' not in thisL1:
                     log.error("Standard muon and Bphysics chain should be seeded from L1_MU. Check %s seeded from %s (defined L1: %s), signature %s",chainDict['chainName'],thisL1,l1Thresholds,thisSignature)

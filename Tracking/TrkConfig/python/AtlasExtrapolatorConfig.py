@@ -330,6 +330,7 @@ def InDetExtrapolatorCfg(flags, name='InDetExtrapolator', **kwargs):
 def MuonExtrapolatorCfg(flags, name="MuonExtrapolator", **kwargs):
     from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasMultipleScatteringUpdatorCfg
     from TrkConfig.TrkExSTEP_PropagatorConfig import AtlasSTEP_PropagatorCfg
+
     # Muon set the STEP also as the single "Global" propagator
     result = ComponentAccumulator()
 
@@ -385,6 +386,9 @@ def MuonStraightLineExtrapolatorCfg(flags,
     extrap = result.popToolsAndMerge(
         MuonExtrapolatorCfg(flags, name, **kwargs))
     result.setPrivateTools(extrap)
+    result.addPublicTool(extrap) 
+    # This ^ should be done by the client with the public tool, but since it's hard to track down
+    # (and since Extrapolators are a specicial case), just be pragmatic for now
     return result
 
 

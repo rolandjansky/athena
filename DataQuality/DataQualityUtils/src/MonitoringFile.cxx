@@ -369,7 +369,7 @@ void MonitoringFile::mergeObjsMultiCycles(const std::string& keyname,
                 const std::vector<int>& cycles,
                 TDirectory* dir,
                 const std::string & mergeType,
-                std::shared_ptr<TObject>& obj) {
+                std::unique_ptr<TObject>& obj) {
    if (cycles.size() == 0) {
       return;
    }
@@ -532,7 +532,7 @@ mergeDirectory( TDirectory* outputDir, const std::vector<TFile*>& inputFiles, bo
      //std::cerr<<"Skipping keyname "<keyname<<std::endl;
      continue; //skip everything except directories 
    }
-   std::shared_ptr<TObject> obj(key->ReadObj());
+   std::unique_ptr<TObject> obj(key->ReadObj());
          if (obj.get() == 0) {
             std::cerr << "MonitoringFile::mergeDirectory(): "
                << "In directory \"" << inputDir->GetPath() << "\",\n"
@@ -548,7 +548,6 @@ mergeDirectory( TDirectory* outputDir, const std::vector<TFile*>& inputFiles, bo
          TEfficiency* e(0);
          TDirectory* d(0);
          TTree* t(0);
-         std::shared_ptr<TObject> targetObj;
    //moved inside if to speedup
 //          h = dynamic_cast<TH1*>( obj.get() );
 //          d = dynamic_cast<TDirectory*>( obj.get() );
@@ -610,13 +609,12 @@ mergeDirectory( TDirectory* outputDir, const std::vector<TFile*>& inputFiles, bo
         TDirectory* currentDir = gDirectory;
         outputDir->cd();
         TTree* t2 = t->CloneTree();
-        targetObj.reset(t2);
+        // this disconnects parent tree
+        obj.reset(t2);
         currentDir->cd();
-      } else {
-        targetObj = obj;
       }
       mergeObjsMultiCycles(keyName, kcit->second, inputDir,
-         mergeType, targetObj);
+         mergeType, obj);
             for( std::vector<TFile*>::const_iterator j = i+1; j!= inputFilesEnd; ++j ) {
                TFile* nextInputFile = *j;
                TDirectory* nextInputDir = nextInputFile->GetDirectory( getInputDirectory(outputDirName, *j, has_multiple_runs, prefixes).c_str() );
@@ -630,15 +628,15 @@ mergeDirectory( TDirectory* outputDir, const std::vector<TFile*>& inputFiles, bo
          populateCycleVector(tl, nextCycles);
      
          mergeObjsMultiCycles(kcit->first, nextCycles, 
-                   nextInputDir, mergeType, targetObj);
+                   nextInputDir, mergeType, obj);
 
             }
             outputDir->cd();
-      if (h) {
+      if ((h = dynamic_cast<TH1*>(obj.get()))) {
         h->SetDirectory(outputDir);
       }
 
-      targetObj->Write();
+      obj->Write();
          }else if( (targetDir) && (t = dynamic_cast<TTree*>(obj.get())) ) {
       // do not merge metadata
    }else if((d = dynamic_cast<TDirectory*>( obj.get() ))) {
@@ -655,7 +653,6 @@ mergeDirectory( TDirectory* outputDir, const std::vector<TFile*>& inputFiles, bo
          << "  Object \"" << key->GetName() << "\" will not be merged\n";
          }
 
-         //delete obj;
       }
    }
 

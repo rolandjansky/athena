@@ -5,9 +5,11 @@
 from AthenaCommon import CfgMgr
 
 def MMCalibSmearingTool(name="MMCalibSmearingTool",extraFlags=None,**kwargs):
+    kwargs["EtaSectors"] = [True,True, True, True]
     return CfgMgr.Muon__NSWCalibSmearingTool(name,**kwargs)
 
 def STgcCalibSmearingTool(name="STgcCalibSmearingTool",extraFlags=None,**kwargs):
+    kwargs["EtaSectors"] = [True,True, True, True, True, True]
     return CfgMgr.Muon__NSWCalibSmearingTool(name,**kwargs)
 
 def NSWCalibTool(name="NSWCalibTool",extraFlags=None,**kwargs):

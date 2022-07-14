@@ -37,9 +37,10 @@ def MM_RangeCfg(flags, name="MMRange", **kwargs):
 
 def MM_DigitizationToolCfg(flags, name="MM_DigitizationTool", **kwargs):
     """Return ComponentAccumulator with configured MM_DigitizationTool"""
-    from MuonConfig.MuonCalibrationConfig import NSWCalibToolCfg
+    from MuonConfig.MuonCalibrationConfig import NSWCalibToolCfg, MMCalibSmearingToolCfg
     result = ComponentAccumulator()
     kwargs.setdefault("CalibrationTool", result.popToolsAndMerge(NSWCalibToolCfg(flags)))
+    kwargs.setdefault("SmearingTool", result.popToolsAndMerge(MMCalibSmearingToolCfg(flags)))
     result.merge(MagneticFieldSvcCfg(flags))
     if flags.Digitization.PileUp:
         intervals = []

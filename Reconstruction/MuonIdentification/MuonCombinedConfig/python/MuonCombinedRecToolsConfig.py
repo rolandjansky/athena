@@ -122,17 +122,18 @@ def MuonInDetForwardCandidateToolCfg(flags,  name='MuonInDetForwardCandidateTool
 def MuonCaloEnergyToolCfg(flags,  name="MuonCaloEnergyTool", **kwargs):
     from TrackToCalo.TrackToCaloConfig import ParticleCaloCellAssociationToolCfg, ParticleCaloExtensionToolCfg
 
-    result = ParticleCaloCellAssociationToolCfg(flags)
+
+    result = ParticleCaloCellAssociationToolCfg(flags, name='MuonCaloCellAssociationTool')
     particle_calo_cell_association_tool = result.getPrimary()
 
     particle_calo_extension_tool = result.popToolsAndMerge(
-        ParticleCaloExtensionToolCfg(flags))
+        ParticleCaloExtensionToolCfg(flags, name='MuonParticleCaloExtensionTool'))
 
     from TrkConfig.TrkParticleCreatorConfig import MuonCaloParticleCreatorCfg
     track_particle_creator = result.popToolsAndMerge(
         MuonCaloParticleCreatorCfg(flags))
 
-    muonCaloEnergyTool = CompFactory.Rec.MuonCaloEnergyTool(name="MuonCaloEnergy", ParticleCaloExtensionTool=particle_calo_extension_tool,
+    muonCaloEnergyTool = CompFactory.Rec.MuonCaloEnergyTool(name, ParticleCaloExtensionTool=particle_calo_extension_tool,
                                                             ParticleCaloCellAssociationTool=particle_calo_cell_association_tool,
                                                             TrackParticleCreator=track_particle_creator)
     result.setPrivateTools(muonCaloEnergyTool)
@@ -147,14 +148,14 @@ def MuonMaterialProviderToolCfg(flags,  name="MuonTrkMaterialProviderTool", **kw
     atlas_extrapolator = result.popPrivateTools()
     kwargs.setdefault("Extrapolator", atlas_extrapolator)
     result.addPublicTool(atlas_extrapolator)
-    kwargs.setdefault("MuonCaloEnergyTool", result.popToolsAndMerge(MuonCaloEnergyToolCfg(flags, name = "MuonCaloEnergy")))
+    kwargs.setdefault("MuonCaloEnergyTool", result.popToolsAndMerge(MuonCaloEnergyToolCfg(flags, name = "MuonCaloEnergyTool")))
     
-    # MuonCaloEnergy is actually a private tool
+    # MuonCaloEnergyTool is actually a private tool
     calo_meas_tool = result.popToolsAndMerge(MuidCaloEnergyMeasCfg(flags))
     kwargs.setdefault("CaloMeasTool", calo_meas_tool)
     result.addPublicTool(calo_meas_tool)
 
-    calo_param_tool = result.popToolsAndMerge(MuidCaloEnergyMeasCfg(flags))
+    calo_param_tool = MuidCaloEnergyParam(flags)
     kwargs.setdefault("CaloParamTool", calo_param_tool)
     result.addPublicTool(calo_param_tool)
 
@@ -548,7 +549,9 @@ def MuidCaloEnergyMeasCfg(flags, name='MuidCaloEnergyMeas', **kwargs):
 
 def MuidCaloEnergyToolParamCfg(flags, name='MuidCaloEnergyToolParam', **kwargs):
     kwargs.setdefault("EnergyLossMeasurement", False)
-    return MuidCaloEnergyToolCfg(flags, **kwargs)
+    if flags.Beam.Type is BeamType.Cosmics:
+        kwargs.setdefault("Cosmics", True )
+    return MuidCaloEnergyToolCfg(flags, name, **kwargs)
 
 
 def MuidTrackIsolationCfg(flags, name='MuidTrackIsolation', **kwargs):
@@ -1007,7 +1010,6 @@ def MuonCaloTagToolCfg(flags, name='MuonCaloTagTool', **kwargs):
 def MuonLayerSegmentFinderToolCfg(flags, name="MuonLayerSegmentFinderTool", **kwargs):
     from MuonConfig.MuonSegmentFindingConfig import DCMathSegmentMakerCfg, MuonClusterSegmentFinderToolCfg, MuonPRDSelectionToolCfg
     result = ComponentAccumulator()
-
     
     from MuonConfig.MuonSegmentFindingConfig import Csc2dSegmentMakerCfg, Csc4dSegmentMakerCfg
     kwargs.setdefault("Csc2DSegmentMaker", result.popToolsAndMerge(Csc2dSegmentMakerCfg(flags))  if flags.Detector.GeometryCSC  else "" )
