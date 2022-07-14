@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -11,14 +11,14 @@
 
 // Gaudi includes
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "GaudiKernel/MsgStream.h"
 
 // ATHENA
 #include "GaudiKernel/ServiceHandle.h"
 #include "Gaudi/Property.h"  /*no forward decl: typedef*/
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/EventContext.h"
-#include "GaudiKernel/RndmGenerators.h"
+#include "AthenaKernel/IAthRNGSvc.h"
+#include "AthenaKernel/RNGWrapper.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 // ACTS
 #include "ActsGeometryInterfaces/IActsExtrapolationTool.h"
@@ -118,10 +118,6 @@ namespace Trk
       ToolHandle<Trk::IExtrapolator> m_atlasExtrapolator {this, "Extrapolator", "Trk::Extrapolator/AtlasExtrapolator"};
 
 
-      /** Random Number setup */
-      Rndm::Numbers*                    m_gaussDist;
-      Rndm::Numbers*                    m_flatDist;
-      
       double                            m_sigmaD0;                    //!< Sigma of distribution for D0
       double                            m_sigmaZ0;                    //!< Sigma of distribution for Z0
       double                            m_minPhi;                     //!< Minimal phi value
@@ -149,7 +145,8 @@ namespace Trk
       
       ServiceHandle<PropResultRootWriterSvc> m_atlasPropResultWriterSvc;
       ServiceHandle<PropResultRootWriterSvc> m_actsPropResultWriterSvc;
-      
+      ServiceHandle<IAthRNGSvc> m_rndmSvc;
+      ATHRNG::RNGWrapper* m_randomEngine;
     }; 
 } // end of namespace
 
