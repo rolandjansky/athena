@@ -209,3 +209,25 @@ def getPFlowfJVTTool(jetdef, modspec):
                                                   includePV = True)
 
     return fJVTTool
+
+
+def getPFlowbJVTTool(jetdef, modspec):
+
+    from JetCalibTools import JetCalibToolsConfig
+    jetCalibrationTool = JetCalibToolsConfig.getJetCalibToolFromString(jetdef, "AnalysisLatest:mc:JetArea_Residual_EtaJES")
+
+    wPFOTool = CompFactory.getComp('CP::WeightPFOTool')("bJVT__wPFO")
+
+    trackingKeys = jetContextDic[modspec or jetdef.context]
+
+    bJVTTool = CompFactory.JetBalancePFlowJvtTool('bJVT',
+                                                  verticesName = trackingKeys["Vertices"],
+                                                  TrackVertexAssociation = trackingKeys["TVA"],
+                                                  WeightPFOTool = wPFOTool,
+                                                  JetCalibrationTool = jetCalibrationTool,
+                                                  FEName = jetdef.inputdef.containername,
+                                                  ORNameFE = "",
+                                                  BjvtRawName = 'DFCommonJets_bJvt',
+                                                  includePV = True)
+
+    return bJVTTool

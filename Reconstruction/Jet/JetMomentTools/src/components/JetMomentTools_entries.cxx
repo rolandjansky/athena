@@ -7,6 +7,7 @@
 #include "JetMomentTools/JetVertexNNTagger.h"
 #include "JetMomentTools/JetForwardJvtTool.h"
 #include "JetMomentTools/JetForwardPFlowJvtTool.h"
+#include "JetMomentTools/JetBalancePFlowJvtTool.h"
 #include "JetMomentTools/JetTrackMomentsTool.h"
 #include "JetMomentTools/JetTrackSumMomentsTool.h"
 #include "JetMomentTools/JetClusterMomentsTool.h"
@@ -34,6 +35,7 @@ DECLARE_COMPONENT( JetVertexTaggerTool )
 DECLARE_COMPONENT( JetPileupTag::JetVertexNNTagger )
 DECLARE_COMPONENT( JetForwardJvtTool )
 DECLARE_COMPONENT(JetForwardPFlowJvtTool)
+DECLARE_COMPONENT(JetBalancePFlowJvtTool)
 DECLARE_COMPONENT( JetTrackMomentsTool )
 DECLARE_COMPONENT( JetTrackSumMomentsTool )
 DECLARE_COMPONENT( JetClusterMomentsTool )

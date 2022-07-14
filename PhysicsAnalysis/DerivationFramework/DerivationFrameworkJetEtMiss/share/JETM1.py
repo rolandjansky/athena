@@ -125,6 +125,15 @@ jetm1Seq += CfgMgr.DerivationFramework__DerivationKernel("JETM1Kernel" ,
                                                          SkimmingTools = JETM1SkimmingTools,
                                                          ThinningTools = thinningTools)
 
+#=======================================
+# SCHEDULE ADDITIONAL JET DECORATIONS
+#=======================================
+
+from JetRecConfig.StandardJetMods import stdJetModifiers
+from JetRecConfig.JetRecConfig import getModifier
+
+bJVTTool = getModifier(AntiKt4EMPFlow, stdJetModifiers['bJVT'], stdJetModifiers['bJVT'].modspec)
+jetm1Seq += CfgMgr.JetDecorationAlg('bJVTAlg', JetContainer='AntiKt4EMPFlowJets', Decorators=[bJVTTool])
 
 #=======================================
 # R = 0.4 track-jets (needed for Rtrk)
@@ -163,6 +172,7 @@ JETM1SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "Primar
 JETM1SlimmingHelper.ExtraVariables  = ["AntiKt4EMTopoJets.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1",
                                        "AntiKt4EMPFlowJets.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1",
                                        "AntiKt4EMPFlowJets.GhostTower",
+                                       "AntiKt4EMPFlowJets.passOnlyBJVT","AntiKt4EMPFlowJets.DFCommonJets_bJvt",
                                        "InDetTrackParticles.truthMatchProbability", 
                                        "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets.zg.rg.NumTrkPt1000.TrackWidthPt1000.GhostMuonSegmentCount.EnergyPerSampling.GhostTrack",
                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.zg.rg",

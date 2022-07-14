@@ -11,6 +11,8 @@
 #include "JetMomentTools/JetConstitFourMomTool.h"
 #include "JetMomentTools/JetECPSFractionTool.h"
 #include "JetMomentTools/JetForwardJvtTool.h"
+#include "JetMomentTools/JetForwardPFlowJvtTool.h"
+#include "JetMomentTools/JetBalancePFlowJvtTool.h"
 #include "JetMomentTools/JetLArHVTool.h"
 #include "JetMomentTools/JetOriginCorrectionTool.h"
 #include "JetMomentTools/JetPtAssociationTool.h"

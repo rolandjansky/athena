@@ -132,6 +132,11 @@ stdJetModifiers.update(
                                  createfn=JetMomentToolsConfig.getPFlowfJVTTool,
                                  prereqs = ["input:EventDensity","input:PrimaryVertices"],
                                  JetContainer = _jetname),
+
+    bJVT =           JetModifier("JetBalancePFlowJvtTool", "bJVT",
+                                 createfn=JetMomentToolsConfig.getPFlowbJVTTool,
+                                 prereqs = ["input:EventDensity","input:PrimaryVertices"],
+                                 JetContainer = _jetname),
 )
 
 # Truth labelling moments
