@@ -63,8 +63,8 @@ class RecMomentumQualityValidation : public AthAlgorithm {
       // TOFO: define also eta boundary limits
 
       /** counters */
-      mutable std::vector<unsigned int> m_nHundred, m_nFifty, m_nTwenty, m_nTen, m_nFakeOrLost;
-      mutable std::vector<unsigned int> m_tHundred, m_tFifty, m_tTwenty, m_tTen, m_tFakeOrLost;
+      std::vector<unsigned int> m_nHundred, m_nFifty, m_nTwenty, m_nTen, m_nFakeOrLost;
+      std::vector<unsigned int> m_tHundred, m_tFifty, m_tTwenty, m_tTen, m_tFakeOrLost;
 };
 
 } // end of namespace
