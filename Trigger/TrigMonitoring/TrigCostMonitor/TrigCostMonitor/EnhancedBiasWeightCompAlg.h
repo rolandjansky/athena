@@ -21,7 +21,7 @@
 
 /**
  *  @class EnhancedBiasWeightCompAlg
- *  @brief Compute Enhanced Bias weight
+ *  @brief Compute Enhanced Bias weights for the events
  **/
 
 class EnhancedBiasWeightCompAlg : public AthReentrantAlgorithm {
@@ -46,18 +46,18 @@ class EnhancedBiasWeightCompAlg : public AthReentrantAlgorithm {
 
         std::string getName() const {return m_id.name();}
         TrigCompositeUtils::DecisionID getId() const {return m_id;}
-        float getPrescale() const {return m_totalPrescale;}
+        double getTotalPrescale() const {return m_totalPrescale;}
         bool getIsRandom() const {return (getName().find("HLT_noalg_eb_L1RD") != std::string::npos);}
         bool getIsNoPS() const {return (getName().find("noPS") != std::string::npos);}
 
-        void setPrescale(const float& prescale) {m_totalPrescale = prescale;}
+        void setTotalPrescale(const double& prescale) {m_totalPrescale = prescale;}
 
       private:
         /// HLTID of the chain
         HLT::Identifier m_id;
 
         /// Value of total prescale L1 * HLT
-        float m_totalPrescale;
+        double m_totalPrescale;
     };
 
     /**
@@ -65,7 +65,7 @@ class EnhancedBiasWeightCompAlg : public AthReentrantAlgorithm {
      *  @brief Store result of EB weight calculation
      **/
     struct EBResult {
-      float weight {1.0};
+      double weight {1.0};
       uint8_t isUnbiased {};
     };
 
@@ -77,11 +77,13 @@ class EnhancedBiasWeightCompAlg : public AthReentrantAlgorithm {
     SG::ReadCondHandleKey<TrigConf::HLTPrescalesSet> m_HLTPrescaleSetInputKey {this, "HLTPrescales", "HLTPrescales", "HLT prescales set"};
     SG::ReadCondHandleKey<TrigConf::L1PrescalesSet> m_L1PrescaleSetInputKey {this, "L1Prescales", "L1Prescales", "L1 prescales set"};
 
+    Gaudi::Property<std::map<std::string, std::vector<std::string>>> m_chainToItem {this, "ChainToItemMap", {}, "Map for HLT seeded chains" };
+
     /// Calculate EB result based on total prescales of chains
     EBResult calculateEBWeight(const std::vector<EBChainInfo>& EBChains) const;
 
     /// Retrieve total prescales (L1 * HLT) for chains into map
-    StatusCode getPrescales(const EventContext& context, std::vector<EBChainInfo>& EBChains) const;
+    StatusCode fillTotalPrescaleForChains(const EventContext& context, std::vector<EBChainInfo>& EBChains) const;
 
     /// Get list of Enhanced Bias chains that passed
     std::vector<EBChainInfo> getPassedEBChains(const TrigCompositeUtils::Decision& decisionObject) const;
@@ -93,19 +95,19 @@ class EnhancedBiasWeightCompAlg : public AthReentrantAlgorithm {
     std::vector<std::string> parseItems(const std::string& itemStr);
 
     /// Available EB chains' IDs from HLT Menu
-    std::vector<TrigCompositeUtils::DecisionID> m_EBChainIds;
+    std::vector<HLT::Identifier> m_EBChainIds;
 
     /// L1 items for EB chains from HLT Menu
-    std::map<TrigCompositeUtils::DecisionID, std::vector<std::string>> m_EBChainIdToItem;
+    std::map<HLT::Identifier, std::vector<std::string>> m_EBChainIdToItem;
 
     /// Name of xml output file
     mutable std::string m_outputFilename ATLAS_THREAD_SAFE;
 
     /// List of calculated weight + unbiased flag pairs to be saved in xml
-    mutable tbb::concurrent_vector<std::pair<int, bool>> m_ebWeights ATLAS_THREAD_SAFE;
+    mutable tbb::concurrent_vector<std::pair<double, bool>> m_ebWeights ATLAS_THREAD_SAFE;
 
     /// Map of event number to index in m_ebWeights vector to be saved in xml
-    mutable tbb::concurrent_unordered_map<int, int> m_eventToWeight ATLAS_THREAD_SAFE;
+    mutable tbb::concurrent_unordered_map<int, double> m_eventToWeight ATLAS_THREAD_SAFE;
 
 };
 
