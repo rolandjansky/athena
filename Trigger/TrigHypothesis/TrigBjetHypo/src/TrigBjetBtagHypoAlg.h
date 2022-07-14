@@ -49,6 +49,7 @@ class TrigBjetBtagHypoAlg : public TrigBjetHypoAlgBase {
   virtual StatusCode monitor_tracks( const EventContext& context, const TrigCompositeUtils::DecisionContainer* prevDecisionContainer ) const;
   virtual StatusCode monitor_primary_vertex( const ElementLink< xAOD::VertexContainer >& primVertexEL ) const;
   virtual StatusCode monitor_flavor_probabilities( const ElementLinkVector< xAOD::BTaggingContainer >& bTaggingEL, const std::string& var_name) const;
+  virtual StatusCode monitor_flavor_bb_probabilities( const ElementLinkVector< xAOD::BTaggingContainer >& bTaggingEL, const std::string& var_name) const;
   virtual ElementLinkVector<xAOD::BTaggingContainer> collect_valid_links(
       const ElementLinkVector< xAOD::BTaggingContainer >& bTaggingEL, std::string tagger ) const;
   virtual StatusCode monitor_btagging( const ElementLinkVector< xAOD::BTaggingContainer >& bTaggingEL ) const;

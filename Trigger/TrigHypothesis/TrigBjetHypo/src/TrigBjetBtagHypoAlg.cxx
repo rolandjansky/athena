@@ -362,6 +362,27 @@ StatusCode TrigBjetBtagHypoAlg::monitor_flavor_probabilities( const ElementLinkV
   return StatusCode::SUCCESS;
 }
 
+StatusCode TrigBjetBtagHypoAlg::monitor_flavor_bb_probabilities( const ElementLinkVector< xAOD::BTaggingContainer >& bTaggingEL, const std::string& var_name ) const {
+
+  auto monitor_pb = Monitored::Collection( "bbtag_"+var_name+"_pb", bTaggingEL,
+    [var_name](const ElementLink< xAOD::BTaggingContainer >& bTagLink) { 
+      double pb = -1; 
+      pb =  (*bTagLink)->auxdata<float>(var_name+"_pb");
+      return pb; 
+    } );
+
+  auto monitor_pbb = Monitored::Collection( "bbtag_"+var_name+"_pbb", bTaggingEL,
+    [var_name](const ElementLink< xAOD::BTaggingContainer >& bTagLink) { 
+      double pbb = -1; 
+      pbb = (*bTagLink)->auxdata<float>(var_name+"_pbb");
+      return pbb; 
+    } );
+
+  auto monitor_group_for_flavor_bb_tag_var = Monitored::Group( m_monTool, monitor_pb, monitor_pbb );
+
+  return StatusCode::SUCCESS;
+}
+
 
 StatusCode TrigBjetBtagHypoAlg::monitor_primary_vertex( const ElementLink< xAOD::VertexContainer >& primVertexEL ) const {
   auto monitor_for_primVtx_x = Monitored::Scalar( "primVtx_x", (*primVertexEL)->x() );  
@@ -388,6 +409,9 @@ StatusCode TrigBjetBtagHypoAlg::monitor_btagging( const ElementLinkVector< xAOD:
   // Monitor high-level tagger flavor probabilites
   CHECK( monitor_flavor_probabilities(bTaggingEL, "DL1r") );
   CHECK( monitor_flavor_probabilities(bTaggingEL, "rnnip") );
+  CHECK( monitor_flavor_probabilities(bTaggingEL, "DL1d20211216") );
+  CHECK( monitor_flavor_probabilities(bTaggingEL, "dips20211116") );
+
 
   // Monitor JetFitter
   MONITOR_BTAG_AUX_VAR(JetFitter_isDefaults, char, bTaggingEL);
@@ -490,6 +514,11 @@ StatusCode TrigBjetBtagHypoAlg::monitor_btagging( const ElementLinkVector< xAOD:
     monitor_for_JetFitterSecondaryVertex_minimumAllJetTrackRelativeEta,
     monitor_for_JetFitterSecondaryVertex_averageAllJetTrackRelativeEta
   );
+
+
+  CHECK( monitor_flavor_bb_probabilities(bTaggingEL, "DL1bb20220331") );
+
+
 
   auto monitor_group_for_btagging = Monitored::Group( m_monTool, 
     monitor_for_JetFitter_isDefaults,
