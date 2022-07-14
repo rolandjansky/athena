@@ -189,8 +189,6 @@ ToolSvc += SUSY20LeptonSkimmingTool_1L1T
 #-------------------------------------------------------------
 firstMuonRequirements_Z4L = '(Muons.pt > 20.*GeV) && (abs(Muons.eta) < 2.7) && (Muons.DFCommonMuonsPreselection)'
 secondMuonRequirements_Z4L = '(Muons.pt > 15.*GeV) && (abs(Muons.eta) < 2.7) && (Muons.DFCommonMuonsPreselection)'
-# firstElectronRequirements_Z4L = '(Electrons.pt > 20.*GeV) && (abs(Electrons.eta) < 2.5) && (Electrons.DFCommonElectronsLHTight)'
-# secondElectronRequirements_Z4L = '(Electrons.pt > 15.*GeV) && (abs(Electrons.eta) < 2.5) && (Electrons.DFCommonElectronsLHTight)'
 firstElectronRequirements_Z4L = '(Electrons.pt > 20.*GeV) && (abs(Electrons.eta) < 2.5) && (Electrons.DFCommonElectronsLHMedium)'
 secondElectronRequirements_Z4L = '(Electrons.pt > 15.*GeV) && (abs(Electrons.eta) < 2.5) && (Electrons.DFCommonElectronsLHMedium)'
 leptonSelection_Z4L = '((count('+firstElectronRequirements_Z4L+')>=1) && (count('+secondElectronRequirements_Z4L+')>=2)) || ((count('+firstMuonRequirements_Z4L+')>=1) && (count('+secondMuonRequirements_Z4L+')>=2))'
