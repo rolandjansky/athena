@@ -178,6 +178,9 @@ private:
   /// Maximal value of chi2 for the track.
   Gaudi::Property<float> m_trackMaxChi2{this, "trackMaxChi2", 3, "Maximal value of chi2 for the track."};
   
+  /// Maximum allowed distance between clusters to be considered coming from the same proton
+  Gaudi::Property<double> m_allowedDistanceBetweenClustersInSeed{this, "allowedDistanceBetweenClustersInSeed", 0.5, "Maximum allowed distance between clusters in a seed to be considered coming from the same proton"};
+  
   /// Fills layers with clusters of hits, dividing them into stations and layers
   void fillLayersWithClusters(AFPLocRecoStationBasicObj& my_stationClusters, SG::ReadHandle<xAOD::AFPSiHitsClusterContainer>& hitsClusterContainer) const;
 
@@ -194,6 +197,10 @@ private:
   /// Returns true if vector size equals matrix rows times columns
   bool checkMatrixAndVectorSize(const CLHEP::HepMatrix& matrix, const std::vector<float>& vec1D) const
   {return ((int)vec1D.size()) == matrix.num_row()*matrix.num_col();}
+  
+  /// Checks if clusters are neighbours
+  /// Compares distance between them to #m_allowedDistanceBetweenClustersInSeed
+  bool areNeighbours(const xAOD::AFPSiHitsCluster* a, const xAOD::AFPSiHitsCluster* b) const;
 
   /// Save reconstructed track to the xAOD container
   void saveToXAOD (const AFPSiDBasicKalmanToolTrack& recoTrack, std::unique_ptr<xAOD::AFPTrackContainer>& containerToFill, SG::ReadHandle<xAOD::AFPSiHitsClusterContainer>& hitsClusterContainer) const;
