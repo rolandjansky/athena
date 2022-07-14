@@ -13,6 +13,8 @@
 #include "xAODTrigger/gFexGlobalRoI.h"
 #include "xAODTrigger/gFexGlobalRoIContainer.h"
 
+
+
 class GfexMonitorAlgorithm : public AthMonitorAlgorithm {
 public:GfexMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator );
   virtual ~GfexMonitorAlgorithm()=default;
@@ -30,6 +32,10 @@ private:
   SG::ReadHandleKey< xAOD::gFexGlobalRoIContainer > m_gMETComponentsJwojContainerKey {this,"mygMETComponentsJwojOutputContainer","L1_gMETComponentsJwoj","SG key of the input total MET components (from Jets without Jets algo) container"};
   SG::ReadHandleKey< xAOD::gFexGlobalRoIContainer > m_gMHTComponentsJwojContainerKey {this,"mygMHTComponentsJwojOutputContainer","L1_gMHTComponentsJwoj","SG key of the inputhard MET components (from Jets without Jets algo) container"};
   SG::ReadHandleKey< xAOD::gFexGlobalRoIContainer > m_gMSTComponentsJwojContainerKey {this,"mygMSTComponentsJwojOutputContainer","L1_gMSTComponentsJwoj","SG key of the input soft MET components (from Jets without Jets algo) container"};
+  SG::ReadHandleKey< xAOD::gFexGlobalRoIContainer > m_gMETComponentsNoiseCutContainerKey {this,"my_gMETComponentsNoiseCutOutputContainer","L1_gMETComponentsNoiseCut","SG key for MET_x and MET_y components obtained with the Noise Cut algorithm"};
+  SG::ReadHandleKey< xAOD::gFexGlobalRoIContainer > m_gMETComponentsRmsContainerKey {this,"my_gMETComponentsRmsOutputContainer","L1_gMETComponentsRms","SG key for MET_x and MET_y components obtained with the Components Rms algorithm"};
 
+  SG::ReadHandleKey< xAOD::gFexGlobalRoIContainer > m_gScalarENoiseCutContainerKey {this,"mygScalarENoiseCutContainer","L1_gScalarENoiseCut","SG key of the inputScalar MET and SumET contianer obtained with the Noise Cut algorithm"};
+  SG::ReadHandleKey< xAOD::gFexGlobalRoIContainer > m_gScalarERmsContainerKey {this,"mygScalarERmsContainer","L1_gScalarERms","SG key of the inputScalar MET and SumET contianer obtained with the Components Rms algorithm"};
 };
 #endif

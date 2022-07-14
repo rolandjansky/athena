@@ -31,67 +31,83 @@ def EfexMonitoringConfig(inputFlags):
     # add monitoring algorithm to group, with group name and main directory 
     myGroup = helper.addGroup(EfexMonAlg, groupName , mainDir)
 
-    # histograms of TOB variables
-    myGroup.defineHistogram('TOBTransverseEnergy;h_TOBTransverseEnergy',
-                            title='TOB Transverse Energy [MeV]',
-                            type='TH1F', path=trigPath,
-                            xbins=100,xmin=0,xmax=50000)
+    # histograms of eEM variables
+    myGroup.defineHistogram('TOBTransverseEnergy;h_TOBTransverseEnergy', title='eFex TOB EM Transverse Energy [MeV]',
+                            type='TH1F', path=trigPath+'eEM/', xbins=100,xmin=0,xmax=50000)
 
-    myGroup.defineHistogram('TOBEta;h_TOBEta',
-                            title='TOB Eta',
-                            type='TH1F', path=trigPath,
-                            xbins=50,xmin=-3.0,xmax=3.0)
+    myGroup.defineHistogram('TOBEta;h_TOBEta', title='eFex TOB EM Eta',
+                            type='TH1F', path=trigPath+'eEM/', xbins=50,xmin=-3.0,xmax=3.0)
 
-    myGroup.defineHistogram('TOBPhi;h_TOBPhi',
-                            title='TOB Phi',
-                            type='TH1F', path=trigPath,
-                            xbins=64,xmin=-math.pi,xmax=math.pi)
+    myGroup.defineHistogram('TOBPhi;h_TOBPhi', title='eFex TOB EM Phi',
+                            type='TH1F', path=trigPath+'eEM/', xbins=64,xmin=-math.pi,xmax=math.pi)
 
-    myGroup.defineHistogram('TOBEta,TOBPhi;h_TOBEtaPhiMap',
-                            title="TOB Eta vs Phi;TOB Eta;TOB Phi",
-                            type='TH2F',path=trigPath,
-                            xbins=50,xmin=-3.0,xmax=3.0,ybins=64,ymin=-math.pi,ymax=math.pi)
+    myGroup.defineHistogram('TOBEta,TOBPhi;h_TOBEtaPhiMap', title="eFex TOB EM Eta vs Phi;TOB EM Eta;TOB EM Phi",
+                            type='TH2F',path=trigPath+'eEM/', xbins=50,xmin=-3.0,xmax=3.0,ybins=64,ymin=-math.pi,ymax=math.pi)
 
-    myGroup.defineHistogram('TOBeFEXNumber;h_TOBeFEXNumber',
-                            title='TOB eFEX Number',
-                            type='TH1F', path=trigPath,
-                            xbins=30,xmin=0,xmax=30)
+    myGroup.defineHistogram('TOBeFEXNumber;h_TOBeFEXNumber', title='eFex TOB EM Module Number',
+                            type='TH1F', path=trigPath+'eEM/', xbins=12,xmin=0,xmax=12)
 
-    myGroup.defineHistogram('TOBshelfNumber;h_TOBshelfNumber',
-                            title='TOB Shelf Number',
-                            type='TH1F', path=trigPath,
-                            xbins=5,xmin=0,xmax=10)
+    myGroup.defineHistogram('TOBshelfNumber;h_TOBshelfNumber', title='eFex TOB EM Shelf Number',
+                            type='TH1F', path=trigPath+'eEM/', xbins=2,xmin=0,xmax=2)
 
-    myGroup.defineHistogram('TOBReta;h_TOBReta',
-                            title='TOB Reta',
-                            type='TH1F', path=trigPath,
-                            xbins=4,xmin=0,xmax=4.0)
+    myGroup.defineHistogram('TOBfpga;h_TOBfpga', title='eFex TOB EM FPGA',
+                            type='TH1F', path=trigPath+'eEM/', xbins=4,xmin=0,xmax=4)
 
-    myGroup.defineHistogram('TOBRhad;h_TOBRhad',
-                            title='TOB Rhad',
-                            type='TH1F', path=trigPath,
-                            xbins=4,xmin=0,xmax=4.0)
+    myGroup.defineHistogram('TOBReta;h_TOBReta', title='eFex TOB EM Reta',
+                            type='TH1F', path=trigPath+'eEM/',xbins=250,xmin=0,xmax=1)
 
-    myGroup.defineHistogram('TOBWstot;h_TOBWstot',
-                            title='TOB Wstot',
-                            type='TH1F', path=trigPath,
-                            xbins=4,xmin=0,xmax=4.0)
+    myGroup.defineHistogram('TOBRhad;h_TOBRhad', title='eFex TOB EM Rhad',
+                            type='TH1F', path=trigPath+'eEM/', xbins=250,xmin=0,xmax=1) 
 
-    # plotting of TOB tau variables
-    myGroup.defineHistogram('tauTOBTransverseEnergy;h_tauTOBTransverseEnergy',
-                            title='TOB Tau Transverse Energy [MeV]',
-                            type='TH1F', path=trigPath,
-                            xbins=100,xmin=0,xmax=50000)
+    myGroup.defineHistogram('TOBWstot;h_TOBWstot', title='eFex TOB EM Wstot',
+                            type='TH1F', path=trigPath+'eEM/', xbins=250,xmin=0,xmax=1) 
 
-    myGroup.defineHistogram('tauTOBEta;h_tauTOBEta',
-                            title='TOB Tau Eta',
-                            type='TH1F', path=trigPath,
-                            xbins=60,xmin=-3.0,xmax=3.0)
+    threshold_labels = ['fail','loose','medium','tight']
+    myGroup.defineHistogram('TOBReta_threshold;h_TOBReta_threshold', title='eFex TOB EM Reta threshold',
+                            type='TH1F', path=trigPath+'eEM/',xbins=4,xmin=0,xmax=4.0,xlabels=threshold_labels)
 
-    myGroup.defineHistogram('tauTOBPhi;h_tauTOBPhi',
-                            title='TOB Tau Phi',
-                            type='TH1F', path=trigPath,
-                            xbins=100,xmin=-math.pi,xmax=math.pi)
+    myGroup.defineHistogram('TOBRhad_threshold;h_TOBRhad_threshold', title='eFex TOB EM Rhad threshold',
+                            type='TH1F', path=trigPath+'eEM/', xbins=4,xmin=0,xmax=4.0,xlabels=threshold_labels)
+
+    myGroup.defineHistogram('TOBWstot_threshold;h_TOBWstot_threshold', title='eFex TOB EM Wstot threshold',
+                            type='TH1F', path=trigPath+'eEM/', xbins=4,xmin=0,xmax=4.0,xlabels=threshold_labels)
+
+    # plotting of eTau variables
+    myGroup.defineHistogram('tauTOBTransverseEnergy;h_tauTOBTransverseEnergy', title='eFex TOB Tau Transverse Energy [MeV]',
+                            type='TH1F', path=trigPath+'eTau/', xbins=100,xmin=0,xmax=50000)
+
+    myGroup.defineHistogram('tauTOBEta;h_tauTOBEta', title='eFex TOB Tau Eta',
+                            type='TH1F', path=trigPath+'eTau/', xbins=60,xmin=-3.0,xmax=3.0)
+
+    myGroup.defineHistogram('tauTOBPhi;h_tauTOBPhi', title='eFex TOB Tau Phi',
+                            type='TH1F', path=trigPath+'eTau/', xbins=100,xmin=-math.pi,xmax=math.pi)
+
+    myGroup.defineHistogram('tauTOBEta,tauTOBPhi;h_tauTOBEtaPhiMap', title="eFex TOB Tau Eta vs Phi;TOB Tau Eta;TOB Tau Phi",
+                            type='TH2F',path=trigPath+'eTau/', xbins=50,xmin=-3.0,xmax=3.0,ybins=64,ymin=-math.pi,ymax=math.pi)
+
+    myGroup.defineHistogram('tauTOBeFEXNumber;h_tauTOBeFEXNumber', title='eFex TOB Tau Module Number',
+                            type='TH1F', path=trigPath+'eTau/', xbins=12,xmin=0,xmax=12)
+
+    myGroup.defineHistogram('tauTOBshelfNumber;h_tauTOBshelfNumber', title='eFex TOB Tau Shelf Number',
+                            type='TH1F', path=trigPath+'eTau/', xbins=2,xmin=0,xmax=2)
+
+    myGroup.defineHistogram('tauTOBfpga;h_tauTOBfpga', title='eFex TOB Tau FPGA',
+                            type='TH1F', path=trigPath+'eTau/', xbins=4,xmin=0,xmax=4)
+
+    myGroup.defineHistogram('tauTOBRcore;h_tauTOBRcore', title='eFex TOB Tau rCore',
+                            type='TH1F', path=trigPath+'eTau/', xbins=250,xmin=0,xmax=1) 
+
+    myGroup.defineHistogram('tauTOBRhad;h_tauTOBRhad', title='eFex TOB Tau rHad',
+                            type='TH1F', path=trigPath+'eTau/', xbins=250,xmin=0,xmax=1) 
+
+    myGroup.defineHistogram('tauTOBRcore_threshold;h_tauTOBRcore_threshold', title='eFex TOB Tau rCore threshold',
+                            type='TH1F', path=trigPath+'eTau/', xbins=4,xmin=0,xmax=4.0, xlabels=threshold_labels)
+
+    myGroup.defineHistogram('tauTOBRhad_threshold;h_tauTOBRhad_threshold', title='eFex TOB Tau rHad threshold',
+                            type='TH1F', path=trigPath+'eTau/', xbins=4,xmin=0,xmax=4.0, xlabels=threshold_labels)
+
+    myGroup.defineHistogram('tauTOBthree_threshold;h_tauTOBthree_threshold', title='eFex TOB Tau 3 taus threshold',
+                            type='TH1F', path=trigPath+'eTau/', xbins=4,xmin=0,xmax=4.0, xlabels=threshold_labels)
 
     acc = helper.result()
     result.merge(acc)

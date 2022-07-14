@@ -67,6 +67,8 @@ def LVL1CaloMonitoringConfig(flags):
         result.merge(EfexMonitoringConfig(flags))
         from TrigT1CaloMonitoring.GfexMonitorAlgorithm import GfexMonitoringConfig
         result.merge(GfexMonitoringConfig(flags))
+        from TrigT1CaloMonitoring.JfexMonitorAlgorithm import JfexMonitoringConfig
+        result.merge(JfexMonitoringConfig(flags))
 
 
     return result
