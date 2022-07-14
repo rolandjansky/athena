@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -66,7 +66,7 @@ namespace Trk
       double                   m_maxP;                       //!< Maximal p value
 
       const Trk::TrackingVolume*       m_outerBoundary;
-      mutable const Trk::TrackingGeometry*       m_trackingGeometry;
+      const Trk::TrackingGeometry*     m_trackingGeometry;
 
       int                      m_particleType;               //!< the particle typre for the extrap.
 

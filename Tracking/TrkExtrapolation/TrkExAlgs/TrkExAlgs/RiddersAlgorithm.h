@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -95,41 +95,41 @@ namespace Trk
       std::string               m_validationTreeDescription; //!< validation tree description - second argument in TTree
       std::string               m_validationTreeFolder;      //!< stream/folder to for the TTree to be written out
 
-      mutable int               m_steps;                           
-      mutable float             m_loc1loc1[RIDDLERSSTEPS];         
-      mutable float             m_loc1loc2[RIDDLERSSTEPS];         
-      mutable float             m_loc1phi[RIDDLERSSTEPS];          
-      mutable float             m_loc1theta[RIDDLERSSTEPS];        
-      mutable float             m_loc1qop[RIDDLERSSTEPS];          
-      mutable float             m_loc1steps[RIDDLERSSTEPS];        
+      int               m_steps;
+      float             m_loc1loc1[RIDDLERSSTEPS];
+      float             m_loc1loc2[RIDDLERSSTEPS];
+      float             m_loc1phi[RIDDLERSSTEPS];
+      float             m_loc1theta[RIDDLERSSTEPS];
+      float             m_loc1qop[RIDDLERSSTEPS];
+      float             m_loc1steps[RIDDLERSSTEPS];
 
-      mutable float             m_loc2loc1[RIDDLERSSTEPS];         
-      mutable float             m_loc2loc2[RIDDLERSSTEPS];         
-      mutable float             m_loc2phi[RIDDLERSSTEPS];          
-      mutable float             m_loc2theta[RIDDLERSSTEPS];        
-      mutable float             m_loc2qop[RIDDLERSSTEPS];          
-      mutable float             m_loc2steps[RIDDLERSSTEPS];        
+      float             m_loc2loc1[RIDDLERSSTEPS];
+      float             m_loc2loc2[RIDDLERSSTEPS];
+      float             m_loc2phi[RIDDLERSSTEPS];
+      float             m_loc2theta[RIDDLERSSTEPS];
+      float             m_loc2qop[RIDDLERSSTEPS];
+      float             m_loc2steps[RIDDLERSSTEPS];
 
-      mutable float             m_philoc1[RIDDLERSSTEPS];          
-      mutable float             m_philoc2[RIDDLERSSTEPS];          
-      mutable float             m_phiphi[RIDDLERSSTEPS];           
-      mutable float             m_phitheta[RIDDLERSSTEPS];         
-      mutable float             m_phiqop[RIDDLERSSTEPS];           
-      mutable float             m_phisteps[RIDDLERSSTEPS];         
+      float             m_philoc1[RIDDLERSSTEPS];
+      float             m_philoc2[RIDDLERSSTEPS];
+      float             m_phiphi[RIDDLERSSTEPS];
+      float             m_phitheta[RIDDLERSSTEPS];
+      float             m_phiqop[RIDDLERSSTEPS];
+      float             m_phisteps[RIDDLERSSTEPS];
 
-      mutable float             m_thetaloc1[RIDDLERSSTEPS];        
-      mutable float             m_thetaloc2[RIDDLERSSTEPS];        
-      mutable float             m_thetaphi[RIDDLERSSTEPS];         
-      mutable float             m_thetatheta[RIDDLERSSTEPS];       
-      mutable float             m_thetaqop[RIDDLERSSTEPS];         
-      mutable float             m_thetasteps[RIDDLERSSTEPS];       
+      float             m_thetaloc1[RIDDLERSSTEPS];
+      float             m_thetaloc2[RIDDLERSSTEPS];
+      float             m_thetaphi[RIDDLERSSTEPS];
+      float             m_thetatheta[RIDDLERSSTEPS];
+      float             m_thetaqop[RIDDLERSSTEPS];
+      float             m_thetasteps[RIDDLERSSTEPS];
 
-      mutable float             m_qoploc1[RIDDLERSSTEPS];          
-      mutable float             m_qoploc2[RIDDLERSSTEPS];          
-      mutable float             m_qopphi[RIDDLERSSTEPS];           
-      mutable float             m_qoptheta[RIDDLERSSTEPS];         
-      mutable float             m_qopqop[RIDDLERSSTEPS];           
-      mutable float             m_qopsteps[RIDDLERSSTEPS];         
+      float             m_qoploc1[RIDDLERSSTEPS];
+      float             m_qoploc2[RIDDLERSSTEPS];
+      float             m_qopphi[RIDDLERSSTEPS];
+      float             m_qoptheta[RIDDLERSSTEPS];
+      float             m_qopqop[RIDDLERSSTEPS];
+      float             m_qopsteps[RIDDLERSSTEPS];
 
 
       /** Random Number setup */
