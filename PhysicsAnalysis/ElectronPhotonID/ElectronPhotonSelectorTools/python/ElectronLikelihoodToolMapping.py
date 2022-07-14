@@ -16,7 +16,8 @@ import ElectronPhotonSelectorTools.ElectronLikelihoodMenuDefs as ElectronLikelih
 
 class electronLHmenu:
     trigger2015 = 1
-    offlineMC16 = 3
+    offlineMC20 = 5
+    offlineMC21 = 6
 
 
 # format - key: (mask, function)
@@ -27,18 +28,28 @@ ElectronLHMapTrigger2015 = {
     LikeEnum.Tight: (LikeEnum.CustomOperatingPoint, ElectronLikelihoodMenuDefs.ElectronLikelihoodTightTriggerConfig2015),
 }
 
-ElectronLHMapOffline2016 = {
-    LikeEnum.VeryLoose: (LikeEnum.CustomOperatingPoint, ElectronLikelihoodMenuDefs.ElectronLikelihoodVeryLooseOfflineConfig2016),
-    LikeEnum.Loose: (LikeEnum.CustomOperatingPoint, ElectronLikelihoodMenuDefs.ElectronLikelihoodLooseOfflineConfig2016),
-    LikeEnum.Medium: (LikeEnum.CustomOperatingPoint, ElectronLikelihoodMenuDefs.ElectronLikelihoodMediumOfflineConfig2016),
-    LikeEnum.Tight: (LikeEnum.CustomOperatingPoint, ElectronLikelihoodMenuDefs.ElectronLikelihoodTightOfflineConfig2016),
+ElectronLHMapOfflineMC20 = {
+    LikeEnum.VeryLoose: (LikeEnum.CustomOperatingPoint, ElectronLikelihoodMenuDefs.ElectronLikelihoodVeryLooseOfflineConfigMC20),
+    LikeEnum.Loose: (LikeEnum.CustomOperatingPoint, ElectronLikelihoodMenuDefs.ElectronLikelihoodLooseOfflineConfigMC20),
+    LikeEnum.LooseBL: (LikeEnum.CustomOperatingPoint, ElectronLikelihoodMenuDefs.ElectronLikelihoodLooseBLOfflineConfigMC20),
+    LikeEnum.Medium: (LikeEnum.CustomOperatingPoint, ElectronLikelihoodMenuDefs.ElectronLikelihoodMediumOfflineConfigMC20),
+    LikeEnum.Tight: (LikeEnum.CustomOperatingPoint, ElectronLikelihoodMenuDefs.ElectronLikelihoodTightOfflineConfigMC20),
 }
 
+ElectronLHMapOfflineMC21 = {
+    LikeEnum.VeryLoose: (LikeEnum.CustomOperatingPoint, ElectronLikelihoodMenuDefs.ElectronLikelihoodVeryLooseOfflineConfigMC21),
+    LikeEnum.Loose: (LikeEnum.CustomOperatingPoint, ElectronLikelihoodMenuDefs.ElectronLikelihoodLooseOfflineConfigMC21),
+    LikeEnum.LooseBL: (LikeEnum.CustomOperatingPoint, ElectronLikelihoodMenuDefs.ElectronLikelihoodLooseBLOfflineConfigMC21),
+    LikeEnum.Medium: (LikeEnum.CustomOperatingPoint, ElectronLikelihoodMenuDefs.ElectronLikelihoodMediumOfflineConfigMC21),
+    LikeEnum.Tight: (LikeEnum.CustomOperatingPoint, ElectronLikelihoodMenuDefs.ElectronLikelihoodTightOfflineConfigMC21),
+}
 
 def ElectronLikelihoodMap(quality, menu):
     if menu == electronLHmenu.trigger2015:
         return ElectronLHMapTrigger2015[quality]
-    elif menu == electronLHmenu.offlineMC16:
-        return ElectronLHMapOffline2016[quality]
+    elif menu == electronLHmenu.offlineMC20:
+        return ElectronLHMapOfflineMC20[quality]
+    elif menu == electronLHmenu.offlineMC21:
+        return ElectronLHMapOfflineMC21[quality]
     else:
         raise ValueError("Requested menu is undefined: %d" % menu)

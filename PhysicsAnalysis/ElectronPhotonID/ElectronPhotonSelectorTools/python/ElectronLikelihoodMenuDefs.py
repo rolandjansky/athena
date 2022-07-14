@@ -33,40 +33,75 @@ def ElectronLikelihoodTightTriggerConfig2015(theTool):
     theTool = GetTool(theTool)
     theTool.ConfigFile = "ElectronPhotonSelectorTools/trigger/mc15_20150712/ElectronLikelihoodTightTriggerConfig2015.conf"
 
-def ElectronLikelihoodVeryLooseOfflineConfig2016(theTool):
+def ElectronLikelihoodVeryLooseOfflineConfigMC20(theTool):
     '''
-    This is for the custom implementation of the VeryLoose offline likelihood for MC16 / Run 2 / Release 21.
-    This uses Offline PDFs, but does not yet have the pileup dependent discriminant cut.
+    This is for the custom implementation of the VeryLoose offline likelihood for MC20 / Run2 / Release 22.
     '''
     theTool = GetTool(theTool)
     theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc20_20210514/ElectronLikelihoodVeryLooseOfflineConfig2017_Smooth.conf"
 
 
-def ElectronLikelihoodLooseOfflineConfig2016(theTool):
+def ElectronLikelihoodLooseOfflineConfigMC20(theTool):
     '''
-    This is for the custom implementation of the Loose offline likelihood for MC16 / Run 2 / Release 21.
-    This uses Offline PDFs, but does not yet have the pileup dependent discriminant cut.
-    (NOTE: same signal eff as offline Loosepp + 1%)
+    This is for the custom implementation of the Loose offline likelihood for MC20 / Run2 / Release 22.
     '''
     theTool = GetTool(theTool)
     theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc20_20210514/ElectronLikelihoodLooseOfflineConfig2017_Smooth.conf"
 
-
-def ElectronLikelihoodMediumOfflineConfig2016(theTool):
+def ElectronLikelihoodLooseBLOfflineConfigMC20(theTool):
     '''
-    This is for the custom implementation of the Medium offline likelihood for MC16 / Run 2 / Release 21.
-    This uses Offline PDFs, but does not yet have the pileup dependent discriminant cut.
+    This is for the custom implementation of the Loose + b-layer offline likelihood for MC20 / Run2 / Release 22.
+    '''
+    theTool = GetTool(theTool)
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc20_20210514/ElectronLikelihoodLooseOfflineConfig2017_CutBL_Smooth.conf"
+
+def ElectronLikelihoodMediumOfflineConfigMC20(theTool):
+    '''
+    This is for the custom implementation of the Medium offline likelihood for MC20 / Run2 / Release 22.
     (NOTE: same signal eff as offline Mediumpp + 1%)
     '''
     theTool = GetTool(theTool)
     theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc20_20210514/ElectronLikelihoodMediumOfflineConfig2017_Smooth.conf"
 
-
-def ElectronLikelihoodTightOfflineConfig2016(theTool):
+def ElectronLikelihoodTightOfflineConfigMC20(theTool):
     '''
-    This is for the custom implementation of the Tight offline likelihood for MC16 / Run 2 / Release 21.
-    This uses Offline PDFs, but does not yet have the pileup dependent discriminant cut.
-    (NOTE: same signal eff as offline Tightpp + 1%)
+    This is for the custom implementation of the Tight offline likelihood for MC20 / Run2 / Release 22.
+    '''
+    theTool = GetTool(theTool)
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc20_20210514/ElectronLikelihoodTightOfflineConfig2017_Smooth.conf"
+
+
+def ElectronLikelihoodVeryLooseOfflineConfigMC21(theTool):
+    '''
+    This is for the custom implementation of the VeryLoose offline likelihood for MC21 / Run3 / Release 22.
+    '''
+    theTool = GetTool(theTool)
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc20_20210514/ElectronLikelihoodVeryLooseOfflineConfig2017_Smooth.conf"
+
+def ElectronLikelihoodLooseOfflineConfigMC21(theTool):
+    '''
+    This is for the custom implementation of the Loose offline likelihood for MC21 / Run3 / Release 22.
+    '''
+    theTool = GetTool(theTool)
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc20_20210514/ElectronLikelihoodLooseOfflineConfig2017_Smooth.conf"
+
+def ElectronLikelihoodLooseBLOfflineConfigMC21(theTool):
+    '''
+    This is for the custom implementation of the Loose + b-layer offline likelihood for MC21 / Run3 / Release 22.
+    '''
+    theTool = GetTool(theTool)
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc20_20210514/ElectronLikelihoodLooseOfflineConfig2017_CutBL_Smooth.conf"
+
+def ElectronLikelihoodMediumOfflineConfigMC21(theTool):
+    '''
+    This is for the custom implementation of the Medium offline likelihood for MC21 / Run3 / Release 22.
+    '''
+    theTool = GetTool(theTool)
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc20_20210514/ElectronLikelihoodMediumOfflineConfig2017_Smooth.conf"
+
+def ElectronLikelihoodTightOfflineConfigMC21(theTool):
+    '''
+    This is for the custom implementation of the Tight offline likelihood for MC21 / Run3 / Release 22.
     '''
     theTool = GetTool(theTool)
     theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc20_20210514/ElectronLikelihoodTightOfflineConfig2017_Smooth.conf"

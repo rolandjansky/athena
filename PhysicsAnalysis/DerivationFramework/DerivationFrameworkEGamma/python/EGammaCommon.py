@@ -67,38 +67,43 @@ def makeEGammaDFCommon():
 
     from ElectronPhotonSelectorTools.ConfiguredAsgElectronLikelihoodTools import (
         ConfiguredAsgElectronLikelihoodTool)
+    from ElectronPhotonSelectorTools.ElectronLikelihoodToolMapping import (
+        electronLHmenu)
+
+    lhMenu = electronLHmenu.offlineMC21
+    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as geoFlags
+    if geoFlags.Run() == "RUN2" :
+        lhMenu = electronLHmenu.offlineMC20
 
     # Very Loose
     ElectronLHSelectorVeryLoose = ConfiguredAsgElectronLikelihoodTool(
-        "ElectronLHSelectorVeryLoose", LikeEnum.VeryLoose)
+        "ElectronLHSelectorVeryLoose", LikeEnum.VeryLoose, lhMenu)
     ElectronLHSelectorVeryLoose.primaryVertexContainer = "PrimaryVertices"
     ToolSvc += ElectronLHSelectorVeryLoose
 
     # Loose
     ElectronLHSelectorLoose = ConfiguredAsgElectronLikelihoodTool(
-        "ElectronLHSelectorLoose", LikeEnum.Loose)
+        "ElectronLHSelectorLoose", LikeEnum.Loose, lhMenu)
     ElectronLHSelectorLoose.primaryVertexContainer = "PrimaryVertices"
     ToolSvc += ElectronLHSelectorLoose
 
+    # LooseBL
+    ElectronLHSelectorLooseBL = ConfiguredAsgElectronLikelihoodTool(
+        "ElectronLHSelectorLooseBL", LikeEnum.LooseBL, lhMenu)
+    ElectronLHSelectorLooseBL.primaryVertexContainer = "PrimaryVertices"
+    ToolSvc += ElectronLHSelectorLooseBL
+
     # Medium
     ElectronLHSelectorMedium = ConfiguredAsgElectronLikelihoodTool(
-        "ElectronLHSelectorMedium", LikeEnum.Medium)
+        "ElectronLHSelectorMedium", LikeEnum.Medium, lhMenu)
     ElectronLHSelectorMedium.primaryVertexContainer = "PrimaryVertices"
     ToolSvc += ElectronLHSelectorMedium
 
     # Tight
     ElectronLHSelectorTight = ConfiguredAsgElectronLikelihoodTool(
-        "ElectronLHSelectorTight", LikeEnum.Tight)
+        "ElectronLHSelectorTight", LikeEnum.Tight, lhMenu)
     ElectronLHSelectorTight.primaryVertexContainer = "PrimaryVertices"
     ToolSvc += ElectronLHSelectorTight
-
-    # LooseBL
-    from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import (
-        AsgElectronLikelihoodTool)
-    ElectronLHSelectorLooseBL = AsgElectronLikelihoodTool(
-        "ElectronLHSelectorLooseBL", WorkingPoint="LooseBLLHElectron")
-    ElectronLHSelectorLooseBL.primaryVertexContainer = "PrimaryVertices"
-    ToolSvc += ElectronLHSelectorLooseBL
 
     # ====================================================================
     # ELECTRON DNN SELECTORS

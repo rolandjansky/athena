@@ -19,7 +19,7 @@ from ElectronPhotonSelectorTools.ElectronLikelihoodToolMapping import (
 
 
 def ConfiguredAsgElectronLikelihoodTool(
-        name, quality, menu=electronLHmenu.offlineMC16, **kw):
+        name, quality, menu=electronLHmenu.offlineMC21, **kw):
     """
     Configure the AsgElectronIsEMSelector with the quality cuts
     and allow for (re-)setting of all provided cuts.

@@ -68,12 +68,19 @@ def EGammaCommonCfg(ConfigFlags):
     from ROOT import LikeEnum
 
     from ElectronPhotonSelectorTools.AsgElectronLikelihoodToolsConfig import AsgElectronLikelihoodToolCfg
+    from ElectronPhotonSelectorTools.ElectronLikelihoodToolMapping import electronLHmenu
+
+    lhMenu = electronLHmenu.offlineMC21
+    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as geoFlags
+    if geoFlags.Run() == "RUN2" :
+        lhMenu = electronLHmenu.offlineMC20
 
     # Very Loose
     ElectronLHSelectorVeryLoose = acc.popToolsAndMerge(AsgElectronLikelihoodToolCfg(
         ConfigFlags,
         name="ElectronLHSelectorVeryLoose", 
-        quality = LikeEnum.VeryLoose)
+        quality = LikeEnum.VeryLoose,
+        menu=lhMenu)
     )
     ElectronLHSelectorVeryLoose.primaryVertexContainer = "PrimaryVertices"
     acc.addPublicTool(ElectronLHSelectorVeryLoose)
@@ -82,16 +89,28 @@ def EGammaCommonCfg(ConfigFlags):
     ElectronLHSelectorLoose = acc.popToolsAndMerge(AsgElectronLikelihoodToolCfg(
         ConfigFlags,
         name="ElectronLHSelectorLoose", 
-        quality=LikeEnum.Loose)
+        quality=LikeEnum.Loose,
+        menu=lhMenu)
     )
     ElectronLHSelectorLoose.primaryVertexContainer = "PrimaryVertices"
     acc.addPublicTool(ElectronLHSelectorLoose)
+
+    # LooseBL
+    ElectronLHSelectorLooseBL = acc.popToolsAndMerge(AsgElectronLikelihoodToolCfg(
+        ConfigFlags,
+        name="ElectronLHSelectorLooseBL",
+        quality=LikeEnum.LooseBL,
+        menu=lhMenu)
+    )
+    ElectronLHSelectorLooseBL.primaryVertexContainer = "PrimaryVertices"
+    acc.addPublicTool(ElectronLHSelectorLooseBL)
 
     # Medium
     ElectronLHSelectorMedium = acc.popToolsAndMerge(AsgElectronLikelihoodToolCfg(
         ConfigFlags,    
         name="ElectronLHSelectorMedium", 
-        quality=LikeEnum.Medium)
+        quality=LikeEnum.Medium,
+        menu=lhMenu)
     )
     ElectronLHSelectorMedium.primaryVertexContainer = "PrimaryVertices"
     acc.addPublicTool(ElectronLHSelectorMedium)
@@ -100,20 +119,12 @@ def EGammaCommonCfg(ConfigFlags):
     ElectronLHSelectorTight = acc.popToolsAndMerge(AsgElectronLikelihoodToolCfg(
         ConfigFlags,
         name="ElectronLHSelectorTight", 
-        quality=LikeEnum.Tight)
+        quality=LikeEnum.Tight,
+        menu=lhMenu)
     )
     ElectronLHSelectorTight.primaryVertexContainer = "PrimaryVertices"
     acc.addPublicTool(ElectronLHSelectorTight)
 
-    # LooseBL
-    ElectronLHSelectorLooseBL = acc.popToolsAndMerge(AsgElectronLikelihoodToolCfg(
-        ConfigFlags,
-        name="ElectronLHSelectorLooseBL",
-        quality=LikeEnum.Loose) 
-    )
-    ElectronLHSelectorLooseBL.WorkingPoint = "LooseBLLHElectron"
-    ElectronLHSelectorLooseBL.primaryVertexContainer = "PrimaryVertices"
-    acc.addPublicTool(ElectronLHSelectorLooseBL)
 
     # ====================================================================
     # ELECTRON DNN SELECTORS
