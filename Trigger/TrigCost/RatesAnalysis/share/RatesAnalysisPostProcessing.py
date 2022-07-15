@@ -11,20 +11,10 @@
 '''
 
 import ROOT
-from RatesAnalysis.Util import getMetadata, populateTriggers, getGlobalGroup, toJson, toCSV
+from RatesAnalysis.Util import getTableName, getMetadata, populateTriggers, getGlobalGroup, toJson, toCSV
 from AthenaCommon.Logging import logging
 
 
-def getTableName(name):
-  tabName = "Table_Rate_"
-  if name == "HLT" or name == "L1":
-    tabName += "Chain" + name
-  else:
-    tabName += name
-
-  tabName += "_HLT_All.csv"
-
-  return tabName 
 
 def main():
   from argparse import ArgumentParser
