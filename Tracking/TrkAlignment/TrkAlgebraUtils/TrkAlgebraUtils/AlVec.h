@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKALGS_ALVEC_H
@@ -87,7 +87,8 @@ class AlVec {
   StatusCode ReadScalaPack(const std::string&);
   StatusCode WriteEigenvalueVec(const std::string &, bool);
   inline int size() const;
-  inline double* ptrData() const;
+  inline const double* ptrData() const;
+  inline double* ptrData();
 
  protected:
   int m_size;
@@ -109,7 +110,11 @@ inline int AlVec::size() const {
   return m_size;
 }
 
-inline double* AlVec::ptrData() const {
+inline const double* AlVec::ptrData() const {
+  return m_ptr_data;
+}
+
+inline double* AlVec::ptrData() {
   return m_ptr_data;
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKALGS_ALSYMMAT_H
@@ -68,7 +68,8 @@ class AlSymMat : public AlSymMatBase {
   virtual  int diagonalize(char jobz, AlVec& w, AlMat& z) override final;
   virtual  double determinant() override final;
 
-  inline double* ptrData() const;
+  inline const double* ptrData() const;
+  inline double* ptrData();
 
   inline std::string pathBin() const;
   inline std::string pathTxt() const;
@@ -107,7 +108,11 @@ inline long int AlSymMat::elem(long int i,long int j) const {
   };
 }
 
-inline double* AlSymMat::ptrData() const {
+inline const double* AlSymMat::ptrData() const {
+  return m_ptr_data;
+}
+
+inline double* AlSymMat::ptrData() {
   return m_ptr_data;
 }
 

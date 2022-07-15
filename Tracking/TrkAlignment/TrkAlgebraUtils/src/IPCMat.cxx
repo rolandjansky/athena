@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <GaudiKernel/StatusCode.h>
@@ -9,8 +9,6 @@
 #include <cstring>
 
 namespace Trk {
-
-pid_t ipcmat_pid;
 
 /*
 IPCMat::IPCMat()
@@ -208,15 +206,15 @@ StatusCode IPCMat::init(void){
   }
 
   // fork receiver
-  if ((ipcmat_pid = fork()) < 0) {
+  if ((m_ipcmat_pid = fork()) < 0) {
     *m_log << MSG::ERROR << "ipcmats: line: " <<  __LINE__  << " key: " << key
 	   << " Error number is " << errno << endmsg;
     return StatusCode::FAILURE;
   }
   if (m_log->level()>=MSG::INFO)
-    *m_log << MSG::INFO << "ipcmat_pid = " << ipcmat_pid << endmsg;
+    *m_log << MSG::INFO << "ipcmat_pid = " << m_ipcmat_pid << endmsg;
 
-  if (ipcmat_pid == 0)
+  if (m_ipcmat_pid == 0)
     {
       // ipcmatr compiled in 64 bits using same struct for message queue
       // as declared in IPCMat.h. Must be in PATH
@@ -334,7 +332,7 @@ StatusCode IPCMat::end(){
   }
 
   // let chid finish its jobs
-  wait4(ipcmat_pid, nullptr, 0, nullptr);
+  wait4(m_ipcmat_pid, nullptr, 0, nullptr);
   return StatusCode::SUCCESS;
 }
 

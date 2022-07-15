@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKALGS_ALMAT_H
@@ -95,7 +95,8 @@ class AlMat {
   double& elemr(long int, long int);
   double  elemc(long int, long int) const;
 
-  inline double* ptrData() const;
+  inline const double* ptrData() const;
+  inline double* ptrData();
 
   inline std::string pathBin() const;
   inline std::string pathTxt() const;
@@ -162,7 +163,11 @@ inline long int AlMat::ncol() const {
   return m_ncol;
 }
 
-inline double* AlMat::ptrData() const {
+inline const double* AlMat::ptrData() const {
+  return m_ptr_data;
+}
+
+inline double* AlMat::ptrData() {
   return m_ptr_data;
 }
 
