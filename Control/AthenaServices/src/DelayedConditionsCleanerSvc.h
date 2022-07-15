@@ -2,8 +2,6 @@
 /*
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-/*
- */
 /**
  * @file AthenaServices/src/DelayedConditionsCleanerSvc.h
  * @author scott snyder <snyder@bnl.gov>
@@ -186,15 +184,17 @@ private:
    * @param keys Set of IOV keys for recent events.
    */
   void cleanContainers (std::vector<CondContInfo*>&& cis,
-			twoKeys_t&& twoKeys) const;
+			twoKeys_t&& twoKeys);
 
 
   /**
    * @brief Clean a single container.
    * @param ci The container to clean.
    * @param keys Set of IOV keys for recent events.
+   *
+   * Returns true if anything was removed from the container,
    */
-  void cleanContainer (CondContInfo* ci,
+  bool cleanContainer (CondContInfo* ci,
                        const twoKeys_t& keys) const;
 
 
@@ -239,7 +239,7 @@ private:
   /// Serialize access to m_ccinfo and m_work.
   typedef std::mutex mutex_t;
   typedef std::lock_guard<mutex_t> lock_t;
-  mutex_t m_workMutex;
+  mutable mutex_t m_workMutex;
 
 
   /// Priority queue statistics.
