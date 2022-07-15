@@ -17,6 +17,7 @@ class ITrackClassifier : virtual public asg::IAsgTool
   ASG_TOOL_INTERFACE( ITrackClassifier )
 
   public:
+  virtual std::map<std::string, double> ComputeScore(const xAOD::TrackParticle* track, const xAOD::Jet* jet) const = 0;
   virtual double compute_HF_Score(const xAOD::TrackParticle *track, const xAOD::Jet *jet) const = 0;
   virtual bool selectTrack(const xAOD::TrackParticle* track, const xAOD::Jet* jet) const = 0;
 
