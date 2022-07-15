@@ -341,10 +341,6 @@ TrackParticleCreatorTool::createParticle(const EventContext& ctx,
     if (!track.trackSummary()) {
       updated_summary = m_trackSummaryTool->summary(ctx, track, prd_to_track_map);
       summary = updated_summary.get();
-    } else if (m_computeAdditionalInfo) {
-      updated_summary = std::make_unique<Trk::TrackSummary>(*track.trackSummary());
-      m_trackSummaryTool->updateAdditionalInfo(track, *updated_summary);
-      summary = updated_summary.get();
     }
   } else {
     ATH_MSG_VERBOSE(
@@ -688,8 +684,9 @@ inline xAOD::TrackParticle* TrackParticleCreatorTool::createParticle(
                       const std::vector<const Trk::TrackParameters*>& parameters,
                       const std::vector<xAOD::ParameterPosition>& positions,
                       xAOD::ParticleHypothesis prtOrigin,
-                      xAOD::TrackParticleContainer* container) const {
-   return createParticle(ctx,perigee, fq, trackInfo, summary, parameters,  positions, prtOrigin, container, nullptr);
+                      xAOD::TrackParticleContainer* container,
+		      bool addInfoIfMuon) const {
+   return createParticle(ctx,perigee, fq, trackInfo, summary, parameters,  positions, prtOrigin, container, nullptr, addInfoIfMuon);
 }
 
 xAOD::TrackParticle*
@@ -702,7 +699,8 @@ TrackParticleCreatorTool::createParticle(const EventContext& ctx,
                                          const std::vector<xAOD::ParameterPosition>& positions,
                                          xAOD::ParticleHypothesis prtOrigin,
                                          xAOD::TrackParticleContainer* container,
-                                         const Trk::Track *track) const
+                                         const Trk::Track *track,
+					 bool addInfoIfMuon) const
 {
 
   xAOD::TrackParticle* trackparticle = new xAOD::TrackParticle;
@@ -738,6 +736,14 @@ TrackParticleCreatorTool::createParticle(const EventContext& ctx,
     addPIDInformation(ctx, track, *trackparticle);
     if(m_doITk) addDetailedHitInformation(track->trackStateOnSurfaces(), *trackparticle);
   }
+
+  if (m_computeAdditionalInfo) {
+    if(prtOrigin==xAOD::muon){
+      if(addInfoIfMuon && perigee) addExpectedHitInformation(perigee, *trackparticle);
+    }
+    else addExpectedHitInformation(track->perigeeParameters(), *trackparticle);
+  }
+
   const auto* beamspot = CacheBeamSpotData(ctx);
   if (beamspot) {
     setTilt(*trackparticle, beamspot->beamTilt(0), beamspot->beamTilt(1));
@@ -986,7 +992,6 @@ TrackParticleCreatorTool::addPIDInformation(const EventContext& ctx, const Trk::
   }
 }
 
-
 void
 TrackParticleCreatorTool::addDetailedHitInformation(const DataVector<const TrackStateOnSurface>* trackStates, xAOD::TrackParticle& tp) const
 {
@@ -1047,6 +1052,56 @@ TrackParticleCreatorTool::addDetailedHitInformation(const DataVector<const Track
   tp.setSummaryValue(nPixelEndcapHits, xAOD::numberOfPixelEndcapHits);
   tp.setSummaryValue(nInnermostPixelLayerEndcapHits, xAOD::numberOfInnermostPixelLayerEndcapHits);
   tp.setSummaryValue(nNextToInnermostPixelLayerEndcapHits, xAOD::numberOfNextToInnermostPixelLayerEndcapHits);
+
+}
+
+void
+TrackParticleCreatorTool::addExpectedHitInformation(const Perigee *perigee, xAOD::TrackParticle& tp) const
+{
+
+  if(not m_testPixelLayerTool.empty()){
+
+    uint8_t zero = static_cast<uint8_t>(0);
+    uint8_t nContribPixLayers, nInPixHits, nNextInPixHits;
+    if(!tp.summaryValue(nContribPixLayers, xAOD::numberOfContribPixelLayers)){
+      nContribPixLayers = zero;
+    }
+    if(nContribPixLayers==0){
+      ATH_MSG_DEBUG("No pixels on track, so wo do not expect hit in inner layers");
+      tp.setSummaryValue(zero, xAOD::expectInnermostPixelLayerHit);
+      tp.setSummaryValue(zero, xAOD::expectNextToInnermostPixelLayerHit);
+    }
+
+    else {
+
+      // Innermost pixel layer
+      if(!tp.summaryValue(nInPixHits, xAOD::numberOfInnermostPixelLayerHits)){
+	nInPixHits = zero;
+      }
+      if(nInPixHits>0){
+        ATH_MSG_DEBUG("Innermost pixel Layer hit on track, so we expect an innermost pixel layer hit");
+	uint8_t one = static_cast<uint8_t>(1);
+	tp.setSummaryValue(one, xAOD::expectInnermostPixelLayerHit);
+      } else {
+	uint8_t expectHit = static_cast<uint8_t>(m_testPixelLayerTool->expectHitInInnermostPixelLayer(perigee));
+	tp.setSummaryValue(expectHit, xAOD::expectInnermostPixelLayerHit);
+      }
+
+      // Next-to-innermost pixel layer
+      if(!tp.summaryValue(nNextInPixHits, xAOD::numberOfNextToInnermostPixelLayerHits)){
+	nNextInPixHits = zero;
+      }
+      if(nNextInPixHits>0){
+        ATH_MSG_DEBUG("Next-to-innermost pixel Layer hit on track, so we expect an next-to-innermost pixel layer hit");
+	uint8_t one = static_cast<uint8_t>(1);
+	tp.setSummaryValue(one, xAOD::expectNextToInnermostPixelLayerHit);
+      } else {
+	uint8_t expectHit = static_cast<uint8_t>(m_testPixelLayerTool->expectHitInNextToInnermostPixelLayer(perigee));
+	tp.setSummaryValue(expectHit, xAOD::expectNextToInnermostPixelLayerHit);
+      }
+
+    } // end else if nContribPixLayers>0
+  }
 
 }
 

@@ -1277,7 +1277,6 @@ def getInDetSummaryHelper(name='InDetSummaryHelper',**kwargs) :
     from InDetRecExample.InDetJobProperties import InDetFlags
     from AthenaCommon.DetFlags              import DetFlags
     kwargs = setDefaults( kwargs,
-                          TestPixelLayerTool  = None,         # we don't want to use those tools during pattern
                           RunningTIDE_Ambi = InDetFlags.doTIDE_Ambi(),
                           DoSharedHits    = False,
                           usePixel        = DetFlags.haveRIO.pixel_on(),
@@ -1294,10 +1293,6 @@ def getInDetSummaryHelperNoHoleSearch(name='InDetSummaryHelperNoHoleSearch',**kw
 
 
 def getInDetSummaryHelperSharedHits(name='InDetSummaryHelperSharedHits',**kwargs) :
-
-    if 'TestPixelLayerTool' not in kwargs :
-        kwargs = setDefaults( kwargs,          TestPixelLayerTool  = getInDetTestPixelLayerToolInner())
-
     from InDetRecExample.InDetJobProperties import InDetFlags
     kwargs = setDefaults( kwargs,     DoSharedHits    = InDetFlags.doSharedHits())
 
@@ -1887,11 +1882,14 @@ def getInDetxAODParticleCreatorTool(prd_to_track_map=None, suffix="", trt_pid_to
 
     TRT_ElectronPidTool    = getInDetTRT_ElectronPidTool(MinimumTrackPtForNNPid = 2000.) if trt_pid_tool else None
     PixelToTPIDTool        = getInDetPixelToTPIDTool()                                   if pixel_dedx   else None
+    LayerToolInner         = getInDetTestPixelLayerToolInner()                           if pixel_dedx   else None
 
     from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
     InDetxAODParticleCreatorTool = Trk__TrackParticleCreatorTool(name = "InDetxAODParticleCreatorTool"+suffix,
                                                                  TrackToVertex           = getInDetTrackToVertexTool(),
                                                                  TrackSummaryTool        = track_summary_tool,
+                                                                 TestPixelLayerTool      = LayerToolInner,
+                                                                 ComputeAdditionalInfo   = True,
                                                                  BadClusterID            = InDetFlags.pixelClusterBadClusterID(),
                                                                  KeepParameters          = True,
                                                                  KeepFirstParameters     = InDetFlags.KeepFirstParameters(),

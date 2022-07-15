@@ -112,16 +112,12 @@ dumpTrackSummary(T_out& out, const TrackSummary& trackSum)
       << trackSum.get(numberOfInnermostPixelLayerSharedHits) << "\n";
   out << " * Number of Innermost Pixel layer outliers    : "
       << trackSum.get(numberOfInnermostPixelLayerOutliers) << "\n";
-  out << " * Expect Innermost Pixel layer hits (0/1)     : "
-      << trackSum.get(expectInnermostPixelLayerHit) << "\n";
   out << " * Number of Next-To-Innermost Pixel layer hits        : "
       << trackSum.get(numberOfNextToInnermostPixelLayerHits) << "\n";
   out << " * Number of Next-To-Innermost Pixel layer shared hits : "
       << trackSum.get(numberOfNextToInnermostPixelLayerSharedHits) << "\n";
   out << " * Number of Next-To-Innermost Pixel layer outliers    : "
       << trackSum.get(numberOfNextToInnermostPixelLayerOutliers) << "\n";
-  out << " * Expect Next-To-Innermost Pixel layer hits (0/1)     : "
-      << trackSum.get(expectNextToInnermostPixelLayerHit) << "\n";
   out << " * Number of pixel hits          : "
       << trackSum.get(numberOfPixelHits) << "\n";
   out << " * Number of pixel outliers      : "

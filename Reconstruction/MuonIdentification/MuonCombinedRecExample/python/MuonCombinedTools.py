@@ -80,7 +80,10 @@ def MuonCombinedParticleCreator(name="MuonCombinedParticleCreator",**kwargs):
         kwargs.setdefault("TrackSummaryTool"              , getPublicTool("MuonTrackSummaryTool") )
     else:
         import MuonCombinedRecExample.CombinedMuonTrackSummary  # noqa: F401 (import side-effects)
-        kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary ) #getPublicTool("CombinedMuonTrackSummary") )
+        kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary )
+        kwargs.setdefault("TestPixelLayerTool", TrackingCommon.getInDetTestPixelLayerToolInner())
+
+    kwargs.setdefault("ComputeAdditionalInfo",True )
     kwargs.setdefault("TrackToVertex", AtlasTrackToVertexTool())
     kwargs.setdefault("KeepAllPerigee",True )
     kwargs.setdefault("MuonSummaryTool", CfgMgr.Muon__MuonHitSummaryTool("MuonHitSummaryTool"))
@@ -97,7 +100,8 @@ def MuonCombinedParticleCreator(name="MuonCombinedParticleCreator",**kwargs):
 
 def MuonCaloParticleCreator(name="MuonCaloParticleCreator",**kwargs):
     import MuonCombinedRecExample.CombinedMuonTrackSummary  # noqa: F401 (import side-effects)
-    kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary ) #getPublicTool("CombinedMuonTrackSummary") )
+    kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary )
+    kwargs.setdefault("ComputeAdditionalInfo",True )
     kwargs.setdefault("KeepAllPerigee",True )
     kwargs.setdefault("PerigeeExpression","Origin")
     return CfgMgr.Trk__TrackParticleCreatorTool(name,**kwargs)

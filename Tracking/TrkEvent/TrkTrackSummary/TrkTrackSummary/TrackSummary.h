@@ -54,10 +54,6 @@ enum SummaryType
   numberOfBLayerSharedHits = 16,
   //!< number of Pixel b-layer hits split by cluster splitting
   numberOfBLayerSplitHits = 43,
-  //!< Do we expect a b-layer hit for this track?
-  expectBLayerHit = 42,
-  //!< Do we expect a 0th-layer hit for this track?
-  expectInnermostPixelLayerHit = 52,
   //!< these are the hits in the 0th pixel layer?
   numberOfInnermostPixelLayerHits = 53,
   //!< number of 0th layer outliers
@@ -66,8 +62,6 @@ enum SummaryType
   numberOfInnermostPixelLayerSharedHits = 55,
   //!< number of Pixel 0th layer hits split by cluster splitting
   numberOfInnermostLayerSplitHits = 56,
-  //!< Do we expect a 1st-layer hit for this track?
-  expectNextToInnermostPixelLayerHit = 57,
   //!< these are the hits in the 1st pixel layer
   numberOfNextToInnermostPixelLayerHits = 58,
   //!< number of 1st pixel layer outliers
@@ -196,15 +190,21 @@ enum SummaryType
   unused_TRTTrackOccupancy_res = 74,
   unused_TRTdEdx_res = 75,
 
+  // in the past used to store expected inner layer hits
+  unused_expectBLayerHit = 42,
+  unused_expectInnermostPixelLayerHit = 52,
+  unused_expectNextToInnermostPixelLayerHit = 57,
+
   // -- numbers...
   numberOfTrackSummaryTypes = 76
 };
 
-// summary types that are stored as float values
+// summary types that are stored as float values or filled in TrackParticleCreatorTool
 static const std::vector<unsigned int> unusedSummaryTypes = {
   unused_eProbabilityComb_res,  unused_eProbabilityHT_res, unused_eProbabilityToT_res,
   unused_eProbabilityBrem_res,  unused_pixeldEdx_res,      unused_eProbabilityNN_res,
-  unused_TRTTrackOccupancy_res, unused_TRTdEdx_res
+  unused_TRTTrackOccupancy_res, unused_TRTdEdx_res,
+  unused_expectBLayerHit, unused_expectInnermostPixelLayerHit, unused_expectNextToInnermostPixelLayerHit,
 };
 
 // Troels.Petersen@cern.ch:

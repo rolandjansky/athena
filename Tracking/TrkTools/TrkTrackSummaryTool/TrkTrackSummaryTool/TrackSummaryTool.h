@@ -161,22 +161,6 @@ public:
    * collection merging. */
   virtual void updateSharedHitCount(Track& track) const override final;
 
-  /** Update the shared hit counts, expected hit, PID information and eventually
-   * the detailed track summaries.
-   * @param track the track corresponding to the summary which is updated, which
-   * is not actively changed.
-   * @param prd-to-track an optional  PRD-to-track map to compute shared hits or
-   * nullptr.
-   * @param summary the summary which is updated.
-   * Will update the shared hit, expected hit, PID information and eventually
-   * the detailed track summaries. If no PRD-to-track map is given the helper
-   * tools will rely on a PRD association tool to privide the shared hit
-   * information. The method will not update the track itself unless the given
-   * summary is owned by the track.
-   */
-  virtual void updateAdditionalInfo(const Track& track,
-                                    TrackSummary& summary) const override;
-
   /** method to update additional information (PID,shared hits, dEdX), this is
    * optimised for track collection merging.
    */

@@ -144,7 +144,7 @@ class Converter {
       int nStrawHits  = summary->get(Trk::numberOfTRTHits);
       int nTrHits     = summary->get(Trk::numberOfTRTHighThresholdHits);
       int nSiHits     = nPixelHits + nSctHits;
-      bool expectBL   = summary->get(Trk::expectBLayerHit);
+      bool expectBL   = false; // Not stored for Rec::TrackParticle
 
       const Trk::FitQuality *quality   = (*trackitr)->fitQuality();
       double chi2 = quality->chiSquared();

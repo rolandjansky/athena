@@ -18,7 +18,7 @@ from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCuts
 InDetTrigCutValues = EFIDTrackingCuts
 
 from InDetTrigRecExample.InDetTrigConfigRecLoadTools import \
-    InDetTrigFastTrackSummaryTool, InDetTrigTrackSummaryToolSharedHits
+    InDetTrigFastTrackSummaryTool, InDetTrigTrackSummaryToolSharedHits, InDetTrigTestPixelLayerToolInner
 
 
 from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
@@ -36,6 +36,7 @@ if (InDetTrigFlags.doPrintConfigurables()):
 InDetTrigParticleCreatorToolWithSummary = \
     Trk__TrackParticleCreatorTool( name = "InDetTrigParticleCreatorToolWithSummary",
                                    TrackSummaryTool = InDetTrigTrackSummaryToolSharedHits,
+                                   TestPixelLayerTool = InDetTrigTestPixelLayerToolInner,
                                    KeepParameters = True,
                                    ComputeAdditionalInfo = True,
                                    #ForceTrackSummaryUpdate = True,
@@ -79,6 +80,7 @@ if DetFlags.haveRIO.TRT_on() :
 InDetTrigParticleCreatorToolWithSummaryTRTPid = \
     Trk__TrackParticleCreatorTool( name = "InDetTrigParticleCreatorToolWithSummaryTRTPid",
                                    TrackSummaryTool = InDetTrigTrackSummaryToolSharedHits,
+                                   TestPixelLayerTool = InDetTrigTestPixelLayerToolInner,
                                    KeepParameters = True,
                                    ComputeAdditionalInfo = True,
                                    TRT_ElectronPidTool   = InDetTrigTRT_ElectronPidTool
@@ -104,6 +106,7 @@ if (InDetTrigFlags.doPrintConfigurables()):
 InDetTrigParticleCreatorToolFTF = \
     Trk__TrackParticleCreatorTool( name = "InDetTrigParticleCreatorToolFTF",
                                    TrackSummaryTool = InDetTrigFastTrackSummaryTool,
+                                   TestPixelLayerTool = None,
                                    KeepParameters = True,
                                    ComputeAdditionalInfo = True,
                                    #ForceTrackSummaryUpdate = False,

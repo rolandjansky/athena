@@ -64,7 +64,6 @@ class AtlasTrackSummaryTool( Trk__TrackSummaryTool ):
             HoleSearch     = AtlasHoleSearchTool,
             AssoTool       = AtlasPrdAssociationTool,
             DoSharedHits   = False,
-            TestPixelLayerTool = TrackingCommon.getInDetTestPixelLayerToolInner(),
             useTRT         = DetFlags.haveRIO.TRT_on()
         )
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #################
 ### Steering options
@@ -151,6 +151,8 @@ if makeSplitTracks:
     InDetxAODSplitParticleCreatorTool = Trk__TrackParticleCreatorTool(name = "InDetSplitxAODParticleCreatorTool",
                                                                       TrackToVertex           = TrackingCommon.getInDetTrackToVertexTool(),
                                                                       TrackSummaryTool        = TrackingCommon.getInDetTrackSummaryToolSharedHits(),
+                                                                      TestPixelLayerTool      = TrackingCommong.getInDetTestPixelLayerToolInner(),
+                                                                      ComputeAdditionalInfo   = True,
                                                                       KeepParameters          = True)
     ToolSvc += InDetxAODSplitParticleCreatorTool
     # The following adds truth information, but needs further testing

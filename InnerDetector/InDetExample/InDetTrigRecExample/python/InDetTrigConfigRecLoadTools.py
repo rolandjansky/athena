@@ -544,7 +544,6 @@ if InDetTrigFlags.loadSummaryTool():
   InDetTrigTrackSummaryHelperTool = InDet__InDetTrackSummaryHelperTool(name          = "InDetTrigSummaryHelper",
                                                                        HoleSearch    = InDetTrigHoleSearchTool,
                                                                        AssoTool      = InDetTrigPrdAssociationTool,
-                                                                       TestPixelLayerTool = None,
                                                                        DoSharedHits  = False,
                                                                        TRTStrawSummarySvc=InDetTrigTRTStrawStatusSummaryTool,
                                                                        usePixel      = DetFlags.haveRIO.pixel_on(),
@@ -558,7 +557,6 @@ if InDetTrigFlags.loadSummaryTool():
   InDetTrigTrackSummaryHelperToolSi = InDet__InDetTrackSummaryHelperTool(name          = "InDetTrigSummaryHelperSi",
                                                                          HoleSearch    = InDetTrigHoleSearchTool,
                                                                          AssoTool      = InDetTrigPrdAssociationTool,
-                                                                         TestPixelLayerTool = None,
                                                                          DoSharedHits  = False,
                                                                          TRTStrawSummarySvc=None,
                                                                          usePixel      = DetFlags.haveRIO.pixel_on(),
@@ -618,7 +616,6 @@ if InDetTrigFlags.loadSummaryTool():
                                                                                    AssoTool     = InDetTrigPrdAssociationTool,
                                                                                    DoSharedHits = InDetTrigFlags.doSharedHits(),
                                                                                    HoleSearch   = InDetTrigHoleSearchTool,
-                                                                                   TestPixelLayerTool=InDetTrigTestPixelLayerToolInner,
                                                                                    TRTStrawSummarySvc = InDetTrigTRTStrawStatusSummaryTool)
 
     ToolSvc += InDetTrigTrackSummaryHelperToolSharedHits

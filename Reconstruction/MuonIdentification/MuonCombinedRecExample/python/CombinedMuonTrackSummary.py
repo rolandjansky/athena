@@ -74,7 +74,6 @@ from InDetTrackSummaryHelperTool.InDetTrackSummaryHelperToolConf import InDet__I
 ToolSvc += InDet__InDetTrackSummaryHelperTool( \
   name            = "CombinedMuonIDSummaryHelper",
   AssoTool        = None,
-  TestPixelLayerTool = None,
   DoSharedHits    = False,
   HoleSearch      = ToolSvc.CombinedMuonIDHoleSearch,
   usePixel        = DetFlags.haveRIO.pixel_on(),
@@ -98,23 +97,6 @@ ToolSvc += Trk__TrackSummaryTool( 'CombinedMuonTrackSummary',
                                   InDetSummaryHelperTool   = ToolSvc.CombinedMuonIDSummaryHelper,
                                   MuonSummaryHelperTool    = muonTrackSummaryHelper,
                                   PixelExists              = True )
-
-# load tools requiring pixels
-if DetFlags.haveRIO.pixel_on():
-  # use AssoTool for shared hits (provided we have RDO)
-  # commented as this doesn't work...
-  # from RecExConfig.RecFlags import rec
-  # if rec.readRDO:
-  #  #ToolSvc.CombinedMuonIDSummaryHelper.AssoTool  = ToolSvc.InDetPrdAssociationTool
-  #  ToolSvc.CombinedMuonTrackSummary.doSharedHits = True
-
-  # load pixel layer tool
-  CombinedMuonTestPixelLayer = TrackingCommon.getInDetTestPixelLayerToolInner(name = "CombinedMuonTestPixelLayer",
-                                                                              Extrapolator = atlasExtrapolator)
-  ToolSvc += CombinedMuonTestPixelLayer
-
-  # set properties into public tools
-  ToolSvc.CombinedMuonIDSummaryHelper.TestPixelLayerTool  = ToolSvc.CombinedMuonTestPixelLayer
 
   
 if DetFlags.haveRIO.SCT_on():

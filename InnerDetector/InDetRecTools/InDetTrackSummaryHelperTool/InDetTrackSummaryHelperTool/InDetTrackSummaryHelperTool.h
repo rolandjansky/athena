@@ -8,7 +8,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkToolInterfaces/IExtendedTrackSummaryHelperTool.h"
 
-#include "InDetRecToolInterfaces/IInDetTestPixelLayerTool.h"
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
@@ -62,7 +61,6 @@ public:
   */
   using IExtendedTrackSummaryHelperTool::addDetailedTrackSummary;
   using IExtendedTrackSummaryHelperTool::analyse;
-  using IExtendedTrackSummaryHelperTool::updateExpectedHitInfo;
 
   virtual void analyse(
     const EventContext& ctx,
@@ -87,12 +85,6 @@ public:
   virtual void addDetailedTrackSummary(const EventContext& ctx,
                                        const Trk::Track&,
                                        Trk::TrackSummary&) const override final;
-
-  /** This method updates the expect... hit info*/
-  virtual void updateExpectedHitInfo(
-    const EventContext& ctx,
-    const Trk::Track& track,
-    Trk::TrackSummary& summary) const override final;
 
   /** Input : track, partHyp
       Output: Changes in information
@@ -155,9 +147,6 @@ private:
   ToolHandle<Trk::IPixelToTPIDTool> m_pixeldedxtool{ this,
                                                      "PixelToTPIDTool",
                                                      "" };
-  ToolHandle<InDet::IInDetTestPixelLayerTool> m_testPixelLayerTool{ this,
-                                                                    "TestPixelLayerTool",
-                                                                    "" };
   ToolHandle<ITRT_StrawStatusSummaryTool> m_TRTStrawSummaryTool{
     this,
     "TRTStrawSummarySvc",
