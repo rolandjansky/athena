@@ -42,7 +42,7 @@ StatusCode TrigEgammaMonitorTopoAlgorithm::fillHistograms( const EventContext& c
     ATH_MSG_DEBUG("Executing TrigEgammaMonitorTopoAlgorithm");
 
     if(isHLTTruncated()){
-        ATH_MSG_WARNING("HLTResult truncated, skip trigger analysis");
+        ATH_MSG_DEBUG("HLTResult truncated, skip trigger analysis");
         return StatusCode::SUCCESS; 
     }
     
@@ -52,13 +52,13 @@ StatusCode TrigEgammaMonitorTopoAlgorithm::fillHistograms( const EventContext& c
 
     if(!offElectrons.isValid())
     {
-      ATH_MSG_WARNING("Failed to retrieve offline Electrons ");
+      ATH_MSG_DEBUG("Failed to retrieve offline Electrons ");
       return StatusCode::SUCCESS;
     }
 
     if(!offPhotons.isValid())
     {
-      ATH_MSG_WARNING("Failed to retrieve offline Photons ");
+      ATH_MSG_DEBUG("Failed to retrieve offline Photons ");
       return StatusCode::SUCCESS;
     }
     
