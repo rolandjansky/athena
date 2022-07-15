@@ -154,17 +154,15 @@ def ActsTrkBaseSeedAnalysisCfg(flags,
     kwargs.setdefault('InputSeedCollection', 'ITkPixelSeeds')
 
     if flags.ITk.Tracking.doTruth:
-        from ActsTrkTrackParamsEstimationTool.ActsTrkTrackParamsEstimationToolConfig import TrackParamsEstimationToolCfg
         from ActsGeometry.ActsGeometryConfig import ActsTrackingGeometryToolCfg
-
         geoTool = acc.getPrimaryAndMerge(ActsTrackingGeometryToolCfg(flags))
-        acc.addPublicTool(geoTool)
         
         # ATLAS Converter Tool
         from ActsGeometry.ActsGeometryConfig import ActsATLASConverterToolCfg
         converterTool = acc.popToolsAndMerge(ActsATLASConverterToolCfg(flags))
         
         # Track Param Estimation Tool
+        from ActsTrkTrackParamsEstimationTool.ActsTrkTrackParamsEstimationToolConfig import TrackParamsEstimationToolCfg
         trackEstimationTool = acc.popToolsAndMerge(TrackParamsEstimationToolCfg(flags))        
 
         kwargs.setdefault('TrackingGeometryTool', geoTool)
