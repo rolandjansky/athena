@@ -51,20 +51,18 @@ StatusCode Muon::MM_RawDataProvider::execute(const EventContext& ctx) const
       return StatusCode::FAILURE;
     }
    
-    // get list of offline hash IDs (module context) from region selection,
-    // using an unordered_set to make sure that hash ID entries are unique
-    std::vector<IdentifierHash>        mm_hash_ids;
-    std::unordered_set<IdentifierHash> mm_hash_ids_set;
+
+
+    std::vector<uint32_t> robs;
+    // loop on RoIs
     for(auto roi : *muonRoI) {
       ATH_MSG_DEBUG("Getting ROBs for RoI " << *roi);
-      m_regsel_mm->HashIDList(*roi, mm_hash_ids);
-      for (IdentifierHash& hash : mm_hash_ids) mm_hash_ids_set.insert(hash);
-      mm_hash_ids.clear();
+      // Get ROB IDs from region selector
+      m_regsel_mm->ROBIDList(*roi, robs);
     }
 
-    // put the IDs back in the vector and decode
-    mm_hash_ids.insert(mm_hash_ids.end(), mm_hash_ids_set.begin(), mm_hash_ids_set.end());    
-    if (!m_rawDataTool->convert(mm_hash_ids, ctx).isSuccess()) {
+    // Call decoding tool, passing the ROB IDs
+    if (!m_rawDataTool->convert(robs, ctx).isSuccess()) {
       ATH_MSG_ERROR("MM BS conversion into RDOs failed");
       return StatusCode::FAILURE;
     }
