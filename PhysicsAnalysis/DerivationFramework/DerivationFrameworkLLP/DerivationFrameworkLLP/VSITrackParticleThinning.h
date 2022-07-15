@@ -46,6 +46,10 @@ namespace DerivationFramework {
       { this, "SelectionString", "", "" };
       StringProperty m_trackSelectionString
         { this, "TrackSelectionString", "", "" };
+
+      StringArrayProperty m_augVerStrings
+        { this, "AugVerStrings", {""}, "List of augVerStrings to consider" };
+
   }; 
 }
 

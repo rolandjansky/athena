@@ -43,6 +43,7 @@ StatusCode DerivationFramework::VSITrackParticleThinning::initialize()
        // order must match enum order EJetTrPThinningParser
       ATH_CHECK( initializeParser( { m_selectionString, m_trackSelectionString } ));
     }
+
     return StatusCode::SUCCESS;
 }
 
@@ -74,11 +75,13 @@ StatusCode DerivationFramework::VSITrackParticleThinning::doThinning() const
     
     // Set elements in the mask to true if associated with a DV
     for ( const auto trkIt: *importedTrackParticles ) {
-      if(trkIt->isAvailable<char> ("is_svtrk_final")) {
-        bool isSV = trkIt->auxdecor<char> ("is_svtrk_final");
-        if ( isSV ) {
-          int index = trkIt->index();
-          mask[index] = true;
+      for ( const auto &augVerString: m_augVerStrings) {
+        if(trkIt->isAvailable<char> ("is_svtrk_final" + augVerString)) {
+          bool isSV = trkIt->auxdecor<char> ("is_svtrk_final" + augVerString);
+          if ( isSV ) {
+            int index = trkIt->index();
+            mask[index] = true;
+          }
         }
       }
     }

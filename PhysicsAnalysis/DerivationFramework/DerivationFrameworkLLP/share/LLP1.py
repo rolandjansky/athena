@@ -100,7 +100,12 @@ InclusiveVxFitterTool = Trk__TrkVKalVrtFitter(name                = "InclusiveVx
 ToolSvc +=  InclusiveVxFitterTool
 InclusiveVxFitterTool.OutputLevel = INFO
 
-VrtSecInclusive_InDet = setupVSI( "InDet" )
+from InDetRecExample.TrackingCommon import getInDetPixelConditionsSummaryTool
+InDetPixelConditionsSummaryTool = getInDetPixelConditionsSummaryTool()
+InDetPixelConditionsSummaryTool.UseByteStreamFEI4 = False
+InDetPixelConditionsSummaryTool.UseByteStreamFEI3 = False
+
+VrtSecInclusive_InDet = setupVSI( "" )
 
 VrtSecInclusive_InDet.VertexFitterTool             = InclusiveVxFitterTool
 VrtSecInclusive_InDet.Extrapolator                 = ToolSvc.AtlasExtrapolator
@@ -108,19 +113,13 @@ VrtSecInclusive_InDet.TrackToVertexIPEstimatorTool = ToolSvc.LLP1IPETool
 VrtSecInclusive_InDet.TrackToVertexTool            = ToolSvc.LLP1T2VTool
 VrtSecInclusive_InDet.FillIntermediateVertices     = False
 VrtSecInclusive_InDet.TrackLocation                = "InDetWithLRTTrackParticles"
-
-from InDetRecExample.TrackingCommon import getInDetPixelConditionsSummaryTool
-InDetPixelConditionsSummaryTool = getInDetPixelConditionsSummaryTool()
-InDetPixelConditionsSummaryTool.UseByteStreamFEI4 = False
-InDetPixelConditionsSummaryTool.UseByteStreamFEI3 = False
-
 VrtSecInclusive_InDet.PixelConditionsSummaryTool   = InDetPixelConditionsSummaryTool
-
 VrtSecInclusive_InDet.doAugmentDVimpactParametersToMuons = False
 VrtSecInclusive_InDet.doAugmentDVimpactParametersToElectrons = False
 
 SeqLLP1 += VrtSecInclusive_InDet
 
+LLP1VrtSecInclusiveSuffixes = [""]
 
 #====================================================================
 # SKIMMING
@@ -261,7 +260,8 @@ if InDetFlags.doR3LargeD0():
 from DerivationFrameworkLLP.DerivationFrameworkLLPConf import DerivationFramework__VSITrackParticleThinning
 LLP1VSITPThinningTool = DerivationFramework__VSITrackParticleThinning( name                  = "LLP1VSITPThinningTool",
                                                                           StreamName              = LLP1Stream.Name,
-                                                                          InDetTrackParticlesKey  = "InDetTrackParticles")
+                                                                          InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                          AugVerStrings = LLP1VrtSecInclusiveSuffixes)
                     
 ToolSvc += LLP1VSITPThinningTool
 thinningTools.append(LLP1VSITPThinningTool)
@@ -269,7 +269,8 @@ thinningTools.append(LLP1VSITPThinningTool)
 from DerivationFrameworkLLP.DerivationFrameworkLLPConf import DerivationFramework__VSITrackParticleThinning
 LLP1LD0VSITPThinningTool = DerivationFramework__VSITrackParticleThinning( name                  = "LLP1LD0VSITPThinningTool",
                                                                             StreamName              = LLP1Stream.Name,
-                                                                            InDetTrackParticlesKey  = "InDetLargeD0TrackParticles")
+                                                                            InDetTrackParticlesKey  = "InDetLargeD0TrackParticles",
+                                                                            AugVerStrings = LLP1VrtSecInclusiveSuffixes)
 ToolSvc += LLP1LD0VSITPThinningTool
 thinningTools.append(LLP1LD0VSITPThinningTool)
 
@@ -349,6 +350,7 @@ LLP1SlimmingHelper.AllVariables =  ["MuonSegments"]
 
 
 
+
 excludedVertexAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
 StaticContent = []
 StaticContent += ["xAOD::VertexContainer#SoftBVrtClusterTool_Tight_Vertices"]
@@ -357,8 +359,10 @@ StaticContent += ["xAOD::VertexContainer#SoftBVrtClusterTool_Medium_Vertices"]
 StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_Medium_VerticesAux." + excludedVertexAuxData]
 StaticContent += ["xAOD::VertexContainer#SoftBVrtClusterTool_Loose_Vertices"]
 StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_Loose_VerticesAux." + excludedVertexAuxData]
-StaticContent += ["xAOD::VertexContainer#VrtSecInclusive_SecondaryVertices"]
-StaticContent += ["xAOD::VertexAuxContainer#VrtSecInclusive_SecondaryVerticesAux."]
+
+for wp in LLP1VrtSecInclusiveSuffixes:
+    StaticContent += ["xAOD::VertexContainer#VrtSecInclusive_SecondaryVertices" + wp]
+    StaticContent += ["xAOD::VertexAuxContainer#VrtSecInclusive_SecondaryVertices" + wp + "Aux."]
 
 LLP1SlimmingHelper.StaticContent = StaticContent
 
@@ -420,15 +424,25 @@ LLP1SlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.T
                                       "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810.GhostBHadronsFinal.GhostCHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostTausFinal.GhostTausFinalCount",
                                       "TruthPrimaryVertices.t.x.y.z",
                                       "PrimaryVertices.t.x.y.z",
+                                      "InDetTrackParticles.d0.z0.vz.TTVA_AMVFVertices.TTVA_AMVFWeights.eProbabilityHT.truthParticleLink.truthMatchProbability.radiusOfFirstHit",
+                                      "InDetLargeD0TrackParticles.d0.z0.vz.TTVA_AMVFVertices.TTVA_AMVFWeights.eProbabilityHT.truthParticleLink.truthMatchProbability.radiusOfFirstHit",
                                       "GSFTrackParticles.numberOfPixelHoles.numberOfSCTHoles.numberDoF.chiSquared",
                                       "LRTGSFTrackParticles.numberOfPixelHoles.numberOfSCTHoles.numberDoF.chiSquared",
-                                      "InDetTrackParticles.d0.z0.vz.TTVA_AMVFVertices.TTVA_AMVFWeights.eProbabilityHT.is_selected.is_associated.is_svtrk_final.pt_wrtSV.eta_wrtSV.phi_wrtSV.d0_wrtSV.z0_wrtSV.errP_wrtSV.errd0_wrtSV.errz0_wrtSV.chi2_toSV.truthParticleLink.parameterX.parameterY.parameterZ.parameterPX.parameterPY.parameterPZ.parameterPosition.truthMatchProbability.radiusOfFirstHit",
-                                      "InDetLargeD0TrackParticles.d0.z0.vz.TTVA_AMVFVertices.TTVA_AMVFWeights.eProbabilityHT.is_selected.is_associated.is_svtrk_final.pt_wrtSV.eta_wrtSV.phi_wrtSV.d0_wrtSV.z0_wrtSV.errP_wrtSV.errd0_wrtSV.errz0_wrtSV.chi2_toSV.truthParticleLink.parameterX.parameterY.parameterZ.parameterPX.parameterPY.parameterPZ.parameterPosition.truthMatchProbability.radiusOfFirstHit",
                                       "EventInfo.hardScatterVertexLink.timeStampNSOffset",
                                       "TauJets.dRmax.etOverPtLeadTrk",
                                       "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET.ex.ey",
                                       "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht.ex.ey"]
 
+
+VSITrackAuxVars = [ 
+    "is_selected", "is_associated", "is_svtrk_final", "pt_wrtSV", "eta_wrtSV",
+    "phi_wrtSV", "d0_wrtSV", "z0_wrtSV", "errP_wrtSV", "errd0_wrtSV",
+    "errz0_wrtSV", "chi2_toSV"
+]
+
+for suffix in LLP1VrtSecInclusiveSuffixes:
+    LLP1SlimmingHelper.ExtraVariables += [ "InDetTrackParticles." + '.'.join( [ var + suffix for var in VSITrackAuxVars] ) ]
+    LLP1SlimmingHelper.ExtraVariables += [ "InDetLargeD0TrackParticles." + '.'.join( [ var + suffix for var in VSITrackAuxVars] ) ]
 
 # Add trigger matching
 # Run 2
