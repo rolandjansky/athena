@@ -355,7 +355,7 @@ def MuonExtrapolatorCfg(flags, name="MuonExtrapolator", **kwargs):
     if 'Propagators' not in kwargs:
         if use_old_names:
             kwargs.setdefault("Propagators", [result.popToolsAndMerge(
-            AtlasSTEP_PropagatorCfg(flags, name="MuonPropagator"))]) 
+                AtlasSTEP_PropagatorCfg(flags, name="MuonPropagator"))]) 
         else:
             kwargs.setdefault("Propagators", [kwargs["STEP_Propagator"]])
 
@@ -388,7 +388,7 @@ def MuonStraightLineExtrapolatorCfg(flags,
     result.setPrivateTools(extrap)
     result.addPublicTool(extrap) 
     # This ^ should be done by the client with the public tool, but since it's hard to track down
-    # (and since Extrapolators are a specicial case), just be pragmatic for now
+    # (and since Extrapolators are a specicial case), just be pragmatic for now.
     return result
 
 
@@ -399,7 +399,7 @@ def MCTBExtrapolatorCfg(flags, name='MCTBExtrapolator', **kwargs):
     if use_old_names:
         kwargs.setdefault("Propagators", [result.popToolsAndMerge(
             AtlasSTEP_PropagatorCfg(flags, name='MCTBPropagator'))])
-        kwargs.setdefault("STEP_Propagator", AtlasSTEP_PropagatorCfg(flags)) #These have different names in old-style, even though they're configured the same(!)
+        kwargs.setdefault("STEP_Propagator", result.popToolsAndMerge(AtlasSTEP_PropagatorCfg(flags))) #These have different names in old-style, even though they're configured the same(!)
     else:    
         prop = result.popToolsAndMerge(
             AtlasSTEP_PropagatorCfg(flags))

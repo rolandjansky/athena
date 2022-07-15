@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETTRUTHTOOLS_PRD_TRUTHTRAJECTORYSELECTORID_H
@@ -94,6 +94,7 @@ namespace InDet {
     private:
         /**ID pixel helper*/
         const AtlasDetectorID* m_atlasId{};
+        Gaudi::Property<int>    m_simBarcodeOffset{this, "SimBarcodeOffset", 200000};
     };
 }
 

@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GenzModuleEvent/KineHepMcmap.h"
 
 KineHepMcmap::KineHepMcmap ( const HepMC::GenEvent* evt )
-    : m_evt			(evt),
-      m_kine_offset		(100000)
+    : m_evt			(evt)
 {}
 
 int

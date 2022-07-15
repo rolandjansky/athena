@@ -334,11 +334,12 @@ class athenaLogFileReport(logFileReport):
                         self.badAllocExceptionParser(myGen, line, lineCounter)
                         continue
                     # Parser for ROOT reporting a stale file handle (see ATLASG-448)
-                    if 'SysError in <TFile::ReadBuffer>: error reading from file' in line:
+                    # Amendment: Generalize the search (see ATLASRECTS-7121)
+                    if 'Error in <TFile::ReadBuffer>' in line:
                         self.rootSysErrorParser(myGen, line, lineCounter)
                         continue
 
-                    if 'SysError in <TFile::WriteBuffer>' in line:
+                    if 'Error in <TFile::WriteBuffer>' in line:
                         self.rootSysErrorParser(myGen, line, lineCounter)
                         continue
                     # Check if the line is among the non-standard logging errors from the knowledge file
@@ -708,8 +709,8 @@ class scriptLogFileReport(logFileReport):
                 # TODO: This implementation currently only scans for Root SysErrors.
                 # General solution would be a have common error parser for all system level
                 # errors those all also handled by AthenaLogFileReport.
-                if line.__contains__('SysError in <TFile::ReadBuffer>') or \
-                   line.__contains__('SysError in <TFile::WriteBuffer>'):
+                if line.__contains__('Error in <TFile::ReadBuffer>') or \
+                   line.__contains__('Error in <TFile::WriteBuffer>'):
                     self.rootSysErrorParser(line, lineCounter)
 
     # Return the worst error found in the logfile (first error of the most serious type)

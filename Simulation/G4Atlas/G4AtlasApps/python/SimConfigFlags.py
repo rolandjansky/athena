@@ -18,8 +18,19 @@ def createSimConfigFlags():
     scf.addFlag("Sim.WorldRRange", False)  # 12500. / int or float
     scf.addFlag("Sim.WorldZRange", False)  # 22031. / int or float
 
-    # the G4 offset. It was never changed, so no need to peek in file
-    scf.addFlag("Sim.SimBarcodeOffset", 200000)
+    def _checkSimBarcodeOffsetConf(prevFlags):
+        simBarcodeOffset  = 0
+        if prevFlags.Input.Files:
+            from AthenaConfiguration.AutoConfigFlags import GetFileMD
+            mdstring = GetFileMD(prevFlags.Input.Files).get("SimBarcodeOffset", "0")
+            simBarcodeOffset = eval(mdstring)
+            if not simBarcodeOffset:
+                # This is the default value - in practice it has been the same for all campaigns
+                simBarcodeOffset  = 200000
+        return simBarcodeOffset
+
+    # the G4 offset.
+    scf.addFlag("Sim.SimBarcodeOffset", _checkSimBarcodeOffsetConf)
 
     # Forward region
     scf.addFlag("Sim.TwissFileBeam1", False)

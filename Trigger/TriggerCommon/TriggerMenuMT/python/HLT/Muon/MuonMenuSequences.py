@@ -665,7 +665,7 @@ def muEFSAFSSequence(ConfigFlags, is_probe_leg=False):
 ### EF CB full scan ###
 ######################
 def muEFCBFSAlgSequence(ConfigFlags):
-    efcbfsInputMaker = EventViewCreatorAlgorithm("IMEFCBFS")
+    efcbfsInputMaker = EventViewCreatorAlgorithm("IMEFCBFSAlg")
     newRoITool = ViewCreatorCentredOnIParticleROITool()
     newRoITool.RoisWriteHandleKey = "MuonCandidates_FS_ROIs"
     #

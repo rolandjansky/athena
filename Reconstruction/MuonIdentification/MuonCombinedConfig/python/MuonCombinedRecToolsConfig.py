@@ -123,11 +123,11 @@ def MuonCaloEnergyToolCfg(flags,  name="MuonCaloEnergyTool", **kwargs):
     from TrackToCalo.TrackToCaloConfig import ParticleCaloCellAssociationToolCfg, ParticleCaloExtensionToolCfg
 
 
-    result = ParticleCaloCellAssociationToolCfg(flags, name='MuonCaloCellAssociationTool')
-    particle_calo_cell_association_tool = result.getPrimary()
+    result = ParticleCaloExtensionToolCfg(flags, name='MuonParticleCaloExtensionTool')
+    particle_calo_extension_tool = result.getPrimary()
 
-    particle_calo_extension_tool = result.popToolsAndMerge(
-        ParticleCaloExtensionToolCfg(flags, name='MuonParticleCaloExtensionTool'))
+    particle_calo_cell_association_tool = result.popToolsAndMerge( 
+        ParticleCaloCellAssociationToolCfg(flags, name='MuonCaloCellAssociationTool', ParticleCaloExtensionTool=particle_calo_extension_tool) )
 
     from TrkConfig.TrkParticleCreatorConfig import MuonCaloParticleCreatorCfg
     track_particle_creator = result.popToolsAndMerge(
@@ -548,10 +548,19 @@ def MuidCaloEnergyMeasCfg(flags, name='MuidCaloEnergyMeas', **kwargs):
 
 
 def MuidCaloEnergyToolParamCfg(flags, name='MuidCaloEnergyToolParam', **kwargs):
+    # Some duplication with MuidCaloEnergyToolCfg but probably safer like this, since
+    # we don't want to set e.g. MinFinalEnergy here
+    result = MuidCaloEnergyMeasCfg(flags)
+    kwargs.setdefault("CaloMeasTool", result.popPrivateTools())
     kwargs.setdefault("EnergyLossMeasurement", False)
+
+    kwargs.setdefault("CaloParamTool", MuidCaloEnergyParam(flags) )
     if flags.Beam.Type is BeamType.Cosmics:
         kwargs.setdefault("Cosmics", True )
-    return MuidCaloEnergyToolCfg(flags, name, **kwargs)
+    kwargs.setdefault("TrackIsolationTool", result.popToolsAndMerge(MuidTrackIsolationCfg(flags) ) )
+
+    result.setPrivateTools(CompFactory.Rec.MuidCaloEnergyTool(name, **kwargs))
+    return result
 
 
 def MuidTrackIsolationCfg(flags, name='MuidTrackIsolation', **kwargs):
@@ -690,11 +699,16 @@ def EMEO_CombinedMuonTrackBuilderCfg(flags, name="MuonCombinedTrackBuilder_EMEO"
 
 def MuidErrorOptimisationToolCfg(flags, name='MuidErrorOptimisationTool', **kwargs):
     from MuonConfig.MuonRecToolsConfig import MuonTrackSummaryHelperToolCfg, MuonRefitToolCfg
-    result = ComponentAccumulator()
+    result=ComponentAccumulator()
     kwargs.setdefault("TrackSummaryTool",  result.popToolsAndMerge(
         MuonTrackSummaryHelperToolCfg(flags)))
-    kwargs.setdefault("RefitTool", result.popToolsAndMerge(
-        MuonRefitToolCfg(flags)))
+    useAlignErrs = True
+    if flags.IOVDb.DatabaseInstance == 'COMP200' or \
+                'HLT' in flags.IOVDb.GlobalTag or flags.Common.isOnline or flags.Muon.MuonTrigger:
+        useAlignErrs = False
+    kwargs.setdefault("RefitTool", result.popToolsAndMerge(MuonRefitToolCfg(
+            flags, name="MuidRefitTool", AlignmentErrors=useAlignErrs, 
+            Fitter=result.popToolsAndMerge(iPatFitterCfg(flags)))))
     tool = CompFactory.Muon.MuonErrorOptimisationTool(name, **kwargs)
     result.setPrivateTools(tool)
     return result
@@ -821,17 +835,8 @@ def CombinedMuonTrackBuilderCfg(flags, name='CombinedMuonTrackBuilder', **kwargs
 
     # configure tools for data reprocessing
     if flags.Muon.enableErrorTuning and 'MuonErrorOptimizer' not in kwargs:
-        # use alignment effects on track for all algorithms
-        useAlignErrs = True
-        if flags.IOVDb.DatabaseInstance == 'COMP200' or \
-                'HLT' in flags.IOVDb.GlobalTag or flags.Common.isOnline or flags.Muon.MuonTrigger:
-            useAlignErrs = False
-
-        from MuonConfig.MuonRecToolsConfig import MuonRefitToolCfg
-        refitTool = result.popToolsAndMerge(MuonRefitToolCfg(
-            flags, name="MuidRefitTool", AlignmentErrors=useAlignErrs, Fitter=ipatFitter))
         acc = MuidErrorOptimisationToolCfg(flags, name="MuidErrorOptimisationTool", PrepareForFit=False,
-                                           RecreateStartingParameters=False, RefitTool=refitTool)
+                                           RecreateStartingParameters=False)
         kwargs.setdefault("MuonErrorOptimizer", acc.popPrivateTools())
         result.merge(acc)
     else:
@@ -862,7 +867,8 @@ def CombinedMuonTrackBuilderFitCfg(flags, name='CombinedMuonTrackBuilderFit', **
     kwargs.setdefault("PerigeeAtSpectrometerEntrance", True)
     kwargs.setdefault("UseCaloTG", False)
     kwargs.setdefault("MuonErrorOptimizer",
-                      result.popToolsAndMerge(MuidErrorOptimisationToolCfg(flags)))
+                      result.popToolsAndMerge(MuidErrorOptimisationToolCfg(flags, PrepareForFit=False,
+                                           RecreateStartingParameters=False)))
     kwargs.setdefault("MuonHoleRecovery", result.popToolsAndMerge(MuonChamberHoleRecoveryToolCfg(flags)) ) 
 
     tool = result.popToolsAndMerge(CombinedMuonTrackBuilderCfg(
