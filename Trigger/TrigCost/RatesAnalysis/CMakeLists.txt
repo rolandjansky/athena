@@ -26,4 +26,4 @@ atlas_add_test( RatesAnalysis_test
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
-atlas_install_scripts( share/RatesAnalysisFullMenu.py share/RatesEmulationExample.py share/RatesAnalysisPostProcessing.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
+atlas_install_scripts( share/RatesAnalysisFullMenu.py share/RatesEmulationExample.py share/RatesAnalysisPostProcessing.py share/RatesAnalysisOnlineProcessing.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
