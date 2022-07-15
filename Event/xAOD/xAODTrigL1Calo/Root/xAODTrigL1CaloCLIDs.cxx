@@ -46,3 +46,5 @@
 #include "xAODTrigL1Calo/RODHeaderContainer.h"
 #include "xAODTrigL1Calo/TriggerTowerAuxContainer.h"
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
+#include "xAODTrigL1Calo/eFexTowerAuxContainer.h"
+#include "xAODTrigL1Calo/eFexTowerContainer.h"
