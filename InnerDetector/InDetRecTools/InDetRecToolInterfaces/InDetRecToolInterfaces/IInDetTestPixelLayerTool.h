@@ -36,12 +36,10 @@ public:
 
   virtual bool expectHitInPixelLayer(const EventContext& ctx,
                                      const Trk::TrackParticleBase*,
-                                     int pixel_layer,
-                                     bool recompute = false) const = 0;
+                                     int pixel_layer) const = 0;
   virtual bool expectHitInPixelLayer(const EventContext& ctx,
                                      const Trk::Track*,
                                      int pixel_layer,
-                                     bool recompute = false,
                                      bool checkBarrelOnly = false) const = 0;
   virtual bool expectHitInPixelLayer(const EventContext& ctx,
                                      const Trk::TrackParameters* trackpar,
@@ -49,16 +47,14 @@ public:
                                      bool checkBarrelOnly = false) const = 0;
 
   bool expectHitInInnermostPixelLayer(const EventContext& ctx,
-                                      const Trk::Track* track,
-                                      bool recompute = false) const
+                                      const Trk::Track* track) const
   {
-    return expectHitInPixelLayer(ctx, track, 0, recompute, true);
+    return expectHitInPixelLayer(ctx, track, 0, true);
   }
-  bool expectHitInInnermostPixelLayer(const Trk::Track* track,
-                                      bool recompute = false) const
+  bool expectHitInInnermostPixelLayer(const Trk::Track* track) const
   {
     return expectHitInInnermostPixelLayer(
-      Gaudi::Hive::currentContext(), track, recompute);
+      Gaudi::Hive::currentContext(), track);
   }
   bool expectHitInInnermostPixelLayer(const Trk::TrackParameters* trackpar) const
   {
@@ -67,16 +63,19 @@ public:
   }
 
   bool expectHitInNextToInnermostPixelLayer(const EventContext& ctx,
-                                            const Trk::Track* track,
-                                            bool recompute = false) const
+                                            const Trk::Track* track) const
   {
-    return expectHitInPixelLayer(ctx, track, 1, recompute, true);
+    return expectHitInPixelLayer(ctx, track, 1, true);
   }
-  bool expectHitInNextToInnermostPixelLayer(const Trk::Track* track,
-                                            bool recompute = false) const
+  bool expectHitInNextToInnermostPixelLayer(const Trk::Track* track) const
   {
     return expectHitInInnermostPixelLayer(
-      Gaudi::Hive::currentContext(), track, recompute);
+      Gaudi::Hive::currentContext(), track);
+  }
+  bool expectHitInNextToInnermostPixelLayer(const Trk::TrackParameters* trackpar) const
+  {
+    return expectHitInPixelLayer(
+      Gaudi::Hive::currentContext(), trackpar, 1, true);
   }
 
 

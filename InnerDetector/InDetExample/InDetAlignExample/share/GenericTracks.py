@@ -323,6 +323,8 @@ if Cosmics:
     from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
     InDetxAODSplitParticleCreatorTool = Trk__TrackParticleCreatorTool(name = "InDetSplitxAODParticleCreatorTool",
                                                                       TrackSummaryTool        = InDetTrackSummaryToolSharedHits,
+                                                                      TestPixelLayerTool      = InDetTestPixelLayerToolInner,
+                                                                      ComputeAdditionalInfo   = True,
                                                                       KeepParameters          = True,
                                                                       OutputLevel = DEBUG)
     #ToolSvc += InDetxAODSplitParticleCreatorTool

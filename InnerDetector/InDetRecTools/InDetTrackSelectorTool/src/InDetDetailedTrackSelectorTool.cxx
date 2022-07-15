@@ -488,6 +488,8 @@ namespace InDet
       int nhp = getCount(tp,xAOD::numberOfPixelHoles );
       int nhs = getCount(tp,xAOD::numberOfSCTHoles );
       int ndhs = getCount(tp,xAOD::numberOfSCTDoubleHoles);
+      bool eiph = (getCount(tp,xAOD::expectInnermostPixelLayerHit)==1);
+
       //**-----------------------------------------------------------------------
       if(m_usePtDependentCuts) {
 	      double pt = tp.pt();
@@ -512,10 +514,7 @@ namespace InDet
     
       if(nb == 0 && nb < m_nHitBLayer) {
         ATH_MSG_DEBUG("Track rejected because of nHitBLayer "<<nb<<" < "<<m_nHitBLayer);
-        if(m_inDetTestPixelLayerTool.empty()) {
-          ATH_MSG_DEBUG("and no pixel layer tool configured, so will not try to recover track");
-          return false;
-        } else if (m_inDetTestPixelLayerTool->expectHitInInnermostPixelLayer(&perigee)) {
+	if (eiph) {
           ATH_MSG_DEBUG("and track rejected because at least one hit is expected in the innermost pixel layer") ;
           return false;
         }else  ATH_MSG_DEBUG("recovered track as no b-layer expected") ;

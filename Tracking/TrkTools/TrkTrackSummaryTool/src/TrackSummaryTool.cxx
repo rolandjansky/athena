@@ -319,10 +319,6 @@ Trk::TrackSummaryTool::fillSummary(const EventContext& ctx,
     searchHolesStepWise(track, information, doHolesInDet, doHolesMuon);
   }
 
-  //Add Expected Hits info
-  if (m_addExpectedHits && !m_idTool.empty()) {
-    m_idTool->updateExpectedHitInfo(ctx,track,ts);
-  }
   // add detailed summary for muons
   if (m_addMuonDetailedSummary && !m_muonTool.empty()) {
     m_muonTool->addDetailedTrackSummary(ctx, track, ts);
@@ -340,21 +336,6 @@ Trk::TrackSummaryTool::updateSharedHitCount(
 {
   if (m_idTool) {
     m_idTool->updateSharedHitCount(track, prdToTrackMap, summary);
-  }
-}
-
-/*
- * Method to update additional info in the summary
- */
-void
-Trk::TrackSummaryTool::updateAdditionalInfo(const Track& track,
-                                            TrackSummary& summary) const
-{
-  if (m_idTool) {
-    m_idTool->updateExpectedHitInfo(track, summary);
-  } else {
-    ATH_MSG_DEBUG(
-      "No updates attempted, as the SummaryHelperTool is not defined.");
   }
 }
 

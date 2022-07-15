@@ -267,7 +267,7 @@ bool TrigTrackSelector::selectTrack( const Rec::TrackParticle* track ) {
       int nTrHits     = summary->get(Trk::numberOfTRTHighThresholdHits);
 
       int nSiHits     = nPixelHits + nSctHits;
-      bool expectBL   = summary->get(Trk:: expectBLayerHit);
+      bool expectBL   = false; // Not stored for Rec::TrackParticle
 
       const Trk::FitQuality *quality   = track->fitQuality();
       double chi2 = quality->chiSquared();
@@ -982,7 +982,7 @@ bool TrigTrackSelector::selectTrack( const Trk::Track* track ) {
 	int nStrawHits  = 0;
 	int nTrHits     = 0;
 	int nSiHits     = 0;
-	bool expectBL = false;
+	bool expectBL = false; // Not stored for Trk::Track
 	unsigned bitmap = 0;
 
 	if(summary==0){
@@ -995,7 +995,7 @@ bool TrigTrackSelector::selectTrack( const Trk::Track* track ) {
             nStrawHits  = summary->get(Trk::numberOfTRTHits);
             nTrHits     = summary->get(Trk::numberOfTRTHighThresholdHits);
 	    nSiHits     = nPixelHits + nSctHits;
-	    expectBL    = summary->get(Trk::expectBLayerHit);
+
 	    for ( int ih=0 ; ih<20 ; ih++ ) {
 	      if ( summary->isHit(Trk::DetectorType(ih)) ) bitmap |= ( 1<<hpmap[ih] ); 	
 	    }

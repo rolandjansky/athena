@@ -139,7 +139,8 @@ public:
     const std::vector<const Trk::TrackParameters*>& parameters,
     const std::vector<xAOD::ParameterPosition>& positions,
     xAOD::ParticleHypothesis prtOrigin = xAOD::noHypothesis,
-    xAOD::TrackParticleContainer* container = nullptr) const = 0;
+    xAOD::TrackParticleContainer* container = nullptr,
+    bool addInfoIfMuon = false) const = 0;
 
   xAOD::TrackParticle* createParticle(
     const Perigee* perigee,

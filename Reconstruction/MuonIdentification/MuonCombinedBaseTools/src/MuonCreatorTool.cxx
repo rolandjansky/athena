@@ -433,7 +433,7 @@ namespace MuonCombined {
 
             if (outputData.combinedTrackParticleContainer) {
                 xAOD::TrackParticle* tp = m_particleCreator->createParticle(ctx, &tag->combinedParameters(), &fq, &info, &summary, {}, {},
-                                                                            xAOD::muon, outputData.combinedTrackParticleContainer);
+                                                                            xAOD::muon, outputData.combinedTrackParticleContainer, (idSummary!=nullptr));
                 if (!tp) {
                     ATH_MSG_WARNING("Failed to create track particle");
                 } else {

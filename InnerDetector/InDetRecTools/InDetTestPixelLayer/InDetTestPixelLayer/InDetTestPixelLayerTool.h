@@ -61,13 +61,11 @@ public:
   virtual bool expectHitInPixelLayer(
     const EventContext& ctx,
     const Trk::TrackParticleBase*,
-    int pixel_layer,
-    bool recompute = false) const override final;
+    int pixel_layer) const override final;
   virtual bool expectHitInPixelLayer(
     const EventContext& ctx,
     const Trk::Track*,
     int pixel_layer,
-    bool recompute = false,
     bool checkBarrelOnly = false) const override final;
   virtual bool expectHitInPixelLayer(const EventContext& ctx,
                                      const Trk::TrackParameters* trackpar,

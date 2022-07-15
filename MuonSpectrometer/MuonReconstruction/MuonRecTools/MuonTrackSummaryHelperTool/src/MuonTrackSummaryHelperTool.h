@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTRACKSUMMARYHELPERTOOL_H
@@ -46,7 +46,6 @@ namespace Muon {
 
         using IExtendedTrackSummaryHelperTool::addDetailedTrackSummary;
         using IExtendedTrackSummaryHelperTool::analyse;
-        using IExtendedTrackSummaryHelperTool::updateExpectedHitInfo;
         using IExtendedTrackSummaryHelperTool::updateSharedHitCount;
         virtual void analyse(const Trk::Track& trk, const Trk::RIO_OnTrack* rot, const Trk::TrackStateOnSurface* tsos,
                              std::vector<int>& information, std::bitset<Trk::numberOfDetectorTypes>& hitPattern) const override final;
@@ -58,8 +57,6 @@ namespace Muon {
                                     Trk::ParticleHypothesis hyp) const override final;
 
         virtual void updateSharedHitCount(const Trk::Track&, const Trk::PRDtoTrackMap*, Trk::TrackSummary&) const override final {}
-
-        virtual void updateExpectedHitInfo(const Trk::Track&, Trk::TrackSummary&) const override final {}
 
         virtual void addDetailedTrackSummary(const Trk::Track& track, Trk::TrackSummary& summary) const override final;
 

@@ -304,6 +304,7 @@ if InDetFlags.loadSummaryTool():
         printfunc (InDetPixelConditionsSummaryTool)
 
     InDetTestPixelLayerTool = TrackingCommon.getInDetTestPixelLayerTool()
+    InDetTestPixelLayerToolInner = TrackingCommon.getInDetTestPixelLayerToolInner()
     InDetHoleSearchTool     = TrackingCommon.getInDetHoleSearchTool()
 
     #

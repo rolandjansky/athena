@@ -102,39 +102,8 @@ bool
 InDet::InDetTestPixelLayerTool::expectHitInPixelLayer(const EventContext& ctx,
                                                       const Trk::Track* track,
                                                       int pixel_layer,
-                                                      bool recompute,
                                                       bool checkBarrelOnly) const
 {
-  int ehbl = -1;
-  const Trk::TrackSummary* ts = track->trackSummary();
-  if (ts) {
-    ehbl = ts->get(Trk::expectInnermostPixelLayerHit);
-  }
-
-  if (!recompute && pixel_layer == 0) {
-    if (ts) {
-      ehbl = ts->get(Trk::expectInnermostPixelLayerHit);
-      if (0 == ehbl || 1 == ehbl) {
-        ATH_MSG_DEBUG("Found expectHitInPixelLayer info in TrackSummary: "
-                      "return cached value");
-        return (bool)ehbl;
-      }
-    }
-  } else {
-    ATH_MSG_DEBUG("Forced to recompute expectHitInPixelLayer info");
-  }
-
-  // now check to see if the previous computation exists - if so, and if we
-  // already know there's a hole, then don't bother.
-  if (ehbl == 0 && pixel_layer == 0) {
-    ATH_MSG_DEBUG("Found expectHitInPixelLayer info in TrackSummary, and hole "
-                  "known to exist.  Returning cached value.");
-    return (bool)ehbl;
-  }
-
-  // Otherwise, go ahead and check again for holes in that area, e.g. in dead
-  // chips
-
   ATH_MSG_DEBUG("computing expectHitInPixelLayer info");
 
   const Trk::Perigee* mp = track->perigeeParameters();
@@ -153,11 +122,10 @@ bool
 InDet::InDetTestPixelLayerTool::expectHitInPixelLayer(
   const EventContext& ctx,
   const Trk::TrackParticleBase* track,
-  int pixel_layer,
-  bool recompute) const
+  int pixel_layer) const
 {
 
-  // Need to (re)compute iff we do expect a B-layer hit.  If the previous
+  // Need to compute if we do expect a B-layer hit.  If the previous
   // calculation already determined that we don't expect a hit, then we still
   // won't expect one.
 
@@ -166,35 +134,6 @@ InDet::InDetTestPixelLayerTool::expectHitInPixelLayer(
       "Not a valid TrackParticle: no b-layer info will be provided");
     return false;
   }
-
-  int ehbl = -1;
-  const Trk::TrackSummary* ts = track->trackSummary();
-  if (ts) {
-    ehbl = ts->get(Trk::expectInnermostPixelLayerHit);
-  }
-
-  if (!recompute && pixel_layer == 0) {
-    if (ts) {
-      if (0 == ehbl || 1 == ehbl) {
-        ATH_MSG_DEBUG("Found expectHitInPixelLayer info in TrackSummary: "
-                      "return cached value");
-        return (bool)ehbl;
-      }
-    }
-  } else {
-    ATH_MSG_DEBUG("Forced to recompute expectHitInPixelLayer info");
-  }
-
-  // now check to see if the previous computation exists - if so, and if we
-  // already know there's a hole, then don't bother.
-  if (ehbl == 0 && pixel_layer == 0) {
-    ATH_MSG_DEBUG("Found expectHitInPixelLayer info in TrackSummary, and hole "
-                  "known to exist.  Returning cached value.");
-    return (bool)ehbl;
-  }
-
-  // Otherwise, go ahead and check again for holes in that area, e.g. in dead
-  // chips
 
   ATH_MSG_DEBUG("computing expectHitInPixelLayer info");
 

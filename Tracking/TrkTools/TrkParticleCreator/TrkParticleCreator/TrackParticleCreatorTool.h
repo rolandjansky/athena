@@ -30,6 +30,7 @@ changes : 11.02.04 added docu
 #include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
 #include "TrkToolInterfaces/IPixelToTPIDTool.h" //template parameter to tool handle
 #include "TrkToolInterfaces/ITRT_ElectronPidTool.h" //template parameter to tool handle
+#include "InDetRecToolInterfaces/IInDetTestPixelLayerTool.h"
 #include "TrkTrack/TrackInfo.h"
 #include "TrkTrackSummary/MuonTrackSummary.h"
 #include "TrkTrackSummary/TrackSummary.h"
@@ -129,7 +130,8 @@ public:
     const std::vector<const Trk::TrackParameters*>& parameters,
     const std::vector<xAOD::ParameterPosition>& positions,
     xAOD::ParticleHypothesis prtOrigin,
-    xAOD::TrackParticleContainer* container) const override final;
+    xAOD::TrackParticleContainer* container,
+    bool addInfoIfMuon) const override final;
 
   virtual const InDet::BeamSpotData* CacheBeamSpotData(
     const EventContext& ctx) const override final;
@@ -155,6 +157,9 @@ public:
 
    /** Add extra detailed hit summary info not computed in Trk::TrkSummary */
    void addDetailedHitInformation(const DataVector<const TrackStateOnSurface>* trackStates, xAOD::TrackParticle& tp) const;
+
+   /** Add expected hit info for innermost pixel layers not computed in Trk::TrkSummary */
+   void addExpectedHitInformation(const Perigee* perigee, xAOD::TrackParticle& tp) const;
 
   /** Method to set Defining parameters of a xAOD::TrackParticle */
   void setDefiningParameters(xAOD::TrackParticle& tp,
@@ -194,7 +199,8 @@ protected:
     const std::vector<xAOD::ParameterPosition>& positions,
     xAOD::ParticleHypothesis prtOrigin,
     xAOD::TrackParticleContainer* container,
-    const Trk::Track *track) const;
+    const Trk::Track *track,
+    bool addInfoIfMuon = false) const;
 
 private:
   void compare(const Rec::TrackParticle& tp,
@@ -242,6 +248,12 @@ private:
                                                        "" };
   /**tool to calculate dE/dx using pixel clusters*/
   ToolHandle<IPixelToTPIDTool> m_dedxtool{ this, "PixelToTPIDTool", "", "" };
+
+  /**tool to calculate expected hit information in innermost layers*/
+  ToolHandle<InDet::IInDetTestPixelLayerTool> m_testPixelLayerTool{ this,
+                                                                    "TestPixelLayerTool",
+                                                                    "",
+                                                                    "" };
 
   /** Configurable to set the eProbabilities and extra track summary types which
    * are to be copied from the track summary.*/

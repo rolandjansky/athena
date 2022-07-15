@@ -199,15 +199,6 @@ def GSFTrackSummaryToolCfg(flags,
     acc = ComponentAccumulator()
 
     if "InDetSummaryHelperTool" not in kwargs:
-        testPixelLayerTool = None
-        if flags.Detector.EnablePixel:
-            from InDetConfig.InDetTestPixelLayerConfig import (
-                InDetTestPixelLayerToolInnerCfg)
-            testPixelLayerTool = acc.popToolsAndMerge(
-                InDetTestPixelLayerToolInnerCfg(flags,
-                                                name="GSFBuildTestPixelLayerTool",
-                                                CheckActiveAreas=False))
-
         from InDetConfig.InDetTrackSummaryHelperToolConfig import (
             InDetTrackSummaryHelperToolCfg)
         kwargs["InDetSummaryHelperTool"] = acc.popToolsAndMerge(
@@ -215,8 +206,7 @@ def GSFTrackSummaryToolCfg(flags,
                 flags,
                 name="GSFBuildTrackSummaryHelperTool",
                 HoleSearch=None,
-                AssoTool=None,
-                TestPixelLayerTool=testPixelLayerTool
+                AssoTool=None
             ))
 
     kwargs.setdefault("doSharedHits", False)

@@ -4,6 +4,10 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 def InDetTestPixelLayerToolCfg(flags, name = "InDetTestPixelLayerTool", **kwargs):
+  if flags.Detector.GeometryITk:
+    name = name.replace("InDet", "ITk")
+    return ITkTestPixelLayerToolCfg(flags, name, **kwargs)
+
   result = ComponentAccumulator()
   if 'PixelSummaryTool' not in kwargs :
     from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
@@ -29,6 +33,10 @@ def InDetTestPixelLayerToolCfg(flags, name = "InDetTestPixelLayerTool", **kwargs
   return result
 
 def InDetTestPixelLayerToolInnerCfg(flags, name = "InDetTestPixelLayerToolInner", **kwargs):
+  if flags.Detector.GeometryITk:
+    name = name.replace("InDet", "ITk")
+    return ITkTestPixelLayerToolInnerCfg(flags, name, **kwargs)
+
   kwargs.setdefault("CheckActiveAreas", False)
   kwargs.setdefault("CheckDeadRegions", False)
   kwargs.setdefault("CheckDisabledFEs", False)

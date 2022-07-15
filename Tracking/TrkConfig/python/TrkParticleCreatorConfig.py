@@ -32,6 +32,12 @@ def TrackParticleCreatorToolCfg(flags, name="InDetxAODParticleCreatorTool", **kw
         from InDetConfig.TrackingCommonConfig import InDetPixelToTPIDToolCfg
         kwargs.setdefault("PixelToTPIDTool", result.popToolsAndMerge(InDetPixelToTPIDToolCfg(flags)))
 
+    if 'TestPixelLayerTool' not in kwargs and flags.Detector.EnablePixel:
+        from InDetConfig.InDetTestPixelLayerConfig import InDetTestPixelLayerToolInnerCfg
+        InDetTestPixelLayerTool = result.popToolsAndMerge(InDetTestPixelLayerToolInnerCfg(flags))
+        kwargs.setdefault("TestPixelLayerTool", InDetTestPixelLayerTool)
+
+    kwargs.setdefault("ComputeAdditionalInfo", True)
     kwargs.setdefault("BadClusterID", 3) # Select the mode to identify suspicous pixel cluster
     kwargs.setdefault("KeepParameters", True)
     kwargs.setdefault("KeepFirstParameters", False)
@@ -50,6 +56,7 @@ def TrackParticleCreatorToolPIDCheckCfg(flags, name="InDetxAODParticleCreatorToo
         kwargs.setdefault("TRT_ElectronPidTool", None)
     if not flags.InDet.Tracking.ActivePass.RunPixelPID:
         kwargs.setdefault("PixelToTPIDTool", None)
+        kwargs.setdefault("TestPixelLayerTool", None)
 
     # have to create special public instance depending on PID tool configuration
     if name=="InDetxAODParticleCreatorTool" :
@@ -67,6 +74,7 @@ def TrackParticleCreatorToolPIDCheckCfg(flags, name="InDetxAODParticleCreatorToo
 def TrackParticleCreatorToolNoPIDCfg(flags, name="InDetxAODParticleCreatorToolNoPID", **kwargs):
     kwargs.setdefault("TRT_ElectronPidTool", None)
     kwargs.setdefault("PixelToTPIDTool", None)
+    kwargs.setdefault("TestPixelLayerTool", None)
     return TrackParticleCreatorToolCfg(flags, name, **kwargs)
 
 def InDetTrigParticleCreatorToolFTFCfg(flags, name="InDetTrigParticleCreatorToolFTF", **kwargs):
@@ -82,6 +90,7 @@ def InDetTrigParticleCreatorToolFTFCfg(flags, name="InDetTrigParticleCreatorTool
         result.addPublicTool(TrackSummaryTool)
         kwargs.setdefault("TrackSummaryTool", TrackSummaryTool)
 
+    kwargs.setdefault("TestPixelLayerTool", None)
     kwargs.setdefault("KeepParameters", True)
     kwargs.setdefault("ComputeAdditionalInfo", True)
 
@@ -99,6 +108,13 @@ def ITkTrackParticleCreatorToolCfg(flags, name="ITkTrackParticleCreatorTool", **
         TrackSummaryTool = result.popToolsAndMerge(ITkTrackSummaryToolSharedHitsCfg(flags))
         result.addPublicTool(TrackSummaryTool)
         kwargs.setdefault("TrackSummaryTool", TrackSummaryTool)
+
+    if "TestPixelLayerTool" not in kwargs and flags.Detector.EnableITkPixel:
+        from InDetConfig.InDetTestPixelLayerConfig import ITkTestPixelLayerToolInnerCfg
+        ITkTestPixelLayerTool = result.popToolsAndMerge(ITkTestPixelLayerToolInnerCfg(flags))
+        kwargs.setdefault("TestPixelLayerTool", ITkTestPixelLayerTool)
+
+    kwargs.setdefault("ComputeAdditionalInfo", True)
     kwargs.setdefault("BadClusterID", 3) # Select the mode to identify suspicous pixel cluster
     kwargs.setdefault("KeepParameters", True)
     kwargs.setdefault("KeepFirstParameters", False)
@@ -110,6 +126,7 @@ def ITkTrackParticleCreatorToolCfg(flags, name="ITkTrackParticleCreatorTool", **
                       else flags.ITk.Tracking.perigeeExpression)
     kwargs.setdefault("IBLParameterSvc", "")
     kwargs.setdefault("DoITk", True)
+
     result.setPrivateTools(CompFactory.Trk.TrackParticleCreatorTool(name, **kwargs))
     return result
 
@@ -138,6 +155,11 @@ def GSFBuildInDetParticleCreatorToolCfg(flags, name="GSFBuildInDetParticleCreato
         from InDetConfig.TRT_ElectronPidToolsConfig import GSFBuildTRT_ElectronPidToolCfg
         kwargs.setdefault("TRT_ElectronPidTool", result.popToolsAndMerge(GSFBuildTRT_ElectronPidToolCfg(flags)))
 
+    if (flags.Detector.EnablePixel or flags.Detector.EnableITkPixel) and "TestPixelLayerTool" not in kwargs:
+        from InDetConfig.InDetTestPixelLayerConfig import InDetTestPixelLayerToolInnerCfg
+        kwargs.setdefault("TestPixelLayerTool", result.popToolsAndMerge(InDetTestPixelLayerToolInnerCfg(flags)))
+
+    kwargs.setdefault("ComputeAdditionalInfo", True)
     kwargs.setdefault("KeepParameters", True)
     kwargs.setdefault("BadClusterID", 0)
     kwargs.setdefault("IBLParameterSvc",
@@ -187,6 +209,8 @@ def MuonCombinedParticleCreatorCfg(flags, name="MuonCombinedParticleCreator", **
         else:
             from TrkConfig.TrkTrackSummaryToolConfig import MuonCombinedTrackSummaryToolCfg
             kwargs.setdefault("TrackSummaryTool", result.popToolsAndMerge(MuonCombinedTrackSummaryToolCfg(flags)))
+            from InDetConfig.InDetTestPixelLayerConfig import InDetTestPixelLayerToolInnerCfg
+            kwargs.setdefault("TestPixelLayerTool", result.popToolsAndMerge(InDetTestPixelLayerToolInnerCfg(flags)))
 
     if "TrackToVertex" not in kwargs:
         from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonTrackToVertexCfg
@@ -203,6 +227,7 @@ def MuonCombinedParticleCreatorCfg(flags, name="MuonCombinedParticleCreator", **
     #    kwargs.setdefault("PixelToTPIDTool", result.popToolsAndMerge(
     #        InDetPixelToTPIDToolCfg(flags)))
 
+    kwargs.setdefault("ComputeAdditionalInfo", True)
     kwargs.setdefault("KeepAllPerigee", True)
     if flags.Beam.Type is BeamType.Cosmics:
         kwargs.setdefault("PerigeeExpression", "Origin")

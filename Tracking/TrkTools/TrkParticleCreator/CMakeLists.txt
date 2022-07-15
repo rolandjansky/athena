@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrkParticleCreator )
@@ -16,7 +16,7 @@ atlas_add_library( TrkParticleCreatorLib
 atlas_add_component( TrkParticleCreator
    src/*.cxx src/components/*.cxx
    LINK_LIBRARIES AthContainers AthenaBaseComps EventPrimitives xAODTracking
-   GaudiKernel InDetIdentifier MuonRecToolInterfaces TrkEventPrimitives
+   GaudiKernel InDetIdentifier InDetRecToolInterfaces MuonRecToolInterfaces TrkEventPrimitives
    TrkParameters TrkParticleBase TrkTrack TrkTrackSummary TrkToolInterfaces
    AthContainers AtlasDetDescr GeoPrimitives IdDictDetDescr InDetPrepRawData
    InDetRIO_OnTrack Particle ITrackToVertex TrkSurfaces

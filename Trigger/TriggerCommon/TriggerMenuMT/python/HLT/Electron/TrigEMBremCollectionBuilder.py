@@ -99,7 +99,6 @@ class TrigEgammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
             name="GSFBuildTrackSummaryHelperTool",
             AssoTool=None,
             HoleSearch=None,
-            TestPixelLayerTool=GSFBuildTestPixelLayerTool,
             isHLT = True,
             DoSharedHits=False,
             private=True)
@@ -125,6 +124,8 @@ class TrigEgammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
             name="GSFBuildInDetParticleCreatorTool",
             TRT_ElectronPidTool=GSFBuildTRT_ElectronPidTool,
             PixelToTPIDTool=GSFBuildPixelToTPIDTool,
+            TestPixelLayerTool=GSFBuildTestPixelLayerTool,
+            ComputeAdditionalInfo=True,
             KeepParameters=True,
             TrackSummaryTool=GSFBuildInDetTrigTrackSummaryTool)
         #
