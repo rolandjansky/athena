@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKALGS_IPCMAT_H
@@ -68,6 +68,7 @@ class IPCMat {
   int m_msgid;
   std::string  m_name;
   MsgStream* m_log;
+  pid_t m_ipcmat_pid;
 
   struct MsgBuf {
     long mtype;
