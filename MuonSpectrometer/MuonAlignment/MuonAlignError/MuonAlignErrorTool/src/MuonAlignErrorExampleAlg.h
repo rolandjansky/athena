@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONALIGNERRORTOOL_MUONALIGNERROREXAMPLEALG_H
@@ -27,7 +27,7 @@ namespace MuonAlign {
         StatusCode finalize();
 
     private:
-        void muonTrack(const Trk::Track* track) const;
+        void muonTrack(const Trk::Track* track);
 
         ToolHandle<Trk::ITrkAlignmentDeviationTool> m_alignErrorTool{this, "alignErrorTool", "MuonAlign::AlignmentErrorTool"};
 
