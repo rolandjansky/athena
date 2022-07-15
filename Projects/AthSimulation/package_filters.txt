@@ -342,6 +342,7 @@
 + Simulation/RunDependentSim/RunDependentSimData
 + Simulation/RunDependentSim/RunDependentSimComps
 + Simulation/SimuJobTransforms
++ Simulation/SimulationConfig
 + Simulation/SimulationJobOptions
 + Simulation/Tests/ISF_Validation
 + Simulation/Tests/SimExoticsTests

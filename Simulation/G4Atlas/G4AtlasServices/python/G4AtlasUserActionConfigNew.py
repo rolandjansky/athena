@@ -5,7 +5,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType, LHCPeriod
 from CaloG4Sim.CaloG4SimConfigNew import CalibrationDefaultProcessingToolCfg
-from G4AtlasApps.SimEnums import CalibrationRun, CavernBackground, SimulationFlavour
+from SimulationConfig.SimEnums import CalibrationRun, CavernBackground, SimulationFlavour
 from G4CosmicFilter.G4CosmicFilterConfigNew import CosmicFilterToolCfg
 from G4UserActions.G4UserActionsConfigNew import (
     AthenaStackingActionToolCfg, AthenaTrackingActionToolCfg,

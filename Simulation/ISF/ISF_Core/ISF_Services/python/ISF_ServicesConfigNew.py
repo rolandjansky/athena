@@ -5,7 +5,7 @@ Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType
-from G4AtlasApps.SimEnums import CavernBackground, TruthStrategy
+from SimulationConfig.SimEnums import CavernBackground, TruthStrategy
 from ISF_HepMC_Tools.ISF_HepMC_ToolsConfigNew import (
     ParticleFinalStateFilterCfg, ParticlePositionFilterDynamicCfg,
     EtaPhiFilterCfg, GenParticleInteractingFilterCfg,

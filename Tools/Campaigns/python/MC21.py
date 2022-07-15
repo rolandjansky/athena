@@ -1,5 +1,5 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
-from G4AtlasApps.SimEnums import SimulationFlavour, TruthStrategy
+from SimulationConfig.SimEnums import SimulationFlavour, TruthStrategy
 from AthenaConfiguration.Enums import ProductionStep
 from LArConfiguration.LArConfigRun3 import LArConfigRun3PileUp, LArConfigRun3NoPileUp
 

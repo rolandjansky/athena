@@ -2,7 +2,7 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType
-from G4AtlasApps.SimEnums import BeamPipeSimMode, CalibrationRun, CavernBackground, LArParameterization
+from SimulationConfig.SimEnums import BeamPipeSimMode, CalibrationRun, CavernBackground, LArParameterization
 
 
 def FastSimulationToolListCfg(ConfigFlags):

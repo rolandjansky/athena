@@ -275,10 +275,10 @@ protected:
   bool isPreselPassDisTrackBeforeRefit(Trk::Track*, double, double) const;
   bool isPreselPassDisTrackAfterRefit(Trk::Track*, Trk::Track*, double, double) const;
   bool isGoodForDisTrackVertex(Trk::Track*) const;
-  const Trk::Perigee* extrapolateDisTrackToBS(Trk::Track*, const std::vector<double>&, const std::vector<double>&, const std::vector<double>&) const;
+  std::unique_ptr<const Trk::TrackParameters> extrapolateDisTrackToBS(Trk::Track*, const std::vector<double>&, const std::vector<double>&, const std::vector<double>&) const;
   void filterSharedDisTracks(std::vector<std::tuple<bool, double,Trk::Track*>>&) const;
-  void fillDisTrkCand(xAOD::TrigComposite*, const std::string&, Trk::Track*, const Trk::Perigee*) const;
-  void fillDisTrkCand(xAOD::TrigComposite*, const std::string&, Trk::Track*, const Trk::Perigee*, bool, std::vector<Trk::Track*>&) const;
+  void fillDisTrkCand(xAOD::TrigComposite*, const std::string&, Trk::Track*, const std::unique_ptr<const Trk::TrackParameters>&) const;
+  void fillDisTrkCand(xAOD::TrigComposite*, const std::string&, Trk::Track*, const std::unique_ptr<const Trk::TrackParameters>&, bool, std::vector<Trk::Track*>&) const;
   TrigFastTrackFinder::DisTrkCategory getDisTrkCategory(Trk::Track* trk) const;
   StatusCode findDisTracks(const EventContext&, TrackCollection&,
 			   std::vector<std::tuple<bool, double, Trk::Track*>>&,
