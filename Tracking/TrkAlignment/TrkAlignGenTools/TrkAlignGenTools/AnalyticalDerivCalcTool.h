@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRK_ANALYTICALDERIVCALCTOOL_H
@@ -79,10 +79,8 @@ namespace Trk
     bool m_useIntrinsicSCTErrors = false;   //!< use intrinsic errors for SCT
     bool m_useIntrinsicTRTErrors = false;   //!< use intrinsic errors for TRT
 
-    mutable bool m_firstEvent; //!< recognise the first call to setResidualCovMatrix()
-
     int m_residualType; //!< residual type to be used in the calculations
-    mutable bool m_residualTypeSet;   //!< do we have the residual type set?
+    bool m_residualTypeSet;   //!< do we have the residual type set?
 
     bool m_storeDerivatives; //!< store derivatives on AlignTSOS to be filled into ntuple
 

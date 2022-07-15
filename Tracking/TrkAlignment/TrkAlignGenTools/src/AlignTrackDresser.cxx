@@ -121,7 +121,7 @@ namespace Trk {
 
     if (imeas!=NMEAS) {
       msg(MSG::ERROR)<<"problem with nmeas.  imeas="<<imeas<<", NMEAS="<<NMEAS<<endmsg;
-      exit(3);
+      throw std::runtime_error("Error in AlignTrackDresser::setResiduals");
     }
 
     alignTrack->setResidualVector(residuals); // residuals owned by alignTrack

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKALIGNGENTOOLS_ALIGNRESIDUALCALCULATOR_H
@@ -66,7 +66,7 @@ namespace Trk {
 
     double setResidualsOnATSOS(AlignTSOS* atsos, const TrackStateOnSurface* tsos);
     void   accumulateScattering(const TrackStateOnSurface* tsos);
-    const TrackStateOnSurface* getMatchingTSOS(const AlignTSOS* atsos, const Track* track) const;
+    const TrackStateOnSurface* getMatchingTSOS(const AlignTSOS* atsos, const Track* track);
 
     ToolHandle <IResidualPullCalculator> m_pullCalculator;
     ToolHandle <IUpdator>                m_updator;
@@ -81,7 +81,7 @@ namespace Trk {
 
     double* m_chi2ForMeasType; 
 
-    mutable std::vector<const TrackStateOnSurface*> m_matchedTSOS;
+    std::vector<const TrackStateOnSurface*> m_matchedTSOS;
 
   };
 
