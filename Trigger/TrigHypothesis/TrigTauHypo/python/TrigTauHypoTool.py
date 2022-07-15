@@ -95,7 +95,7 @@ def TrigEFTauMVHypoToolFromDict( chainDict ):
 
            # define quantities to be monitored
            monTool.defineHistogram("CutCounter", path='EXPERT',type='TH1I',title=';CutCounter; Entries', xbins=10, xmin=0.,xmax=10.) 
-           monTool.defineHistogram("ptAccepted", path='EXPERT',type='TH1F',title=';ptAccepted; Entries', xbins=50, xmin=0.,xmax=500.)
+           monTool.defineHistogram("ptAccepted", path='EXPERT',type='TH1F',title=';ptAccepted; Entries', xbins=80, xmin=0.,xmax=800.)
            monTool.defineHistogram("nTrackAccepted", path='EXPERT',type='TH1F',title=';nTrackAccepted; Entries', xbins=10, xmin=0.,xmax=10.)
            monTool.defineHistogram("nWideTrackAccepted", path='EXPERT',type='TH1F',title=';nWideTrackAccepted; Entries', xbins=10, xmin=0.,xmax=10.)       
            monTool.defineHistogram("nInputTaus", path='EXPERT',type='TH1F',title=';nInputTaus; Entries', xbins=10, xmin=0.,xmax=10.) 
