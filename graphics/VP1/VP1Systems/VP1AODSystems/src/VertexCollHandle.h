@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -22,17 +22,13 @@
 //VP1
 #include "VP1Base/VP1Interval.h"
 #include "VP1Base/VP1QtUtils.h"
-#include "VP1Base/VP1StdCollection.h"
 
-//xAOD
-#include "xAODBase/IParticle.h"
+
 
 // Qt
 #include <QtGui/QColor>
 #include <QList>
 
-//Misc
-#include <iostream>
 
 
 class AODSysCommonData;
@@ -137,7 +133,6 @@ private:
   class Imp;
   Imp * m_d;
 
-  int m_nshownhandles;
 
   VP1Interval m_cut_allowedY;
   VP1Interval m_cut_allowedR;

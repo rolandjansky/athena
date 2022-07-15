@@ -93,7 +93,6 @@ public:
 VertexCollHandle::VertexCollHandle( AODSysCommonData * cd, const QString& name, xAOD::Type::ObjectType type)
   : AODCollHandleBase(cd, name, type),  
     m_d(new Imp), // Need to add back ObjectType once simple way to create string is added to xAODBase
-    m_nshownhandles(0),
     m_cut_allowedY(VP1Interval(-std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity())),
     m_cut_allowedR(VP1Interval(-std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity())),
     m_cut_allowedZ(VP1Interval(-std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity())),

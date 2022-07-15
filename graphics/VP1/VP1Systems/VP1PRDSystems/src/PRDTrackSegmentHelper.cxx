@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -147,7 +147,7 @@ void PRDTrackSegmentHelper::visibleTracksChanged(const std::vector< std::pair<co
       m_d->removeTrackFromPRDs(it2->first,true);//outliers
       m_d->tracks2mat.erase(it2++);//postfix ++ operator must be used as here (due to the erase call)
     } else {
-      it2++;
+      ++it2;
     }
   }
 
@@ -225,7 +225,7 @@ void PRDTrackSegmentHelper::visibleSegmentsChanged(const std::vector< std::pair<
       m_d->removeSegmentFromPRDs(it2->first);
       m_d->segments2mat.erase(it2++);//postfix ++ operator must be used as here (due to the erase call)
     } else {
-      it2++;
+      ++it2;
     }
   }
 

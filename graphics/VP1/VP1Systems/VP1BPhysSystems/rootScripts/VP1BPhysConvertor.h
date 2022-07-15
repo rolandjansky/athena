@@ -1,12 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <TFile.h>
-#include <TTree.h>
-#include <Riostream.h>
+
+
+
 #include <vector>
 #include <string>
+class TFile;
+class TTree;
 
 //vp1bphys tree branches
 class Br {
@@ -89,7 +91,7 @@ class VertexNode : public Br {
 class VP1BPhysConvertor : public Br {
 
 	public:
-		VP1BPhysConvertor(VertexNode* decayTopology, std::string outFile);
+		VP1BPhysConvertor(VertexNode* decayTopology, const std::string & outFile);
 		~VP1BPhysConvertor() { delete vtx_daughters; }
     VP1BPhysConvertor(const VP1BPhysConvertor &) = delete;
     VP1BPhysConvertor & operator=(const VP1BPhysConvertor &) = delete;
