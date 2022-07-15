@@ -21,5 +21,5 @@ atlas_install_joboptions( share/*.py )
 
 atlas_add_test( HIRec_test
    SCRIPT python -m HIRecConfig.HIRecConfig
-   PROPERTIES TIMEOUT 600
+   PROPERTIES TIMEOUT 900
    POST_EXEC_SCRIPT nopost.sh )
