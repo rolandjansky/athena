@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigEgammaMonitorElectronAlgorithm.h"
@@ -26,7 +26,7 @@ StatusCode TrigEgammaMonitorElectronAlgorithm::initialize()
   for(auto& trigName : m_trigInputList)
   {
     if(getTrigInfoMap().count(trigName) != 0){
-      ATH_MSG_WARNING("Trigger already booked, removing from trigger list " << trigName);
+      ATH_MSG_DEBUG("Trigger already booked, removing from trigger list " << trigName);
     }else {
       m_trigList.push_back(trigName);
       setTrigInfo(trigName);
@@ -45,7 +45,7 @@ StatusCode TrigEgammaMonitorElectronAlgorithm::fillHistograms( const EventContex
     ATH_MSG_DEBUG("Executing TrigEgammaMonitorElectronAlgorithm");
 
     if(isHLTTruncated()){
-        ATH_MSG_WARNING("HLTResult truncated, skip trigger analysis");
+        ATH_MSG_DEBUG("HLTResult truncated, skip trigger analysis");
         return StatusCode::SUCCESS; 
     }
     
@@ -61,7 +61,7 @@ StatusCode TrigEgammaMonitorElectronAlgorithm::fillHistograms( const EventContex
         std::vector< std::pair<std::shared_ptr<const xAOD::Egamma>, const TrigCompositeUtils::Decision*>> pairObjs;
         if ( executeNavigation( ctx, info.trigger,info.etthr,info.pidname, pairObjs).isFailure() ) 
         {
-            ATH_MSG_WARNING("executeNavigation Fails");
+            ATH_MSG_DEBUG("executeNavigation Fails");
             return StatusCode::SUCCESS;
         }
 
@@ -102,7 +102,7 @@ StatusCode TrigEgammaMonitorElectronAlgorithm::executeNavigation( const EventCon
 
   if(!offElectrons.isValid())
   {
-    ATH_MSG_WARNING("Failed to retrieve offline Electrons ");
+    ATH_MSG_DEBUG("Failed to retrieve offline Electrons ");
 	  return StatusCode::FAILURE;
   }
 

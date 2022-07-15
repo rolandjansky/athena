@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************
  * AsgTool: TrigEgammaNavTPBaseTool
  * Authors:
  *      Joao Victor Pinto <jodafons@cern.ch>
+ *      Edmar de Souza <edmar.egidio@cern.ch>
  * Description:
  *      Trigger e/gamma Zee Tag&Probe Base tool class. Inherits from TrigEgammaAnalysisBaseTool.
  *      Provides methods for selecting T&P pairs, 
@@ -53,7 +54,7 @@ StatusCode TrigEgammaMonitorTagAndProbeAlgorithm::initialize() {
     for(auto& trigName : m_trigInputList)
     {
       if(getTrigInfoMap().count(trigName) != 0){
-        ATH_MSG_WARNING("Trigger already booked, removing from trigger list " << trigName);
+        ATH_MSG_DEBUG("Trigger already booked, removing from trigger list " << trigName);
       }else {
         m_trigList.push_back(trigName);
         setTrigInfo(trigName);
@@ -81,7 +82,7 @@ StatusCode TrigEgammaMonitorTagAndProbeAlgorithm::fillHistograms( const EventCon
 
     // Check HLTResult
     if(isHLTTruncated()){
-        ATH_MSG_WARNING("HLTResult truncated, skip trigger analysis");
+        ATH_MSG_DEBUG("HLTResult truncated, skip trigger analysis");
         return StatusCode::SUCCESS;
     }
 
@@ -130,13 +131,13 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::executeTandP( const EventContext& ct
 
     SG::ReadHandle<xAOD::EventInfo> eventInfo = GetEventInfo (ctx);
     if( !eventInfo.isValid() ){
-      ATH_MSG_WARNING("Failed to retrieve EventInfo");
+      ATH_MSG_DEBUG("Failed to retrieve EventInfo");
       return false;
     }
 
 
     if (eventInfo->errorState(xAOD::EventInfo::LAr) == xAOD::EventInfo::Error) {
-        ATH_MSG_WARNING("Event not passing LAr");
+        ATH_MSG_DEBUG("Event not passing LAr");
         return false;
     }
 
@@ -148,7 +149,7 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::executeTandP( const EventContext& ct
 
     if(!offElectrons.isValid())
     {
-      ATH_MSG_WARNING("Failed to retrieve offline Electrons ");
+      ATH_MSG_DEBUG("Failed to retrieve offline Electrons ");
 	    return false;
     }
 
@@ -173,7 +174,7 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::executeTandP( const EventContext& ct
     
     SG::ReadHandle<xAOD::JetContainer> jets(m_jetKey,ctx);
     if(!jets.isValid() && m_applyJetNearProbeSelection){
-      ATH_MSG_WARNING("Failed to retrieve JetContainer");
+      ATH_MSG_DEBUG("Failed to retrieve JetContainer");
       return false;
     }
 

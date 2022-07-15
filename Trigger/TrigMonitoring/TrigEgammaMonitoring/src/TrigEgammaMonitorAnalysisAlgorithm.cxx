@@ -79,7 +79,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiencies( const std::vector< st
         auto acceptData = m_emulatorTool->emulate( pairObj.second, info.trigger , valid);
         // skip this probe since the emulation is not possible. Avoid diff denominators between emulation and efficiecy
         if(!valid) {
-            ATH_MSG_WARNING("Emulation fail. Skip this probe...");
+            ATH_MSG_DEBUG("Emulation fail. Skip this probe...");
             continue;
         } 
         emu_accept_vec.push_back( acceptData );
