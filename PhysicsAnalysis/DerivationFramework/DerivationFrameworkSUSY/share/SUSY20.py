@@ -166,50 +166,32 @@ FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqSUSY20)
 # SKIMMING TOOL 
 #====================================================================
 
-
-# Jet skimming
-# ------------------------------------------------------------
-jetRequirements = 'AntiKt4EMPFlowJets.DFCommonJets_Calib_pt > 200*GeV && abs(AntiKt4EMPFlowJets.DFCommonJets_Calib_eta) < 2.8'
-jetSelection = '(count('+jetRequirements+') >= 1)'
+#-------------------------------------------------------------
+# Jet skimming for Displaced Track (DT)
+#-------------------------------------------------------------
+jetRequirements_DT = 'AntiKt4EMPFlowJets.DFCommonJets_Calib_pt > 200*GeV && abs(AntiKt4EMPFlowJets.DFCommonJets_Calib_eta) < 2.8'
+jetSelection_DT = '(count('+jetRequirements_DT+') >= 1)'
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 
-SUSY20JetSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY20JetSkimmingTool",
-                                                                     expression = jetSelection)
-ToolSvc += SUSY20JetSkimmingTool
+SUSY20JetSkimmingTool_DT = DerivationFramework__xAODStringSkimmingTool( name = "SUSY20JetSkimmingTool_DT",
+                                                                        expression = jetSelection_DT)
+ToolSvc += SUSY20JetSkimmingTool_DT
 
-# Lepton skimming
-# ------------------------------------------------------------
-muonsRequirements = '(Muons.pt > 10.*GeV) && (abs(Muons.eta) < 2.7) && (Muons.DFCommonMuonsPreselection)'
-leptonSelection = '(count('+muonsRequirements+') >= 1)'
-
-SUSY20LeptonSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY20LeptonSkimmingTool",
-                                                                        expression = leptonSelection)
-ToolSvc += SUSY20LeptonSkimmingTool
-
-# BJet skimming
-# WP value extracted from /eos/atlas/atlascerngroupdisk/asg-calib/xAODBTaggingEfficiency/13TeV/2020-21-13TeV-MC16-CDI-2021-04-16_v1.root
-# DFCommonJets_FixedCutBEff_<Eff>_<Tagger> value not supported for AntiKt4EMPFlowJets_BTagging201903
-# ------------------------------------------------------------
-JetName = "AntiKt4EMPFlow" # AntiKt4EMPFlow, AntiKt4EMTopo
-Year = "201903" # 201810, 201903
+#-------------------------------------------------------------
+# Muon and BJet skimming for TTBar
+# BTag WP value extracted from /eos/atlas/atlascerngroupdisk/asg-calib/xAODBTaggingEfficiency/13TeV/2020-21-13TeV-MC16-CDI-2021-04-16_v1.root
+#-------------------------------------------------------------
+muonsRequirements_TTBar = '(Muons.pt > 10.*GeV) && (abs(Muons.eta) < 2.7) && (Muons.DFCommonMuonsPreselection)'
+leptonSelection_TTBar = '(count('+muonsRequirements_TTBar+') >= 1)'
 bfix85_DL1r = 'log(BTagging_AntiKt4EMPFlow_201903.DL1r_pb/(0.018*BTagging_AntiKt4EMPFlow_201903.DL1r_pc+(1-0.018)*BTagging_AntiKt4EMPFlow_201903.DL1r_pu))>0.665'
-bfix77_DL1r  = 'log(BTagging_AntiKt4EMPFlow_201903.DL1r_pb/(0.018*BTagging_AntiKt4EMPFlow_201903.DL1r_pc+(1-0.018)*BTagging_AntiKt4EMPFlow_201903.DL1r_pu))>2.195'
-bjetpt= JetName + 'Jets_BTagging' + Year + '.DFCommonJets_Calib_pt'
-btagSelection = "count(%s && (%s>25.*GeV))>1" % (bfix85_DL1r, bjetpt)
+bfix77_DL1r = 'log(BTagging_AntiKt4EMPFlow_201903.DL1r_pb/(0.018*BTagging_AntiKt4EMPFlow_201903.DL1r_pc+(1-0.018)*BTagging_AntiKt4EMPFlow_201903.DL1r_pu))>2.195'
+bjetpt= 'AntiKt4EMPFlowJets_BTagging201903.DFCommonJets_Calib_pt'
+bjetSelection_TTBar = "count(%s && (%s>25.*GeV))>1" % (bfix85_DL1r, bjetpt)
+muonBJetSelection_TTBar='('+leptonSelection_TTBar+' && ' + bjetSelection_TTBar+')'
 
-SUSY20btagSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY20btagSkimmingTool",
-                                                                      expression = btagSelection)
-ToolSvc += SUSY20btagSkimmingTool
-
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationAND
-SUSY20TTbarSkimmingTool = DerivationFramework__FilterCombinationAND(name = "SUSY20TTbarSkimmingTool",
-                                                               FilterList = [SUSY20LeptonSkimmingTool, SUSY20btagSkimmingTool])
-ToolSvc += SUSY20TTbarSkimmingTool
-
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
-SUSY20SkimmingORTool = DerivationFramework__FilterCombinationOR(name = "SUSY20SkimmingORTool",
-                                                               FilterList = [SUSY20TTbarSkimmingTool, SUSY20JetSkimmingTool])
-ToolSvc += SUSY20SkimmingORTool
+SUSY20MuonBJetSkimmingTool_TTBar = DerivationFramework__xAODStringSkimmingTool( name = "SUSY20MuonBJetSkimmingTool_TTBar",
+                                                                                expression = muonBJetSelection_TTBar)
+ToolSvc += SUSY20MuonBJetSkimmingTool_TTBar
 
 #-------------------------------------------------------------
 # Lepton and track skimming for 1L1T
@@ -246,9 +228,9 @@ trigReq=triggersMET+triggersSingleLepton+triggersPhoton
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
 
-SUSY20TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool( name = "SUSY20TriggerSkimmingTool",
-                                                                      TriggerListOR = trigReq)
-ToolSvc += SUSY20TriggerSkimmingTool
+SUSY20TriggerSkimmingTool_DT = DerivationFramework__TriggerSkimmingTool( name = "SUSY20TriggerSkimmingTool_DT",
+                                                                         TriggerListOR = trigReq)
+ToolSvc += SUSY20TriggerSkimmingTool_DT
 
 SUSY20TriggerSkimmingTool_1L1T = DerivationFramework__TriggerSkimmingTool( name = "SUSY20TriggerSkimmingTool_1L1T",
                                                                            TriggerListOR = triggersMET)
@@ -261,9 +243,14 @@ ToolSvc += SUSY20TriggerSkimmingTool_Z4L
 
 # Final skim selection, with trigger selection and jet selection
 # ------------------------------------------------------------
-SUSY20SkimmingTool = DerivationFramework__FilterCombinationAND(name = "SUSY20SkimmingTool",
-                                                               FilterList = [SUSY20SkimmingORTool, SUSY20TriggerSkimmingTool])
-ToolSvc += SUSY20SkimmingTool
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationAND, DerivationFramework__FilterCombinationOR
+SUSY20SkimmingTool_DT = DerivationFramework__FilterCombinationAND(name = "SUSY20SkimmingTool_DT",
+                                                                  FilterList = [SUSY20JetSkimmingTool_DT, SUSY20TriggerSkimmingTool_DT])
+ToolSvc += SUSY20SkimmingTool_DT
+
+SUSY20SkimmingTool_TTBar = DerivationFramework__FilterCombinationAND(name = "SUSY20SkimmingTool_TTBar",
+                                                                     FilterList = [SUSY20MuonBJetSkimmingTool_TTBar, SUSY20TriggerSkimmingTool_DT])
+ToolSvc += SUSY20SkimmingTool_TTBar
 
 SUSY20SkimmingTool_1L1T = DerivationFramework__FilterCombinationAND(name = "SUSY20SkimmingTool_1L1T",
                                                                     FilterList = [SUSY20LeptonSkimmingTool_1L1T, SUSY20TriggerSkimmingTool_1L1T])
@@ -274,7 +261,7 @@ SUSY20SkimmingTool_Z4L = DerivationFramework__FilterCombinationAND(name = "SUSY2
 ToolSvc += SUSY20SkimmingTool_Z4L
 
 SUSY20SkimmingTool_combined = DerivationFramework__FilterCombinationOR(name = "SUSY20SkimmingTool_combined",
-                                                                       FilterList = [SUSY20SkimmingTool, SUSY20SkimmingTool_1L1T, SUSY20SkimmingTool_Z4L])
+                                                                       FilterList = [SUSY20SkimmingTool_DT, SUSY20SkimmingTool_TTBar, SUSY20SkimmingTool_1L1T, SUSY20SkimmingTool_Z4L])
 ToolSvc += SUSY20SkimmingTool_combined
 
 #====================================================================
