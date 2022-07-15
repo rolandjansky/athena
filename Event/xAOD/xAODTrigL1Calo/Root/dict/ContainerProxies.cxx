@@ -47,6 +47,8 @@
 
 #include "xAODTrigL1Calo/versions/L1TopoRawDataContainer_v1.h"
 
+#include "xAODTrigL1Calo/versions/eFexTowerContainer_v1.h"
+
 // Set up the collection proxies:
 // Run 1
 ADD_NS_DV_PROXY( xAOD , JEMHitsContainer_v1 );
@@ -84,3 +86,5 @@ ADD_NS_DV_PROXY( xAOD , JEMTobRoIContainer_v1 );
 ADD_NS_DV_PROXY( xAOD , JetElementContainer_v2 );
 
 ADD_NS_DV_PROXY( xAOD , L1TopoRawDataContainer_v1 );
+
+ADD_NS_DV_PROXY( xAOD , eFexTowerContainer_v1 );
