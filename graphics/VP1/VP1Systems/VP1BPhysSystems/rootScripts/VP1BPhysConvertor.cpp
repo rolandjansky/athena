@@ -1,8 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VP1BPhysConvertor.h"
+
+#include <TFile.h>
+#include <TTree.h>
+#include <Riostream.h>
 
 unsigned long getColor(unsigned int r, unsigned int g, unsigned int b) {
 
@@ -225,7 +229,7 @@ void VertexNode::addNeutralTrack(double px, double py, double pz, unsigned long 
 }
 //******************************************************
 //******************************************************
-VP1BPhysConvertor::VP1BPhysConvertor(VertexNode* decayTopology, std::string outFile) :
+VP1BPhysConvertor::VP1BPhysConvertor(VertexNode* decayTopology, const std::string & outFile) :
 		m_decayTopology(decayTopology),
 		vtx_daughters(new std::vector<int>),
 		m_entry(0)

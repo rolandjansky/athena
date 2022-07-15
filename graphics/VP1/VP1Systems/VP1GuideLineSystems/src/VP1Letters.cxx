@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -44,7 +44,7 @@ public:
   void createLetterAData(std::vector<double>& x, std::vector<double>&y);
   void createLetterCData(std::vector<double>& x, std::vector<double>&y);
   void normalizeLetterData(std::vector<double>& x, std::vector<double>&y,double yheight);
-  SoNode * createLetter(const std::vector<double>& x, const std::vector<double>y);
+  SoNode * createLetter(const std::vector<double>& x, const std::vector<double> & y);
 
   bool shown;
   double zpos;
@@ -197,7 +197,7 @@ void VP1Letters::Imp::normalizeLetterData(std::vector<double>& x, std::vector<do
 }
 
 //_____________________________________________________________________________________
-SoNode * VP1Letters::Imp::createLetter(const std::vector<double>& x, const std::vector<double>y) {
+SoNode * VP1Letters::Imp::createLetter(const std::vector<double>& x, const std::vector<double> &y) {
   if (x.size()!=y.size()) {
     theclass->message("createLetter Error: Input vectors have different length!");
     return new SoCube;
