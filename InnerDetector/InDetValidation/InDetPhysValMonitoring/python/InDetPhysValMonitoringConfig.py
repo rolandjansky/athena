@@ -130,7 +130,7 @@ def InDetPhysValMonitoringToolCfg(flags, **kwargs):
         kwargs.setdefault("TruthParticleContainerName", '')
         kwargs.setdefault("TruthVertexContainerName", '')
         kwargs.setdefault("TruthEvents", '')
-        kwargs.setdefault("TruthPileupEvents" '')
+        kwargs.setdefault("TruthPileupEvents", '')
         kwargs.setdefault("TruthSelectionTool", None)        
         # the jet container is actually meant to be a truth jet container
         kwargs.setdefault("JetContainerName", '')
