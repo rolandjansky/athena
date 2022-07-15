@@ -41,7 +41,7 @@ StatusCode MuonAlignErrorExampleAlg::execute() {
     return StatusCode::SUCCESS;
 }
 
-void MuonAlignErrorExampleAlg::muonTrack(const Trk::Track* track) const {
+void MuonAlignErrorExampleAlg::muonTrack(const Trk::Track* track) {
     // Compute and verbose the alignment deviations for a given track
 
     ATH_MSG_DEBUG("Processing track with momentum " << track->trackParameters()->front()->momentum().mag() / 1000.
