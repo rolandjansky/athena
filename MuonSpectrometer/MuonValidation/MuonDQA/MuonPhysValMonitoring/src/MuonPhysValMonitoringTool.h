@@ -167,10 +167,10 @@ namespace MuonPhysValMonitoring {
         SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this, "EventInfo", "EventInfo", "event info"};
 
         // Tools
-        ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
-        ToolHandle<Rec::IMuonPrintingTool> m_muonPrinter;
-        ToolHandle<Trig::TrigDecisionTool> m_trigDec;
-        ToolHandle<Trk::ITrackSelectorTool> m_trackSelector;
+        ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool{this, "MuonSelector", "CP::MuonSelectionTool/MuonSelectionTool"};
+        ToolHandle<Rec::IMuonPrintingTool> m_muonPrinter{this, "MuonPrinter", "Rec::MuonPrintingTool/MuonPrintingTool"};
+        ToolHandle<Trig::TrigDecisionTool> m_trigDec{this, "TrigDecTool", "Trig::TrigDecisionTool/TrigDecisionTool"};
+        ToolHandle<Trk::ITrackSelectorTool> m_trackSelector{this, "TrackSelector", "InDet::InDetDetailedTrackSelectorTool/MuonCombinedInDetDetailedTrackSelectorTool"};
         ToolHandle<CP::IIsolationSelectionTool> m_isoTool{this, "IsoTool", ""};
 
         std::vector<std::string> m_selectMuonCategoriesStr;

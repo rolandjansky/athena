@@ -6,7 +6,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 
 def GetCustomAthArgs():
     from argparse import ArgumentParser
-    parser = ArgumentParser(description='Parser for ZeeValidation configuration')
+    parser = ArgumentParser(description='Parser for MuonPhysVal configuration')
     parser.add_argument("--filesInput")
     parser.add_argument("--outputFile", help='Name of output file',default="M_output.root")
     return parser.parse_args()
@@ -26,12 +26,12 @@ acc.merge(PoolReadCfg(ConfigFlags))
 
 ConfigFlags.lock()
 
-from ZeeValidation.ZeeValidationMonToolConfig import ZeeValidationMonToolCfg
-acc.merge(ZeeValidationMonToolCfg(ConfigFlags))
+from MuonPhysValMonitoring.MuonPhysValConfig import MuonPhysValCfg
+acc.merge(MuonPhysValCfg(ConfigFlags))
 
 # finally, set up the infrastructure for writing our output
 histSvc = CompFactory.THistSvc()
-histSvc.Output += ["M_output DATAFILE='"+MyArgs.outputFile+"' OPT='RECREATE'"]
+histSvc.Output += ["PhysVal DATAFILE='"+MyArgs.outputFile+"' OPT='RECREATE'"]
 acc.addService(histSvc)
 
 acc.printConfig(withDetails=True)

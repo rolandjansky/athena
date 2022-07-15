@@ -15,6 +15,8 @@ def createPhysValConfigFlags():
     icf.addFlag("PhysVal.doJet", False)
     icf.addFlag("PhysVal.doTopoCluster", False)
     icf.addFlag("PhysVal.doZee", False)
+    icf.addFlag("PhysVal.doPFlow", False)
+    icf.addFlag("PhysVal.doMuon", False)
 
     from InDetPhysValMonitoring.InDetPhysValFlags import createIDPVMConfigFlags
     icf.addFlagsCategory("PhysVal.IDPVM", createIDPVMConfigFlags, prefix=True)
