@@ -41,6 +41,7 @@ private:
   bool m_corHepMC;
   bool m_corEvtID;
   bool m_corRunNumber;
+  bool m_copyRunNumber;
   std::string m_inputKeyName;
 
   SG::ReadHandleKey<xAOD::EventInfo>  m_inputEvtInfoKey { this, "InputEventInfo",  "TMPEvtInfo", "ReadHandleKey for Input xAOD::EventInfo" };
