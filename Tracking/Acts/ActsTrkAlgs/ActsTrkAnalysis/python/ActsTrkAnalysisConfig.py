@@ -142,6 +142,8 @@ def ActsTrkBaseSeedAnalysisCfg(flags,
                                histoPath,
                                ntupleName,
                                **kwargs):
+    acc = ComponentAccumulator()
+
     isPixel = 'Pixel' in name
     perp_min = 0 if isPixel else 300
     perp_max = 400 if isPixel else 1100
@@ -150,11 +152,32 @@ def ActsTrkBaseSeedAnalysisCfg(flags,
     helper = AthMonitorCfgHelper(flags,'ActsTrkSeedAnalysisCfg')
 
     kwargs.setdefault('InputSeedCollection', 'ITkPixelSeeds')
+
+    if flags.ITk.Tracking.doTruth:
+        from ActsTrkTrackParamsEstimationTool.ActsTrkTrackParamsEstimationToolConfig import TrackParamsEstimationToolCfg
+        from ActsGeometry.ActsGeometryConfig import ActsTrackingGeometryToolCfg
+
+        geoTool = acc.getPrimaryAndMerge(ActsTrackingGeometryToolCfg(flags))
+        acc.addPublicTool(geoTool)
+        
+        # ATLAS Converter Tool
+        from ActsGeometry.ActsGeometryConfig import ActsATLASConverterToolCfg
+        converterTool = acc.popToolsAndMerge(ActsATLASConverterToolCfg(flags))
+        
+        # Track Param Estimation Tool
+        trackEstimationTool = acc.popToolsAndMerge(TrackParamsEstimationToolCfg(flags))        
+
+        kwargs.setdefault('TrackingGeometryTool', geoTool)
+        kwargs.setdefault('ATLASConverterTool', converterTool)
+        kwargs.setdefault('TrackParamsEstimationTool', trackEstimationTool)
+
     monitoringAlgorithm = helper.addAlgorithm(CompFactory.ActsTrk.SeedAnalysis, name, **kwargs)
     monitoringGroup = helper.addGroup(monitoringAlgorithm, 'ActsTrkSeedAnalysis', 'ActsTrkAnalysis')
 
     monitoringGroup.defineHistogram('Nseed', title='Number of Seeds;N;Entries', type='TH1I', path=f'{histoPath}',
                                     xbins=100, xmin=0, xmax=0)
+
+
 
     monitoringGroup.defineHistogram('z1,r1;zr1', title='Bottom SP - Z coordinate vs R;z [mm];r [mm]', type='TH2F', path=f'{histoPath}',
                                     xbins=1500, xmin=-3000, xmax=3000,
@@ -166,20 +189,47 @@ def ActsTrkBaseSeedAnalysisCfg(flags,
                                     xbins=1500, xmin=-3000, xmax=3000,
                                     ybins=400, ymin=perp_min, ymax=perp_max)
 
-    monitoringGroup.defineTree(f'x1,y1,z1,r1,x2,y2,z2,r2,x3,y3,z3,r3,pt,theta,eta,d0,dzdr_b,dzdr_t,penalty;{ntupleName}',
-                               path='ntuples',
-                               treedef='x1/vector<double>:y1/vector<double>:z1/vector<double>:r1/vector<double>:x2/vector<double>:y2/vector<double>:z2/vector<double>:r2/vector<double>:x3/vector<double>:y3/vector<double>:z3/vector<double>:r3/vector<double>:pt/vector<float>:theta/vector<float>:eta/vector<float>:d0/vector<float>:dzdr_b/vector<float>:dzdr_t/vector<float>:penalty/vector<float>')
+    if flags.ITk.Tracking.doTruth:
+        monitoringGroup.defineHistogram('passed,estimated_eta;EfficiencyEta', title='Efficiency vs eta;eta;Efficiency', type='TEfficiency', path=f'{histoPath}',
+                                        xbins=50, xmin=-5, xmax=5)
+        monitoringGroup.defineHistogram('passed,estimated_pt;EfficiencyPt', title='Efficiency vs pT;pT [GeV];Efficiency', type='TEfficiency', path=f'{histoPath}',
+                                        xbins=30, xmin=0, xmax=120)
 
-    return helper.result()
+    # Tree
+    list_variables = "x1,y1,z1,r1,x2,y2,z2,r2,x3,y3,z3,r3,pt,theta,eta,d0,dzdr_b,dzdr_t,penalty,event_number,actual_mu"
+    tree_def = "x1/vector<double>:y1/vector<double>:z1/vector<double>:r1/vector<double>:x2/vector<double>:y2/vector<double>:z2/vector<double>:r2/vector<double>:x3/vector<double>:y3/vector<double>:z3/vector<double>:r3/vector<double>\
+:pt/vector<float>:theta/vector<float>:eta/vector<float>:d0/vector<float>:dzdr_b/vector<float>:dzdr_t/vector<float>:penalty/vector<float>:event_number/l:actual_mu/F"
+    if flags.ITk.Tracking.doTruth:
+        list_variables += ",truth_barcode,truth_prob"
+        tree_def += ":truth_barcode/vector<int>:truth_prob/vector<double>"
+
+    monitoringGroup.defineTree(f'{list_variables};{ntupleName}',
+                               path='ntuples',
+                               treedef=tree_def )
+
+    acc.merge(helper.result())
+    return acc
+
 
 
 def ActsTrkPixelSeedAnalysisCfg(flags, name = "ActsTrkPixelSeedAnalysis", **kwargs):
     kwargs.setdefault('InputSeedCollection', 'ITkPixelSeeds')
+
+    if flags.ITk.Tracking.doTruth:
+        kwargs.setdefault('DetectorElements', 'ITkPixelDetectorElementCollection')
+        kwargs.setdefault('ITkClustersTruth', 'PRD_MultiTruthITkPixel')
+
     return ActsTrkBaseSeedAnalysisCfg(flags, name, histoPath='PixelSeeds', ntupleName='PixelSeeds', **kwargs)
 
 
 def ActsTrkStripSeedAnalysisCfg(flags, name = "ActsTrkStripSeedAnalysis", **kwargs):
     kwargs.setdefault('InputSeedCollection', 'ITkStripSeeds')
+
+    if flags.ITk.Tracking.doTruth:
+        kwargs.setdefault('UsePixel', False)
+        kwargs.setdefault('DetectorElements', 'ITkStripDetectorElementCollection')
+        kwargs.setdefault('ITkClustersTruth', 'PRD_MultiTruthITkStrip')
+
     return ActsTrkBaseSeedAnalysisCfg(flags, name, histoPath='StripSeeds', ntupleName='StripSeeds', **kwargs)
 
 
