@@ -12,7 +12,7 @@ def Input_TrackRecordGeneratorCfg(ConfigFlags,name="TrackRecordGenerator", **kwa
     TrackRecordGenerator=CompFactory.TrackRecordGenerator
 
     kwargs = {}
-    from G4AtlasApps.SimEnums import CavernBackground
+    from SimulationConfig.SimEnums import CavernBackground
     if ConfigFlags.Sim.CavernBackground is CavernBackground.Read:
         kwargs.setdefault('TRSmearing', -1) #in millimeters, e.g. 10
         kwargs.setdefault('TRPSmearing', -1) #in radians, e.g. 0.01

@@ -2,7 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from G4AtlasApps.SimEnums import CavernBackground
+from SimulationConfig.SimEnums import CavernBackground
 
 
 def TrackFastSimSDCfg(flags, name='TrackFastSimSD', **kwargs):

@@ -248,7 +248,7 @@ def TRT_LayerBuilderCfg(flags, namePrefix='', buildTrtStrawLayers = False):
     # TRT barrel specifications - assume defaults
     # TRT endcap specifications - assume defaults
 
-    from G4AtlasApps.SimEnums import SimulationFlavour
+    from SimulationConfig.SimEnums import SimulationFlavour
     if buildTrtStrawLayers or (flags.Common.ProductionStep in [ProductionStep.Simulation, ProductionStep.FastChain] and flags.Sim.ISF.Simulator not in [SimulationFlavour.ATLFASTIIMT]):
         TRT_LayerBuilder.ModelLayersOnly = False
     result.setPrivateTools(TRT_LayerBuilder)
@@ -299,7 +299,7 @@ def InDetTrackingGeometryBuilderCfg(name, flags, namePrefix='', setLayerAssociat
         # set the binning from bi-aequidistant to arbitrary for complex TRT volumes
         TRT_LayerBinning = 1
         from AthenaConfiguration.Enums import ProductionStep
-        from G4AtlasApps.SimEnums import SimulationFlavour
+        from SimulationConfig.SimEnums import SimulationFlavour
         if buildTrtStrawLayers or (flags.Common.ProductionStep in [ProductionStep.Simulation, ProductionStep.FastChain] and flags.Sim.ISF.Simulator not in [SimulationFlavour.ATLFASTIIMT]):
             TRT_LayerBinning = 2
         binnings += [ TRT_LayerBinning ]

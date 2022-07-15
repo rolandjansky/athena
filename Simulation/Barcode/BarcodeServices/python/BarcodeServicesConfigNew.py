@@ -8,7 +8,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 
 def BarcodeSvcCfg(ConfigFlags, **kwargs):
     """Return the MCxBarcodeSvcCfg config flagged by Sim.TruthStrategy"""
-    from G4AtlasApps.SimEnums import TruthStrategy
+    from SimulationConfig.SimEnums import TruthStrategy
     stratmap = {
         TruthStrategy.MC12: MC12BarcodeSvcCfg,
         TruthStrategy.MC12LLP: MC12LLPBarcodeSvcCfg,

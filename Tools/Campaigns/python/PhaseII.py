@@ -1,5 +1,5 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
-from G4AtlasApps.SimEnums import TruthStrategy
+from SimulationConfig.SimEnums import TruthStrategy
 
 
 def PhaseIIPileUpBase(flags, collisions=200):

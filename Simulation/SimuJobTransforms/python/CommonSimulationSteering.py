@@ -17,7 +17,7 @@
 from PyJobTransforms.TransformUtils import executeFromFragment
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType
-from G4AtlasApps.SimEnums import CavernBackground
+from SimulationConfig.SimEnums import CavernBackground
 
 
 def specialConfigPreInclude(ConfigFlags):

@@ -2,7 +2,7 @@
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from AthenaConfiguration.AutoConfigFlags import GetFileMD
-from G4AtlasApps.SimEnums import BeamPipeSimMode, CalibrationRun, CavernBackground, \
+from SimulationConfig.SimEnums import BeamPipeSimMode, CalibrationRun, CavernBackground, \
     LArParameterization, SimulationFlavour, TruthStrategy, VertexSource
 
 #todo? add in the explanatory text from previous implementation

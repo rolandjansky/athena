@@ -2,7 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from G4AtlasApps.SimEnums import CalibrationRun
+from SimulationConfig.SimEnums import CalibrationRun
 
 # this is a bit cumbersome, but it seems ike it is a lot easier to separate
 # the getter functionality from all the rest (i.e. adding the action).
