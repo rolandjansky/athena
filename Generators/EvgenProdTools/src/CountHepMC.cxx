@@ -33,6 +33,7 @@ CountHepMC::CountHepMC(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty("CorrectEventID",  m_corEvtID=false);
   declareProperty("CorrectRunNumber", m_corRunNumber=false);
   declareProperty("NewRunNumber",    m_newRunNumber=999999);
+  declareProperty("CopyRunNumber",   m_copyRunNumber=true);
   declareProperty("inputKeyName", m_inputKeyName = "GEN_EVENT");
 }
 
@@ -107,6 +108,33 @@ StatusCode CountHepMC::execute() {
 
     outputEvtInfo->setEventNumber(newnum);
   }
+
+
+  // Copy generation run number into mc channel number
+  if (m_copyRunNumber) {
+    const EventInfo* pInputEvt(nullptr);
+    if (evtStore()->retrieve(pInputEvt).isSuccess()) {
+      assert(pInputEvt);
+
+      unsigned int run_number = pInputEvt->event_ID()->run_number();
+
+      EventType* eventType = const_cast<EventType*>(pInputEvt->event_type());
+      eventType->set_mc_channel_number(run_number);
+      eventType->set_mc_event_number  (newnum);
+
+      outputEvtInfo->setRunNumber(run_number);
+      outputEvtInfo->setMCChannelNumber(run_number);
+      outputEvtInfo->setMCEventNumber(newnum);
+      outputEvtInfo->setEventNumber(newnum);
+
+      ATH_MSG_DEBUG("Copied run number into mc channel number: " << run_number);
+    } else {
+      ATH_MSG_ERROR("No EventInfo object found");
+      return StatusCode::FAILURE;
+    }
+
+  }
+
 
   if (m_corRunNumber) {
     // Change the EventID in the eventinfo header
