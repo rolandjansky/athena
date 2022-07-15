@@ -3,6 +3,8 @@
 */
 
 #include <FlavorTagDiscriminants/TrackClassifier.h>
+#include "PathResolver/PathResolver.h"
+
 #include <numeric>
 
 namespace FlavorTagDiscriminants {
@@ -16,8 +18,10 @@ TrackClassifier::~TrackClassifier() {}
 StatusCode TrackClassifier :: initialize ()
 {
     // load the trained model
-    ATH_MSG_INFO ("Loading lwtnn model for fake track classification: " << m_NNModelFilepath);
-    std::ifstream inFileNN(m_NNModelFilepath);
+    ATH_MSG_INFO ("Loading lwtnn model for track classification: " << m_NNModelFilepath);
+    std::string shortPathToModelFile = m_NNModelFilepath;
+    std::string fullPathToModelFile = PathResolverFindCalibFile(shortPathToModelFile);
+    std::ifstream inFileNN(fullPathToModelFile);
     lwt::GraphConfig config(lwt::parse_json_graph(inFileNN));
     m_lwtnn_network.reset(new lwt::LightweightGraph(config));
     inFileNN.close();
@@ -35,13 +39,13 @@ int TrackClassifier :: get(const xAOD::TrackParticle* track, xAOD::SummaryType i
 
 double TrackClassifier :: compute_HF_Score(const xAOD::TrackParticle *track, const xAOD::Jet *jet) const
 { 
-  std::map<std::string, double> track_outputs = ComputeScore( m_lwtnn_network, track, jet );
+  std::map<std::string, double> track_outputs = ComputeScore( track, jet );
   double HF_score = track_outputs["FromB"]+track_outputs["FromBC"]+track_outputs["FromC"];
   return HF_score;
 }
 
 
-std::map<std::string, double> TrackClassifier::ComputeScore(const std::unique_ptr<lwt::LightweightGraph>& net, const xAOD::TrackParticle* track, const xAOD::Jet* jet) const
+std::map<std::string, double> TrackClassifier::ComputeScore(const xAOD::TrackParticle* track, const xAOD::Jet* jet) const
 {
   double dphi = -(jet->p4()).DeltaPhi(track->p4());  
   double deta = -(jet->eta() - track->eta());
@@ -79,7 +83,7 @@ std::map<std::string, double> TrackClassifier::ComputeScore(const std::unique_pt
   };
 
   // Evaluate the network
-  lwt::ValueMap discriminant = net->compute(inputs);
+  lwt::ValueMap discriminant = m_lwtnn_network->compute(inputs);
 
   std::map<std::string, double> track_outputs{
     {"Pileup",(double) discriminant["Pileup"]},

@@ -34,6 +34,7 @@ namespace FlavorTagDiscriminants {
 
     // inherited interface
     virtual StatusCode initialize () override;
+    virtual std::map<std::string, double> ComputeScore( const xAOD::TrackParticle* track, const xAOD::Jet* jet) const override;
     virtual double compute_HF_Score(const xAOD::TrackParticle* track, const xAOD::Jet* jet) const override;
     virtual bool selectTrack(const xAOD::TrackParticle* track, const xAOD::Jet* jet) const override;
 
@@ -60,7 +61,6 @@ namespace FlavorTagDiscriminants {
     };
     
     int get(const xAOD::TrackParticle* part, xAOD::SummaryType info) const;
-    std::map<std::string, double> ComputeScore( const std::unique_ptr<lwt::LightweightGraph>& net, const xAOD::TrackParticle* track, const xAOD::Jet* jet) const;
     bool pass_cut(const double score, const xAOD::Jet* jet) const;
 
   };
