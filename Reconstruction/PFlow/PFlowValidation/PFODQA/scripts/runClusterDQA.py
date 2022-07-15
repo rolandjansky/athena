@@ -2,7 +2,6 @@
 #  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from glob import glob
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 def GetCustomAthArgs():
@@ -31,7 +30,6 @@ from PFODQA.ClusterDQAConfig import ClusterDQACfg
 acc.merge(ClusterDQACfg(ConfigFlags))
 
 # finally, set up the infrastructure for writing our output
-from GaudiSvc.GaudiSvcConf import THistSvc
 histSvc = CompFactory.THistSvc()
 histSvc.Output += ["M_output DATAFILE='"+MyArgs.outputFile+"' OPT='RECREATE'"]
 acc.addService(histSvc)

@@ -45,8 +45,14 @@ def PhysValMonitoringCfg(flags):
         from PFODQA.ClusterDQAConfig import  ClusterDQACfg
         monMan.AthenaMonTools += [ acc.popToolsAndMerge(ClusterDQACfg(flags))]
     if flags.PhysVal.doZee:
-        from ZeeValidation.ZeeValidationMonToolConfig import ZeeValidationMonToolCfg
-        monMan.AthenaMonTools += [ acc.merge(ZeeValidationMonToolCfg(flags)) ]
+        from ZeeValidation.ZeeValidationMonToolConfig import PhysValZeeCfg
+        monMan.AthenaMonTools += [ acc.popToolsAndMerge(PhysValZeeCfg(flags)) ]
+    if flags.PhysVal.doPFlow:
+        from PFODQA.PFPhysValConfig import PhysValPFOCfg
+        monMan.AthenaMonTools += acc.popToolsAndMerge(PhysValPFOCfg(flags))
+    if flags.PhysVal.doMuon:
+        from MuonPhysValMonitoring.MuonPhysValConfig import PhysValMuonCfg
+        monMan.AthenaMonTools += acc.popToolsAndMerge(PhysValMuonCfg(flags))
 
     acc.addEventAlgo(monMan, primary = True)
     return acc

@@ -66,12 +66,7 @@ namespace MuonPhysValMonitoring {
         ManagedMonitorToolBase(type, name, parent),
         m_counterBits(),
         m_muonItems(),
-        m_L1Seed(),
-        m_muonSelectionTool("CP::MuonSelectionTool/MuonSelectionTool"),
-        m_muonPrinter("Rec::MuonPrintingTool/MuonPrintingTool"),
-        m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
-        m_trackSelector("InDet::InDetDetailedTrackSelectorTool/MuonCombinedInDetDetailedTrackSelectorTool") {
-        declareProperty("TrackSelector", m_trackSelector);
+        m_L1Seed() {
     }
 
     // Athena algtool's Hooks

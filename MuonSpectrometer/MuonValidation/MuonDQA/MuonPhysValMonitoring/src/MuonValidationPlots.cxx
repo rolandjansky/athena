@@ -96,7 +96,6 @@ MuonValidationPlots::~MuonValidationPlots() =default;
 void MuonValidationPlots::fillRecoMuonPlots(const xAOD::Muon& mu, float weight) {
     // fill hists for all muons
     m_oRecoMuonPlots->fill(mu, weight);
-
     // fill separate hists for each muon quality
     xAOD::Muon::Quality muqual = mu.quality();
     for (unsigned int i = 0; i < m_selectedWPs.size(); i++) {
@@ -130,7 +129,6 @@ void MuonValidationPlots::fillRecoMuonPlots(const xAOD::Muon& mu, float weight) 
 
 void MuonValidationPlots::fillTruthMuonPlots(const xAOD::TruthParticle& truthMu, float weight) {
     m_oTruthMuonPlots[0]->fill(truthMu, weight);  // no selections
-
     if (isGoodTruthTrack(truthMu)) {  // in MS acceptance (minimum precision hits)
         m_oTruthMuonPlots[1]->fill(truthMu, weight);
     }
