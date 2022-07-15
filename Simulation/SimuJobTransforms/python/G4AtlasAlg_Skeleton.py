@@ -12,7 +12,7 @@ def defaultSimulationFlags(ConfigFlags, detectors):
     from AthenaConfiguration.Enums import ProductionStep
     ConfigFlags.Common.ProductionStep = ProductionStep.Simulation
     # Writing out CalibrationHits only makes sense if we are running FullG4 simulation without frozen showers
-    from G4AtlasApps.SimEnums import CalibrationRun, LArParameterization
+    from SimulationConfig.SimEnums import CalibrationRun, LArParameterization
     if ConfigFlags.Sim.LArParameterization is not LArParameterization.NoFrozenShowers:
         ConfigFlags.Sim.CalibrationRun = CalibrationRun.Off
 
@@ -40,7 +40,7 @@ def fromRunArgs(runArgs):
     log.info('**** Setting-up configuration flags')
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.Enums import BeamType
-    from G4AtlasApps.SimEnums import CalibrationRun, CavernBackground, SimulationFlavour
+    from SimulationConfig.SimEnums import CalibrationRun, CavernBackground, SimulationFlavour
     commonRunArgsToFlags(runArgs, ConfigFlags)
 
     # Generate detector list
@@ -139,7 +139,7 @@ def fromRunArgs(runArgs):
     processPreExec(runArgs, ConfigFlags)
 
     # Common simulation runtime arguments
-    from G4AtlasApps.SimConfigFlags import simulationRunArgsToFlags
+    from SimulationConfig.SimConfigFlags import simulationRunArgsToFlags
     simulationRunArgsToFlags(runArgs, ConfigFlags)
 
     # Lock flags

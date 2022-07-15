@@ -56,7 +56,7 @@ def defaultTestFlags(configFlags, args):
     configFlags.Common.ProductionStep = ProductionStep.Simulation
 
     # Sim configFlags
-    from G4AtlasApps.SimEnums import BeamPipeSimMode, CalibrationRun, LArParameterization, SimulationFlavour, TruthStrategy
+    from SimulationConfig.SimEnums import BeamPipeSimMode, CalibrationRun, LArParameterization, SimulationFlavour, TruthStrategy
     configFlags.Sim.TruthStrategy = TruthStrategy.MC15aPlus
     configFlags.Sim.PhysicsList = "FTFP_BERT_ATL"
     configFlags.Sim.CalibrationRun = CalibrationRun.Off 

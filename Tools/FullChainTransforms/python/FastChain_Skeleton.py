@@ -21,7 +21,7 @@ def fromRunArgs(runArgs):
 
     log.info('**** Setting-up configuration flags')
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    from G4AtlasApps.SimEnums import SimulationFlavour
+    from SimulationConfig.SimEnums import SimulationFlavour
     commonRunArgsToFlags(runArgs, ConfigFlags)
 
     # Autoconfigure enabled subdetectors
@@ -64,7 +64,7 @@ def fromRunArgs(runArgs):
         ConfigFlags.IOVDb.GlobalTag = runArgs.conditionsTag
 
     # Setup common simulation flags
-    from G4AtlasApps.SimConfigFlags import simulationRunArgsToFlags
+    from SimulationConfig.SimConfigFlags import simulationRunArgsToFlags
     simulationRunArgsToFlags(runArgs, ConfigFlags)
 
     from SimuJobTransforms.ISF_Skeleton import defaultSimulationFlags

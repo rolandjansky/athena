@@ -54,7 +54,7 @@ def defaultTestFlags(configFlags, args):
     
     configFlags.Output.HITSFileName = args.outputhitsfile
 
-    from G4AtlasApps.SimEnums import BeamPipeSimMode, CalibrationRun, CavernBackground
+    from SimulationConfig.SimEnums import BeamPipeSimMode, CalibrationRun, CavernBackground
     configFlags.Sim.CalibrationRun = CalibrationRun.Off
     configFlags.Sim.RecordStepInfo = False
     configFlags.Sim.CavernBackground = CavernBackground.Signal

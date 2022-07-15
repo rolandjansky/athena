@@ -2,7 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from G4AtlasApps.SimEnums import CalibrationRun, LArParameterization
+from SimulationConfig.SimEnums import CalibrationRun, LArParameterization
 from ISF_Algorithms.CollectionMergerConfig import CollectionMergerCfg
 
 #to be migrated: getCalibrationDefaultCalculator, getDeadMaterialCalibrationHitMerger
