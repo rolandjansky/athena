@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKALIGNGENTOOLS_ALIGN_TRACK_CREATOR_H
@@ -54,7 +54,7 @@ namespace Trk {
     const AtlasDetectorID*   m_idHelper;
     MeasurementTypeID* m_measTypeIdHelper;
 
-    mutable std::vector< std::pair<int,int> > m_goodEventList; //!> good events read in from ASCII file
+    std::vector< std::pair<int,int> > m_goodEventList; //!> good events read in from ASCII file
 
     std::string m_eventListName;             //!> name of event list ASCII file    
     bool m_writeEventList;                   //!> write selected events to event list ASCII file

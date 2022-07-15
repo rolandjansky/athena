@@ -37,7 +37,6 @@ namespace Trk {
     , m_alignModuleTool("Trk::AlignModuleTool/AlignModuleTool")
     , m_idHelper(nullptr)
     , m_measTypeIdHelper(nullptr)
-    , m_firstEvent(true)
     , m_residualType(HitOnly)
     , m_residualTypeSet(false)
     , m_storeDerivatives(false)
@@ -141,7 +140,8 @@ namespace Trk {
   //________________________________________________________________________
   bool AnalyticalDerivCalcTool::setResidualCovMatrix(AlignTrack * alignTrack) const
   {
-    if (m_firstEvent) {
+    static std::once_flag flag;
+    std::call_once(flag, [&]() {
       if(m_logStream) {
         *m_logStream<<"*************************************************************"<<std::endl;
         *m_logStream<<"*************************************************************"<<std::endl;
@@ -164,8 +164,7 @@ namespace Trk {
         *m_logStream<<"***                                                     *****"<<std::endl;
         *m_logStream<<"*************************************************************"<<std::endl;
       }
-      m_firstEvent = false;
-    }
+    });
 
     // get inverse local error matrix of the track
     const Amg::MatrixX * Vinv = alignTrack->localErrorMatrixInv();
