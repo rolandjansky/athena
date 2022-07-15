@@ -118,6 +118,9 @@ class TrigInDetReco(ExecStep):
                 chains +=  "'HLT_tau25_idperf_mediumRNN_trackLRT_L1TAU12IM',"
                 flags += 'doTauSlice=True;'
             if (i=='bjet') :
+#               chains += "'HLT_j80_pf_ftf_preselj20b95_L1J20',"
+                chains += "'HLT_j20_roiftf_preselj20_L1RD0_FILLED',"
+                chains += "'HLT_j45_pf_ftf_preselj20_L1jJ40',"
 #               chains += "'HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20',"
                 chains += "'HLT_j45_0eta290_020jvt_boffperf_pf_ftf_L1J20',"
                 flags  += 'doBjetSlice=True;'
