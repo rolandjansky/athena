@@ -409,15 +409,6 @@ deco_ptcones = [isoPar.ptcone40, isoPar.ptcone30, isoPar.ptcone20]
 deco_topoetcones = [isoPar.topoetcone40, isoPar.topoetcone30, isoPar.topoetcone20]
 deco_prefix = ''  #'SUSY20_'
 
-from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__TrackParametersKVU
-SUSY20KVU = DerivationFramework__TrackParametersKVU(name = "SUSY20KVU",
-                                                             TrackParticleContainerName = "InDetPixelPrdAssociationTrackParticles",
-                                                             VertexContainerName = "PrimaryVertices" )
-
-
-ToolSvc += SUSY20KVU
-AugmentationTools.append(SUSY20KVU)
-
 from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__CaloIsolationDecorator
 SUSY20IDTrackDecorator = DerivationFramework__CaloIsolationDecorator(name = "SUSY20IDTrackDecorator",
                                                                     TrackIsolationTool = SUSY20TrackIsoTool,
@@ -430,19 +421,6 @@ SUSY20IDTrackDecorator = DerivationFramework__CaloIsolationDecorator(name = "SUS
                                                                     )
 ToolSvc += SUSY20IDTrackDecorator
 AugmentationTools.append(SUSY20IDTrackDecorator)
-
-
-SUSY20PixelTrackDecorator = DerivationFramework__CaloIsolationDecorator(name = "SUSY20PixelTrackDecorator",
-                                                                       TrackIsolationTool = SUSY20TrackIsoTool,
-                                                                       CaloIsolationTool = SUSY20CaloIsoTool,
-                                                                       TargetContainer = "InDetPixelPrdAssociationTrackParticles",
-                                                                       SelectionString = "InDetPixelPrdAssociationTrackParticles.pt>.5*GeV",
-                                                                       ptcones = deco_ptcones,
-                                                                       topoetcones = deco_topoetcones,
-                                                                       Prefix = deco_prefix,
-                                                                       )
-ToolSvc += SUSY20PixelTrackDecorator
-AugmentationTools.append(SUSY20PixelTrackDecorator)
 
 SUSY20MuonDecorator = DerivationFramework__CaloIsolationDecorator(name = "SUSY20MuonDecorator",
                                                                   TrackIsolationTool = SUSY20TrackIsoTool,
@@ -622,11 +600,8 @@ SUSY20SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons",
                                          "InDetTrackParticles"
                                          ]
 
-SUSY20SlimmingHelper.AllVariables = ["MET_Truth", "TruthParticles", "TruthEvents", "TruthVertices",
-                                     "InDetPixelPrdAssociationTrackParticles"
-                                     ]
+SUSY20SlimmingHelper.AllVariables = ["MET_Truth", "TruthParticles", "TruthEvents", "TruthVertices"]
  
-
 
 SUSY20SlimmingHelper.ExtraVariables = SUSY20ExtraVariables
 SUSY20SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
