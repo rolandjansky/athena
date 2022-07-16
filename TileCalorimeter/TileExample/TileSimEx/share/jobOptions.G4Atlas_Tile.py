@@ -12,14 +12,13 @@ if not 'OutputFile' in dir():
     OutputFile = '%s.pool.root' % File
 
 if not 'ConddbTag' in dir():
-    ConddbTag = 'OFLCOND-MC16-SDR-25'
+    ConddbTag = 'OFLCOND-MC21-SDR-RUN3-08'
 
 if not 'DetDescrVersion' in dir():
-    #DetDescrVersion = 'ATLAS-R2-2016-01-00-01'
-    DetDescrVersion = 'ATLAS-R2-2015-03-01-00'
+    DetDescrVersion = 'ATLAS-R3S-2021-03-00-00'
 
 if not 'TileVersionOverride' in dir():
-#    TileVersionOverride = 'TileCal-GEO-09'
+#    TileVersionOverride = 'TileCal-GEO-12'
     TileVersionOverride = ''
 
 ## Algorithm sequence
@@ -60,7 +59,7 @@ jobproperties.Global.ConditionsTag = ConddbTag
 ## Simulation flags
 from G4AtlasApps.SimFlags import simFlags
 simFlags.load_atlas_flags()
-simFlags.RunNumber = 310000
+simFlags.RunNumber = 410000
 
 ## Turns on calibration hits for Tile
 if 'CalibrationRun' in dir():

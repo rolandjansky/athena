@@ -1,6 +1,5 @@
-// Dear emacs, this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef XAODTRIGL1CALO_XAODTRIGL1CALOCALOEVENTDICT_H
 #define XAODTRIGL1CALO_XAODTRIGL1CALOCALOEVENTDICT_H
@@ -197,6 +196,12 @@
 #include "xAODTrigL1Calo/versions/GBlockContainer_v1.h"
 #include "xAODTrigL1Calo/versions/GBlockAuxContainer_v1.h"
 
+#include "xAODTrigL1Calo/eFexTower.h"
+#include "xAODTrigL1Calo/eFexTowerContainer.h"
+#include "xAODTrigL1Calo/eFexTowerAuxContainer.h"
+#include "xAODTrigL1Calo/versions/eFexTower_v1.h"
+#include "xAODTrigL1Calo/versions/eFexTowerContainer_v1.h"
+#include "xAODTrigL1Calo/versions/eFexTowerAuxContainer_v1.h"
 
 // EDM include(s).
 #include "xAODCore/tools/DictHelpers.h"
@@ -271,6 +276,8 @@ namespace {
     XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, JGTowerContainer_v1 );
     // GBlock
     XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, GBlockContainer_v1 );
+    // eFexTower
+    XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, eFexTowerContainer_v1 );
   };
 }
 

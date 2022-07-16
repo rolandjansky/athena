@@ -55,7 +55,7 @@
         "chains" : "HLT_tau25_idperf_tracktwoMVA_L1TAU12IM:HLT_IDTrack_Tau_IDTrig:HLT_Roi_TauIso:HLT_IDVertex_Tau/HLT_IDVertex_Tau"
     },
     "L2bjet":{
-        "chains" : "HLT_j45_0eta290_020jvt_boffperf_pf_ftf_L1J20:HLT_IDTrack_Bjet_FTF"
+        "chains" : "HLT_j45_0eta290_020jvt_boffperf_pf_ftf_L1J20:HLT_IDTrack_Bjet_FTF HLT_j80_pf_ftf_preselj20b95_L1J20:HLT_IDTrack_JetSuper_FTF:HLT_Roi_JetSuper HLT_j20_roiftf_preselj20_L1RD0_FILLED:HLT_IDTrack_JetSuper_FTF:HLT_Roi_JetSuper"
     },
     "EFbjet":{
         "chains" : "HLT_j45_0eta290_020jvt_boffperf_pf_ftf_L1J20:HLT_IDTrack_Bjet_FTF HLT_j45_0eta290_020jvt_boffperf_pf_ftf_L1J20:HLT_IDTrack_Bjet_IDTrig"

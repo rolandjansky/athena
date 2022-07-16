@@ -42,7 +42,7 @@ def GenEventVertexPositionerCfg(flags, name="GenEventVertexPositioner", **kwargs
 
     acc = ComponentAccumulator()
 
-    from G4AtlasApps.SimEnums import VertexSource
+    from SimulationConfig.SimEnums import VertexSource
     readVtxPosFromFile = flags.Sim.VertexSource in [VertexSource.VertexOverrideFile, VertexSource.VertexOverrideEventFile]
     if readVtxPosFromFile:
         kwargs.setdefault("VertexShifters", [acc.popToolsAndMerge(VertexPositionFromFileCfg(flags))])
@@ -111,7 +111,7 @@ def BeamEffectsAlgCfg(flags, name="BeamEffectsAlg", **kwargs):
     # Set (todo) the appropriate manipulator tools
     manipulators = []
     manipulators.append(acc.popToolsAndMerge(ValidityCheckerCfg(flags)))
-    from G4AtlasApps.SimEnums import CavernBackground
+    from SimulationConfig.SimEnums import CavernBackground
     if flags.Beam.Type is not BeamType.Cosmics and flags.Sim.CavernBackground is not CavernBackground.Read:
         manipulators.append(acc.popToolsAndMerge(GenEventVertexPositionerCfg(flags)))
     # manipulators.append(acc.popToolsAndMerge(GenEventBeamEffectBoosterCfg(flags))) # todo segmentation violation
@@ -187,7 +187,7 @@ if __name__ == "__main__":
     ConfigFlags.Output.HITSFileName = "myHITS.pool.root"
 
     #set the source of vertex positioning
-    from G4AtlasApps.SimEnums import VertexSource
+    from SimulationConfig.SimEnums import VertexSource
     #ConfigFlags.Sim.VertexSource = VertexSource.VertexOverrideFile
     ConfigFlags.Sim.VertexSource = VertexSource.CondDB
     #ConfigFlags.Sim.VertexSource = VertexSource.LongBeamspotVertexPositioner"

@@ -27,7 +27,7 @@ if __name__ == '__main__':
   from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
   setupDetectorsFromList(ConfigFlags, detectors, toggle_geometry=True)
 
-  from G4AtlasApps.SimEnums import CavernBackground
+  from SimulationConfig.SimEnums import CavernBackground
   ConfigFlags.Sim.CavernBackground = CavernBackground.Signal  #for it to go via atlas?
   ConfigFlags.Sim.WorldRRange = 15000
   ConfigFlags.Sim.WorldZRange = 27000

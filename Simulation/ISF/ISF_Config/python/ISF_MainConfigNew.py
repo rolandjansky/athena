@@ -4,7 +4,7 @@ Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from G4AtlasApps.G4Atlas_MetadataNew import writeSimulationParametersMetadata
+from SimulationConfig.SimulationMetadata import writeSimulationParametersMetadata
 from ISF_Services.ISF_ServicesCoreConfigNew import GeoIDSvcCfg, AFIIGeoIDSvcCfg
 from ISF_Services.ISF_ServicesConfigNew import (
     InputConverterCfg, TruthServiceCfg,
@@ -408,7 +408,7 @@ def Kernel_ATLFAST3F_G4MSCfg(flags, name="ISF_Kernel_ATLFAST3F_G4MS", **kwargs):
 
 
 def ISF_KernelCfg(flags):
-    from G4AtlasApps.SimEnums import SimulationFlavour
+    from SimulationConfig.SimEnums import SimulationFlavour
 
     if flags.Sim.ISF.Simulator is SimulationFlavour.FullG4MT:
         return Kernel_FullG4MTCfg(flags)

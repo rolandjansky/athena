@@ -1,5 +1,5 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
-from G4AtlasApps.SimEnums import CalibrationRun
+from SimulationConfig.SimEnums import CalibrationRun
 
 
 def enableG4Optimizations(flags):

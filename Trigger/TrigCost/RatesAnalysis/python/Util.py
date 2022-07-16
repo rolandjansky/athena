@@ -11,6 +11,18 @@
 from AthenaCommon.Logging import logging
 log = logging.getLogger('RatesPostProcessing')
 
+def getTableName(name):
+  tabName = "Table_Rate_"
+  if name == "HLT" or name == "L1":
+    tabName += "Chain" + name
+  else:
+    tabName += name
+
+  tabName += "_HLT_All.csv"
+
+  return tabName 
+
+
 def toCSV(fileName, metadata, HLTTriggers, readL1=False):
   import csv
 

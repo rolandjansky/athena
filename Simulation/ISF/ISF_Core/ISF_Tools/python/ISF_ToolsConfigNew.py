@@ -23,7 +23,7 @@ def MemoryMonitorToolCfg(flags, name="ISF_MemoryMonitor", **kwargs):
 
 def EntryLayerFilterCfg(ConfigFlags, **kwargs):
     """Return the MCxEntryLayerFilterCfg config flagged by Sim.TruthStrategy"""
-    from G4AtlasApps.SimEnums import TruthStrategy
+    from SimulationConfig.SimEnums import TruthStrategy
     stratmap = {
         TruthStrategy.MC12: MC12EntryLayerFilterCfg,
         TruthStrategy.MC12LLP: MC12LLPEntryLayerFilterCfg,

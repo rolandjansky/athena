@@ -4,7 +4,7 @@ from ISF_Services.ISF_ServicesConfigNew import TruthServiceCfg, InputConverterCf
 from ISF_Services.ISF_ServicesCoreConfigNew import GeoIDSvcCfg
 from G4AtlasTools.G4AtlasToolsConfigNew import SensitiveDetectorMasterToolCfg, FastSimulationMasterToolCfg
 from G4AtlasServices.G4AtlasUserActionConfigNew import UserActionSvcCfg
-from G4AtlasApps.G4Atlas_MetadataNew import writeSimulationParametersMetadata
+from SimulationConfig.SimulationMetadata import writeSimulationParametersMetadata
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 

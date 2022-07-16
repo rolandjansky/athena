@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import LHCPeriod
-from G4AtlasApps.SimEnums import BeamPipeSimMode
+from SimulationConfig.SimEnums import BeamPipeSimMode
 
 RegionCreator=CompFactory.RegionCreator
 
@@ -288,7 +288,7 @@ def DriftWall2PhysicsRegionToolCfg(ConfigFlags, name='DriftWall2PhysicsRegionToo
 def MuonSystemFastPhysicsRegionToolCfg(ConfigFlags, name='MuonSystemFastPhysicsRegionTool', **kwargs):
     kwargs.setdefault("RegionName", 'MuonSystemFastRegion')
     volumeList = []
-    from G4AtlasApps.SimEnums import CavernBackground
+    from SimulationConfig.SimEnums import CavernBackground
     if ConfigFlags.Sim.CavernBackground in [CavernBackground.SignalWorld, CavernBackground.WriteWorld]:
         if ConfigFlags.GeoModel.Run < LHCPeriod.Run4:
             volumeList += ['BeamPipe::BeamPipe', 'IDET::IDET']

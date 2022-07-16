@@ -2974,10 +2974,8 @@ bool TrigFastTrackFinder::isPreselPassDisTrackBeforeRefit(Trk::Track* trk, doubl
    return true;
 }
 
-const Trk::Perigee* TrigFastTrackFinder::extrapolateDisTrackToBS(Trk::Track* t,
-								 const std::vector<double>& v_xvtx,
-								 const std::vector<double>& v_yvtx,
-								 const std::vector<double>& v_zvtx) const
+std::unique_ptr<const Trk::TrackParameters> TrigFastTrackFinder::extrapolateDisTrackToBS(
+   Trk::Track* t, const std::vector<double>& v_xvtx, const std::vector<double>& v_yvtx,  const std::vector<double>& v_zvtx) const
 {
    float vtx_x  = 0;
    float vtx_y  = 0;
@@ -2996,14 +2994,12 @@ const Trk::Perigee* TrigFastTrackFinder::extrapolateDisTrackToBS(Trk::Track* t,
 
    Amg::Vector3D gp(vtx_x, vtx_y, vtx_z);
    Trk::PerigeeSurface persf(gp);
-   const Trk::Perigee* vertexPerigee = nullptr;
-   const Trk::Perigee* trackparPerigee = t->perigeeParameters();
    std::unique_ptr<const Trk::TrackParameters> tmp =
-     m_extrapolator->extrapolateDirectly(Gaudi::Hive::currentContext(), (*trackparPerigee), persf);
+      m_extrapolator->extrapolateDirectly(Gaudi::Hive::currentContext(), (*(t->perigeeParameters())), persf);
    if (tmp && tmp->associatedSurface().type() == Trk::SurfaceType::Perigee) {
-     vertexPerigee = static_cast<const Trk::Perigee*>(tmp.release());
+      return tmp;
    }
-   return vertexPerigee;
+   return nullptr;
 }
 
 TrigFastTrackFinder::DisTrkCategory TrigFastTrackFinder::getDisTrkCategory(Trk::Track* trk) const
@@ -3033,13 +3029,13 @@ TrigFastTrackFinder::DisTrkCategory TrigFastTrackFinder::getDisTrkCategory(Trk::
    return cat;
 }
 
-void TrigFastTrackFinder::fillDisTrkCand(xAOD::TrigComposite* comp, const std::string& prefix, Trk::Track* trk, const Trk::Perigee* vertexPerigee) const
+void TrigFastTrackFinder::fillDisTrkCand(xAOD::TrigComposite* comp, const std::string& prefix, Trk::Track* trk, const std::unique_ptr<const Trk::TrackParameters>& vertexPerigee) const
 {
    std::vector<Trk::Track*> vtmp;
    fillDisTrkCand(comp,prefix,trk,vertexPerigee,false,vtmp);
 }
 
-void TrigFastTrackFinder::fillDisTrkCand(xAOD::TrigComposite* comp, const std::string& prefix, Trk::Track* trk, const Trk::Perigee* vertexPerigee,
+void TrigFastTrackFinder::fillDisTrkCand(xAOD::TrigComposite* comp, const std::string& prefix, Trk::Track* trk, const std::unique_ptr<const Trk::TrackParameters>& vertexPerigee,
 					 bool fillIso, std::vector<Trk::Track*>& tracksForIso) const
 {
    // category
@@ -3180,7 +3176,7 @@ int TrigFastTrackFinder::recoAndFillDisTrkCand(const std::string& base_prefix,
       if( ptrk->perigeeParameters()==nullptr ) continue;
 
       // extrapolate to vertex
-      const Trk::Perigee* vertexPerigee = extrapolateDisTrackToBS(ptrk,v_xvtx,v_yvtx,v_zvtx);
+      std::unique_ptr<const Trk::TrackParameters> vertexPerigee = extrapolateDisTrackToBS(ptrk,v_xvtx,v_yvtx,v_zvtx);
       double d0 = ptrk->perigeeParameters()->parameters()[Trk::d0];
       double z0 = ptrk->perigeeParameters()->parameters()[Trk::z0];
       double d0_wrtVtx = 0;
@@ -3206,7 +3202,7 @@ int TrigFastTrackFinder::recoAndFillDisTrkCand(const std::string& base_prefix,
       double refit_z0 = 0;
       double refit_d0_wrtVtx = 0;
       double refit_z0_wrtVtx = 0;
-      const Trk::Perigee* refitVertexPerigee = nullptr;
+      std::unique_ptr<const Trk::TrackParameters> refitVertexPerigee = nullptr;
       if( refit_trk != nullptr ) {
 	 refitVertexPerigee = extrapolateDisTrackToBS(refit_trk.get(),v_xvtx,v_yvtx,v_zvtx);
 	 if( refitVertexPerigee == nullptr ) {

@@ -26,7 +26,7 @@ rc2=$?
 rc3=1
 if [[ $rc1 -eq 0 ]] && [[ $rc2 -eq 0 ]]; then
   # EventData
-  acmd diff-root --nan-equal myAOD.MT.pool.root Merged.MT.AOD.pool.root
+  acmd diff-root --nan-equal --order-trees myAOD.MT.pool.root Merged.MT.AOD.pool.root
   rc3=$?
 fi
 
