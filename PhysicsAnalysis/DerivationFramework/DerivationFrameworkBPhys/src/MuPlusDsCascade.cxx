@@ -27,6 +27,7 @@
 
 #include "AthContainers/ConstDataVector.h"
 
+#include "InDetTrackSelectionTool/InDetTrackSelectionTool.h"
 
 namespace DerivationFramework {
     typedef ElementLink<xAOD::VertexContainer> VertexLink;
@@ -362,7 +363,7 @@ namespace DerivationFramework {
         std::vector< Trk::VxTrackAtVertex > trkAtB = cascadeVertices[1]->vxTrackAtVertex();
         MuChi2B_decor(*mainVertex) = trkAtB.at(0).trackQuality().chiSquared();
         MunDoFB_decor(*mainVertex) = trkAtB.at(0).trackQuality().numberDoF();
-          
+
         //--------------------- Dx / Lambda_c
         //tagDp = true by default, for Ds+/-, D+ and Lambda_c+
         float massKX1 = 0.;
@@ -640,6 +641,13 @@ namespace DerivationFramework {
         //-------------------------------------------------------------------------------
         // Select the D_s+/D+/Lambda_c+ candidates before calling cascade fit
         std::vector<const xAOD::Vertex*> selectedDxCandidates;
+        
+        //======================== inDetTrack selection tool ==================
+        InDet::InDetTrackSelectionTool m_trackSelectionTools( "TrackSelection" );
+        ANA_CHECK(m_trackSelectionTools.setProperty("CutLevel", "LoosePrimary"));
+        ANA_CHECK(m_trackSelectionTools.initialize() );
+        //=====================================================================
+
         for(auto vxcItr : *dxContainer){
 
            // Check the passed flag first
@@ -665,6 +673,20 @@ namespace DerivationFramework {
                if(!(isDp||isDm)) continue;
            } 
 
+           // Track selection - Loose
+           if ( !m_trackSelectionTools.accept(vxcItr->trackParticle(0)) ){
+                ATH_MSG_DEBUG(" Original Dx/Lambda_c candidate rejected by the track's cut level - loose ");
+                continue;
+           }
+           if ( !m_trackSelectionTools.accept(vxcItr->trackParticle(1)) ){
+                ATH_MSG_DEBUG(" Original Dx/Lambda_c candidate rejected by the track's cut level - loose ");
+                continue;
+           }
+           if ( !m_trackSelectionTools.accept(vxcItr->trackParticle(2)) ){
+                ATH_MSG_DEBUG(" Original Dx/Lambda_c candidate rejected by the track's cut level - loose ");
+                continue;
+           }
+            
            // Ensure the total charge is correct
            if( std::abs( vxcItr->trackParticle(0)->charge()+vxcItr->trackParticle(1)->charge()+vxcItr->trackParticle(2)->charge() ) != 1 ){
                ATH_MSG_DEBUG(" Original Dx/Lambda_c candidate rejected by the charge requirement: "
