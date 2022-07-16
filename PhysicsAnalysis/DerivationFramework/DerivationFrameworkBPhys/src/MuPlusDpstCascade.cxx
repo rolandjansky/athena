@@ -19,6 +19,7 @@
 #include "xAODTracking/VertexContainer.h"
 #include "DerivationFrameworkBPhys/LocalVector.h"
 #include "HepPDT/ParticleDataTable.hh"
+#include "InDetTrackSelectionTool/InDetTrackSelectionTool.h"
 
 namespace DerivationFramework {
     typedef ElementLink<xAOD::VertexContainer> VertexLink;
@@ -262,6 +263,7 @@ namespace DerivationFramework {
         ndof_decor(*mainVertex) = x->nDoF();
         Chi2Mu_decor(*mainVertex) = cascadeVertices[1]->trackParticle(0)->chiSquared();
         nDoFMu_decor(*mainVertex) = cascadeVertices[1]->trackParticle(0)->numberDoF();
+          
         // track contribution to chi2 of cascasde fit
         std::vector< Trk::VxTrackAtVertex > trkAtB = cascadeVertices[1]->vxTrackAtVertex();
         MuChi2B_decor(*mainVertex) = trkAtB.at(0).trackQuality().chiSquared();
@@ -512,10 +514,16 @@ namespace DerivationFramework {
         Masses.push_back(m_vtx0Daug1MassHypo); //mu
         Masses.push_back(m_vtx0Daug2MassHypo); //pi
         Masses.push_back(m_vtx1MassHypo); //D0
+        
+        //======================== inDetTrack selection tool ==================
+        InDet::InDetTrackSelectionTool m_trackSelectionTools( "TrackSelection" );
+        ANA_CHECK(m_trackSelectionTools.setProperty("CutLevel", "LoosePrimary"));
+        ANA_CHECK(m_trackSelectionTools.initialize() );
+        //=====================================================================
+
 
         // Select mu+pi_soft candidates before calling cascade fit
         std::vector<const xAOD::Vertex*> selectedMuPiCandidates;
-
         for ( auto vxcItr : *MuPiContainer ){
             // Check mu+pi_soft candidate invariant mass and skip if need be
             TLorentzVector p4Mup_in, p4Mum_in;
@@ -528,17 +536,24 @@ namespace DerivationFramework {
             double mass_MuPi = (p4Mup_in + p4Mum_in).M();
             ATH_MSG_DEBUG("mu pi_soft mass " << mass_MuPi);
             if (mass_MuPi < m_MuPiMassLower || mass_MuPi > m_MuPiMassUpper) {
-                ATH_MSG_DEBUG(" Mu & pi_soft candidate rejected by the mass cut: mass = "
+                ATH_MSG_DEBUG(" Original mu & pi_soft candidate rejected by the mass cut: mass = "
                            << mass_MuPi << " != (" << m_MuPiMassLower << ", " << m_MuPiMassUpper << ")" );
                 continue;
             }
+
+            // Track selection - Loose
+            // for soft pion wich is (2nd) in MuPi vertex
+            if ( !m_trackSelectionTools.accept(vxcItr->trackParticle(1)) ){
+                ATH_MSG_DEBUG(" Original mu & pi_soft candidate rejected by the track's cut level - loose");
+                continue;
+            }
+
             selectedMuPiCandidates.push_back(vxcItr);
         } //for(auto vxcItr : *MuPiContainer)
         if(selectedMuPiCandidates.size()<1) return StatusCode::SUCCESS;
 
         // Select the D0/D0b candidates before calling cascade fit
         std::vector<const xAOD::Vertex*> selectedD0Candidates;
-        
         for(auto vxcItr : *d0Container){
            // Check the passed flag first
            xAOD::Vertex* vtx = vxcItr;
@@ -554,6 +569,17 @@ namespace DerivationFramework {
            }
            if(!(isD0||isD0b)) continue;
 
+           // Track selection - Loose
+           if ( !m_trackSelectionTools.accept(vxcItr->trackParticle(0)) ){
+               ATH_MSG_DEBUG(" Original D0/D0-bar candidate rejected by the track's cut level - loose ");
+               continue;
+           }
+           if ( !m_trackSelectionTools.accept(vxcItr->trackParticle(1)) ){
+               ATH_MSG_DEBUG(" Original D0/D0-bar candidate rejected by the track's cut level - loose ");
+               continue;
+           }
+
+
            // Ensure the total charge is correct
            if (vxcItr->trackParticle(0)->charge() != 1 || vxcItr->trackParticle(1)->charge() != -1) {
               ATH_MSG_DEBUG(" Original D0/D0-bar candidate rejected by the charge requirement: "
@@ -566,7 +592,7 @@ namespace DerivationFramework {
            double mass_D0b = m_V0Tools->invariantMass(vxcItr,massesD0b);
            ATH_MSG_DEBUG("D0 mass " << mass_D0 << ", D0b mass "<<mass_D0b);
            if ((mass_D0 < m_D0MassLower || mass_D0 > m_D0MassUpper) && (mass_D0b < m_D0MassLower || mass_D0b > m_D0MassUpper)) {
-              ATH_MSG_DEBUG(" Original D0 candidate rejected by the mass cut: mass = "
+              ATH_MSG_DEBUG(" Original D0/D0-bar candidate rejected by the mass cut: mass = "
                             << mass_D0 << " != (" << m_D0MassLower << ", " << m_D0MassUpper << ") " 
                             << mass_D0b << " != (" << m_D0MassLower << ", " << m_D0MassUpper << ") " );
              continue;

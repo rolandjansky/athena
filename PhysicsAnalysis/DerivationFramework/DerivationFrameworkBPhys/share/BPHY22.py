@@ -483,7 +483,7 @@ ToolSvc += BPHY22MuLambdaC
 print      BPHY22MuLambdaC
 
 
-#===============================================================================================
+#====================================================================
 
 #--------------------------------------------------------------------
 
@@ -494,7 +494,8 @@ CascadeCollections += BPHY22MuDs.CascadeVertexCollections
 CascadeCollections += BPHY22MuLambdaC.CascadeVertexCollections
 
 #--------------------------------------------------------------------
-
+## 6/ select the event. We only want to keep events that
+##    contain certain vertices which passed certain selection.
 if not isSimulation: #Only Skim Data
    from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
    BPHY22_SelectBMuDxEvent = DerivationFramework__xAODStringSkimmingTool(
@@ -516,7 +517,7 @@ if not isSimulation: #Only Skim Data
    print      BPHY22SkimmingOR
 
 #--------------------------------------------------------------------
-##10/ track and vertex thinning. We want to remove all reconstructed secondary vertices
+##7/ track and vertex thinning. We want to remove all reconstructed secondary vertices
 ##    which hasn't passed any of the selections defined by (Select_*) tools.
 ##    We also want to keep only tracks which are associates with either muons or any of the
 ##    vertices that passed the selection. Multiple thinning tools can perform the
@@ -525,8 +526,8 @@ if not isSimulation: #Only Skim Data
 
 ## a) thining out vertices that didn't pass any selection and idetifying tracks associated with
 ##    selected vertices. The "VertexContainerNames" is a list of the vertex containers, and "PassFlags"
-##    contains all pass flags for Select_* tools that must be satisfied. The vertex is kept is it
-##    satisfy any of the listed selections.
+##    contains all pass flags for Select_* tools that must be satisfied. The vertex is kept if it
+##    satisfies any of the listed selections.
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Thin_vtxTrk
 BPHY22_thinningTool_Tracks = DerivationFramework__Thin_vtxTrk(
     name                       = "BPHY22_thinningTool_Tracks",
@@ -565,7 +566,6 @@ print      BPHY22MuonTPThinningTool
 #====================================================================
 
 thiningCollection = []
-
 print thiningCollection
 
 # The name of the kernel (BPHY22Kernel in this case) must be unique to this derivation
@@ -606,7 +606,6 @@ svcMgr += BPHY22ThinningSvc
 #====================================================================
 # Slimming
 #====================================================================
-
 # Added by ASC
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 BPHY22SlimmingHelper = SlimmingHelper("BPHY22SlimmingHelper")
@@ -641,21 +640,21 @@ StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY22MuPi
 
 
 ## K+K-, Kpi, D0/D0bar candidates
-StaticContent += ["xAOD::VertexContainer#%s"        %                 BPHY22DiTrkSelectAndWrite.OutputVtxContainerName]
-StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY22DiTrkSelectAndWrite.OutputVtxContainerName]
+#StaticContent += ["xAOD::VertexContainer#%s"        %                 BPHY22DiTrkSelectAndWrite.OutputVtxContainerName]
+#StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY22DiTrkSelectAndWrite.OutputVtxContainerName]
 
 
 ## D+ / Ds candidates
-StaticContent += ["xAOD::VertexContainer#%s"        %                 BPHY22Dh3SelectAndWrite.OutputVtxContainerName]
-StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY22Dh3SelectAndWrite.OutputVtxContainerName]
+#StaticContent += ["xAOD::VertexContainer#%s"        %                 BPHY22Dh3SelectAndWrite.OutputVtxContainerName]
+#StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY22Dh3SelectAndWrite.OutputVtxContainerName]
 
-## B+>J/psi D_(s)+/-, J/psi D*+/- and J/psi D_s1+/- candidates
+## B+>mu D_(s)+/-, mu D*+/- and mu Lambda_c+/- candidates
 for cascades in CascadeCollections:
    StaticContent += ["xAOD::VertexContainer#%s"   %     cascades]
    StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % cascades]
 
 # Tagging information (in addition to that already requested by usual algorithms)
-AllVariables += ["GSFTrackParticles", "MuonSpectrometerTrackParticles" ]
+AllVariables += ["MuonSpectrometerTrackParticles" ]
 
 # Added by ASC
 # Truth information for MC only
