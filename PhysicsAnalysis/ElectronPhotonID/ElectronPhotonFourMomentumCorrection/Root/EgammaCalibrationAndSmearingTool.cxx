@@ -306,10 +306,10 @@ EgammaCalibrationAndSmearingTool::EgammaCalibrationAndSmearingTool(const std::st
   declareProperty("useLayer2Recalibration", m_useLayer2Recalibration = AUTO);
   declareProperty("useIntermoduleCorrection", m_useIntermoduleCorrection = AUTO);
   declareProperty("usePhiUniformCorrection", m_usePhiUniformCorrection = AUTO);
-  declareProperty("useCaloDistPhiUnifCorrection", m_useCaloDistPhiUnifCorrection = 0);
+  declareProperty("useCaloDistPhiUnifCorrection", m_useCaloDistPhiUnifCorrection = AUTO);
   declareProperty("useGainCorrection", m_useGainCorrection = AUTO);
-  declareProperty("doADCLinearityCorrection", m_doADCLinearityCorrection = 0);
-  declareProperty("doLeakageCorrection", m_doLeakageCorrection = 0);
+  declareProperty("doADCLinearityCorrection", m_doADCLinearityCorrection = AUTO);
+  declareProperty("doLeakageCorrection", m_doLeakageCorrection = AUTO);
   declareProperty("autoReseed", m_auto_reseed = true);
   declareProperty("MVAfolder", m_MVAfolder = "");
   declareProperty("layerRecalibrationTune", m_layer_recalibration_tune = "");
@@ -523,49 +523,69 @@ StatusCode EgammaCalibrationAndSmearingTool::initialize() {
   if (m_useIntermoduleCorrection == AUTO) { m_useIntermoduleCorrection = use_intermodule_correction(m_TESModel); }
   if (m_usePhiUniformCorrection == AUTO) { m_usePhiUniformCorrection = use_phi_uniform_correction(m_TESModel); }
   m_use_mapping_correction = not is_run2(m_TESModel);
-  if (m_useGainCorrection == AUTO) {
+  if (m_useGainCorrection == AUTO && m_TESModel != egEnergyCorr::es2022_R21_Precision) {
     ATH_MSG_DEBUG("initializing gain tool");
     m_gain_tool = gainToolFactory(m_TESModel).release();
     m_useGainCorrection = bool(m_gain_tool);
   }
+  else if (m_useGainCorrection == AUTO && m_TESModel == egEnergyCorr::es2022_R21_Precision)
+    {
+      m_useGainCorrection = 1;
+      ATH_MSG_INFO("initializing gain tool for run2 final precision recommendations");
+      std::string gain_tool_run_2_filename =
+        PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v25/gain_uncertainty_specialRun.root");
+      m_gain_tool_run2.reset(new egGain::GainUncertainty(gain_tool_run_2_filename,"GainCorrection"));
+      m_gain_tool_run2->msg().setLevel(this->msg().level());
+      m_rootTool->setApplyL2GainCorrection();
+    }
   else if (m_useGainCorrection == 1) {
     if (m_TESModel != egEnergyCorr::es2022_R21_Precision) {
       m_useGainCorrection = 0;
       ATH_MSG_WARNING("cannot instantiate gain tool for this model (you can only disable the gain tool, but not enable it)");
     } else {
-      ATH_MSG_DEBUG("initializing gain tool for run2 final precision recommendations");
+      ATH_MSG_INFO("initializing gain tool for run2 final precision recommendations");
       std::string gain_tool_run_2_filename =
 	PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v25/gain_uncertainty_specialRun.root");
       m_gain_tool_run2.reset(new egGain::GainUncertainty(gain_tool_run_2_filename,"GainCorrection"));
       m_gain_tool_run2->msg().setLevel(this->msg().level());
       m_rootTool->setApplyL2GainCorrection();
     }
+  } else if(m_useGainCorrection == 0 && m_TESModel == egEnergyCorr::es2022_R21_Precision){
+    ATH_MSG_WARNING("es2022_R21_Precision recommendations use gain corrections for scale derivation. Disabling the GainCorrection flag will create inconsistency!");
   }
 
   if (m_TESModel == egEnergyCorr::es2022_R21_Precision) {
     // ADC non linearity correction
-    if (m_doADCLinearityCorrection == 1) {
+    if (m_doADCLinearityCorrection == AUTO || m_doADCLinearityCorrection == 1) {
+      m_doADCLinearityCorrection = 1;
       std::string adcLinearityCorr_filename =
 	PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v25/linearity_ADC.root");
       m_ADCLinearity_tool.reset(new LinearityADC(adcLinearityCorr_filename));
       m_ADCLinearity_tool->msg().setLevel(this->msg().level());
       m_rootTool->setADCTool(m_ADCLinearity_tool);
+    } else {
+      ATH_MSG_WARNING("es2022_R21_Precision recommendations use ADC corrections for scale derivation. Disabling the ADCLinearity flag will create inconsistency!");
     }
 
     // Leakage correction : the true argument is for pT interpolation
-    if (m_doLeakageCorrection == 1) {
+    if (m_doLeakageCorrection == AUTO || m_doLeakageCorrection== 1) {
+      m_doLeakageCorrection = 1;
       m_rootTool->setApplyLeakageCorrection(true);
-    }
+    } 
 
     // Calo distortion phi unif correction
-    if (m_useCaloDistPhiUnifCorrection == 1) {
+    if (m_useCaloDistPhiUnifCorrection == AUTO || m_useCaloDistPhiUnifCorrection == 1) {
+      m_useCaloDistPhiUnifCorrection = 1;
       std::string phiUnifCorrfileName =
 	PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v25/egammaEnergyCorrectionData.root");
       std::unique_ptr<TFile> fCorr(TFile::Open(phiUnifCorrfileName.c_str(), "READ"));
       m_caloDistPhiUnifCorr.reset(
 	dynamic_cast<TH2*>(fCorr->Get("CaloDistortionPhiUniformityCorrection/es2022_R21_Precision/h2DcorrPhiUnif")));
       m_caloDistPhiUnifCorr->SetDirectory(nullptr);
+    } else {
+      ATH_MSG_WARNING("es2022_R21_Precision recommendations use CaloDistPhiUnif for scale derivation. Disabling the CaloDistPhiUnif flag will create inconsistency!");
     }
+    
   }
 
   //No scale correction for release 21 ==> obsolete

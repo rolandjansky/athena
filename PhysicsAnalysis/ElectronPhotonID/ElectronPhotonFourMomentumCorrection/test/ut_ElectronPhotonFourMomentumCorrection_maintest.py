@@ -414,7 +414,7 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
         # _test_list_syst("es2015PRE", "FULL_v1", None, None, 158)
         # _test_list_syst("es2015PRE", None, "FULL_v1", "FULL_v1", 158)
         # _test_list_syst("es2015PRE", None, None, None, 158)
-        _test_list_syst("es2022_R21_Precision", None, None, None, 156)
+        _test_list_syst("es2022_R21_Precision", None, None, None, 158)
 
         # these works, but generate FATALS, as expected
         # _test_list_syst("es2016PRE", "1NP_v1", "1NP_v1", "1NP_v1", [], success=False)
