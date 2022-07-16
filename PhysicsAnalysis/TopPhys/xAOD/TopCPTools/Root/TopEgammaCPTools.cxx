@@ -881,7 +881,7 @@ IAsgElectronEfficiencyCorrectionTool*
   std::string EgammaCPTools::electronSFMapFilePath(const std::string& type) {
     // Store here the paths to maps which may be updated with new recommendations
     // Currently can use maps for reco, id, iso, trigger but not ChargeID
-    const std::string el_calib_path = "ElectronEfficiencyCorrection/2015_2018/rel21.2/Precision_Summer2020_v1/map0.txt";
+    const std::string el_calib_path = "ElectronEfficiencyCorrection/2015_2018/rel21.2/Precision_Summer2020_v1/map3.txt";
 
     if (m_config->useHItoolsConfiguration())
       return PathResolverFindCalibFile("ElectronEfficiencyCorrection/2015_2018/rel21.2/HIData_Autumn2021_v1/map0.txt");
