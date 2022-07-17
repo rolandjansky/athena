@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // MuonCalibPattern.h
@@ -72,7 +72,7 @@ namespace MuonCalib {
             unsigned int ncsc{0};
         };
 
-        MuonCalibPattern(defineParams pars);  //!< constructor initializing the pattern with trackparameters, chi2 and
+        MuonCalibPattern(const defineParams& pars);  //!< constructor initializing the pattern with trackparameters, chi2 and
                                               //!< number of hits in the different technologies.
 
         // accessors

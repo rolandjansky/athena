@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibEventBase/MuonCalibPattern.h"
@@ -32,7 +32,7 @@ namespace MuonCalib {
     // methodes for adding segments
     void MuonCalibPattern::addMuonSegment(MuonCalibSegPtr seg) { m_muonSegments.emplace_back(std::move(seg)); }
 
-    MuonCalibPattern::MuonCalibPattern(MuonCalibPattern::defineParams pars) : m_pars{pars} {
+    MuonCalibPattern::MuonCalibPattern(const MuonCalibPattern::defineParams& pars) : m_pars{pars} {
         std::cout << "Consider to add NSW information here " << __FILE__ << ":" << __LINE__ << std::endl;
     }
 
