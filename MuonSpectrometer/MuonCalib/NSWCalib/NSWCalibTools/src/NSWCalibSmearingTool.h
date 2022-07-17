@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef NSWCalibSmearingTool_h
@@ -29,16 +29,16 @@ namespace Muon {
 
     virtual ~NSWCalibSmearingTool() {};
 
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
 
-    StatusCode isAccepted(const Identifier id, bool& accepted, CLHEP::HepRandomEngine* rndmEngine) const ;
+    virtual StatusCode isAccepted(const Identifier id, bool& accepted, CLHEP::HepRandomEngine* rndmEngine) const override;
 
     double getHighVoltage(Identifier id) const;
 
     StatusCode smearTimeAndCharge(const Identifier id, float& time, float& charge, bool& accepted, CLHEP::HepRandomEngine* rndmEngine) const override;
     StatusCode smearCharge(const Identifier id, float& charge, bool& accepted, CLHEP::HepRandomEngine* rndmEngine) const override;
 
-    StatusCode getGainFraction(const Identifier id, float& charge);
+    virtual StatusCode getGainFraction(const Identifier id, float& charge) override;
  
   private:
     
