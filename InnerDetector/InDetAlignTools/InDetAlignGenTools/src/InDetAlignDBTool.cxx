@@ -119,13 +119,13 @@ StatusCode InDetAlignDBTool::initialize()
   ndet[0]=0;
   ndet[1]=0;
 
-  if (StatusCode::SUCCESS!=detStore()->retrieve(m_pixman,"Pixel") || m_pixman==nullptr) {
-    ATH_MSG_WARNING( "Could not find pixel manager ");
+  if (StatusCode::SUCCESS!=detStore()->retrieve(m_pixman,m_pixmanName) || m_pixman==nullptr) {
+    ATH_MSG_WARNING( "Could not find pixel manager "<<m_pixmanName);
     return StatusCode::FAILURE;
   }
 
-  if (StatusCode::SUCCESS!=detStore()->retrieve(m_sctman,"SCT") || m_sctman==nullptr) {
-    ATH_MSG_FATAL("Could not find SCT manager ");
+  if (StatusCode::SUCCESS!=detStore()->retrieve(m_sctman,m_sctmanName) || m_sctman==nullptr) {
+    ATH_MSG_FATAL("Could not find SCT manager "<<m_sctmanName);
     return StatusCode::FAILURE;
   }
 
