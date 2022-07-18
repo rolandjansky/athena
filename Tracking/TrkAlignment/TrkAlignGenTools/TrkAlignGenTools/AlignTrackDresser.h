@@ -40,13 +40,13 @@ namespace Trk {
     virtual StatusCode finalize() override;
     
     /** dresses alignTrack with derivatives and other information */
-    bool dressAlignTrack(AlignTrack * alignTrack);
+    virtual bool dressAlignTrack(AlignTrack * alignTrack) override;
 
     /** sets residuals for TSOS on alignTrack */
     void setResiduals(AlignTrack * alignTrack) const;
 
     /** sets the output stream for the logfile */
-    virtual void setLogStream(std::ostream * os);
+    virtual void setLogStream(std::ostream * os) override;
 
   private:
 
