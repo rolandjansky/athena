@@ -116,10 +116,8 @@ theTruthParticleRetriever = JiveXML__TruthParticleRetriever (name = "TruthPartic
 theTruthParticleRetriever.StoreGateKey = "TruthEvent"
 ToolSvc += theTruthParticleRetriever
 
-include ("RecJiveXML/RecJiveXML_DataTypes.py")
 include ("TrkJiveXML/TrkJiveXML_DataTypes.py")
 theTrackRetriever.OtherTrackCollections = [""]
-theMissingETRetriever.OtherMissingETCollections=[""]
 
 ### initial try for jOs to make Upgrade event xml-files smaller (target <15MB):
 #    jpt 27Sep11

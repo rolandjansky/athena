@@ -110,11 +110,3 @@ if not "JiveXML::VertexRetriever/VertexRetriever" in theEventData2XML.DataTypes:
     theVertexRetriever = JiveXML__VertexRetriever (name = "VertexRetriever")
     theVertexRetriever.DoWritePrimAndSecVertexOnly=True
     ToolSvc += theVertexRetriever
-
-if not "JiveXML::MissingETRetriever/MissingETRetriever" in theEventData2XML.DataTypes:
-    theEventData2XML.DataTypes += ["JiveXML::MissingETRetriever/MissingETRetriever"]
-    from RecJiveXML.RecJiveXMLConf import JiveXML__MissingETRetriever
-    theMissingETRetriever = JiveXML__MissingETRetriever (name = "MissingETRetriever")
-    theMissingETRetriever.FavouriteMissingETCollection="MET_RefFinal"
-    theMissingETRetriever.OtherMissingETCollections=["MET_Topo","MET_Base"]
-    ToolSvc += theMissingETRetriever

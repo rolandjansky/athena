@@ -104,11 +104,6 @@ if rec.doTrigger():
   from TrigJiveXML.TrigJiveXMLConf import JiveXML__JetROIRetriever
   ToolSvc += JiveXML__JetROIRetriever (name = "JetROIRetriever", readJEM = True)
 
-### Always use this one
-include ( "JiveXML/DataTypes_Reco.py" )
-
-theJetRecJetRetriever.OtherJetCollections = []
-#theMissingETRetriever.OtherMissingETCollections = []
 
 ## ================== Edit: 25-02-2015 by sjiggins - Do not limit additional Track Collection ========================                  
 #include ("xAODJiveXML/xAODJiveXML_DataTypes.py") # 04-04/15 by sjiggins
