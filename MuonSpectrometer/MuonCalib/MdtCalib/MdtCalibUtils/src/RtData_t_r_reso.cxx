@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtCalibUtils/RtData_t_r_reso.h"
@@ -66,9 +66,9 @@ namespace MuonCalib {
 
     void RtData_t_r_reso::write_forDB(FILE* frtt, FILE* frtr, FILE* frts) const {
         if (m_isValid) {
-            fprintf(frtt, "%d", m_npars);
-            fprintf(frtr, "%d", m_npars);
-            fprintf(frts, "%d", m_npars);
+            fprintf(frtt, "%u", m_npars);
+            fprintf(frtr, "%u", m_npars);
+            fprintf(frts, "%u", m_npars);
 
             // loop over data and write to std::ostream
             for (unsigned int i = 0; i < m_npars; ++i) {
