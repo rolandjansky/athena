@@ -5,7 +5,7 @@ atlas_subdir( AFP_SiClusterTools )
 
 # External dependencies:
 find_package( CLHEP )
-find_package( ROOT COMPONENTS Math GenVector )
+find_package( ROOT COMPONENTS GenVector )
 find_package( nlohmann_json )
 
 atlas_add_library( AFP_SiClusterToolsLib
