@@ -63,5 +63,5 @@ namespace MuonPRDTest {
         ATH_MSG_DEBUG(" finished fillTgcDigitVariables()");
         return true;
     }
-    bool TgcDigitVariables::declare_keys() { return m_key.initialize().isSuccess(); }
+    bool TgcDigitVariables::declare_keys() { return  declare_dependency(m_key); }
 }

@@ -11,9 +11,7 @@ namespace MuonPRDTest {
     MMPRDVariables::MMPRDVariables(MuonTesterTree& tree, const std::string& prd_container_name, MSG::Level msglvl) :
         PrdTesterModule(tree, "PRD_MM", true, msglvl), m_key{prd_container_name} {}
 
-    bool MMPRDVariables::declare_keys() {
-       return (m_key.initialize().isSuccess() );
-    }
+    bool MMPRDVariables::declare_keys() { return declare_dependency(m_key); }
 
     bool MMPRDVariables::fill(const EventContext& ctx) {
         ATH_MSG_DEBUG("do fillMMPRDVariables()");

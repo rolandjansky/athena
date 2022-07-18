@@ -11,7 +11,7 @@
 namespace MuonPRDTest {
     CSCSimHitVariables::CSCSimHitVariables(MuonTesterTree& tree, const std::string& container_name, MSG::Level msglvl) :
         PrdTesterModule(tree, "CSC_Sim", false, msglvl),m_key{container_name} {}
-    bool CSCSimHitVariables::declare_keys() { return m_key.initialize().isSuccess(); }
+    bool CSCSimHitVariables::declare_keys() { return declare_dependency(m_key); }
 
     bool CSCSimHitVariables::fill(const EventContext& ctx) {
         ATH_MSG_DEBUG("do fillCSCSimHitVariables()");

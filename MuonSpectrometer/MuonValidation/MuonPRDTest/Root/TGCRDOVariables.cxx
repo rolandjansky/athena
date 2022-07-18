@@ -11,7 +11,7 @@ using namespace Muon;
 namespace MuonPRDTest {
     TGCRDOVariables::TGCRDOVariables(MuonTesterTree& tree, const std::string& container_name, MSG::Level msglvl, const ITGCcablingSvc* cabling_svc) :
         PrdTesterModule(tree, "RDO_TGC", true, msglvl), m_key{container_name}, m_tgcCabling{cabling_svc} {}
-    bool TGCRDOVariables::declare_keys() { return m_key.initialize().isSuccess(); }
+    bool TGCRDOVariables::declare_keys() { return declare_dependency(m_key); }
 
     bool TGCRDOVariables::fill(const EventContext& ctx) {
         ATH_MSG_DEBUG("do fillTGCRDOVariables()");

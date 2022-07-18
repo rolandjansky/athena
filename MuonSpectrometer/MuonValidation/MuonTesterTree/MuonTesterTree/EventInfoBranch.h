@@ -16,6 +16,8 @@ public:
     bool init() override final;
     std::string name() const override final;
 
+    std::vector<DataDependency> data_dependencies() override final;
+
 private:
     SG::ReadHandleKey<xAOD::EventInfo> m_key{"EventInfo"};
     MuonTesterTree& m_parent;

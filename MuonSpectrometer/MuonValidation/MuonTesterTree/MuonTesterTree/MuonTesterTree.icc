@@ -36,4 +36,18 @@ template <class T> std::shared_ptr<T> MuonTesterTree::get_branch(const std::stri
     }
     return nullptr;
 }
+
+template <class OWNER,
+          typename >
+StatusCode MuonTesterTree::init(OWNER* instance) {
+    ATH_CHECK(init(instance->histSvc()));
+    unsigned int counter{0};
+    for (auto& ev : m_dependencies) {    
+        auto p = instance->declareProperty( "DataDep_"+name()+"nmuber_"+ std::to_string(counter), *ev);
+        p->template setOwnerType<OWNER>();   
+        ++counter;        
+    }
+    m_dependencies.clear();
+    return StatusCode::SUCCESS;
+}
 #endif
