@@ -16,7 +16,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
 #include "InDetConversionFinderTools/InDetConversionFinderTools.h"
-#include "BeamSpotConditionsData/BeamSpotData.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "xAODMuon/Muon.h"
 #include "xAODMuon/MuonContainer.h"
 
@@ -36,7 +36,7 @@ namespace Trk {
     //    class ExtendedVxCandidate;
 }
 
-namespace InDet { class VertexPointEstimator; class BeamSpotData;}
+namespace InDet { class VertexPointEstimator; }
 
 namespace DerivationFramework {
     
@@ -180,7 +180,7 @@ namespace DerivationFramework {
         ToolHandle < Trk::V0Tools > m_V0Tools;
         ToolHandle < Trk::ITrackSelectorTool > m_trkSelector;
         ToolHandle < InDet::VertexPointEstimator > m_vertexEstimator;
-        SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
+        SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo_key{this, "EventInfo", "EventInfo", "Input event information"};
         SG::WriteDecorHandleKey<xAOD::MuonContainer> m_muonIndex{this, "muonIndexDec", "Muons.BPHY4MuonIndex"};
 
     };

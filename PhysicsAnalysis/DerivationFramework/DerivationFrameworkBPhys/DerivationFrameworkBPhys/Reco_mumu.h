@@ -11,7 +11,7 @@
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 #include "JpsiUpsilonTools/JpsiFinder.h"
 #include "JpsiUpsilonTools/PrimaryVertexRefitter.h"
-#include "BeamSpotConditionsData/BeamSpotData.h"
+#include "xAODEventInfo/EventInfo.h"
 /** forward declarations
  */
 namespace Trk {
@@ -38,7 +38,7 @@ namespace DerivationFramework {
       ToolHandle<Trk::V0Tools>                    m_v0Tools{this, "V0Tools", "Trk::V0Tools"};
       ToolHandle<Analysis::JpsiFinder>            m_jpsiFinder{this,"JpsiFinder", "Analysis::JpsiFinder"};
       ToolHandle<Analysis::PrimaryVertexRefitter> m_pvRefitter{this, "PVRefitter", "Analysis::PrimaryVertexRefitter"};
-      SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
+      SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo_key{this, "EventInfo", "EventInfo", "Input event information"};
       
       
     // minimum number of tracks for PV to be considered for PV association

@@ -17,7 +17,7 @@ atlas_add_component( DerivationFrameworkBPhys
    DerivationFrameworkInterfaces BPhysToolsLib TrackVertexAssociationToolLib
    xAODBase xAODMetaData  AsgTools CaloInterfaceLib TrackToCaloLib
    xAODEventInfo AthenaPoolUtilities xAODPrimitives TrigDecisionToolLib
-     BeamSpotConditionsData TrkVertexAnalysisUtilsLib ITrackToVertex
+   TrkVertexAnalysisUtilsLib ITrackToVertex
    InDetTrackSelectionToolLib  InDetV0FinderLib)
 
 

@@ -36,7 +36,7 @@ namespace DerivationFramework {
         ATH_CHECK( m_CascadeTools.retrieve());
 
         // Get the beam spot service
-        ATH_CHECK(m_beamSpotKey.initialize());
+        ATH_CHECK(m_eventInfo_key.initialize());
 
         IPartPropSvc* partPropSvc = nullptr;
         ATH_CHECK( service("PartPropSvc", partPropSvc, true) );
@@ -110,9 +110,9 @@ namespace DerivationFramework {
 
       ATH_CHECK(performSearch(&cascadeinfoContainer));
 
-      SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
-      if(not beamSpotHandle.isValid()) ATH_MSG_ERROR("Cannot Retrieve " << m_beamSpotKey.key() );
-      BPhysPVCascadeTools helper(&(*m_CascadeTools), beamSpotHandle.cptr());
+      SG::ReadHandle<xAOD::EventInfo> evt(m_eventInfo_key);
+      if(not evt.isValid()) ATH_MSG_ERROR("Cannot Retrieve " << evt.key() );
+      BPhysPVCascadeTools helper(&(*m_CascadeTools), evt.cptr());
       helper.SetMinNTracksInPV(m_PV_minNTracks);
 
       // Decorators for the main vertex: chi2, ndf, pt and pt error, plus the D0 vertex variables

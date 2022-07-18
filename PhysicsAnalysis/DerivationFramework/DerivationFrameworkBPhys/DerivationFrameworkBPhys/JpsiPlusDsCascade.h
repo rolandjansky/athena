@@ -14,7 +14,7 @@
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 #include "JpsiUpsilonTools/PrimaryVertexRefitter.h"
 #include <vector>
-#include "BeamSpotConditionsData/BeamSpotData.h"
+#include "xAODEventInfo/EventInfo.h"
 
 namespace Trk {
     class IVertexFitter;
@@ -70,7 +70,7 @@ namespace DerivationFramework {
         bool   m_constrJpsi;
         double m_chi2cut;
 
-        SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
+        SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo_key{this, "EventInfo", "EventInfo", "Input event information"};
         ToolHandle < Trk::TrkVKalVrtFitter >             m_iVertexFitter;
         ToolHandle < Analysis::PrimaryVertexRefitter >   m_pvRefitter;
         ToolHandle < Trk::V0Tools >                      m_V0Tools;

@@ -43,7 +43,7 @@ namespace DerivationFramework {
     CHECK( m_pvRefitter.retrieve() );
 
     // Get the beam spot service   
-    CHECK( m_beamSpotKey.initialize() );
+    CHECK( m_eventInfo_key.initialize() );
     
     ATH_CHECK(m_CollectionsToCheck.initialize());
     ATH_CHECK(m_pvContainerKey.initialize());
@@ -103,11 +103,11 @@ namespace DerivationFramework {
         //----------------------------------------------------
        
        // Give the helper class the ptr to v0tools and beamSpotsSvc to use
-        SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
-        if(not beamSpotHandle.isValid()) ATH_MSG_ERROR("Cannot Retrieve " << m_beamSpotKey.key() );
+        SG::ReadHandle<xAOD::EventInfo> evt(m_eventInfo_key, ctx);
+        if(not evt.isValid()) ATH_MSG_ERROR("Cannot Retrieve " << m_eventInfo_key.key() );
         
         // Give the helper class the ptr to v0tools and beamSpotsSvc to use
-        BPhysPVTools helper(&(*m_v0Tools), beamSpotHandle.cptr());
+        BPhysPVTools helper(&(*m_v0Tools), evt.cptr());
         helper.SetMinNTracksInPV(m_PV_minNTracks);
         helper.SetSave3d(m_do3d);
 

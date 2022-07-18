@@ -8,7 +8,7 @@
 #include "xAODBPhys/BPhysHelper.h"
 #include "JpsiUpsilonTools/PrimaryVertexRefitter.h"
 #include "TVector3.h"
-#include "BeamSpotConditionsData/BeamSpotData.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include <limits>
 #include <iostream>
@@ -16,13 +16,13 @@
 using namespace std;
 
 DerivationFramework::BPhysPVTools::BPhysPVTools(const Trk::V0Tools *v0Tools) :
-  m_v0Tools(v0Tools), m_beamSpotData(nullptr), m_PV_minNTracks(0),
+  m_v0Tools(v0Tools), m_EvtData(nullptr), m_PV_minNTracks(0),
  m_3dCalc(false)
 {
 }
 
-DerivationFramework::BPhysPVTools::BPhysPVTools(const Trk::V0Tools *v0Tools, const InDet::BeamSpotData *beamSpotSvc) :
-  m_v0Tools(v0Tools), m_beamSpotData(beamSpotSvc), m_PV_minNTracks(0),
+DerivationFramework::BPhysPVTools::BPhysPVTools(const Trk::V0Tools *v0Tools, const xAOD::EventInfo *eventInfo) :
+  m_v0Tools(v0Tools), m_EvtData(eventInfo), m_PV_minNTracks(0),
  m_3dCalc(false)
 {
 }
@@ -466,9 +466,9 @@ void DerivationFramework::BPhysPVTools::SetMinNTracksInPV(size_t PV_minNTracks)
 //-----------------------------------------------------------------------------
 // added by WW:
 //
-const Amg::Vector3D& DerivationFramework::BPhysPVTools::GetBeamSpot() const noexcept {
+Amg::Vector3D DerivationFramework::BPhysPVTools::GetBeamSpot() const {
 
-  if(m_beamSpotData) return m_beamSpotData->beamPos();
+  if(m_EvtData) return Amg::Vector3D(m_EvtData->beamPosX(), m_EvtData->beamPosY(), m_EvtData->beamPosZ());
   else {
     static const Amg::Vector3D defaultBS(-10000.,-10000.,-10000.);
     return defaultBS;

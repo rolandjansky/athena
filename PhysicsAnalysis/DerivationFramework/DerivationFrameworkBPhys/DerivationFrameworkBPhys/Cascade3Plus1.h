@@ -14,7 +14,7 @@
 #include "xAODTracking/TrackParticle.h"
 #include "JpsiUpsilonTools/PrimaryVertexRefitter.h"
 #include "InDetConversionFinderTools/VertexPointEstimator.h"
-#include "BeamSpotConditionsData/BeamSpotData.h"
+#include "xAODEventInfo/EventInfo.h"
 
 namespace Trk {
     class IVertexFitter;
@@ -51,7 +51,7 @@ private:
     ToolHandle < DerivationFramework::CascadeTools > m_CascadeTools;
     ToolHandle < Analysis::PrimaryVertexRefitter >   m_pvRefitter;
     ToolHandle < InDet::VertexPointEstimator > m_vertexEstimator;
-    SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
+    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo_key{this, "EventInfo", "EventInfo", "Input event information"};
 
     std::unique_ptr<Trk::VxCascadeInfo> CascadeFit(std::array<const xAOD::TrackParticle*, 4> &Track)const;
 
