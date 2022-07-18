@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include "SimpleMMClusterBuilderTool.h"
 
@@ -56,7 +56,7 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
             if (gasGapN == gasGap && layerN == layer) {
                 ATH_MSG_VERBOSE(" next MMprds strip same gasGap and layer index " << j << " strip " << stripN << " gasGap " << gasGapN
                                                                                   << " layer " << layerN);
-                if (std::abs(strip - stripN) <= m_maxHoleSize + 1) {
+                if (static_cast<unsigned int>(std::abs(strip - stripN)) <= m_maxHoleSize + 1) {
                     jmerge = j;
                     break;
                 }
@@ -88,7 +88,7 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
                 const uint16_t stripN = m_idHelperSvc->mmIdHelper().channel(id_prdN);
                 // Take the last merged strip as a reference to evaluate whether 
                 /// it's in the window. Btw does this allow for a super cluster?
-                if (std::abs(mergeStrips[k] - stripN) > m_maxHoleSize + 1) {
+                if (static_cast<unsigned int>(std::abs(mergeStrips[k] - stripN)) > m_maxHoleSize + 1) {
                     continue;
                 }
                 const unsigned int gasGapN = m_idHelperSvc->mmIdHelper().gasGap(id_prdN);
