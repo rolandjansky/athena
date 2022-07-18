@@ -137,20 +137,8 @@ def addMCSignatures(chains):
     ]
 
     chainsMC['Egamma'] = [
-        ChainProp(name='HLT_e5_etcut_L1EM3', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e5_etcut_L1eEM5', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e26_etcut_L1EM22VHI', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e26_etcut_L1eEM26M', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e26_lhtight_nogsf_L1EM22VHI', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e26_lhtight_L1eEM26', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e26_lhtight_L1eEM26L', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e26_lhtight_L1eEM26T', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e60_etcut_L1EM22VHI', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e60_etcut_L1eEM26M', groups=SingleElectronGroup),
         ChainProp(name='HLT_e5_lhtight_L1EM3', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e5_lhtight_L1eEM5', groups=SingleElectronGroup),
         ChainProp(name='HLT_e5_lhtight_noringer_L1EM3', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e5_lhtight_noringer_L1eEM5', groups=SingleElectronGroup),
 
         #------------ dnn chains
         ChainProp(name='HLT_e5_dnnloose_L1EM3', groups=SingleElectronGroup),
