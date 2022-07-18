@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -29,13 +29,24 @@ StatusCode DumpEventDataToJsonAlg::initialize()
   ATH_CHECK(m_muonKeys.initialize());
   ATH_CHECK(m_trackCollectionKeys.initialize());
 
-  ATH_CHECK(m_cscPrepRawDataKey.initialize());
-  ATH_CHECK(m_mdtPrepRawDataKey.initialize());
-  ATH_CHECK(m_rpcPrepRawDataKey.initialize());
-  ATH_CHECK(m_tgcPrepRawDataKey.initialize());
-  ATH_CHECK(m_pixelPrepRawDataKey.initialize());
-  ATH_CHECK(m_sctPrepRawDataKey.initialize());
-  ATH_CHECK(m_trtPrepRawDataKey.initialize());
+  if (!m_cscPrepRawDataKey.empty())
+    ATH_CHECK(m_cscPrepRawDataKey.initialize());
+  if (!m_mdtPrepRawDataKey.empty())
+    ATH_CHECK(m_mdtPrepRawDataKey.initialize());
+  if (!m_tgcPrepRawDataKey.empty())
+    ATH_CHECK(m_tgcPrepRawDataKey.initialize());
+  if (!m_rpcPrepRawDataKey.empty())
+    ATH_CHECK(m_rpcPrepRawDataKey.initialize());
+  if (!m_mmPrepRawDataKey.empty())
+    ATH_CHECK(m_mmPrepRawDataKey.initialize());
+  if (!m_stgcPrepRawDataKey.empty())
+    ATH_CHECK(m_stgcPrepRawDataKey.initialize());
+  if (!m_pixelPrepRawDataKey.empty())
+    ATH_CHECK(m_pixelPrepRawDataKey.initialize());
+  if (!m_sctPrepRawDataKey.empty())
+    ATH_CHECK(m_sctPrepRawDataKey.initialize());
+  if (!m_trtPrepRawDataKey.empty())
+    ATH_CHECK(m_trtPrepRawDataKey.initialize());
 
 
   if (m_extrapolateTrackParticless)
@@ -99,7 +110,8 @@ void DumpEventDataToJsonAlg::prependTestEvent()
   nlohmann::json j;
 
   // FIXME - this
-  auto writeEtaPhiLabel = [](float eta, float phi) { return std::to_string(eta) + "/" + std::to_string(phi); };
+  auto writeEtaPhiLabel = [](float eta, float phi)
+  { return std::to_string(eta) + "/" + std::to_string(phi); };
 
   j["event number"] = 999;
   j["run number"] = 999;
@@ -155,7 +167,7 @@ void DumpEventDataToJsonAlg::prependTestEvent()
 template <class TYPE>
 StatusCode DumpEventDataToJsonAlg::getAndFillArrayOfContainers(nlohmann::json &event,
                                                                const SG::ReadHandleKeyArray<TYPE> &keys,
-                                                               const std::string& jsonType)
+                                                               const std::string &jsonType)
 {
   for (SG::ReadHandle<TYPE> handle : keys.makeHandles())
   {
@@ -191,8 +203,8 @@ nlohmann::json DumpEventDataToJsonAlg::getData(const xAOD::CaloCluster &clust)
   data["phi"] = clust.phi();
   data["eta"] = clust.eta();
   data["energy"] = clust.e();
-  //data["etaSize"] = clust.getClusterEtaSize(); // empty
-  //data["phiSize"] = clust.getClusterPhiSize(); // empty
+  // data["etaSize"] = clust.getClusterEtaSize(); // empty
+  // data["phiSize"] = clust.getClusterPhiSize(); // empty
   return data;
 }
 
@@ -204,8 +216,8 @@ nlohmann::json DumpEventDataToJsonAlg::getData(const CaloCell &cell)
   data["phi"] = cell.phi();
   data["eta"] = cell.eta();
   data["energy"] = cell.e();
-  //data["etaSize"] = clust.getClusterEtaSize(); // empty
-  //data["phiSize"] = clust.getClusterPhiSize(); // empty
+  // data["etaSize"] = clust.getClusterEtaSize(); // empty
+  // data["phiSize"] = clust.getClusterPhiSize(); // empty
   return data;
 }
 
@@ -360,18 +372,21 @@ StatusCode DumpEventDataToJsonAlg::finalize()
 template <class TYPE>
 StatusCode DumpEventDataToJsonAlg::getAndFillContainer(nlohmann::json &event,
                                                        const SG::ReadHandleKey<TYPE> &key,
-                                                       const std::string& jsonType)
+                                                       const std::string &jsonType)
 {
-SG::ReadHandle<TYPE> handle(key);
+  if (key.empty())
+    return StatusCode::SUCCESS;
 
-ATH_MSG_VERBOSE("Trying to load " << handle.key());
-ATH_CHECK(handle.isValid());
-ATH_MSG_VERBOSE("Got back " << handle->size());
+  SG::ReadHandle<TYPE> handle(key);
 
-nlohmann::json tmp = getData(*handle);
-event[jsonType][handle.key()]=tmp;
+  ATH_MSG_VERBOSE("Trying to load " << handle.key());
+  ATH_CHECK(handle.isValid());
+  ATH_MSG_VERBOSE("Got back " << handle->size());
 
-return StatusCode::SUCCESS;
+  nlohmann::json tmp = getData(*handle);
+  event[jsonType][handle.key()] = tmp;
+
+  return StatusCode::SUCCESS;
 }
 
 // Generic PRD
@@ -380,8 +395,10 @@ nlohmann::json DumpEventDataToJsonAlg::getData(const TYPE &container)
 {
 
   nlohmann::json colldata;
-  for (const auto& coll : container ) {
-    for (const auto& prd : *coll ) {
+  for (const auto &coll : container)
+  {
+    for (const auto &prd : *coll)
+    {
       nlohmann::json data;
       data["pos"] = {prd->globalPosition().x(), prd->globalPosition().y(), prd->globalPosition().z()};
       Identifier id = prd->identify();
@@ -392,4 +409,3 @@ nlohmann::json DumpEventDataToJsonAlg::getData(const TYPE &container)
 
   return colldata;
 }
-

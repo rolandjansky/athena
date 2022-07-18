@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DUMPEVENTDATATOJSONALG_H
@@ -28,8 +28,8 @@
 #include <vector>
 #include <map>
 
-/** Algorithm to dump some Event data to JSON. 
-*/
+/** Algorithm to dump some Event data to JSON.
+ */
 class DumpEventDataToJsonAlg : public AthAlgorithm
 {
 public:
@@ -48,12 +48,12 @@ protected:
   void prependTestEvent();
 
   template <class TYPE>
-  StatusCode getAndFillArrayOfContainers(nlohmann::json &event, const SG::ReadHandleKeyArray<TYPE> &keys, const std::string& jsonType);
+  StatusCode getAndFillArrayOfContainers(nlohmann::json &event, const SG::ReadHandleKeyArray<TYPE> &keys, const std::string &jsonType);
 
   template <class TYPE>
   StatusCode getAndFillContainer(nlohmann::json &event,
                                  const SG::ReadHandleKey<TYPE> &key,
-                                 const std::string& jsonType);
+                                 const std::string &jsonType);
   template <class TYPE>
   nlohmann::json getData(const TYPE &object);
 
@@ -78,6 +78,8 @@ protected:
   SG::ReadHandleKey<Muon::MdtPrepDataContainer> m_mdtPrepRawDataKey{this, "MdtPrepRawDataKey", "MDT_DriftCircles", "Key for MDT PRD Container"};
   SG::ReadHandleKey<Muon::RpcPrepDataContainer> m_rpcPrepRawDataKey{this, "RpcPrepRawDataKey", "RPC_Measurements", "Key for RPC PRD Container"};
   SG::ReadHandleKey<Muon::TgcPrepDataContainer> m_tgcPrepRawDataKey{this, "TgcPrepRawDataKey", "TGC_MeasurementsAllBCs", "Key for TGC PRD Container"};
+  SG::ReadHandleKey<Muon::TgcPrepDataContainer> m_mmPrepRawDataKey{this, "MMPrepRawDataKey", "MM_Measurements", "Key for MM PRD Container"};
+  SG::ReadHandleKey<Muon::TgcPrepDataContainer> m_stgcPrepRawDataKey{this, "sTgcPrepRawDataKey", "STGC_Measurements", "Key for sTGC PRD Container"};
   SG::ReadHandleKey<InDet::PixelClusterContainer> m_pixelPrepRawDataKey{this, "PixelPrepRawDataKey", "PixelClusters", "Key for Pixel PRD Container"};
   SG::ReadHandleKey<InDet::SCT_ClusterContainer> m_sctPrepRawDataKey{this, "SctPrepRawDataKey", "SCT_Clusters", "Key for SCT PRD Container"};
   SG::ReadHandleKey<InDet::TRT_DriftCircleContainer> m_trtPrepRawDataKey{this, "TrtPrepRawDataKey", "TRT_DriftCircles", "Key for TRT PRD Container"};
