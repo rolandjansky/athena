@@ -17,7 +17,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 #include "xAODTracking/Vertex.h"
-#include "BeamSpotConditionsData/BeamSpotData.h"
+#include "xAODEventInfo/EventInfo.h"
 /** forward declarations
  */
 namespace Trk {
@@ -75,7 +75,7 @@ private:
 
     ToolHandle<Trk::V0Tools>                    m_v0Tools;
     ToolHandle<Analysis::PrimaryVertexRefitter> m_pvRefitter;
-    SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
+    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo_key{this, "EventInfo", "EventInfo", "Input event information"};
     int         m_PV_max;
     int         m_DoVertexType;
     size_t      m_PV_minNTracks;

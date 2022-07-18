@@ -23,7 +23,7 @@
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
 #include "TrkVertexAnalysisUtils/V0Tools.h"
-#include "BeamSpotConditionsData/BeamSpotData.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "DerivationFrameworkBPhys/BPhysPVTools.h"
 
 
@@ -54,7 +54,7 @@ namespace DerivationFramework {
     CHECK( m_pvRefitter.retrieve() );
 
     // Get the beam spot service
-    CHECK( m_beamSpotKey.initialize() );
+    CHECK( m_eventInfo_key.initialize() );
     ATH_CHECK(m_pvContainerKey.initialize());
     ATH_CHECK(m_refContainerKey.initialize(m_refitPV));
     ATH_CHECK(m_outVtxContainerKey.initialize());
@@ -99,12 +99,12 @@ namespace DerivationFramework {
     //m_refContainerKey
     
     // Give the helper class the ptr to v0tools and beamSpotsSvc to use
-    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
-    if(!beamSpotHandle.isValid()) {
-        ATH_MSG_ERROR("Cannot Retrieve " << m_beamSpotKey.key() );
+    SG::ReadHandle<xAOD::EventInfo> evt(m_eventInfo_key, ctx);
+    if(!evt.isValid()) {
+        ATH_MSG_ERROR("Cannot Retrieve " << m_eventInfo_key.key() );
         return StatusCode::FAILURE;
     }
-    BPhysPVTools helper(&(*m_v0Tools), beamSpotHandle.cptr());
+    BPhysPVTools helper(&(*m_v0Tools), evt.cptr());
     helper.SetMinNTracksInPV(m_PV_minNTracks);
     helper.SetSave3d(m_do3d);
 

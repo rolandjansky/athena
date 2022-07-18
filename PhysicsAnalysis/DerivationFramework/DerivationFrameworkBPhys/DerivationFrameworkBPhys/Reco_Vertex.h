@@ -15,7 +15,7 @@
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 #include "JpsiUpsilonTools/ICandidateSearch.h"
 #include "JpsiUpsilonTools/PrimaryVertexRefitter.h"
-#include "BeamSpotConditionsData/BeamSpotData.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "StoreGate/ReadHandleKeyArray.h"
 
 namespace DerivationFramework {
@@ -34,8 +34,7 @@ namespace DerivationFramework {
       ToolHandle<Trk::V0Tools>                    m_v0Tools;
       ToolHandle<Analysis::ICandidateSearch>      m_SearchTool;
       ToolHandle<Analysis::PrimaryVertexRefitter> m_pvRefitter;
-      SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
-      
+      SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo_key{this, "EventInfo", "EventInfo", "Input event information"};
       /** job options
        */
       SG::WriteHandleKey<xAOD::VertexContainer> m_outputVtxContainerName;

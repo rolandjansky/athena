@@ -11,19 +11,18 @@
 #include "DerivationFrameworkBPhys/LocalVector.h"
 #include "JpsiUpsilonTools/PrimaryVertexRefitter.h"
 #include "HepPDT/ParticleDataTable.hh"
-#include "BeamSpotConditionsData/BeamSpotData.h"
 #include <limits>
 #include <iostream>
 
 DerivationFramework::BPhysPVCascadeTools::BPhysPVCascadeTools(const CascadeTools *cascadeTools) :
-  m_cascadeTools(cascadeTools), m_beamSpotData(nullptr), m_PV_minNTracks(0),
+  m_cascadeTools(cascadeTools), m_eventInfo(nullptr), m_PV_minNTracks(0),
   m_copyAllVertices(true)
 {
 }
 
 DerivationFramework::BPhysPVCascadeTools::BPhysPVCascadeTools(const CascadeTools *cascadeTools,
-                                                const InDet::BeamSpotData* beamSpotSvc) :
-  m_cascadeTools(cascadeTools), m_beamSpotData(beamSpotSvc), m_PV_minNTracks(0),
+                                                const xAOD::EventInfo* eventinfo) :
+  m_cascadeTools(cascadeTools), m_eventInfo(eventinfo), m_PV_minNTracks(0),
   m_copyAllVertices(true)
 {
 }
@@ -152,8 +151,8 @@ void DerivationFramework::BPhysPVCascadeTools::SetMinNTracksInPV(size_t PV_minNT
 }
 //-----------------------------------------------------------------------------
 //
-const Amg::Vector3D& DerivationFramework::BPhysPVCascadeTools::GetBeamSpot() const  noexcept {
-  if(m_beamSpotData) return m_beamSpotData->beamPos();
+Amg::Vector3D DerivationFramework::BPhysPVCascadeTools::GetBeamSpot() const {
+  if(m_eventInfo) return Amg::Vector3D(m_eventInfo->beamPosX(), m_eventInfo->beamPosY(), m_eventInfo->beamPosZ());
   else {
     static const Amg::Vector3D defaultBS(-10000.,-10000.,-10000.);
     return defaultBS;

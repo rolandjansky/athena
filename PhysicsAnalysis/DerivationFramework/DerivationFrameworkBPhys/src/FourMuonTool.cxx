@@ -21,7 +21,6 @@
 #include "InDetConversionFinderTools/VertexPointEstimator.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "AthLinks/ElementLink.h"
-#include "BeamSpotConditionsData/BeamSpotData.h"
 
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
@@ -77,7 +76,7 @@ namespace DerivationFramework {
         }
 
         // Get the beam spot service
-        CHECK( m_beamSpotKey.initialize() );
+        CHECK( m_eventInfo_key.initialize() );
         ATH_CHECK(m_muonCollectionKey.initialize());
         ATH_CHECK(m_TrkParticleCollection.initialize());
         m_muonIndex = m_muonCollectionKey.key() + ".BPHY4MuonIndex";
@@ -204,9 +203,9 @@ namespace DerivationFramework {
         }
        
         // Get the beam spot (for the vertexing starting point)
-        SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
-        if(not beamSpotHandle.isValid()) ATH_MSG_ERROR("Cannot Retrieve " << m_beamSpotKey.key() );
-        const Amg::Vector3D &beamSpot = beamSpotHandle->beamPos();
+        SG::ReadHandle<xAOD::EventInfo> evt(m_eventInfo_key);
+        if(not evt.isValid()) ATH_MSG_ERROR("Cannot Retrieve " << evt.key() );
+        const Amg::Vector3D beamSpot(evt->beamPosX(), evt->beamPosY(), evt->beamPosZ());
  
         // fit pairs
         ATH_MSG_DEBUG("Successful pairs.....");

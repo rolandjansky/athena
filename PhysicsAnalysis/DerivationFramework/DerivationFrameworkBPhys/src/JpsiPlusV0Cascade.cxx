@@ -12,7 +12,7 @@
 #include "DerivationFrameworkBPhys/CascadeTools.h"
 #include "DerivationFrameworkBPhys/BPhysPVCascadeTools.h"
 #include "xAODTracking/VertexAuxContainer.h"
-#include "BeamSpotConditionsData/BeamSpotData.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "xAODBPhys/BPhysHypoHelper.h"
 #include <algorithm>
 #include "xAODTracking/VertexContainer.h"
@@ -51,7 +51,7 @@ namespace DerivationFramework {
           ATH_MSG_INFO("Retrieved tool " << m_CascadeTools);
         }
 
-        ATH_CHECK(m_beamSpotKey.initialize());
+        ATH_CHECK(m_eventInfo_key.initialize());
         ATH_CHECK(m_refPVContainerName.initialize(m_refitPV));
         IPartPropSvc* partPropSvc = 0;
         StatusCode sc = service("PartPropSvc", partPropSvc, true);
@@ -122,9 +122,9 @@ namespace DerivationFramework {
 
       ATH_CHECK(performSearch(&cascadeinfoContainer));
 
-      SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
-      if(not beamSpotHandle.isValid()) ATH_MSG_ERROR("Cannot Retrieve " << m_beamSpotKey.key() );
-      BPhysPVCascadeTools helper(&(*m_CascadeTools), beamSpotHandle.cptr());
+      SG::ReadHandle<xAOD::EventInfo> evt(m_eventInfo_key);
+      if(not evt.isValid()) ATH_MSG_ERROR("Cannot Retrieve " << m_eventInfo_key.key() );
+      BPhysPVCascadeTools helper(&(*m_CascadeTools), evt.cptr());
       helper.SetMinNTracksInPV(m_PV_minNTracks);
 
       // Decorators for the main vertex: chi2, ndf, pt and pt error, plus the V0 vertex variables

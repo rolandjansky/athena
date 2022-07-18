@@ -9,7 +9,7 @@
 #include "xAODBPhys/BPhysHypoHelper.h"
 #include "DerivationFrameworkBPhys/CascadeTools.h"
 #include "EventKernel/PdtPdg.h"
-
+#include "xAODEventInfo/EventInfo.h"
 #include <vector>
 // Authors: Adam Barton <abarton@SPAMMENOTTtttcern.ch>
 //          Eva Bouhova <bouhova@SPAMMENOTTtttcern.ch>
@@ -24,9 +24,6 @@ namespace Trk {
 namespace Analysis{
   class PrimaryVertexRefitter;
 }
-namespace InDet{
-class BeamSpotData;
-}
 
 namespace HepPDT{
   class ParticleDataTable;
@@ -39,7 +36,7 @@ namespace DerivationFramework {
   typedef std::vector<VertexLink> VertexLinkVector;
   private:
        const CascadeTools *m_cascadeTools;
-       const InDet::BeamSpotData *m_beamSpotData;
+       const xAOD::EventInfo *m_eventInfo;
 
        /// minimum number of tracks required in PVs considered
        size_t m_PV_minNTracks;
@@ -48,7 +45,7 @@ namespace DerivationFramework {
        bool m_copyAllVertices;
        BPhysPVCascadeTools(const CascadeTools *cascadeTools);
        BPhysPVCascadeTools(const CascadeTools *cascadeTools,
-                           const InDet::BeamSpotData*);
+                           const xAOD::EventInfo*);
          
        
        void ProcessVertex(const std::vector<TLorentzVector> &mom, Amg::MatrixX cov, xAOD::BPhysHypoHelper &vtx, xAOD::BPhysHelper::pv_type pvtype, double mass) const;
@@ -95,7 +92,7 @@ namespace DerivationFramework {
        /// BeamCondSvc.
        /// Before processing a new event, make sure to call
        /// GetBeamSpot();
-       [[nodiscard]] const Amg::Vector3D& GetBeamSpot() const noexcept;
+       [[nodiscard]] Amg::Vector3D GetBeamSpot() const;
 
        /// Find the index for the PV with the lowest distance in z of
        /// the SV's DOCA point w.r.t. the beamline and the PV.

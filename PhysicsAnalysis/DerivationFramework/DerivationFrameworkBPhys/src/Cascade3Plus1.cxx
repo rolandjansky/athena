@@ -108,7 +108,7 @@ StatusCode Cascade3Plus1::initialize() {
     ATH_CHECK( m_CascadeTools.retrieve());
 
     // Get the beam spot service
-    CHECK( m_beamSpotKey.initialize() );
+    CHECK( m_eventInfo_key.initialize() );
 
     ATH_CHECK(m_vertexEstimator.retrieve());
     if(m_eliminateBad3Tracksfrom4Track && m_3TrackChi2NDFCut<=0.0) {
@@ -292,9 +292,9 @@ StatusCode Cascade3Plus1::addBranches() const
     std::map<const std::array<const xAOD::TrackParticle*, 3>, xAOD::Vertex* > threeVertexMap;
 
     if(!m_3TrackVertexOutput.empty()) {
-        SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
-        if(not beamSpotHandle.isValid()) ATH_MSG_ERROR("Cannot Retrieve " << m_beamSpotKey.key() );
-        BPhysPVTools helper(&(*m_V0Tools), beamSpotHandle.cptr());
+        SG::ReadHandle<xAOD::EventInfo> evt(m_eventInfo_key);
+        if(not evt.isValid()) ATH_MSG_ERROR("Cannot Retrieve " << evt.key() );
+        BPhysPVTools helper(&(*m_V0Tools), evt.cptr());
         helper.SetMinNTracksInPV(0);
         helper.SetSave3d(false);
         std::vector<const xAOD::TrackParticle*> tracksforfit;
@@ -378,9 +378,9 @@ StatusCode Cascade3Plus1::addBranches() const
     SG::AuxElement::Decorator<float> TauErr_svdecor(m_3TrackName+"_TauErr");
 
 
-    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
-    if(not beamSpotHandle.isValid()) ATH_MSG_ERROR("Cannot Retrieve " << m_beamSpotKey.key() );
-    BPhysPVCascadeTools helper(&(*m_CascadeTools), beamSpotHandle.cptr());
+    SG::ReadHandle<xAOD::EventInfo> evt(m_eventInfo_key);
+    if(not evt.isValid()) ATH_MSG_ERROR("Cannot Retrieve " << m_eventInfo_key.key() );
+    BPhysPVCascadeTools helper(&(*m_CascadeTools), evt.cptr());
     helper.SetMinNTracksInPV(m_PV_minNTracks);
     helper.m_copyAllVertices = this->m_copyAllVertices;
 
