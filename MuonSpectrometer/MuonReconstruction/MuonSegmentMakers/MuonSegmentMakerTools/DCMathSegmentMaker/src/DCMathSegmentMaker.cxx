@@ -1402,7 +1402,10 @@ namespace Muon {
         
         SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
         const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle};
-        if (!MuonDetMgr) { ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object"); }
+        if (!MuonDetMgr) { 
+          ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object"); 
+          return TrkDriftCircleMath::MdtChamberGeometry();
+        }
 
         // get detEL for first ml (always there)
         const MuonGM::MdtReadoutElement* detEl1 =
