@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*  KillBinsByStrip.h
@@ -11,9 +11,7 @@
 #define DQM_ALGORITHMS_KILLBINSBYSTRIP_H
 
 #include <dqm_core/Algorithm.h>
-#include <math.h>
-#include <vector>
-#include <iostream>
+#include <iosfwd>
 #include <string>
 class bin2;
 
@@ -35,11 +33,11 @@ namespace dqm_algorithms
 }
 class bin2 {
  public:
-  double m_eta;
-  double m_phi;
-  int m_ix;
-  int m_iy;
-  double m_value;
-  double m_deviation;
+  double m_eta{};
+  double m_phi{};
+  int m_ix{};
+  int m_iy{};
+  double m_value{};
+  double m_deviation{};
 };
 #endif // DQM_ALGORITHMS_KILLBINSBYSTRIP_H

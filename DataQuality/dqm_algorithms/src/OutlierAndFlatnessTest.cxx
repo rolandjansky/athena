@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Checks and removes outliers from TH1-Histos and tests the remaining distribution for flatness. Originally by Steffen Schaepe.
@@ -12,7 +12,6 @@
 #include "dqm_core/AlgorithmConfig.h"
 #include "dqm_core/Result.h"
 
-#include "TMath.h"
 #include "TH1.h"
 #include "TF1.h"
 #include "TH1C.h"
@@ -20,6 +19,7 @@
 #include "TClass.h"
 
 #include <memory>
+#include <cmath>
 
 namespace
 {
@@ -249,7 +249,7 @@ dqm_core::Result *dqm_algorithms::OutlierAndFlatnessTest::execute(const std::str
         if (!isOneDimensional) {
             throw dqm_core::BadConfig(ERS_HERE, name, "cannot check 2D histograms for flatness, please set CheckFlatness = 0");
         }
-        TF1 *occupancyFit = 0;
+        std::unique_ptr<TF1> occupancyFit{};
 
         const double xminAxis = histogram->GetXaxis()->GetBinLowEdge(xminBin);
         const double xmaxAxis = histogram->GetXaxis()->GetBinUpEdge(xmaxBin);
@@ -257,7 +257,7 @@ dqm_core::Result *dqm_algorithms::OutlierAndFlatnessTest::execute(const std::str
         const double center = (xmaxAxis + xminAxis) / 2;
 
         if (fitCircular)  {
-            occupancyFit = new TF1("occupancyFit", "[0]+[1]*sin([3]*(x-[4]-[5]))+[2]*cos(2*[3]*(x-[4]-[5]))"); // poor man's Fourier analysis: first-order sin() plus second-order cos()
+            occupancyFit = std::make_unique<TF1>("occupancyFit", "[0]+[1]*sin([3]*(x-[4]-[5]))+[2]*cos(2*[3]*(x-[4]-[5]))"); // poor man's Fourier analysis: first-order sin() plus second-order cos()
             occupancyFit->SetParName(0, "constant");
             occupancyFit->SetParName(1, "asym");
             occupancyFit->SetParName(2, "sym");
@@ -265,10 +265,10 @@ dqm_core::Result *dqm_algorithms::OutlierAndFlatnessTest::execute(const std::str
             occupancyFit->SetParName(4, "offset");
             occupancyFit->SetParName(5, "phaseoffset");
             occupancyFit->SetParLimits(5, -0.5 * width, +0.5 * width);
-            occupancyFit->FixParameter(3, 2 * TMath::Pi() / width);
+            occupancyFit->FixParameter(3, 2 * M_PI / width);
             occupancyFit->FixParameter(4, center - width / 2);
         } else {
-            occupancyFit = new TF1("occupancyFit", "[0]+[1]*(x-[3])+[2]*(x-[3])*(x-[3])"); // parabola: second-order polynomial
+            occupancyFit = std::make_unique<TF1>("occupancyFit", "[0]+[1]*(x-[3])+[2]*(x-[3])*(x-[3])"); // parabola: second-order polynomial
             occupancyFit->SetParName(0, "constant");
             occupancyFit->SetParName(1, "asym");
             occupancyFit->SetParName(2, "sym");
@@ -278,7 +278,7 @@ dqm_core::Result *dqm_algorithms::OutlierAndFlatnessTest::execute(const std::str
         }
 
         occupancyFit->SetRange(xminAxis, xmaxAxis);
-        histogram->Fit(occupancyFit, "QNR");
+        histogram->Fit(occupancyFit.get(), "QNR");
 
         double maxBin = 0;
         double phaseOffset = 0;
@@ -329,7 +329,6 @@ dqm_core::Result *dqm_algorithms::OutlierAndFlatnessTest::execute(const std::str
         results["Chisquare_ndf"] = chisquareNDF;
         results["Phase_offset"] = phaseOffset;
 
-        delete occupancyFit;
     } // if (checkFlatness)
 
     // compare with given thresholds and compute DQ status

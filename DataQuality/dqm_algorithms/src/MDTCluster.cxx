@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022  CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
@@ -8,9 +8,7 @@
 
 #include "dqm_algorithms/MDTCluster.h"
 
-#include <cmath>
-#include <iostream>
-#include <map>
+
 
 #include <TClass.h>
 #include <TH1.h>
@@ -26,7 +24,9 @@
 #include "dqm_core/Result.h"
 #include "dqm_algorithms/tools/AlgorithmHelper.h"
 #include "ers/ers.h"
-
+#include <cmath>
+#include <iostream>
+#include <map>
 static dqm_algorithms::MDTCluster staticInstance;
 
 
@@ -163,7 +163,7 @@ MDTCluster::execute( const std::string& name, const TObject& object, const dqm_c
   int size=0;
 
   for(i=0;i<diff.size();i++){
-    if(fabs(diff[i])>n_sigma*sqrt(hist->GetBinContent(i+1)+ref->GetBinContent(i+1)*norm)){
+    if(std::abs(diff[i])>n_sigma*std::sqrt(hist->GetBinContent(i+1)+ref->GetBinContent(i+1)*norm)){
       if(cluster_open){
         if(i!=0){
           if(diff[i-1]*diff[i]>0){
@@ -193,7 +193,7 @@ MDTCluster::execute( const std::string& name, const TObject& object, const dqm_c
       };
     };
 
-    if(fabs(diff[i])<=n_sigma*sqrt(hist->GetBinContent(i+1)+ref->GetBinContent(i+1)*norm)){
+    if(std::abs(diff[i])<=n_sigma*std::sqrt(hist->GetBinContent(i+1)+ref->GetBinContent(i+1)*norm)){
       if(cluster_open){
         if(size>=cluster_size){
           bin_start_end.second=i;

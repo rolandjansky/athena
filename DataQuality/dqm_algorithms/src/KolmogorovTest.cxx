@@ -16,7 +16,6 @@
 
 #include <dqm_core/AlgorithmManager.h>
 
-using namespace std;
 
 static dqm_algorithms::KolmogorovTest kolmo_Prob( "Prob" );
 static dqm_algorithms::KolmogorovTest kolmo_MaxDist( "MaxDist" );

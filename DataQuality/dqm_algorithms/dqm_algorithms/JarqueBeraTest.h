@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*! \file JarqueBeraTest.h file declares the dqm_algorithms::JarqueBeraTest class, implementing the Jarque-Bera statistical test.
@@ -10,6 +10,8 @@
 #define DQM_ALGORITHMS_JARQUEBERATEST_H
 
 #include <dqm_core/Algorithm.h>
+#include <string>
+#include <iosfwd>
 
 namespace dqm_algorithms
 {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*  BinsOutOfRange.h 
@@ -11,8 +11,7 @@
 #define BinsOutOfRange_H
 
 #include <dqm_core/Algorithm.h>
-#include <vector>
-#include <iostream>
+#include <iosfwd>
 #include <string>
 class bin3;
 namespace dqm_algorithms
@@ -33,11 +32,11 @@ namespace dqm_algorithms
 
 class bin3{
  public:
-  double m_eta;
-  double m_phi;
-  int    m_ix;
-  int    m_iy;
-  double m_value;
+  double m_eta{};
+  double m_phi{};
+  int    m_ix{};
+  int    m_iy{};
+  double m_value{};
 } ;
 
 

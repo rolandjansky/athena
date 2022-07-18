@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*! \file GrubbsOutlierTest.h
@@ -11,7 +11,9 @@
 #define DQM_ALGORITHMS_GRUBBSOUTLIERTEST_H
 
 #include <dqm_core/Algorithm.h>
+#include <string>
 #include <vector>
+#include <iosfwd>
 
 namespace dqm_algorithms
 {

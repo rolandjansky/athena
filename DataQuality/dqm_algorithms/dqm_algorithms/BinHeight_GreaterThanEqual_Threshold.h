@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*! \file BinHeight_GreaterThanEqual_Threshold.h file declares the dqm_algorithms::BinHeight_GreaterThanEqual_Threshold  class.
@@ -9,7 +9,6 @@
 #ifndef DQM_ALGORITHMS_BINHEIGHT_GREATERTHANEQUAL_THRESHOLD_H
 #define DQM_ALGORITHMS_BINHEIGHT_GREATERTHANEQUAL_THRESHOLD_H
 
-#include <dqm_core/Algorithm.h>
 #include <dqm_algorithms/BinHeightThreshold.h>
 
 namespace dqm_algorithms

@@ -14,8 +14,6 @@
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TObjArray.h>
-#include <TMath.h>
-#include <math.h>
 #include <string>
 
 #include <TClass.h>
@@ -26,7 +24,6 @@
 #include <dqm_core/AlgorithmManager.h>
 static dqm_algorithms::Chi2Test_Scatterplot myInstance;
 
-using namespace std;
 
 dqm_algorithms::Chi2Test_Scatterplot::Chi2Test_Scatterplot()
  {
@@ -106,15 +103,15 @@ dqm_algorithms::Chi2Test_Scatterplot::execute(	const std::string & name ,
   
   int n=0;
   double chisq=0;
-  double errsquared;
-  double inputerr;
-  double referr;
-  double val;
-  double refval;
+  double errsquared{};
+  double inputerr{};
+  double referr{};
+  double val{};
+  double refval{};
   
  
  //read in the range of bin values to use
- vector<int> range;
+ std::vector<int> range;
  try{
  range=dqm_algorithms::tools::GetBinRange(inputgraph,config.getParameters());
  }

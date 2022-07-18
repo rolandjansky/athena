@@ -1,13 +1,16 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DQM_ALGORITHMS_BINPRINT_H
 #define DQM_ALGORITHMS_BINPRINT_H
 
-#include <string>
 
 #include "dqm_core/Algorithm.h"
+#include <iosfwd>
+#include <map>
+#include <string>
+
 
 
 namespace dqm_algorithms {
@@ -29,14 +32,14 @@ namespace dqm_algorithms {
 		
 		std::string  m_name;
 		
-		int m_NbinsX;
-		int m_NbinsY;
-		int m_UnMask_All;
-		int m_UseValue;
-		int m_TypeValue;
-		double m_Value;
-		int m_UseMaskValue;
-		double m_MaskValue;
+		int m_NbinsX{};
+		int m_NbinsY{};
+		int m_UnMask_All{};
+		int m_UseValue{};
+		int m_TypeValue{};
+		double m_Value{};
+		int m_UseMaskValue{};
+		double m_MaskValue{};
 		
 		int UseValue_GetFromMap(const std::map<std::string, double> & params);
 		int TypeValue_GetFromMap(const std::map<std::string, double> & params);

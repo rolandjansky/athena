@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*! \file BinsDiffFromPreviousLBs.cxx evaluates the number of consecutive bins with bin value different from set threshold. Also usable for
@@ -11,6 +11,9 @@
 #define DQM_ALGORITHMS_BINS_DIFF_FROMPREVLBS_H
 
 #include <dqm_core/Algorithm.h>
+#include <iosfwd>
+#include <vector>
+#include <string>
 
 namespace dqm_algorithms
 {

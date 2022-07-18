@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*! \file BinHeightThreshold.cxx checks for a set of consecutive bins above a threshold value and returns dqm_core::Result
@@ -15,6 +15,7 @@
 #include <ers/ers.h>
 
 #include <iostream>
+#include <cmath>
 
 #include <dqm_core/AlgorithmManager.h>
 
@@ -102,7 +103,7 @@ dqm_algorithms::BinHeightThreshold::execute(	const std::string &  name,
   //check if the provided parameter values make sense
   if(m_precision<0) {
     ERS_INFO("'EqualityPrecision cannot be negative: it will be re-set to its absolute value.");
-    m_precision=fabs(m_precision);
+    m_precision=std::abs(m_precision);
   }
   if(window_size<=0) {
       ERS_INFO("You set search window size (WindowSize) <= 0: I will search the whole histogram.");
@@ -330,9 +331,9 @@ bool
 dqm_algorithms::BinHeightThreshold::equalWithinPrecision(double a,double b)
 {
   //relative difference method (following what suggested in (non-ATLAS) web page http://floating-point-gui.de/errors/comparison/)
-  double absA = fabs(a);
-  double absB = fabs(b);
-  double diff = fabs(a - b);
+  double absA = std::abs(a);
+  double absB = std::abs(b);
+  double diff = std::abs(a - b);
 
   if (a == b) { // shortcut, handles infinities
     return true;

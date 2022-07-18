@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*! \file SkewnessTest.cxx checks skewness wrt to a threshold value and returns dqm_core::Result
@@ -13,7 +13,7 @@
 #include <TF1.h>
 #include <TClass.h>
 #include <ers/ers.h>
-#include <TMath.h>
+#include <cmath>
 
 
 #include <dqm_core/AlgorithmManager.h>
@@ -100,8 +100,8 @@ dqm_algorithms::SkewnessTest::CompareSkewnessTest(const std::string & type, doub
   
   if (type == "GreaterThan") return (value > threshold);
   if (type == "LessThan") return (value < threshold);
-  if (type == "GreaterThanAbs") return ( TMath::Abs(value) > threshold );
-  if (type == "LessThanAbs") return ( TMath::Abs(value) < threshold);
+  if (type == "GreaterThanAbs") return ( std::abs(value) > threshold );
+  if (type == "LessThanAbs") return ( std::abs(value) < threshold);
   return 0;
 }
 

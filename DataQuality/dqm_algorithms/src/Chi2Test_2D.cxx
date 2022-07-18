@@ -20,12 +20,12 @@
 #include <ers/ers.h>
 #include <vector>
 #include <cctype>
-#include <map>
+#include <map>//also has std::pair
+#include <cmath>
 
 #include <dqm_core/AlgorithmManager.h>
 static dqm_algorithms::Chi2Test_2D myInstance;
 
-using namespace std;
 
 dqm_algorithms::Chi2Test_2D::Chi2Test_2D()
  {
@@ -130,7 +130,7 @@ int Num_to_print = dqm_algorithms::tools::GetFirstFromMap( "Num_to_print", confi
 double MaxSigma = dqm_algorithms::tools::GetFirstFromMap( "MaxSigma", config.getParameters(), 1 ); 
 
 //read in the values for the maximum and minimum x bin
-vector<int> range;
+std::vector<int> range;
 try{
 range=dqm_algorithms::tools::GetBinRange(inputgraph,config.getParameters());
 }
@@ -153,8 +153,8 @@ catch( dqm_core::Exception & ex ) {
   //define a vector to store the chisq value at the highest ranking bins,which can then be sorted
   // so that you can find out what the location of the high chisq values are after you have sorted them
   //define a map, with the chisq partsum value as the key, and the global bin number as the element.
-  vector<double> ChisqValues;
-  map<double,int> mymap;
+  std::vector<double> ChisqValues;
+  std::map<double,int> mymap;
   
   for(i=range[0];i<(range[1]+1);i++)
   { 	
@@ -178,8 +178,8 @@ catch( dqm_core::Exception & ex ) {
 	 		count_ndf++;
 	 
 	 		if(partsum>=NSigma*NSigma)
-	 		{	ChisqValues.push_back(sqrt(partsum));
-	  		 	mymap.insert(pair<double,int>(sqrt(partsum),inputgraph->GetBin(i,j)));
+	 		{	ChisqValues.push_back(std::sqrt(partsum));
+	  		 	mymap.insert(std::pair<double,int>(std::sqrt(partsum),inputgraph->GetBin(i,j)));
 	 		}
 	 
 	        }
@@ -202,14 +202,14 @@ catch( dqm_core::Exception & ex ) {
   
 //Output the top Num_to_print values for chisquares at individual points 
 //define an iterator
- vector<double>::iterator p;
+ std::vector<double>::iterator p;
  p=ChisqValues.end();
 
 //since the iterator points to one past the end, must decrement before we use it.
  --p;
 
 //define a second iterator for the map, do not decrement it, as it will be assigned to a point in the map before use
- map<double,int>::iterator p2;
+ std::map<double,int>::iterator p2;
 
 
 char ctag[256];

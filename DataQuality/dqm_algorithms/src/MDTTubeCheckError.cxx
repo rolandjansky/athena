@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
@@ -8,9 +8,7 @@
 
 #include "dqm_algorithms/MDTTubeCheckError.h"
 
-#include <cmath>
-#include <iostream>
-#include <map>
+
 
 #include <TClass.h>
 #include <TH1.h>
@@ -24,7 +22,9 @@
 #include "dqm_core/Result.h"
 #include "dqm_algorithms/tools/AlgorithmHelper.h"
 #include "ers/ers.h"
-
+#include <cmath>
+#include <iostream>
+#include <map>
 
 static dqm_algorithms::MDTTubeCheckError staticInstance;
 
@@ -140,12 +140,12 @@ MDTTubeCheckError::execute( const std::string& name, const TObject& object, cons
     double Content = histogram->GetBinContent(i);
     double ErrCont = histogram->GetBinError(i);
     if (ErrCont > LowStatErr) LowStatTubes++;
-    if (Content+fabs(ErrCont) != 0.) {
+    if (Content+std::abs(ErrCont) != 0.) {
       if ((Content + nErr*ErrCont) < bin_threshold ) {
 	if (refcheck>0) {
 	  double RefCont = refhist->GetBinContent(i);
 	  double RefErrCont = refhist->GetBinError(i);
-	  double Diff = fabs(Content - RefCont);
+	  double Diff = std::abs(Content - RefCont);
 	  double ErrDiff = sqrt(ErrCont*ErrCont + RefErrCont*RefErrCont);
 	  if (Diff > nErr*ErrDiff) {
 	    ++count;

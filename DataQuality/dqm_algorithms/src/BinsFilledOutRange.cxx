@@ -12,7 +12,6 @@
 #include <TH1.h>
 #include <TF1.h>
 #include <TClass.h>
-#include <math.h>
 #include <ers/ers.h>
 
 
@@ -20,7 +19,6 @@
 #include <dqm_core/AlgorithmManager.h>
 static dqm_algorithms::BinsFilledOutRange myInstance;
 
-using namespace std;
 
 
 dqm_algorithms::BinsFilledOutRange::BinsFilledOutRange()

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*! \file BinThreshold.cxx checks bins wrt to a threshold value and returns dqm_core::Result
@@ -15,7 +15,7 @@
 #include <ers/ers.h>
 
 #include <iostream>
-
+#include <cmath>
 #include <dqm_core/AlgorithmManager.h>
 
 namespace
@@ -175,10 +175,10 @@ bool
 dqm_algorithms::BinThreshold::CompareBinThreshold(const std::string & type, double bincontent, double threshold) {
   
   if (type == "GreaterThan") return (bincontent > threshold);
-  if (type == "GreaterThanAbs") return (fabs(bincontent) > threshold);
+  if (type == "GreaterThanAbs") return (std::abs(bincontent) > threshold);
   if (type == "GreaterThanNonZeroMedian") return (bincontent > threshold);
   if (type == "LessThan") return (bincontent < threshold);
-  if (type == "LessThanAbs") return (fabs(bincontent) < threshold);
+  if (type == "LessThanAbs") return (std::abs(bincontent) < threshold);
   if (type == "LessThanNonZeroMedian") return (bincontent < threshold);
   if (type == "LessThanEqual") return (bincontent <= threshold);
   if (type == "GreaterThanEqual") return (bincontent >= threshold);

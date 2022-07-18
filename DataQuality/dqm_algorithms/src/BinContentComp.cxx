@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -15,7 +15,7 @@
 #include <TProfile.h>
 #include <TProfile2D.h>
 #include <TClass.h>
-#include <math.h>
+#include <cmath>
 #include <ers/ers.h>
 
 
@@ -186,7 +186,7 @@ dqm_algorithms::BinContentComp::execute(	const std::string & name,
 
      if (increferr && refhist ) {
         double referr = refhist->GetBinError(i,j);
-	inputerr = sqrt(pow(histerr,2)+pow(referr,2));
+	inputerr = std::sqrt(std::pow(histerr,2)+std::pow(referr,2));
      } else {
         inputerr = histerr;
      }     
@@ -210,7 +210,7 @@ dqm_algorithms::BinContentComp::execute(	const std::string & name,
 	if (greaterthan && diff < 0. ) continue;  
 	if (lessthan && diff > 0. ) continue;  
 	
-	if ( (fabs(sigma) > bin_threshold) && (fabs(diff) > maxdiffabs) && (fabs(reldiff) > maxdiffrel) ){
+	if ( (std::abs(sigma) > bin_threshold) && (std::abs(diff) > maxdiffabs) && (std::abs(reldiff) > maxdiffrel) ){
           resulthisto->SetBinContent(i,j,inputcont);
 	  ++count;
 	  if (publish && count<maxpublish){

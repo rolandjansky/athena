@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
@@ -8,9 +8,6 @@
 
 #include "dqm_algorithms/MDTTDCSpectrum.h"
 
-#include <cmath>
-#include <iostream>
-#include <map>
 
 #include <TClass.h>
 #include <TH1.h>
@@ -24,6 +21,9 @@
 #include "dqm_core/Result.h"
 #include "dqm_algorithms/tools/AlgorithmHelper.h"
 #include "ers/ers.h"
+#include <cmath>
+#include <iostream>
+#include <map>
 
 
 static dqm_algorithms::MDTTDCSpectrum staticInstance;
@@ -182,8 +182,8 @@ MDTTDCSpectrum::execute( const std::string& name, const TObject& object, const d
     tmax_err =2.;
   }
 
-  Double_t Dt0=fabs(t0-t0_ref);
-  Double_t Dtd=fabs(tmax-t0-tmax_ref+t0_ref);
+  Double_t Dt0=std::abs(t0-t0_ref);
+  Double_t Dtd=std::abs(tmax-t0-tmax_ref+t0_ref);
 
   Double_t sigma_Dt0=sqrt(t0_err*t0_err+t0_err_ref*t0_err_ref);
   Double_t sigma_Dtmax=sqrt(tmax_err*tmax_err+tmax_err_ref*tmax_err_ref);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*! \file BinHeightThreshold.h file declares the dqm_algorithms::BinHeightThreshold  class.
@@ -10,6 +10,8 @@
 #define DQM_ALGORITHMS_BINHEIGHTTHRESHOLD_H
 
 #include <dqm_core/Algorithm.h>
+#include <string>
+#include <iosfwd>
 
 
 namespace dqm_algorithms
@@ -31,7 +33,7 @@ namespace dqm_algorithms
  
 	  private:
 	  std::string m_name;
-	  double m_precision;
+	  double m_precision{};
 	};
 }
 

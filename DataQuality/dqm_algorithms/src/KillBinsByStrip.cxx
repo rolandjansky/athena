@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*  KillBinsByStrip.cxx
@@ -18,8 +18,8 @@
 #include <TH2.h>
 #include <TH1D.h>
 #include <TClass.h>
+#include <cmath>
 
-using namespace std;
 
 bool mySortfunc(bin2 i,bin2 j){return (i.m_value > j.m_value);}
 bool mySortfunc_ratio(bin2 i, bin2 j){return (i.m_deviation> j.m_deviation);}
@@ -65,9 +65,9 @@ dqm_core::Result* dqm_algorithms::KillBinsByStrip::execute(const std::string& na
   // get bin limits
   std::vector<int> range = dqm_algorithms::tools::GetBinRange(histogram,config.getParameters());
   dqm_core::Result* result = new dqm_core::Result();
-  vector<bin2> redbins;
-  vector<bin2> yellowbins;
-  vector<bin2> Allbins;
+  std::vector<bin2> redbins;
+  std::vector<bin2> yellowbins;
+  std::vector<bin2> Allbins;
   
   // objects needed before loop
   TH1D* projected_strip = NULL;
@@ -123,19 +123,19 @@ dqm_core::Result* dqm_algorithms::KillBinsByStrip::execute(const std::string& na
       if(nbins<=poissonLimit){
 
         // Poisson error calculated from mean
-        striperr = sqrt(stripavg);
+        striperr = std::sqrt(stripavg);
 
       } else {
 
         // calculate sigma^2
-        for(iy=1;iy<=projected_strip->GetXaxis()->GetNbins();iy++) if(projected_strip->GetBinContent(iy)>0) striperr2 += pow((projected_strip->GetBinContent(iy)-stripavg),2);
+        for(iy=1;iy<=projected_strip->GetXaxis()->GetNbins();iy++) if(projected_strip->GetBinContent(iy)>0) striperr2 += std::pow((projected_strip->GetBinContent(iy)-stripavg),2);
         // calculate error on the mean
-        striperr = sqrt(striperr2)/sqrt((double)nbins);
+        striperr = std::sqrt(striperr2)/std::sqrt((double)nbins);
 
       }
         
       // calculate deviation from stripavg
-      if(striperr>0.) testval = fabs(maxval-stripavg)/striperr;
+      if(striperr>0.) testval = std::abs(maxval-stripavg)/striperr;
       else testval = 0.;
 
       // decision

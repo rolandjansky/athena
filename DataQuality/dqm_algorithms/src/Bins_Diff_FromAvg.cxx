@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*! \file Bins_Diff_FromAvg.cxx calculates average bin value; finds bins more than N Sigma away from average and returns dqm_core::Result
@@ -14,12 +14,11 @@
 #include <TH1.h>
 #include <TF1.h>
 #include <TClass.h>
-#include <math.h>
+#include <cmath>
 
 #include <iostream>
 #include <string>
 
-using namespace std;
 
 static dqm_algorithms::Bins_Diff_FromAvg myInstance;
 
@@ -110,8 +109,8 @@ dqm_algorithms::Bins_Diff_FromAvg::execute(const std::string &  name,
     for ( int j = range[2]; j <= range[3]; ++j ) {
       if (histogram->GetBinContent(i,j) == ignoreval) continue;
       if (histogram->GetBinError(i,j) == 0 ) continue;
-      sumwe += histogram->GetBinContent(i,j)*(1/pow(histogram->GetBinError(i,j),2));
-      sume += 1./pow(histogram->GetBinError(i,j),2);
+      sumwe += histogram->GetBinContent(i,j)*(1./std::pow(histogram->GetBinError(i,j),2));
+      sume += 1./std::pow(histogram->GetBinError(i,j),2);
     }
   }
   double avg;
@@ -142,7 +141,7 @@ dqm_algorithms::Bins_Diff_FromAvg::execute(const std::string &  name,
 	if (greaterthan && diff < 0. ) continue;  
 	if (lessthan && diff > 0. ) continue;  
 
-	if ( (fabs(sigma) > bin_threshold) && (fabs(diff) > maxdiffabs) && (fabs(reldiff) > maxdiffrel) ) {
+	if ( (std::abs(sigma) > bin_threshold) && (std::abs(diff) > maxdiffabs) && (std::abs(reldiff) > maxdiffrel) ) {
           resulthisto->SetBinContent(k,l,inputcont);
 	  count++;
 	  if (publish && count < maxpublish){

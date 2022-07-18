@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*  BinsDiffFromStripMedian.cxx is to pick out the problematic bins in 2D histogram assuming that y-axis(the phi direction) be symmetric. 
@@ -15,12 +15,11 @@
 #include <TH1.h>
 #include <TF1.h>
 #include <TClass.h>
-#include <math.h>
+#include <cmath>
 
 #include <iostream>
 #include <string>
 
-using namespace std;
 bool mySortfunc(bin i,bin j){return (i.m_value > j.m_value);}
 bool mySortfunc_ratio(bin i, bin j){return (i.m_outstandingRatio> j.m_outstandingRatio);}
 static dqm_algorithms::BinsDiffFromStripMedian myInstance;
@@ -84,12 +83,12 @@ dqm_algorithms::BinsDiffFromStripMedian::execute(const std::string &  name,
   }
   
   std::vector<int> range=dqm_algorithms::tools::GetBinRange(histogram, config.getParameters()); 
-  vector<double> stripsMedian;
-  vector<double> stripsAvg; 
-  vector<double> stripsVariance;
+  std::vector<double> stripsMedian;
+  std::vector<double> stripsAvg; 
+  std::vector<double> stripsVariance;
   double maxInMap=0;
   for ( int i = range[0]; i <= range[1]; ++i ) {
-    vector<double> onestrip;
+    std::vector<double> onestrip;
     double stripSum=0;
     for ( int j = range[2]; j <= range[3]; ++j ) {
       if (histogram->GetBinContent(i,j) == ignoreval) continue;
@@ -100,9 +99,7 @@ dqm_algorithms::BinsDiffFromStripMedian::execute(const std::string &  name,
        maxInMap = binvalue;
       }
     }
-//    if(onestrip.size()!=0 ) 
     stripsAvg.push_back(stripSum/onestrip.size());
-//    else stripsAvg.push_back(0);
     FindStripMedian(onestrip,stripsMedian);
   }
   for ( int i = range[0]; i <= range[1]; ++i ) {
@@ -112,7 +109,7 @@ dqm_algorithms::BinsDiffFromStripMedian::execute(const std::string &  name,
      if (histogram->GetBinContent(i,j) == ignoreval) continue;
      double binvalue = histogram->GetBinContent(i,j);
      double diff=binvalue-stripsAvg[i-range[0]];
-     sumdiff2 +=pow(diff,2);
+     sumdiff2 +=std::pow(diff,2);
      counter++;
    }
    double variance=-1;
@@ -120,9 +117,9 @@ dqm_algorithms::BinsDiffFromStripMedian::execute(const std::string &  name,
    stripsVariance.push_back(variance);
   }
   dqm_core::Result* result = new dqm_core::Result();
-  vector<bin> redbins;
-  vector<bin> yellowbins;
-  vector<bin> Allbins;
+  std::vector<bin> redbins;
+  std::vector<bin> yellowbins;
+  std::vector<bin> Allbins;
   for ( int k = range[0]; k <= range[1]; ++k ) {
     for ( int l = range[2]; l <= range[3]; ++l ) {
       double binvalue = histogram->GetBinContent(k,l);
@@ -132,19 +129,18 @@ dqm_algorithms::BinsDiffFromStripMedian::execute(const std::string &  name,
       else if(stripsMedian[k-range[0]]==0 && stripsVariance[k-range[0]]!=0 && stripsAvg[k-range[0]]!=0) strip_median = stripsAvg[k-range[0]];
            else if(stripsMedian[k-range[0]]==0 && stripsVariance[k-range[0]]!=0 && stripsAvg[k-range[0]]==0) continue;
       double outstandingRatio=0; 
-      if(fabs(strip_median) > 0.00001 ) outstandingRatio= /*binvalue/strip_median*/ (binvalue-strip_median)/sqrt(fabs(strip_median));
+      if(std::abs(strip_median) > 0.00001 ) outstandingRatio= (binvalue-strip_median)/std::sqrt(std::abs(strip_median));
       else continue;
       double eta = histogram->GetXaxis()->GetBinCenter(k);
       double phi = histogram->GetYaxis()->GetBinCenter(l); 
       bin onebin = {eta,phi,k,l,binvalue,outstandingRatio};
       Allbins.push_back(onebin);
-//      if( VisualMode  && (binvalue / maxInMap < suppressFactor) ) continue;
-      if(fabs(outstandingRatio) > rthreshold ) {
+      if(std::abs(outstandingRatio) > rthreshold ) {
         if( VisualMode  && (binvalue / maxInMap < suppressRedFactor) )
                 continue;
         redbins.push_back(onebin);
       } 
-      else if(fabs(outstandingRatio) > gthreshold ){ 
+      else if(std::abs(outstandingRatio) > gthreshold ){ 
              if( VisualMode  && (binvalue / maxInMap < suppressFactor) )
                 continue;
              yellowbins.push_back(onebin);
@@ -153,11 +149,11 @@ dqm_algorithms::BinsDiffFromStripMedian::execute(const std::string &  name,
   }
  int count_red_c = 0;
  int count_yellow_c = 0;
- vector<vector<colorbin> > ColorBinMap;
+ std::vector<std::vector<colorbin> > ColorBinMap;
 if(ClusterResult){
  // initialize ColorBinMap
  for ( int k = range[0]; k <= range[1]; ++k ) {
-   vector<colorbin> oneColorStrip;
+   std::vector<colorbin> oneColorStrip;
    for ( int l = range[2]; l <= range[3]; ++l ) {
      colorbin oneColorBin = {static_cast<double>(k), static_cast<double>(l), -1, -1, -1, green, 1};
      oneColorStrip.push_back(oneColorBin);
@@ -190,7 +186,7 @@ if(ClusterResult){
 
 
 // cluster bad bins
-  vector<colorcluster > clusterArray;
+  std::vector<colorcluster > clusterArray;
   for(unsigned int i=0;i<redbins.size();i++){
    const int k=redbins[i].m_ix;
    const int l=redbins[i].m_iy;
@@ -281,28 +277,23 @@ if(ClusterResult){
   
 }
 void 
-dqm_algorithms::BinsDiffFromStripMedian::FindStripMedian(vector<double> onestrip_tmp,vector<double>& stripsMedian){
+dqm_algorithms::BinsDiffFromStripMedian::FindStripMedian(std::vector<double> onestrip_tmp,std::vector<double>& stripsMedian){
   double median=0;
-//  if(onestrip_tmp.size()==0) stripsMedian.push_back(median);
-//  else{
+
    std::sort(onestrip_tmp.begin(),onestrip_tmp.end());
    int index1=onestrip_tmp.size()/4;
-//   int index1=int(floor(onestrip_tmp.size()/4.));
-//   int index2=int(floor(onestrip_tmp.size()/2.));
+
    int index2=onestrip_tmp.size()/2;
    int index3=3*onestrip_tmp.size()/4;
-//   int index3=int(floor(3*onestrip_tmp.size()/4.));
    median = (onestrip_tmp[index1]+onestrip_tmp[index2]+onestrip_tmp[index3])/3.0;
-//   median = (onestrip_tmp[index2]);
    stripsMedian.push_back(median);
-//  }
 }
-void AddToList(const int r0,const int r2,int i,int j,vector<vector<colorbin> > & ColorBinMap, vector<colorbin>& LookAtList){
+void AddToList(const int r0,const int r2,int i,int j,std::vector<std::vector<colorbin> > & ColorBinMap, std::vector<colorbin>& LookAtList){
 
  if( i-r0<0 || i-r0>=(int)ColorBinMap.size() 
     || j-r2<0 ||j-r2>=(int)ColorBinMap[0].size() ) return;
 
- vector<colorbin> tmp;
+ std::vector<colorbin> tmp;
 
  if(i-1-r0>=0 && j-1-r2>=0 && ColorBinMap[i-1-r0][j-1-r2].m_status==1){
     tmp.push_back(ColorBinMap[i-1-r0][j-1-r2]);
@@ -349,7 +340,7 @@ if(j+1-r2<(int)ColorBinMap[0].size()&& ColorBinMap[i-r0][j+1-r2].m_status==1){
 
 }
 
-double CalEta(vector<colorbin>& LookAtList){
+double CalEta(std::vector<colorbin>& LookAtList){
   double sumEta=0;
   double sumN=0;
   for(unsigned int i=0;i<LookAtList.size();i++){
@@ -361,7 +352,7 @@ double CalEta(vector<colorbin>& LookAtList){
   if(sumN!=0) return sumEta/sumN;
   else return -99;
 }
-double CalPhi(vector<colorbin>& LookAtList){
+double CalPhi(std::vector<colorbin>& LookAtList){
   double sumPhi=0;
   double sumN=0;
   for(unsigned int i=0;i<LookAtList.size();i++){
@@ -373,7 +364,7 @@ double CalPhi(vector<colorbin>& LookAtList){
   if(sumN!=0) return sumPhi/sumN;
   else return -99;
 }
-double CalVal(vector<colorbin>& LookAtList){
+double CalVal(std::vector<colorbin>& LookAtList){
   double sumN=0;
   for(unsigned int i=0;i<LookAtList.size();i++){
    double n = LookAtList[i].m_value;
@@ -381,22 +372,22 @@ double CalVal(vector<colorbin>& LookAtList){
   }
   return sumN;
 }
-double CalR(vector<colorbin>& LookAtList,double eta, double phi){
+double CalR(std::vector<colorbin>& LookAtList,double eta, double phi){
  if(LookAtList.size()<2) return 0;
  double maxR=0;
  for(unsigned int i=0;i<LookAtList.size();i++){
-   double distance = sqrt(pow((LookAtList[i].m_eta-eta),2)+pow((LookAtList[i].m_phi-phi),2));
+   double distance = std::sqrt(std::pow((LookAtList[i].m_eta-eta),2)+std::pow((LookAtList[i].m_phi-phi),2));
    maxR=distance>maxR?distance:maxR;
  }
  return maxR;
 }
 
 colorcluster
-dqm_algorithms::BinsDiffFromStripMedian::MakeCluster(const int r0,const int r2,bin& onebin, vector<vector<colorbin> > & ColorBinMap){
+dqm_algorithms::BinsDiffFromStripMedian::MakeCluster(const int r0,const int r2,bin& onebin, std::vector<std::vector<colorbin> > & ColorBinMap){
    colorcluster onecluster={0,0,0,0,green,-1};
    if(ColorBinMap[onebin.m_ix-r0][onebin.m_iy-r2].m_status==0)
    return onecluster;
-   vector<colorbin> LookAtList;
+   std::vector<colorbin> LookAtList;
    if(ColorBinMap[onebin.m_ix-r0][onebin.m_iy-r2].m_color!=green){
      LookAtList.push_back(ColorBinMap[onebin.m_ix-r0][onebin.m_iy-r2]);
      ColorBinMap[onebin.m_ix-r0][onebin.m_iy-r2].m_status=0;

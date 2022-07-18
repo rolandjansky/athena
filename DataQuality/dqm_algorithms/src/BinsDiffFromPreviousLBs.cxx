@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*! \file BinsDiffFromPreviousLBs.cxx evaluates the number of consecutive bins with bin value different from set threshold. Also usable for single bins. 
@@ -14,12 +14,11 @@
 #include <TH1.h>
 #include <TF1.h>
 #include <TClass.h>
-#include <math.h>
+#include <cmath>
 
 #include <iostream>
 #include <string>
 
-using namespace std;
 
 static dqm_algorithms::BinsDiffFromPreviousLBs myInstance;
 
@@ -142,7 +141,7 @@ dqm_algorithms::BinsDiffFromPreviousLBs::execute(const std::string &  name,
 	double sigma=diff/inputerr;	
 	if (greaterthan && diff < 0. ) continue;  
 	if (lessthan && diff > 0. ) continue;  
-	if ( (fabs(sigma) > nsigmas) && (fabs(diff) > maxdiffabs) ) {
+	if ( (std::abs(sigma) > nsigmas) && (std::abs(diff) > maxdiffabs) ) {
           resulthisto->SetBinContent(k,l,inputcont);
 	  LBs.push_back(k); 
 	  if (publish && (int)LBs.size() < maxpublish){

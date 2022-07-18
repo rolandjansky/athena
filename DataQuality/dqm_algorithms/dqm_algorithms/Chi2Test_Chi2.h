@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*! \file Chi2Test_Prob.h file declares the dqm_algorithms::Chi2Test_Prob  class.
@@ -9,7 +9,6 @@
 #ifndef DQM_ALGORITHMS_CHI2TEST_CHI2_H
 #define DQM_ALGORITHMS_CHI2TEST_CHI2_H
 
-#include <dqm_core/Algorithm.h>
 #include <dqm_algorithms/Chi2Test.h>
 
 namespace dqm_algorithms

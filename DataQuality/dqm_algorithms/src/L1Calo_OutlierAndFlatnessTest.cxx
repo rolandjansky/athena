@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*! \file L1Calo_OutlierAndFlatnessTest.cxx checks and removes outliers from TH1-Histos and tests the remaining distribution for flatness. Returns dqm_core::Result
@@ -14,10 +14,10 @@
 #include <dqm_core/AlgorithmConfig.h>
 #include <dqm_core/Result.h>
 
-#include <TMath.h>
 #include <TH1.h>
 #include <TF1.h>
 #include <TClass.h>
+#include <cmath>
 
 namespace
 {
@@ -134,7 +134,7 @@ dqm_core::Result *dqm_algorithms::L1Calo_OutlierAndFlatnessTest::execute( const 
   }
   
   mean = counter > 0 ? sum/(double)counter : 0;
-  stdev = counter > 0 ? sqrt( (1/(double)counter)*sum2 - mean*mean) : 0;   
+  stdev = counter > 0 ? std::sqrt( sum2/static_cast<double>(counter) - mean*mean) : 0;   
     
     
     //check how many bins are out of N sigma range (SigmaDev) or out of the absolute dev (AbsDev) or over absolute limit (AbsLimit), count them as (uncounted) outliers 
@@ -143,8 +143,8 @@ dqm_core::Result *dqm_algorithms::L1Calo_OutlierAndFlatnessTest::execute( const 
     if (checkSigmaDev) {
       for (int i = xminBin; i <= xmaxBin; i++) {
         if ((histogram->GetBinContent(i) != 0) || (ignore0 == 0)) {
-	  dev=fabs(histogram->GetBinContent(i) - mean)/stdev;
-	  absdev_test=fabs(histogram->GetBinContent(i) - mean);
+	  dev=std::abs(histogram->GetBinContent(i) - mean)/stdev;
+	  absdev_test=std::abs(histogram->GetBinContent(i) - mean);
 	  if ((dev > sigmaDev) && (absdev_test > absDev)) {
 	    if (dontCountSigmaOutliers){
 	      totalUncountedBadBins++;
@@ -174,7 +174,7 @@ dqm_core::Result *dqm_algorithms::L1Calo_OutlierAndFlatnessTest::execute( const 
   }
   
   mean_all = counter_all > 0 ? sum_all/(double)counter_all : 0;
-  stdev_all = counter_all > 0 ? sqrt( (1/(double)counter_all)*sum2_all - mean_all*mean_all) : 0;   
+  stdev_all = counter_all > 0 ? std::sqrt( sum2_all/static_cast<double>(counter_all) - mean_all*mean_all) : 0;   
     
     
     //check how many bins are out of N sigma range (SigmaDev) or out of the absolute dev (AbsDev) or over absolute limit (AbsLimit), count them as (uncounted) outliers 
@@ -183,8 +183,8 @@ dqm_core::Result *dqm_algorithms::L1Calo_OutlierAndFlatnessTest::execute( const 
     if (checkSigmaDev) {
       for (int i=0;i <= histogram->GetNbinsX() ;i++) {
         if ((histogram->GetBinContent(i) != 0) || (ignore0 == 0)) {
-	  dev_all=fabs(histogram->GetBinContent(i) - mean_all)/stdev_all;
-	  absdev_test_all=fabs(histogram->GetBinContent(i) - mean_all);
+	  dev_all=std::abs(histogram->GetBinContent(i) - mean_all)/stdev_all;
+	  absdev_test_all=std::abs(histogram->GetBinContent(i) - mean_all);
 	  if ((dev_all > sigmaDev) && (absdev_test_all > absDev)) {
 	    if (dontCountSigmaOutliers){
 	      totalUncountedBadBins_all++;

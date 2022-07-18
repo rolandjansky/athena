@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*  Algorithm: AlgHLTMETComponents does the following
@@ -17,6 +17,7 @@
 #include <TF1.h>
 #include <TClass.h>
 #include <ers/ers.h>
+#include <cmath>
 
 
 #include <dqm_core/AlgorithmManager.h>
@@ -88,8 +89,8 @@ dqm_algorithms::HLTMETComponents::execute(const std::string & name,
       TString binLabel = histogram->GetXaxis()->GetBinLabel(j);
       TH1D *hprojy = histogram->ProjectionY(Form("hpy1yf%02d_%s",j,binLabel.Data()),j,j+1,"egoff");
       if(hprojy) {
-        float uflow = fabs(hprojy->GetBinContent(0));
-        float oflow = fabs(hprojy->GetBinContent(nYBins+1));
+        float uflow = std::abs(hprojy->GetBinContent(0));
+        float oflow = std::abs(hprojy->GetBinContent(nYBins+1));
         float btotal = hprojy->Integral();
 
         // total bins requested for yellow flags
@@ -112,8 +113,8 @@ dqm_algorithms::HLTMETComponents::execute(const std::string & name,
       TString binLabel = histogram->GetXaxis()->GetBinLabel(j);
       TH1D *hprojy = histogram->ProjectionY(Form("hpy1rf%02d_%s",j,binLabel.Data()),j,j+1,"egoff");
       if(hprojy) {
-        float uflow = fabs(hprojy->GetBinContent(0));
-        float oflow = fabs(hprojy->GetBinContent(nYBins+1));
+        float uflow = std::abs(hprojy->GetBinContent(0));
+        float oflow = std::abs(hprojy->GetBinContent(nYBins+1));
         float btotal = hprojy->Integral();
         rtot++;
         // flag true if overflow/underflow has entries or if histo is empty

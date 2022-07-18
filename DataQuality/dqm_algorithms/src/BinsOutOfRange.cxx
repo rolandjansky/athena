@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*  BinsOutOfRange.cxx is to pick out the problematic bins beyond [RANGE_D,RANGE_U]. 
@@ -15,12 +15,11 @@
 #include <TH1.h>
 #include <TF1.h>
 #include <TClass.h>
-#include <math.h>
 
 #include <iostream>
 #include <string>
+#include <vector>
 
-using namespace std;
 bool mySortfunc(bin3 i,bin3 j){return ((i.m_value) > (j.m_value));}
 static dqm_algorithms::BinsOutOfRange myInstance;
 
@@ -80,7 +79,7 @@ dqm_algorithms::BinsOutOfRange::execute(const std::string &  name,
   }
   
   std::vector<int> range=dqm_algorithms::tools::GetBinRange(histogram, config.getParameters()); 
-  vector<bin3> badbinstrip;
+  std::vector<bin3> badbinstrip;
   for ( int k = range[0]; k <= range[1]; ++k ) {
     for ( int l = range[2]; l <= range[3]; ++l ) {
       double binvalue = histogram->GetBinContent(k,l);

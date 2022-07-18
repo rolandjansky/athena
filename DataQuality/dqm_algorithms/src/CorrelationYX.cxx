@@ -1,12 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "dqm_algorithms/CorrelationYX.h"
 
-#include <cmath>
-#include <iostream>
-#include <map>
+
 
 #include <TClass.h>
 #include <TH1.h>
@@ -18,7 +16,9 @@
 #include "dqm_core/AlgorithmManager.h"
 #include "dqm_core/Result.h"
 #include "ers/ers.h"
-
+#include <cmath>
+#include <iostream>
+#include <map>
 
 static dqm_algorithms::CorrelationYX staticInstance;
 
@@ -124,8 +124,8 @@ namespace dqm_algorithms {
       avXY  = avXY / count;
     }
 
-    sdX  = sqrt(avX2-avX*avX)   ;
-    sdY  = sqrt(avY2-avY*avY)   ;
+    sdX  = std::sqrt(avX2-avX*avX)   ;
+    sdY  = std::sqrt(avY2-avY*avY)   ;
     if(sdX>0&&sdY>0)correlation=(avXY-avX*avY)/(sdX*sdY); 
 
 

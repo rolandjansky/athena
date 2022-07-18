@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DQM_ALGORITHMS_LASTBINTHRESHOLD_H
@@ -7,6 +7,7 @@
 
 #include "dqm_core/Algorithm.h"
 #include <string>
+#include <iosfwd>
 
 namespace dqm_core { class AlgorithmConfig; }
 class TObject;
@@ -33,18 +34,18 @@ private:
 
 private:
     // optional parameters
-    int m_nBinsToWatch; // how many bins to watch (default = 1), returning worst-case result of those bins
-    int m_nBinsToExceed; // how many bins have to exceed the threshold (default = 1), less will be ignored
-    bool m_greaterThan; // greater-than or less-than comparison against thresholds? (default = true)
-    bool m_valueThresholds; // thresholds set w.r.t num entries per bin (false) or w.r.t to X-axis value? (default = false)
-    int  m_getEntries; // search the rightmost non-zero bin (default) 
+    int m_nBinsToWatch{}; // how many bins to watch (default = 1), returning worst-case result of those bins
+    int m_nBinsToExceed{}; // how many bins have to exceed the threshold (default = 1), less will be ignored
+    bool m_greaterThan{}; // greater-than or less-than comparison against thresholds? (default = true)
+    bool m_valueThresholds{}; // thresholds set w.r.t num entries per bin (false) or w.r.t to X-axis value? (default = false)
+    int  m_getEntries{}; // search the rightmost non-zero bin (default) 
                        // or just use GetEntries()
                        // or search the rightmost bin regardless of the bin content 
     // neither MinStat nor xmin/xmax makes sense for this kind of algorithm, I assume
 
     // thresholds
-    double m_grn;
-    double m_red;
+    double m_grn{};
+    double m_red{};
 
     // other properties
     const std::string m_name;
