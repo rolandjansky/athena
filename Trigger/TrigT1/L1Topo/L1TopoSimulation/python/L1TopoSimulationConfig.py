@@ -238,6 +238,7 @@ if __name__ == '__main__':
   flags.Exec.OutputLevel = WARNING
   if(args.nevent > 0):
     flags.Exec.MaxEvents = args.nevent
+  flags.Trigger.triggerMenuSetup = 'PhysicsP1_pp_run3_v1'
   flags.Input.Files = args.inputs
   flags.Concurrency.NumThreads = 1
   flags.Concurrency.NumConcurrentEvents = 1
@@ -300,8 +301,8 @@ if __name__ == '__main__':
       acc.merge(MuonBytestream2RdoConfig(flags))
 
   if subsystem in ['jFex','AllFex','AllModule'] :
-      from L1CaloFEXByteStream.L1CaloFEXByteStreamConfig import jFexByteStreamToolCfg
-      jFexTool = jFexByteStreamToolCfg('jFexBSDecoder', flags)
+      from L1CaloFEXByteStream.L1CaloRoiFEXByteStreamConfig import jFexRoiByteStreamToolCfg
+      jFexTool = jFexRoiByteStreamToolCfg('jFexBSDecoder', flags, writeBS=False)
       decoderTools += [jFexTool]
       outputEDM += addEDM('xAOD::jFexSRJetRoIContainer', jFexTool.jJRoIContainerWriteKey.Path)
       outputEDM += addEDM('xAOD::jFexLRJetRoIContainer', jFexTool.jLJRoIContainerWriteKey.Path)
@@ -311,11 +312,11 @@ if __name__ == '__main__':
       outputEDM += addEDM('xAOD::jFexMETRoIContainer'  , jFexTool.jXERoIContainerWriteKey.Path)
   #
   if subsystem in ['eFex','AllFex','AllModule'] :
-      from L1CaloFEXByteStream.L1CaloFEXByteStreamConfig import eFexByteStreamToolCfg
-      eFexTool = eFexByteStreamToolCfg('eFexBSDecoder', flags)
+      from L1CaloFEXByteStream.L1CaloRoiFEXByteStreamConfig import eFexByteStreamToolCfg
+      eFexTool = eFexByteStreamToolCfg('eFexBSDecoder', flags, writeBS=False)
       decoderTools += [eFexTool]
-      outputEDM += addEDM('xAOD::eFexEMRoIContainer', eFexTool.eEMTOBContainerWriteKey.Path)
-      outputEDM += addEDM('xAOD::eFexTauRoIContainer', eFexTool.eTAUTOBContainerWriteKey.Path)
+      outputEDM += addEDM('xAOD::eFexEMRoIContainer', eFexTool.eEMContainerWriteKey.Path)
+      outputEDM += addEDM('xAOD::eFexTauRoIContainer', eFexTool.eTAUContainerWriteKey.Path)
 
   from L1TopoByteStream.L1TopoByteStreamConfig import L1TopoPhase1ByteStreamToolCfg
   l1topoBSTool = L1TopoPhase1ByteStreamToolCfg("L1TopoBSDecoderTool",flags)
@@ -332,7 +333,7 @@ if __name__ == '__main__':
   acc.addEventAlgo(CompFactory.SGInputLoader(Load=loadFromSG), sequenceName="AthAlgSeq")
 
   acc.merge(L1TopoSimulationStandaloneCfg(flags,outputEDM), sequenceName='AthAlgSeq')
-
+  outputEDM += ['xAOD::L1TopoSimResultsContainer#L1_TopoSimResults']
       
   from L1TopoOnlineMonitoring import L1TopoOnlineMonitoringConfig as TopoMonConfig
   acc.addEventAlgo(
