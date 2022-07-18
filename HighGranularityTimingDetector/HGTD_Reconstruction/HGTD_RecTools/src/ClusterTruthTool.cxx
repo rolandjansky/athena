@@ -52,7 +52,7 @@ HGTD::ClusterTruthInfo HGTD::ClusterTruthTool::classifyCluster(
     // the InDetSimData contains a std::pair<HepMcParticleLink, float>, where
     // the second entry in the pair holds the time of the SiChargedDiode
     if (pos == sim_data->end()) {
-      ATH_MSG_WARNING(
+      ATH_MSG_DEBUG(
           "[HGTD::ClusterTruthTool::classifyCluster] ID not found in SDO "
           "map, going to next ID");
       continue;
@@ -144,7 +144,7 @@ HGTD::ClusterTruthInfo HGTD::ClusterTruthTool::classifyCluster(
   HGTD::ClusterTruthInfo result;
 
   if (shadowed_origins.size() == 0) {
-    ATH_MSG_WARNING("did not manage to understand any RDOs...");
+    ATH_MSG_DEBUG("did not manage to understand any RDOs...");
     result.origin = HGTD::ClusterTruthOrigin::UNIDENTIFIED;
     result.is_shadowed = false;
     // A cluster is considered to be merged if more than one particle deposited
