@@ -10,40 +10,52 @@
 
 JetTruthLabelingTool::JetTruthLabelingTool(const std::string& name) :
   asg::AsgTool(name)
-{
-    
-    /// Hard-code some values for R10TruthLabel_R21Consolidated
-    /// Functionality to customize labeling will be added later
-    if(m_truthLabelName == "R10TruthLabel_R21Consolidated") {
-      m_truthJetCollectionName="AntiKt10TruthTrimmedPtFrac5SmallR20Jets";
-      m_useDRMatch = true;
-      m_dRTruthJet = 0.75;
-      m_dRTruthPart = 0.75;
-      m_mLowTop = 140.0;
-      m_mLowW = 50.0;
-      m_mHighW = 100.0;
-      m_mLowZ = 60.0;
-      m_mHighZ = 110.0;
-    }
-
-    /// Hard-code some values for R10TruthLabel_R21Precision
-    if(m_truthLabelName == "R10TruthLabel_R21Precision") {
-      m_truthJetCollectionName="AntiKt10TruthJets";
-      m_useDRMatch = false;
-      m_dRTruthJet = 0.75;
-      m_dRTruthPart = 0.75;
-      m_mLowTop = 140.0;
-      m_mLowW = 50.0;
-      m_mHighW = 100.0;
-      m_mLowZ = 60.0;
-      m_mHighZ = 110.0;
-    }
-
-}
+{}
 
 StatusCode JetTruthLabelingTool::initialize(){
 
   ATH_MSG_INFO("Initializing " << name());
+
+  /// Hard-code some values for R10TruthLabel_R21Consolidated                                                                                                                                             
+  /// Functionality to customize labeling will be added later
+  if(m_truthLabelName == "R10TruthLabel_R21Consolidated") {
+    m_truthJetCollectionName="AntiKt10TruthTrimmedPtFrac5SmallR20Jets";
+    m_matchUngroomedParent = false;
+    m_dRTruthJet = 0.75;
+    m_useDRMatch = true;
+    m_dRTruthPart = 0.75;
+    m_useWZMassHigh = true;
+    m_mLowTop = 140.0;
+    m_mLowW = 50.0;
+    m_mHighW = 100.0;
+    m_mLowZ = 60.0;
+    m_mHighZ = 110.0;
+  }
+  /// Hard-code some values for R10TruthLabel_R21Precision                                                                                                                                                
+  else if(m_truthLabelName == "R10TruthLabel_R21Precision") {
+    m_truthJetCollectionName="AntiKt10TruthJets";
+    m_matchUngroomedParent = true;
+    m_dRTruthJet = 0.75;
+    m_useDRMatch = false;
+    m_useWZMassHigh = true;
+    m_mLowTop = 140.0;
+    m_mLowW = 50.0;
+    m_mHighW = 100.0;
+    m_mLowZ = 60.0;
+    m_mHighZ = 110.0;
+  }
+  /// Hard-code some values for R10TruthLabel_R21Precision_2022v1                                                                                                                                         
+  else if( m_truthLabelName == "R10TruthLabel_R21Precision_2022v1" ) {
+    m_truthJetCollectionName="AntiKt10TruthJets";
+    m_matchUngroomedParent = true;
+    m_dRTruthJet = 0.75;
+    m_useDRMatch = false;
+    m_useWZMassHigh = false;
+    m_mLowTop = 140.0;
+    m_mLowW = 50.0;
+    m_mLowZ = 50.0;
+  }
+
   print();
 
   /// Check if TruthLabelName is supported. If not, give an error and return FAILURE
@@ -51,6 +63,7 @@ StatusCode JetTruthLabelingTool::initialize(){
   bool isSupportedLabel = false;
   isSupportedLabel = isSupportedLabel || (m_truthLabelName=="R10TruthLabel_R21Consolidated");
   isSupportedLabel = isSupportedLabel || (m_truthLabelName=="R10TruthLabel_R21Precision");
+  isSupportedLabel = isSupportedLabel || (m_truthLabelName=="R10TruthLabel_R21Precision_2022v1");
 
   if(!isSupportedLabel) {
     ATH_MSG_ERROR("TruthLabelName " << m_truthLabelName << " is not supported. Exiting...");
@@ -63,6 +76,7 @@ StatusCode JetTruthLabelingTool::initialize(){
   m_dR_H_truthKey    = m_truthJetCollectionName.key() + "." + m_truthLabelName + "_dR_H";
   m_dR_Top_truthKey  = m_truthJetCollectionName.key() + "." + m_truthLabelName + "_dR_Top";
   m_NB_truthKey      = m_truthJetCollectionName.key() + "." + m_truthLabelName + "_NB";
+  m_split12_truthKey = m_truthJetCollectionName.key() + ".Split12";
   m_split23_truthKey = m_truthJetCollectionName.key() + ".Split23";
 
   if(!m_isTruthJetCol){
@@ -72,6 +86,7 @@ StatusCode JetTruthLabelingTool::initialize(){
     m_dR_H_recoKey   = m_jetContainerName + "." + m_truthLabelName + "_dR_H";
     m_dR_Top_recoKey = m_jetContainerName + "." + m_truthLabelName + "_dR_Top";
     m_NB_recoKey     = m_jetContainerName + "." + m_truthLabelName + "_NB";
+    m_truthSplit12_recoKey = m_jetContainerName + "." + m_truthLabelName + "_TruthJetSplit12";
     m_truthSplit23_recoKey = m_jetContainerName + "." + m_truthLabelName + "_TruthJetSplit23";
     m_truthJetMass_recoKey = m_jetContainerName + "." + m_truthLabelName + "_TruthJetMass";
   }
@@ -88,7 +103,9 @@ StatusCode JetTruthLabelingTool::initialize(){
   ATH_CHECK(m_dR_H_truthKey.initialize(m_useDRMatch));
   ATH_CHECK(m_dR_Top_truthKey.initialize(m_useDRMatch));
   ATH_CHECK(m_NB_truthKey.initialize());
-  ATH_CHECK(m_split23_truthKey.initialize(m_truthLabelName == "R10TruthLabel_R21Precision"));
+  
+  ATH_CHECK(m_split12_truthKey.initialize(m_truthLabelName == "R10TruthLabel_R21Precision_2022v1"));
+  ATH_CHECK(m_split23_truthKey.initialize(m_truthLabelName == "R10TruthLabel_R21Precision" || m_truthLabelName == "R10TruthLabel_R21Precision_2022v1"));
 
   ATH_CHECK(m_label_recoKey.initialize(!m_isTruthJetCol));
   ATH_CHECK(m_dR_W_recoKey.initialize(!m_isTruthJetCol && m_useDRMatch));
@@ -96,7 +113,8 @@ StatusCode JetTruthLabelingTool::initialize(){
   ATH_CHECK(m_dR_H_recoKey.initialize(!m_isTruthJetCol && m_useDRMatch));
   ATH_CHECK(m_dR_Top_recoKey.initialize(!m_isTruthJetCol && m_useDRMatch));
   ATH_CHECK(m_NB_recoKey.initialize(!m_isTruthJetCol));
-  ATH_CHECK(m_truthSplit23_recoKey.initialize(!m_isTruthJetCol && m_truthLabelName == "R10TruthLabel_R21Precision"));
+  ATH_CHECK(m_truthSplit12_recoKey.initialize(!m_isTruthJetCol && m_truthLabelName == "R10TruthLabel_R21Precision_2022v1"));
+  ATH_CHECK(m_truthSplit23_recoKey.initialize(!m_isTruthJetCol && (m_truthLabelName == "R10TruthLabel_R21Precision" || m_truthLabelName == "R10TruthLabel_R21Precision_2022v1")));
   ATH_CHECK(m_truthJetMass_recoKey.initialize(!m_isTruthJetCol));
 
   return StatusCode::SUCCESS;
@@ -126,9 +144,11 @@ void JetTruthLabelingTool::print() const {
 
   ATH_MSG_INFO("mLowTop:       " << std::to_string(m_mLowTop));
   ATH_MSG_INFO("mLowW:         " << std::to_string(m_mLowW));
-  ATH_MSG_INFO("mHighW:        " << std::to_string(m_mHighW));
+  if(m_useWZMassHigh)
+    ATH_MSG_INFO("mHighW:        " << std::to_string(m_mHighW));
   ATH_MSG_INFO("mLowZ:         " << std::to_string(m_mLowZ));
-  ATH_MSG_INFO("mHighZ:        " << std::to_string(m_mHighZ));
+  if(m_useWZMassHigh)
+    ATH_MSG_INFO("mHighZ:        " << std::to_string(m_mHighZ));
 
 }
 
@@ -249,9 +269,9 @@ StatusCode JetTruthLabelingTool::labelRecoJets(const xAOD::JetContainer& jets ) 
   SG::ReadHandle<xAOD::JetContainer> truthJets(m_truthJetCollectionName);
   for(const xAOD::Jet *jet : jets) {
 
-    /// Get parent ungroomed reco jet for R21Precision
+    /// Get parent ungroomed reco jet for matching
     const xAOD::Jet* parent = nullptr;
-    if ( m_truthLabelName == "R10TruthLabel_R21Precision" ) {
+    if ( m_matchUngroomedParent ){
       ElementLink<xAOD::JetContainer> element_link = jet->auxdata<ElementLink<xAOD::JetContainer> >("Parent");
       if ( element_link.isValid() ) {
         parent = *element_link;
@@ -284,6 +304,7 @@ StatusCode JetTruthLabelingTool::labelRecoJets(const xAOD::JetContainer& jets ) 
     float dR_truthJet_Top = 9999;
     float dR_truthJet_H = 9999;
     int truthJetNB = -1;
+    float truthJetSplit12 = -9999;
     float truthJetSplit23 = -9999;
     float truthJetMass = -9999;
 
@@ -304,6 +325,12 @@ StatusCode JetTruthLabelingTool::labelRecoJets(const xAOD::JetContainer& jets ) 
       if ( m_truthLabelName == "R10TruthLabel_R21Precision" ) {
         SG::ReadDecorHandle<xAOD::JetContainer, float> split23Handle(m_split23_truthKey);
         if(split23Handle.isAvailable()) truthJetSplit23 = split23Handle(*matchTruthJet);
+      }
+      if ( m_truthLabelName == "R10TruthLabel_R21Precision_2022v1" ) {
+	SG::ReadDecorHandle<xAOD::JetContainer, float> split23Handle(m_split23_truthKey);
+	if(split23Handle.isAvailable()) truthJetSplit23 = split23Handle(*matchTruthJet);
+	SG::ReadDecorHandle<xAOD::JetContainer, float> split12Handle(m_split12_truthKey);
+	if(split12Handle.isAvailable()) truthJetSplit12 = split12Handle(*matchTruthJet);
       }
       SG::WriteDecorHandle<xAOD::JetContainer, int> nbHandle(m_NB_truthKey);
       if(nbHandle.isAvailable()) truthJetNB = nbHandle(*matchTruthJet);
@@ -329,6 +356,14 @@ StatusCode JetTruthLabelingTool::labelRecoJets(const xAOD::JetContainer& jets ) 
       SG::WriteDecorHandle<xAOD::JetContainer, float> split23Handle(m_truthSplit23_recoKey);
       split23Handle(*jet) = truthJetSplit23;
     }
+
+    if ( m_truthLabelName == "R10TruthLabel_R21Precision_2022v1" ) {
+      SG::WriteDecorHandle<xAOD::JetContainer, float> split23Handle(m_truthSplit23_recoKey);
+      split23Handle(*jet) = truthJetSplit23;
+      SG::WriteDecorHandle<xAOD::JetContainer, float> split12Handle(m_truthSplit12_recoKey);
+      split12Handle(*jet) = truthJetSplit12;
+    }
+
     SG::WriteDecorHandle<xAOD::JetContainer, int> nbHandle(m_NB_recoKey);
     SG::WriteDecorHandle<xAOD::JetContainer, float> truthMassHandle(m_truthJetMass_recoKey);
     nbHandle(*jet) = truthJetNB;
@@ -569,17 +604,40 @@ bool JetTruthLabelingTool::selectTruthParticle( const xAOD::TruthParticle *tp, i
   return true;
 }
 
-float JetTruthLabelingTool::getTopSplit23CutR21Precision( float pt ) const {
+float JetTruthLabelingTool::getWZSplit12Cut( float pt ) const {
+
+  /// The functional form and parameters come from optimization studies:
+  /// https://cds.cern.ch/record/2777009/files/ATL-PHYS-PUB-2021-029.pdf
+
+  float split12 = -999.0;
+
+  if ( m_truthLabelName == "R10TruthLabel_R21Precision_2022v1") {
+    const float c0 = 55.25;
+    const float c1 = -2.34e-3;
+
+    split12 = c0 * std::exp( c1 * pt );
+  }
+
+  return split12;
+
+}
+
+float JetTruthLabelingTool::getTopSplit23Cut( float pt ) const {
 
   /// The functional form and parameters come from optimization studies:
   /// https://indico.cern.ch/event/931498/contributions/3921872/attachments/2064188/3463746/JSS_25June.pdf
 
-  const float c0 = 3.3;
-  const float c1 = -6.98e-4;
+  float split23 = -999.0;
 
-  float split23 = -1.0;
+  if ( m_truthLabelName == "R10TruthLabel_R21Precision" || 
+       m_truthLabelName == "R10TruthLabel_R21Precision_2022v1") {
 
-  split23 = std::exp( c0 + c1 * pt );
+    const float c0 = 3.3;
+    const float c1 = -6.98e-4;
+
+    split23 = std::exp( c0 + c1 * pt );
+
+  }
 
   return split23;
 }
@@ -625,10 +683,21 @@ int JetTruthLabelingTool::getLabel( const xAOD::Jet &jet, bool matchH, bool matc
   if ( m_truthLabelName == "R10TruthLabel_R21Precision" ) {
     SG::ReadDecorHandle<xAOD::JetContainer, float> split23Handle(m_split23_truthKey);
     isHbb = ( nMatchB > 1 );
-    isTop = ( matchTop && matchW && nMatchB > 0 && jet.m() / 1000. > m_mLowTop && split23Handle(jet) / 1000. > getTopSplit23CutR21Precision( jet.pt() / 1000. ) );
+    isTop = ( matchTop && matchW && nMatchB > 0 && jet.m() / 1000. > m_mLowTop && split23Handle(jet) / 1000. > getTopSplit23Cut( jet.pt() / 1000. ) );
     isW = matchW && nMatchB == 0 && jet.m() / 1000. > m_mLowW && jet.m() / 1000. < m_mHighW;
     isZ = matchZ && jet.m() / 1000. > m_mLowZ && jet.m() / 1000. < m_mHighZ;
   }
+
+  // Use R21Precision_2022v1 definition
+  if ( m_truthLabelName == "R10TruthLabel_R21Precision_2022v1" ) {
+    SG::ReadDecorHandle<xAOD::JetContainer, float> split23Handle(m_split23_truthKey);
+    SG::ReadDecorHandle<xAOD::JetContainer, float> split12Handle(m_split12_truthKey);
+    isHbb = ( nMatchB > 1 );
+    isTop = ( matchTop && matchW && nMatchB > 0 && jet.m() / 1000. > m_mLowTop && split23Handle(jet) / 1000. > getTopSplit23Cut( jet.pt() / 1000. ) );
+    isW = matchW && nMatchB == 0 && jet.m() / 1000. > m_mLowW && split12Handle(jet) / 1000. > getWZSplit12Cut( jet.pt() / 1000. );
+    isZ = matchZ && jet.m() / 1000. > m_mLowZ;
+  }
+
 
   /// This method can be expanded to include custom label priorities
 
