@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( LArCalibTest )
@@ -10,7 +10,6 @@ find_package( CORAL COMPONENTS CoralBase )
 atlas_add_component( LArCalibTest
                      src/LAr*.cxx
                      src/DumpCaloBadChannels.cxx
-                     src/FixLArElecCalib.cxx
                      src/components/*.cxx
                      LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel AthenaPoolUtilities CaloConditions CaloDetDescrLib CaloIdentifier GaudiKernel Identifier LArCOOLConditions LArCablingLib LArElecCalib LArIdentifier LArRawConditions LArRawEvent LArRecConditions PathResolver StoreGateLib xAODEventInfo )
 
