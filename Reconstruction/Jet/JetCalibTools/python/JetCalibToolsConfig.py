@@ -128,7 +128,7 @@ def getJetCalibTool(jetcollection, context, data_type, calibseq = "", rhoname = 
         _jetcollection = jetcollection
         if "PFlow" in jetcollection and context=="TrigSoftDrop":
             _jetcollection = jetcollection.replace("EMPFlow","UFO")
-        return defineJetCalibTool(_jetcollection, _configfile, calibarea, _calibseq, _data_type, rhoname, _pvname, gscdepth)
+        return defineJetCalibTool(_jetcollection, context, _configfile, calibarea, _calibseq, _data_type, rhoname, _pvname, gscdepth)
     except KeyError as e:
         jetcaliblog.error("Context '{0}' not found for jet collection '{1}'".format(context,jetcollection))
         jetcaliblog.error("Options are '{0}".format(','.join(jetcontexts.keys())))
@@ -136,10 +136,10 @@ def getJetCalibTool(jetcollection, context, data_type, calibseq = "", rhoname = 
     return None
 
 # This method actually sets up the tool
-def defineJetCalibTool(jetcollection, configfile, calibarea, calibseq, data_type, rhoname, pvname, gscdepth):
+def defineJetCalibTool(jetcollection, context, configfile, calibarea, calibseq, data_type, rhoname, pvname, gscdepth):
     # Abbreviate the calib sequence
     calibseqshort = ''.join([ step[0] for step in calibseq.split('_') ])
-    toolname = "jetcalib_{0}_{1}".format(jetcollection,calibseqshort)
+    toolname = "jetcalib_{0}_{1}_{2}".format(jetcollection,calibseqshort,context)
     #
     from AthenaConfiguration.ComponentFactory import CompFactory
     jct = CompFactory.JetCalibrationTool(toolname,
