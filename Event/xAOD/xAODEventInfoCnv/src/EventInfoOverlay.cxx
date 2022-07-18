@@ -74,8 +74,38 @@ StatusCode EventInfoOverlay::execute(const EventContext& ctx) const
   }
 
   // Propagate MC metadata
-  outputEvent->setMCChannelNumber(signalEvent->mcChannelNumber());
-  outputEvent->setMCEventNumber(signalEvent->mcEventNumber());
+  if (signalEvent->mcChannelNumber() == 0) {
+    if (m_mcChannelNumber.value() != 0) {
+      ATH_MSG_WARNING("Signal mcChannelNumber is 0, setting it to " << m_mcChannelNumber.value());
+      outputEvent->setMCChannelNumber(m_mcChannelNumber.value());
+    } else {
+      ATH_MSG_WARNING("Signal mcChannelNumber is 0");
+      outputEvent->setMCChannelNumber(signalEvent->mcChannelNumber());
+    }
+  } else {
+    if (m_mcChannelNumber.value() != 0 && signalEvent->mcChannelNumber() != m_mcChannelNumber.value()) {
+      ATH_MSG_WARNING("Signal mcChannelNumber (" << signalEvent->mcChannelNumber()
+                      << ") and provided mcChannelNumber (" << m_mcChannelNumber.value() << ") do not match.");
+    }
+    outputEvent->setMCChannelNumber(signalEvent->mcChannelNumber());
+  }
+
+  if (signalEvent->mcEventNumber() == 0) {
+    if (signalEvent->eventNumber() != 0) {
+      ATH_MSG_WARNING("Signal mcEventNumber is 0, setting it to match the eventNumber (" << signalEvent->eventNumber() << ")");
+      outputEvent->setMCEventNumber(signalEvent->eventNumber());
+    } else {
+      ATH_MSG_WARNING("Signal mcEventNumber is 0");
+      outputEvent->setMCEventNumber(signalEvent->mcEventNumber());  
+    }
+  } else {
+    outputEvent->setMCEventNumber(signalEvent->mcEventNumber());
+  }
+
+  if (signalEvent->mcEventWeights().empty()) {
+    ATH_MSG_ERROR("Signal mcEventWeights are empty. This should not happen.");
+    return StatusCode::FAILURE;
+  }
   outputEvent->setMCEventWeights(signalEvent->mcEventWeights());
 
   // MC+MC overlay should always be marked as simulation

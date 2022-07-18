@@ -47,6 +47,11 @@ def setOverlayInputFiles(runArgs, configFlags, log):
         configFlags.Input.Files = runArgs.inputRDO_BKGFile
         if configFlags.Common.ProductionStep == ProductionStep.Overlay:
             configFlags.Input.SecondaryFiles = runArgs.inputHITSFile
+
+        # runNumber is MC channel number in reco
+        if hasattr(runArgs, 'runNumber'):
+            configFlags.Overlay.MCChannelNumber = runArgs.runNumber
+            log.info('Got MC channel number %d from runNumber', configFlags.Overlay.MCChannelNumber)
     else:
         log.info('Running MC+data overlay')
         configFlags.Overlay.DataOverlay = True
