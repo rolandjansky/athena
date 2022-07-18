@@ -1,14 +1,16 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DQM_ALGORITHMS_MDTADCSPECTRUM_H
 #define DQM_ALGORITHMS_MDTADCSPECTRUM_H
 
-#include <string>
-#include "TObject.h"
-#include "dqm_core/Algorithm.h"
 
+
+#include "dqm_core/Algorithm.h"
+#include <string>
+#include <iosfwd>
+class TObject;
 
 namespace dqm_algorithms {
 

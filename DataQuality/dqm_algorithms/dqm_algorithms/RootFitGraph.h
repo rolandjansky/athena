@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*! \file RootFitGraph.h file declares the dqm_algorithms::RootFitGraph  class.
@@ -10,8 +10,11 @@
 #define DQM_ALGORITHMS_ROOTFITGRAPH_H
 
 #include <dqm_core/Algorithm.h>
-#include <TF1.h>
-#include <TCanvas.h>
+#include <string>
+#include <memory>
+#include <iosfwd>
+
+class TF1;
 
 namespace dqm_algorithms
 {

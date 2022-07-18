@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*! \file TRTCheckPeakSimple.h file declares the dqm_algorithms::TRTCheckPeakSimple class.
@@ -12,6 +12,7 @@
 #include "dqm_core/Algorithm.h"
 
 #include <string>
+#include <iosfwd>
 
 namespace dqm_algorithms
 {

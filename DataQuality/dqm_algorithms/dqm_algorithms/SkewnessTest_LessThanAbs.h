@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*! \file SkewnessTest_LessThanAbs.h file declares the dqm_algorithms::SkewnessTest_LessThanAbs  class.
@@ -9,7 +9,6 @@
 #ifndef DQM_ALGORITHMS_SKEWNESSTEST_LESSTHANABS_H
 #define DQM_ALGORITHMS_SKEWNESSTEST_LESSTHANABS_H
 
-#include <dqm_core/Algorithm.h>
 #include <dqm_algorithms/SkewnessTest.h>
 
 namespace dqm_algorithms

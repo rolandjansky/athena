@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
@@ -8,11 +8,7 @@
 
 #include "dqm_algorithms/MDTMultiplicity.h"
 
-#include <cmath>
-#include <iostream>
-#include <map>
-#include <vector>
-#include <string>
+
 
 #include <TClass.h>
 #include <TH1.h>
@@ -24,7 +20,11 @@
 #include "dqm_core/Result.h"
 #include "dqm_algorithms/tools/AlgorithmHelper.h"
 #include "ers/ers.h"
-
+#include <cmath>
+#include <iostream>
+#include <map>
+#include <vector>
+#include <string>
 
 static dqm_algorithms::MDTMultiplicity staticInstance;
 
@@ -57,7 +57,6 @@ MDTMultiplicity::clone()
 dqm_core::Result*
 MDTMultiplicity::execute( const std::string& name, const TObject& object, const dqm_core::AlgorithmConfig& config)
 {
-  using namespace std;
 
   TH1 * hist;
   TH1 * ref;
@@ -123,15 +122,15 @@ MDTMultiplicity::execute( const std::string& name, const TObject& object, const 
  //Algo
   unsigned int i=0;
   unsigned int k=0;
-  vector<double> derivate;
-  vector<double> peak_candidate;
-  vector<double> peak;  
-  vector<double> valley;
+  std::vector<double> derivate;
+  std::vector<double> peak_candidate;
+  std::vector<double> peak;  
+  std::vector<double> valley;
 
-  vector<double> derivate_ref;
-  vector<double> peak_candidate_ref;
-  vector<double> peak_ref;  
-  vector<double> valley_ref;
+  std::vector<double> derivate_ref;
+  std::vector<double> peak_candidate_ref;
+  std::vector<double> peak_ref;  
+  std::vector<double> valley_ref;
 
   //Filling vector of derivate
   for(i=1;i<=(unsigned int)hist->GetNbinsX();i++){
@@ -236,17 +235,17 @@ MDTMultiplicity::execute( const std::string& name, const TObject& object, const 
   if(ref_y_n==0){
     i=0;
     for(i=0;i<peak.size();i++){
-      if(fabs(peak[i]-pos1)<=diff1){
+      if(std::abs(peak[i]-pos1)<=diff1){
         //first_peak=i;
-        diff1=fabs(peak[i]-pos1);
+        diff1=std::abs(peak[i]-pos1);
       };
-      if(fabs(peak[i]-pos2)<=diff2){
+      if(std::abs(peak[i]-pos2)<=diff2){
         //second_peak=i;
-        diff2=fabs(peak[i]-pos2);
+        diff2=std::abs(peak[i]-pos2);
       };
-      if(fabs(peak[i]-pos3)<=diff3 && pos3>0){
+      if(std::abs(peak[i]-pos3)<=diff3 && pos3>0){
         //third_peak=i;
-        diff3=fabs(peak[i]-pos3);
+        diff3=std::abs(peak[i]-pos3);
       };
     };
     //if(peak.size() != peak_number) count = 10;
@@ -258,8 +257,8 @@ MDTMultiplicity::execute( const std::string& name, const TObject& object, const 
     if(diff3>redTh && pos3>0) count+=2; 
 
     i=0;
-    string tag_n_r;
-    string peak_tag = "-Peak";
+    std::string tag_n_r;
+    std::string peak_tag = "-Peak";
     char numb_n_r[4];
 
     result->tags_["00-Number_of_found_peaks"] = peak.size();
@@ -274,17 +273,17 @@ MDTMultiplicity::execute( const std::string& name, const TObject& object, const 
   if(ref_y_n==1){
     i=0;
     k=0;
-    vector<double> diff;
-    vector<double> peak_corrispondence;
+    std::vector<double> diff;
+    std::vector<double> peak_corrispondence;
     for(i=0;i<peak.size();i++){
       diff1=9999;
       peak_corrispondence.push_back(99999);
       diff.push_back(99999);
       for(k=0;k<peak_ref.size();k++){
-        if(fabs(peak[i]-peak_ref[k])<=diff1){
+        if(std::abs(peak[i]-peak_ref[k])<=diff1){
           peak_corrispondence[i]=k;
-          diff[i]=fabs(peak[i]-peak_ref[k]);
-          diff1=fabs(peak[i]-peak_ref[k]);
+          diff[i]=std::abs(peak[i]-peak_ref[k]);
+          diff1=std::abs(peak[i]-peak_ref[k]);
         };
       };
     };
@@ -296,10 +295,10 @@ MDTMultiplicity::execute( const std::string& name, const TObject& object, const 
 
     //if(peak.size()!=peak_ref.size()) count+=10;
 
-    string tag;
-    string run_tag ="a-";
-    string ref_tag ="b-";
-    string multi = "Peak";
+    std::string tag;
+    std::string run_tag ="a-";
+    std::string ref_tag ="b-";
+    std::string multi = "Peak";
     char numb[4];
 
     result->tags_["a-00-Number_of_found_peaks"] = peak.size();

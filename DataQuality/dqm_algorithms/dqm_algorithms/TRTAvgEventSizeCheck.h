@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifdef ONLINE // can only be built in an online environment
@@ -8,6 +8,8 @@
 #define DQM_ALGORITHMS_TRTAVGEVENTSIZECHECK_H
 
 #include "dqm_core/Algorithm.h"
+#include <string>
+#include <iosfwd>
 
 namespace dqm_algorithms {
 

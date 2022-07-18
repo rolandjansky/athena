@@ -22,7 +22,6 @@ static dqm_algorithms::Chi2Test chi2_uw("ProbUW" );
 static dqm_algorithms::Chi2Test chi2_ww("ProbWW" );
 static dqm_algorithms::Chi2Test chi2_chi2("Chi2");
 
-using namespace std;
 
 
 dqm_algorithms::Chi2Test::Chi2Test( const std::string & name )

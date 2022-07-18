@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*! \file GrubbsOutlierTest.cxx
@@ -28,6 +28,7 @@
 #include <TF1.h>
 #include <TMath.h>
 #include <TClass.h>
+#include <cmath>
 
 #ifndef GTESTPARS
 #define GTESTPARS 5
@@ -265,7 +266,7 @@ int dqm_algorithms::GrubbsOutlierTest::GrubbsTest(std::vector<float>& vec, std::
     sigma += diff*diff;
   }
   sigma /= (nItems-1);
-  sigma = sqrt(sigma);
+  sigma = std::sqrt(sigma);
 
   float zval = 0., tval = 0., prob = 0.;
   int retval = 0;
@@ -273,10 +274,10 @@ int dqm_algorithms::GrubbsOutlierTest::GrubbsTest(std::vector<float>& vec, std::
   for(size_t j = 0; j < nItems; j++) {
     
     // define test statistic z = |mean - val|/sigma
-    zval = fabs(mean - vec[j])/sigma;
+    zval = std::abs(mean - vec[j])/sigma;
     
     // find out the critical value (tval) for the test statistic
-    tval = sqrt(nItems*(nItems-2)*(zval*zval)/((nItems-1)*(nItems-1)-nItems*(zval*zval)));
+    tval = std::sqrt(nItems*(nItems-2)*(zval*zval)/((nItems-1)*(nItems-1)-nItems*(zval*zval)));
 
     // determine the probability (two sided student's t pdf with N-2 d.o.f) of tval being 
     // far away (determined by significance level) from others so as to be considered an outlier

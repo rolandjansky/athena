@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*! \file MaskedBinRow.cxx
@@ -12,7 +12,6 @@
 #include <TH2.h>
 #include <TF1.h>
 #include <TClass.h>
-#include <math.h>
 #include <ers/ers.h>
 
 

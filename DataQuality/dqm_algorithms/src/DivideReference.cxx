@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*! \file DivideReference.cxx checks an histogram with a specified algorithm, after summing to input histograms the reference histogram
@@ -15,7 +15,6 @@
 #include <dqm_core/AlgorithmManager.h>
 
 #include <iostream>
-using namespace std;
 
 namespace {
   static dqm_algorithms::DivideReference d1("All_Bins_Filled");

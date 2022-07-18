@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
@@ -8,19 +8,13 @@
 
 #include "dqm_algorithms/MDTMLOverview.h"
 
-#include <cmath>
-#include <iostream>
-#include <map>
-#include <list>
-#include <string>
-#include <vector>
+
 
 #include <TClass.h>
 #include <TH1.h>
 #include <TAxis.h>
 #include <TF1.h>
 #include <TProfile.h>
-#include "TMath.h"
 
 #include "dqm_core/exceptions.h"
 #include "dqm_core/AlgorithmConfig.h"
@@ -28,6 +22,13 @@
 #include "dqm_core/Result.h"
 #include "dqm_algorithms/tools/AlgorithmHelper.h"
 #include "ers/ers.h"
+
+#include <cmath>
+#include <iostream>
+#include <map>
+#include <list>
+#include <string>
+#include <vector>
 
 static dqm_algorithms::MDTMLOverview staticInstance;
 
@@ -185,7 +186,7 @@ MDTMLOverview::execute( const std::string& name, const TObject& object, const dq
     do{
       counter++;
       if(counter>=20) break;
-    }while(fabs(counter-new_empty_bins[i])>0.3);
+    }while(std::abs(counter-new_empty_bins[i])>0.3);
       
     snprintf(eta_num,sizeof(eta_num),"%d",counter);
     if( (counter-new_empty_bins[i])>=0)ml_num="1";

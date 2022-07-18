@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*! \file ChiComp.cxx does a simple Chi Squared like comparison of 2 histograms, returns Chi2/DOF ; returns dqm_core::Result
@@ -17,8 +17,8 @@
 #include "TF1.h"
 #include "TProfile.h"
 #include "TClass.h"
+#include <cmath>
 
-using namespace std;
 
 // Only 1 variation at the moment - might do more later
 static dqm_algorithms::ChiComp Basic( "Basic" );
@@ -121,11 +121,11 @@ dqm_algorithms::ChiComp::execute(	const std::string & name,
   for(int i=1; i<histogram->GetNbinsX()+1; i++){
   
     // Calculate the contribution
-    double diff = fabs(histogram->GetBinContent(i) - reference->GetBinContent(i));
+    double diff = std::abs(histogram->GetBinContent(i) - reference->GetBinContent(i));
 
     double uncert1 = histogram->GetBinError(i);
     double uncert2 = reference->GetBinError(i);
-    double uncert = sqrt(uncert1*uncert1 + uncert2*uncert2);
+    double uncert = std::sqrt(uncert1*uncert1 + uncert2*uncert2);
 
     bool badbin = 0;
     

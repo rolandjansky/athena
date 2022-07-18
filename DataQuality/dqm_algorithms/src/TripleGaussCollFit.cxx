@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*** Collisions monitoring algorithm by Tudor Costin & Peter Onyisi 
@@ -58,9 +58,11 @@ namespace {
 #endif
 
 #include "TH2.h"
+#include "TH1.h"
+#include "TF1.h"
 #include "TClass.h" //shocking that this doesn't fall in by now
 #include <iostream>
-#include "TMath.h"
+#include <cmath>
 
 
 
@@ -88,7 +90,7 @@ void multLB_writeTags(std::vector<int>* goodLB, dqm_core::Result* result, TH1* t
   char buf[10]; 
   std::string lb_str = "LB_";
   int firstLB = (*goodLB)[0], offset = 1; 
-  unsigned int c = 1, sz = goodLB->size(), psz = (unsigned int) TMath::Log10(sz)+1;
+  unsigned int c = 1, sz = goodLB->size(), psz = static_cast<unsigned int>( std::log10(sz))+1;
   Double_t lo, hi;
 	
   while (c < sz) {
@@ -100,25 +102,22 @@ void multLB_writeTags(std::vector<int>* goodLB, dqm_core::Result* result, TH1* t
       //find the low LB
       
       lo = thehist->GetXaxis()->GetBinLowEdge(firstLB);
-      //out << "bin " << firstLB << " lower edge is " << lo << std::endl;
 
-      if (lo == TMath::Floor(lo))
-	sprintf(buf, fmt, psz, (Int_t)lo);
+      if (lo == std::floor(lo))
+	sprintf(buf, fmt, psz, static_cast<Int_t>(lo));
       else 
-	sprintf(buf, fmt, psz, (Int_t)(TMath::Floor(lo))+1);
+	sprintf(buf, fmt, psz, static_cast<Int_t>(std::floor(lo))+1);
 
       tagname +=  buf;
       tagname += "_";
 
       hi = thehist->GetXaxis()->GetBinUpEdge(firstLB+offset-1);
-      //out << "bin " << firstLB+offset-1 << " high edge is " << hi << std::endl;
 
-      if (hi == TMath::Floor(hi))
-	sprintf(buf, fmt, psz, (Int_t)(TMath::Floor(hi))-1);
+      if (hi == std::floor(hi))
+	sprintf(buf, fmt, psz, static_cast<Int_t>(std::floor(hi))-1);
       else
-	sprintf(buf, fmt, psz, (Int_t)TMath::Floor(hi));
+	sprintf(buf, fmt, psz, static_cast<Int_t>(std::floor(hi)));
 
-      //sprintf(buf, fmt, psz, firstLB+offset-1);
       tagname += buf;
       result->tags_ [tagname] = 1.0;
       firstLB = (*goodLB)[c];
@@ -129,22 +128,19 @@ void multLB_writeTags(std::vector<int>* goodLB, dqm_core::Result* result, TH1* t
   }
 
   lo = thehist->GetXaxis()->GetBinLowEdge(firstLB);
-      //out << "bin " << firstLB << " lower edge is " << lo << std::endl;
 
-  if (lo == TMath::Floor(lo))
-    sprintf(buf, fmt, psz, (Int_t)lo);
+  if (lo == std::floor(lo))
+    sprintf(buf, fmt, psz, static_cast<Int_t>(lo));
   else 
-    sprintf(buf, fmt, psz, (Int_t)(TMath::Floor(lo))+1);
-  //sprintf(buf, fmt, psz, firstLB);
+    sprintf(buf, fmt, psz, static_cast<Int_t>(std::floor(lo))+1);
 
   lb_str += buf;
   lb_str += "_";
   hi = thehist->GetXaxis()->GetBinUpEdge(firstLB+offset-1);
-  if (hi == TMath::Floor(hi))
-    sprintf(buf, fmt, psz, (Int_t)(TMath::Floor(hi))-1);
+  if (hi == std::floor(hi))
+    sprintf(buf, fmt, psz, static_cast<Int_t>(std::floor(hi))-1);
   else
-    sprintf(buf, fmt, psz, (Int_t)TMath::Floor(hi));
-  //sprintf(buf, fmt, psz, (*goodLB)[c-1]);
+    sprintf(buf, fmt, psz, static_cast<Int_t>(std::floor(hi)));
   lb_str += buf;
   result->tags_ [lb_str] = 1.0;
 
@@ -226,7 +222,7 @@ namespace dqm_algorithms {
     TH1* histogram;
     if(object.IsA()->InheritsFrom("TH1")) //or this can be done via dynamic casting
       { 
-	histogram = (TH1*) &(object);
+	histogram = (TH1*) &(object); //c-style cast to avoid const propagation problem later
 	if (histogram->GetDimension() > 2 ){
 	  throw dqm_core::BadConfig( ERS_HERE, m_name, "called with histogram of dimension > 2"  );
 	}
@@ -244,7 +240,7 @@ namespace dqm_algorithms {
       }
 
     else {   //running in 2D mode {
-      TH1* proj =  ((TH2*) histogram)->ProjectionY("", 0, 0);
+      TH1* proj =  (static_cast<TH2*>(histogram) )->ProjectionY("", 0, 0);
       if (proj->GetNbinsX() >= 1) {
 	binwidth = proj ->GetBinWidth(1);
       } else {
@@ -303,7 +299,6 @@ namespace dqm_algorithms {
     if (histogram->GetDimension() == 1) {
       
       fitSingle(histogram);
-      // double minSig = dqm_algorithms::tools::GetFirstFromMap("minSignificance", mymap, 0);
 
       try {
 	
@@ -326,7 +321,7 @@ namespace dqm_algorithms {
       bool writeSig = (dqm_algorithms::tools::GetFirstFromMap("reportSignificance", mymap, 0) == 1);
       
       
-      unsigned int psz = (unsigned int) TMath::Log10(nxbin)+1;
+      unsigned int psz = (unsigned int) std::log10(nxbin)+1;
 
       std::vector<int> goodLB;
       char buf[10];
@@ -340,7 +335,6 @@ namespace dqm_algorithms {
 	if (good_entries < minEvents) {
 	  if (writeSig)
 	    result->tags_[sig_str+buf] = 0;
-	  //delete proj; //// possible HACK, NOT SURE if needed
 	  continue; //nothing to fit here, move along
 	}
 
@@ -365,22 +359,19 @@ namespace dqm_algorithms {
 	    result->tags_[sig_str+buf] = 0;
 	  continue;
 	}
-	Double_t sig = fabs(m_gaus3_fn->GetParameter(4) / m_gaus3_fn->GetParError(4));
+	Double_t sig = std::abs(m_gaus3_fn->GetParameter(4) / m_gaus3_fn->GetParError(4));
 	if (writeSig)
 	  result->tags_[sig_str+buf] = sig;
 
 	if (sig > minsig) 
 	  goodLB.push_back(lb); //this is grossly non-optimal
 
-	//delete proj;
 	
       } //end loop over lumi blocks
 
       if (goodLB.size() != 0) 
 	multLB_writeTags(&goodLB, result, histogram);
 
-      //goodLB->Set(count);
-      // result->object_ = goodLB;  this needs to be done at construction time apparently
     }
     return result; 
   }
@@ -421,31 +412,9 @@ namespace dqm_algorithms {
       m_gaus3_fn->FixParameter(5, 0.0);
     else {
       m_gaus3_fn->SetParameter(5, startVal);
-      //  m_gaus3_fn->SetParLimits(5, 0, 5 * startVal);
     }
 
-    /*  This is the old and obsolete method to extract limits
-    Double_t startVal = getStartValue(hist1D, 46, 58);   //was 51-53
-    if (startVal == 0.0)
-	m_gaus3_fn->FixParameter(3, 0.0);
-      else {
-	m_gaus3_fn->SetParameter(3, startVal);
-        m_gaus3_fn->SetParLimits(3, 0, 5 * startVal);   //not sure if this sort of bound is necessary, but who knows...
-      }
-      startVal = getStartValue(hist1D, 70, 82); // was 75-77
-      if (startVal == 0.0)
-	m_gaus3_fn->FixParameter(4, 0.0);
-      else {
-	m_gaus3_fn->SetParameter(4, startVal);
-	m_gaus3_fn->SetParLimits(4, 0, 100 * startVal);  //for some reason this seems to want more
-      }
-      startVal = getStartValue(hist1D, 93, 106); //was 98-101
-      if (startVal == 0.0)
-	m_gaus3_fn->FixParameter(5, 0.0);
-      else {
-	m_gaus3_fn->SetParameter(5, startVal);
-	m_gaus3_fn->SetParLimits(5, 0, 5 * startVal);
-      }  */
+ 
       
       hist1D->Fit(m_gaus3_fn, "QN");
 

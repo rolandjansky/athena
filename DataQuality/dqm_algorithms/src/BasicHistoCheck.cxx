@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*! \file BasicHistoCheck.cxx checks basic histogram quanitites like over/underflow; if filled and returns dqm_core::Result

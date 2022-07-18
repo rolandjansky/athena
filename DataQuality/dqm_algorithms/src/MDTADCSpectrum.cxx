@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
@@ -9,9 +9,6 @@
 
 #include "dqm_algorithms/MDTADCSpectrum.h"
 
-#include <cmath>
-#include <iostream>
-#include <map>
 
 #include <TClass.h>
 #include <TH1.h>
@@ -23,6 +20,9 @@
 #include "dqm_core/Result.h"
 #include "dqm_algorithms/tools/AlgorithmHelper.h"
 #include "ers/ers.h"
+#include <cmath>
+#include <iostream>
+#include <map>
 
 
 static dqm_algorithms::MDTADCSpectrum staticInstance;
@@ -170,12 +170,12 @@ MDTADCSpectrum::execute( const std::string& name, const TObject& object, const d
 
     //Bernulli distribution
 
-    sigma_hist= sqrt(f*(1-f)/N);
-    sigma_ref= sqrt(f_r*(1-f_r)/N_ref); 
+    sigma_hist= std::sqrt(f*(1-f)/N);
+    sigma_ref= std::sqrt(f_r*(1-f_r)/N_ref); 
 
     F=f/f_r;
 
-    sigma = F*sqrt((sigma_hist/f)*(sigma_hist/f)+(sigma_ref/f_r)*(sigma_ref/f_r));
+    sigma = F*std::sqrt((sigma_hist/f)*(sigma_hist/f)+(sigma_ref/f_r)*(sigma_ref/f_r));
 
 
   };

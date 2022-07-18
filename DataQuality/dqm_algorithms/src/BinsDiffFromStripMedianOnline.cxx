@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*  BinsDiffFromStripMedianOnline.cxx is to pick out the problematic bins in 2D histogram assuming that y-axis(the phi direction) be symmetric. 
@@ -16,12 +16,11 @@
 #include <TH1.h>
 #include <TF1.h>
 #include <TClass.h>
-#include <math.h>
+#include <cmath>
 
 #include <iostream>
 #include <string>
 
-using namespace std;
 
 //bool mySortfunc(binOnline i,binOnline j){return (i.m_value > j.m_value);}
 //bool mySortfunc_ratio(binOnline i, binOnline j){return (i.m_outstandingRatio> j.m_outstandingRatio);}
@@ -87,10 +86,10 @@ dqm_core::Result * dqm_algorithms::BinsDiffFromStripMedianOnline::execute(const 
   }
   
   std::vector<int> range=dqm_algorithms::tools::GetBinRange(histogram, config.getParameters()); 
-  vector<double> stripsSize;
-  vector<double> stripsMedian;
-  vector<double> stripsAvg; 
-  vector<double> stripsVariance;
+  std::vector<double> stripsSize;
+  std::vector<double> stripsMedian;
+  std::vector<double> stripsAvg; 
+  std::vector<double> stripsVariance;
   double maxInMap=0;
 
   if ( (int)range.size() < 4 ){
@@ -98,11 +97,11 @@ dqm_core::Result * dqm_algorithms::BinsDiffFromStripMedianOnline::execute(const 
   }
 
   for ( int i = range[0]; i <= range[1]; ++i ) {
-    vector<double> onestrip;
+    std::vector<double> onestrip;
     double stripSum=0;
     for ( int j = range[2]; j <= range[3]; ++j ) {
       float binvalue = histogram->GetBinContent(i,j);
-      if (fabs(binvalue- ignoreval1)<0.0001 || fabs(binvalue - ignoreval2)<0.0001) continue;
+      if (std::abs(binvalue- ignoreval1)<0.0001 || std::abs(binvalue - ignoreval2)<0.0001) continue;
       onestrip.push_back(binvalue);
       stripSum += binvalue;
       if(binvalue > maxInMap) {
@@ -125,10 +124,10 @@ dqm_core::Result * dqm_algorithms::BinsDiffFromStripMedianOnline::execute(const 
     float strip_avg = stripsAvg[i-range[0]];
  
     for ( int j = range[2]; j <= range[3]; ++j ) {
-      if (fabs(histogram->GetBinContent(i,j)-ignoreval1)<0.0001 || fabs(histogram->GetBinContent(i,j)-ignoreval2)<0.0001) continue;
+      if (std::abs(histogram->GetBinContent(i,j)-ignoreval1)<0.0001 || std::abs(histogram->GetBinContent(i,j)-ignoreval2)<0.0001) continue;
       double binvalue = histogram->GetBinContent(i,j);
       double diff=binvalue-strip_avg;
-      sumdiff2 +=pow(diff,2);
+      sumdiff2 +=std::pow(diff,2);
       counter++;
     }
     double variance=-1;
@@ -137,9 +136,9 @@ dqm_core::Result * dqm_algorithms::BinsDiffFromStripMedianOnline::execute(const 
   }
 
   dqm_core::Result* result = new dqm_core::Result();
-  vector<binOnline> redbins;
-  vector<binOnline> yellowbins;
-  vector<binOnline> Allbins;
+  std::vector<binOnline> redbins;
+  std::vector<binOnline> yellowbins;
+  std::vector<binOnline> Allbins;
   int limit = range[1]-range[0];
   for ( int q=0; q <= limit; ++q ) {
     int k=q+range[0];
@@ -160,23 +159,23 @@ dqm_core::Result * dqm_algorithms::BinsDiffFromStripMedianOnline::execute(const 
     double strip_variance = stripsVariance[q];
     double strip_avg = stripsAvg[q];
 
-    if(fabs(strip_median)<0.0001 && fabs(strip_variance)<0.0001){ 
+    if(std::abs(strip_median)<0.0001 && std::abs(strip_variance)<0.0001){ 
       continue; // skip empty strip
     }else {
-      if(fabs(strip_median)<0.0001 && fabs(strip_variance)>0.0001 && fabs(strip_avg)>0.0001) {
+      if(std::abs(strip_median)<0.0001 && std::abs(strip_variance)>0.0001 && std::abs(strip_avg)>0.0001) {
 	strip_median = strip_avg;
       } else{
-	if(fabs(strip_median)<0.0001 && fabs(strip_variance)>0.0001 && fabs(strip_avg)<0.0001) continue;
+	if(std::abs(strip_median)<0.0001 && std::abs(strip_variance)>0.0001 && std::abs(strip_avg)<0.0001) continue;
       }
     }
 
  
     for ( int l = range[2]; l <= range[3]; ++l ) {
       double binvalue = histogram->GetBinContent(k,l);
-      if (fabs(binvalue-ignoreval1)<0.0001 || fabs(binvalue-ignoreval2)<0.0001) continue;
+      if (std::abs(binvalue-ignoreval1)<0.0001 || std::abs(binvalue-ignoreval2)<0.0001) continue;
       double outstandingRatio=0; 
-      if(fabs(strip_median) > 0.0001 ){
-	outstandingRatio= /*binvalue/strip_median*/ (binvalue-strip_median)/sqrt(fabs(strip_median));
+      if(std::abs(strip_median) > 0.0001 ){
+	outstandingRatio= /*binvalue/strip_median*/ (binvalue-strip_median)/std::sqrt(std::abs(strip_median));
       }else{
 	continue;
       }
@@ -185,12 +184,12 @@ dqm_core::Result * dqm_algorithms::BinsDiffFromStripMedianOnline::execute(const 
       binOnline onebin = {eta,phi,k,l,binvalue,outstandingRatio};
       Allbins.push_back(onebin);
       //      if( VisualMode  && (binvalue / maxInMap < suppressFactor) ) continue;
-      if(fabs(outstandingRatio) > rthreshold ) {
+      if(std::abs(outstandingRatio) > rthreshold ) {
         if( VisualMode  && (binvalue / maxInMap < suppressRedFactor) ){
 	  continue;
 	}
         redbins.push_back(onebin);
-      }else if(fabs(outstandingRatio) > gthreshold ){ 
+      }else if(std::abs(outstandingRatio) > gthreshold ){ 
 	if( VisualMode  && (binvalue / maxInMap < suppressFactor) ){
 	  continue;
 	}
@@ -200,13 +199,13 @@ dqm_core::Result * dqm_algorithms::BinsDiffFromStripMedianOnline::execute(const 
   }
   int count_red_c = 0;
   int count_yellow_c = 0;
-  vector<vector<colorbinOnline> > ColorBinMap;
+  std::vector<std::vector<colorbinOnline> > ColorBinMap;
   if(ClusterResult){
     // initialize ColorBinMap
     int limit = range[1]-range[0];
     for ( int q = 0; q <= limit; ++q ) {
       int k =q+range[0];
-      vector<colorbinOnline> oneColorStrip;
+      std::vector<colorbinOnline> oneColorStrip;
       for ( int l = range[2]; l <= range[3]; ++l ) {
 	//     colorbinOnline oneColorBin = {k,l,-1,-1,-1,green,1};
 	colorbinOnline oneColorBin = {-1,-1,k,l,-1,green,1};
@@ -261,7 +260,7 @@ dqm_core::Result * dqm_algorithms::BinsDiffFromStripMedianOnline::execute(const 
 
 
     // cluster bad bins
-    vector<colorclusterOnline > clusterArray;
+    std::vector<colorclusterOnline > clusterArray;
     for(unsigned int i=0;i<redbins.size();i++){
       //   const int k=redbins[i].m_ix;
       //   const int l=redbins[i].m_iy;
@@ -411,7 +410,7 @@ dqm_core::Result * dqm_algorithms::BinsDiffFromStripMedianOnline::execute(const 
   
 }
 
-void dqm_algorithms::BinsDiffFromStripMedianOnline::FindStripMedianOnline(const std::string &  name,vector<double> onestrip_tmp,vector<double>& stripsMedian){
+void dqm_algorithms::BinsDiffFromStripMedianOnline::FindStripMedianOnline(const std::string &  name,std::vector<double> onestrip_tmp,std::vector<double>& stripsMedian){
   double median=0;
   //  if(onestrip_tmp.size()==0) stripsMedian.push_back(median);
   //  else{
@@ -434,12 +433,12 @@ void dqm_algorithms::BinsDiffFromStripMedianOnline::FindStripMedianOnline(const 
   //  }
 }
 
-void dqm_algorithms::BinsDiffFromStripMedianOnline::AddToList(const int r0,const int r2,int i,int j,vector<vector<colorbinOnline> > & ColorBinMap, vector<colorbinOnline>& LookAtList){
+void dqm_algorithms::BinsDiffFromStripMedianOnline::AddToList(const int r0,const int r2,int i,int j,std::vector<std::vector<colorbinOnline> > & ColorBinMap, std::vector<colorbinOnline>& LookAtList){
 
   if( i-r0<0 || i-r0>=(int)ColorBinMap.size())  return;
   if( j-r2<0 || j-r2>=(int)ColorBinMap[i-r0].size() ) return;
 
-  vector<colorbinOnline> tmp;
+  std::vector<colorbinOnline> tmp;
 
   if(i-1-r0>=0 && i-1-r0<(int)ColorBinMap.size()){
     if(j-1-r2>=0 && j-1-r2<(int)ColorBinMap[i-1-r0].size()){
@@ -524,7 +523,7 @@ void dqm_algorithms::BinsDiffFromStripMedianOnline::AddToList(const int r0,const
 
 }
 
-double dqm_algorithms::BinsDiffFromStripMedianOnline::CalEta(vector<colorbinOnline>& LookAtList){
+double dqm_algorithms::BinsDiffFromStripMedianOnline::CalEta(std::vector<colorbinOnline>& LookAtList){
   double sumEta=0;
   double sumN=0;
   for(unsigned int i=0;i<LookAtList.size();i++){
@@ -540,7 +539,7 @@ double dqm_algorithms::BinsDiffFromStripMedianOnline::CalEta(vector<colorbinOnli
   }
 }
 
-double dqm_algorithms::BinsDiffFromStripMedianOnline::CalPhi(vector<colorbinOnline>& LookAtList){
+double dqm_algorithms::BinsDiffFromStripMedianOnline::CalPhi(std::vector<colorbinOnline>& LookAtList){
   double sumPhi=0;
   double sumN=0;
   for(unsigned int i=0;i<LookAtList.size();i++){
@@ -556,7 +555,7 @@ double dqm_algorithms::BinsDiffFromStripMedianOnline::CalPhi(vector<colorbinOnli
   }
 }
 
-double dqm_algorithms::BinsDiffFromStripMedianOnline::CalVal(vector<colorbinOnline>& LookAtList){
+double dqm_algorithms::BinsDiffFromStripMedianOnline::CalVal(std::vector<colorbinOnline>& LookAtList){
   double sumN=0;
   for(unsigned int i=0;i<LookAtList.size();i++){
     double n = LookAtList[i].m_value;
@@ -564,18 +563,18 @@ double dqm_algorithms::BinsDiffFromStripMedianOnline::CalVal(vector<colorbinOnli
   }
   return sumN;
 }
-double dqm_algorithms::BinsDiffFromStripMedianOnline::CalR(vector<colorbinOnline>& LookAtList,double eta, double phi){
+double dqm_algorithms::BinsDiffFromStripMedianOnline::CalR(std::vector<colorbinOnline>& LookAtList,double eta, double phi){
   if(LookAtList.size()<2) return 0;
   double maxR=0;
   for(unsigned int i=0;i<LookAtList.size();i++){
-    double distance = sqrt(pow((LookAtList[i].m_eta-eta),2)+pow((LookAtList[i].m_phi-phi),2));
+    double distance = std::sqrt(std::pow((LookAtList[i].m_eta-eta),2)+std::pow((LookAtList[i].m_phi-phi),2));
     maxR=distance>maxR?distance:maxR;
   }
   return maxR;
 }
 
 dqm_algorithms::BinsDiffFromStripMedianOnline::colorclusterOnline
-dqm_algorithms::BinsDiffFromStripMedianOnline::MakeClusterOnline(const std::string &  name,const int r0,const int r2,binOnline& onebin, vector<vector<colorbinOnline> > & ColorBinMap){
+dqm_algorithms::BinsDiffFromStripMedianOnline::MakeClusterOnline(const std::string &  name,const int r0,const int r2,binOnline& onebin, std::vector<std::vector<colorbinOnline> > & ColorBinMap){
   colorclusterOnline onecluster={0,0,0,0,green,-1};
 
   if ((int)ColorBinMap.size() <= (onebin.m_ix-r0) ){
@@ -588,7 +587,7 @@ dqm_algorithms::BinsDiffFromStripMedianOnline::MakeClusterOnline(const std::stri
 
   if(ColorBinMap[onebin.m_ix-r0][onebin.m_iy-r2].m_status==0)
     return onecluster;
-  vector<colorbinOnline> LookAtList;
+  std::vector<colorbinOnline> LookAtList;
   if(ColorBinMap[onebin.m_ix-r0][onebin.m_iy-r2].m_color!=green){
     LookAtList.push_back(ColorBinMap[onebin.m_ix-r0][onebin.m_iy-r2]);
     ColorBinMap[onebin.m_ix-r0][onebin.m_iy-r2].m_status=0;

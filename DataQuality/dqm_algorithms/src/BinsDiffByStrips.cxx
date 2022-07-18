@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*! \file BinsDiffByStrips.cxx calculates average bin value for a strip of bins and finds bins that are outliers from that strip. DQ decision based on worst bin only, not number of bad bins.
@@ -20,10 +20,10 @@
 #include <TObjArray.h>
 #include <TMath.h>
 
-#include <math.h>
+#include <cmath>
 #include <string>
+#include <algorithm> // for std::sort
 
-using namespace std;
 
 static dqm_algorithms::BinsDiffByStrips myInstance;
 
@@ -106,10 +106,10 @@ dqm_algorithms::BinsDiffByStrips::execute(const std::string &  name,
 
   // Parameter for exclusion of bins from consideration:
   const double ignoreValue = dqm_algorithms::tools::GetFirstFromMap( "ignoreval", config.getParameters(), -99999);
-  const double minError = dqm_algorithms::tools::GetFirstFromMap( "minError", config.getParameters(), /*0.00001*/ -1); 
+  const double minError = dqm_algorithms::tools::GetFirstFromMap( "minError", config.getParameters(), -1); 
 
   // Parameter giving the range of the histogram to be tested:  
-  vector<int> range;
+  std::vector<int> range;
   try{
   range=dqm_algorithms::tools::GetBinRange(histogram, config.getParameters()); 
   }
@@ -178,8 +178,7 @@ dqm_algorithms::BinsDiffByStrips::execute(const std::string &  name,
   // Parameter to declare a bin as green regardless of its relative deviation: (Also will exclude this bin from any clustering of bad bins)
   double absDiffGreenThresh = dqm_algorithms::tools::GetFirstFromMap("AbsDiffGreenThresh", config.getParameters(), 0); 
 
-  //  double maxdiffabs = dqm_algorithms::tools::GetFirstFromMap( "MaxDiffAbs", config.getParameters(), -1); 
-  //  double maxdiffrel = dqm_algorithms::tools::GetFirstFromMap( "MaxDiffRel", config.getParameters(), -1);
+  
 
 
   
@@ -199,16 +198,7 @@ dqm_algorithms::BinsDiffByStrips::execute(const std::string &  name,
   double emptyRatio = dqm_algorithms::tools::GetFirstFromMap("EmptyRatio",
 config.getParameters(), 0.3);
   double outstandingRatio = dqm_algorithms::tools::GetFirstFromMap("OutstandingRatio",config.getParameters(), 50);
-//test_begin
-/*
-out<<"histogram Name: "<<histogram->GetName()<<std::endl;
-out<<"nIter : "<<nIter<<std::endl;
-out<<"iterThresh: "<<iterThresh<<std::endl;
-out<<"iVarExp : "<<iVarExp<<std::endl;
-out<<"isbf: "<<isbf<<std::endl;
-out<<"ibc: "<<ibc<<std::endl;
-*/
-//test_end
+
   //=======================================================
   //-- Setup --
   //=======================================================
@@ -226,8 +216,8 @@ out<<"ibc: "<<ibc<<std::endl;
 
   //Build vectors to store the axis information more efficiently, keeping to Root's use of overflow bins to keep things
   //intuitive, aswell as temporary arrays to facilitate booking of results histograms:
-  vector<double> xBinCenters;
-  vector<double> yBinCenters;
+  std::vector<double> xBinCenters;
+  std::vector<double> yBinCenters;
   double * xBinEdges = new double[ixmax+1];
   double * yBinEdges = new double[iymax+1];
 
@@ -284,15 +274,15 @@ out<<"ibc: "<<ibc<<std::endl;
   //===============================================================================================
   // Examination of bin values, filling of result histograms, and determination of dq result:
 
-  vector<vector<tools::binContainer> > strips;
+  std::vector<std::vector<tools::binContainer> > strips;
 //test_change begin
-vector<tools::binContainer> AllBinInOneStrip;
+std::vector<tools::binContainer> AllBinInOneStrip;
 double emptyBinCounter=0;
 int name_flag = 0;
 //test_change end
   //Loop to process histogram and pack it into a vector of strip vectors:
   for ( int is = 1; is <= ismax; is++ ) {
-    vector<tools::binContainer> inputs;
+    std::vector<tools::binContainer> inputs;
  
     int ix = is;
     int iy = 1;
@@ -314,16 +304,13 @@ int name_flag = 0;
       double error = histogram->GetBinError(bin);
       inputBins->SetBinContent(ix,iy,value);
       inputBins->SetBinError(ix,iy,error);
-//test_change begin
       if(value==0) emptyBinCounter++;
-//test_change end
 tools::binContainer binContent_tmp = {value,error,1,ix,iy,xBinCenters[ix],yBinCenters[iy] };
 AllBinInOneStrip.push_back(binContent_tmp);
       if( (value != ignoreValue) && (error > minError) ){
       tools::binContainer binContent = {value,error,1,ix,iy,xBinCenters[ix],yBinCenters[iy] };
 
 	 inputs.push_back(binContent);
-//        AllBinInOneStrip.push_back(binContent);
       }
       else {
 	nBinsDisabled++;
@@ -348,19 +335,16 @@ AllBinInOneStrip.push_back(binContent_tmp);
 
 
   //Vectors to store values for chi-squared test, if one is performed: (could one be performed on deviations alone?)
-  vector<double> inputValues;
-  vector<double> inputErrors;
-  vector<double> stripAveragesVector;
-  vector<double> stripErrors;
+  std::vector<double> inputValues;
+  std::vector<double> inputErrors;
+  std::vector<double> stripAveragesVector;
+  std::vector<double> stripErrors;
 
-  vector<tools::binContainer> deviations;
+  std::vector<tools::binContainer> deviations;
   //Loop over strips:
-  for( vector<vector<tools::binContainer> >::iterator stripItr = strips.begin(); stripItr != strips.end(); ++stripItr ) {
-//test_change begin
-//out<<"************ im here 1************"<<std::endl;
-//test_change end
+  for( std::vector<std::vector<tools::binContainer> >::iterator stripItr = strips.begin(); stripItr != strips.end(); ++stripItr ) {
+
     if ( stripItr->empty() ) {
-//out<<" this strip is empty"<<std::endl;
       continue;
     }
 
@@ -380,14 +364,9 @@ AllBinInOneStrip.push_back(binContent_tmp);
     // if not, either label them all as undefined (error = -1) or combine with the next strip:
     // (Note: in the second case we do not reset binContent.test: 
     //        outliers found here will be excluded in the first iteration when they are processed with the next strip)
-//test_change begin
-//out<<"iScal: "<<iScale<<std::endl;
-//out<<"stripAvg: "<<stripAvg<<std::endl;
-//out<<"nIn: "<<nIn<<std::endl;
-//out<<"minBinsAfterSkimming: "<<minBinsAfterSkimming<<std::endl;
-//test_change end
+
     if ( (nIn < minBinsAfterSkimming) ) {
-      for (vector<tools::binContainer>::const_iterator it = stripItr->begin(); it != stripItr->end(); ++it) {
+      for (std::vector<tools::binContainer>::const_iterator it = stripItr->begin(); it != stripItr->end(); ++it) {
 	tools::binContainer deviationContainer = { 0, -3, -13, it->ix, it->iy, it->x, it->y };
 	deviations.push_back(deviationContainer);
       }
@@ -399,10 +378,8 @@ AllBinInOneStrip.push_back(binContent_tmp);
     double stripVarianceError = 0;
     double stripAvgError = 0;
     double err2Sum = 0;
-//  out<<"useMeanErrorForScale : "<<useMeanErrorForScale<<std::endl; 
 
     if( !useMeanErrorForScale ) {
-//  out<<"********** im here 2 *************"<<std::endl;
       // We will now calculate the variance with two methods, one using the the number of bins in (nIn), the number out, 
       // and range from above, and one looking at the standard variance of the nIn bins in inputs marked as good by 
       // findOutliers. We will then take a weighted average of the two measures as our final estimate of the variance of
@@ -418,7 +395,7 @@ AllBinInOneStrip.push_back(binContent_tmp);
       nIn = 0;
   
       
-      for (vector<tools::binContainer>::const_iterator it = stripItr->begin(); it != stripItr->end(); ++it) {
+      for (std::vector<tools::binContainer>::const_iterator it = stripItr->begin(); it != stripItr->end(); ++it) {
 	//it->test will evaluate as true iff tools::findOutliers determined it was sufficiently close to the mean 
 	// to not be a variance spoiling outlier:
          
@@ -432,13 +409,13 @@ AllBinInOneStrip.push_back(binContent_tmp);
 	  nIn++;
 	  
 	  double diffFromAvg = it->value - stripAvg;
-	  sumSquaredDiffFromAvg += pow( diffFromAvg, 2);
+	  sumSquaredDiffFromAvg += std::pow( diffFromAvg, 2);
 	  sumCompensator += ( diffFromAvg ); //Use to compensate for floating point issues if they should crop up: 
 	  // (would be zero if precision was perfect)
 	  
-	  double inputErr2 = pow(it->error,2.);
+	  double inputErr2 = std::pow(it->error,2.);
 	  err2Sum += inputErr2;
-	  err2Diff2Sum += inputErr2 * pow( diffFromAvg, 2);
+	  err2Diff2Sum += inputErr2 * std::pow( diffFromAvg, 2);
 	}
       }  
 
@@ -449,16 +426,14 @@ AllBinInOneStrip.push_back(binContent_tmp);
       //Method 1: ErfInverse:
       double countingVariance = 0;
       double countingWeight = 0;
-//      out<<"nTot: "<<nTot<<std::endl;
-//      out<<"range: "<< range<<"  max: "<<max<<"  min: "<<min<<std::endl;
+
       if( (nTot != 0) && (range != 0) && ((nTot - nIn) != 0) ) {
 	double erfin = TMath::ErfInverse( (1.0 * nIn) / nTot );
-	double erfin2 = pow(erfin,2);
-//        out<<"erfin: "<<erfin<<std::endl;
-//        out<<"erfin2: "<<erfin2<<std::endl;
+	double erfin2 = std::pow(erfin,2);
+
 	if( erfin2 != 0 ) {
-	  countingVariance = range / (erfin * 2 * sqrt(2));
-	  countingWeight = 8 * pow(erfin2 / (range * exp(erfin2)),2) * pow(1.0 * nTot,3.) / (TMath::Pi() * nIn * (nTot - nIn));
+	  countingVariance = range / (erfin * 2 * std::sqrt(2));
+	  countingWeight = 8 * std::pow(erfin2 / (range * std::exp(erfin2)),2) * std::pow(1.0 * nTot,3.) / (M_PI * nIn * (nTot - nIn));
 	}
       }
 
@@ -467,8 +442,8 @@ AllBinInOneStrip.push_back(binContent_tmp);
       double boundedWeight = 0;
       double sumWeights = 0;
       if(nIn > 2) {
-	S2 = (sumSquaredDiffFromAvg - (pow(sumCompensator,2)/nIn) )/(nIn - 1); 
-	boundedVariance = sqrt(S2);
+	S2 = (sumSquaredDiffFromAvg - (std::pow(sumCompensator,2)/nIn) )/(nIn - 1); 
+	boundedVariance = std::sqrt(S2);
 	double boundEffect = 1;
 	double U = 0;
 	if( countingVariance != 0 ) {
@@ -485,7 +460,7 @@ AllBinInOneStrip.push_back(binContent_tmp);
 	}
 	double boundedErr2 = 0;
 	if (S2 != 0) {
-	  boundedErr2 = ( pow( err2Diff2Sum / (pow(nIn-1,2.) * S2), 2) + pow( boundedVariance*(1 - boundEffect)/2,2) );
+	  boundedErr2 = ( std::pow( err2Diff2Sum / (std::pow(nIn-1,2.) * S2), 2) + std::pow( boundedVariance*(1 - boundEffect)/2,2) );
 	}
 	if( boundedErr2 != 0 ) {
 	  boundedWeight = 1/boundedErr2;
@@ -498,56 +473,46 @@ AllBinInOneStrip.push_back(binContent_tmp);
 	  if(stripVariance != 0 ) {
 	    boundEffect = TMath::Erf( range / (4 * stripVariance) );
 	    if( boundEffect != 0 ) {
-	      boundedVariance = sqrt(S2) / boundEffect;
-	      boundedErr2 = ( pow( err2Diff2Sum / (pow(nIn-1,2.) * S2), 2) + pow( boundedVariance*(1 - boundEffect)/2,2) );
+	      boundedVariance = std::sqrt(S2) / boundEffect;
+	      boundedErr2 = ( std::pow( err2Diff2Sum / (std::pow(nIn-1,2.) * S2), 2) + std::pow( boundedVariance*(1 - boundEffect)/2,2) );
 	    }
 	  }
 	}
-//test_change begin
-//out<<"iScale: "<<iScale<<std::endl;
-//test_change end
+
 
       }
       else if ( iScale != 0 ){
 	//Use the iScale as a last resort, as method 1 is not very good with nIn <= 2 either, but give it a big error
 	boundedVariance = iScale;
-	boundedWeight = pow(iScale, -2);
+	boundedWeight = std::pow(iScale, -2);
       }
     
       // Make final Combination of the two variance estimations, weighted with their errors:
       sumWeights = ( countingWeight + boundedWeight );
       stripVariance = 0;
-//test_change begin
-//out<<"countingWeight: "<<countingWeight<<std::endl;
-//out<<"boundedWeight: "<<boundedWeight<<std::endl;
-//out<<"sumWeights: "<<sumWeights<<std::endl;
-//test_change end
+
       if(sumWeights != 0) {
 	stripVariance = (countingVariance * countingWeight + boundedVariance * boundedWeight ) / sumWeights;
-	stripVarianceError = 1/sqrt(sumWeights);
-//test_change begin
-//   out<<"stripVariance: "<<stripVariance<<std::endl;
-//   out<<"stripVariance Error: "<<stripVarianceError<<std::endl;
+	stripVarianceError = 1./std::sqrt(sumWeights);
  
-//test_change end
       }
     }
     else if (nIn > 2) {
       // Just calculate error based quantities and use these:
-      for (vector<tools::binContainer>::const_iterator it = stripItr->begin(); it != stripItr->end(); ++it) {
+      for (std::vector<tools::binContainer>::const_iterator it = stripItr->begin(); it != stripItr->end(); ++it) {
 	//it->test will evaluate as true iff tools::findOutliers determined it was sufficiently close to the mean 
 	// to not be a variance spoiling outlier:
 	if(it->test){
-	  err2Sum += pow(it->error,2.);
+	  err2Sum += std::pow(it->error,2.);
 	}
       }
-      stripVariance = sqrt( err2Sum / nIn ); //<- what we would expect the variance to be if the errors are correct
-      stripVarianceError = stripVariance / sqrt( nIn );
+      stripVariance = std::sqrt( err2Sum / nIn ); //<- what we would expect the variance to be if the errors are correct
+      stripVarianceError = stripVariance / std::sqrt( nIn );
     }
  
      
     // Calculate error on the mean:
-    stripAvgError = sqrt(err2Sum)/nIn;
+    stripAvgError = std::sqrt(err2Sum)/nIn;
 
     int is = 0;
     if (yStrips) {
@@ -565,7 +530,7 @@ AllBinInOneStrip.push_back(binContent_tmp);
 
 
     if(doChiSquaredTest) {
-      for (vector<tools::binContainer>::const_iterator it = stripItr->begin(); it != stripItr->end(); ++it) {
+      for (std::vector<tools::binContainer>::const_iterator it = stripItr->begin(); it != stripItr->end(); ++it) {
 	inputValues.push_back( it->value );
 	inputErrors.push_back( 0. );
 	stripAveragesVector.push_back( stripAvg );
@@ -574,44 +539,28 @@ AllBinInOneStrip.push_back(binContent_tmp);
     }
  
     //Now find the deviation from the strip average, in multiples of the strip variance, for each bin in this strip:
-    for (vector<tools::binContainer>::const_iterator it = stripItr->begin(); it != stripItr->end(); ++it) {
-//out<<"********** im here 5 *************"<<std::endl;
+    for (std::vector<tools::binContainer>::const_iterator it = stripItr->begin(); it != stripItr->end(); ++it) {
       double deviation = 0;
       double deviationError = -1;
       double diffFromAvg = it->value - stripAvg;
-/*      if(it->iy==26 && it->ix==71) {
-          out<<"bin value: "<<it->value<<std::endl;
-          out<<"bin error: "<<it->error<<std::endl;
-          out<<"stripAvg: "<<stripAvg<<std::endl;
-          out<<"stripAvgError: "<<stripAvgError<<std::endl;
-          out<<"diffFromAvg: "<<diffFromAvg<<std::endl;
-          out<<"stripVariance: "<<stripVariance<<std::endl;
-          out<<"stripVarianceError: "<<stripVarianceError<<std::endl;           
-     }
-*/
+
 // test_change begin
         if(stripVariance > 0.00001){
 	deviation = diffFromAvg / stripVariance;
-//        if(it->iy==26 && it->ix==71) out<<"deviation: "<<deviation<<std::endl;
 	if ( nIn > 1 ) {
-	  deviationError = sqrt( (( pow(it->error,2) + pow(stripAvgError,2) ) / pow(stripVariance,2))
-				 + ( pow(diffFromAvg,2) * pow(stripVarianceError,2) / pow(stripVariance,4)) );
-/*        if(it->iy==26 && it->ix==71) {
-            out<<"deviationError: "<<deviationError<<std::endl;
-            out<<" eta & phi: "<<it->x << "  "<< it->y<<std::endl;
-        }
-*/
+	  deviationError = sqrt( (( std::pow(it->error,2) + std::pow(stripAvgError,2) ) / std::pow(stripVariance,2))
+				 + ( std::pow(diffFromAvg,2) * std::pow(stripVarianceError,2) / std::pow(stripVariance,4)) );
+
 	}
       }
       else {deviation=0;
             deviationError=0;
-            if( (it->test==0) && (fabs(it->value)/fabs(stripAvg)) > outstandingRatio ) {
+            if( (it->test==0) && (std::abs(it->value)/std::abs(stripAvg)) > outstandingRatio ) {
               name_flag = 1; 
-       //       out<<"outstandingRatio "<<outstandingRatio<<std::endl;
             }
       }  //test_change
       int binStatus = 0;
-      if ( fabs(diffFromAvg) < (absDiffGreenThresh + sqrt(pow(it->error,2) + (err2Sum/nIn))) ) {
+      if ( std::abs(diffFromAvg) < (absDiffGreenThresh + std::sqrt(std::pow(it->error,2) + (err2Sum/nIn))) ) {
 	binStatus = 3;
       }
       //Save bin for future processing and tests:
@@ -620,25 +569,24 @@ AllBinInOneStrip.push_back(binContent_tmp);
       //Write bin to result histogram:
       int bin = binDeviations->GetBin(it->ix,it->iy);
       binDeviations->SetBinContent(bin,deviation);
-//    binDeviations->SetBinError(bin,deviation);
       binDeviations->SetBinError(bin,deviationError); // i change this 
     }
   } 
 
 
   //If clustering of results is turned on, cluster the bins according to their deviation:
-  vector<tools::binCluster> clusters;
-  vector<tools::binCluster> redClusters;
-  vector<tools::binCluster> yellowClusters;
+  std::vector<tools::binCluster> clusters;
+  std::vector<tools::binCluster> redClusters;
+  std::vector<tools::binCluster> yellowClusters;
   if(clusterResults) {
         
     //First sort the bins:
     std::sort( deviations.begin(), deviations.end(), dqm_algorithms::tools::binContainer::comp );
 
     //Now map the deviations according to ix, iy, 
-    vector<vector<tools::binContainer*> > binMap = makeBinMap(deviations, ixmax, iymax, topology);
+    std::vector<std::vector<tools::binContainer*> > binMap = makeBinMap(deviations, ixmax, iymax, topology);
     //Now do the clustering:
-    for (vector<tools::binContainer>::iterator it = deviations.begin(); it != deviations.end(); ++it) {
+    for (std::vector<tools::binContainer>::iterator it = deviations.begin(); it != deviations.end(); ++it) {
       if( (it->value > seedThreshold + it->error) && !it->test ) {
 	tools::binCluster cluster = tools::buildCluster(*it,binMap,xBinCenters,yBinCenters,growthThreshold,topology);
 	if(cluster.n > 1) {
@@ -654,8 +602,8 @@ AllBinInOneStrip.push_back(binContent_tmp);
  
 
     //Score each cluster based on the significance of its total deviation: (Using the same criteria to be used for bins)
-    for( vector<tools::binCluster>::const_iterator it = clusters.begin(); it != clusters.end(); ++it) {
-      double fabsDeviation = fabs(it->value);
+    for( std::vector<tools::binCluster>::const_iterator it = clusters.begin(); it != clusters.end(); ++it) {
+      double fabsDeviation = std::abs(it->value);
       double significanceBound = sigmaThresh * it->error;
       bool overAvg = ( it->value >= 0 );
       if ( (findBinsOverAvg && overAvg) || (findBinsUnderAvg && !overAvg) ) {
@@ -679,7 +627,7 @@ AllBinInOneStrip.push_back(binContent_tmp);
   tools::binContainer maxDevBin = { 0, -999.9, 0, 0, 0, 0, 0 };
 
   // Now score each bin based on the significance of its deviation:
-  for (vector<tools::binContainer>::const_iterator it = deviations.begin(); it != deviations.end(); ++it) {
+  for (std::vector<tools::binContainer>::const_iterator it = deviations.begin(); it != deviations.end(); ++it) {
     int bin = binwiseStatus->GetBin(it->ix,it->iy);
     //Check for bins with no defined deviation / deviation error
     if ( it->error < 0 ) {
@@ -688,8 +636,8 @@ AllBinInOneStrip.push_back(binContent_tmp);
       continue;
     }
     //Check if this is the maximum deviation so far:
-    if (fabs(it->value) > fabs(maxDeviation) ) {   // i change the maxDeviation to 
-                                                   // fabs(maxDeviation)
+    if (std::abs(it->value) > std::abs(maxDeviation) ) {   // i change the maxDeviation to 
+                                                   // std::abs(maxDeviation)
       maxDeviation = it->value;
       maxDevBin = *it;
     }
@@ -701,7 +649,7 @@ AllBinInOneStrip.push_back(binContent_tmp);
     }
  
      
-    double fabsDeviation = fabs(it->value);
+    double fabsDeviation = std::abs(it->value);
     double significanceBound = sigmaThresh * it->error;
 
     //Flag Green bins:
@@ -746,16 +694,9 @@ AllBinInOneStrip.push_back(binContent_tmp);
 tools::binContainer onebin_my={0,0,0,0,0,0,0};
 tools::binContainer onebin_my_pre={0,0,0,0,0,0,0};
 double maxvalue_pre=-1;
-vector<tools::binContainer> topBinEntries;
-vector<tools::binContainer> topDeviations;
-//int name_flag = 0;
-//find_n(histogram->GetName(),name_flag);
-//if(histogram->GetEntries() < 20000 ) name_flag = 1; //try to deal with low stat case
+std::vector<tools::binContainer> topBinEntries;
+std::vector<tools::binContainer> topDeviations;
 double emptyRatio_this = emptyBinCounter/(histogram->GetNbinsX()*histogram->GetNbinsY());
-//std::string tmpname ;
-//tmpname = histogram->GetName();
-//if( tmpname.compare("etaphi_ncellinclus")==0 ) 
-//out<<"*********** emptyRatio_this is "<< emptyRatio_this << std::endl;
 if (emptyRatio_this > emptyRatio) name_flag=1;
 if(name_flag==1){
   int NTopEntries=0;
@@ -768,9 +709,9 @@ if(name_flag==1){
     double maxvalue=0;
     int counter=0;
     int counter2=0;
-    for(vector<tools::binContainer>::const_iterator it =AllBinInOneStrip.begin();it!=AllBinInOneStrip.end();++it){
+    for(std::vector<tools::binContainer>::const_iterator it =AllBinInOneStrip.begin();it!=AllBinInOneStrip.end();++it){
       int flag_my = i==0 || ( bin_entries_status[counter] && it->value <= maxvalue_pre);
-      if(fabs(it->value) >= fabs(maxvalue) && flag_my) {
+      if(std::abs(it->value) >= std::abs(maxvalue) && flag_my) {
          maxvalue = it->value; 
          onebin_my = *it; 
          counter2 = counter;
@@ -781,7 +722,6 @@ if(name_flag==1){
 if (onebin_my.x!= onebin_my_pre.x||onebin_my.y!=onebin_my_pre.y) topBinEntries.push_back(onebin_my);
     maxvalue_pre = maxvalue;
     onebin_my_pre = onebin_my;
-//    topBinEntries.push_back(onebin_my);
     }
   delete[] bin_entries_status;
 }
@@ -797,9 +737,9 @@ else {
     int counter=0;   
     int counter2=0;
     if(deviations.size()!=0){
-    for (vector<tools::binContainer>::const_iterator it = deviations.begin(); it != deviations.end(); ++it){
+    for (std::vector<tools::binContainer>::const_iterator it = deviations.begin(); it != deviations.end(); ++it){
     int flag_my = i==0 || ( bin_dev_status[counter]  && it->value <= maxvalue_pre);
-    if(fabs(it->value) >= fabs(maxvalue) && flag_my) {
+    if(std::abs(it->value) >= std::abs(maxvalue) && flag_my) {
       maxvalue = it->value; 
       onebin_my = *it; 
       counter2 = counter;
@@ -813,7 +753,6 @@ else {
   onebin_my_pre = onebin_my;
  }
 }
-//  topDeviations.push_back(onebin_my);
 
   }
   delete[] bin_dev_status;
@@ -824,9 +763,9 @@ else {
     int clustersPublished = 0;
     // Publish red clusters first:
     std::sort( redClusters.begin(), redClusters.end(), dqm_algorithms::tools::binCluster::comp );
-    vector<tools::binCluster>::const_reverse_iterator rbcrbegin = redClusters.rbegin();
-    vector<tools::binCluster>::const_reverse_iterator rbcrend = redClusters.rend();
-    for (vector<tools::binCluster>::const_reverse_iterator it = rbcrbegin; 
+    std::vector<tools::binCluster>::const_reverse_iterator rbcrbegin = redClusters.rbegin();
+    std::vector<tools::binCluster>::const_reverse_iterator rbcrend = redClusters.rend();
+    for (std::vector<tools::binCluster>::const_reverse_iterator it = rbcrbegin; 
 	 it != rbcrend; ++it) {
             
       if (objectsPublished < maxPublish) {
@@ -834,7 +773,7 @@ else {
         sprintf(ctag,"C%.3i-R-%.3iBins@ Eta=(%+.3f_to_%+.3f) Phi=(%+.3f_to_%+.3f) Center=(%+.3f,%+.3f) Radius=%+.3f",clustersPublished,it->n,
                 xBinCenters[it->ixmin],xBinCenters[it->ixmax],yBinCenters[it->iymin],yBinCenters[it->iymax],it->x,it->y,it->radius);
 
-	string tag = ctag;	
+	std::string tag = ctag;	
 	int sizeDiff = 30 - tag.size();
 	if( sizeDiff > 0 ) {
 	  tag.append(sizeDiff, '_');
@@ -892,13 +831,13 @@ else {
     //Lastly publish yellow clusters: (What are these, anyway?)
     if ( publish ) {
       std::sort( yellowClusters.begin(), yellowClusters.end(), dqm_algorithms::tools::binCluster::comp );
-      for (vector<tools::binCluster>::const_reverse_iterator it = yellowClusters.rbegin(); 
+      for (std::vector<tools::binCluster>::const_reverse_iterator it = yellowClusters.rbegin(); 
 	   it != yellowClusters.rend(); ++it) {
 	if (objectsPublished < maxPublish) {
 	  char ctag[256];
 	  sprintf(ctag,"C%.3i-Y-%.3iBins@ Eta=(%+.3f_to_%+.3f) Phi=(%+.3f_to_%+.3f) Center=(%+.3f,%+.3f) Radius=%+.3f",clustersPublished,it->n,
 		  xBinCenters[it->ixmin],xBinCenters[it->ixmax],yBinCenters[it->iymin],yBinCenters[it->iymax],it->x,it->y,it->radius);
-	  string tag = ctag;
+	  std::string tag = ctag;
 	  int sizeDiff = 30 - tag.size();
 	  if( sizeDiff > 0 ) {
 	    tag.append(sizeDiff, '_');
@@ -913,13 +852,7 @@ else {
   }
   result->tags_["NBins_RED"] = nBinsRed;
   result->tags_["NBins_YELLOW"] = nBinsYellow;
-/*  
-  if( maxDevBin.error != -999.9 ) {
-    std::string devString = "MaxDeviation-";
-    tools::MakeBinTag(maxDevBin,devString);
-    result->tags_[devString] = maxDeviation;
-  }
-*/
+
 //test_change begin
 if(name_flag!=1){
   for(unsigned int i=0;i<topDeviations.size();i++){

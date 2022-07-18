@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*! \file BinsSymmetric.cxx check if +ve and -ve bins around the central value are consistent
@@ -16,6 +16,7 @@
 #include <ers/ers.h>
 #include <iostream>
 #include <string>
+#include <cmath>
 
 #include <dqm_core/AlgorithmManager.h>
 
@@ -108,10 +109,10 @@ dqm_algorithms::BinsSymmetric::execute( 	const std::string & name ,
     double binerr2 = histogram->GetBinError(start_bin_low - 1);
     
     double mean_bins = (bin1+bin2)/2.;
-    double errmean_bins = sqrt(pow(binerr1,2.)+pow(binerr2,2.)/2.);
+    double errmean_bins = std::sqrt(std::pow(binerr1,2.)+std::pow(binerr2,2.)/2.);
   
-    double diff = fabs(bin0 - mean_bins);
-    double differr = sqrt(pow(binerr0,2.)+pow(errmean_bins,2));
+    double diff = std::abs(bin0 - mean_bins);
+    double differr = std::sqrt(std::pow(binerr0,2.)+std::pow(errmean_bins,2));
     double sigma = 1.;
 
     if ((!ignorezero) || (bin0 != 0 && mean_bins != 0)){
@@ -125,7 +126,7 @@ dqm_algorithms::BinsSymmetric::execute( 	const std::string & name ,
 	    if (differr/diff > small_num) sigma = diff/differr;
 
 	    // sigma threshold used to highlight potentially problematic bins
-	    if (sigma > bin_threshold  && (fabs(diff) > mindiffabs)) {
+	    if (sigma > bin_threshold  && (std::abs(diff) > mindiffabs)) {
       
 		    ++count;
 
@@ -153,8 +154,8 @@ dqm_algorithms::BinsSymmetric::execute( 	const std::string & name ,
     double binerrhigh = histogram->GetBinError(start_bin_high+i);
     double binerrlow = histogram->GetBinError(start_bin_low-i);   
 
-    double diff = fabs(binlow - binhigh);
-    double differr = sqrt(pow(binerrlow,2.)+pow(binerrhigh,2));
+    double diff = std::abs(binlow - binhigh);
+    double differr = std::sqrt(std::pow(binerrlow,2.)+std::pow(binerrhigh,2));
 
     if ((!ignorezero) || (binlow != 0 && binhigh != 0)){
 
@@ -166,7 +167,7 @@ dqm_algorithms::BinsSymmetric::execute( 	const std::string & name ,
     double sigma = 1.;
     if (differr > small_num) sigma = diff/differr;
 
-    if (sigma > bin_threshold  && (fabs(diff) > mindiffabs)) {
+    if (sigma > bin_threshold  && (std::abs(diff) > mindiffabs)) {
 
       ++count;
       if (publish && count <= maxpublish){
@@ -191,7 +192,7 @@ dqm_algorithms::BinsSymmetric::execute( 	const std::string & name ,
 
   // cut on sigma, this can be eventually modified to cut on prob as well
 
-  double sigma_check = fabs(chisq_prob.second);
+  double sigma_check = std::abs(chisq_prob.second);
   if ( sigma_check <= gthreshold ) {
     result->status_ = dqm_core::Result::Green;
   } else if ( sigma_check < rthreshold ) {

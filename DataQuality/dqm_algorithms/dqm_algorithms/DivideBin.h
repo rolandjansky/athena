@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*! \file DivideBin.h file declares the dqm_algorithms::DivideBin  class.
@@ -10,6 +10,8 @@
 #define DQM_ALGORITHMS_DIVIDEBIN_H
 
 #include <dqm_core/Algorithm.h>
+#include <string>
+#include <iosfwd>
 
 namespace dqm_algorithms
 {

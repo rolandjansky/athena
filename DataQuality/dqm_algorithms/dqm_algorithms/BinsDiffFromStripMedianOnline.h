@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*  BinsDiffFromStripMedianOnline.h 
@@ -13,7 +13,7 @@
 #include <dqm_core/Algorithm.h>
 #include "dqm_algorithms/BinsDiffFromStripMedian.h"
 #include <vector>
-#include <iostream>
+#include <iosfwd>
 #include <string>
 
 //class binOnline;
@@ -48,34 +48,34 @@ namespace dqm_algorithms
 
           class binOnline{
            public:
-           double m_eta;
-           double m_phi;
-           int    m_ix;
-           int    m_iy;
-           double m_value;
-           double m_outstandingRatio;
+           double m_eta{};
+           double m_phi{};
+           int    m_ix{};
+           int    m_iy{};
+           double m_value{};
+           double m_outstandingRatio{};
            friend bool operator<(const binOnline &left, const binOnline &right) {return left.m_outstandingRatio > right.m_outstandingRatio;}
            } ;
 
            class colorbinOnline{
             public:
-            double m_eta;
-            double m_phi;
-            int    m_ix;
-            int    m_iy;
-            double m_value;
-            color  m_color;
-            bool   m_status;  // true: not in cluster  ; false: in cluster
+            double m_eta{};
+            double m_phi{};
+            int    m_ix{};
+            int    m_iy{};
+            double m_value{};
+            color  m_color{};
+            bool   m_status{};  // true: not in cluster  ; false: in cluster
           };
 
           class colorclusterOnline{
            public:
-            double m_eta;
-            double m_phi;
-            double m_radius;
-            double m_value;
-            color m_color;
-            int    m_size;
+            double m_eta{};
+            double m_phi{};
+            double m_radius{};
+            double m_value{};
+            color m_color{};
+            int    m_size{};
           };
 
 	};

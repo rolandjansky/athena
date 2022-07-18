@@ -1,12 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "dqm_algorithms/SCTTrackTiming.h"
 
-#include <cmath>
-#include <iostream>
-#include <map>
+
 
 #include <TH1.h>
 #include <TClass.h>
@@ -15,6 +13,9 @@
 #include "dqm_core/AlgorithmManager.h"
 #include "dqm_core/AlgorithmConfig.h"
 #include "dqm_core/Result.h"
+#include <cmath>
+#include <iostream>
+#include <map>
 
 static dqm_algorithms::SCTTrackTiming staticInstance;
 

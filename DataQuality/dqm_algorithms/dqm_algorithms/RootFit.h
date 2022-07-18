@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*! \file RootFit.h file declares the dqm_algorithms::RootFit  class.
@@ -10,8 +10,11 @@
 #define DQM_ALGORITHMS_ROOTFIT_H
 
 #include <dqm_core/Algorithm.h>
-#include <TF1.h>
-#include <TCanvas.h>
+#include <string>
+#include <iosfwd>
+#include <memory>
+
+class TF1;
 
 namespace dqm_algorithms
 {

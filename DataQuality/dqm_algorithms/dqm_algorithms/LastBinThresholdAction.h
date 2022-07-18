@@ -1,11 +1,13 @@
 /*
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DQM_ALGORITHMS_LASTBINTHRESHOLDACTION_H
 #define DQM_ALGORITHMS_LASTBINTHRESHOLDACTION_H
 
 #include <dqm_core/Algorithm.h>
+#include <string>
+#include <iosfwd>
 
 namespace dqm_algorithms {
 

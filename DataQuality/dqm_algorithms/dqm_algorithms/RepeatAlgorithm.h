@@ -1,14 +1,16 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef dqaRepeatAlgorithm_h
 #define dqaRepeatAlgorithm_h
 
-#include <string>
-#include <vector>
+
 
 #include "dqm_core/Algorithm.h"
+#include <string>
+#include <memory>
+#include <iosfwd>
 
 namespace dqm_algorithms {
 

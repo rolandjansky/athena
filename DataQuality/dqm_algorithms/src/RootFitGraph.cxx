@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*! \file RootFitGraph.cxx fits TGraph and returns dqm_core::Result
@@ -10,15 +10,14 @@
 #include <dqm_algorithms/RootFitGraph.h>
 #include <dqm_algorithms/tools/AlgorithmHelper.h>
 #include <TH1.h>
+#include <TF1.h>
 #include <TGraph.h>
 #include <TGraphAsymmErrors.h>
 #include <TClass.h>
 #include <ers/ers.h>
 #include <TROOT.h>
-#include <memory>
-#include <TMath.h>
 #include <dqm_core/AlgorithmManager.h>
-
+#include <cmath>
 
 namespace
 {
@@ -175,7 +174,7 @@ dqm_algorithms::RootFitGraph::execute(	const std::string & name,
   const int numsig = m_func->GetParNumber("Sigma");
   if (numsig != -1 ){
 	  double sigma=m_func->GetParameter(numsig);
-	  m_func->SetParameter(numsig,fabs(sigma));
+	  m_func->SetParameter(numsig,std::abs(sigma));
   }
 
   try {
