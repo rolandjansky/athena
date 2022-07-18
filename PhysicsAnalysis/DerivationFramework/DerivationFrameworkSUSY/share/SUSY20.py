@@ -299,15 +299,15 @@ if DerivationFrameworkHasTruth:
    SeqSUSY20 += CfgMgr.DerivationFramework__CommonAugmentation("SUSY20TruthCharmKernel",AugmentationTools=[SUSY20TruthCharmTool])
    # Add HF particles
    addHFAndDownstreamParticles(SeqSUSY20)
-   # Add standard truth
-   addStandardTruthContents(SeqSUSY20,prefix='')
    #Add custom tau collection with 2 generation below (To save photon information)
    addTausAndDownstreamParticles(SeqSUSY20, generations=2)
+   # Add standard truth
+   addStandardTruthContents(SeqSUSY20,prefix='')
 
    # Update to include charm quarks and HF particles - require a separate instance to be train safe
    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthNavigationDecorator
    SUSY20TruthNavigationDecorator = DerivationFramework__TruthNavigationDecorator( name="SUSY20TruthNavigationDecorator",
-                                                                                   InputCollections=["TruthElectrons", "TruthMuons", "TruthPhotons", "TruthTaus","TruthNeutrinos", "TruthBSM", "TruthBottom", "TruthTop", "TruthBoson","TruthCharm","TruthHFWithDecayParticles"])
+                                                                                   InputCollections=["TruthElectrons", "TruthMuons", "TruthPhotons", "TruthTaus","TruthNeutrinos", "TruthBSM", "TruthBottom", "TruthTop", "TruthBoson","TruthCharm","TruthHFWithDecayParticles","TruthTauWithDecayParticles"])
    ToolSvc += SUSY20TruthNavigationDecorator
    SeqSUSY20.MCTruthNavigationDecoratorKernel.AugmentationTools = [SUSY20TruthNavigationDecorator]
    # Re-point links on reco objects
