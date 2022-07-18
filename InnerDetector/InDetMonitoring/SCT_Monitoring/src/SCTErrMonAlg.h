@@ -95,6 +95,7 @@ class SCTErrMonAlg : public AthMonitorAlgorithm {
   BooleanProperty m_coverageCheckOnlyFirtsEventOfLB{this, "CoverageCheckOnlyFirtsEventOfLB", true};
   BooleanProperty m_useDCS{this, "UseDCS", true};
   BooleanProperty m_doPerLumiErrors{this, "DoPerLumiErrors", true, "Do lumi block 2D error histos"};
+  BooleanProperty m_doOnline{this, "doOnlineMon", false};
 
   ToolHandle<ISCT_ByteStreamErrorsTool> m_byteStreamErrTool{this, "SCT_ByteStreamErrorsTool", "SCT_ByteStreamErrorsTool/SCT_ByteStreamErrorsTool", "Tool to retrieve SCT ByteStream Errors"};
   ToolHandle<ISCT_ConfigurationConditionsTool> m_configurationTool{this, "conditionsTool", "SCT_ConfigurationConditionsTool/InDetSCT_ConfigurationConditionsTool", "Tool to retrieve SCT Configuration Tool"};

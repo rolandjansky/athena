@@ -100,8 +100,7 @@ def SCTHitsNoiseMonAlgConfig(inputFlags):
                                                             cutmask= "IsSelectedTrigger_"+occMap,
                                                             path= path[isub] + "/Noise",
                                                             xbins=sctMon.n_etabins[isub], xmin=sctMon.f_etabin[isub]-0.5, xmax=sctMon.l_etabin[isub]+0.5,
-                                                            ybins=sctMon.n_phibins[isub], ymin=sctMon.f_phibin[isub]-0.5, ymax=sctMon.l_phibin[isub]+0.5,
-                                                            opt='kAlwaysCreate')
+                                                            ybins=sctMon.n_phibins[isub], ymin=sctMon.f_phibin[isub]-0.5, ymax=sctMon.l_phibin[isub]+0.5)
         
         #End i Loop
     
@@ -117,8 +116,7 @@ def SCTHitsNoiseMonAlgConfig(inputFlags):
                                                         title= "HO with trigger vs LB for all region (SP noise)" + ";LumiBlock;Hit Occupancy [10^{-5}]",
                                                         cutmask= "IsSelectedTrigger",
                                                         path= path[isub] + "/Noise",
-                                                        xbins=sctMon.NBINS_LBs, xmin = 0.5, xmax = sctMon.NBINS_LBs + 0.5,
-                                                        opt='kAlwaysCreate')
+                                                        xbins=sctMon.NBINS_LBs, xmin = 0.5, xmax = sctMon.NBINS_LBs + 0.5)
                 
         MonGroupArray.__getitem__(isub).defineHistogram(varname= "LB,NO;"+ noiseAbbreviations[isub] + "NO_vsLB",
                                                         type= "TProfile", 
@@ -132,16 +130,14 @@ def SCTHitsNoiseMonAlgConfig(inputFlags):
                                                         title= "NO with Trigger vs LB for all region (SP noise)" + ";LumiBlock;Hit Occupancy [10^{-5}]",
                                                         cutmask= "IsSelectedTrigger",
                                                         path= path[isub] + "/Noise",
-                                                        xbins=sctMon.NBINS_LBs, xmin = 0.5, xmax = sctMon.NBINS_LBs + 0.5,
-                                                        opt='kAlwaysCreate')
+                                                        xbins=sctMon.NBINS_LBs, xmin = 0.5, xmax = sctMon.NBINS_LBs + 0.5)
 
         MonGroupArray.__getitem__(isub).defineHistogram(varname= "LBHits,numberOfHitsFromSPs;" + "h_HSPHitsTrigger"+titleAbbreviations[isub]+"_vsLB",
                                                         type= "TProfile", 
                                                         title= "Average num of SP Hits in " + titleAbbreviations[isub] + " with trigger vs LB" + ";LumiBlock;Average number of SP Hits",
                                                         cutmask= "isSelectedTriggerHits",
                                                         path= path[isub] + "/Noise",
-                                                        xbins=sctMon.NBINS_LBs, xmin = 0.5, xmax = sctMon.NBINS_LBs + 0.5,
-                                                        opt='kAlwaysCreate')
+                                                        xbins=sctMon.NBINS_LBs, xmin = 0.5, xmax = sctMon.NBINS_LBs + 0.5)
 
         MonGroupArray.__getitem__(isub).defineHistogram(varname= "LBHits,numberOfHitsFromSPs;" + "h_HSPHits"+titleAbbreviations[isub]+"_vsLB",
                                                         type= "TProfile", 
@@ -155,8 +151,7 @@ def SCTHitsNoiseMonAlgConfig(inputFlags):
                                                         title= "Average num of all Hits in " + titleAbbreviations[isub] + " with trigger vs LB" + ";LumiBlock;Average number of SP Hits",
                                                         cutmask= "isSelectedTriggerHits",
                                                         path= path[isub] + "/Noise",
-                                                        xbins=sctMon.NBINS_LBs, xmin = 0.5, xmax = sctMon.NBINS_LBs + 0.5,
-                                                        opt='kAlwaysCreate')
+                                                        xbins=sctMon.NBINS_LBs, xmin = 0.5, xmax = sctMon.NBINS_LBs + 0.5)
 
         MonGroupArray.__getitem__(isub).defineHistogram(varname= "LBHits,numberOfHitsFromAllRDOs;" + "h_HallHits"+titleAbbreviations[isub]+"_vsLB",
                                                         type= "TProfile", 
@@ -185,8 +180,7 @@ def SCTHitsNoiseMonAlgConfig(inputFlags):
                                       title= "HO with trigger vs LB for all region (SP noise)" + ";LumiBlock;Hit Occupancy [10^{-5}]",
                                       cutmask= "IsSelectedTrigger",
                                       path=  "/noise",
-                                      xbins=sctMon.NBINS_LBs, xmin = 0.5, xmax = sctMon.NBINS_LBs + 0.5,
-                                      opt='kAlwaysCreate')
+                                      xbins=sctMon.NBINS_LBs, xmin = 0.5, xmax = sctMon.NBINS_LBs + 0.5)
                 
     myMonGroupGeneral.defineHistogram(varname= "LB,NO;"+ "NO_vsLB",
                                       type= "TProfile", 
@@ -200,8 +194,7 @@ def SCTHitsNoiseMonAlgConfig(inputFlags):
                                       title= "NO with Trigger vs LB for all region (SP noise)" + ";LumiBlock;Hit Occupancy [10^{-5}]",
                                       cutmask= "IsSelectedTrigger",
                                       path= "/noise",
-                                      xbins=sctMon.NBINS_LBs, xmin = 0.5, xmax = sctMon.NBINS_LBs + 0.5,
-                                      opt='kAlwaysCreate')
+                                      xbins=sctMon.NBINS_LBs, xmin = 0.5, xmax = sctMon.NBINS_LBs + 0.5)
 
     myMonGroupGeneral.defineHistogram(varname= "Bec_TBinFracAll,TBin_TBinFracAll;" + "TBinFracAll",
                                       type= "TProfile", 
