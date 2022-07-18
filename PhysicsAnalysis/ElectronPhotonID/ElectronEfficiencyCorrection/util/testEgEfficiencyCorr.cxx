@@ -90,8 +90,17 @@ main(int argc, char* argv[])
     CHECK(event.retrieve(electrons, "Electrons"));
 
     for (const xAOD::Electron* el : *electrons) {
+      const xAOD::CaloCluster* cluster = el->caloCluster();
+      if (!cluster) {
+	MSG_ERROR("ERROR no cluster associated to the Electron \n");
+	return CP::CorrectionCode::Error;
+      }
       if (el->pt() < 7000)
         continue; // skip electrons outside of recommendations
+      if (std::abs(cluster->etaBE(2))>=2.47) {
+	continue;
+      }
+
       int index = ElEffCorrectionTool.systUncorrVariationIndex(*el);
       /*
        * Set up the systematic variations
