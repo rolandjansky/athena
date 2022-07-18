@@ -34,6 +34,7 @@
 
 #include "xAODTracking/TrackParticleContainer.h"
 
+#include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
 //Standard c++
 #include <string>
 #include <memory>
@@ -42,13 +43,8 @@
 
 namespace InDet {
   class IInDetTrackSelectionTool;
+  class ITrackToVertexIPEstimator;
 }
-
-
-//namespace Trk {
-//	  class ITrackSummaryTool;
-//}
-
 
 class InDetGlobalTrackMonAlg : public AthMonitorAlgorithm {
   
@@ -62,14 +58,19 @@ class InDetGlobalTrackMonAlg : public AthMonitorAlgorithm {
   
  private:
   
-  ToolHandle <InDet::IInDetTrackSelectionTool> m_trackSelTool; // baseline
-  ToolHandle <InDet::IInDetTrackSelectionTool > m_tight_trackSelTool; //tightw
-  
-  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticleName{this, "TrackParticleContainerName", "InDetTrackParticles","TrackParticle Collection for Global Monitoring"};
-  
-  ServiceHandle <IBLParameterSvc> m_IBLParameterSvc;
+  ToolHandle <InDet::IInDetTrackSelectionTool>  m_trackSelTool{this,"TrackSelectionTool","InDet::InDetTrackSelectionTool/TrackSelectionTool",""};
+  ToolHandle <InDet::IInDetTrackSelectionTool>  m_tight_trackSelTool{this,"Tight_TrackSelectionTool","InDet::InDetTrackSelectionTool/TrackSelectionTool",""};
+  ToolHandle <InDet::IInDetTrackSelectionTool>  m_loose_trackSelTool{this,"Loose_TrackSelectionTool","InDet::InDetTrackSelectionTool/TrackSelectionTool",""};
+  ToolHandle <Trk::ITrackToVertexIPEstimator>  m_trackToVertexIPEstimator{this,"TrackToVertexIPEstimator","Trk::TrackToVertexIPEstimator",""};
 
-  bool m_doIBL;
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticleName{this, "TrackParticleContainerName", "InDetTrackParticles","TrackParticle Collection for Global Monitoring"};
+  SG::ReadHandleKey<xAOD::VertexContainer> m_vxContainerName{this,"vxContainerName","PrimaryVertices","Primary Vertices for Global Monitoring"};
+  SG::ReadHandleKey<xAOD::JetContainer> m_jetContainerName{this,"jetCollection","AntiKt4EMTopoJets","Jet Collection for Global Track Monitoring"};
+
+  ServiceHandle<IBLParameterSvc> m_IBLParameterSvc{this, "IBLParameterSvc", "IBLParameterSvc"};
+
+  BooleanProperty m_doIBL{this, "DoIBL", true, "IBL present?"};
+  BooleanProperty m_doTide{this, "DoTide", false, "Make TIDE plots?"};
   
 };
 #endif
