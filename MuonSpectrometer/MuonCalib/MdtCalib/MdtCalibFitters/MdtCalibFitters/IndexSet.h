@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -60,7 +60,7 @@ namespace MuonCalib {
         IndexSet(const unsigned int& r_nb_indices) { init(r_nb_indices); }
         ///< constructor: the number of indices is set to r_nb_indices
 
-        IndexSet(const unsigned int& r_nb_indices, const std::vector<int> r_index) { init(r_nb_indices, r_index); }
+        IndexSet(const unsigned int& r_nb_indices, const std::vector<int>& r_index) { init(r_nb_indices, r_index); }
         ///< constructor: the number of indices is set to r_nb_indices,
         ///<              the vector r_index contains the indices
 
