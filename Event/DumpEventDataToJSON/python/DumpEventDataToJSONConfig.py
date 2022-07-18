@@ -28,6 +28,7 @@ def DumpEventDataToJSONAlgCfg(configFlags, doExtrap=False, **kwargs):
 
 
 if __name__ == "__main__":
+    # Run this with python -m DumpEventDataToJSON.DumpEventDataToJSONConfig myESD.pool.root
     from argparse import ArgumentParser
     parser = ArgumentParser()
     parser.add_argument("input",
@@ -113,10 +114,15 @@ if __name__ == "__main__":
 
     # Disable doExtrap if you would prefer not to use the extrapolator.
     topoAcc = DumpEventDataToJSONAlgCfg(
-        ConfigFlags, doExtrap=False, OutputLevel=VERBOSE, DumpTestEvent=args.prependCalib, OutputLocation=args.output)
+        ConfigFlags, doExtrap=False, OutputLevel=VERBOSE, DumpTestEvent=args.prependCalib, OutputLocation=args.output,
+        CscPrepRawDataKey = "CSC_Clusters" if ConfigFlags.Detector.EnableCSC else "",
+        MMPrepRawDataKey = "MM_Measurements" if ConfigFlags.Detector.EnableMM else "",
+        sTgcPrepRawDataKey = "sTgcPrepRawDataKey" if ConfigFlags.Detector.EnablesTGC else "",
+        )
+    
     cfg.merge(topoAcc)
 
-    cfg.run(10)
+    cfg.run(2)
     f = open("DumpEventDataToJSONConfig.pkl", "wb")
     cfg.store(f)
     f.close()
