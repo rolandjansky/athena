@@ -89,10 +89,15 @@ if [ $sim_tf_exit_code -eq 0 ]  ;then
    ${dcubemon_sim}
  echo "art-result: $? plots for sim with fixed reference"
  
- # Reco step based on test InDetPhysValMonitoring ART setup from Josh Moss.
  run Reco_tf.py \
    --inputHITSFile   "$hits" \
    --outputRDOFile   output.RDO.root \
+   --postExec 'condSeq.TileSamplingFractionCondAlg.G4Version = -1' \
+   --postInclude 'default:PyJobTransforms/UseFrontier.py,InDetPhysValMonitoring/postInclude.RDOAnalysis.py'
+ 
+ # Reco step based on test InDetPhysValMonitoring ART setup from Josh Moss.
+ run Reco_tf.py \
+   --inputRDOFile    output.RDO.root \
    --outputAODFile   physval.AOD.root \
    --outputNTUP_PHYSVALFile ${dcubemon_rec} \
    --conditionsTag   'OFLCOND-MC16-SDR-RUN2-08' \
@@ -118,8 +123,7 @@ if [ $sim_tf_exit_code -eq 0 ]  ;then
    AODFlags.ThinGeantTruth.set_Value_and_Lock(False);  \
    AODFlags.ThinNegativeEnergyCaloClusters.set_Value_and_Lock(False); \
    AODFlags.ThinNegativeEnergyNeutralPFOs.set_Value_and_Lock(False);\
-   AODFlags.ThinInDetForwardTrackParticles.set_Value_and_Lock(False) '\
-   --postInclude 'default:PyJobTransforms/UseFrontier.py,InDetPhysValMonitoring/postInclude.RDOAnalysis.py' 
+   AODFlags.ThinInDetForwardTrackParticles.set_Value_and_Lock(False) '
  rec_tf_exit_code=$?
  echo "art-result: $rec_tf_exit_code reco"
  
@@ -141,13 +145,13 @@ if [ $sim_tf_exit_code -eq 0 ]  ;then
      ${dcubemon_rec}
    echo "art-result: $? rec plots"
 
-   echo "compare with a fixed R22 for PixelRDOAnalysis"
-   $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
-     -p -x ${dcube_pixel_fixref} \
-     -c ${dcubecfg_pixel} \
-     -r ${dcuberef_pixel} \
-     ${dcubemon_pixel}
-   echo "art-result: $? pixel plots"
+#   echo "compare with a fixed R22 for PixelRDOAnalysis"
+#   $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
+#     -p -x ${dcube_pixel_fixref} \
+#     -c ${dcubecfg_pixel} \
+#     -r ${dcuberef_pixel} \
+#     ${dcubemon_pixel}
+#   echo "art-result: $? pixel plots"
    
    echo "compare with last build"
    $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
@@ -157,13 +161,13 @@ if [ $sim_tf_exit_code -eq 0 ]  ;then
      ${dcubemon_pixel}
    echo "art-result: $? pixel plots"
 
-   echo "compare with a fixed R22 for SCT_RDOAnalysis"
-   $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
-     -p -x ${dcube_sct_fixref} \
-     -c ${dcubecfg_sct} \
-     -r ${dcuberef_sct} \
-     ${dcubemon_sct}
-   echo "art-result: $? SCT plots"
+#   echo "compare with a fixed R22 for SCT_RDOAnalysis"
+#   $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
+#     -p -x ${dcube_sct_fixref} \
+#     -c ${dcubecfg_sct} \
+#     -r ${dcuberef_sct} \
+#     ${dcubemon_sct}
+#   echo "art-result: $? SCT plots"
    
    echo "compare with last build"
    $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \

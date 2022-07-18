@@ -89,22 +89,22 @@
 
   <!-- pulls -->
   <!-- barrel, x -->
-  <h id="residualpullx_trt_barrel" type="TH1F" title="Residualpull: TRT Barrel X">
+  <h id="pullx_trt_barrel" type="TH1F" title="Residualpull: TRT Barrel X">
     <x title="x residual(#mum)" n="100" lo="-5" hi="5"/>
     <y title="Entries"/>
   </h>
   <!-- endcap, x -->
-  <h id="residualpullx_trt_endcap" type="TH1F" title="Residualpull: TRT Endcap X">
+  <h id="pullx_trt_endcap" type="TH1F" title="Residualpull: TRT Endcap X">
     <x title="x residual(#mum)" n="100" lo="-5" hi="5"/>
     <y title="Entries"/>
   </h>
   <!-- barrel, y -->
-  <h id="residualpully_trt_barrel" type="TH1F" title="Residualpull: TRT Barrel Y">
+  <h id="pully_trt_barrel" type="TH1F" title="Residualpull: TRT Barrel Y">
     <x title="y residual(#mum)" n="10" lo="-5" hi="5"/>
     <y title="Entries"/>
   </h>
   <!-- endcap,y -->
-  <h id="residualpully_trt_endcap" type="TH1F" title="Residualpull: TRT Endcap Y">
+  <h id="pully_trt_endcap" type="TH1F" title="Residualpull: TRT Endcap Y">
     <x title="y residual(#mum)" n="10" lo="-5" hi="5"/>
     <y title="Entries"/>
   </h>
