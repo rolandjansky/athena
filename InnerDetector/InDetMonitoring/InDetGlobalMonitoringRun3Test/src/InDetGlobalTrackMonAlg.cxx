@@ -23,31 +23,25 @@
 
 
 InDetGlobalTrackMonAlg::InDetGlobalTrackMonAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
-  AthMonitorAlgorithm(name, pSvcLocator),
-  m_trackSelTool      ( "InDet::InDetTrackSelectionTool/TrackSelectionTool", this),
-  m_tight_trackSelTool( "InDet::InDetTrackSelectionTool/TrackSelectionTool", this ),
-  m_IBLParameterSvc("IBLParameterSvc",name),
-  m_doIBL(true)
-{
-  //jo flags go here, keys and some tools -> in class
-  declareProperty("DoIBL", m_doIBL,"IBL present?");	
-  declareProperty( "TrackSelectionTool", m_trackSelTool);
-  declareProperty( "Tight_TrackSelectionTool", m_tight_trackSelTool );
-}
+  AthMonitorAlgorithm(name, pSvcLocator) {}
 
 
 InDetGlobalTrackMonAlg::~InDetGlobalTrackMonAlg() {}
 
 
 StatusCode InDetGlobalTrackMonAlg::initialize() {
+  ATH_CHECK( m_trackToVertexIPEstimator.retrieve() );
   ATH_CHECK( m_IBLParameterSvc.retrieve() ); 
   
   m_doIBL = m_IBLParameterSvc->containsIBL();
   
   if (!m_trackSelTool.empty() )      ATH_CHECK( m_trackSelTool.retrieve() );
   if (!m_tight_trackSelTool.empty()) ATH_CHECK( m_tight_trackSelTool.retrieve() );
+  if (!m_loose_trackSelTool.empty()) ATH_CHECK( m_loose_trackSelTool.retrieve() );
 
   ATH_CHECK( m_trackParticleName.initialize() );
+  ATH_CHECK( m_vxContainerName.initialize() );
+  ATH_CHECK( m_jetContainerName.initialize() );
   
   return AthMonitorAlgorithm::initialize();
 }
@@ -104,17 +98,6 @@ StatusCode InDetGlobalTrackMonAlg::fillHistograms( const EventContext& ctx ) con
 	continue;
       }
     
-    // not sure it works now....
-    // Skip tracks that are not inside out
-    //if ( ( m_dataType == AthenaMonManager::collisions || m_dataType == AthenaMonManager::userDefined )
-    //     && ! track->info().patternRecoInfo( Trk::TrackInfo::SiSPSeededFinder ) )
-    //    continue;
-    
-    
-    // Loose primary tracks
-    if ( !m_trackSelTool->accept(*track) )
-      continue;
-    
     nBase++;
     
     // =================================== //
@@ -125,6 +108,19 @@ StatusCode InDetGlobalTrackMonAlg::fillHistograms( const EventContext& ctx ) con
     
     auto eta_perigee_m   = Monitored::Scalar<float>( "m_eta_perigee", eta_perigee);
     auto phi_perigee_m   = Monitored::Scalar<float>( "m_phi_perigee", phi_perigee);
+
+    auto eta_perigee_loose_m   = Monitored::Scalar<float>( "m_eta_perigee_loose", eta_perigee);
+    auto phi_perigee_loose_m   = Monitored::Scalar<float>( "m_phi_perigee_loose", phi_perigee);
+
+    // Loose tracks
+    if ( m_loose_trackSelTool->accept(*track) ){
+      fill(trackGroup, eta_perigee_loose_m, phi_perigee_loose_m);
+    }
+
+    // Base tracks
+    if ( !m_trackSelTool->accept(*track) )
+      continue;
+
     fill(trackGroup, eta_perigee_m, phi_perigee_m); // Trk_Base_eta_phi
     
     if ( m_doIBL )
@@ -264,6 +260,122 @@ StatusCode InDetGlobalTrackMonAlg::fillHistograms( const EventContext& ctx ) con
     
   } // end of track loop
   
+  // =================================== //
+  // FillTide BEGINS
+  if ( m_doTide )
+    {
+      // retrieving vertices
+      auto handle_vxContainer = SG::makeHandle(m_vxContainerName, ctx);
+
+      if (!handle_vxContainer.isPresent()) {
+	ATH_MSG_DEBUG ("InDetGlobalTrackMonAlg: StoreGate doesn't contain primary vertex container with key "+m_vxContainerName.key()+",may not be able to produce TIDE histograms");
+      }
+      if (!handle_vxContainer.isValid()) {
+	ATH_MSG_DEBUG ("InDetGlobalTrackMonAlg: Could not retrieve primary vertex container with key "+m_vxContainerName.key()+",may not be able to produce TIDE histograms");
+      }
+
+      auto vertexContainer = handle_vxContainer.cptr();
+
+      // retrieving jets
+
+      auto handle_jetContainer = SG::makeHandle(m_jetContainerName, ctx);
+
+      if (!handle_jetContainer.isPresent()) {
+	ATH_MSG_DEBUG ("InDetGlobalTrackMonAlg: StoreGate doesn't contain jet container with key "+m_jetContainerName.key()+",may not be able to produce TIDE histograms");
+      }
+      if (!handle_jetContainer.isValid()) {
+	ATH_MSG_DEBUG ("InDetGlobalTrackMonAlg: Could not retrieve jet container with key "+m_jetContainerName.key()+",may not be able to produce TIDE histograms");
+      }
+
+      auto jetContainer = handle_jetContainer.cptr();
+
+      if ( handle_jetContainer.isValid() ) {
+	for ( auto jetItr = jetContainer->begin(); jetItr != jetContainer->end(); ++jetItr )
+	  {
+	    if ( (*jetItr)->pt() < 20000. ){
+	      continue;
+	    } 
+	    std::vector<const xAOD::IParticle*> trackVector;
+	    if ( !(*jetItr)->getAssociatedObjects<xAOD::IParticle>(xAOD::JetAttribute::GhostTrack, trackVector) ){
+	      continue;
+	    } 
+
+	    for ( std::vector<const xAOD::IParticle*>::const_iterator trkItr = trackVector.begin(); trkItr != trackVector.end() ; ++trkItr )
+	      {
+		const xAOD::TrackParticle* trackPart = dynamic_cast<const xAOD::TrackParticle*>(*trkItr);
+		if ( !trackPart ){
+		  continue;
+		} 
+		uint8_t split;
+		uint8_t shared;
+		uint8_t pix;
+		if ( trackPart->summaryValue(pix, xAOD::numberOfPixelHits) && pix )
+		  {
+		    const Trk::Perigee perigeeTIDE = trackPart->perigeeParameters();
+		    const xAOD::Vertex* foundVertex { nullptr };
+		    if ( handle_vxContainer.isValid() ){
+		      for ( const auto *const vx : *vertexContainer )
+			{
+			  for ( const auto& tpLink : vx->trackParticleLinks() )
+			    {
+			      if ( *tpLink == trackPart )
+				{
+				  foundVertex = vx;
+				  break;
+				} 
+			    } 
+			  if (foundVertex) break;
+			} 
+		    } 
+		    if ( foundVertex )
+		      {
+			std::unique_ptr<const Trk::ImpactParametersAndSigma>myIPandSigma(m_trackToVertexIPEstimator->estimate(trackPart,foundVertex));
+			
+			if ( myIPandSigma )
+			  {
+			    float jetassocdR = trackPart->p4().DeltaR( (*jetItr)->p4());
+			    float jetassocd0Reso = std::abs( myIPandSigma->IPd0 / std::sqrt( myIPandSigma->sigmad0*myIPandSigma->sigmad0 + myIPandSigma->PVsigmad0*myIPandSigma->PVsigmad0 ) );
+			    float jetassocz0Reso = std::abs( myIPandSigma->IPz0 / std::sqrt( myIPandSigma->sigmaz0*myIPandSigma->sigmaz0 + myIPandSigma->PVsigmaz0*myIPandSigma->PVsigmaz0 ) );
+			    float jetassocIPReso = std::abs( myIPandSigma->IPd0 / std::sqrt( myIPandSigma->sigmad0*myIPandSigma->sigmad0 + myIPandSigma->PVsigmad0*myIPandSigma->PVsigmad0 ) );
+			    auto jetassocdR_m = Monitored::Scalar<float>("m_jetassocdR", jetassocdR);
+			    auto jetassocd0Reso_m = Monitored::Scalar<float>("m_jetassocd0Reso", jetassocd0Reso);
+			    auto jetassocz0Reso_m = Monitored::Scalar<float>("m_jetassocz0Reso", jetassocz0Reso);
+			    auto jetassocIPReso_m = Monitored::Scalar<float>("m_jetassocd0Reso", jetassocIPReso);
+
+			    fill(trackGroup, jetassocdR_m, jetassocd0Reso_m);
+			    fill(trackGroup, jetassocdR_m, jetassocz0Reso_m);
+			    fill(trackGroup, lb_m, jetassocIPReso_m);    
+			  } 
+			
+		      } 
+		    if ( trackPart->summaryValue( split, xAOD::numberOfPixelSplitHits) ){
+		      float frac = (double)split / pix;
+		      float pixSplitdR = trackPart->p4().DeltaR( (*jetItr)->p4() );
+		      auto pixSplitFrac_m = Monitored::Scalar<float>("m_pixSplitFrac", frac);
+		      auto pixSplitdR_m =   Monitored::Scalar<float>("m_pixSplitdR", pixSplitdR);
+
+		      fill(trackGroup, pixSplitdR_m, pixSplitFrac_m);
+		      fill(trackGroup, lb_m, pixSplitFrac_m);
+		    } 
+
+		    if ( trackPart->summaryValue( shared, xAOD::numberOfPixelSharedHits) ){
+                      float frac = (float)shared / pix;
+                      float pixShareddR = trackPart->p4().DeltaR( (*jetItr)->p4() );
+                      auto pixSharedFrac_m = Monitored::Scalar<float>("m_pixSharedFrac", frac);
+                      auto pixShareddR_m =   Monitored::Scalar<float>("m_pixShareddR", pixShareddR);
+
+                      fill(trackGroup, pixShareddR_m, pixSharedFrac_m);
+                      fill(trackGroup, lb_m, pixSharedFrac_m);
+		    } 
+		  } 
+	      } 
+	  } 
+      } 
+    } 
+
+  // FillTide ENDS
+  // =================================== //
+
   // Filling per-event histograms
   auto nBase_m   = Monitored::Scalar<int>( "m_nBase", nBase);
   fill(trackGroup, nBase_m);

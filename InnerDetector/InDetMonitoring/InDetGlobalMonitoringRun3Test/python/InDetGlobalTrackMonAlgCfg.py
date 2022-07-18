@@ -26,6 +26,7 @@ def InDetGlobalTrackMonAlgCfg(helper, alg, **kwargs):
     trackGroup = helper.addGroup(alg, 'Track')
     pathtrack = '/InDetGlobal/Track'
     pathhits = '/InDetGlobal/Hits'
+    pathTIDE = '/InDetGlobal/TIDE'
 
 
     varName = 'm_nBase;nCOMBtrks' #done
@@ -34,7 +35,11 @@ def InDetGlobalTrackMonAlgCfg(helper, alg, **kwargs):
 
     # Eta-phi maps
     varName = 'm_eta_perigee,m_phi_perigee;Trk_Base_eta_phi' #done
-    title = 'Distribution of eta vs phi for combined tracks passing Loose Primary selection;#eta,#phi_{0}'
+    title = 'Distribution of eta vs phi for combined tracks passing Loose Primary selection;#eta;#phi_{0}'
+    trackGroup.defineHistogram(varName, type='TH2F', path=pathtrack, title=title, xbins=m_nBinsEta, xmin=-m_c_etaRange, xmax=m_c_etaRange, ybins=m_nBinsPhi, ymin=-M_PI, ymax=M_PI)
+
+    varName = 'm_eta_perigee_loose,m_phi_perigee_loose;Trk_Loose_eta_phi' #done
+    title = 'Distribution of eta vs phi for combined tracks passing Loose selection;#eta;#phi_{0}'
     trackGroup.defineHistogram(varName, type='TH2F', path=pathtrack, title=title, xbins=m_nBinsEta, xmin=-m_c_etaRange, xmax=m_c_etaRange, ybins=m_nBinsPhi, ymin=-M_PI, ymax=M_PI)
 
     varName = 'm_eta_perigee,m_phi_perigee,m_track_pass_tight;Trk_Tight_eta_phi_ratio' #done
@@ -148,6 +153,35 @@ def InDetGlobalTrackMonAlgCfg(helper, alg, **kwargs):
     varName = 'm_lb,m_NoTRText_LB;Trk_noTRText_frac_LB' #done
     title = 'Fraction of tracks without TRT extension per event in LB;LB number;Fraction of tracks with without TRT extension per event in LB'
     trackGroup.defineHistogram(varName, type='TProfile', path=pathtrack, title=title, xbins=m_c_range_LB, xmin=0, xmax=m_c_range_LB)
+
+# TIDE Histogram Group
+    varName = 'm_jetassocdR,m_jetassocd0Reso;Trk_jetassoc_d0_dr' 
+    title = 'IP resolution per ghost associated track vs #DeltaR of track and jet;#DeltaR of track and jet;IP resolution per ghost associated track'
+    trackGroup.defineHistogram(varName, type='TProfile', path=pathTIDE, title=title, xbins=20, xmin=0, xmax=0.4)
+
+    varName = 'm_jetassocdR,m_jetassocz0Reso;Trk_jetassoc_z0_dr'
+    title = 'IP resolution per ghost associated track vs #DeltaR of track and jet;#DeltaR of track and jet;IP resolution per ghost associated track'
+    trackGroup.defineHistogram(varName, type='TProfile', path=pathTIDE, title=title, xbins=20, xmin=0, xmax=0.4)
+
+    varName = 'm_lb,m_jetassocIPReso;Trk_jetassoc_ip_reso_lb'
+    title = 'IP resolution per ghost associated track vs LB;LB;IP resolution per ghost associated track'
+    trackGroup.defineHistogram(varName, type='TProfile', path=pathTIDE, title=title, xbins=m_c_range_LB, xmin=0, xmax=m_c_range_LB)
+
+    varName = 'm_pixSplitdR,m_pixSplitFrac;Trk_jetassoc_split_pix_dr'
+    title = 'Fraction of split Pixel hits per ghost associated track vs #DeltaR of track and jet;#DeltaR;Fraction'
+    trackGroup.defineHistogram(varName, type='TProfile', path=pathTIDE, title=title, xbins=20, xmin=0, xmax=0.4)
+
+    varName = 'm_lb,m_pixSplitFrac;Trk_jetassoc_split_pix_lb'
+    title = 'Fraction of split Pixel hits vs LB;LB;Fraction'
+    trackGroup.defineHistogram(varName, type='TProfile', path=pathTIDE, title=title, xbins=m_c_range_LB, xmin=0, xmax=m_c_range_LB)
+
+    varName = 'm_pixShareddR,m_pixSharedFrac;Trk_jetassoc_shared_pix_dr'
+    title = 'Fraction of shared Pixel hits per ghost associated track vs #DeltaR of track and jet;#DeltaR;Fraction'
+    trackGroup.defineHistogram(varName, type='TProfile', path=pathTIDE, title=title, xbins=20, xmin=0, xmax=0.4)
+
+    varName = 'm_lb,m_pixSharedFrac;Trk_jetassoc_shared_pix_lb'
+    title = 'Fraction of shared Pixel hits vs LB;LB;Fraction'
+    trackGroup.defineHistogram(varName, type='TProfile', path=pathTIDE, title=title, xbins=m_c_range_LB, xmin=0, xmax=m_c_range_LB)
 
 # end histograms
 

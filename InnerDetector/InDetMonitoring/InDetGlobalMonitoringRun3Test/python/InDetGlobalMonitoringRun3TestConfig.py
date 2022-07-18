@@ -19,13 +19,16 @@ def InDetGlobalMonitoringRun3TestConfig(flags):
         
     from AthenaConfiguration.ComponentFactory import CompFactory
 
+    from AthenaMonitoring.FilledBunchFilterToolConfig import FilledBunchFilterToolCfg
+
     # run on RAW only
     if flags.DQ.Environment in ('online', 'tier0', 'tier0Raw'):
         
         ########### here begins InDetGlobalTrackMonAlg ###########
         from InDetGlobalMonitoringRun3Test.InDetGlobalTrackMonAlgCfg import InDetGlobalTrackMonAlgCfg 
 
-        inDetGlobalTrackMonAlg = helper.addAlgorithm(CompFactory.InDetGlobalTrackMonAlg, 'InDetGlobalTrackMonAlg')
+        
+        inDetGlobalTrackMonAlg = helper.addAlgorithm(CompFactory.InDetGlobalTrackMonAlg, 'InDetGlobalTrackMonAlg',addFilterTools = [FilledBunchFilterToolCfg(flags)])
 
         from InDetConfig.InDetTrackSelectionToolConfig import InDetTrackSelectionTool_TightPrimary_TrackTools_Cfg
         TrackSelectionTool = acc.popToolsAndMerge(
@@ -35,8 +38,19 @@ def InDetGlobalMonitoringRun3TestConfig(flags):
         Tight_TrackSelectionTool = acc.popToolsAndMerge(
             InDetTrackSelectionTool_TightPrimary_TrackTools_Cfg(flags, name='TightTrackSelectionTool',
                                                                 minPt = 5000))
+
+        Loose_TrackSelectionTool = acc.popToolsAndMerge(
+            InDetTrackSelectionTool_TightPrimary_TrackTools_Cfg(flags, name='LooseTrackSelectionTool',
+                                                                minPt = 1000))
+
+        from InDetConfig.TrackingCommonConfig import TrackToVertexIPEstimatorCfg
+        TrackToVertexIPEstimator = acc.popToolsAndMerge(
+            TrackToVertexIPEstimatorCfg(flags, name='TrackToVertexIPEstimator'))
+
         inDetGlobalTrackMonAlg.TrackSelectionTool = TrackSelectionTool
         inDetGlobalTrackMonAlg.Tight_TrackSelectionTool = Tight_TrackSelectionTool
+        inDetGlobalTrackMonAlg.Loose_TrackSelectionTool = Loose_TrackSelectionTool
+        inDetGlobalTrackMonAlg.TrackToVertexIPEstimator = TrackToVertexIPEstimator 
 
         InDetGlobalTrackMonAlgCfg(helper, inDetGlobalTrackMonAlg)
         ########### here ends InDetGlobalTrackMonAlg ###########
@@ -45,7 +59,7 @@ def InDetGlobalMonitoringRun3TestConfig(flags):
     if flags.DQ.Environment in ('online', 'tier0', 'tier0Raw') and (flags.InDet.Tracking.doLargeD0 or flags.InDet.Tracking.doR3LargeD0 or flags.InDet.Tracking.doLowPtLargeD0):
         ########### here begins InDetGlobalLRTMonAlg ###########
         from InDetGlobalMonitoringRun3Test.InDetGlobalLRTMonAlgCfg import InDetGlobalLRTMonAlgCfg
-        inDetGlobalLRTMonAlg = helper.addAlgorithm(CompFactory.InDetGlobalLRTMonAlg, 'InDetGlobalLRTMonAlg')
+        inDetGlobalLRTMonAlg = helper.addAlgorithm(CompFactory.InDetGlobalLRTMonAlg, 'InDetGlobalLRTMonAlg',addFilterTools = [FilledBunchFilterToolCfg(flags)])
 
         from InDetConfig.InDetTrackSelectionToolConfig import InDetGlobalLRTMonAlg_TrackSelectionToolCfg
         inDetGlobalLRTMonAlg.TrackSelectionTool = acc.popToolsAndMerge(InDetGlobalLRTMonAlg_TrackSelectionToolCfg(flags))
@@ -66,7 +80,7 @@ def InDetGlobalMonitoringRun3TestConfig(flags):
         from InDetGlobalMonitoringRun3Test.InDetGlobalPrimaryVertexMonAlgCfg import InDetGlobalPrimaryVertexMonAlgCfg 
         
         myInDetGlobalPrimaryVertexMonAlg = helper.addAlgorithm(CompFactory.InDetGlobalPrimaryVertexMonAlg,
-                                                               'InDetGlobalPrimaryVertexMonAlg')
+                                                               'InDetGlobalPrimaryVertexMonAlg',addFilterTools = [FilledBunchFilterToolCfg(flags)])
         
         kwargsInDetGlobalPrimaryVertexMonAlg = { 
             'vxContainerName'                      : 'PrimaryVertices', #InDetKeys.xAODVertexContainer(),
@@ -87,7 +101,7 @@ def InDetGlobalMonitoringRun3TestConfig(flags):
         from InDetGlobalMonitoringRun3Test.InDetGlobalBeamSpotMonAlgCfg import InDetGlobalBeamSpotMonAlgCfg 
         
         myInDetGlobalBeamSpotMonAlg = helper.addAlgorithm(CompFactory.InDetGlobalBeamSpotMonAlg,
-                                                          'InDetGlobalBeamSpotMonAlg')
+                                                          'InDetGlobalBeamSpotMonAlg',addFilterTools = [FilledBunchFilterToolCfg(flags)])
         
         kwargsInDetGlobalBeamSpotMonAlg = { 
             'BeamSpotKey'                      : 'BeamSpotData', #InDetKeys.BeamSpotData(),
