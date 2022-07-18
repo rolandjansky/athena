@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/StatusCode.h"
@@ -281,7 +281,6 @@ int AlVec::RemoveElements(std::vector<int> indices)
     int index = indices[i];
     if (index > m_size-1) {
       throw std::out_of_range( "AlVec::RemoveElements: Index  goes beyond matrix " );
-      continue;
     }
 
     for (int j=index; j<m_size-1; j++)
