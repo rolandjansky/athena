@@ -34,6 +34,28 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
     ATH_MSG_DEBUG("Size of the input vector: " << stripsVect.size()); 
 
     if (stripsVect.empty()) return StatusCode::SUCCESS;
+  
+    std::sort(stripsVect.begin(), stripsVect.end(), 
+      [&](const Muon::sTgcPrepData& a, const Muon::sTgcPrepData& b){
+        const Identifier ida = a.identify(), idb = b.identify();
+        const int mla = m_idHelperSvc->stgcIdHelper().multilayer(ida);
+        const int mlb = m_idHelperSvc->stgcIdHelper().multilayer(idb);
+        
+        const int gga = m_idHelperSvc->stgcIdHelper().gasGap(ida);
+        const int ggb = m_idHelperSvc->stgcIdHelper().gasGap(idb);
+        
+        const int cha = m_idHelperSvc->stgcIdHelper().channel(ida);
+        const int chb = m_idHelperSvc->stgcIdHelper().channel(idb);
+        
+        const int chta = m_idHelperSvc->stgcIdHelper().channelType(ida);
+        const int chtb = m_idHelperSvc->stgcIdHelper().channelType(idb);
+
+        if(mla!=mlb) return mla<mlb;
+        if(gga!=ggb) return gga<ggb;
+        if(chta!=chtb) return chta<chtb;
+        return cha<chb;
+      }
+  );
 
     // define the identifier hash
     IdentifierHash hash;

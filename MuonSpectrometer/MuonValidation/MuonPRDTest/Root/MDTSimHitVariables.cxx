@@ -92,5 +92,5 @@ namespace MuonPRDTest {
         ATH_MSG_DEBUG("processed " << m_MDT_nSimHits << " Mdt hits");
         return true;
     }
-    bool MDTSimHitVariables::declare_keys() { return m_simHitKey.initialize().isSuccess(); }
+    bool MDTSimHitVariables::declare_keys() { return declare_dependency(m_simHitKey); }
 }  // namespace MuonPRDTest

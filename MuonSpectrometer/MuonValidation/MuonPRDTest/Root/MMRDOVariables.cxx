@@ -10,7 +10,7 @@ using namespace Muon;
 namespace MuonPRDTest {
     MMRDOVariables::MMRDOVariables(MuonTesterTree& tree, const std::string& container_name, MSG::Level msglvl) :
         PrdTesterModule(tree, "RDO_MM", true, msglvl), m_rdokey{container_name} {}
-    bool MMRDOVariables::declare_keys() { return m_rdokey.initialize().isSuccess(); }
+    bool MMRDOVariables::declare_keys() { return declare_dependency(m_rdokey); }
 
     bool MMRDOVariables::fill(const EventContext& ctx) {
         ATH_MSG_DEBUG("do fillMMRDOVariables()");

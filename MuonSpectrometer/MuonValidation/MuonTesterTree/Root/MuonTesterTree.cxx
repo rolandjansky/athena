@@ -65,17 +65,17 @@ void MuonTesterTree::removeBranch(IMuonTesterBranch& branch) { removeBranch(&bra
 
 bool MuonTesterTree::initialized() const { return m_init; }
 bool MuonTesterTree::fill(const EventContext& ctx) {
+    MsgStream log(Athena::getMessageSvc(), "MuonTesterTree");
+    
     if (!initialized()) {
-        MsgStream log(Athena::getMessageSvc(), "MuonTesterTree");
         log << MSG::ERROR << "The tree " << name() << " has not been initialized yet" << endmsg;
         return false;
     }
     if (!m_excludedBranches.empty()) m_excludedBranches.clear();
-
     /// These branches are actually initialized
     for (auto& branch : m_branches_to_init) {
+        log << MSG::DEBUG<<"Try to fill "<<branch->name()<<endmsg;
         if (!branch->fill(ctx)) {
-            MsgStream log(Athena::getMessageSvc(), "MuonTesterTree");
             log << MSG::ERROR << "fill()  --- Failed to fill branch " << branch->name() << " in tree " << name() << endmsg;
             return false;
         }
@@ -115,6 +115,11 @@ StatusCode MuonTesterTree::init(ServiceHandle<ITHistSvc> hist_svc) {
             return StatusCode::FAILURE;
         }
         log << MSG::DEBUG << " Branch " << branch->name() << " has been initialized" << endmsg;
+        std::vector<DataDependency> data_dep = branch->data_dependencies();
+        for (const DataDependency& data : data_dep) {
+            m_dependencies.emplace_back(data);
+        }
+
     }
     /// Kick everything that is not owned by the class itself
     Remove(m_branches_to_init, [this](const IMuonTesterBranch* br) {

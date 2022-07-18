@@ -41,9 +41,11 @@ public:
     /// Save the TTree in a subfolder of the TFile
     void set_path(const std::string& new_path);
 
-    /// Initialze the tree with the output file. The stream corresponds to the stream
-    /// of the file e.g MDTTester HighEtaTester
-    StatusCode init(ServiceHandle<ITHistSvc> hist_svc);
+    /// Initialize method
+   template <class OWNER,
+            typename = typename std::enable_if<std::is_base_of<IProperty, OWNER>::value>::type>
+   StatusCode init(OWNER* instance);
+
     /// Finally write the TTree objects
     StatusCode write();
     /// This method adds the branch to the tree and hands over the ownership
@@ -90,6 +92,13 @@ public:
     const xAOD::Vertex* primary_vtx() const;
 
 private:
+     /// Initialze the tree with the output file. The stream corresponds to the stream
+    /// of the file e.g MDTTester HighEtaTester
+    StatusCode init(ServiceHandle<ITHistSvc> hist_svc);
+    
+    using DataDependency = IMuonTesterBranch::DataDependency;
+    std::vector<DataDependency> m_dependencies{};
+
     std::unique_ptr<TTree> m_tree{nullptr};
     std::string m_stream{};
     std::string m_path{};

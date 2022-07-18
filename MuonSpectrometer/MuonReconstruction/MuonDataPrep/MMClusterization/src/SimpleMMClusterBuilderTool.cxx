@@ -28,6 +28,25 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
         ATH_MSG_DEBUG("Empty PRD collection: no clusterization");
         return StatusCode::SUCCESS;
     }
+
+    std::sort(MMprds.begin(), MMprds.end(), 
+      [&](const Muon::MMPrepData& a, const Muon::MMPrepData& b){
+        const Identifier ida = a.identify(), idb = b.identify();
+        const int mla = m_idHelperSvc->mmIdHelper().multilayer(ida);
+        const int mlb = m_idHelperSvc->mmIdHelper().multilayer(idb);
+        
+        const int gga = m_idHelperSvc->mmIdHelper().gasGap(ida);
+        const int ggb = m_idHelperSvc->mmIdHelper().gasGap(idb);
+        
+        const int cha = m_idHelperSvc->mmIdHelper().channel(ida);
+        const int chb = m_idHelperSvc->mmIdHelper().channel(idb);
+
+        if(mla!=mlb) return mla<mlb;
+        if(gga!=ggb) return gga<ggb;
+        return cha<chb;
+      }
+    );
+
     
     const IdentifierHash hash = MMprds.at(0).collectionHash();
  

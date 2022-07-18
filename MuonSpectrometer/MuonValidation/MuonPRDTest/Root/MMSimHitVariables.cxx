@@ -10,7 +10,7 @@ namespace MuonPRDTest {
     MMSimHitVariables::MMSimHitVariables(MuonTesterTree& tree, const std::string& container_name, MSG::Level msglvl) :
         PrdTesterModule(tree, "MM_Sim", false, msglvl), m_key{container_name} {}
 
-    bool MMSimHitVariables::declare_keys() { return m_key.initialize().isSuccess(); }
+    bool MMSimHitVariables::declare_keys() { return declare_dependency(m_key); }
 
     bool MMSimHitVariables::fill(const EventContext& ctx) {
         ATH_MSG_DEBUG("do fill MmSimHitVariables()");

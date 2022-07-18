@@ -7,6 +7,7 @@
 #include <StoreGate/ReadHandleKey.h>
 #include <xAODBase/IParticle.h>
 
+#include <algorithm>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -35,6 +36,11 @@ public:
     virtual bool init() = 0;
     ///     Returns the name of the branch
     virtual std::string name() const = 0;
+
+    using DataDependency = SG::VarHandleKey*;
+    /// Returns a vector of all Event data dependencies needed by the Branch to work
+    virtual std::vector<DataDependency> data_dependencies() = 0;
+
 };
 
 // Extension of the interface in case someone wants to store information directly associated

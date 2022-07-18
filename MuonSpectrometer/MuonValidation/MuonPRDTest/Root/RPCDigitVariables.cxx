@@ -9,7 +9,7 @@ namespace MuonPRDTest {
     RpcDigitVariables::RpcDigitVariables(MuonTesterTree& tree, const std::string& container_name, MSG::Level msglvl) :
         PrdTesterModule(tree, "Digits_RPC", true, msglvl), m_key{container_name} {}
 
-    bool RpcDigitVariables::declare_keys() { return m_key.initialize().isSuccess(); }
+    bool RpcDigitVariables::declare_keys() { return declare_dependency(m_key); }
     bool RpcDigitVariables::fill(const EventContext& ctx) {
         ATH_MSG_DEBUG("do fillMDTSimHitVariables()");
         const MuonGM::MuonDetectorManager* MuonDetMgr = getDetMgr(ctx);

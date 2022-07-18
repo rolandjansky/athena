@@ -89,7 +89,7 @@ StatusCode NSWPRDValAlg::initialize() {
     for (std::unique_ptr<ValAlgVariables>& tester : m_testers) { ATH_CHECK(tester->initializeVariables()); }
 
     ATH_MSG_DEBUG("Init TTree");
-    ATH_CHECK(m_tree.init(histSvc()));
+    ATH_CHECK(m_tree.init(this));
 
     ATH_MSG_DEBUG("Finished with the initialization");
     return StatusCode::SUCCESS;
