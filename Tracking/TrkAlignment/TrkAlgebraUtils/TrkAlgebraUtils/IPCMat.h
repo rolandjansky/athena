@@ -63,12 +63,12 @@ class IPCMat {
   const std::string &name() const;
 
  private:
-  IMessageSvc *m_msgSvc;
-  int m_ncalls;
-  int m_msgid;
+  IMessageSvc *m_msgSvc{};
+  int m_ncalls{};
+  int m_msgid{};
   std::string  m_name;
-  MsgStream* m_log;
-  pid_t m_ipcmat_pid;
+  MsgStream* m_log{};
+  pid_t m_ipcmat_pid{};
 
   struct MsgBuf {
     long mtype;
