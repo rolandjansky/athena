@@ -41,7 +41,6 @@ namespace Muon {
         virtual void restoreSurfaces(Trk::TrkDetElementBase* mre) const;
 
     private:
-        MsgStream* m_log;
         CombinedMuonAlignModule& operator=(const CombinedMuonAlignModule& right);
         CombinedMuonAlignModule(const CombinedMuonAlignModule&);
 

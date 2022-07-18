@@ -14,13 +14,13 @@ namespace Muon {
 
     //________________________________________________________________________
     CombinedMuonAlignModule::CombinedMuonAlignModule(const AlgTool* algtool, const Amg::Transform3D& transform) :
-        AlignModule(algtool, transform), m_log(new MsgStream(algtool->msgSvc(), "CombinedMuonAlignModule")) {
+        AlignModule(algtool, transform) {
         const AthAlgTool* athAlgTool = dynamic_cast<const AthAlgTool*>(algtool);
-        if (athAlgTool) m_log->setLevel(athAlgTool->msg().level());
+        if (athAlgTool) setLevel(athAlgTool->msg().level());
     }
 
     //________________________________________________________________________
-    CombinedMuonAlignModule::~CombinedMuonAlignModule() { delete m_log; }
+    CombinedMuonAlignModule::~CombinedMuonAlignModule() { }
 
     //________________________________________________________________________
     void CombinedMuonAlignModule::shiftSurface(Trk::TrkDetElementBase* det, Identifier id) const {
@@ -77,7 +77,7 @@ namespace Muon {
             return;
         }
 
-        *m_log << MSG::ERROR << "det element not MDT, TGC, or RPC!" << endmsg;
+        ATH_MSG_ERROR("det element not MDT, TGC, or RPC!");
 
         return;
     }
