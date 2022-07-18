@@ -57,14 +57,16 @@ protected:
 
   /// parameters for truth labeling
   SG::ReadHandleKey<xAOD::JetContainer> m_truthJetCollectionName{this, "TruthJetContainer", "", "Do not configure manually!"};
-  bool m_useDRMatch;
-  double m_dRTruthJet;
-  double m_dRTruthPart;
-  double m_mLowTop;
-  double m_mLowW;
-  double m_mHighW;
-  double m_mLowZ;
-  double m_mHighZ;
+  bool m_useDRMatch; /// Use dR to match partons to truth jet
+  bool m_useWZMassHigh; /// Use upper mass cut for W/Z labels
+  bool m_matchUngroomedParent; /// Use the ungroomed reco jet parent to match to truth jet
+  double m_dRTruthJet; /// dR to match truth jet to reco jet
+  double m_dRTruthPart; /// dR to match truth particles to truth jet
+  double m_mLowTop; /// Lower mass cut for top label
+  double m_mLowW; /// Lower mass cut for W label
+  double m_mHighW; /// Upper mass cut for W label
+  double m_mLowZ; /// Lower mass cut for Z label
+  double m_mHighZ; /// Upper mass cut for Z label
 
   /// Label truth jet collection
   StatusCode labelTruthJets() const;
@@ -82,8 +84,11 @@ protected:
   /// Get label based on matching and containment criteria
   int getLabel( const xAOD::Jet &jet, bool matchH, bool matchW, bool matchZ, bool matchTop ) const;
 
-  /// Get R21Precision top label Split23 cut
-  float getTopSplit23CutR21Precision( float pt ) const;
+  /// Get W/Z label Split12 cut
+  float getWZSplit12Cut( float pt ) const;
+
+  /// Get top label Split23 cut
+  float getTopSplit23Cut( float pt ) const;
 
   /// Get number of ghost associated particles
   int getNGhostParticles( const xAOD::Jet &jet, std::string collection ) const;
@@ -111,6 +116,7 @@ protected:
   SG::WriteDecorHandleKey<xAOD::JetContainer> m_dR_H_truthKey{this, "dR_H_TruthKey", "", "Do not configure manually!"};
   SG::WriteDecorHandleKey<xAOD::JetContainer> m_dR_Top_truthKey{this, "dR_Top_TruthKey", "", "Do not configure manually!"};
   SG::WriteDecorHandleKey<xAOD::JetContainer> m_NB_truthKey{this, "NB_TruthKey", "", "Do not configure manually!"};
+  SG::ReadDecorHandleKey<xAOD::JetContainer> m_split12_truthKey{this, "Split12_TruthKey", "", "Do not configure manually!"};
   SG::ReadDecorHandleKey<xAOD::JetContainer> m_split23_truthKey{this, "Split23_TruthKey", "", "Do not configure manually!"};
 
   SG::WriteDecorHandleKey<xAOD::JetContainer> m_label_recoKey{this, "label_RecoKey", "", "Do not configure manually!"};
@@ -119,6 +125,7 @@ protected:
   SG::WriteDecorHandleKey<xAOD::JetContainer> m_dR_H_recoKey{this, "dR_H_RecoKey", "", "Do not configure manually!"};
   SG::WriteDecorHandleKey<xAOD::JetContainer> m_dR_Top_recoKey{this, "dR_Top_RecoKey", "", "Do not configure manually!"};
   SG::WriteDecorHandleKey<xAOD::JetContainer> m_NB_recoKey{this, "NB_RecoKey", "", "Do not configure manually!"};
+  SG::WriteDecorHandleKey<xAOD::JetContainer> m_truthSplit12_recoKey{this, "TruthSplit12_RecoKey", "", "Do not configure manually!"};
   SG::WriteDecorHandleKey<xAOD::JetContainer> m_truthSplit23_recoKey{this, "TruthSplit23_RecoKey", "", "Do not configure manually!"};
   SG::WriteDecorHandleKey<xAOD::JetContainer> m_truthJetMass_recoKey{this, "TruthJetMass_RecoKey", "", "Do not configure manually!"};
 };
