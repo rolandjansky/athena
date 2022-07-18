@@ -10,7 +10,7 @@ namespace MuonPRDTest {
     sTgcDigitVariables::sTgcDigitVariables(MuonTesterTree& tree, const std::string& container_name, MSG::Level msglvl) :
         PrdTesterModule(tree, "Digits_sTGC", true, msglvl), m_key{container_name} {}
 
-    bool sTgcDigitVariables::declare_keys() { return m_key.initialize().isSuccess(); }
+    bool sTgcDigitVariables::declare_keys() { return declare_dependency(m_key); }
     bool sTgcDigitVariables::fill(const EventContext& ctx) {
         ATH_MSG_DEBUG("do fillsTGCDigitHitVariables()");
         const MuonGM::MuonDetectorManager* MuonDetMgr = getDetMgr(ctx);

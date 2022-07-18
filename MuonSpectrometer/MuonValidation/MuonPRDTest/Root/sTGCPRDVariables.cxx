@@ -9,7 +9,7 @@
 namespace MuonPRDTest {
     sTGCPRDVariables::sTGCPRDVariables(MuonTesterTree& tree, const std::string& container_name, MSG::Level msglvl) :
         PrdTesterModule(tree, "PRD_sTGC", true, msglvl), m_key{container_name} {}
-    bool sTGCPRDVariables::declare_keys() { return m_key.initialize().isSuccess(); }
+    bool sTGCPRDVariables::declare_keys() { return declare_dependency(m_key); }
 
     bool sTGCPRDVariables::fill(const EventContext& ctx) {
         ATH_MSG_DEBUG("do fillsTGCPRDVariables()");

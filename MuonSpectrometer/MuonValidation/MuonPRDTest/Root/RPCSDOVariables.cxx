@@ -7,7 +7,7 @@ namespace MuonPRDTest {
     RpcSDOVariables::RpcSDOVariables(MuonTesterTree& tree, const std::string& container_name, MSG::Level msglvl) :
         PrdTesterModule(tree, "SDO_RPC", false, msglvl), m_key{container_name} {}
 
-    bool RpcSDOVariables::declare_keys() { return m_key.initialize().isSuccess(); }
+    bool RpcSDOVariables::declare_keys() { return declare_dependency(m_key); }
 
     bool RpcSDOVariables::fill(const EventContext& ctx) {
         ATH_MSG_DEBUG("do fill RpcSDOVariable()");

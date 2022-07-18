@@ -21,10 +21,12 @@ namespace MuonPRDTest {
         return handle.cptr();
     }
     bool PrdTesterModule::init() {
-        if (!m_useCondDetMgr && (!m_detStore.retrieve().isSuccess() || !m_detStore->retrieve(m_detMgr).isSuccess())) return false;
-        if (!m_detMgrKey.initialize(m_useCondDetMgr).isSuccess()) return false;
+        if (!m_useCondDetMgr && (!m_detStore.retrieve().isSuccess() || !m_detStore->retrieve(m_detMgr).isSuccess())) return false;       
+        if (!m_useCondDetMgr) {
+            m_detMgrKey = std::string{""};
+        }
+        if (!declare_dependency(m_detMgrKey)) return false;       
         if (!m_idHelperSvc.retrieve().isSuccess()) return false;
-
         return declare_keys();
     }
     bool PrdTesterModule::declare_keys() { return true; }

@@ -9,7 +9,7 @@
 namespace MuonPRDTest {
     TruthVariables::TruthVariables(MuonTesterTree& tree, const std::string& container_name, MSG::Level msglvl) :
         PrdTesterModule(tree, "TruthTestModule", false, msglvl), m_key{container_name} {}
-    bool TruthVariables::declare_keys() { return m_key.initialize().isSuccess(); }
+    bool TruthVariables::declare_keys() { return declare_dependency(m_key); }
 
     bool TruthVariables::fill(const EventContext& ctx) {
         SG::ReadHandle<McEventCollection> truthContainer{m_key, ctx};

@@ -54,5 +54,5 @@ namespace MuonPRDTest {
         return true;
     }
 
-    bool MdtSDOVariables::declare_keys() { return m_sdo_key.initialize().isSuccess(); }
+    bool MdtSDOVariables::declare_keys() { return declare_dependency(m_sdo_key); }
 }  // namespace MuonPRDTest

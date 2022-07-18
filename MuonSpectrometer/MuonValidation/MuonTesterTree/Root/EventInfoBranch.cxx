@@ -31,5 +31,6 @@ bool EventInfoBranch::fill(const EventContext& ctx) {
     }
     return true;
 }
-bool EventInfoBranch::init() { return m_key.initialize().isSuccess(); }
+bool EventInfoBranch::init() { return m_key.initialize().isSuccess();}
+std::vector<EventInfoBranch::DataDependency> EventInfoBranch::data_dependencies() { return {&m_key}; }
 std::string EventInfoBranch::name() const { return " event info "; }
