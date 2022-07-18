@@ -60,7 +60,8 @@ void MuonHoughHisto2D::findMaxima(int printlevel, bool which_segment) {
 
     while (maximum_number < m_number_of_maxima) {
         double maximum = -1.;
-        int maxbin = -1;
+        //coverity defect 13671: max bin was set to -1 initially, but this is sued as an index into the array
+        int maxbin = 0;
 
         if (printlevel >= 3 || log.level() <= MSG::DEBUG) {
             log << MSG::DEBUG << "MuonHoughHisto2D::size bins above threshold: " << m_bins_above_threshold.size() << endmsg;

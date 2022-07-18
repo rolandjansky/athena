@@ -114,7 +114,7 @@ namespace MuonHough {
         int outer_step = 7 * scalefactor;       // default is 7--range is 0.35
         double inner_gap = 0.05;                // default is 0.05
         double middle_gap = 0.1 / scalefactor;  // default is 0.1
-        double outer_gap = 0.1 / scalefactor;   // default is 0.1
+        double outer_gap = middle_gap;   // default is 0.1
         int ystep = 30;                         // default is 30
         m_regionDescriptions.resize(Muon::MuonStationIndex::CSS);
         m_regionDescriptions[Muon::MuonStationIndex::BIS] = RegionDescriptor(1, Muon::MuonStationIndex::Barrel, Muon::MuonStationIndex::BIS,
