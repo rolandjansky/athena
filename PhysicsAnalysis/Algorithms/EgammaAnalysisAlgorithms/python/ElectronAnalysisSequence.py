@@ -119,7 +119,7 @@ def makeElectronCalibrationSequence( seq, dataType, postfix = '',
                 metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
                               'selectionDecorNamesOutput' : [alg.selectionDecoration],
                               'selectionDecorCount' : [5 if crackVeto else 4]},
-                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
+                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNamesOutput"])} )
 
     # Set up the track selection algorithm:
     alg = createAlgorithm( 'CP::AsgLeptonTrackSelectionAlg',
@@ -132,7 +132,7 @@ def makeElectronCalibrationSequence( seq, dataType, postfix = '',
                 metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
                               'selectionDecorNamesOutput' : [alg.selectionDecoration],
                               'selectionDecorCount' : [3]},
-                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
+                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNamesOutput"])} )
 
     # Select electrons only with good object quality.
     alg = createAlgorithm( 'CP::AsgSelectionAlg', 'ElectronObjectQualityAlg' + postfix )
@@ -144,7 +144,7 @@ def makeElectronCalibrationSequence( seq, dataType, postfix = '',
                 metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
                               'selectionDecorNamesOutput' : [alg.selectionDecoration],
                               'selectionDecorCount' : [1]},
-                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
+                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNamesOutput"])} )
 
     # Set up the calibration and smearing algorithm:
     alg = createAlgorithm( 'CP::EgammaCalibrationAndSmearingAlg',
@@ -160,7 +160,7 @@ def makeElectronCalibrationSequence( seq, dataType, postfix = '',
         pass
     seq.append( alg, inputPropName = 'egammas', outputPropName = 'egammasOut',
                 stageName = 'calibration',
-                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
+                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNamesOutput"])} )
 
     # Set up the the pt selection
     alg = createAlgorithm( 'CP::AsgSelectionAlg', 'ElectronPtCutAlg' + postfix )
@@ -172,7 +172,7 @@ def makeElectronCalibrationSequence( seq, dataType, postfix = '',
                 metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
                               'selectionDecorNamesOutput' : [alg.selectionDecoration] if ptSelectionOutput else [],
                               'selectionDecorCount' : [2]},
-                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
+                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNamesOutput"])} )
 
     # Set up the isolation correction algorithm:
     if isolationCorrection:
@@ -187,7 +187,7 @@ def makeElectronCalibrationSequence( seq, dataType, postfix = '',
             pass
         seq.append( alg, inputPropName = 'egammas', outputPropName = 'egammasOut',
                     stageName = 'calibration',
-                    dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
+                    dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNamesOutput"])} )
 
 
 
@@ -252,7 +252,7 @@ def makeElectronWorkingPointSequence( seq, dataType, workingPoint,
                 metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
                               'selectionDecorNamesOutput' : [alg.selectionDecoration],
                               'selectionDecorCount' : [7 if recomputeLikelihood else 1]},
-                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
+                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNamesOutput"])} )
 
     # Set up the isolation selection algorithm:
     if isolationWP != 'NonIso' :
@@ -266,7 +266,7 @@ def makeElectronWorkingPointSequence( seq, dataType, workingPoint,
                     metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
                                   'selectionDecorNamesOutput' : [alg.selectionDecoration],
                                   'selectionDecorCount' : [1]},
-                    dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
+                    dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNamesOutput"])} )
 
     # Select electrons only if they don't appear to have flipped their charge.
     if chargeIDSelection:
@@ -284,7 +284,7 @@ def makeElectronWorkingPointSequence( seq, dataType, workingPoint,
                     metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
                                   'selectionDecorNamesOutput' : [alg.selectionDecoration],
                                   'selectionDecorCount' : [1]},
-                    dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
+                    dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNamesOutput"])} )
         pass
 
     # Set up an algorithm used for decorating baseline electron selection:
@@ -294,7 +294,7 @@ def makeElectronWorkingPointSequence( seq, dataType, workingPoint,
     alg.selectionDecoration = 'baselineSelection' + postfix + ',as_char'
     seq.append( alg, inputPropName = 'particles',
                 stageName = 'selection',
-                dynConfig = {'selectionTool.selectionFlags' : lambda meta : meta["selectionDecorNames"] [ : ]} )
+                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNamesOutput"])} )
 
     # Set up the electron efficiency correction algorithm:
     alg = createAlgorithm( 'CP::ElectronEfficiencyCorrectionAlg',
@@ -316,5 +316,5 @@ def makeElectronWorkingPointSequence( seq, dataType, workingPoint,
     if dataType != 'data':
         seq.append( alg, inputPropName = 'electrons',
                     stageName = 'efficiency',
-                    dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
+                    dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNamesOutput"])} )
         pass

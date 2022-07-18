@@ -125,7 +125,7 @@ def makePhotonCalibrationSequence( seq, dataType,
                 metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
                               'selectionDecorNamesOutput' : [alg.selectionDecoration],
                               'selectionDecorCount' : [5 if crackVeto else 4]},
-                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
+                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNamesOutput"])} )
 
     # Setup shower shape fudge
     if recomputeIsEM and dataType == 'mc':
@@ -138,7 +138,7 @@ def makePhotonCalibrationSequence( seq, dataType,
             'ElectronPhotonShowerShapeFudgeTool/v2/PhotonFudgeFactors.root' # only for rel21
         seq.append( alg, inputPropName = 'photons', outputPropName = 'photonsOut',
                     stageName = 'calibration',
-                    dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
+                    dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNamesOutput"])} )
         pass
 
     # Select photons only with good object quality.
@@ -151,7 +151,7 @@ def makePhotonCalibrationSequence( seq, dataType,
                 metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
                               'selectionDecorNamesOutput' : [alg.selectionDecoration],
                               'selectionDecorCount' : [1]},
-                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
+                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNamesOutput"])} )
 
     # Select clean photons
     if enableCleaning:
@@ -164,7 +164,7 @@ def makePhotonCalibrationSequence( seq, dataType,
                     metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
                                 'selectionDecorNamesOutput' : [alg.selectionDecoration],
                                 'selectionDecorCount' : [1]},
-                    dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
+                    dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNamesOutput"])} )
 
     # Do calibration
     alg = createAlgorithm( 'CP::EgammaCalibrationAndSmearingAlg',
@@ -180,7 +180,7 @@ def makePhotonCalibrationSequence( seq, dataType,
         pass
     seq.append( alg, inputPropName = 'egammas', outputPropName = 'egammasOut',
                 stageName = 'calibration',
-                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
+                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNamesOutput"])} )
 
     # Set up the the pt selection
     alg = createAlgorithm( 'CP::AsgSelectionAlg', 'PhotonPtCutAlg' + postfix )
@@ -192,7 +192,7 @@ def makePhotonCalibrationSequence( seq, dataType,
                 metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
                               'selectionDecorNamesOutput' : [alg.selectionDecoration] if ptSelectionOutput else [],
                               'selectionDecorCount' : [2]},
-                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
+                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNamesOutput"])} )
 
     # Set up the isolation correction algorithm.
     alg = createAlgorithm( 'CP::EgammaIsolationCorrectionAlg',
@@ -206,7 +206,7 @@ def makePhotonCalibrationSequence( seq, dataType,
         pass
     seq.append( alg, inputPropName = 'egammas', outputPropName = 'egammasOut',
                 stageName = 'selection',
-                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
+                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNamesOutput"])} )
     pass
 
 
@@ -267,7 +267,7 @@ def makePhotonWorkingPointSequence( seq, dataType, workingPoint, postfix = '',
                 metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
                               'selectionDecorNamesOutput' : [alg.selectionDecoration],
                               'selectionDecorCount' : [32 if recomputeIsEM else 1]},
-                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
+                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNamesOutput"])} )
 
     # Set up the isolation selection algorithm:
     if isolationWP != 'NonIso' :
@@ -281,7 +281,7 @@ def makePhotonWorkingPointSequence( seq, dataType, workingPoint, postfix = '',
                     metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
                                   'selectionDecorNamesOutput' : [alg.selectionDecoration],
                                   'selectionDecorCount' : [1]},
-                    dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
+                    dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNamesOutput"])} )
         pass
 
     # Set up an algorithm used for decorating baseline photon selection:
@@ -294,7 +294,7 @@ def makePhotonWorkingPointSequence( seq, dataType, workingPoint, postfix = '',
                 metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
                               'selectionDecorNamesOutput' : [alg.selectionDecoration],
                               'selectionDecorCount' : [1]},
-                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
+                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNamesOutput"])} )
 
     # Set up the photon efficiency correction algorithm.
     alg = createAlgorithm( 'CP::PhotonEfficiencyCorrectionAlg',
@@ -314,10 +314,7 @@ def makePhotonWorkingPointSequence( seq, dataType, workingPoint, postfix = '',
     if dataType != 'data':
         seq.append( alg, inputPropName = 'photons',
                     stageName = 'efficiency',
-                    metaConfig = {'selectionDecorNames' : [alg.outOfValidityDeco],
-                                  'selectionDecorNamesOutput' : [alg.outOfValidityDeco],
-                                  'selectionDecorCount' : [1]},
-                    dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
+                    dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNamesOutput"])} )
         pass
 
     pass
