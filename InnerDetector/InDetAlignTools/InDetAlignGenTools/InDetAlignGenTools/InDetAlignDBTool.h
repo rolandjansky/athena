@@ -205,6 +205,10 @@ virtual public IInDetAlignDBTool, public AthAlgTool {
 
   bool m_dynamicDB;
   bool m_forceUserDBConfig;
+  
+  Gaudi::Property<std::string> m_pixmanName{this, "PixelManager", "Pixel", "Pixel manager name" };
+  Gaudi::Property<std::string> m_sctmanName{this, "SCT_Manager", "SCT", "SCT manager name" };
+
 };
 
 #endif // INDETALIGNGENTOOLS_ALIGNDBTOOL_H

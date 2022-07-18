@@ -66,11 +66,11 @@ namespace InDetAlignment
 	// Constructor
 	CreateMisalignAlg::CreateMisalignAlg(const std::string& name, ISvcLocator* pSvcLocator):
 	AthAlgorithm(name,pSvcLocator),
-        m_idHelper(nullptr),
-        m_pixelIdHelper(nullptr),
-        m_sctIdHelper(nullptr),
-        m_trtIdHelper(nullptr),
-	m_IDAlignDBTool("InDetAlignDBTool"),
+    m_idHelper(nullptr),
+    m_pixelIdHelper(nullptr),
+    m_sctIdHelper(nullptr),
+    m_trtIdHelper(nullptr),
+	m_IDAlignDBTool("InDetAlignDBTool",this),
 	m_trtaligndbservice("TRT_AlignDbSvc",name),
 	m_asciiFileNameBase("MisalignmentSet"),
 	m_SQLiteTag("test_tag"),
@@ -85,9 +85,9 @@ namespace InDetAlignment
 	m_Misalign_beta(0),
 	m_Misalign_gamma(0),
 	m_Misalign_maxShift(1*CLHEP::mm),
-        m_Misalign_maxShift_Inner(50*CLHEP::micrometer),
-        m_ScalePixelIBL(1.),
-        m_ScalePixelDBM(1.),
+    m_Misalign_maxShift_Inner(50*CLHEP::micrometer),
+    m_ScalePixelIBL(1.),
+    m_ScalePixelDBM(1.),
 	m_IBLBowingTshift(0.),
 	m_ScalePixelBarrel(1.),
 	m_ScalePixelEndcap(1.),
@@ -95,9 +95,12 @@ namespace InDetAlignment
 	m_ScaleSCTEndcap(1.),
 	m_ScaleTRTBarrel(1.),
 	m_ScaleTRTEndcap(1.),
-        m_VisualizationLookupTree(nullptr),
-        m_AthenaHashedID(-1),
-        m_HumanReadableID(-1)
+    m_VisualizationLookupTree(nullptr),
+    m_AthenaHashedID(-1),
+    m_HumanReadableID(-1),
+    m_doPix(true),
+    m_doStrip(true),
+    m_doTRT(true)
 	{
 		declareProperty("ASCIIFilenameBase"             ,     m_asciiFileNameBase);
 		declareProperty("SQLiteTag"                     ,     m_SQLiteTag);
@@ -109,12 +112,12 @@ namespace InDetAlignment
 		declareProperty("MisalignmentBeta"              ,     m_Misalign_beta);
 		declareProperty("MisalignmentGamma"             ,     m_Misalign_gamma);
 		declareProperty("MaxShift"                      ,     m_Misalign_maxShift);
-                declareProperty("MaxShiftInner"                 ,     m_Misalign_maxShift_Inner);
+        declareProperty("MaxShiftInner"                 ,     m_Misalign_maxShift_Inner);
 		declareProperty("CreateFreshDB"                 ,     m_createFreshDB);
 		declareProperty("IDAlignDBTool"                 ,     m_IDAlignDBTool);
 		declareProperty("TRTAlignDBService"             ,     m_trtaligndbservice);
-                declareProperty("ScalePixelIBL"                 ,     m_ScalePixelIBL);
-                declareProperty("ScalePixelDBM"                 ,     m_ScalePixelDBM);
+        declareProperty("ScalePixelIBL"                 ,     m_ScalePixelIBL);
+        declareProperty("ScalePixelDBM"                 ,     m_ScalePixelDBM);
 		declareProperty("IBLBowingTshift"               ,     m_IBLBowingTshift);
 		declareProperty("ScalePixelBarrel"              ,     m_ScalePixelBarrel);
 		declareProperty("ScalePixelEndcap"              ,     m_ScalePixelEndcap);
@@ -135,20 +138,31 @@ namespace InDetAlignment
 	StatusCode CreateMisalignAlg::initialize()
 	{
 		ATH_MSG_DEBUG("CreateMisalignAlg initialize()");
-		ATH_CHECK(m_IDAlignDBTool.retrieve());
-		ATH_CHECK(m_trtaligndbservice.retrieve());
+		if(m_pixelDetEleCollKey.empty()) {m_doPix=false;ATH_MSG_DEBUG("Not creating misalignment for Pixel");}
+		if(m_SCTDetEleCollKey.empty()) {m_doStrip=false;ATH_MSG_DEBUG("Not creating misalignment for Strip/SCT");}
+		if(m_trtDetEleCollKey.empty()) {m_doTRT=false;ATH_MSG_DEBUG("Not creating misalignment for TRT");}
+
+        ATH_CHECK(m_pixelDetEleCollKey.initialize(SG::AllowEmpty));
+        ATH_CHECK(m_SCTDetEleCollKey.initialize(SG::AllowEmpty));
+        ATH_CHECK(m_trtDetEleCollKey.initialize(SG::AllowEmpty));
+
+        if (m_doPix || m_doStrip) ATH_CHECK(m_IDAlignDBTool.retrieve());
+		if(m_doTRT) ATH_CHECK(m_trtaligndbservice.retrieve());
 		//ID helpers
 		// Pixel
-		ATH_CHECK(detStore()->retrieve(m_pixelIdHelper, "PixelID"));
+		if(m_doPix){
+            ATH_CHECK(detStore()->retrieve(m_pixelIdHelper, "PixelID"));
+        }
 		// SCT
-		ATH_CHECK(detStore()->retrieve(m_sctIdHelper, "SCT_ID"));
+        if(m_doStrip){
+		    ATH_CHECK(detStore()->retrieve(m_sctIdHelper, "SCT_ID"));
+        }
 		// TRT
-		ATH_CHECK(detStore()->retrieve(m_trtIdHelper, "TRT_ID"));
+        if(m_doTRT){
+		    ATH_CHECK(detStore()->retrieve(m_trtIdHelper, "TRT_ID"));
+        }
 		ATH_CHECK(detStore()->retrieve(m_idHelper, "AtlasID"));
-                // ReadCondHandleKey
-		ATH_CHECK(m_trtDetEleCollKey.initialize());
-                ATH_CHECK(m_pixelDetEleCollKey.initialize());
-                ATH_CHECK(m_SCTDetEleCollKey.initialize());
+
 		// Retrieve the Histo Service
 		ITHistSvc* hist_svc;
 		ATH_CHECK(service("THistSvc",hist_svc));
@@ -221,9 +235,9 @@ namespace InDetAlignment
 				//m_trtaligndbservice->createAlignObjects(); //create DB for TRT? should be ok... //TODO
 			}
 			
-			setupPixel_AlignModule(nPixel);
-			setupSCT_AlignModule(nSCT);
-			setupTRT_AlignModule(nTRT);
+			if(m_doPix) setupPixel_AlignModule(nPixel);
+			if(m_doStrip) setupSCT_AlignModule(nSCT);
+			if(m_doTRT) setupTRT_AlignModule(nTRT);
 			
 			ATH_MSG_INFO( "Back from AlignModuleObject Setup. " );
 			ATH_MSG_INFO(  nPixel << " Pixel modules found." );
@@ -475,20 +489,25 @@ namespace InDetAlignment
 		const double maxDeltaZ = m_Misalign_maxShift;
 		ATH_MSG_DEBUG( "maximum deltaPhi              = " << maxAngle/CLHEP::mrad << " mrad" );
 		ATH_MSG_DEBUG( "maximum deltaPhi for 1/r term = " << maxAngleInner/CLHEP::mrad << " mrad" );
-
-                // SiDetectorElementCollection for Pixel
-                SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
-                const InDetDD::SiDetectorElementCollection* pixelElements(*pixelDetEleHandle);
-                if (not pixelDetEleHandle.isValid() or pixelElements==nullptr) {
-                  ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " is not available.");
-                  return StatusCode::FAILURE;
+                const InDetDD::SiDetectorElementCollection* pixelElements=nullptr;
+                const InDetDD::SiDetectorElementCollection* sctElements=nullptr;
+                if(m_doPix){
+                    // SiDetectorElementCollection for Pixel
+                    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+                    pixelElements = *pixelDetEleHandle;
+                    if (not pixelDetEleHandle.isValid() or pixelElements==nullptr) {
+                        ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " is not available.");
+                        return StatusCode::FAILURE;
+                    }
                 }
-                // SiDetectorElementCollection for SCT
-                SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEleHandle(m_SCTDetEleCollKey);
-                const InDetDD::SiDetectorElementCollection* sctElements(*sctDetEleHandle);
-                if (not sctDetEleHandle.isValid() or sctElements==nullptr) {
-                  ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " is not available.");
-                  return StatusCode::FAILURE;
+                if(m_doStrip){
+                    // SiDetectorElementCollection for SCT
+                    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEleHandle(m_SCTDetEleCollKey);
+                    sctElements = *sctDetEleHandle;
+                    if (not sctDetEleHandle.isValid() or sctElements==nullptr) {
+                        ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " is not available.");
+                        return StatusCode::FAILURE;
+                    }
                 }
 		
 		for (std::map<Identifier, HepGeom::Point3D<double> >::const_iterator iter = m_ModuleList.begin(); iter != m_ModuleList.end(); ++iter) {
@@ -500,11 +519,13 @@ namespace InDetAlignment
 			
 			if (m_idHelper->is_pixel(ModuleID)) {
                                 const IdentifierHash Pixel_ModuleHash = m_pixelIdHelper->wafer_hash(ModuleID);
-				SiModule = pixelElements->getDetectorElement(Pixel_ModuleHash);
+				if(pixelElements) SiModule = pixelElements->getDetectorElement(Pixel_ModuleHash);
+                else ATH_MSG_WARNING("Trying to access a Pixel module when running with no Pixel!");
 				//module = SiModule;
 			} else if (m_idHelper->is_sct(ModuleID)) {
                                 const IdentifierHash SCT_ModuleHash = m_sctIdHelper->wafer_hash(ModuleID);
-				SiModule = sctElements->getDetectorElement(SCT_ModuleHash);
+				if(sctElements) SiModule = sctElements->getDetectorElement(SCT_ModuleHash);
+                else ATH_MSG_WARNING("Trying to access an SCT/Strop module when running with no SCT/Strip!");
 				//module = SiModule;OB
 			} else if (m_idHelper->is_trt(ModuleID)) {
 				//module = m_TRT_Manager->getElement(ModuleID);
@@ -935,20 +956,22 @@ namespace InDetAlignment
 		// 	i = 0;
 		
 		//m_IDAlignDBTool->printDB(2);
-		
-		if (StatusCode::SUCCESS!=m_IDAlignDBTool->outputObjs()) {
+		if(m_doPix || m_doStrip){
+		 if (StatusCode::SUCCESS!=m_IDAlignDBTool->outputObjs()) {
 			ATH_MSG_ERROR( "Writing of AlignableTransforms failed" );
-		} else {
+		 } else {
 			ATH_MSG_INFO( "AlignableTransforms were written" );
 			ATH_MSG_INFO( "Writing database to textfile" );
 			m_IDAlignDBTool->writeFile(false,m_asciiFileNameBase+"_Si.txt");
 			ATH_MSG_INFO( "Writing IoV information to mysql file" );
 			m_IDAlignDBTool->fillDB("InDetSi_"+m_SQLiteTag,IOVTime::MINRUN,IOVTime::MINEVENT,IOVTime::MAXRUN,IOVTime::MAXEVENT);
-		}
+		} 
+        }
 		
-		if (StatusCode::SUCCESS!=m_trtaligndbservice->streamOutAlignObjects()) {
+		if(m_doTRT){
+         if (StatusCode::SUCCESS!=m_trtaligndbservice->streamOutAlignObjects()) {
 			ATH_MSG_ERROR( "Write of AlignableTransforms (TRT) failed" );
-		} else {
+		 } else {
 			ATH_MSG_INFO( "AlignableTransforms for TRT were written" );
 			ATH_MSG_INFO( "Writing TRT database to textfile" );
 			if ( StatusCode::SUCCESS != m_trtaligndbservice->writeAlignTextFile(m_asciiFileNameBase+"_TRT.txt") ) {
@@ -959,7 +982,8 @@ namespace InDetAlignment
                              != m_trtaligndbservice->registerAlignObjects(m_SQLiteTag+"_TRT",IOVTime::MINRUN,IOVTime::MINEVENT,IOVTime::MAXRUN,IOVTime::MAXEVENT)) {
                           ATH_MSG_ERROR( "Write of AIoV information (TRT) to mysql failed (tag=" << m_SQLiteTag << "_TRT)");
                         }
-		}
+		 }
+        }
 
 		return StatusCode::SUCCESS;               
 		

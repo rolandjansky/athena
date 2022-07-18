@@ -70,10 +70,6 @@ private:
     ToolHandle< IInDetAlignDBTool >        m_IDAlignDBTool;
     ServiceHandle<ITRT_AlignDbSvc>          m_trtaligndbservice;
 
-    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
-    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
-    SG::ReadCondHandleKey<InDetDD::TRT_DetElementContainer> m_trtDetEleCollKey{this, "TRTDetEleCollKey", "TRT_DetElementContainer", "Key of TRT_DetElementContainer for TRT"};
-
     // algorithm parameters, possible to declare at runtime
     std::string                            m_asciiFileNameBase;  ///< filename basis for ASCII files with alignment constants
     std::string                            m_SQLiteTag;          ///< tag name for the ConditionsDB
@@ -146,7 +142,13 @@ private:
     /// the main function which calculates and applies a transformation to each detector element
     StatusCode GenerateMisaligment();
     
+    bool m_doPix;
+    bool m_doStrip;
+    bool m_doTRT;
 
+    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
+    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
+    SG::ReadCondHandleKey<InDetDD::TRT_DetElementContainer> m_trtDetEleCollKey{this, "TRTDetEleCollKey", "TRT_DetElementContainer", "Key of TRT_DetElementContainer for TRT"};
 
 };
 
