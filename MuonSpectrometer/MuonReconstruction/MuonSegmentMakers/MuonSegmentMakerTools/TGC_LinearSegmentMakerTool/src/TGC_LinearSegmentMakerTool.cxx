@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TGC_LinearSegmentMakerTool.h"
@@ -83,12 +83,15 @@ TGC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
     Muon::Fit2D::PointArray                      rhoPoints, phiPoints;
     std::vector<const Muon::MuonClusterOnTrack*> rios;
     for (std::vector<std::vector<const Muon::MuonClusterOnTrack*> >::const_iterator itClusters = clusters.begin();
-         itClusters != clusters.end(); itClusters++)
+         itClusters != clusters.end(); ++itClusters)
     {
         const std::vector<const Muon::MuonClusterOnTrack*>& cluster = *itClusters;
         rios.insert(rios.end(), cluster.begin(), cluster.end());
     }
-
+    if (rios.empty()){
+      ATH_MSG_WARNING("rios are empty in RPC_LinearSegmentMakerTool::find");
+      return;
+    }
     const MuonGM::TgcReadoutElement* pReadoutElement =
         dynamic_cast<const MuonGM::TgcReadoutElement*>(rios.front()->detectorElement());
     if (!pReadoutElement) return;
@@ -96,7 +99,7 @@ TGC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
     std::set<std::string> rhoStations, phiStations;
     int                   iHit = 0;
     for (std::vector<const Muon::MuonClusterOnTrack*>::const_iterator itHit = rios.begin(); itHit != rios.end();
-         itHit++, iHit++)
+         ++itHit, ++iHit)
     {
         const Muon::MuonClusterOnTrack* pHit   = *itHit;
         const Amg::MatrixX&             errMat = pHit->localCovariance();
@@ -253,14 +256,14 @@ TGC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
 
         Trk::FitQuality*                        pFitQuality = new Trk::FitQuality(dChi2, nDegf);
         DataVector<const Trk::MeasurementBase>* pRios       = new DataVector<const Trk::MeasurementBase>;
-        for (Muon::Fit2D::PointArray::const_iterator itPt = rhoPoints.begin(); itPt != rhoPoints.end(); itPt++) {
+        for (Muon::Fit2D::PointArray::const_iterator itPt = rhoPoints.begin(); itPt != rhoPoints.end(); ++itPt) {
             Muon::Fit2D::Point* pPt = *itPt;
             if (!pPt->bExclude) {
                 pRios->push_back(
                     static_cast<const Trk::MeasurementBase*>(((const Muon::MuonClusterOnTrack*)(pPt->pData))->clone()));
             }
         }
-        for (Muon::Fit2D::PointArray::const_iterator itPt = phiPoints.begin(); itPt != phiPoints.end(); itPt++) {
+        for (Muon::Fit2D::PointArray::const_iterator itPt = phiPoints.begin(); itPt != phiPoints.end(); ++itPt) {
             Muon::Fit2D::Point* pPt = *itPt;
             if (!pPt->bExclude) {
                 pRios->push_back(
@@ -277,9 +280,9 @@ TGC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
         //        delete pSegDir;
     }
 done:
-    for (Muon::Fit2D::PointArray::const_iterator itPt = rhoPoints.begin(); itPt != rhoPoints.end(); itPt++)
+    for (Muon::Fit2D::PointArray::const_iterator itPt = rhoPoints.begin(); itPt != rhoPoints.end(); ++itPt)
         delete *itPt;
-    for (Muon::Fit2D::PointArray::const_iterator itPt = phiPoints.begin(); itPt != phiPoints.end(); itPt++)
+    for (Muon::Fit2D::PointArray::const_iterator itPt = phiPoints.begin(); itPt != phiPoints.end(); ++itPt)
         delete *itPt;
 
     ATH_MSG_DEBUG("TGC_LinearSegmentMakerTool::find ended");
