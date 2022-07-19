@@ -171,7 +171,7 @@ def update_trigconf_keys(args):
    if args.smk is None or args.l1psk is None or args.hltpsk is None:
       try:
          log.info("Reading trigger configuration keys from COOL for run %s", args.run_number)
-         trigconf = AthHLT.get_trigconf_keys(args.run_number)
+         trigconf = AthHLT.get_trigconf_keys(args.run_number, args.lb_number)
          if args.smk is None:
             args.smk = trigconf['SMK']
          if args.l1psk is None:
