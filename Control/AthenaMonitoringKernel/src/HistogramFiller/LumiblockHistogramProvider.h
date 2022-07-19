@@ -51,15 +51,13 @@ namespace Monitored {
     TNamed* histogram() override {
 
       const unsigned lumiBlock = m_gmTool->lumiBlock();
+      std::scoped_lock lock(m_mutex);  // access to m_hists
 
       /* Find existing histogram. In the unlikely case of a very old lumiblock
          being processed, it would be filled into the oldest histogram. */
-      {
-        std::scoped_lock lock(m_mutex);
-        const auto it = m_hists.lower_bound(lumiBlock);
-        if (it!=m_hists.end() && it->second.second!=nullptr) {
-          return it->second.second;
-        }
+      const auto it = m_hists.lower_bound(lumiBlock);
+      if (it!=m_hists.end() && it->second.second!=nullptr) {
+        return it->second.second;
       }
 
       if (m_histDef.kLBNHistoryDepth <= 0) {
@@ -86,7 +84,6 @@ namespace Monitored {
       // deregister old histograms
       for (const auto& [maxLB, h] : m_hists) {
         if (maxLB + s_deregDelay <= lumiBlock) {
-          std::scoped_lock lock(m_mutex);
           m_factory->remove(h.first);
           m_hists.erase(maxLB);
         }
