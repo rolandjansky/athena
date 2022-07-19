@@ -41,8 +41,10 @@ namespace LVL1 {
    private:
       StatusCode fillSRJet(TCS::TopoInputEvent& inputEvent) const;
       StatusCode fillLRJet(TCS::TopoInputEvent& inputEvent) const;
+
       StatusCode fillEM(TCS::TopoInputEvent& inputEvent) const;
       StatusCode fillTau(TCS::TopoInputEvent& inputEvent) const;
+
       StatusCode fillXE(TCS::TopoInputEvent& inputEvent) const;
       StatusCode fillTE(TCS::TopoInputEvent& inputEvent) const;
 
@@ -74,6 +76,10 @@ namespace LVL1 {
       mutable LockedHandle<TH1> m_h_jXE_Phi ATLAS_THREAD_SAFE;
 
       mutable LockedHandle<TH1> m_h_jTE_sumEt ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_h_jTEC_sumEt ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_h_jTEFWD_sumEt ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_h_jTEFWDA_sumEt ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_h_jTEFWDC_sumEt ATLAS_THREAD_SAFE;
 
       SG::ReadHandleKey<xAOD::jFexSRJetRoIContainer> m_jJet_EDMKey {this, "jFexSRJetRoIKey", "L1_jFexSRJetRoI", "jFEX Jet EDM"};
       SG::ReadHandleKey<xAOD::jFexLRJetRoIContainer> m_jLJet_EDMKey {this, "jFexLRJetRoIKey", "L1_jFexLRJetRoI", "jFEX LJet EDM"};
