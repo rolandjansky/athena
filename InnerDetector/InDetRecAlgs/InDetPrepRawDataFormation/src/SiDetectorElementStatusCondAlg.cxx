@@ -7,6 +7,7 @@
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "StoreGate/WriteHandle.h"
+#include "AthenaKernel/IOVInfiniteRange.h"
 
 #include <map>
 
@@ -41,7 +42,11 @@ namespace InDet {
          return StatusCode::SUCCESS;
       }
 
-      auto [detector_element_status, range ] = m_condSummaryTool->getDetectorElementStatus(ctx);
+      // Start with infinite range and let the tool narrow it down.
+      writeHandle.addDependency (IOVInfiniteRange::infiniteMixed());
+
+      auto detector_element_status= m_condSummaryTool->getDetectorElementStatus(ctx, &writeHandle);
+      const EventIDRange& range = writeHandle.getRange();
       if (!range.start().isValid() || !range.stop().isValid()) {
          ATH_MSG_FATAL("Invalid range for  " << writeHandle.key() << " : " <<  range.start() << ".." << range.stop());
       }
@@ -52,8 +57,8 @@ namespace InDet {
             expected = m_maxSize;
          } while (total_size > expected && !m_maxSize.compare_exchange_weak(expected, total_size,std::memory_order_release,std::memory_order_relaxed));
       }
-      if (writeHandle.record( range, std::move(detector_element_status) ).isFailure()) {
-         ATH_MSG_FATAL("Could record " << writeHandle.key()  );
+      if (writeHandle.record( std::move(detector_element_status) ).isFailure()) {
+         ATH_MSG_FATAL("Could not record " << writeHandle.key()  );
       }
       ATH_MSG_INFO( "SiDetectorElementStatus Recorded " << writeHandle.key() << " with Range : " << range );
       return StatusCode::SUCCESS;
