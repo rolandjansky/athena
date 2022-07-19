@@ -91,6 +91,7 @@ StatusCode SCT_ReadCalibDataCondAlg::initialize() {
   m_defectMapIntToString[19] = "NO_HI";         //<! High noise occupancy, 0.0005
   m_defectMapIntToString[37] = "BAD_OPE";       //<! Bad occupancy per event variance/binomial variance > 2.0)
   m_defectMapIntToString[38] = "DOUBTR_HI";     //<! High double trigger noise occupancy, > 5
+  m_defectMapIntToString[41] = "LO_GAIN_ABSOLUTE"; // <! Gain < 15 mV/fC, newly added for Run 3
 
   //Check ignoreDefects vectors are the same size
   if (m_ignoreDefects.value().size() != m_ignoreDefectParameters.value().size()) {
@@ -216,10 +217,15 @@ StatusCode SCT_ReadCalibDataCondAlg::execute(const EventContext& ctx) const {
       // Fill the Calib defect objects
       long unsigned int gainvec_size{gaindefectbvec.size()};
       for (long unsigned int i{0}; i<gainvec_size; ++i) {
-        theseDefects.begDefects.push_back(gaindefectbvec[i]);
-        theseDefects.endDefects.push_back(gaindefectevec[i]);
-        theseDefects.typeOfDefect.push_back(m_defectMapIntToString.at(defectTypevec[i]));
-        theseDefects.parValue.push_back(coerceToFloatRange(parValuevec[i]));
+        // Check existence of the defect index to avoid failure when a new defect is added in SCT DAQ.
+        if (m_defectMapIntToString.find(defectTypevec[i]) == m_defectMapIntToString.end()) {
+          ATH_MSG_DEBUG("Defect type " << defectTypevec[i] << " is not defined! This defect is ignored.");
+        } else {
+          theseDefects.typeOfDefect.push_back(m_defectMapIntToString.at(defectTypevec[i]));
+          theseDefects.begDefects.push_back(gaindefectbvec[i]);
+          theseDefects.endDefects.push_back(gaindefectevec[i]);
+          theseDefects.parValue.push_back(coerceToFloatRange(parValuevec[i]));
+        }
       }
       // Fill the isGoodWaferArray
       if (not theseDefects.begDefects.empty()) {
