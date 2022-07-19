@@ -71,6 +71,13 @@ for cont in inputTPContainer:
     job += builder
 
 
+from PyUtils.MetaReaderPeeker import metadata
+buildTruthMetadata = False
+if 'metadata_items' in metadata:
+    metadata_items = metadata['metadata_items']
+    if 'xAOD::TruthMetaDataAuxContainer_v1' in set(metadata_items.values()):
+        buildTruthMetadata = True
+
 if ((objKeyStore.isInInput("McEventCollection", "GEN_AOD") or
      objKeyStore.isInInput("McEventCollection", "TruthEvent"))):
     if not objKeyStore.isInInput("xAOD::TruthEventContainer", "TruthEvents"):
@@ -80,6 +87,9 @@ if ((objKeyStore.isInInput("McEventCollection", "GEN_AOD") or
         job += xAODMaker__xAODTruthCnvAlg("GEN_AOD2xAOD",
                                           AODContainerName='TruthEvent')
     else:
-        from xAODTruthCnv.xAODTruthCnvConf import xAODMaker__TruthMetaDataTool
-        ToolSvc += xAODMaker__TruthMetaDataTool( "TruthMetaDataTool" )
-        svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TruthMetaDataTool ]
+        buildTruthMetadata = True
+
+if buildTruthMetadata:
+    from xAODTruthCnv.xAODTruthCnvConf import xAODMaker__TruthMetaDataTool
+    ToolSvc += xAODMaker__TruthMetaDataTool( "TruthMetaDataTool" )
+    svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TruthMetaDataTool ]
