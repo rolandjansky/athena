@@ -6,7 +6,7 @@ def getGEN_AOD2xAOD(name="GEN_AOD2xAOD", **kwargs):
     writeInTimePileUpTruth=False
     try:
         from PyUtils.MetaReaderPeekerFull import metadata
-        if metadata['/Digitization/Parameters']['digiSteeringConf'] == 'StandardInTimeOnlyGeantinoTruthPileUpToolsAlg':
+        if metadata['/Digitization/Parameters']['digiSteeringConf'] in ['StandardPileUpToolsAlg', 'StandardInTimeOnlyTruthPileUpToolsAlg', 'StandardInTimeOnlyGeantinoTruthPileUpToolsAlg']:
             writeInTimePileUpTruth = True
     except Exception:
         pass
