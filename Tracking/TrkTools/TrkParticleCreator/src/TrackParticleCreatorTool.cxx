@@ -741,7 +741,9 @@ TrackParticleCreatorTool::createParticle(const EventContext& ctx,
     if(prtOrigin==xAOD::muon){
       if(addInfoIfMuon && perigee) addExpectedHitInformation(perigee, *trackparticle);
     }
-    else addExpectedHitInformation(track->perigeeParameters(), *trackparticle);
+    else if(track){
+      addExpectedHitInformation(track->perigeeParameters(), *trackparticle);
+    }
   }
 
   const auto* beamspot = CacheBeamSpotData(ctx);
