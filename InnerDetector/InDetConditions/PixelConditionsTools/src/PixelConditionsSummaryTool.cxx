@@ -359,16 +359,19 @@ namespace {
       return ret;
    }
 }
-std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange> PixelConditionsSummaryTool::createDetectorElementStatus(const EventContext& ctx) const  {
+std::unique_ptr<InDet::SiDetectorElementStatus>
+PixelConditionsSummaryTool::createDetectorElementStatus(const EventContext& ctx,
+                                                        SG::WriteCondHandle<InDet::SiDetectorElementStatus>* whandle) const  {
    if (!m_pixelDetElStatusCondKey.empty()) {
       SG::ReadCondHandle<InDet::SiDetectorElementStatus> input_element_status{m_pixelDetElStatusCondKey, ctx};
-      return std::make_tuple(std::unique_ptr<InDet::SiDetectorElementStatus>(new InDet::PixelDetectorElementStatus(*castToDerived(input_element_status.cptr()))),
-                             input_element_status.getRange() );
+      if (whandle) {
+        whandle->addDependency (input_element_status);
+      }
+      return std::make_unique<InDet::PixelDetectorElementStatus>(*castToDerived(input_element_status.cptr()));
    }
    else if (!m_pixelDetElStatusEventKey.empty()) {
       SG::ReadHandle<InDet::SiDetectorElementStatus> input_element_status{m_pixelDetElStatusEventKey, ctx};
-      return std::make_tuple(std::unique_ptr<InDet::SiDetectorElementStatus>(new InDet::PixelDetectorElementStatus(*castToDerived(input_element_status.cptr()))),
-                                                                             EventIDRange() );
+      return std::make_unique<InDet::PixelDetectorElementStatus>(*castToDerived(input_element_status.cptr()));
    }
    else {
       SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey, ctx);
@@ -377,16 +380,18 @@ std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange> PixelC
          msg << m_pixelDetEleCollKey.fullKey() << " is not available.";
          throw std::runtime_error(msg.str());
       }
+      if (whandle) {
+        whandle->addDependency (pixelDetEleHandle);
+      }
       const InDetDD::SiDetectorElementCollection* elements(*pixelDetEleHandle);
-      return std::make_tuple(std::unique_ptr<InDet::SiDetectorElementStatus>(new InDet::PixelDetectorElementStatus(*elements)),
-                             pixelDetEleHandle.getRange() );
+      return std::make_unique<InDet::PixelDetectorElementStatus>(*elements);
    }
 }
 
-std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange> PixelConditionsSummaryTool::getDetectorElementStatus(const EventContext& ctx) const  {
-   std::tuple< std::unique_ptr<InDet::SiDetectorElementStatus>,EventIDRange> element_status_and_range( createDetectorElementStatus(ctx));
-   EventIDRange &the_range = std::get<1>(element_status_and_range);
-   InDet::SiDetectorElementStatus *element_status = std::get<0>(element_status_and_range).get();
+std::unique_ptr<InDet::SiDetectorElementStatus>
+PixelConditionsSummaryTool::getDetectorElementStatus(const EventContext& ctx,
+                                                     SG::WriteCondHandle<InDet::SiDetectorElementStatus>* whandle) const  {
+   std::unique_ptr<InDet::SiDetectorElementStatus> element_status( createDetectorElementStatus(ctx, whandle));
    std::vector<bool> &status=element_status->getElementStatus();
    status.resize(m_pixelID->wafer_hash_max(),
                     ((1<<0) & m_activeStateMask)     // default value of PixelDCSStateData  is 0
@@ -398,23 +403,31 @@ std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange> PixelC
    {
       SG::ReadCondHandle<PixelDCSStateData> dcs_state_handle(m_condDCSStateKey, ctx);
       setStatus(dcs_state_handle->moduleStatusMap(),   m_activeStateMask,  status);
-      the_range = EventIDRange::intersect( the_range, dcs_state_handle.getRange() );
+      if (whandle) {
+        whandle->addDependency (dcs_state_handle);
+      }
    }
    const bool active_only = m_activeOnly;
    if (!active_only) {
       SG::ReadCondHandle<PixelDCSStatusData> dcs_status_handle(m_condDCSStatusKey, ctx);
       andStatus(dcs_status_handle->moduleStatusMap(), m_activeStatusMask, status);
-      the_range = EventIDRange::intersect( the_range, dcs_status_handle.getRange() );
+      if (whandle) {
+        whandle->addDependency (dcs_status_handle);
+      }
    }
    if (!m_condTDAQKey.empty()) {
       SG::ReadCondHandle<PixelTDAQData> tdaq_handle(m_condTDAQKey,ctx);
       andNotStatus(tdaq_handle->moduleStatusMap(), status);
-      the_range = EventIDRange::intersect( the_range, tdaq_handle.getRange() );
+      if (whandle) {
+        whandle->addDependency (tdaq_handle);
+      }
    }
    {
       SG::ReadCondHandle<PixelDeadMapCondData> dead_map_handle(m_condDeadMapKey, ctx);
       andNotStatus(dead_map_handle->moduleStatusMap(), status);
-      the_range = EventIDRange::intersect( the_range, dead_map_handle.getRange() );
+      if (whandle) {
+        whandle->addDependency (dead_map_handle);
+      }
 
       const PixelDeadMapCondData *dead_map = dead_map_handle.cptr();
       unsigned int element_i=0;
@@ -440,7 +453,10 @@ std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange> PixelC
       | Pixel::makeReadoutTechnologyBit(InDetDD::PixelReadoutTechnology::FEI3, 1 && m_useByteStreamFEI3 )
       | Pixel::makeReadoutTechnologyBit(InDetDD::PixelReadoutTechnology::RD53, 1 && m_useByteStreamRD53 );
    if (readout_technology_mask) {
-      the_range = IDetectorElementStatusTool::getInvalidRange();
+      if (whandle) {
+        ATH_MSG_ERROR("PixelConditionsSummaryTool not configured for use with conditions objects");
+        whandle->addDependency (IDetectorElementStatusTool::getInvalidRange());
+      }
       std::scoped_lock<std::mutex> lock{*m_cacheMutex.get(ctx)};
       const IDCInDetBSErrContainer_Cache *idcCachePtr = nullptr;
       idcCachePtr = getCacheEntry(ctx)->IDCCache;
@@ -514,7 +530,7 @@ std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange> PixelC
          }
       }
    }
-   return element_status_and_range;
+   return element_status;
 }
 
 bool PixelConditionsSummaryTool::isGood(const IdentifierHash& moduleHash, const EventContext& ctx) const {

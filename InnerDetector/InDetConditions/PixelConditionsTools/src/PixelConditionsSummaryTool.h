@@ -74,7 +74,9 @@ class PixelConditionsSummaryTool: public AthAlgTool, virtual public IDetectorEle
     virtual bool isGood(const IdentifierHash& moduleHash, const Identifier& elementId, const EventContext& ctx) const override final;
     virtual double goodFraction(const IdentifierHash & moduleHash, const Identifier & idStart, const Identifier & idEnd, const EventContext& ctx) const override final;
 
-    virtual std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange> getDetectorElementStatus(const EventContext& ctx) const override;
+    virtual std::unique_ptr<InDet::SiDetectorElementStatus>
+    getDetectorElementStatus(const EventContext& ctx,
+                             SG::WriteCondHandle<InDet::SiDetectorElementStatus>* whandle) const override;
 
     virtual bool hasBSError(const IdentifierHash& moduleHash) const override final;
     virtual bool hasBSError(const IdentifierHash& moduleHash, Identifier pixid) const override final;
@@ -170,7 +172,9 @@ class PixelConditionsSummaryTool: public AthAlgTool, virtual public IDetectorEle
    /** Create a new detector element status element container.
     * Depending on the properties the container may be a copy of an event data or conditions data element status container.
     */
-    std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange> createDetectorElementStatus(const EventContext& ctx) const;
+    std::unique_ptr<InDet::SiDetectorElementStatus>
+    createDetectorElementStatus(const EventContext& ctx,
+                                SG::WriteCondHandle<InDet::SiDetectorElementStatus>* whandle) const;
 
 };
 

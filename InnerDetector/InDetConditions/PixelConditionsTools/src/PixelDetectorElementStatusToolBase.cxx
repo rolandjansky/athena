@@ -30,11 +30,16 @@ namespace {
    }
 }
 
-std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange> PixelDetectorElementStatusToolBase::createDetectorElementStatus(const EventContext& ctx) const  {
+std::unique_ptr<InDet::SiDetectorElementStatus>
+PixelDetectorElementStatusToolBase::createDetectorElementStatus(const EventContext& ctx,
+                                                                SG::WriteCondHandle<InDet::SiDetectorElementStatus>* whandle) const  {
    if (!m_pixelDetElStatusCondKey.empty()) {
       SG::ReadCondHandle<InDet::SiDetectorElementStatus> input_element_status{m_pixelDetElStatusCondKey, ctx};
-      return std::make_tuple(std::unique_ptr<InDet::SiDetectorElementStatus>(new InDet::PixelDetectorElementStatus(*castToDerived(input_element_status.cptr()))),
-                             input_element_status.getRange() );
+      if (whandle) {
+        whandle->addDependency (input_element_status);
+      }
+
+      return std::make_unique<InDet::PixelDetectorElementStatus>(*castToDerived(input_element_status.cptr()));
    }
    else {
       SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey, ctx);
@@ -43,9 +48,11 @@ std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange> PixelD
          msg << m_pixelDetEleCollKey.fullKey() << " is not available.";
          throw std::runtime_error(msg.str());
       }
+      if (whandle) {
+        whandle->addDependency (pixelDetEleHandle);
+      }
       const InDetDD::SiDetectorElementCollection* elements(*pixelDetEleHandle);
-      return std::make_tuple(std::unique_ptr<InDet::SiDetectorElementStatus>(new InDet::PixelDetectorElementStatus(*elements)),
-                             pixelDetEleHandle.getRange() );
+      return std::make_unique<InDet::PixelDetectorElementStatus>(*elements);
    }
 }
 
