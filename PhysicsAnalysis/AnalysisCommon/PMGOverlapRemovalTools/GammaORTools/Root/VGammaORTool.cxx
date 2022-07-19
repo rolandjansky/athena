@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GammaORTools/VGammaORTool.h"
@@ -295,7 +295,7 @@ std::vector<TLorentzVector> VGammaORTool::getLeptonP4s(const xAOD::TruthParticle
   std::vector<TLorentzVector> lepton_p4s;
   std::vector<int> lepton_origins;
   for (const auto& p : lepton_candidates) {
-    auto res = const_cast<asg::AnaToolHandle<MCTruthClassifier>*>(&m_truthClassifier)->get()->particleTruthClassifier(p);
+    auto res = m_truthClassifier->particleTruthClassifier(p);
     lepton_origins.push_back(res.second);
     lepton_p4s.push_back(p->p4());
   }
@@ -317,7 +317,7 @@ std::vector<TLorentzVector> VGammaORTool::getPhotonP4s(const xAOD::TruthParticle
       continue;
     }
     // determine photon origin
-    auto res = const_cast<asg::AnaToolHandle<MCTruthClassifier>*>(&m_truthClassifier)->get()->particleTruthClassifier(p);
+    auto res = m_truthClassifier->particleTruthClassifier(p);
     photon_origins.push_back(res.second);
     photon_p4s.push_back(p->p4());
   }
