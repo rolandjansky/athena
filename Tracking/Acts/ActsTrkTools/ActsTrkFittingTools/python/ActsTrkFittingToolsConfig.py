@@ -8,7 +8,7 @@ from ActsGeometry.ActsGeometryConfig import (
     ActsTrackingGeometryToolCfg,
     ActsATLASConverterToolCfg,
 )
-from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolCfg
+from TrkConfig.TrkTrackSummaryToolConfig import InDetTrackSummaryToolCfg
 
 
 def ActsKalmanFitterCfg(flags, name: str = "ActsKalmanFitter", **kwargs):

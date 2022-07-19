@@ -146,6 +146,21 @@ atlas_add_citest( EgammaCAConfig
 atlas_add_citest( Egamma
    SCRIPT ut_egammaARTJob_test.sh )
 
+#################################################################################
+# ACTS
+#################################################################################
+
+atlas_add_citest( ACTS_Propagation_ITk
+   SCRIPT ActsITkTest.py )
+
+atlas_add_citest( ACTS_Propagation_ID
+   SCRIPT ActsExtrapolationAlgTest.py )
+
+atlas_add_citest( ACTS_SiSpacePointSeedMaker
+    SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/ActsSiSpacePointSeedMaker.sh )
+
+atlas_add_citest( ACTS_Workflow
+    SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/ActsWorkflow.sh )
 
 #################################################################################
 # Trigger

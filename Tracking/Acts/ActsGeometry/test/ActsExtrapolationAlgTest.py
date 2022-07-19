@@ -15,7 +15,6 @@ if "__main__" == __name__:
   from AthenaCommon.Logging import log
   from AthenaCommon.Constants import INFO
   from AthenaConfiguration.AllConfigFlags import ConfigFlags
-  from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 
   ## Just enable ID for the moment.
   ConfigFlags.Input.isMC             = True
@@ -34,9 +33,12 @@ if "__main__" == __name__:
   ConfigFlags.Concurrency.NumThreads = 10
   ConfigFlags.Concurrency.NumConcurrentEvents = 10
 
+  ConfigFlags.Exec.MaxEvents = 100
+
   ConfigFlags.lock()
   ConfigFlags.dump()
 
+  from AthenaConfiguration.MainServicesConfig import MainServicesCfg
   cfg = MainServicesCfg(ConfigFlags)
 
   from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
@@ -68,4 +70,6 @@ if "__main__" == __name__:
 
   log.info("CONFIG DONE")
 
-  cfg.run(100)
+  cfg.run()
+
+

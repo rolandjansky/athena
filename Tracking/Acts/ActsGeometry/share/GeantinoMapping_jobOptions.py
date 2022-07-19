@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 # This is based on Tracking/TrkG4Components/TrkG4UserActions/share/GeantinoMapping_jobOptions.py
 # Copied 11/04/2018
@@ -19,7 +20,7 @@ topSeq = AlgSequence()
 
 #--- Output threshold (DEBUG, INFO, WARNING, ERROR, FATAL) ----
 from AthenaCommon.AppMgr import ServiceMgr
-from AthenaCommon.Constants import VERBOSE, INFO
+from AthenaCommon.Constants import VERBOSE, INFO, DEBUG
 ServiceMgr.MessageSvc.OutputLevel  = INFO
 ServiceMgr.MessageSvc.defaultLimit = 20000
 
@@ -83,7 +84,9 @@ myMaxEta =  3.0
 
 myPDG    = 999   # 999 = Geantinos, 13 = Muons
 
+from AthenaCommon.Include import include
 include("GeneratorUtils/StdEvgenSetup.py")
+from AthenaCommon.AppMgr import theApp
 theApp.EvtMax = 100000
 
 import ParticleGun as PG
