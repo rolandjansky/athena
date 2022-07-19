@@ -375,6 +375,7 @@
 + Simulation/G4Sim/TrackRecord
 + Simulation/HitManagement
 + Simulation/Overlay/OverlayConfiguration
++ Simulation/SimulationConfig
 + Simulation/Tools/AtlasCLHEP_RandomGenerators
 
 # Tile package(s).

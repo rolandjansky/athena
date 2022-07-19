@@ -165,7 +165,7 @@ def _createCfgFlags():
     def __simulation():
         from SimulationConfig.SimConfigFlags import createSimConfigFlags
         return createSimConfigFlags()
-    _addFlagsCategory (acf, "Sim", __simulation, 'G4AtlasApps' )
+    _addFlagsCategory (acf, "Sim", __simulation, 'SimulationConfig' )
 
 #Digitization Flags:
     def __digitization():
