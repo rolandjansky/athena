@@ -8,7 +8,7 @@ then
     echo "<tag> can be 'UPD1', 'UPD4', 'UPD3' or 'BOTH' or 'All' or 'Bulk'.  'BOTH' means UPD1 and UPD4, UPD4 update is automatically updating also Bulk. All means UPD1,UPD3 and UPD4 with Bulk. Bulk is updating only Bulk"
     echo "<Run1> <LB1> are start IOV (for UPD4/Bulk)"
     echo "<File> is text file with changed channels, each line should have: B/E pos_neg FT Slot Channel CalibLine BadBitDescription"
-    echo "optional Run2 LB2 are end IOV (for UPD4/Bulk) - first LB after the end of problem, if not given open end update..."
+    echo "optional Run2 LB2 are end IOV (for UPD4/Bulk) - first LB after the end of problem, if not given, the IOV lenght is exactly one 1 (unless -openiov is set)"
     exit
 fi
 
@@ -358,6 +358,8 @@ if [ -f $outputSqliteOnl ];
 then
     echo "$outputSqliteOnl: Containing UPD1 version of bad-channel list for ONLINE DB."
     echo "Upload to ONLINE oracle server using"
-    echo "/afs/cern.ch/user/a/atlcond/utils22/AtlCoolMerge.py --online ${outputSqliteOnl} CONDBR2 ATONR_COOL ATLAS_COOLONL_LAR_W <password>"
+    #echo "/afs/cern.ch/user/a/atlcond/utils22/AtlCoolMerge.py --online ${outputSqliteOnl} CONDBR2 ATONR_COOL ATLAS_COOLONL_LAR_W <password>"
+    echo "export COOL_FLASK=http://aiatlas001.cern.ch:5000"
+    echo "/afs/cern.ch/user/a/atlcond/utilsflask/AtlCoolMerge.py --flask BadChannels.db CONDBR2 ATONR_COOLOFL_GPN ATLAS_COOLOFL_LAR_W <password>"
 fi 
 
