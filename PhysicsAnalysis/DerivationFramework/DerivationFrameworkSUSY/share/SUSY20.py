@@ -46,7 +46,7 @@ from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 SUSY20ThinningHelper = ThinningHelper( "SUSY20ThinningHelper" )
 thinningTools       = []
 AugmentationTools   = []
-DecorationTools     = []
+
 
 # stream-specific sequence for on-the-fly jet building
 SeqSUSY20 = CfgMgr.AthSequencer("SeqSUSY20")

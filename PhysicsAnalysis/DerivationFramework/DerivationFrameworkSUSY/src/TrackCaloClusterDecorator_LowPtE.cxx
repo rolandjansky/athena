@@ -49,12 +49,12 @@ namespace DerivationFramework {
   StatusCode TrackCaloClusterDecorator_LowPtE::addBranches() const  {
 
 
-    static const SG::AuxElement::Decorator< std::vector<float>  > dec_caloclusEta( "trackCaloClusEta_ele");
-    static const SG::AuxElement::Decorator< std::vector<float>  > dec_caloclusPhi( "trackCaloClusPhi_ele");
-    static const SG::AuxElement::Decorator< std::vector<float>  > dec_caloclusE( "trackCaloClusE_ele");
-    static const SG::AuxElement::Decorator< std::vector<float>  > dec_caloclusM( "trackCaloClusM_ele");
-    static const SG::AuxElement::Decorator< std::vector< std::vector<float> > > dec_sampleE( "trackCaloSampleE_ele");
-    static const SG::AuxElement::Decorator< std::vector< std::vector<int> > > dec_sampleNumber( "trackCaloSampleNumber_ele");
+    static const SG::AuxElement::Decorator< std::vector<float>  > dec_caloclusEta(m_prefix+"trackCaloClusEta_ele");
+    static const SG::AuxElement::Decorator< std::vector<float>  > dec_caloclusPhi(m_prefix+"trackCaloClusPhi_ele");
+    static const SG::AuxElement::Decorator< std::vector<float>  > dec_caloclusE(m_prefix+"trackCaloClusE_ele");
+    static const SG::AuxElement::Decorator< std::vector<float>  > dec_caloclusM(m_prefix+"trackCaloClusM_ele");
+    static const SG::AuxElement::Decorator< std::vector< std::vector<float> > > dec_sampleE(m_prefix+"trackCaloSampleE_ele");
+    static const SG::AuxElement::Decorator< std::vector< std::vector<int> > > dec_sampleNumber(m_prefix+"trackCaloSampleNumber_ele");
 
 
     //Tracks
