@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ByteStreamCnvSvcBase/ByteStreamCnvSvcBase.h"
@@ -67,16 +67,15 @@ void ByteStreamCnvSvcBase::handle(const Incident& /*incident*/) {
       return;
    }
    // Initialize the converters
-   for (std::vector<std::string>::const_iterator it = m_initCnvs.begin(), it_e = m_initCnvs.end();
-		   it != it_e; it++) {
-      ATH_MSG_DEBUG("Accessing Converter for " << *it);
+   for (const std::string& cnv : m_initCnvs) {
+      ATH_MSG_DEBUG("Accessing Converter for " << cnv);
       CLID id;
-      if (!clidSvc->getIDOfTypeName(*it, id).isSuccess()) {
-         ATH_MSG_WARNING("Cannot get CLID for " << *it);
+      if (!clidSvc->getIDOfTypeName(cnv, id).isSuccess()) {
+         ATH_MSG_WARNING("Cannot get CLID for " << cnv);
       } else {
          IConverter* cnv = converter(id);
          if (cnv == 0) {
-	    ATH_MSG_WARNING("Cannot get converter for " << *it);
+	    ATH_MSG_WARNING("Cannot get converter for " << cnv);
          } 
       }
    } 
