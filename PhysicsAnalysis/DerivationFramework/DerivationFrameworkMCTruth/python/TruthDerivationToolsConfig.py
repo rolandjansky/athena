@@ -12,7 +12,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
-simBarcodeOffset = 100000
+simBarcodeOffset = 200000
 if hasattr(ConfigFlags,'Sim') and hasattr(ConfigFlags.Sim,'SimBarcodeOffset'):
     simBarcodeOffset = ConfigFlags.Sim.SimBarcodeOffset
 
