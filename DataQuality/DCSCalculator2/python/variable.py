@@ -100,6 +100,13 @@ class DCSC_Variable(object):
         #    log.debug("Dumping input IOVs:")
         #    for iov in iovs:
         #        print iov
+
+        #Remove Old TGC Chambers
+        original_length=len(list(iovs))
+        if folder_path=='/TGC/DCS/PSHVCHSTATE':
+            for i in range(original_length-1, -1, -1):
+                if  list(iovs)[i].channel in range(5504,5552) or list(iovs)[i].channel in range(7362,7411):
+                    iovs.pop(i)
         
         if config.opts.check_input_time:
             self.print_time_info(iovs)
