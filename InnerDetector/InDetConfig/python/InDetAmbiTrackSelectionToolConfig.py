@@ -23,9 +23,8 @@ def InDetAmbiTrackSelectionToolCfg(flags, name = "InDetAmbiTrackSelectionTool", 
         AmbiTrackSelectionTool = CompFactory.InDet.InDetAmbiTrackSelectionTool
 
     if 'UseParameterization' in kwargs and kwargs.get('UseParameterization',False) :
-        from InDetConfig.TrackingCommonConfig import InDetTRTDriftCircleCutForPatternRecoCfg
-        InDetTRTDriftCircleCut = acc.popToolsAndMerge(InDetTRTDriftCircleCutForPatternRecoCfg(flags))
-        kwargs.setdefault("DriftCircleCutTool", InDetTRTDriftCircleCut)
+        from InDetConfig.InDetTrackSelectorToolConfig import InDetTRTDriftCircleCutToolCfg
+        kwargs.setdefault("DriftCircleCutTool", acc.popToolsAndMerge(InDetTRTDriftCircleCutToolCfg(flags)))
 
     from InDetConfig.InDetAssociationToolsConfig import InDetPRDtoTrackMapToolGangedPixelsCfg
     InDetPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge(InDetPRDtoTrackMapToolGangedPixelsCfg(flags))
@@ -84,13 +83,14 @@ def InDetAmbiTrackSelectionToolCfg(flags, name = "InDetAmbiTrackSelectionTool", 
 def InDetTRTAmbiTrackSelectionToolCfg(flags, name = 'InDetTRT_SeededAmbiTrackSelectionTool', **kwargs):
     acc = ComponentAccumulator()
 
-    from InDetConfig.TrackingCommonConfig import InDetTRTDriftCircleCutForPatternRecoCfg
-    InDetTRTDriftCircleCut = acc.popToolsAndMerge(InDetTRTDriftCircleCutForPatternRecoCfg(flags))
-    from InDetConfig.InDetAssociationToolsConfig import InDetPRDtoTrackMapToolGangedPixelsCfg
-    InDetPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge(InDetPRDtoTrackMapToolGangedPixelsCfg(flags))
+    if "DriftCircleCutTool" not in kwargs:
+        from InDetConfig.InDetTrackSelectorToolConfig import InDetTRTDriftCircleCutToolCfg
+        kwargs.setdefault("DriftCircleCutTool", acc.popToolsAndMerge(InDetTRTDriftCircleCutToolCfg(flags)))
 
-    kwargs.setdefault("DriftCircleCutTool", InDetTRTDriftCircleCut)
-    kwargs.setdefault("AssociationTool", InDetPRDtoTrackMapToolGangedPixels)
+    if "AssociationTool" not in kwargs:
+        from InDetConfig.InDetAssociationToolsConfig import InDetPRDtoTrackMapToolGangedPixelsCfg
+        kwargs.setdefault("AssociationTool", acc.popToolsAndMerge(InDetPRDtoTrackMapToolGangedPixelsCfg(flags)))
+
     kwargs.setdefault("minScoreShareTracks", -1.) # off !
     kwargs.setdefault("minHits", flags.InDet.Tracking.ActivePass.minSecondaryClusters)
     kwargs.setdefault("minNotShared", flags.InDet.Tracking.ActivePass.minSecondarySiNotShared)
