@@ -5,8 +5,6 @@
 
 // Class header
 #include "PileUpEventLoopMgr.h"
-// Helper header
-#include "PileUpHashHelper.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
@@ -24,6 +22,7 @@
 #include "PileUpTools/PileUpMergeSvc.h"
 #include "PileUpTools/IBkgStreamsCache.h"
 #include "PileUpTools/PileUpMisc.h"
+#include "PileUpTools/PileUpHashHelper.h"
 
 #include "StoreGate/StoreGateSvc.h"
 

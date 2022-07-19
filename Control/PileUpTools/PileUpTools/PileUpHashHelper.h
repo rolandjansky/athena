@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef PILEUPCOMPS_PILEUPHASHHELPER_H
-#define PILEUPCOMPS_PILEUPHASHHELPER_H
+#ifndef PILEUPTOOLS_PILEUPHASHHELPER_H
+#define PILEUPTOOLS_PILEUPHASHHELPER_H
 
 /**
     @file PileUpHashHelper.h
@@ -51,4 +51,4 @@ private:
   std::stringstream m_stream;
 };
 
-#endif // PILEUPCOMPS_PILEUPHASHHELPER_H
+#endif // PILEUPTOOLS_PILEUPHASHHELPER_H
