@@ -14,7 +14,6 @@ theEventData2XML.DataTypes += ["JiveXML::MuonRetriever/MuonRetriever"]
 theEventData2XML.DataTypes += ["JiveXML::TrackParticleRetriever/TrackParticleRetriever"]
 theEventData2XML.DataTypes += ["JiveXML::BJetRetriever/BJetRetriever"]
 theEventData2XML.DataTypes += ["JiveXML::ParticleJetRetriever/ParticleJetRetriever"]
-theEventData2XML.DataTypes += ["JiveXML::MissingETRetriever/MissingETRetriever"]
 theEventData2XML.DataTypes += ["JiveXML::TruthTrackRetriever/TruthTrackRetriever"]
 
 from AnalysisJiveXML.AnalysisJiveXMLConf import JiveXML__ElectronRetriever

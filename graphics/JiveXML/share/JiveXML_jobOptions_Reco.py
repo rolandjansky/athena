@@ -10,6 +10,3 @@ include ("RecExCond/RecExCommon_flags.py")
 include ("RecExCommon/myTopOptions.py")
 
 include( "JiveXML/JiveXML_jobOptionBase.py" )
-include ("RecJiveXML/RecJiveXML_DataTypes.py")
-### For debugging:
-#theJetRecJetRetriever.OutputLevel = DEBUG

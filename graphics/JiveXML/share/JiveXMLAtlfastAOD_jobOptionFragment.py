@@ -9,7 +9,6 @@ theEventData2XML.DataTypes += ["JiveXML::MuonRetriever/MuonRetriever"]
 theEventData2XML.DataTypes += ["JiveXML::TrackParticleRetriever/TrackParticleRetriever"]
 theEventData2XML.DataTypes += ["JiveXML::BJetRetriever/BJetRetriever"]
 theEventData2XML.DataTypes += ["JiveXML::ParticleJetRetriever/ParticleJetRetriever"]
-theEventData2XML.DataTypes += ["JiveXML::MissingETRetriever/MissingETRetriever"]
 theEventData2XML.DataTypes += ["JiveXML::TruthTrackRetriever/TruthTrackRetriever"]
 
 from AnalysisJiveXML.AnalysisJiveXMLConf import JiveXML__ElectronRetriever
@@ -36,11 +35,6 @@ from AnalysisJiveXML.AnalysisJiveXMLConf import JiveXML__BJetRetriever
 theBJetRetriever = JiveXML__BJetRetriever (name = "BJetRetriever")
 theBJetRetriever.StoreGateKey = "AtlfastBJetContainer"
 ToolSvc += theBJetRetriever
-
-from RecJiveXML.RecJiveXMLConf import JiveXML__MissingETRetriever
-theMissingETRetriever = JiveXML__MissingETRetriever (name = "MissingETRetriever")
-theMissingETRetriever.FavouriteMissingETCollection = "AtlfastMissingEt"
-ToolSvc += theMissingETRetriever
 
 from AnalysisJiveXML.AnalysisJiveXMLConf import JiveXML__TrackParticleRetriever
 theTrackParticleRetriever = JiveXML__TrackParticleRetriever (name = "TrackParticleRetriever")
