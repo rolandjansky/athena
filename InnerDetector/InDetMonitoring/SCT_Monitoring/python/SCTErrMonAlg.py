@@ -44,6 +44,9 @@ def SCTErrMonAlgConfig(inputFlags):
     # from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool
 
 
+    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+    myMonAlg.doOnlineMon = athenaCommonFlags.isOnline
+
     from LumiBlockComps.BunchCrossingCondAlgConfig import BunchCrossingCondAlgCfg
     result.merge(BunchCrossingCondAlgCfg(inputFlags))
 
@@ -145,6 +148,20 @@ def SCTErrMonAlgConfig(inputFlags):
                                            ymin = (sctMon.FIRST_PHI_BIN if region==sctMon.BARREL_INDEX else sctMon.FIRST_PHI_BIN_EC)-0.5,
                                            ymax = (sctMon.LAST_PHI_BIN if region==sctMon.BARREL_INDEX else sctMon.LAST_PHI_BIN_EC)+0.5,
                                            duration = "lb",
+                                           opt='kAlwaysCreate')
+
+                if myMonAlg.doOnlineMon and sctMon.CategoryErrorsNames[errCate] == "Errors":
+                    myMonGroup.defineHistogram(varname = "eta, phi, hasError_"+sctMon.CategoryErrorsNames[errCate]+"_recent_"+sctMon.subDetNameShort[region].Data()+"_"+str(layer//2)+"_"+str(layer%2)+";SummaryErrsRecent_"+sctMon.subDetNameShort[region].Data()+"_"+str(layer//2)+"_"+str(layer%2),
+                                           type = "TProfile2D",
+                                           title = "Num of "+sctMon.CategoryErrorsNames[errCate]+" per "+sctMon.layerName[region].Data()+str(layer//2)+"_"+str(layer%2)+" - recent",
+                                           path = "SCT"+sctMon.subDetNameShort[region].Data()+"/errors",
+                                           xbins = sctMon.N_ETA_BINS if region==sctMon.BARREL_INDEX else sctMon.N_ETA_BINS_EC,
+                                           xmin = (sctMon.FIRST_ETA_BIN if region==sctMon.BARREL_INDEX else sctMon.FIRST_ETA_BIN_EC)-0.5,
+                                           xmax = (sctMon.LAST_ETA_BIN if region==sctMon.BARREL_INDEX else sctMon.LAST_ETA_BIN_EC)+0.5,
+                                           ybins = sctMon.N_PHI_BINS if region==sctMon.BARREL_INDEX else sctMon.N_PHI_BINS_EC,
+                                           ymin = (sctMon.FIRST_PHI_BIN if region==sctMon.BARREL_INDEX else sctMon.FIRST_PHI_BIN_EC)-0.5,
+                                           ymax = (sctMon.LAST_PHI_BIN if region==sctMon.BARREL_INDEX else sctMon.LAST_PHI_BIN_EC)+0.5,
+                                           duration = "lowStat",
                                            opt='kAlwaysCreate')
 
     # Filled in fillByteStreamErrorsHelper

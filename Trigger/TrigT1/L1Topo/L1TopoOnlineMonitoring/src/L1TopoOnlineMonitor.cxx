@@ -5,6 +5,9 @@
 // Local includes
 #include "L1TopoOnlineMonitor.h"
 
+// Athena comps
+#include "AthenaBaseComps/AthAlgorithm.h"
+
 // Trigger includes
 #include "xAODTrigger/L1TopoSimResults.h"
 #include "TrigT1Result/CTP_Decoder.h"
@@ -31,7 +34,8 @@ namespace {
 // Standard constructor
 // =============================================================================
 L1TopoOnlineMonitor::L1TopoOnlineMonitor(const std::string& name, ISvcLocator* svcLoc)
-: AthMonitorAlgorithm(name, svcLoc)
+  : AthMonitorAlgorithm(name, svcLoc),
+    m_ctpIds(0)
 {}
 
 // =============================================================================
@@ -47,6 +51,16 @@ StatusCode L1TopoOnlineMonitor::initialize() {
   return AthMonitorAlgorithm::initialize();
 }
 
+StatusCode L1TopoOnlineMonitor::start() {
+
+   const TrigConf::L1Menu * l1menu = nullptr;
+   ATH_CHECK( m_detStore->retrieve(l1menu) ); 
+
+   m_ctpIds = getCtpIds(*l1menu);
+
+   return StatusCode::SUCCESS;
+}
+
 
 StatusCode L1TopoOnlineMonitor::fillHistograms( const EventContext& ctx ) const {
   
@@ -54,6 +68,15 @@ StatusCode L1TopoOnlineMonitor::fillHistograms( const EventContext& ctx ) const 
   enum class MonFunction : uint8_t {doSimMon=0, doHwMonCTP, doHwMon, doComp};
   std::vector<uint8_t> failedMonFunctions;
 
+  
+  if (m_doHwMon) {
+    StatusCode sc = doHwMon(decisionBits,ctx);
+    ATH_MSG_DEBUG("Executed doHWMon: " << (sc.isFailure() ? "failed" : "ok"));
+    if (sc.isFailure()) {
+      failedMonFunctions.push_back(static_cast<uint8_t>(MonFunction::doHwMon));
+    }    
+  }
+  
   if (m_doSimMon) {
     StatusCode sc = doSimMon(decisionBits,ctx);
     ATH_MSG_DEBUG("Executed doSimMon: " << (sc.isFailure() ? "failed" : "ok"));
@@ -67,14 +90,6 @@ StatusCode L1TopoOnlineMonitor::fillHistograms( const EventContext& ctx ) const 
     ATH_MSG_DEBUG("Executed doHWMonCTP: " << (sc.isFailure() ? "failed" : "ok"));
     if (sc.isFailure()) {
       failedMonFunctions.push_back(static_cast<uint8_t>(MonFunction::doHwMonCTP));
-    }    
-  }
-
-  if (m_doHwMon) {
-    StatusCode sc = doHwMon(decisionBits,ctx);
-    ATH_MSG_DEBUG("Executed doHWMon: " << (sc.isFailure() ? "failed" : "ok"));
-    if (sc.isFailure()) {
-      failedMonFunctions.push_back(static_cast<uint8_t>(MonFunction::doHwMon));
     }    
   }
 
@@ -117,7 +132,7 @@ StatusCode L1TopoOnlineMonitor::doSimMon( DecisionBits& decisionBits, const Even
 	  {
 	    topoword.push_back(32*l1topo_dec->clock()+i);
 	    uint32_t pos = 32*l1topo_dec->clock()*(l1topo_dec->connectionId()-1)+i;
-	    triggerBitsSim[pos] = true;
+	    triggerBitsSim[pos] = (!decisionBits.triggerBits.has_value() && m_ctpIds[pos]>=512) ? false : true;
 	  }
       }
       std::string name = "CableElec_";
@@ -127,7 +142,7 @@ StatusCode L1TopoOnlineMonitor::doSimMon( DecisionBits& decisionBits, const Even
     }
     else if (l1topo_dec->bitWidth() == 64) {
       for(unsigned int i=0; i<64; ++i) {
-	uint64_t mask = 0x1; mask <<= i;
+	uint64_t mask = 0x11; mask <<= i;
 	if ((l1topo_dec->topoWord64() & mask) !=0)
 	  {topoword.push_back(64*l1topo_dec->clock()+i);}
       }
@@ -155,13 +170,12 @@ StatusCode L1TopoOnlineMonitor::doHwMonCTP( DecisionBits& decisionBits, const Ev
     return StatusCode::FAILURE;
   }
 
-  // CTP RDO contains 17 TIP words for a number of BCs, so use CTP_Decoder to access accepted BC
+  // CTP RDO contains 17 TBP words for a number of BCs, so use CTP_Decoder to access accepted BC
   CTP_Decoder ctp;
   ctp.setRDO(ctpRdo.cptr());
   const uint32_t l1aPos = ctpRdo->getL1AcceptBunchPosition();
   if (l1aPos >= ctp.getBunchCrossings().size()) {
     ATH_MSG_DEBUG("CTP_RDO gave invalid l1aPos. Skipping CTP hardware comparison");
-    // Fill the histograms and return
     return StatusCode::FAILURE;
   }
   ATH_MSG_DEBUG("CTP l1aPos, size: " << l1aPos << ", " << ctp.getBunchCrossings().size());
@@ -169,14 +183,15 @@ StatusCode L1TopoOnlineMonitor::doHwMonCTP( DecisionBits& decisionBits, const Ev
 
   // Fill decision bits from CTP RDO
   std::bitset<s_nTopoCTPOutputs>& triggerBitsCtp = DecisionBits::createBits(decisionBits.triggerBitsCtp);
-  static constexpr size_t ctpTIPSize{512};
-  const std::bitset<ctpTIPSize>& tip = ctpL1a.getTIP();
-  ATH_MSG_VERBOSE("CTP TIP bits: " << tip.to_string());
+  static constexpr size_t ctpTBPSize{512};
+  const std::bitset<ctpTBPSize>& tbp = ctpL1a.getTBP();
+  ATH_MSG_VERBOSE("CTP TBP bits: " << tbp.to_string());
 
-  // Check if we can access to phase1 topo
-  static constexpr size_t topoTipStart{ctpTIPSize - s_nTopoCTPOutputs}; // TODO: read L1Topo TIP position from TriggerDB
   for (size_t i=0; i<s_nTopoCTPOutputs; ++i) {
-    triggerBitsCtp[i] = tip[i+topoTipStart];
+    if (m_ctpIds[i] < 512)
+      {triggerBitsCtp[i] = tbp.test(m_ctpIds[i]);}
+    else
+      {triggerBitsCtp[i] = false;}
   }
 
   std::vector<size_t> triggerBitIndicesCtp = bitsetIndices(triggerBitsCtp);
@@ -190,7 +205,7 @@ StatusCode L1TopoOnlineMonitor::doHwMon( DecisionBits& decisionBits, const Event
   
   SG::ReadHandle<xAOD::L1TopoRawDataContainer> cont(m_l1topoRawDataKey, ctx);
   if(!cont.isValid()){
-    ATH_MSG_FATAL("Could not retrieve L1Topo EDM Container from the Simulation.");
+    ATH_MSG_FATAL("Could not retrieve L1Topo RAW Data Container from the BS data.");
     return StatusCode::FAILURE;
   }
 
@@ -233,4 +248,43 @@ StatusCode L1TopoOnlineMonitor::doComp( DecisionBits& decisionBits ) const {
 
 
   return StatusCode::SUCCESS;
+}
+
+
+std::vector<unsigned> L1TopoOnlineMonitor::getCtpIds( const TrigConf::L1Menu& l1menu ) {
+  
+  // Topo
+  std::vector<std::string> connNames = l1menu.connectorNames();
+  std::vector<std::string> labelsTopoEl(s_nTopoCTPOutputs);
+  for( const std::string connName : {"Topo2El", "Topo3El"}) {
+    if( find(connNames.begin(), connNames.end(), connName) == connNames.end() ) {
+      continue;
+    }
+    for(uint fpga : {0,1}) {
+      for(uint clock : {0,1}) {
+	for(auto & tl : l1menu.connector(connName).triggerLines(fpga,clock)) {
+	  uint flatIndex = tl.flatindex() + 64 * (connName == "Topo3El"); 
+	  labelsTopoEl[flatIndex] = tl.name();
+	}
+      }
+    }
+  }
+
+  ATH_MSG_DEBUG("Obtaining CTPIds for Phase1 L1Topo Monitoring");
+  std::vector<unsigned> ctpIds(s_nTopoCTPOutputs,999);
+  for( const auto & item : l1menu ) {
+    std::string definition = item.definition();
+    if (definition.substr(0,5) == "TOPO_" &&
+	definition.find(' ') == std::string::npos) {
+      std::string trigger = definition.substr(0, definition.find('['));
+      auto pos = std::find(labelsTopoEl.begin(),labelsTopoEl.end(),trigger);
+      if (pos != labelsTopoEl.end()) {
+	ATH_MSG_DEBUG("Found one CTP; ,CTPId: " << item.ctpId() << " ,Name: " << item.name() << " ,Definition: " << definition);
+	unsigned index = std::distance(labelsTopoEl.begin(),pos);
+	ctpIds[index]=item.ctpId();
+      }
+    }
+  }
+
+  return ctpIds;
 }

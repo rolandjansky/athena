@@ -5,6 +5,8 @@
 monitoring_photon = [
     'HLT_g20_tight_L1EM15VHI',
     'HLT_g20_tight_icaloloose_L1EM15VHI',
+    'HLT_g25_tight_icaloloose_L1EM22VHI',
+    'HLT_g25_tight_icalotight_L1EM22VHI',
     'HLT_g22_tight_L1EM15VHI',
     'HLT_g35_medium_L1EM20VH',
     'HLT_g25_medium_L1EM20VH',
@@ -41,6 +43,8 @@ monitoring_tags = [
 
 validation_photon = [
         'HLT_g20_tight_icaloloose_L1EM15VHI',
+        'HLT_g25_tight_icaloloose_L1EM22VHI',
+        'HLT_g25_tight_icalotight_L1EM22VHI',
         'HLT_g20_medium_L1EM15VHI',
         'HLT_g20_loose_L1EM15VHI',        
         'HLT_g140_loose_L1EM22VHI',

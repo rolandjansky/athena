@@ -286,6 +286,11 @@ SCTErrMonAlg::fillByteStreamErrors(const EventContext& ctx) const {
         auto hasErrorAcc{Monitored::Collection("hasError_"+CategoryErrorsNames[errCate]+"_"+subDetNameShort[iReg].Data()+"_"+std::to_string(iLay/2)+"_"+std::to_string(iLay%2),
                                                vHasError)};
         fill("SCTErrMonitor", etaAcc, phiAcc, hasErrorAcc);
+
+        if (m_doOnline and CategoryErrorsNames[errCate] == "Errors"){
+            auto hasErrorRecentAcc{Monitored::Collection("hasError_"+CategoryErrorsNames[errCate]+"_recent_"+subDetNameShort[iReg].Data()+"_"+std::to_string(iLay/2)+"_"+std::to_string(iLay%2),vHasError)};
+            fill("SCTErrMonitor", etaAcc, phiAcc, hasErrorRecentAcc);
+        }
       }
     }
   }

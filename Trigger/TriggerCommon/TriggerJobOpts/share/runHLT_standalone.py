@@ -334,8 +334,12 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 from AthenaCommon.CFElements import seqOR,parOR
 hltTop = seqOR("HLTTop")
-hltPreSeq = parOR("HLTPreSeq")
-hltTop += hltPreSeq
+
+# HLTPreSeq only used for CostMon so far, skip if CostMon disabled
+if ConfigFlags.Trigger.CostMonitoring.doCostMonitoring:
+    hltPreSeq = parOR("HLTPreSeq")
+    hltTop += hltPreSeq
+
 hltBeginSeq = parOR("HLTBeginSeq")
 hltTop += hltBeginSeq
 topSequence += hltTop

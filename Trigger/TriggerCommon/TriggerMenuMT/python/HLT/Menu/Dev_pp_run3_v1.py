@@ -91,6 +91,9 @@ def setupMenu():
 
         # electron forward triggers (keep this only for dev now)
         #ChainProp(name='HLT_e30_etcut_fwd_L1EM22VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e5_etcut_L1EM3', groups=SingleElectronGroup+DevGroup),
+        ChainProp(name='HLT_e26_etcut_L1EM22VHI', groups=SingleElectronGroup+DevGroup),
+        ChainProp(name='HLT_e26_lhtight_ivarloose_L1eEM26T', groups=SingleElectronGroup+DevGroup),
 
         #ATR-22749
         ChainProp(name='HLT_2e5_lhvloose_nogsf_bBeeM6000_L12EM3', l1SeedThresholds=['EM3'], stream=['BphysDelayed'], groups=BphysElectronGroup+DevGroup),
