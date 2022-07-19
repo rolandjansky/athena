@@ -205,15 +205,12 @@ class sTgcDigitMaker : public AthMessaging {
   int m_channelTypes{3}; // 1 -> strips, 2 -> strips+wires, 3 -> strips/wires/pads
   double m_theta{0.8}; // theta=0.8 value best matches the PDF
   double m_mean{2.e5};  // mean gain estimated from ATLAS note "ATL-MUON-PUB-2014-001" 
-  float m_IntegralTimeOfElectr{20.0}; //ns
  
 
-  bool m_doTimeCorrection{true};
   // Flag to enable strip time offset 
   bool m_doTimeOffsetStrip{false};
   double m_GausMean{2.27};  //mm; VMM response from Oct/Nov 2013 test beam
   double m_GausSigma{0.1885}; //mm; VMM response from Oct/Nov 2013 test beam
-  double m_CrossTalk{0.};  // Turn off cross-talk. Old guesstimate was 0.03: Alexandre Laurier 2020-10-11 
   double m_StripResolution{0.07}; // Angular strip resolution parameter 
   double m_posResIncident{1.};
   double m_posResAngular{12.};
