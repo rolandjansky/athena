@@ -344,7 +344,7 @@ namespace MuonCalib {
     //a single CscRawaData collection
     
     
-    for(const auto & rod:*fullRDO)
+    for(const auto rod:*fullRDO)
     {
       if(not rod->empty()) 
       {

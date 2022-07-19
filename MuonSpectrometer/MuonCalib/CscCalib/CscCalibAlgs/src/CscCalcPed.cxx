@@ -375,7 +375,7 @@ namespace MuonCalib {
     //Loop over RODs (data from 2 chambers), each of which is in
     //a single CscRawaData collection
 
-    for(const auto & rod : *rawDataContainer)
+    for(const auto rod : *rawDataContainer)
     {
       Chrono chronoRod(m_chronoSvc,"RodItr");
       ATH_MSG_VERBOSE("Examining a ROD");
@@ -386,7 +386,7 @@ namespace MuonCalib {
         //Loop over strips in rod
 
 
-        for(const auto & cluster: *rod)
+        for(const auto cluster: *rod)
         {
           Chrono chronoClus(m_chronoSvc,"ClusterItr");
           int numStrips = cluster->width();
