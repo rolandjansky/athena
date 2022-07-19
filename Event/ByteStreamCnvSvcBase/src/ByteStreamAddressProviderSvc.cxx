@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Include files
@@ -42,9 +42,8 @@ StatusCode ByteStreamAddressProviderSvc::preLoadAddresses(StoreID::type id, tadL
       return(StatusCode::SUCCESS);
    }
 
-   for (std::vector<std::string>::const_iterator it = m_typeNames.begin(), it_e = m_typeNames.end();
-	   it != it_e; it++) {
-      ListItem item(*it);
+   for (const std::string& typeName : m_typeNames) {
+      ListItem item(typeName);
       const std::string& t = item.type();
       const std::string& nm = item.name();
       CLID classid;

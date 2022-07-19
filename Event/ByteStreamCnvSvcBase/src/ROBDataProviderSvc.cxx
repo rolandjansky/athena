@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //===================================================================
@@ -112,13 +112,11 @@ StatusCode ROBDataProviderSvc::initialize() {
    }
    ATH_MSG_INFO(" ---> Filter out empty ROB fragments                               = " << m_filterEmptyROB);
    ATH_MSG_INFO(" ---> Filter out specific ROBs by Status Code: # ROBs = " << m_filterRobMap.size());
-   for (FilterRobMap::const_iterator it = m_filterRobMap.begin(), itEnd = m_filterRobMap.end();
-		   it != itEnd; it++) {
-      eformat::helper::SourceIdentifier tmpsrc(it->first);
-      ATH_MSG_INFO("      RobId=0x" << MSG::hex << it->first << " -> in Sub Det = " << tmpsrc.human_detector());
-      for (std::vector<uint32_t>::const_iterator it_status = (*it).second.begin(), it_statusEnd = (*it).second.end();
-		      it_status != it_statusEnd; it_status++) {
-         eformat::helper::Status tmpstatus(*it_status);
+   for (const auto& p : m_filterRobMap) {
+      eformat::helper::SourceIdentifier tmpsrc(p.first);
+      ATH_MSG_INFO("      RobId=0x" << MSG::hex << p.first << " -> in Sub Det = " << tmpsrc.human_detector());
+      for (uint32_t status : p.second) {
+         eformat::helper::Status tmpstatus(status);
          ATH_MSG_INFO("         Status Code=0x"
 	         << MSG::hex << std::setfill( '0' ) << std::setw(8) << tmpstatus.code()
 	         << " Generic Part=0x" << std::setw(4) << tmpstatus.generic()
@@ -127,13 +125,11 @@ StatusCode ROBDataProviderSvc::initialize() {
    }
 
    ATH_MSG_INFO(" ---> Filter out Sub Detector ROBs by Status Code: # Sub Detectors = " << m_filterSubDetMap.size());
-   for (FilterSubDetMap::const_iterator it = m_filterSubDetMap.begin(), itEnd = m_filterSubDetMap.end();
-		   it != itEnd; it++) {
-      eformat::helper::SourceIdentifier tmpsrc(it->first, 0);
-      ATH_MSG_INFO("      SubDetId=0x" << MSG::hex << it->first << " -> " << tmpsrc.human_detector());
-      for (std::vector<uint32_t>::const_iterator it_status = (*it).second.begin(), it_statusEnd = (*it).second.end();
-		      it_status != it_statusEnd; it_status++) {
-         eformat::helper::Status tmpstatus(*it_status);
+   for (const auto& p : m_filterSubDetMap) {
+      eformat::helper::SourceIdentifier tmpsrc(p.first, 0);
+      ATH_MSG_INFO("      SubDetId=0x" << MSG::hex << p.first << " -> " << tmpsrc.human_detector());
+      for (uint32_t status : p.second) {
+         eformat::helper::Status tmpstatus(status);
          ATH_MSG_INFO("         Status Code=0x"
 	         << MSG::hex << std::setfill( '0' ) << std::setw(8) << tmpstatus.code()
 	         << " Generic Part=0x" << std::setw(4) << tmpstatus.generic()
@@ -160,8 +156,7 @@ void ROBDataProviderSvc::addROBData(const EventContext& context, const std::vect
    ATH_MSG_DEBUG(" ---> Number of ROB Id s requested : " << robIds.size() << ", Caller Name = " << callerName);
    // for offline running all requested ROBs should be found in cache
    // if not issue error
-   for (std::vector<uint32_t>::const_iterator it = robIds.begin(), it_end = robIds.end(); it != it_end; it++) {
-      uint32_t id = (*it);
+   for (uint32_t id : robIds) {
       // mask off the module ID for L2 and EF result for Run 1 data
       if ( (eformat::helper::SourceIdentifier(id).module_id() != 0) &&
 	   (eformat::helper::SourceIdentifier(id).subdetector_id() == eformat::TDAQ_LVL2) ) {
@@ -303,9 +298,8 @@ void ROBDataProviderSvc::getROBData(const std::vector<uint32_t>& ids, std::vecto
 void ROBDataProviderSvc::getROBData(const EventContext& context, const std::vector<uint32_t>& ids, std::vector<const ROBF*>& v, 
 				    const std::string_view callerName) {
   EventCache* cache = m_eventsCache.get( context );
-  
-   for (std::vector<uint32_t>::const_iterator it = ids.begin(), it_end = ids.end(); it != it_end; it++) {
-      uint32_t id = (*it);
+
+   for (uint32_t id : ids) {
       // mask off the module ID for L2 and EF result for Run 1 data
       if ( (eformat::helper::SourceIdentifier(id).module_id() != 0) &&
 	   (eformat::helper::SourceIdentifier(id).subdetector_id() == eformat::TDAQ_LVL2) ) {
@@ -327,10 +321,9 @@ void ROBDataProviderSvc::getROBData(const EventContext& context, const std::vect
 #ifndef NDEBUG
          int nrob = 0;
          ATH_MSG_VERBOSE(" --- Dump of ROB cache ids --- total size = " << cache->robmap.size());
-         for (ROBMAP::iterator cache_it = cache->robmap.begin(), cache_end = cache->robmap.end();
-	         cache_it != cache_end; cache_it++) {
+         for (const auto& p : cache->robmap) {
 	    ++nrob;
-	    ATH_MSG_VERBOSE(" # = " << nrob << "  id = 0x" << MSG::hex << (*cache_it).second->source_id() << MSG::dec);
+	    ATH_MSG_VERBOSE(" # = " << nrob << "  id = 0x" << MSG::hex << p.second->source_id() << MSG::dec);
          }
 #endif
       }
@@ -405,9 +398,8 @@ bool ROBDataProviderSvc::filterRobWithStatus(const ROBF* rob) {
    // Check if there is a ROB specific filter rule defined for this ROB Id and match the status code
    FilterRobMap::iterator map_it_rob = m_filterRobMap.find(tmpsrc.code());
    if (map_it_rob != m_filterRobMap.end()) {
-      for (std::vector<uint32_t>::const_iterator it_status = (*map_it_rob).second.begin(),
-	      it_statusEnd = (*map_it_rob).second.end(); it_status != it_statusEnd; it_status++) {
-         if (*rob_it_status == *it_status) {
+      for (uint32_t status : map_it_rob->second) {
+         if (*rob_it_status == status) {
             return(true);
          }
       }
@@ -415,9 +407,8 @@ bool ROBDataProviderSvc::filterRobWithStatus(const ROBF* rob) {
    // Check if there is a sub detector specific filter rule defined for this ROB Id and match the status code
    FilterSubDetMap::iterator map_it_subdet = m_filterSubDetMap.find(tmpsrc.subdetector_id());
    if (map_it_subdet != m_filterSubDetMap.end()) {
-      for (std::vector<uint32_t>::const_iterator it_status = (*map_it_subdet).second.begin(),
-	      it_statusEnd = (*map_it_subdet).second.end(); it_status != it_statusEnd; it_status++) {
-         if (*rob_it_status == *it_status) {
+      for (uint32_t status : map_it_subdet->second) {
+         if (*rob_it_status == status) {
             return(true);
          }
       }
