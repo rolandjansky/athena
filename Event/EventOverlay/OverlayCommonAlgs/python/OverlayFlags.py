@@ -103,6 +103,12 @@ class processLegacyEventInfo(JobProperty):
     allowedTypes=['bool']
     StoredValue = False
 
+class MCChannelNumber(JobProperty):
+    """MC channel number tracking for overlay"""
+    statusOn=True
+    allowedTypes=['int']
+    StoredValue = 0
+
 class doTrackOverlay(JobProperty):
     """ perform the track overlay (meaning that the ID overlay is turned off) """
     statusOn=True
