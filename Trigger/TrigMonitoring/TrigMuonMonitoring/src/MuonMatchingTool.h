@@ -35,16 +35,6 @@ class MuonMatchingTool : public AthAlgTool {
   /**
    * @brief Function that searches for a Level 1 muon candidate and judges if it is matched to a given offline muon.
    * @param mu Offline muon around which Level 1 candidates are searched.
-   * @param ctx Reference to the @c EventContext needed for accessing the @c LVL1MuonRoIs container.
-   * @param l1trigger Considered level 1 threshold name, e.g. L1_MU10, etc.
-   * @param pass True if a candidate is found.
-   * @return Pointer to the matched candidate. This is @c nullptr when there is no candidate found.
-   */
-  const xAOD::MuonRoI* matchL1(const xAOD::Muon *mu, const EventContext& ctx, const std::string& l1trigger, bool &pass) const;
-
-  /**
-   * @brief Function that searches for a Level 1 muon candidate and judges if it is matched to a given offline muon.
-   * @param mu Offline muon around which Level 1 candidates are searched.
    * @param trigger Considered chain name, e.g. HLT_mu26_ivarmedium_L1MU20, etc.
    * @param pass True if a candidate is found.
    * @return Pointer to the matched candidate. This is @c nullptr when there is no candidate found.

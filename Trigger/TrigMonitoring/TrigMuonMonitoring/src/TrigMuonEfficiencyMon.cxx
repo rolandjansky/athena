@@ -75,7 +75,7 @@ StatusCode TrigMuonEfficiencyMon :: fillVariablesPerOfflineMuonPerChain(const Ev
 
   if(m_doL1){
     bool activestate = false;
-    m_matchTool->matchL1(mu, ctx, m_l1seeds.at(chain), activestate);
+    m_matchTool->matchL1(muEta, muPhi, 0.25, chain, activestate);
     L1pass = activestate;
   } else {
     L1pass = true;
