@@ -138,10 +138,15 @@ StatusCode ByteStreamCnvSvc::connectOutput(const std::string& /*t*/) {
    eformat::helper::encode(on_streamTags, nStreamTagWords, slot.m_tagBuff.data());
    re->stream_tag(nStreamTagWords, slot.m_tagBuff.data());
 
+   // Nothing left to do, unless processing trigger bits
+   if (!m_fillTriggerBits.value()) {
+      return StatusCode::SUCCESS;
+   }
+
    // try to get TrigDecision
    const xAOD::TrigDecision *trigDecision{nullptr};
    if (m_evtStore->retrieve(trigDecision, "xTrigDecision") != StatusCode::SUCCESS) {
-      ATH_MSG_DEBUG("Failed to retrieve xAOD::TrigDecision. Leaving empty trigger decision vectors");
+      ATH_MSG_WARNING("Property " << m_fillTriggerBits.name() << " set to True but failed to retrieve xAOD::TrigDecision. Leaving empty trigger bits in the event header.");
       return StatusCode::SUCCESS;
    }
 
