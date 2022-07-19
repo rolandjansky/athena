@@ -45,7 +45,10 @@ private slots:
   // Slots of the QNetworkReply
   void finished();
   void error(QNetworkReply::NetworkError);
+
+#ifndef QT_NO_SSL
   void sslErrors(const QList<QSslError>&);
+#endif
 
   // GUI slots
   void loginClicked();
