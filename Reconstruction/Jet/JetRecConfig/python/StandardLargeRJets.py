@@ -34,7 +34,7 @@ clustermods      = ("ECPSFrac","ClusterMoments",)
 truthmods        = ("PartonTruthLabel","TruthPartonDR",)
 pflowmods        = ()
 
-truthlabels = ("JetTaggingTruthLabel:R10TruthLabel_R21Consolidated","JetTaggingTruthLabel:R10TruthLabel_R21Precision",)
+truthlabels = ("JetTaggingTruthLabel:R10TruthLabel_R21Consolidated","JetTaggingTruthLabel:R10TruthLabel_R21Precision","JetTaggingTruthLabel:R10TruthLabel_R21Precision_2022v1")
 
 substrmods = ("nsubjettiness", "nsubjettinessR", "ktsplitter",
               "ecorr", "ecorrR", "qw",
