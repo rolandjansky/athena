@@ -12,7 +12,7 @@
 
 #define MONITORTUNES  // UNcomment this line to get more output, unfortunately in an ugly way
 
-#include "InDetIncSecVxFinderTool/InDetIterativeSecVtxFinderTool.h"
+#include "Root/InDetIterativeSecVtxFinderTool.h"
 
 #include "CLHEP/Matrix/SymMatrix.h"
 #include "CLHEP/Matrix/Vector.h"
@@ -29,6 +29,7 @@
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
+
 #include "TrkVertexFitterInterfaces/IImpactPoint3dEstimator.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "TrkVertexFitterInterfaces/IVertexSeedFinder.h"
@@ -36,6 +37,7 @@
 #include "VxVertex/RecVertex.h"
 #include "VxVertex/VxTrackAtVertex.h"
 #include "AthContainers/DataVector.h"
+#include "TrkEventPrimitives/ParamDefs.h"
 #include "TrkVertexFitterInterfaces/IVertexFitter.h"
 
 #include "TrkTrackLink/ITrackLink.h"
@@ -69,8 +71,8 @@ InDetIterativeSecVtxFinderTool::InDetIterativeSecVtxFinderTool(const std::string
           m_privtxRef( -99999999.9 ),
           m_minVtxDist( 0.0 ),
           m_iVertexFitter("Trk::AdaptiveVertexFitter", this ),
-	  m_trkFilter("InDet::InDetTrackSelection", this ),
-	  m_SVtrkFilter("InDet::InDetSecVtxTrackSelection", this ),
+          m_trkFilter("InDet::InDetTrackSelection", this ),
+          m_SVtrkFilter("InDet::InDetSecVtxTrackSelection", this ),
           m_SeedFinder("Trk::IndexedCrossDistancesSeedFinder", this ),
           m_ImpactPoint3dEstimator("Trk::ImpactPoint3dEstimator", this ),
           m_LinearizedTrackFactory("Trk::FullLinearizedTrackFactory", this ),
@@ -81,10 +83,10 @@ InDetIterativeSecVtxFinderTool::InDetIterativeSecVtxFinderTool(const std::string
           m_maxVertices(25),
           m_CutHitsFilter(0.8),
           m_createSplitVertices(false),
-	  m_splitVerticesTrkInvFraction(2),
+          m_splitVerticesTrkInvFraction(2),
           m_reassignTracksAfterFirstFit(true),
-	  m_doMaxTracksCut(false), 
-	  m_maxTracks(5000)
+          m_doMaxTracksCut(false), 
+          m_maxTracks(5000)
 {
     declareInterface<ISecVertexFinder>(this);
 
@@ -106,7 +108,7 @@ InDetIterativeSecVtxFinderTool::InDetIterativeSecVtxFinderTool(const std::string
     declareProperty("ImpactPoint3dEstimator",m_ImpactPoint3dEstimator);
     declareProperty("LinearizedTrackFactory",m_LinearizedTrackFactory);
 
-    declareProperty("useBeamConstraint",m_useBeamConstraint);
+    
     declareProperty("significanceCutSeeding",m_significanceCutSeeding);
     declareProperty("maxCompatibilityCutSeeding",m_maximumChi2cutForSeeding);
     declareProperty("minTrackWeightAtVtx", m_minWghtAtVtx );
@@ -137,6 +139,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
 
   xAOD::Vertex beamposition;
   beamposition.makePrivateStore();
+
   SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
   beamposition.setPosition(beamSpotHandle->beamVtx().position());
   beamposition.setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
@@ -147,21 +150,18 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
   m_trkdefiPars.clear() ;
 
   for (TrackParticleDataVecIter itr  = trackParticles->begin(); itr != trackParticles->end(); ++itr) {
-    if (m_useBeamConstraint) {
-      selectionPassed=static_cast<bool>(m_trkFilter->accept(**itr, &beamposition));
-      if ( selectionPassed ) selectionPassed =static_cast<bool>(m_SVtrkFilter->accept(**itr,&beamposition));
-    }
-    else
-    {
-      xAOD::Vertex null;
-      null.makePrivateStore();
-      null.setPosition(Amg::Vector3D(0,0,0));
-      AmgSymMatrix(3) vertexError;
-      vertexError.setZero();
-      null.setCovariancePosition(vertexError);
-      selectionPassed=static_cast<bool>(m_trkFilter->accept(**itr,&null));
-      if ( selectionPassed ) selectionPassed =static_cast<bool>(m_SVtrkFilter->accept(**itr,&null));
-    }
+    
+    
+    xAOD::Vertex null;
+    null.makePrivateStore();
+    null.setPosition(Amg::Vector3D(0,0,0));
+    AmgSymMatrix(3) vertexError;
+    vertexError.setZero();
+    null.setCovariancePosition(vertexError);
+    selectionPassed=static_cast<bool>(m_trkFilter->accept(**itr,&null));
+    if ( selectionPassed ) selectionPassed =static_cast<bool>(m_SVtrkFilter->accept(**itr,&null));
+      
+    
  
     if (selectionPassed)
     {
@@ -205,6 +205,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
   beamposition.setPosition(beamSpotHandle->beamVtx().position());
   beamposition.setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
 
+
   bool selectionPassed;
   m_trkdefiPars.clear() ;
 
@@ -212,21 +213,18 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
   for (trk_iter= inputTracks.begin(); trk_iter != inputTracks.end(); ++trk_iter)
   {
     const xAOD::TrackParticle * tmp=dynamic_cast<const xAOD::TrackParticle *> ((*trk_iter));
-    if (m_useBeamConstraint) {
-      selectionPassed=static_cast<bool>(m_trkFilter->accept( *tmp, &beamposition));
-      if ( selectionPassed ) selectionPassed=static_cast<bool>(m_SVtrkFilter->accept(*tmp,&beamposition));
-    }
-    else
-    {
-      xAOD::Vertex null;
-      null.makePrivateStore();
-      null.setPosition(Amg::Vector3D(0,0,0));
-      AmgSymMatrix(3) vertexError;
-      vertexError.setZero();
-      null.setCovariancePosition(vertexError);
-      selectionPassed=static_cast<bool>(m_trkFilter->accept( *tmp, &null));
-      if ( selectionPassed ) selectionPassed=static_cast<bool>(m_SVtrkFilter->accept( *tmp, &null ));
-    }
+    
+    
+    xAOD::Vertex null;
+    null.makePrivateStore();
+    null.setPosition(Amg::Vector3D(0,0,0));
+    AmgSymMatrix(3) vertexError;
+    vertexError.setZero();
+    null.setCovariancePosition(vertexError);
+    selectionPassed=static_cast<bool>(m_trkFilter->accept( *tmp, &null));
+    if ( selectionPassed ) selectionPassed =static_cast<bool>(m_SVtrkFilter->accept(*tmp,&null));
+    
+    
  
     if (selectionPassed)
     {
@@ -323,7 +321,7 @@ InDetIterativeSecVtxFinderTool::findVertex(const std::vector<Trk::ITrackLink*> &
     seedBegin=seedTracks.begin();
     seedEnd=seedTracks.end();
 
-    if (seedtracknumber==0)
+    if (seedtracknumber ==0)
     {
       ATH_MSG_DEBUG( " New iteration. No tracks available after track selection for seeding. No finding done." );
       break;
@@ -342,70 +340,57 @@ InDetIterativeSecVtxFinderTool::findVertex(const std::vector<Trk::ITrackLink*> &
 
     int ncandi = 0 ;
     xAOD::Vertex theconstraint;
-    if (m_useBeamConstraint) {
-      theconstraint = xAOD::Vertex(); // Default constructor creates a private store
-      SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
-      theconstraint.setPosition( beamSpotHandle->beamVtx().position() );
-      theconstraint.setCovariancePosition( beamSpotHandle->beamVtx().covariancePosition() );
-      theconstraint.setFitQuality( beamSpotHandle->beamVtx().fitQuality().chiSquared(), 
-                                    beamSpotHandle->beamVtx().fitQuality().doubleNumberDoF() );
-
-      seedVertex = m_SeedFinder->findSeed( m_privtx.x(), m_privtx.y(),
-                                           perigeeList, &theconstraint );
-
-    } else {
     
-      ATH_MSG_DEBUG( " goto seed finder " );
+    
+    ATH_MSG_DEBUG( " goto seed finder " );
 
-      std::unique_ptr<Trk::IMode3dInfo> info;
-      seedVertex = m_SeedFinder->findSeed(m_privtx.x(), m_privtx.y(),
-                                          info, perigeeList);
+    std::unique_ptr<Trk::IMode3dInfo> info;
+    seedVertex = m_SeedFinder->findSeed(m_privtx.x(), m_privtx.y(),
+                                        info, perigeeList);
 
-      ATH_MSG_DEBUG( " seedFinder finished " );
+    ATH_MSG_DEBUG( " seedFinder finished " );
 
 #ifdef MONITORTUNES
-      std::vector<float> FsmwX, FsmwY, FsmwZ, wght ;
-//      m_leastmodes->push_back( info->Modes1d( FsmwX , FsmwY, FsmwZ, wght ) ) ;
+    std::vector<float> FsmwX, FsmwY, FsmwZ, wght ;
 
-      double cXY = -9.9, cZ = -9.9 ;
-      info->getCorrelationDistance( cXY, cZ ) ;
 
-      m_sdFsmwX->push_back( FsmwX ) ;
-      m_sdFsmwY->push_back( FsmwY ) ;
-      m_sdFsmwZ->push_back( FsmwZ ) ;
-      m_sdcrsWght->push_back( wght ) ;
+    double cXY = -9.9, cZ = -9.9 ;
+    info->getCorrelationDistance( cXY, cZ ) ;
 
-      m_seedX->push_back( seedVertex.x() ) ;
-      m_seedY->push_back( seedVertex.y() ) ;
-      m_seedZ->push_back( seedVertex.z() ) ;
-      m_seedXYdist->push_back( cXY ) ;
-      m_seedZdist->push_back( cZ ) ;
+    m_sdFsmwX->push_back( FsmwX ) ;
+    m_sdFsmwY->push_back( FsmwY ) ;
+    m_sdFsmwZ->push_back( FsmwZ ) ;
+    m_sdcrsWght->push_back( wght ) ;
+
+    m_seedX->push_back( seedVertex.x() ) ;
+    m_seedY->push_back( seedVertex.y() ) ;
+    m_seedZ->push_back( seedVertex.z() ) ;
+    m_seedXYdist->push_back( cXY ) ;
+    m_seedZdist->push_back( cZ ) ;
 #endif
 
 
-      Amg::MatrixX looseConstraintCovariance(3,3);
-      looseConstraintCovariance.setIdentity();
-      looseConstraintCovariance = looseConstraintCovariance * 1e+8;
-      theconstraint = xAOD::Vertex();
-      theconstraint.setPosition( seedVertex );
-      theconstraint.setCovariancePosition( looseConstraintCovariance );
-      theconstraint.setFitQuality( -99.9, 1.0 );
-    }
+
+    Amg::MatrixX looseConstraintCovariance(3,3);
+    looseConstraintCovariance.setIdentity();
+    looseConstraintCovariance = looseConstraintCovariance * 1e+8;
+    theconstraint = xAOD::Vertex();
+    theconstraint.setPosition( seedVertex );
+    theconstraint.setCovariancePosition( looseConstraintCovariance );
+    theconstraint.setFitQuality( -99.9, 1.0 );
+    
 // on the other side VKalFitter  : Tracking/TrkVertexFitter/TrkVKalVrtFitter/src/VKalVrtFitSvc
 
-    if (msgLvl(MSG::DEBUG))
-    {
-      ATH_MSG_DEBUG( " seed at x: " << seedVertex.x() << 
-		     " at y: " <<      seedVertex.y() << 
-		     " at z: " <<      seedVertex.z() );
-    }
+    ATH_MSG_DEBUG( " seed at x: " << seedVertex.x() << 
+         " at y: " <<      seedVertex.y() << 
+         " at z: " <<      seedVertex.z() );
+    
     
     if ( seedVertex.z()==0. ) {
-      if ( msgLvl(MSG::DEBUG) )
-      {
-        ATH_MSG_DEBUG( "No seed found: no further vertices in event" );
-        ATH_MSG_DEBUG( "Number of input tracks: " << perigeeList.size() << " but no seed returned." );
-      }
+      
+      ATH_MSG_DEBUG( "No seed found: no further vertices in event" );
+      ATH_MSG_DEBUG( "Number of input tracks: " << perigeeList.size() << " but no seed returned." );
+      
 
 #ifdef MONITORTUNES
       FillXcheckdefauls() ;
@@ -445,7 +430,7 @@ InDetIterativeSecVtxFinderTool::findVertex(const std::vector<Trk::ITrackLink*> &
       } 
       else if (numberOfTracks<=4*m_splitVerticesTrkInvFraction && m_createSplitVertices)
       {
-	// few tracks are left, put them into the fit regardless their position!
+  // few tracks are left, put them into the fit regardless their position!
         if (counter % m_splitVerticesTrkInvFraction == 0)
         {
           perigeesToFit.push_back(*perigeeListIter);
@@ -481,13 +466,13 @@ InDetIterativeSecVtxFinderTool::findVertex(const std::vector<Trk::ITrackLink*> &
       //very approximate error
         double doe = 99999999.9 ;
         double error= 0.;
-	
-	if( myPerigee && myPerigee->covariance() )
-	{
-	  error  =  std::sqrt((*myPerigee->covariance())(Trk::d0,Trk::d0)+
-			      (*myPerigee->covariance())(Trk::z0,Trk::z0));
+  
+  if( myPerigee && myPerigee->covariance() )
+  {
+    error  =  std::sqrt((*myPerigee->covariance())(Trk::d0,Trk::d0)+
+            (*myPerigee->covariance())(Trk::z0,Trk::z0));
         }//end of the security check
-	
+  
         if (error==0.)
         {
           ATH_MSG_ERROR( " Error is zero! " << distance );
@@ -495,11 +480,10 @@ InDetIterativeSecVtxFinderTool::findVertex(const std::vector<Trk::ITrackLink*> &
         }  
         doe = distance/error ;
         
-        if(msgLvl(MSG::VERBOSE))
-        {
-          ATH_MSG_VERBOSE( " Distance between track and seed vtx: " << distance << " d/s(d) = " << 
-			   distance/error << " err " << error );
-        }
+        
+        ATH_MSG_VERBOSE( " Distance between track and seed vtx: " << distance << " d/s(d) = " << 
+        distance/error << " err " << error );
+        
         
         if ( doe < m_significanceCutSeeding )
         {
@@ -520,14 +504,13 @@ InDetIterativeSecVtxFinderTool::findVertex(const std::vector<Trk::ITrackLink*> &
 
 //  here is while-okay
 
-    if(msgLvl(MSG::VERBOSE))
+    
+    ATH_MSG_VERBOSE( " Considering n. " << perigeesToFit.size() << " tracks for the fit. " );
+    if (m_createSplitVertices)
     {
-      ATH_MSG_VERBOSE( " Considering n. " << perigeesToFit.size() << " tracks for the fit. " );
-      if (m_createSplitVertices)
-      {
-        ATH_MSG_VERBOSE( " and n. " << perigeesToFitSplitVertex.size() << " tracks for split vertex fit. " );
-      }
+      ATH_MSG_VERBOSE( " and n. " << perigeesToFitSplitVertex.size() << " tracks for split vertex fit. " );
     }
+    
     
     m_ndf = -3. ;
     m_ntracks = 0;
@@ -536,12 +519,11 @@ InDetIterativeSecVtxFinderTool::findVertex(const std::vector<Trk::ITrackLink*> &
     m_dir = -99999.9 ;
     m_hif = -1.0 ;
 
-    if (perigeesToFit.empty())
+    if (perigeesToFit.size()==0)
     {
-      if(msgLvl(MSG::DEBUG))
-      {
-        ATH_MSG_DEBUG( " No good seed found. Exiting search for vertices..." );
-      }
+      
+      ATH_MSG_DEBUG( " No good seed found. Exiting search for vertices..." );
+      
 #ifdef MONITORTUNES
       xAOD::Vertex * seededxAODVertex = new xAOD::Vertex;
       theVertexContainer->push_back( seededxAODVertex ); // 
@@ -573,12 +555,8 @@ InDetIterativeSecVtxFinderTool::findVertex(const std::vector<Trk::ITrackLink*> &
 
     xAOD::Vertex * myxAODVertex = nullptr;
 
-    if (m_useBeamConstraint && !perigeesToFit.empty())
-    {
-      myxAODVertex=m_iVertexFitter->fit(perigeesToFit, theconstraint);
-    }
 
-    if (!m_useBeamConstraint && perigeesToFit.size()>1) // our main use case
+    if ( perigeesToFit.size()>1) // our main use case
     {
       myxAODVertex=m_iVertexFitter->fit( perigeesToFit, seedVertex );
     }
@@ -591,21 +569,19 @@ InDetIterativeSecVtxFinderTool::findVertex(const std::vector<Trk::ITrackLink*> &
 
     m_v0mass = -199.9 ;
 
-    m_goodVertex = myxAODVertex != nullptr && m_ndf >0 && m_ntracks >=2 ;
+    m_goodVertex = myxAODVertex != 0 && m_ndf >0 && m_ntracks >=2 ;
 
-    if (msgLvl(MSG::DEBUG))
-    {
-      ATH_MSG_DEBUG( " xAOD::Vertex : " << ( myxAODVertex != nullptr ? 1 : 0 ) 
-		     << ",  #dof = " << m_ndf << ",  #tracks (weight>0.01) = " << m_ntracks );
-    }
+    
+    ATH_MSG_DEBUG( " xAOD::Vertex : " << ( myxAODVertex != 0 ? 1 : 0 ) 
+         << ",  #dof = " << m_ndf << ",  #tracks (weight>0.01) = " << m_ntracks );
+    
 
 //  below is while-okay
     if (!m_goodVertex)
     {
-      if (msgLvl(MSG::DEBUG))
-      {
-        ATH_MSG_DEBUG( " Going to new iteration with: " << seedTracks.size() << " seed tracks after BAD VERTEX. " );
-      }     
+      
+      ATH_MSG_DEBUG( " Going to new iteration with: " << seedTracks.size() << " seed tracks after BAD VERTEX. " );
+           
 
       if (myxAODVertex)
       {
@@ -659,10 +635,9 @@ InDetIterativeSecVtxFinderTool::findVertex(const std::vector<Trk::ITrackLink*> &
     if ( m_reassignTracksAfterFirstFit && ( ! m_createSplitVertices ) )
     {
 
-      if(msgLvl(MSG::VERBOSE))
-      {
-        ATH_MSG_VERBOSE( " N tracks used for fit before reallocating: "  << perigeesToFit.size() );
-      }
+      
+      ATH_MSG_VERBOSE( " N tracks used for fit before reallocating: "  << perigeesToFit.size() );
+      
         //now you HAVE a good vertex
         //but you want to add the tracks which you missed...
         
@@ -694,10 +669,9 @@ InDetIterativeSecVtxFinderTool::findVertex(const std::vector<Trk::ITrackLink*> &
         std::vector<Trk::VxTrackAtVertex>::const_iterator tracksBegin=myVxTracksAtVtx->begin();
         std::vector<Trk::VxTrackAtVertex>::const_iterator tracksEnd=myVxTracksAtVtx->end();
 
-        if(msgLvl(MSG::VERBOSE))
-        {
-          ATH_MSG_VERBOSE( " Iterating over new vertex to look for tracks to reallocate... "  );
-        }
+        
+        ATH_MSG_VERBOSE( " Iterating over new vertex to look for tracks to reallocate... "  );
+        
           
         for (std::vector<Trk::VxTrackAtVertex>::const_iterator tracksIter=tracksBegin;
              tracksIter!=tracksEnd;)
@@ -712,7 +686,7 @@ InDetIterativeSecVtxFinderTool::findVertex(const std::vector<Trk::ITrackLink*> &
             
           const Trk::TrackParameters* trackPerigee=(*tracksIter).initialPerigee();
                         
-          if (trackPerigee==nullptr)
+          if (trackPerigee==0)
           {
             ATH_MSG_ERROR( " Cast to perigee gives 0 pointer, cannot continue " );
             return invalidResponse;
@@ -724,11 +698,10 @@ InDetIterativeSecVtxFinderTool::findVertex(const std::vector<Trk::ITrackLink*> &
 
           double minDist = VrtVrtDist( myxAODVertex,  *vxIter ) ;
 
-          if (msgLvl(MSG::VERBOSE))
-          {
-            ATH_MSG_VERBOSE( "Compatibility to old vtx is : " << chi2_oldvtx << 
-			     " to new vtx is: " << chi2_newvtx );
-          }
+          
+          ATH_MSG_VERBOSE( "Compatibility to old vtx is : " << chi2_oldvtx << 
+           " to new vtx is: " << chi2_newvtx );
+          
 
           bool remove=false;
 
@@ -737,11 +710,10 @@ InDetIterativeSecVtxFinderTool::findVertex(const std::vector<Trk::ITrackLink*> &
              )
           {
               
-            if(msgLvl(MSG::DEBUG))
-            {
-              ATH_MSG_DEBUG( " Found track of old vertex (chi2= " << chi2_oldvtx << 
-			     ") more compatible to new one (chi2= " << chi2_newvtx << ")" );
-            }
+            
+            ATH_MSG_DEBUG( " Found track of old vertex (chi2= " << chi2_oldvtx << 
+           ") more compatible to new one (chi2= " << chi2_newvtx << ")" );
+            
               
             perigeesToFit.push_back(trackPerigee);
             //but you need to re-add it to the seedTracks too...
@@ -756,10 +728,9 @@ InDetIterativeSecVtxFinderTool::findVertex(const std::vector<Trk::ITrackLink*> &
             {
               if ( (*origIter)->parameters()==trackPerigee )
               {
-                if (msgLvl(MSG::VERBOSE))
-                {
-                  ATH_MSG_VERBOSE( " found the old perigee to be re-added to seedTracks in order to be deleted again!" );
-                }
+                
+                ATH_MSG_VERBOSE( " found the old perigee to be re-added to seedTracks in order to be deleted again!" );
+                
                 isFound=true;
                 seedTracks.push_back(*origIter);
                 break;
@@ -795,10 +766,9 @@ InDetIterativeSecVtxFinderTool::findVertex(const std::vector<Trk::ITrackLink*> &
 
       }//end of iterating on already found vertices in event
 
-      if(msgLvl(MSG::VERBOSE))
-      {
-        ATH_MSG_VERBOSE( " N tracks used for fit after reallocating: "  << perigeesToFit.size() );
-      }
+      
+      ATH_MSG_VERBOSE( " N tracks used for fit after reallocating: "  << perigeesToFit.size() );
+      
 
         //now you have to delete the previous xAOD::Vertex, do a new fit, i
         // then check if you still have a good vertex
@@ -807,18 +777,14 @@ InDetIterativeSecVtxFinderTool::findVertex(const std::vector<Trk::ITrackLink*> &
       {
           
         ATH_MSG_DEBUG( " refit with additional " << numberOfAddedTracks 
-		       << " from other vertices " );
+           << " from other vertices " );
 
         Amg::Vector3D fitposition = myxAODVertex->position() ;
         delete myxAODVertex;
-        myxAODVertex=nullptr;
-          
-        if (m_useBeamConstraint && !perigeesToFit.empty())
-        {
-          myxAODVertex=m_iVertexFitter->fit(perigeesToFit, theconstraint);
-        }
 
-        if (!m_useBeamConstraint && perigeesToFit.size()>1)
+        myxAODVertex=nullptr;
+
+        if ( perigeesToFit.size()>1)
         {
           myxAODVertex=m_iVertexFitter->fit( perigeesToFit, fitposition ) ;
           mDecor_nrobbed( *myxAODVertex ) = 0 ; //  robbing but also refit
@@ -826,13 +792,12 @@ InDetIterativeSecVtxFinderTool::findVertex(const std::vector<Trk::ITrackLink*> &
           
         countTracksAndNdf( myxAODVertex, m_ndf, m_ntracks);
           
-        m_goodVertex = myxAODVertex != nullptr && m_ndf >0 && m_ntracks >=2 ;
+        m_goodVertex = myxAODVertex != 0 && m_ndf >0 && m_ntracks >=2 ;
 
-        if (msgLvl(MSG::DEBUG))
-        {
-          ATH_MSG_DEBUG( " Refitted xAODVertex is pointer: " << myxAODVertex << 
-			 " #dof = " << m_ndf << " #tracks (with weight>0.01) " << m_ntracks << " beam constraint " << (m_useBeamConstraint?"yes":"no") );
-        }
+        
+        ATH_MSG_DEBUG( " Refitted xAODVertex is pointer: " << myxAODVertex << 
+       " #dof = " << m_ndf << " #tracks (with weight>0.01) " << m_ntracks );
+        
 
         if ( ! m_goodVertex )
         {
@@ -861,7 +826,7 @@ InDetIterativeSecVtxFinderTool::findVertex(const std::vector<Trk::ITrackLink*> &
             
             ATH_MSG_DEBUG( " Adding tracks resulted in an invalid vertex. Should be rare... " );
             ATH_MSG_DEBUG( " Going to new iteration with " << seedTracks.size() 
-			   << " seed tracks after BAD VERTEX. " );
+         << " seed tracks after BAD VERTEX. " );
 
 #ifdef MONITORTUNES
 
@@ -954,7 +919,7 @@ InDetIterativeSecVtxFinderTool::findVertex(const std::vector<Trk::ITrackLink*> &
         int ngroom = 0 ;
         if ( perigeesToFit.size() >= 2 ) 
         {
-          groomed = nullptr ;
+          groomed = nullptr;
           groomed=m_iVertexFitter->fit( perigeesToFit, myxAODVertex->position()  ) ;
 
           countTracksAndNdf( groomed, m_ndf, ngroom );
@@ -979,7 +944,7 @@ InDetIterativeSecVtxFinderTool::findVertex(const std::vector<Trk::ITrackLink*> &
           {
 //              removeCompatibleTracks( groomed,  perigeesToFit,  seedTracks);
             delete groomed ;
-            groomed=nullptr;
+            groomed=0;
           }
 
           removeCompatibleTracks( myxAODVertex,  perigeesToFit,  seedTracks);
@@ -991,10 +956,10 @@ InDetIterativeSecVtxFinderTool::findVertex(const std::vector<Trk::ITrackLink*> &
 //        myxAODVertex->setTrackParticleLinks( groomed->trackParticleLinks() ) ;
 
         delete groomed ;
-        groomed=nullptr;
+        groomed=0;
 
         ATH_MSG_DEBUG( " new vertex after grooming with reminded tracks : " << ngroom  
-		       << " with Chi2/dof " << myxAODVertex->chiSquared()/myxAODVertex->numberDoF() );
+           << " with Chi2/dof " << myxAODVertex->chiSquared()/myxAODVertex->numberDoF() );
 
         isv0 = false ;
         if ( ngroom == 2 ) 
@@ -1028,9 +993,9 @@ InDetIterativeSecVtxFinderTool::findVertex(const std::vector<Trk::ITrackLink*> &
       } else
       {
         ATH_MSG_DEBUG( " radiiPattern filter hasn't affect in tracks : " << m_ntracks 
-		       << " with VxType : " << myxAODVertex->vertexType() );
+           << " with VxType : " << myxAODVertex->vertexType() );
         delete groomed ;
-        groomed = nullptr ;
+        groomed = 0 ;
 #ifdef MONITORTUNES
         mDecor_HitsFilter( *myxAODVertex ) = m_hif ;
 #endif
@@ -1042,10 +1007,9 @@ InDetIterativeSecVtxFinderTool::findVertex(const std::vector<Trk::ITrackLink*> &
     removeCompatibleTracks( myxAODVertex,  perigeesToFit,  seedTracks);
     // SeedTracks are updated so that the remained could be seeded/fit in next iteration
 
-    if (msgLvl(MSG::VERBOSE))
-    {
-      ATH_MSG_VERBOSE( "Number of seeds after removal of outliers: " << seedTracks.size() );
-    }
+    
+    ATH_MSG_VERBOSE( "Number of seeds after removal of outliers: " << seedTracks.size() );
+    
       
     if ( ! m_createSplitVertices )
     {
@@ -1174,7 +1138,7 @@ InDetIterativeSecVtxFinderTool::findVertex(const std::vector<Trk::ITrackLink*> &
 
     ATH_MSG_DEBUG( " filled " << nv << " 'th vertex : x= " << (*vxIter)->position().x() <<" , y= " 
                     << (*vxIter)->position().y() <<" , z= " << (*vxIter)->position().z() 
-		   << " vxType = " << (*vxIter)->vertexType() ) ;
+       << " vxType = " << (*vxIter)->vertexType() ) ;
 
     std::vector<float> trkWght ;
 
@@ -1240,25 +1204,25 @@ InDetIterativeSecVtxFinderTool::findVertex(const std::vector<Trk::ITrackLink*> &
             }
         
             double error= 1. ;
-	
+  
             if( svperigee->covariance() )
               error  =  std::sqrt(   (*svperigee->covariance())(Trk::d0,Trk::d0) 
                                    + (*svperigee->covariance())(Trk::z0,Trk::z0)
-                                 );	
+                                 ); 
             xdoe.push_back( std::abs( distance/error ) ) ;
 #endif
           } 
 
-          //assigning the input track to the fitted vertex through VxTrackAtVertices vector	 
-	  (*tracksIter).setOrigTrack (*origtrkiter );
-	  
+          //assigning the input track to the fitted vertex through VxTrackAtVertices vector  
+    (*tracksIter).setOrigTrack (*origtrkiter );
+    
           // See if the trklink is to an xAOD::TrackParticle
           Trk::LinkToXAODTrackParticle* linkToXAODTP = dynamic_cast<Trk::LinkToXAODTrackParticle*>( *origtrkiter );
 
           // If track is an xAOD::TrackParticle, set directly in xAOD::Vertex
           if (linkToXAODTP)
-          {	    
-	    (*vxIter)->addTrackAtVertex(*linkToXAODTP, (*tracksIter).weight());
+          {     
+      (*vxIter)->addTrackAtVertex(*linkToXAODTP, (*tracksIter).weight());
 
           } //TODO: else write in a warning? (if tracks were Trk::Tracks or Trk::TrackParticleBase)
 
@@ -1291,18 +1255,18 @@ InDetIterativeSecVtxFinderTool::findVertex(const std::vector<Trk::ITrackLink*> &
   
   ATH_MSG_DEBUG(" #Vtx "<< theVertexContainer->size() <<" with track-vertex association fixed " );
 
-  if( msgLvl(MSG::VERBOSE) )
-    for (unsigned int i = 0 ; i < theVertexContainer->size() ; i++)
-    {
+  
+  for (unsigned int i = 0 ; i < theVertexContainer->size() ; i++)
+  {
 
-      ATH_MSG_VERBOSE( " Vtx: " << i <<
-          " x= " << (*theVertexContainer)[i]->position().x() <<
-          " y= " << (*theVertexContainer)[i]->position().y() <<
-          " z= " << (*theVertexContainer)[i]->position().z() <<
-          " ntracks= " << (*theVertexContainer)[i]->vxTrackAtVertex().size() <<
-          " chi2= " << (*theVertexContainer)[i]->chiSquared() << 
-		       " #dof = " << (*theVertexContainer)[i]->numberDoF() );
-    }
+    ATH_MSG_VERBOSE( " Vtx: " << i <<
+        " x= " << (*theVertexContainer)[i]->position().x() <<
+        " y= " << (*theVertexContainer)[i]->position().y() <<
+        " z= " << (*theVertexContainer)[i]->position().z() <<
+        " ntracks= " << (*theVertexContainer)[i]->vxTrackAtVertex().size() <<
+        " chi2= " << (*theVertexContainer)[i]->chiSquared() << 
+         " #dof = " << (*theVertexContainer)[i]->numberDoF() );
+  }
 
   for (std::vector<Trk::ITrackLink*>::iterator origtrkiter=origtrkbegin;
        origtrkiter!=origtrkend;++origtrkiter)
@@ -1320,7 +1284,7 @@ InDetIterativeSecVtxFinderTool::findVertex(const std::vector<Trk::ITrackLink*> &
   return std::make_pair(theVertexContainer, theVertexAuxContainer);
 }
 
-bool InDetIterativeSecVtxFinderTool::V0kine( const std::vector< Amg::Vector3D >& momenta, const Amg::Vector3D & posi, 
+bool InDetIterativeSecVtxFinderTool::V0kine( const std::vector< Amg::Vector3D > &momenta, const Amg::Vector3D & posi, 
                                              float & mass, float &modir ) const
 {
   mass = -99.9 ;
@@ -1346,17 +1310,17 @@ bool InDetIterativeSecVtxFinderTool::V0kine( const std::vector< Amg::Vector3D >&
     vx += trk.x() ;
     vy += trk.y() ;
     Pv[t] = trk.x()*trk.x() + trk.y()*trk.y() + trk.z()*trk.z() ;
-    eK0 += sqrt( Pv[t] + pi2 ) ; 
+    eK0 += std::sqrt( Pv[t] + pi2 ) ; 
   }
 
   double mnt2 = vx*vx + vy*vy + vz*vz ;
   mass = eK0*eK0 - mnt2 ;
-  mass = 0.001*( mass >= 0 ? sqrt( mass ) : sqrt( -mass ) ) ;
+  mass = 0.001*( mass >= 0 ? std::sqrt( mass ) : std::sqrt( -mass ) ) ;
 
   Amg::Vector3D vdif = posi - m_privtx ;
   Amg::Vector3D vmoment =  Amg::Vector3D( vx, vy, vz ) ;
   
-  modir = vmoment.dot( vdif )/sqrt( mnt2 )  ;
+  modir = vmoment.dot( vdif )/std::sqrt( mnt2 )  ;
 
   // borrowed from InnerDetector/InDetRecAlgs/InDetV0Finder/InDetV0FinderTool
   double a0z = ( vdif + vmoment*vmoment.dot( vdif )/( mnt2 + 0.00001 ) ).z() ;
@@ -1375,17 +1339,17 @@ bool InDetIterativeSecVtxFinderTool::V0kine( const std::vector< Amg::Vector3D >&
   // 1 eV^(-1) of time = hbar / eV = 6.582173*10^(-16) second,  for energy-time in natural unit
 //  double planck = 6.582173 ;      
 
-  double eGam = sqrt( Pv[0] + 0.511*0.511 ) + sqrt( Pv[1] + 0.511*0.511 ) ;
+  double eGam = std::sqrt( Pv[0] + 0.511*0.511 ) + std::sqrt( Pv[1] + 0.511*0.511 ) ;
   double mGam = eGam*eGam - mnt2 ;
  
   double prtn2 = 938.27205*938.27205 ;
-  double eLam = Pv[0] > Pv[1] ?  sqrt( Pv[0] + prtn2 ) + sqrt( Pv[1] + pi2 ) : 
-                          sqrt( Pv[0] + pi2 ) + sqrt( Pv[1] + prtn2 )  ;
+  double eLam = Pv[0] > Pv[1] ?  std::sqrt( Pv[0] + prtn2 ) + std::sqrt( Pv[1] + pi2 ) : 
+                          sqrt( Pv[0] + pi2 ) + std::sqrt( Pv[1] + prtn2 )  ;
   double mLam = eLam*eLam - mnt2 ;
 
   ATH_MSG_DEBUG( " V0 masses : " << mass 
-                 <<" "<< ( mGam >= 0 ? sqrt( mGam ) : sqrt( -mGam ) )
-                 <<" "<< ( mLam >= 0 ? sqrt( mLam ) : sqrt( -mLam ) ) );
+                 <<" "<< ( mGam >= 0 ? std::sqrt( mGam ) : std::sqrt( -mGam ) )
+                 <<" "<< ( mLam >= 0 ? std::sqrt( mLam ) : std::sqrt( -mLam ) ) );
 
   if (   ( std::abs( mass - 497.614 ) < 100. )   // K short 
       || ( mGam > 0 && sqrt( mGam ) < 40. )  // gamma conversion ;
@@ -1395,46 +1359,7 @@ bool InDetIterativeSecVtxFinderTool::V0kine( const std::vector< Amg::Vector3D >&
   return false ;
 }
 
-/**
-const Amg::Vector3D InDetIterativeSecVtxFinderTool::getSeedMomenta( const Amg::Vector3D &vertex ) const
-{
-  Amg::Vector3D momenta = Amg::Vector3D( 0., 0., 0. ) ;
 
-  for ( std::vector<const Trk::TrackParameters*>::const_iterator peritr = m_seedperigees->begin() ;
-        peritr != m_seedperigees->end(); peritr++ )
-  {
- 
-    ATH_MSG_DEBUG( " MomentumDirection : trk d0 = " << (*peritr)->parameters()[Trk::d0] );
-   
-    Trk::LinearizedTrack* myLinearizedTrack =
-      m_LinearizedTrackFactory->linearizedTrack( *peritr, vertex );
-
-    momenta +=  myLinearizedTrack->expectedMomentumAtPCA() ;
-
-    ATH_MSG_DEBUG( " MomentumDirection : pz = " << momenta.z() );
-
-    if ( myLinearizedTrack ) 
-    {
-      delete myLinearizedTrack ;
-      myLinearizedTrack = 0 ;
-    }
-  }
-
-  return momenta ;
-}
-
-double InDetIterativeSecVtxFinderTool::MomentumDirection( int opt, const Amg::Vector3D &vertex) const
-{
-  double proj = 0.0 ;
-
-  const Amg::Vector3D momentum = (  opt == 0 ? getSeedMomenta( vertex ) : TrkAtVtxMomenta ) ;
-
-  proj = momentum.dot(  vertex - m_privtx )/( sqrt( momentum.dot( momentum ) ) ) ;
-
-  return proj ;
-
-}
-**/
 
 double InDetIterativeSecVtxFinderTool::VrtVrtDist( xAOD::Vertex * v1, xAOD::Vertex * v2 ) 
 {
@@ -1475,19 +1400,19 @@ bool InDetIterativeSecVtxFinderTool::passHitsFilter(
 
     insidePixelBarrel0,
     aroundPixelBarrel0,
-	
+  
     outsidePixelBarrel0_and_insidePixelBarrel1,
     aroundPixelBarrel1,
-	
+  
     outsidePixelBarrel1_and_insidePixelBarrel2,
     aroundPixelBarrel2,
-	
+  
     outsidePixelBarrel2_and_insidePixelBarrel3,
     aroundPixelBarrel3,
-	
+  
     outsidePixelBarrel3_and_insideSctBarrel0,
     aroundSctBarrel0,
-	
+  
     outsideSctBarrel0_and_insideSctBarrel1,
     aroundSctBarrel1,
 
@@ -1525,18 +1450,7 @@ bool InDetIterativeSecVtxFinderTool::passHitsFilter(
     vertex_pattern = insideSilicon ;
   }
       
-/**
-  bool usedinseed = false ; 
-  for ( std::vector<const Trk::TrackParameters*>::iterator seedperiIter = m_seedperigees->begin() ;
-     seedperiIter != m_seedperigees->end() ; seedperiIter ++ )
-  {
-    if ( perigee = *seedperiIter ) 
-    {
-      usedinseed = true ;
-      break ;
-    }
-  }
-**/
+
 
   for ( unsigned int p = 0 ; p < m_trkdefiPars.size() ; p++ )
   { 
@@ -1554,10 +1468,7 @@ bool InDetIterativeSecVtxFinderTool::passHitsFilter(
     uint32_t HitPattern= tpperigee[0] ;
     ATH_MSG_VERBOSE( " Track HitPattern : " << HitPattern );
 
-/**  Not available in AOD
-    const Trk::Track* trk = (*tpitr)->track() ;
-    const Trk::TrackSummary* smr = trk->trackSummary() ;
-**/
+
 
 //  shift 1 left with bits of Trk::InnerDet_LayerX_DiscY to define a mask
 //  int mask = 1<<Trk::InnerDet_LayerX_DiscY ;
@@ -1565,101 +1476,101 @@ bool InDetIterativeSecVtxFinderTool::passHitsFilter(
 //  bool set = HitPattern&mask ;
 
       if( vertex_pattern == insideBeamPipe ) {
-	
-	if( ! (HitPattern & (1<<Trk::pixelBarrel0)) ) return false;
-	
+  
+  if( ! (HitPattern & (1<<Trk::pixelBarrel0)) ) return false;
+  
       } else if( vertex_pattern == insidePixelBarrel0 ) {
-	
-	if( ! (HitPattern & (1<<Trk::pixelBarrel0)) ) return false;
+  
+  if( ! (HitPattern & (1<<Trk::pixelBarrel0)) ) return false;
       }
       
       else if( vertex_pattern == aroundPixelBarrel0 ) {
-	// require nothing for PixelBarrel0	
-	if( ! (HitPattern & (1<<Trk::pixelBarrel1)) ) return false;
+  // require nothing for PixelBarrel0 
+  if( ! (HitPattern & (1<<Trk::pixelBarrel1)) ) return false;
       }      
       
       else if( vertex_pattern == outsidePixelBarrel0_and_insidePixelBarrel1 ) {
-	
-	if(   (HitPattern & (1<<Trk::pixelBarrel0)) ) return false;
-	if( ! (HitPattern & (1<<Trk::pixelBarrel1)) ) return false;
+  
+  if(   (HitPattern & (1<<Trk::pixelBarrel0)) ) return false;
+  if( ! (HitPattern & (1<<Trk::pixelBarrel1)) ) return false;
       }
       
       else if( vertex_pattern == aroundPixelBarrel1 ) {
-	
-	if(   (HitPattern & (1<<Trk::pixelBarrel0)) ) return false;
+  
+  if(   (HitPattern & (1<<Trk::pixelBarrel0)) ) return false;
         // require nothing for PixelBarrel1
-	if( ! (HitPattern & (1<<Trk::pixelBarrel2)) ) return false;
+  if( ! (HitPattern & (1<<Trk::pixelBarrel2)) ) return false;
       }
       
       else if( vertex_pattern == outsidePixelBarrel1_and_insidePixelBarrel2 ) {
-	
-	if(   (HitPattern & (1<<Trk::pixelBarrel0)) ) return false;
-	if(   (HitPattern & (1<<Trk::pixelBarrel1)) ) return false;
-	if( ! (HitPattern & (1<<Trk::pixelBarrel2)) ) return false;
+  
+  if(   (HitPattern & (1<<Trk::pixelBarrel0)) ) return false;
+  if(   (HitPattern & (1<<Trk::pixelBarrel1)) ) return false;
+  if( ! (HitPattern & (1<<Trk::pixelBarrel2)) ) return false;
       }
       
       else if( vertex_pattern == aroundPixelBarrel2 ) {
-	
-	if(   (HitPattern & (1<<Trk::pixelBarrel0)) ) return false;
-	if(   (HitPattern & (1<<Trk::pixelBarrel1)) ) return false;
-	// require nothing for PixelBarrel2
-	if( ! (HitPattern & (1<<Trk::pixelBarrel3)) ) return false;
+  
+  if(   (HitPattern & (1<<Trk::pixelBarrel0)) ) return false;
+  if(   (HitPattern & (1<<Trk::pixelBarrel1)) ) return false;
+  // require nothing for PixelBarrel2
+  if( ! (HitPattern & (1<<Trk::pixelBarrel3)) ) return false;
       }
 
       else if( vertex_pattern == outsidePixelBarrel2_and_insidePixelBarrel3 ) {
-	
-	if(   (HitPattern & (1<<Trk::pixelBarrel0)) ) return false;
-	if(   (HitPattern & (1<<Trk::pixelBarrel1)) ) return false;
-	if(   (HitPattern & (1<<Trk::pixelBarrel2)) ) return false;
-	if( ! (HitPattern & (1<<Trk::pixelBarrel3)) ) return false;
+  
+  if(   (HitPattern & (1<<Trk::pixelBarrel0)) ) return false;
+  if(   (HitPattern & (1<<Trk::pixelBarrel1)) ) return false;
+  if(   (HitPattern & (1<<Trk::pixelBarrel2)) ) return false;
+  if( ! (HitPattern & (1<<Trk::pixelBarrel3)) ) return false;
       }
-	
+  
       else if( vertex_pattern == aroundPixelBarrel3 ) {
-	
-	if(   (HitPattern & (1<<Trk::pixelBarrel0)) ) return false;
-	if(   (HitPattern & (1<<Trk::pixelBarrel1)) ) return false;
-	if(   (HitPattern & (1<<Trk::pixelBarrel2)) ) return false;
-	// require nothing for PixelBarrel3
-	if( ! (HitPattern & (1<<Trk::sctBarrel0)) ) return false;
+  
+  if(   (HitPattern & (1<<Trk::pixelBarrel0)) ) return false;
+  if(   (HitPattern & (1<<Trk::pixelBarrel1)) ) return false;
+  if(   (HitPattern & (1<<Trk::pixelBarrel2)) ) return false;
+  // require nothing for PixelBarrel3
+  if( ! (HitPattern & (1<<Trk::sctBarrel0)) ) return false;
       }
       
       else if( vertex_pattern == outsidePixelBarrel3_and_insideSctBarrel0 ) {
-	
-	if(   (HitPattern & (1<<Trk::pixelBarrel0)) ) return false;
-	if(   (HitPattern & (1<<Trk::pixelBarrel1)) ) return false;
-	if(   (HitPattern & (1<<Trk::pixelBarrel2)) ) return false;
-	if(   (HitPattern & (1<<Trk::pixelBarrel3)) ) return false;
-	if( ! (HitPattern & (1<<Trk::sctBarrel0)) ) return false;
+  
+  if(   (HitPattern & (1<<Trk::pixelBarrel0)) ) return false;
+  if(   (HitPattern & (1<<Trk::pixelBarrel1)) ) return false;
+  if(   (HitPattern & (1<<Trk::pixelBarrel2)) ) return false;
+  if(   (HitPattern & (1<<Trk::pixelBarrel3)) ) return false;
+  if( ! (HitPattern & (1<<Trk::sctBarrel0)) ) return false;
       }
       
       else if( vertex_pattern == aroundSctBarrel0 ) {
-	
-	if(   (HitPattern & (1<<Trk::pixelBarrel0)) ) return false;
-	if(   (HitPattern & (1<<Trk::pixelBarrel1)) ) return false;
-	if(   (HitPattern & (1<<Trk::pixelBarrel2)) ) return false;
-	if(   (HitPattern & (1<<Trk::pixelBarrel3)) ) return false;
-	// require nothing for SctBarrel0
-	if( ! (HitPattern & (1<<Trk::sctBarrel1)) ) return false;
+  
+  if(   (HitPattern & (1<<Trk::pixelBarrel0)) ) return false;
+  if(   (HitPattern & (1<<Trk::pixelBarrel1)) ) return false;
+  if(   (HitPattern & (1<<Trk::pixelBarrel2)) ) return false;
+  if(   (HitPattern & (1<<Trk::pixelBarrel3)) ) return false;
+  // require nothing for SctBarrel0
+  if( ! (HitPattern & (1<<Trk::sctBarrel1)) ) return false;
       }
       
       else if( vertex_pattern == outsideSctBarrel0_and_insideSctBarrel1 ) {
-	
-	if(   (HitPattern & (1<<Trk::pixelBarrel0)) ) return false;
-	if(   (HitPattern & (1<<Trk::pixelBarrel1)) ) return false;
-	if(   (HitPattern & (1<<Trk::pixelBarrel2)) ) return false;
-	if(   (HitPattern & (1<<Trk::pixelBarrel3)) ) return false;
-	if(   (HitPattern & (1<<Trk::sctBarrel0)) ) return false;
-	if( ! (HitPattern & (1<<Trk::sctBarrel1)) ) return false;
+  
+  if(   (HitPattern & (1<<Trk::pixelBarrel0)) ) return false;
+  if(   (HitPattern & (1<<Trk::pixelBarrel1)) ) return false;
+  if(   (HitPattern & (1<<Trk::pixelBarrel2)) ) return false;
+  if(   (HitPattern & (1<<Trk::pixelBarrel3)) ) return false;
+  if(   (HitPattern & (1<<Trk::sctBarrel0)) ) return false;
+  if( ! (HitPattern & (1<<Trk::sctBarrel1)) ) return false;
       }
 
       else if( vertex_pattern == aroundSctBarrel1 ) {
-	if(   (HitPattern & (1<<Trk::pixelBarrel0)) ) return false;
-	if(   (HitPattern & (1<<Trk::pixelBarrel1)) ) return false;
-	if(   (HitPattern & (1<<Trk::pixelBarrel2)) ) return false;
-	if(   (HitPattern & (1<<Trk::pixelBarrel3)) ) return false;
-	if(   (HitPattern & (1<<Trk::sctBarrel0)) ) return false;
-	// require nothing for SctBarrel1
-	if( ! (HitPattern & (1<<Trk::sctBarrel2)) ) return false;
+  if(   (HitPattern & (1<<Trk::pixelBarrel0)) ) return false;
+  if(   (HitPattern & (1<<Trk::pixelBarrel1)) ) return false;
+  if(   (HitPattern & (1<<Trk::pixelBarrel2)) ) return false;
+  if(   (HitPattern & (1<<Trk::pixelBarrel3)) ) return false;
+  if(   (HitPattern & (1<<Trk::sctBarrel0)) ) return false;
+  // require nothing for SctBarrel1
+  if( ! (HitPattern & (1<<Trk::sctBarrel2)) ) return false;
       } else 
         pass = true ;
   }
@@ -1681,13 +1592,6 @@ StatusCode InDetIterativeSecVtxFinderTool::initialize()
 
     m_evtNum = 0 ;
 
-    if (m_createSplitVertices && m_useBeamConstraint)
-    {
-      ATH_MSG_FATAL( " Split vertices cannot be obtained if beam spot constraint is true! Change settings..." );
-      return StatusCode::FAILURE;
-    }
-    
-
     /* Get the right vertex fitting tool from ToolSvc */
     if ( m_iVertexFitter.retrieve().isFailure() ) {
       ATH_MSG_FATAL( "Failed to retrieve tool " << m_iVertexFitter );
@@ -1698,15 +1602,10 @@ StatusCode InDetIterativeSecVtxFinderTool::initialize()
       ATH_MSG_FATAL( "Failed to retrieve tool " << m_SeedFinder );
       return StatusCode::FAILURE;
     }
-    /*
-    if ( m_distFinder.retrieve().isFailure() ) {
-      ATH_MSG_FATAL( "Failed to retrieve tool " << m_distFinder );
-      return StatusCode::FAILURE;
-    }
-    */
+    
     if ( m_LinearizedTrackFactory.retrieve().isFailure() ) {
       ATH_MSG_FATAL( "Failed to retrieve tool " << m_LinearizedTrackFactory 
-		     << " InDetIterativeSecVtxFinderTool " );
+         << " InDetIterativeSecVtxFinderTool " );
       return StatusCode::FAILURE;
     }
 
@@ -1735,7 +1634,7 @@ StatusCode InDetIterativeSecVtxFinderTool::initialize()
     m_seedperigees = new std::vector<const Trk::TrackParameters*> () ;
 
 #ifdef MONITORTUNES
-    ITHistSvc*     hist_root=nullptr;
+    ITHistSvc*     hist_root=0;
 
     m_leastmodes = new std::vector<int>() ;
     m_sdFsmwX = new std::vector< std::vector < float > >() ;
@@ -1788,7 +1687,7 @@ StatusCode InDetIterativeSecVtxFinderTool::initialize()
     ATH_CHECK( hist_root->regTree("/AANT/SecVtxIncunder", m_OTree ) ) ;
 #endif
 
-    ATH_MSG_INFO( "Initialization successful" );
+    ATH_MSG_DEBUG( "Initialization successful" );
     return StatusCode::SUCCESS;
 }
 
@@ -1797,19 +1696,13 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
 
   ATH_MSG_DEBUG( " Number of input tracks before track selection: " << trackTES->size() );
 
-  // TODO: change trkFilter to allow for this replacement
-  /*
-  xAOD::Vertex beamposition;
-  beamposition.makePrivateStore();
-  beamposition.setPosition(m_iBeamCondSvc->beamVtx().position());
-  beamposition.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
-  */
+
   SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
   Trk::RecVertex beamposition(beamSpotHandle->beamVtx());
 
   std::vector<Trk::ITrackLink*> selectedTracks;
 
-  using TrackDataVecIter = DataVector<Trk::Track>::const_iterator;
+  typedef DataVector<Trk::Track>::const_iterator TrackDataVecIter;
 
   bool selectionPassed;
   for (TrackDataVecIter itr  = (*trackTES).begin(); itr != (*trackTES).end(); ++itr) {
@@ -1834,7 +1727,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
   }
 
   ATH_MSG_DEBUG( "Of " << trackTES->size() << " tracks "
-		 << selectedTracks.size() << " survived the preselection." );
+     << selectedTracks.size() << " survived the preselection." );
 
   
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers 
@@ -1851,10 +1744,11 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
   std::vector<Trk::ITrackLink*> selectedTracks;
 
   // TODO: change trkFilter to allow for this replacement
+
   SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
   Trk::RecVertex beamposition(beamSpotHandle->beamVtx());
 
-  using TrackParticleDataVecIter = DataVector<Trk::TrackParticleBase>::const_iterator;
+  typedef DataVector<Trk::TrackParticleBase>::const_iterator TrackParticleDataVecIter;
 
   bool selectionPassed;
   for (TrackParticleDataVecIter itr  = (*trackTES).begin(); itr != (*trackTES).end(); ++itr) {
@@ -1870,6 +1764,12 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
       if ( selectionPassed ) selectionPassed =static_cast<bool>( m_SVtrkFilter->accept( *((*itr)->originalTrack()), &null));
     }
     
+    
+    Trk::Vertex null(Amg::Vector3D(0,0,0));
+    selectionPassed=static_cast<bool>(m_trkFilter->accept( *((*itr)->originalTrack()), &null));
+    if ( selectionPassed ) selectionPassed =static_cast<bool>( m_SVtrkFilter->accept( *((*itr)->originalTrack()), &null));
+  
+    
     if (selectionPassed)
     {
       ElementLink<Trk::TrackParticleBaseCollection> link;
@@ -1881,7 +1781,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
   }
 
   ATH_MSG_DEBUG( "Of " << trackTES->size() << " tracks "
-		 << selectedTracks.size() << " survived the preselection." );
+     << selectedTracks.size() << " survived the preselection." );
 
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers 
            = findVertex( selectedTracks );
@@ -1909,18 +1809,18 @@ StatusCode InDetIterativeSecVtxFinderTool::finalize()
     
     delete m_seedac ;
 
-    m_leastmodes = nullptr ;
-    m_sdFsmwX = nullptr ;
-    m_sdFsmwY = nullptr ;
-    m_sdFsmwZ = nullptr ;
-    m_sdcrsWght = nullptr ;
-    m_nperiseed = nullptr ;
-    m_seedX = nullptr ;
-    m_seedY = nullptr ;
-    m_seedZ = nullptr ;
-    m_seedXYdist = nullptr ;
-    m_seedZdist = nullptr ;
-    m_seedac = nullptr ;
+    m_leastmodes = 0 ;
+    m_sdFsmwX = 0 ;
+    m_sdFsmwY = 0 ;
+    m_sdFsmwZ = 0 ;
+    m_sdcrsWght = 0 ;
+    m_nperiseed = 0 ;
+    m_seedX = 0 ;
+    m_seedY = 0 ;
+    m_seedZ = 0 ;
+    m_seedXYdist = 0 ;
+    m_seedZdist = 0 ;
+    m_seedac = 0 ;
 
 #endif
 
@@ -1929,11 +1829,11 @@ StatusCode InDetIterativeSecVtxFinderTool::finalize()
 
 void InDetIterativeSecVtxFinderTool::printParameterSettings()
 {
-  ATH_MSG_INFO( "InDetIterativeSecVtxFinderTool initialize(): Parametersettings " );
-  ATH_MSG_INFO( "VertexFitter " << m_iVertexFitter );
+  ATH_MSG_DEBUG( "InDetIterativeSecVtxFinderTool initialize(): Parametersettings " );
+  ATH_MSG_DEBUG( "VertexFitter " << m_iVertexFitter );
 }
 
-void InDetIterativeSecVtxFinderTool::SGError(const std::string& errService)
+void InDetIterativeSecVtxFinderTool::SGError(const std::string &errService)
 {
   ATH_MSG_FATAL( errService << " not found. Exiting !" );
 }
@@ -1960,7 +1860,7 @@ double InDetIterativeSecVtxFinderTool::compatibility(const Trk::TrackParameters 
   returnValue += trackParameters2D.dot(weightReduced*trackParameters2D);
   
   delete myLinearizedTrack;
-  myLinearizedTrack=nullptr;
+  myLinearizedTrack=0;
 
   return returnValue;
 }
@@ -1979,10 +1879,9 @@ void InDetIterativeSecVtxFinderTool::removeAllFrom(std::vector<const Trk::TrackP
   for (std::vector<const Trk::TrackParameters*>::iterator perigeesToFitIter=perigeesToFitBegin;
        perigeesToFitIter!=perigeesToFitEnd;++perigeesToFitIter)
   {
-    if (msgLvl(MSG::VERBOSE))
-    {
-      ATH_MSG_VERBOSE( " Iterating on new track in original perigeesToFit list of BAD VERTEX..." );
-    }
+    
+    ATH_MSG_VERBOSE( " Iterating on new track in original perigeesToFit list of BAD VERTEX..." );
+    
     
     bool found=false;
     
@@ -1991,10 +1890,9 @@ void InDetIterativeSecVtxFinderTool::removeAllFrom(std::vector<const Trk::TrackP
     {
       if ((*seedIter)->parameters()==*perigeesToFitIter)
       {
-        if (msgLvl(MSG::VERBOSE))
-        {
-          ATH_MSG_VERBOSE( " found and deleted from seeds!" );
-        }
+        
+        ATH_MSG_VERBOSE( " found and deleted from seeds!" );
+        
         found=true;
         seedTracks.erase(seedIter);
         seedBegin=seedTracks.begin();
@@ -2145,7 +2043,7 @@ const std::vector< Amg::Vector3D > InDetIterativeSecVtxFinderTool::getVertexMome
       double theta = sv_perigee->parameters()[Trk::theta];
       double phi = sv_perigee->parameters()[Trk::phi];
 
-      m_TrkAtVtxMomenta.emplace_back( qp*sin(theta)*cos(phi), qp*sin(theta)*sin(phi), qp*cos(theta) ) ;
+      m_TrkAtVtxMomenta.push_back( Amg::Vector3D( qp*sin(theta)*cos(phi), qp*sin(theta)*sin(phi), qp*cos(theta) ) ) ;
 
     }
 
@@ -2180,10 +2078,9 @@ void InDetIterativeSecVtxFinderTool::removeCompatibleTracks(xAOD::Vertex * myxAO
        tracksAtVertexIter!=tracksAtVertexEnd;++tracksAtVertexIter)
   {
     
-    if (msgLvl(MSG::VERBOSE))
-    {
-      ATH_MSG_VERBOSE( " new track..." );
-    }
+    
+    ATH_MSG_VERBOSE( " new track..." );
+    
     
     bool found=false;
     
@@ -2195,10 +2092,9 @@ void InDetIterativeSecVtxFinderTool::removeCompatibleTracks(xAOD::Vertex * myxAO
         found=true;
         if ((*tracksAtVertexIter).weight()> m_minWghtAtVtx )
         {
-          if (msgLvl(MSG::VERBOSE))
-          {
-            ATH_MSG_VERBOSE( " found and deleted from seeds!" );
-          }
+          
+          ATH_MSG_VERBOSE( " found and deleted from seeds!" );
+          
           seedTracks.erase(seedIter);
           seedBegin=seedTracks.begin();
           seedEnd=seedTracks.end();
@@ -2222,10 +2118,9 @@ void InDetIterativeSecVtxFinderTool::removeCompatibleTracks(xAOD::Vertex * myxAO
         
         if ((*tracksAtVertexIter).weight()> m_minWghtAtVtx )
         {
-          if (msgLvl(MSG::VERBOSE))
-          {
-            ATH_MSG_VERBOSE( " found and deleted from perigeesToFit!" );
-          }
+          
+          ATH_MSG_VERBOSE( " found and deleted from perigeesToFit!" );
+          
           perigeesToFit.erase(perigeesToFitIter);
           perigeesToFitBegin=perigeesToFit.begin();
           perigeesToFitEnd=perigeesToFit.end();
@@ -2244,14 +2139,11 @@ void InDetIterativeSecVtxFinderTool::removeCompatibleTracks(xAOD::Vertex * myxAO
     
   }//finishing iterating on tracks at vertex
   
-  if (msgLvl(MSG::DEBUG))
-  {
-    ATH_MSG_DEBUG( " Outliers still to be considered: " << perigeesToFit.size() );
-  }
-  if (msgLvl(MSG::VERBOSE))
-  {
-    ATH_MSG_VERBOSE( "Number of seedtracks after removal of inliers: " << seedTracks.size() );
-  }
+
+  ATH_MSG_DEBUG( " Outliers still to be considered: " << perigeesToFit.size() );
+
+  ATH_MSG_VERBOSE( "Number of seedtracks after removal of inliers: " << seedTracks.size() );
+
 
 
   std::vector<Trk::VxTrackAtVertex>* myVxTracksAtVertex= &(myxAODVertex->vxTrackAtVertex());
@@ -2270,7 +2162,7 @@ void InDetIterativeSecVtxFinderTool::removeCompatibleTracks(xAOD::Vertex * myxAO
     
     const Trk::TrackParameters* myPerigee=(*perigeesToFitIter);
     
-    if (myPerigee==nullptr)
+    if (myPerigee==0)
     {
       ATH_MSG_ERROR( " Cast to perigee gives 0 pointer " );
       return;
@@ -2279,20 +2171,18 @@ void InDetIterativeSecVtxFinderTool::removeCompatibleTracks(xAOD::Vertex * myxAO
     
     double chi2=compatibility(*myPerigee, covariance, position );
 
-    if (msgLvl(MSG::VERBOSE))
-    {
-      ATH_MSG_VERBOSE( "Compatibility is : " << chi2 );
-    }
+    
+    ATH_MSG_VERBOSE( "Compatibility is : " << chi2 );
+    
     
     //check if still sufficiently compatible to previous vertex
     //(CAN BE VERY LOOSE TO BE CONSERVATIVE AGAINST FAR OUTLIERS)
     if (  chi2 < m_maximumChi2cutForSeeding )
     {
-      if (msgLvl(MSG::VERBOSE))
-      {
-        ATH_MSG_VERBOSE( " Found track with compatibility: " << chi2 << 
-			 " to be removed from the seeds... " );
-      }
+      
+      ATH_MSG_VERBOSE( " Found track with compatibility: " << chi2 << 
+       " to be removed from the seeds... " );
+      
       
 // These seed tracks did NOT participate the fitting of vertex, but they seem compatible...
       for (std::vector<Trk::ITrackLink*>::iterator seedIter=seedTracks.begin();
@@ -2300,10 +2190,9 @@ void InDetIterativeSecVtxFinderTool::removeCompatibleTracks(xAOD::Vertex * myxAO
       {
         if ((*seedIter)->parameters()==*perigeesToFitIter)
         {
-          if (msgLvl(MSG::VERBOSE))
-          {
-            ATH_MSG_VERBOSE( " found and deleted from seeds!" );
-          }
+          
+          ATH_MSG_VERBOSE( " found and deleted from seeds!" );
+          
           found=true;
           seedTracks.erase(seedIter);
           seedBegin=seedTracks.begin();
@@ -2322,11 +2211,10 @@ void InDetIterativeSecVtxFinderTool::removeCompatibleTracks(xAOD::Vertex * myxAO
       //look if the track is attached to the vertex. If this is the case you should 
       //delete the track from the vertex!
       
-      if (msgLvl(MSG::VERBOSE))
-      {
-        ATH_MSG_VERBOSE( " Found track with compatibility: " << chi2 << 
-			 " to be further considered and thus to be removed from previous vertex if it was there... " );
-      }
+      
+      ATH_MSG_VERBOSE( " Found track with compatibility: " << chi2 << 
+       " to be further considered and thus to be removed from previous vertex if it was there... " );
+      
       
       bool found=false;
       
@@ -2337,11 +2225,10 @@ void InDetIterativeSecVtxFinderTool::removeCompatibleTracks(xAOD::Vertex * myxAO
         if ((*tracksIter).initialPerigee()==*perigeesToFitIter)
         {
           
-          if (msgLvl(MSG::VERBOSE))
-          {
-            ATH_MSG_VERBOSE( " OK, removing track with compatibility:"  << (*tracksIter).trackQuality().chiSquared() << 
-			     " or vtx compatibility" << (*tracksIter).vtxCompatibility() << " which was found attached to the vertex... " );
-          }
+          
+          ATH_MSG_VERBOSE( " OK, removing track with compatibility:"  << (*tracksIter).trackQuality().chiSquared() << 
+           " or vtx compatibility" << (*tracksIter).vtxCompatibility() << " which was found attached to the vertex... " );
+          
           // this delete is no longer needed because objects in myVxTracksAtVertex are no longer pointers - memory deletion of this VxTrackAtVertex
           // was already taken care of inside fitter the moment the VxTrackAtVertex was added to the vector stored in xAOD::Vertex
           // -David S.
@@ -2358,10 +2245,9 @@ void InDetIterativeSecVtxFinderTool::removeCompatibleTracks(xAOD::Vertex * myxAO
       
       if (!found)
       {
-        if (msgLvl(MSG::VERBOSE))
-        {
-          ATH_MSG_VERBOSE( "Track not found: probably it was already not attached to the vertex" );
-        }
+        
+        ATH_MSG_VERBOSE( "Track not found: probably it was already not attached to the vertex" );
+        
       }
     }
   }//iterate on all perigeesToFit

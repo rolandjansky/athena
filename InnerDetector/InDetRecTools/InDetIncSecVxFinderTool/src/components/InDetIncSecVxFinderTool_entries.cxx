@@ -1,4 +1,4 @@
-#include "InDetIncSecVxFinderTool/InDetIterativeSecVtxFinderTool.h"
+#include "Root/InDetIterativeSecVtxFinderTool.h"
 
 using namespace InDet;
 

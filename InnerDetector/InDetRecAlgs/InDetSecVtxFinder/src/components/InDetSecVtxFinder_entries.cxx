@@ -1,4 +1,4 @@
-#include "InDetInclusiveSecVtx/InDetSecVtxFinder.h"
+#include "InDetSecVtxFinder/InDetSecVtxFinder.h"
 
 using namespace InDet;
 
