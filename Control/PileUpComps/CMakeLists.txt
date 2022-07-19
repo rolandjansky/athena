@@ -8,7 +8,6 @@ atlas_subdir( PileUpComps )
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CLHEP )
-find_package( GTest )
 
 # Component(s) in the package:
 atlas_add_component( PileUpComps
@@ -19,10 +18,3 @@ atlas_add_component( PileUpComps
                      ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel
                      PileUpToolsLib StoreGateLib EventInfo
                      EventInfoUtils xAODEventInfo GaudiKernel )
-
-
-atlas_add_test( PileUpHashHelper_test
-                SOURCES test/PileUpHashHelper_test.cxx src/PileUpHashHelper.cxx
-                INCLUDE_DIRS src ${GTEST_INCLUDE_DIRS}
-                LINK_LIBRARIES xAODEventInfo ${GTEST_LIBRARIES}
-                POST_EXEC_SCRIPT nopost.sh )

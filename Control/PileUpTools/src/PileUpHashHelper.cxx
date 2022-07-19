@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Tadej Novak
 
 #include <CxxUtils/MD5.h>
 
-#include "PileUpHashHelper.h"
+#include "PileUpTools/PileUpHashHelper.h"
 
 void PileUpHashHelper::addToHashSource(const std::string &string)
 {

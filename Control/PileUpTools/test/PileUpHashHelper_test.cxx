@@ -12,7 +12,7 @@ ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 #include <gtest/gtest.h>
 
 // The class to test
-#include "PileUpHashHelper.h"
+#include "PileUpTools/PileUpHashHelper.h"
 
 namespace PileUpTesting
 {
