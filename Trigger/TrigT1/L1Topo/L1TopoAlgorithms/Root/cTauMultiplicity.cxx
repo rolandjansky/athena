@@ -110,9 +110,13 @@ TCS::cTauMultiplicity::process( const TCS::InputTOBArray & input, Count & count 
     // This is a non-matched eTau
     if ( not isMatched ) { accept = true; }
 
-    // Dividing by 4 standing for converting eta from 0.025 to 0.1 granularity                                                                      
-    // Requirement on pT based on eTau candidate 
-    accept = accept && (*etauCand)->Et() > cTauThr.thrValue100MeV((*etauCand)->eta()/4);
+    // Menu threshold uses 0.1 eta granularity but eFex objects have 0.025 eta granularity
+    // eFex eta is calculated as 4*eta_tower (0.1 gran.) + seed (0.025 gran.), eta from -25 to 24
+    int eta_thr;
+    if ( (*etauCand)->eta()%4 >= 0 ) { eta_thr = (*etauCand)->eta() - (*etauCand)->eta()%4; }
+    else                             { eta_thr = (*etauCand)->eta() - (*etauCand)->eta()%4 - 4; }
+
+    accept = accept && (*etauCand)->Et() > cTauThr.thrValue100MeV(eta_thr/4); // Convert eta_thr to units of 0.1 to pass as an argument
     if (accept) {
       counting++;
       fillHist2D( m_histAccept[0], (*etauCand)->eta(), (*etauCand)->EtDouble() );

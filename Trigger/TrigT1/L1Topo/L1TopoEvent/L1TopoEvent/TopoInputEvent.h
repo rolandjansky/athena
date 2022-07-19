@@ -63,6 +63,10 @@ namespace TCS {
       const MetTOB & met() const { return m_met[0]; }
       const jXETOB & jxe() const { return m_jxe[0]; }
       const jTETOB & jte() const { return m_jte[0]; }
+      const jTETOB & jtec() const { return m_jtec[0]; }
+      const jTETOB & jtefwd() const { return m_jtefwd[0]; }
+      const jTETOB & jtefwda() const { return m_jtefwda[0]; }
+      const jTETOB & jtefwdc() const { return m_jtefwdc[0]; }
       const gXETOB & gxe() const { return m_gxejwoj[0]; }
       const gXETOB & gmht() const { return m_gmht[0]; }
       const gXETOB & gxenc() const { return m_gxenc[0]; }

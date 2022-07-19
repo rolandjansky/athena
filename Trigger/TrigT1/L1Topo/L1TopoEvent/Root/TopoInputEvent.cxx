@@ -152,6 +152,30 @@ StatusCode TopoInputEvent::setjTE(const TCS::jTETOB & jte) {
    return StatusCode::SUCCESS;
 }
 
+StatusCode TopoInputEvent::setjTEC(const TCS::jTETOB & jtec) {
+   m_jtec.clear();
+   m_jtec.push_back(jtec);
+   return StatusCode::SUCCESS;
+}
+
+StatusCode TopoInputEvent::setjTEFWD(const TCS::jTETOB & jtefwd) {
+   m_jtefwd.clear();
+   m_jtefwd.push_back(jtefwd);
+   return StatusCode::SUCCESS;
+}
+
+StatusCode TopoInputEvent::setjTEFWDA(const TCS::jTETOB & jtefwda) {
+   m_jtefwda.clear();
+   m_jtefwda.push_back(jtefwda);
+   return StatusCode::SUCCESS;
+}
+
+StatusCode TopoInputEvent::setjTEFWDC(const TCS::jTETOB & jtefwdc) {
+   m_jtefwdc.clear();
+   m_jtefwdc.push_back(jtefwdc);
+   return StatusCode::SUCCESS;
+}
+
 StatusCode TopoInputEvent::setgXEJWOJ(const TCS::gXETOB & gxejwoj) {
    m_gxejwoj.clear();
    m_gxejwoj.push_back(gxejwoj);
@@ -253,6 +277,26 @@ void TopoInputEvent::setOverflowFromjXEInput   (const bool &v)
 void TopoInputEvent::setOverflowFromjTEInput   (const bool &v)
 {
     m_overflowFromjTEInput = v;
+}
+
+void TopoInputEvent::setOverflowFromjTECInput   (const bool &v)
+{
+    m_overflowFromjTECInput = v;
+}
+
+void TopoInputEvent::setOverflowFromjTEFWDInput   (const bool &v)
+{
+    m_overflowFromjTEFWDInput = v;
+}
+
+void TopoInputEvent::setOverflowFromjTEFWDAInput   (const bool &v)
+{
+    m_overflowFromjTEFWDAInput = v;
+}
+
+void TopoInputEvent::setOverflowFromjTEFWDCInput   (const bool &v)
+{
+    m_overflowFromjTEFWDCInput = v;
 }
 
 void TopoInputEvent::setOverflowFromgXEJWOJInput   (const bool &v)
@@ -393,7 +437,13 @@ TCS::TopoInputEvent::clear() {
    setMET(MetTOB(0,0,0));   // default MET
    setjXE(jXETOB(0,0,0));   // default jXE
    setjTE(jTETOB(0));       // default jTE
-   setgXEJWOJ(gXETOB(0,0,0));   // default gXE
+   setjTEC(jTETOB(0));       // default jTEC
+   setjTEFWD(jTETOB(0));       // default jTEFWD
+   setjTEFWDA(jTETOB(0));       // default jTEFWDA
+   setjTEFWDC(jTETOB(0));       // default jTEFWDC
+   setgXEJWOJ(gXETOB(0,0,0));   // default gXEJWOJ
+   setgXENC(gXETOB(0,0,0));   // default gXENC
+   setgXERHO(gXETOB(0,0,0));   // default gXERHO
    setgMHT(gXETOB(0,0,0)); // default gMHT
    setgTE(gTETOB(0));       // default gTE
 
@@ -513,6 +563,30 @@ TopoInputEvent::dump() {
    }
    file << "</jte>" << std::endl;
 
+   file << "<jtec>" << std::endl;
+   for(const jTETOB* jtec : m_jtec) {
+      file << jtec->sumEt() << std::endl;
+   }
+   file << "</jtec>" << std::endl;
+
+   file << "<jtefwd>" << std::endl;
+   for(const jTETOB* jtefwd : m_jtefwd) {
+      file << jtefwd->sumEt() << std::endl;
+   }
+   file << "</jtefwd>" << std::endl;
+
+   file << "<jtefwda>" << std::endl;
+   for(const jTETOB* jtefwda : m_jtefwda) {
+      file << jtefwda->sumEt() << std::endl;
+   }
+   file << "</jtefwda>" << std::endl;
+
+   file << "<jtefwdc>" << std::endl;
+   for(const jTETOB* jtefwdc : m_jtefwdc) {
+      file << jtefwdc->sumEt() << std::endl;
+   }
+   file << "</jtefwdc>" << std::endl;
+
    file << "<gxejwoj>" << std::endl;
    for(const gXETOB* gxejwoj : m_gxejwoj) {
       file << gxejwoj->Ex() << "  " << gxejwoj->Ey() << "  " << gxejwoj->Et() << std::endl;
@@ -589,6 +663,10 @@ std::ostream & operator<<(std::ostream &o, const TCS::TopoInputEvent &evt) {
    o << "  #muonsNextBC : " << evt.muonsNextBC().size() << " (capacity: " << evt.muonsNextBC().capacity() << ")" << std::endl;
    o << "  #jxe     : " << evt.m_jxe.size() << " (capacity: " << evt.m_jxe.capacity() << ")" << std::endl;
    o << "  #jte     : " << evt.m_jte.size() << " (capacity: " << evt.m_jte.capacity() << ")" << std::endl;
+   o << "  #jtec    : " << evt.m_jtec.size() << " (capacity: " << evt.m_jtec.capacity() << ")" << std::endl;
+   o << "  #jtefwd  : " << evt.m_jtefwd.size() << " (capacity: " << evt.m_jtefwd.capacity() << ")" << std::endl;
+   o << "  #jtefwda : " << evt.m_jtefwda.size() << " (capacity: " << evt.m_jtefwda.capacity() << ")" << std::endl;
+   o << "  #jtefwdc : " << evt.m_jtefwdc.size() << " (capacity: " << evt.m_jtefwdc.capacity() << ")" << std::endl;
    o << "  #gxejwoj : " << evt.m_gxejwoj.size() << " (capacity: " << evt.m_gxejwoj.capacity() << ")" << std::endl;
    o << "  #gmht    : " << evt.m_gmht.size() << " (capacity: " << evt.m_gmht.capacity() << ")" << std::endl;
    o << "  #gxenc   : " << evt.m_gxenc.size() << " (capacity: " << evt.m_gxenc.capacity() << ")" << std::endl;
@@ -609,6 +687,10 @@ std::ostream & operator<<(std::ostream &o, const TCS::TopoInputEvent &evt) {
    o << "MuonNextBC input vector (" << evt.muonsNextBC().name() << "):" << std::endl << evt.muonsNextBC();
    o << "jXE input (" << evt.m_jxe.name() << "):" << std::endl << evt.m_jxe;
    o << "jTE input (" << evt.m_jte.name() << "):" << std::endl << evt.m_jte;
+   o << "jTEC input (" << evt.m_jtec.name() << "):" << std::endl << evt.m_jtec;
+   o << "jTEFWD input (" << evt.m_jtefwd.name() << "):" << std::endl << evt.m_jtefwd;
+   o << "jTEFWDA input (" << evt.m_jtefwda.name() << "):" << std::endl << evt.m_jtefwda;
+   o << "jTEFWDC input (" << evt.m_jtefwdc.name() << "):" << std::endl << evt.m_jtefwdc;
    o << "gXEJWOJ input (" << evt.m_gxejwoj.name() << "):" << std::endl << evt.m_gxejwoj;
    o << "gMHT input (" << evt.m_gmht.name() << "):" << std::endl << evt.m_gmht;
    o << "gXENC input (" << evt.m_gxenc.name() << "):" << std::endl << evt.m_gxenc;
@@ -643,6 +725,10 @@ TopoInputEvent::print() const {
    TRG_MSG_INFO("  #muonsNextBC: " << muonsNextBC().size() << " (capacity: " << muonsNextBC().capacity() << ")");
    TRG_MSG_INFO("  #jxe     : " << m_jxe.size() << " (capacity: " << m_jxe.capacity() << ")");
    TRG_MSG_INFO("  #jte     : " << m_jte.size() << " (capacity: " << m_jte.capacity() << ")");
+   TRG_MSG_INFO("  #jtec    : " << m_jtec.size() << " (capacity: " << m_jtec.capacity() << ")");
+   TRG_MSG_INFO("  #jtefwd  : " << m_jtefwd.size() << " (capacity: " << m_jtefwd.capacity() << ")");
+   TRG_MSG_INFO("  #jtefwda : " << m_jtefwda.size() << " (capacity: " << m_jtefwda.capacity() << ")");
+   TRG_MSG_INFO("  #jtefwdc : " << m_jtefwdc.size() << " (capacity: " << m_jtefwdc.capacity() << ")");
    TRG_MSG_INFO("  #gxejwoj : " << m_gxejwoj.size() << " (capacity: " << m_gxejwoj.capacity() << ")");
    TRG_MSG_INFO("  #gmht    : " << m_gmht.size() << " (capacity: " << m_gmht.capacity() << ")");
    TRG_MSG_INFO("  #gxenc    : " << m_gxenc.size() << " (capacity: " << m_gxenc.capacity() << ")");
@@ -673,6 +759,14 @@ TopoInputEvent::print() const {
    for(auto * x : m_jxe) TRG_MSG_DEBUG("      " << *x);
    TRG_MSG_DEBUG("jTE input (" << m_jte.name() << "):");
    for(auto * x : m_jte) TRG_MSG_DEBUG("      " << *x);
+   TRG_MSG_DEBUG("jTEC input (" << m_jtec.name() << "):");
+   for(auto * x : m_jtec) TRG_MSG_DEBUG("      " << *x);
+   TRG_MSG_DEBUG("jTEFWD input (" << m_jtefwd.name() << "):");
+   for(auto * x : m_jtefwd) TRG_MSG_DEBUG("      " << *x);
+   TRG_MSG_DEBUG("jTEFWDA input (" << m_jtefwda.name() << "):");
+   for(auto * x : m_jtefwda) TRG_MSG_DEBUG("      " << *x);
+   TRG_MSG_DEBUG("jTEFWDC input (" << m_jtefwdc.name() << "):");
+   for(auto * x : m_jtefwdc) TRG_MSG_DEBUG("      " << *x);
    TRG_MSG_DEBUG("gXEJWOJ input (" << m_gxejwoj.name() << "):");
    for(auto * x : m_gxejwoj) TRG_MSG_DEBUG("      " << *x);
    TRG_MSG_DEBUG("gMHT input (" << m_gmht.name() << "):");
