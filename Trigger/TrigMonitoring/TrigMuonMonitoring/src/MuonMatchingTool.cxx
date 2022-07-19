@@ -254,50 +254,6 @@ const xAOD::L2CombinedMuon* MuonMatchingTool :: matchL2CBReadHandle( const Event
   return MuonTrack ? matchReadHandle<xAOD::L2CombinedMuon>( MuonTrack, m_L2CBreqdR, m_L2muCombContainerKey, ctx) : nullptr;
 }
 
-
-const xAOD::MuonRoI* MuonMatchingTool :: matchL1( const xAOD::Muon *mu, const EventContext& ctx, const std::string& trig, bool &pass) const {
-
-  double refEta = mu->eta();
-  double refPhi = mu->phi();
-  double reqdR = 0.25;
-  if(m_use_extrapolator){
-    reqdR = reqdRL1byPt(mu->pt());
-    const Amg::Vector3D extPos = offlineMuonAtPivot(mu);
-    if(extPos.norm()>ZERO_LIMIT){
-      refEta = extPos.eta();
-      refPhi = extPos.phi();
-    }
-  }
-
-  pass = false;
-  const xAOD::MuonRoI *closest = nullptr;
-  SG::ReadHandle<xAOD::MuonRoIContainer> rois(m_MuonRoIContainerKey, ctx);
-  if (! rois.isValid() ) {
-    ATH_MSG_ERROR("evtStore() does not contain xAOD::MuonRoI collection with name "<< m_MuonRoIContainerKey);
-    return closest;
-  }
-
-  for(const auto roi : *rois){
-  double roiEta = roi->eta();
-  double roiPhi = roi->phi();
-  int roiThr = roi->getThrNumber();
-  int roiSource = roi->getSource();
-    
-    double deta = refEta - roiEta;
-    double dphi = xAOD::P4Helpers::deltaPhi(refPhi, roiPhi);
-    double dR = std::sqrt(deta*deta + dphi*dphi);
-    ATH_MSG_VERBOSE("L1 muon candidate eta=" << roiEta << " phi=" << roiPhi  << " dR=" << dR);
-    if( dR<reqdR && roiThr>=L1ItemStringToInt(trig, roiSource)){
-      reqdR = dR;
-      pass = true;
-      closest = roi;
-      ATH_MSG_DEBUG("* L1 muon eta=" << roiEta << " phi=" << roiPhi  << " dR=" << dR <<  " isPassed=true" ); 
-    }
-  }
-
-  return closest;
-}
-
 const xAOD::MuonRoI* MuonMatchingTool :: matchL1( double refEta, double refPhi, double reqdR, const std::string& trig, bool &pass) const {
   ATH_MSG_DEBUG("Chain: " << trig);
   pass = false;
