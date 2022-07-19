@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -42,16 +42,6 @@ persToTrans( const xAOD::TrigCompositeAuxContainer_v1* oldObj,
 
    // Greet the user:
    ATH_MSG( "Converting xAOD::TrigCompositeAuxContainer_v1 to current version..." );
-
-   // ROOT work-around https://sft.its.cern.ch/jira/browse/ROOT-9762
-   // This resets the newly made underlying ByteStreamAuxContainer_1 such that it knows about its dynamic content
-   // This can be removed once xAODTrigger's selection.xml is correctly calling this.
-   xAOD::TrigCompositeAuxContainer_v1* mutableOld = const_cast<xAOD::TrigCompositeAuxContainer_v1*>(oldObj);
-   if (mutableOld) {
-      mutableOld->reset();
-   } else {
-      throw std::runtime_error("Unable to const_cast xAOD::TrigCompositeAuxContainer_v1. Needed due to ROOT-9762.");
-   }
 
    // Clear the transient object:
    newObj->resize( 0 );
