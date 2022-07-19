@@ -1,5 +1,5 @@
 #!/usr/bin env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 # Script to browse the unmerged HIST files and extract LBs for which at least N occurences of an object is found
 # at a position found to be noisy
 # Uses the pathExtract library to extract the EOS path
@@ -620,12 +620,12 @@ if __name__ == "__main__":
     passwd = passfile.read().strip(); passfile.close()
     passurl = 'https://%s@atlasdqm.cern.ch'%passwd
     s = xmlrpclib.ServerProxy(passurl)
-    run_spec = {'stream': 'physics_CosmicCalo', 'proc_ver': 1,'source': 'tier0', 'low_run': runNumber, 'high_run':runNumber}
+    run_spec = {'stream': 'physics_CosmicCalo', 'proc_ver': 1,'source': 'tier0', 'low_run': args.runNumber, 'high_run':args.runNumber}
     run_info= s.get_run_information(run_spec)
-    if '%d'%runNumber not in run_info.keys() or len(run_info['%d'%runNumber])<2:
+    if '%d'%args.runNumber not in run_info.keys() or len(run_info['%d'%args.runNumber])<2:
       print("Unable to retrieve the data project tag via atlasdqm... Please double check your atlasdqmpass.txt or define it by hand with -t option")
       sys.exit()
-    args.tag = run_info['%d'%runNumber][1]
+    args.tag = run_info['%d'%args.runNumber][1]
 
   
   # parser.print_help()

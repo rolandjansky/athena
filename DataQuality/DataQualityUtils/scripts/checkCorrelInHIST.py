@@ -1,5 +1,5 @@
 #!/usr/bin env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 # Script to browse the unmerged HIST files and correlate the number of entries in a region defined by (x;y,delta) arguments
 # Uses the pathExtract library to extract the EOS path
 # See the twiki: https://twiki.cern.ch/twiki/bin/viewauth/Atlas/UsingDQInframerge
@@ -274,6 +274,8 @@ for count,lbFile in enumerate(lbFilePathList):
   histoLB = {}
   for iPath in histos.keys():
     histoLB[iPath] = fLB[lbFile].Get("run_%d/%s"%(runNumber,iPath))
+    if "TObject" in str(type(histoLB[iPath])):
+      continue
     for iBin in histos[iPath]['regionBins']:
       nbHitInHot[iPath][ilb] = nbHitInHot[iPath][ilb] + histoLB[iPath].GetBinContent(iBin)
 
