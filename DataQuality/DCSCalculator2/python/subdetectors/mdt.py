@@ -22,6 +22,7 @@ def generate_mdt_mappings():
 
     mdtcodes = resource_string("DCSCalculator2.subdetectors.data", "mdt_codes.dat").decode().strip().split("\n")
 
+
     lines = [line for line in [fix_line(raw_line) for raw_line in mdtcodes if raw_line] if line]
 
     name_to_output = make_multi_mapping((name, output_channel) for hv, lv, jtag, name, output_channel in lines)
@@ -38,19 +39,34 @@ def evaluator_HV(iov):
     Some chambers dont have a second multilayer (ML2). 
     Dont flag these as bad.
     """
-    hv =   (
-               (
-                 iov.fsmCurrentState_ML1 in ["ON"] and iov.v1set_ML1 >= 3050 and
-               ((iov.fsmCurrentState_ML2 in ["ON"] and iov.v1set_ML2 >= 3050) or iov.fsmCurrentState_ML2 == "")
-               )
+    if iov.channel in range(245, 253): #Lower voltage requirement for new BIS78 chambers
+        hv = (
+                (
+                        iov.fsmCurrentState_ML1 in ["ON"] and iov.v1set_ML1 >= 2730 and
+                        ((iov.fsmCurrentState_ML2 in ["ON"] and iov.v1set_ML2 >= 2730) or iov.fsmCurrentState_ML2 == "")
+                )
 
-               or
+                or
 
-               (
-               iov.fsmCurrentState_ML1 == "STANDBY" and iov.v0set_ML1 >= 3050 and
-               iov.fsmCurrentState_ML2 == "STANDBY" and iov.v0set_ML2 >= 3050
-               )
-           )
+                (
+                        iov.fsmCurrentState_ML1 == "STANDBY" and iov.v0set_ML1 >= 2730 and
+                        iov.fsmCurrentState_ML2 == "STANDBY" and iov.v0set_ML2 >= 2730
+                )
+        )
+    else: # Original Requirement
+        hv = (
+                (
+                        iov.fsmCurrentState_ML1 in ["ON"] and iov.v1set_ML1 >= 3050 and
+                        ((iov.fsmCurrentState_ML2 in ["ON"] and iov.v1set_ML2 >= 3050) or iov.fsmCurrentState_ML2 == "")
+                )
+
+                or
+
+                (
+                        iov.fsmCurrentState_ML1 == "STANDBY" and iov.v0set_ML1 >= 3050 and
+                        iov.fsmCurrentState_ML2 == "STANDBY" and iov.v0set_ML2 >= 3050
+                )
+        )
 
     # uncomment me for debugging
     # if not hv and "2016-05-17 01:3" in str(iov.since):

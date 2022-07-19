@@ -22,8 +22,8 @@ class TGC(DCSC_DefectTranslate_Subdetector):
     #     print id, name
     #
     mapping = {
-        TGCEA: list(range(3733, 5593)) + list(range(7459, 7465)),
-        TGCEC: list(range(5593, 7459)),
+        TGCEA: list(range(3733, 5504)) + list(range(5552, 5593)) + list(range(7459, 7465)),
+        TGCEC: list(range(5593, 7362)) + list(range(7411, 7459))
     }
 
     variables = [
