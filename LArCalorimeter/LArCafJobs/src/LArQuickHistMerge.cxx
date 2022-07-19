@@ -511,7 +511,12 @@ int main(int argc, char** argv) {
   if (baseDirs.size()==0) {
     baseDirs.push_back("LAr");
     baseDirs.push_back("CaloMonitoring/LArCellMon_NoTrigSel");
-    baseDirs.push_back("CaloMonitoring/ClusterMon");
+    baseDirs.push_back("CaloTopoClusters/CalBAR");
+    baseDirs.push_back("CaloTopoClusters/CalECA");
+    baseDirs.push_back("CaloTopoClusters/CalECC");
+    baseDirs.push_back("CaloTopoClusters/CalEMBAR");
+    baseDirs.push_back("CaloTopoClusters/CalEMECA");
+
   }
   else {
     //clean superfluos slash characters
