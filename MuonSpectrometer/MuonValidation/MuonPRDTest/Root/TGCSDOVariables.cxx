@@ -7,7 +7,7 @@ namespace MuonPRDTest {
     TgcSDOVariables::TgcSDOVariables(MuonTesterTree& tree, const std::string& container_name, MSG::Level msglvl) :
         PrdTesterModule(tree, "TGC_SDO", false, msglvl), m_key{container_name} {}
 
-    bool TgcSDOVariables::declare_keys() { return m_key.initialize().isSuccess(); }
+    bool TgcSDOVariables::declare_keys() { return declare_dependency(m_key); }
 
     bool TgcSDOVariables::fill(const EventContext& ctx) {
         ATH_MSG_DEBUG("do fill TgcSDOVariable()");

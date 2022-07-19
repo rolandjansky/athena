@@ -11,7 +11,7 @@ using namespace Muon;
 namespace MuonPRDTest {
     CSCRDOVariables::CSCRDOVariables(MuonTesterTree& tree, const std::string& container_name, MSG::Level msglvl, const MuonIdHelper* idhelper, const Muon::ICSC_RDO_Decoder* rdo_decoder) :
         PrdTesterModule(tree, "RDO_CSC", true, msglvl), m_key{container_name},  m_rdo_decoder{rdo_decoder} {setHelper(idhelper);}
-    bool CSCRDOVariables::declare_keys() { return m_key.initialize().isSuccess(); }
+    bool CSCRDOVariables::declare_keys() { return declare_dependency(m_key); }
 
     bool CSCRDOVariables::fill(const EventContext& ctx) {
         ATH_MSG_DEBUG("do fillCSCRDOVariables()");

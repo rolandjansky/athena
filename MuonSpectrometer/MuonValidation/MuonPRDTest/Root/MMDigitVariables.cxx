@@ -10,7 +10,7 @@ namespace MuonPRDTest {
     MMDigitVariables::MMDigitVariables(MuonTesterTree& tree, const std::string& container_name, MSG::Level msglvl) :
         PrdTesterModule(tree, "Digits_MM", true, msglvl), m_key{container_name} {}
 
-    bool MMDigitVariables::declare_keys() { return m_key.initialize().isSuccess(); }
+    bool MMDigitVariables::declare_keys() { return declare_dependency(m_key); }
     bool MMDigitVariables::fill(const EventContext& ctx) {
         ATH_MSG_DEBUG("do fillMMDigitHitVariables()");
         const MuonGM::MuonDetectorManager* MuonDetMgr = getDetMgr(ctx);

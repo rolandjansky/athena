@@ -181,9 +181,13 @@ StatusCode Muon::NSWCalibTool::calibrateStrip(const EventContext& ctx, const Muo
 
   calibStrip.charge     = charge;
   // historically the peak time is included in the time determined by the MM digitization and therefore added back in the tdoToTime function
-  // for data this is wrong. Therefore a temporary fix is applied here. A long term fix of the time determined in the digi will come at some point.
-  calibStrip.time       = time - globalPos.norm() * reciprocalSpeedOfLight - (!m_isData? mmPeakTime():0);
+  // in order to not break the RDO to digit conversion needed for the trigger and the overlay
+  calibStrip.time       = time - globalPos.norm() * reciprocalSpeedOfLight - mmPeakTime();
   calibStrip.identifier = rdoId;
+
+  ATH_MSG_DEBUG("Calibrating RDO " << m_idHelperSvc->toString(rdoId) << "with pdo: " << mmRawData->charge() << " tdo: "<< mmRawData->time() << " relBCID "<< mmRawData->relBcid() << " charge and time in counts  " <<
+                         mmRawData->timeAndChargeInCounts() << " isData "<< m_isData  << " to charge: " << calibStrip.charge << " electrons  time after corrections " << calibStrip.time << " ns  time before corrections "<< time << "ns");
+
 
   //get stripWidth
   detEl->getDesign(rdoId)->channelWidth(locPos); // positon is not used for strip width 

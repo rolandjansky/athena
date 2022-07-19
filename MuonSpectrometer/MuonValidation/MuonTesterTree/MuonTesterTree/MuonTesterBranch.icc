@@ -30,4 +30,12 @@ template <class T> bool MuonTesterBranch::addToTree(T& variable) {
     m_init = true;
     return true;
 }
+template <class Key>
+bool MuonTesterBranch::declare_dependency(Key& key) {
+    if (!key.initialize(!key.empty())) return false;
+    m_dependencies.emplace_back(&key);
+    return true;
+}
+
+
 #endif

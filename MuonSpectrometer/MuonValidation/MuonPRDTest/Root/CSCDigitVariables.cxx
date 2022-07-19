@@ -8,7 +8,7 @@
 namespace MuonPRDTest {
     CscDigitVariables::CscDigitVariables(MuonTesterTree& tree, const std::string& container_name, MSG::Level msglvl) :
         PrdTesterModule(tree, "Digits_CSC", true, msglvl), m_key{container_name} {}
-    bool CscDigitVariables::declare_keys() { return m_key.initialize().isSuccess(); }
+    bool CscDigitVariables::declare_keys() { return declare_dependency(m_key); }
 
     bool CscDigitVariables::fill(const EventContext& ctx) {
         ATH_MSG_DEBUG("do fillCSCDigitVariables()");

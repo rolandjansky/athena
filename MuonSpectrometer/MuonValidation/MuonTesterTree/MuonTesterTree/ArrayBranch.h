@@ -23,11 +23,13 @@ public:
     virtual ~ArrayBranch();
 
     /// Returns false if one of the array values is not updated
-    bool fill(const EventContext&) override;
+    bool fill(const EventContext&) override final;
     /// Connects the branch with the tree
-    bool init() override;
+    bool init() override final;
     /// Returns the name of the branch
-    std::string name() const override;
+    std::string name() const override final;
+    /// Returns the data dependencies of the branch (empty)
+    std::vector<DataDependency> data_dependencies() override final;
 
     /// Underlying tree object
     TTree* tree() const;

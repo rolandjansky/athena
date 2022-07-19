@@ -100,4 +100,6 @@ template <class T> void ArrayBranch<T>::setDefault(const T& val) {
     m_default = val;
     m_failIfNotUpdated = false;
 }
+template <class T> std::vector<IMuonTesterBranch::DataDependency> ArrayBranch<T>::data_dependencies() { return {};}
+
 #endif

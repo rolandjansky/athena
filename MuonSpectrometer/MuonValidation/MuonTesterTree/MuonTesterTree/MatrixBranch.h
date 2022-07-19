@@ -20,9 +20,11 @@ public:
     void operator=(const MatrixBranch&) = delete;
     virtual ~MatrixBranch() = default;
 
-    bool fill(const EventContext& ctx) override;
-    bool init() override;
-    std::string name() const override;
+    bool fill(const EventContext& ctx) override final;
+    bool init() override final;
+    std::string name() const override final;
+
+    std::vector<DataDependency> data_dependencies() override final;
 
     TTree* tree() const;
     bool initialized() const;

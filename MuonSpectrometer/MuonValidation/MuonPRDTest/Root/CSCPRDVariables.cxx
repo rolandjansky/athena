@@ -9,7 +9,7 @@
 namespace MuonPRDTest {
     CSCPRDVariables::CSCPRDVariables(MuonTesterTree& tree, const std::string& container_name, MSG::Level msglvl) :
         PrdTesterModule(tree, "PRD_CSC", true, msglvl), m_key{container_name} {}
-    bool CSCPRDVariables::declare_keys() { return m_key.initialize().isSuccess(); }
+    bool CSCPRDVariables::declare_keys() { return declare_dependency(m_key); }
 
     bool CSCPRDVariables::fill(const EventContext& ctx) {
         ATH_MSG_DEBUG("do fillCSCPRDVariables()");

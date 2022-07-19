@@ -53,8 +53,10 @@ std::string MuonTesterBranch::eraseWhiteSpaces(const std::string& In) {
     out.erase(std::remove_if(out.begin(), out.end(), isspace), out.end());
     return out;
 }
+ std::vector<MuonTesterBranch::DataDependency> MuonTesterBranch::data_dependencies() { return m_dependencies;}
 
 template <> bool& VectorBranch<bool>::get(size_t) {
     throw std::runtime_error("For boolean branches the get() operator is cumbersome");
     return m_default;
 }
+

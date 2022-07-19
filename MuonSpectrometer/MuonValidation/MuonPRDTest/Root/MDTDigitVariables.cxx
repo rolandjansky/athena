@@ -11,7 +11,7 @@ namespace MuonPRDTest {
         PrdTesterModule(tree, "Digits_MDT", true, msglvl), m_digitKey{container_name} {}
 
     bool MdtDigitVariables::fill(const EventContext& ctx) {
-        ATH_MSG_DEBUG("do fillMDTSimHitVariables()");
+        ATH_MSG_DEBUG("do fill Mdt digit variables ");
         const MuonGM::MuonDetectorManager* MuonDetMgr = getDetMgr(ctx);
         if (!MuonDetMgr) { return false; }
         SG::ReadHandle<MdtDigitContainer> MdtDigitContainer{m_digitKey, ctx};
@@ -63,5 +63,5 @@ namespace MuonPRDTest {
         ATH_MSG_DEBUG(" finished fillMdtDigitVariables()");
         return true;
     }
-    bool MdtDigitVariables::declare_keys() { return m_digitKey.initialize().isSuccess(); }
+    bool MdtDigitVariables::declare_keys() { return declare_dependency(m_digitKey); }
 }  // namespace MuonPRDTest

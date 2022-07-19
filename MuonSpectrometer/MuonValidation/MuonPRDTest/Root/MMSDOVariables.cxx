@@ -8,7 +8,7 @@ namespace MuonPRDTest {
     MMSDOVariables::MMSDOVariables(MuonTesterTree& tree, const std::string& container_name, MSG::Level msglvl) :
         PrdTesterModule(tree, "SDO_MM", false, msglvl), m_key{container_name} {}
 
-    bool MMSDOVariables::declare_keys() { return m_key.initialize().isSuccess(); }
+    bool MMSDOVariables::declare_keys() { return declare_dependency(m_key); }
 
     bool MMSDOVariables::fill(const EventContext& ctx) {
         ATH_MSG_DEBUG("do fill MMSDOVariables()");
