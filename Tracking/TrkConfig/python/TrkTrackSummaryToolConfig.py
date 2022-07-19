@@ -26,7 +26,6 @@ def InDetTrackSummaryToolCfg(flags,
                              **kwargs):
     if flags.Detector.GeometryITk:
         name = name.replace("InDet", "ITk")
-        from InDetConfig.ITkTrackingCommonConfig import ITkTrackSummaryToolCfg
         return ITkTrackSummaryToolCfg(flags, name, **kwargs)
 
     acc = ComponentAccumulator()

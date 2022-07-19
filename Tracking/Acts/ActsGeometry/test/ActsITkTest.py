@@ -15,20 +15,24 @@ ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Si
 ConfigFlags.Detector.GeometryITkPixel = True
 ConfigFlags.Detector.GeometryITkStrip = True
 ConfigFlags.Detector.GeometryBpipe = True
+ConfigFlags.Detector.GeometryCalo = False
 
 ConfigFlags.Concurrency.NumThreads = 64
 ConfigFlags.Concurrency.NumConcurrentEvents = 64
 
+ConfigFlags.Exec.MaxEvents = 200
+
 ConfigFlags.lock()
+ConfigFlags.dump()
 
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
-acc = MainServicesCfg(ConfigFlags)
+acc = MainServicesCfg( ConfigFlags )
 
 from ActsGeometry.ActsGeometryConfig import ActsExtrapolationAlgCfg, ActsTrackingGeometrySvcCfg
 
-from AthenaCommon.Constants import INFO, VERBOSE
+from AthenaCommon.Constants import INFO
 tgSvc = ActsTrackingGeometrySvcCfg(ConfigFlags, 
-                                   OutputLevel=VERBOSE, 
+                                   OutputLevel=INFO,
                                    ObjDebugOutput=True)
 acc.merge(tgSvc)
 
@@ -40,9 +44,5 @@ alg = ActsExtrapolationAlgCfg(ConfigFlags,
                               PtRange = [20, 100])
 
 acc.merge(alg)
-
 acc.printConfig()
-
-
-
-acc.run(200)
+acc.run()

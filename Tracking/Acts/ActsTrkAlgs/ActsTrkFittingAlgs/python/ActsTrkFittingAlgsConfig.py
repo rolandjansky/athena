@@ -23,6 +23,5 @@ def ActsReFitterAlgCfg(flags, name="ActsReFitterAlg", **kwargs):
 
     return result
 
-def PostInclude(flags):
-   return ActsReFitterAlgCfg(flags)
+
 
