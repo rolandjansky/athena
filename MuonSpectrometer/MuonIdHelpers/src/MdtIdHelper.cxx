@@ -207,29 +207,26 @@ int MdtIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
 
     if (m_full_module_range.size() == 0) {
         if (m_msgSvc) { log << MSG::ERROR << "MDT MultiRange ID is empty for modules" << endmsg; }
-        status = 1;
     }
 
     /// test to see that the detector element multi range is not empty
 
     if (m_full_detectorElement_range.size() == 0) {
         if (m_msgSvc) { log << MSG::ERROR << "MDT MultiRange ID is empty for detector elements" << endmsg; }
-        status = 1;
     }
 
     /// test to see that the tube multi range is not empty
 
     if (m_full_channel_range.size() == 0) {
         if (m_msgSvc) { log << MSG::ERROR << "MDT MultiRange ID is empty for channels" << endmsg; }
-        status = 1;
     }
 
     // Setup the hash tables for MDT
 
     if (m_msgSvc) { log << MSG::INFO << "Initializing MDT hash indices ... " << endmsg; }
-    status = init_hashes();
-    status = init_detectorElement_hashes();
-    status = init_id_to_hashes();
+    init_hashes();
+    init_detectorElement_hashes();
+    init_id_to_hashes();
 
     // Setup hash tables for finding neighbors
 

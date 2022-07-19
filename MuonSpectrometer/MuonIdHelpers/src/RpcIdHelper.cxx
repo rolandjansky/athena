@@ -230,7 +230,6 @@ int RpcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
     // test to see that the multi range is not empty
     if (m_full_module_range.size() == 0) {
         if (m_msgSvc) { log << MSG::ERROR << "RPC MultiRange ID is empty for modules" << endmsg; }
-        status = 1;
     } else {
         if (m_msgSvc) { log << MSG::DEBUG << " full module range size is " << m_full_module_range.size() << endmsg; }
     }
@@ -238,22 +237,20 @@ int RpcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
     /// test to see that the detectorElement multi range is not empty
     if (m_full_detectorElement_range.size() == 0) {
         if (m_msgSvc) { log << MSG::ERROR << "MDT MultiRange ID is empty for detector elements" << endmsg; }
-        status = 1;
     }
 
     // test to see that the multi range is not empty
     if (m_full_channel_range.size() == 0) {
         if (m_msgSvc) { log << MSG::ERROR << "RPC MultiRange ID is empty for channels" << endmsg; }
-        status = 1;
     } else {
         if (m_msgSvc) { log << MSG::DEBUG << " full channel range size is " << m_full_channel_range.size() << endmsg; }
     }
 
     // Setup the hash tables for RPC
     if (m_msgSvc) { log << MSG::INFO << "Initializing RPC hash indices ... " << endmsg; }
-    status = init_hashes();
-    status = init_detectorElement_hashes();  // doubletZ
-    status = init_id_to_hashes();
+    init_hashes();
+    init_detectorElement_hashes();  // doubletZ
+    init_id_to_hashes();
 
     // Setup hash tables for finding neighbors
     if (m_msgSvc) { log << MSG::INFO << "Initializing RPC hash indices for finding neighbors ... " << endmsg; }

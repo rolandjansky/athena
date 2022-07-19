@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonIdHelpers/MmIdHelper.h"
@@ -203,26 +203,23 @@ int MmIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
     // test to see that the multi range is not empty
     if (m_full_module_range.size() == 0) {
         if (m_msgSvc) { log << MSG::ERROR << "MicroMegas MultiRange ID is empty for modules" << endmsg; }
-        status = 1;
     }
 
     // test to see that the detector element multi range is not empty
     if (m_full_detectorElement_range.size() == 0) {
         if (m_msgSvc) { log << MSG::ERROR << "MicroMegas MultiRange ID is empty for detector elements" << endmsg; }
-        status = 1;
     }
 
     // test to see that the multi range is not empty
     if (m_full_channel_range.size() == 0) {
         if (m_msgSvc) { log << MSG::ERROR << "MicroMegas MultiRange ID is empty for channels" << endmsg; }
-        status = 1;
     }
 
     // Setup the hash tables for MicroMegas
     if (m_msgSvc) { log << MSG::INFO << "Initializing MicroMegas hash indices ... " << endmsg; }
-    status = init_hashes();
-    status = init_detectorElement_hashes();  // same as module hash
-    status = init_id_to_hashes();
+    init_hashes();
+    init_detectorElement_hashes();  // same as module hash
+    init_id_to_hashes();
 
     /*
     //comment out this bit to test the identifiers

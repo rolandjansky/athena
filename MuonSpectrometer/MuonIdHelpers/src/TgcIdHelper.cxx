@@ -42,7 +42,6 @@ int TgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
         m_GASGAP_INDEX = field->m_index;
     } else {
         if (m_msgSvc) { log << MSG::ERROR << "initLevelsFromDict - unable to find 'tgcGasGap' field " << endmsg; }
-        status = 1;
     }
 
     field = m_dict->find_field("isStrip");
@@ -50,7 +49,6 @@ int TgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
         m_ISSTRIP_INDEX = field->m_index;
     } else {
         if (m_msgSvc) { log << MSG::ERROR << "initLevelsFromDict - unable to find 'isStrip' field " << endmsg; }
-        status = 1;
     }
 
     field = m_dict->find_field("channel");
@@ -58,7 +56,6 @@ int TgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
         m_CHANNEL_INDEX = field->m_index;
     } else {
         if (m_msgSvc) { log << MSG::ERROR << "initLevelsFromDict - unable to find channel' field " << endmsg; }
-        status = 1;
     }
 
     // reinitialize the module ndex
@@ -213,9 +210,9 @@ int TgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
 
     // Setup the hash tables for TGC
     if (m_msgSvc) { log << MSG::INFO << "Initializing TGC hash indices ... " << endmsg; }
-    status = init_hashes();
-    status = init_detectorElement_hashes();  // same as module hash
-    status = init_id_to_hashes();
+    init_hashes();
+    init_detectorElement_hashes();  // same as module hash
+    init_id_to_hashes();
 
     // Setup hash tables for finding neighbors
     if (m_msgSvc) { log << MSG::INFO << "Initializing TGC hash indices for finding neighbors ... " << endmsg; }
