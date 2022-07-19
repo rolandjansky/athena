@@ -24,7 +24,8 @@ namespace DerivationFramework {
 									    const std::string& n,
 									    const IInterface* p) :
     AthAlgTool(t,n,p),
-    m_containerName("")
+    m_containerName(""),
+    m_prefix("")
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
     declareProperty("ContainerName", m_containerName);
@@ -33,6 +34,7 @@ namespace DerivationFramework {
     declareProperty("dEtaCut",m_dEtaCut = 0.1);
     declareProperty("cosdPhiCut",m_cosdPhiCut = 0.8);
     declareProperty("sindPhiCut",m_sindPhiCut = 0.2);
+    declareProperty("Prefix", m_prefix);
   }
 
   StatusCode TrackCaloClusterDecorator_LowPtE::initialize() {

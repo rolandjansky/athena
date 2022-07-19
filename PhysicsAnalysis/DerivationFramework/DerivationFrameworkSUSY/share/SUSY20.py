@@ -560,7 +560,8 @@ from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramew
 
 SUSY20_TrackCaloClusterDecorator_LowPtE = DerivationFramework__TrackCaloClusterDecorator_LowPtE(
   name             = "SUSY20_TrackCaloClusterDecorator_LowPtE",
-  ContainerName    = "InDetTrackParticles"
+  ContainerName    = "InDetTrackParticles",
+  Prefix           = "SUSY20_" 
 )
 ToolSvc += SUSY20_TrackCaloClusterDecorator_LowPtE
 

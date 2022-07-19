@@ -35,6 +35,7 @@ namespace DerivationFramework {
     // endcap (|eta|=>1.5): sin(dPhi)_ext = sin(dPhi) + 2/(exp(1.13*|eta|)-exp(-1.13*|eta|)) * trackCharge/trackPt[GeV]
     double m_sindPhiCut;
 
+    std::string m_prefix;
   };
 }
 
