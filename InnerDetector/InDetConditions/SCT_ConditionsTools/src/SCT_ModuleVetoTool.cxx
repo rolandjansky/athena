@@ -125,7 +125,8 @@ SCT_ModuleVetoTool::isGood(const IdentifierHash& hashId) const {
 }
 
 void
-SCT_ModuleVetoTool::getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status, EventIDRange &the_range) const {
+SCT_ModuleVetoTool::getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status, 
+                                             SG::WriteCondHandle<InDet::SiDetectorElementStatus>* whandle) const {
    std::vector<bool> &status = element_status.getElementStatus();
    if (status.empty()) {
       status.resize(m_pHelper->wafer_hash_max(),true);
@@ -140,7 +141,9 @@ SCT_ModuleVetoTool::getDetectorElementStatus(const EventContext& ctx, InDet::SiD
          return;
       }
       const SCT_ModuleVetoCondData* condData{ condDataHandle.cptr() };
-      the_range = EventIDRange::intersect( the_range, condDataHandle.getRange() );
+      if (whandle) {
+        whandle->addDependency (condDataHandle);
+      }
       if (condData) {
          for (const Identifier &wafer_id: condData->badWaferIds()) {
             status.at( m_pHelper->wafer_hash(wafer_id) ) = false;

@@ -72,9 +72,13 @@ bool SCT_FlaggedConditionTool::isGood(const IdentifierHash& hashId, const EventC
   return (not badIds->present(hashId));
 }
 
-void SCT_FlaggedConditionTool::getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status, EventIDRange &the_range) const {
+void SCT_FlaggedConditionTool::getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status,
+                                                        SG::WriteCondHandle<InDet::SiDetectorElementStatus>* whandle) const {
    const IDCInDetBSErrContainer* badIds{getCondData(ctx)};
-   the_range = IDetectorElementStatusTool::getInvalidRange();
+   if (whandle) {
+     ATH_MSG_ERROR("SCT_FlaggedConditionTool is not for conditions objects");
+     whandle->addDependency (IDetectorElementStatusTool::getInvalidRange());
+   }
    std::vector<bool> &status = element_status.getElementStatus();
    if (badIds==nullptr) {
       if (m_numWarnForFailures<m_maxNumWarnForFailures) {

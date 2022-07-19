@@ -76,13 +76,16 @@ SCT_TdaqEnabledTool::isGood(const IdentifierHash& hashId) const {
 }
 
 void
-SCT_TdaqEnabledTool::getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status, EventIDRange &the_range) const {
+SCT_TdaqEnabledTool::getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status, 
+                                              SG::WriteCondHandle<InDet::SiDetectorElementStatus>* whandle) const {
   SG::ReadCondHandle<SCT_TdaqEnabledCondData> condDataHandle{m_condKey, ctx};
   if (not condDataHandle.isValid()) {
      ATH_MSG_ERROR("Invalid cond data handle " << m_condKey.key() );
      return;
   }
-  the_range = EventIDRange::intersect( the_range, condDataHandle.getRange() );
+  if (whandle) {
+    whandle->addDependency (condDataHandle);
+  }
   const SCT_TdaqEnabledCondData* condData{condDataHandle.cptr()};
   if (condData==nullptr) {
     ATH_MSG_ERROR("Invalid TdaqEnabledCondData. Return true.");
