@@ -53,7 +53,6 @@ int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
         m_CHAMBERLAYER_INDEX = field->m_index;
     } else {
         if (m_msgSvc) { log << MSG::ERROR << "initLevelsFromDict - unable to find 'chamberLayer' field " << endmsg; }
-        status = 1;
     }
 
     field = m_dict->find_field("wireLayer");
@@ -61,7 +60,6 @@ int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
         m_WIRELAYER_INDEX = field->m_index;
     } else {
         if (m_msgSvc) { log << MSG::ERROR << "initLevelsFromDict - unable to find 'wireLayer' field " << endmsg; }
-        status = 1;
     }
 
     field = m_dict->find_field("cscMeasuresPhi");
@@ -69,7 +67,6 @@ int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
         m_MEASURESPHI_INDEX = field->m_index;
     } else {
         if (m_msgSvc) { log << MSG::ERROR << "initLevelsFromDict - unable to find 'cscMeasuresPhi' field " << endmsg; }
-        status = 1;
     }
 
     field = m_dict->find_field("cscStrip");
@@ -77,7 +74,6 @@ int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
         m_CHANNEL_INDEX = field->m_index;
     } else {
         if (m_msgSvc) { log << MSG::ERROR << "initLevelsFromDict - unable to find 'cscStrip' field " << endmsg; }
-        status = 1;
     }
 
     // initialize the multilayer index

@@ -51,7 +51,6 @@ int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
         m_DETECTORELEMENT_INDEX = field->m_index;
     } else {
         if (m_msgSvc) { log << MSG::ERROR << "initLevelsFromDict - unable to find 'stgcMultilayer' field " << endmsg; }
-        status = 1;
     }
 
     field = m_dict->find_field("stgcGasGap");
@@ -59,7 +58,6 @@ int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
         m_GASGAP_INDEX = field->m_index;
     } else {
         if (m_msgSvc) { log << MSG::ERROR << "initLevelsFromDict - unable to find 'stgcGasGap' field " << endmsg; }
-        status = 1;
     }
 
     field = m_dict->find_field("stgcChannelType");
@@ -67,7 +65,6 @@ int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
         m_CHANNELTYPE_INDEX = field->m_index;
     } else {
         if (m_msgSvc) { log << MSG::ERROR << "initLevelsFromDict - unable to find 'channelType' field " << endmsg; }
-        status = 1;
     }
 
     field = m_dict->find_field("stgcChannel");
@@ -75,7 +72,6 @@ int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
         m_CHANNEL_INDEX = field->m_index;
     } else {
         if (m_msgSvc) { log << MSG::ERROR << "initLevelsFromDict - unable to find 'channel' field " << endmsg; }
-        status = 1;
     }
 
     // reinitialize the module ndex
@@ -213,26 +209,23 @@ int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
     // test to see that the multi range is not empty
     if (m_full_module_range.size() == 0) {
         if (m_msgSvc) { log << MSG::ERROR << "sTGC MultiRange ID is empty for modules" << endmsg; }
-        status = 1;
     }
 
     // test to see that the detector element multi range is not empty
     if (m_full_detectorElement_range.size() == 0) {
         if (m_msgSvc) { log << MSG::ERROR << "sTGC MultiRange ID is empty for detector elements" << endmsg; }
-        status = 1;
     }
 
     // test to see that the multi range is not empty
     if (m_full_channel_range.size() == 0) {
         if (m_msgSvc) { log << MSG::ERROR << "sTGC MultiRange ID is empty for channels" << endmsg; }
-        status = 1;
     }
 
     // Setup the hash tables for sTGC
     if (m_msgSvc) { log << MSG::INFO << "Initializing sTGC hash indices ... " << endmsg; }
-    status = init_hashes();
-    status = init_detectorElement_hashes();  // same as module hash
-    status = init_id_to_hashes();
+    init_hashes();
+    init_detectorElement_hashes();  // same as module hash
+    init_id_to_hashes();
 
     /*
     //comment out this bit to test the identifiers

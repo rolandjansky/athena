@@ -161,7 +161,10 @@ namespace Muon {
                         data.chIndex = MuonStationIndex::BIS;
                 }
             }
-
+            if (data.chIndex <0){
+               ATH_MSG_ERROR("data.chIndex is negative in MuonIdHelperSvc::initialize ");
+               return StatusCode::FAILURE;
+            }
             data.stIndex = MuonStationIndex::toStationIndex(data.chIndex);
 
             if (msgLvl(MSG::DEBUG)) {
