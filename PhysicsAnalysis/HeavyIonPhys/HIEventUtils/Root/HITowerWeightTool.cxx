@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "HIEventUtils/HITowerWeightTool.h"
@@ -31,27 +31,27 @@ HITowerWeightTool::HITowerWeightTool(const std::string& n) : asg::AsgTool(n),
 
 float HITowerWeightTool::getWeight(float eta, float phi, int sample) const
 {
-  return m_h3W->GetBinContent(m_h3W->FindBin(eta,phi,sample));
+  return m_h3W->GetBinContent(m_h3W->FindFixBin(eta,phi,sample));
 }
 float HITowerWeightTool::getWeightEta(float eta, float phi, int sample) const
 {
-  return m_h3Eta->GetBinContent(m_h3Eta->FindBin(eta,phi,sample));
+  return m_h3Eta->GetBinContent(m_h3Eta->FindFixBin(eta,phi,sample));
 }
 float HITowerWeightTool::getWeightPhi(float eta, float phi, int sample) const
 {
-  return m_h3Phi->GetBinContent(m_h3Phi->FindBin(eta,phi,sample));
+  return m_h3Phi->GetBinContent(m_h3Phi->FindFixBin(eta,phi,sample));
 }
 float HITowerWeightTool::getWeightMag(float eta, float phi, int sample) const
 {
-  return m_h3Mag->GetBinContent(m_h3Mag->FindBin(eta,phi,sample));
+  return m_h3Mag->GetBinContent(m_h3Mag->FindFixBin(eta,phi,sample));
 }
 
 float HITowerWeightTool::getEtaPhiResponse(float eta, float phi) const
 {
   if(m_runIndex==0)  return 1;
 
-  int eb=m_h3EtaPhiResponse->GetXaxis()->FindBin(eta);
-  int pb=m_h3EtaPhiResponse->GetYaxis()->FindBin(phi);
+  int eb=std::as_const(m_h3EtaPhiResponse)->GetXaxis()->FindFixBin(eta);
+  int pb=std::as_const(m_h3EtaPhiResponse)->GetYaxis()->FindFixBin(phi);
   float rv=m_h3EtaPhiResponse->GetBinContent(eb,pb,m_runIndex);
   return rv;
 }
@@ -59,8 +59,8 @@ float HITowerWeightTool::getEtaPhiResponse(float eta, float phi) const
 float HITowerWeightTool::getEtaPhiOffset(float eta, float phi) const
 {
   if(m_runIndex==0) return 0;
-  int eb=m_h3EtaPhiOffset->GetXaxis()->FindBin(eta);
-  int pb=m_h3EtaPhiOffset->GetYaxis()->FindBin(phi);
+  int eb=std::as_const(m_h3EtaPhiOffset)->GetXaxis()->FindFixBin(eta);
+  int pb=std::as_const(m_h3EtaPhiOffset)->GetYaxis()->FindFixBin(phi);
   return m_h3EtaPhiOffset->GetBinContent(eb,pb,m_runIndex)*std::cosh(eta);
 }
 

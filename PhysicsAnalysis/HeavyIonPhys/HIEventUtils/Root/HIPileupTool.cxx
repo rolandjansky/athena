@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // HIPileupTool.cxx
@@ -132,7 +132,7 @@ bool HIPileupTool::is_pileup(const xAOD::HIEventShapeContainer& evShCont, const 
    double FCal_Et = get_et(evShCont);
    double nNeutrons;
    nNeutrons = get_nNeutrons(ZdcCont);
-   if (nNeutrons > m_hCut->GetBinContent(m_hCut->FindBin(FCal_Et))) kPileup = true;
+   if (nNeutrons > m_hCut->GetBinContent(m_hCut->FindFixBin(FCal_Et))) kPileup = true;
 
    return kPileup;
 }
@@ -140,13 +140,13 @@ bool HIPileupTool::is_pileup(const xAOD::HIEventShapeContainer& evShCont, const 
 double HIPileupTool::get_efficiency(const xAOD::HIEventShapeContainer& evShCont, double FCal_Et) const{
 
    FCal_Et = get_et(evShCont);
-   return m_hEff->GetBinContent(m_hEff->FindBin(FCal_Et));
+   return m_hEff->GetBinContent(m_hEff->FindFixBin(FCal_Et));
 }
 
 double HIPileupTool::get_purity(const xAOD::HIEventShapeContainer& evShCont, double& FCal_Et) {
 
    FCal_Et = get_et(evShCont);
-   return m_hPurity->GetBinContent(m_hPurity->FindBin(FCal_Et));
+   return m_hPurity->GetBinContent(m_hPurity->FindFixBin(FCal_Et));
 }
 
 
@@ -184,7 +184,7 @@ void HIPileupTool::print() const {
    }
 }
 
-void HIPileupTool::write(TFile* fOut) const {
+void HIPileupTool::write(TFile* fOut) {
 
     fOut->cd(0);
     m_hEvents->Write();

@@ -35,7 +35,7 @@ namespace HI
     virtual StatusCode initialize() override;
 
     virtual void print() const override;
-    void write(TFile* fOut) const;
+    void write(TFile* fOut);
 
     double get_efficiency(const xAOD::HIEventShapeContainer&, double ) const;
     double get_purity(const xAOD::HIEventShapeContainer&, double& );

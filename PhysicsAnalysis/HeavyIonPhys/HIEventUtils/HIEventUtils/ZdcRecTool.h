@@ -54,7 +54,7 @@ namespace ZDC
     // Path to the configuring file
     std::string m_zdcRecConfigPath;
 
-    mutable bool m_eventReady = false;
+    bool m_eventReady = false;
     std::string m_zdcModuleContainerName;
     const xAOD::ZdcModuleContainer* m_zdcModules = nullptr;
 
