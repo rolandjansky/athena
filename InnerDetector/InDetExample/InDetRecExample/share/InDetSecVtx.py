@@ -1,26 +1,9 @@
-# -- try DisplacedVertices by loosening the PriVtx
-# -- Mar 3, 2016, Lianyou SHAN@bjIHEP
+# -- Jun 14 2022, N Ribaric @LancasterUNI
+## self contained script for running AdaptiveMultiSecVtx and IterativeSecVtx
 
-#myPrint = VERBOSE
-from InDetRecExample import TrackingCommon
-myPrint = INFO
+myPrint = DEBUG
 IncSecVtxMultiSeed = False 
 
-## UNcomment below 9 lines IF define INCLUSIVESECVTX_DEBUG 
-## is also UNcomment in InDetIterativeSecVtxFinderTool
-
-if not InDetFlags.doMonitoring()  :
-    if  not IncSecVtxMultiSeed :
-        if not hasattr(ServiceMgr, 'THistSvc'):
-            from GaudiSvc.GaudiSvcConf import THistSvc
-            ServiceMgr += THistSvc()
-
-        ServiceMgr.THistSvc.Output += [ "AANT  DATAFILE='IteraSecVtxFinderTool.root' OPT='RECREATE'" ]
-    else :
-        printfunc (' IncSecVtx : can not fill Xcheck upon MultiSeed mode ')
-## use together with INCLUSIVESECVTX_DEBUG
-
-## trackSelector
 from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
 InDetTrackSelectorToolRelax = InDet__InDetTrackSelectionTool(name = "DetailedTrackSelectToolRelax",
                                   CutLevel = "NoCut",
@@ -39,7 +22,6 @@ InDetTrackSelectorToolRelax = InDet__InDetTrackSelectionTool(name = "DetailedTra
                                   minNSiHits = 0,
                                   maxNSiSharedHits = 6,
                                   TrackSummaryTool = InDetTrackSummaryTool,
-#                                  OutputLevel              = myPrint,
                                   Extrapolator = InDetExtrapolator   )
 
 ToolSvc += InDetTrackSelectorToolRelax
@@ -57,25 +39,19 @@ ToolSvc += InDetSecVtxTrackSelectorTool
 if (InDetFlags.doPrintConfigurables()):
     printfunc (' InDetSecVtxTrackSelectorTool : ', InDetSecVtxTrackSelectorTool)
 
-def getFullLinearizedTrackFactoryIncSecVtx() :
-    return TrackingCommon.getInDetFullLinearizedTrackFactory('FullLinearizedTrackFactoryIncSecVtx')
+##  InDetFlags.doVertexFinding is set off when start ISV from AOD
+if rec.readAOD():
+    def getFullLinearizedTrackFactoryIncSecVtx() :
+      return TrackingCommon.getInDetFullLinearizedTrackFactory('FullLinearizedTrackFactoryIncSecVtx')
+
 
 ## two options for seedFinder
 if IncSecVtxMultiSeed :
-
-#    from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__FullLinearizedTrackFactory
-#    InDetLinFactory = Trk__FullLinearizedTrackFactory( name        = "FullLinearizedTrackFactoryIncSecVtx",
-#                                                       Extrapolator      = InDetExtrapolator )
-#    ToolSvc += InDetLinFactory
-#    if (InDetFlags.doPrintConfigurables()):
-#      print InDetLinFactory
-
-
     if ( not ( InDetFlags.primaryVertexSetup() == 'MedImgMultiFinding' ) ) :
 
         from TrkVertexSeedFinderUtils.TrkVertexSeedFinderUtilsConf import Trk__LocalMax1DClusterFinder
         InDetMedImgClusterFinder = Trk__LocalMax1DClusterFinder( name            = "InDetMedImgClusterFinder",
-                                                                 weightThreshold = 1500.0, 	
+                                                                 weightThreshold = 1500.0,  
                                                                  mergeParameter  = 0.95,
                                                                  clusterWindowXY = 0.34,
                                                                  refineZ         = True,
@@ -83,7 +59,7 @@ if IncSecVtxMultiSeed :
         ToolSvc += InDetMedImgClusterFinder
         if (InDetFlags.doPrintConfigurables()):
             printfunc (' InDetMedImgClusterFinder ' , InDetMedImgClusterFinder)
-## MedImgClusterFinder has been set as ImagingSeedFinder if primaryVertexSetup() == 'MedImgMultiFinding'
+
 
     from TrkVertexSeedFinderUtils.TrkVertexSeedFinderUtilsConf import Trk__VertexImageMaker
     SecVtxInDetMedImgMaker = Trk__VertexImageMaker( name                           = "InDetMedImgMaker",
@@ -108,12 +84,11 @@ if IncSecVtxMultiSeed :
     if (InDetFlags.doPrintConfigurables()):
       printfunc ('InDetIncSecVtxSeedFinder', InDetIncSecVtxSeedFinder)
 
-## InDetVtxSeedFinder has been set as ImagingSeedFinder if primaryVertexSetup() == 'MedImgMultiFinding'
+
 else :
   from TrkVertexSeedFinderUtils.TrkVertexSeedFinderUtilsConf import Trk__Mode3dFromFsmw1dFinder
   Mode3dFromFsmw1dFinder = Trk__Mode3dFromFsmw1dFinder ( name = "Mode3dFromFsmw1dFinder", 
                                                          OutputLevel              = myPrint,
-#                                                         OutputLevel              = DEBUG,
                                                          Fraction                 = 0.5 ,
                                                          MinimalDistanceFromZtoXY = 0.25,
                                                          MinimalRadiusFromBeam = 1.5 ,
@@ -192,29 +167,39 @@ ToolSvc += InDetIncSecVtxFitterTool
 if (InDetFlags.doPrintConfigurables()):
     printfunc (InDetIncSecVtxFitterTool                              )
 
+from TrkVertexFitters.TrkVertexFittersConf import Trk__AdaptiveMultiVertexFitter
+InDetAdaptiveMultiSecVtxFitterTool = Trk__AdaptiveMultiVertexFitter(name                         = "InDetAdaptiveMultiVertexFitter",
+                                                       LinearizedTrackFactory       = getFullLinearizedTrackFactoryIncSecVtx,
+                                                       ImpactPoint3dEstimator       = InDetImpactPoint3dEstimator,
+                                                       AnnealingMaker               = InDetAnnealingMaker,
+                                                       DoSmoothing                  = True) # false is default
+
+               
+ToolSvc += InDetAdaptiveMultiSecVtxFitterTool
+if (InDetFlags.doPrintConfigurables()):
+    printfunc (InDetAdaptiveMultiSecVtxFitterTool                              )    
+
+
+
+
 from InDetIncSecVxFinderTool.InDetIncSecVxFinderToolConf import InDet__InDetIterativeSecVtxFinderTool
 InDetSecVtxFinderTool = InDet__InDetIterativeSecVtxFinderTool(name  = "InDetSecVtxFinderTool",
                                     VertexFitterTool         = InDetIncSecVtxFitterTool,
-                                    BaseTrackSelector            = InDetTrackSelectorToolRelax,
-                                    SecVtxTrackSelector            = InDetSecVtxTrackSelectorTool,
+                                    BaseTrackSelector        = InDetTrackSelectorToolRelax,
+                                    SecVtxTrackSelector      = InDetSecVtxTrackSelectorTool,
                                     SeedFinder               = InDetIncSecVtxSeedFinder,
                                     ImpactPoint3dEstimator   = InDetImpactPoint3dEstimator,
-                                    LinearizedTrackFactory   = getFullLinearizedTrackFactoryIncSecVtx(),
-                                    useBeamConstraint        = False,
-#                                    significanceCutSeeding   = 15.,
+                                    LinearizedTrackFactory   = getFullLinearizedTrackFactoryIncSecVtx,
                                     significanceCutSeeding   = 9.,
-# need some tuning ...
                                     maxCompatibilityCutSeeding = 18.,
                                     minTrackWeightAtVtx        = 0.02 ,
                                     maxVertices              = 20,
                                     TrackInnerOuterFraction  = 0.95 ,
                                     doMaxTracksCut           = InDetPrimaryVertexingCuts.doMaxTracksCut(),
-                                    VertexFilterLevel        = 5 ,
-#                                    VertexFilterLevel        = 0 ,
+                                    VertexFilterLevel        = 0,
                                     MomentumProjectionOnDirection = -999.9 ,
                                     SeedsMinimumDistance     = 0.1 ,
-                                    OutputLevel              = myPrint,                        
-#                                    OutputLevel              = DEBUG,                        
+                                    OutputLevel              = myPrint,                                               
                                     MaxTracks                = InDetPrimaryVertexingCuts.MaxTracks()  )
 
 ToolSvc += InDetSecVtxFinderTool
@@ -222,10 +207,30 @@ ToolSvc += InDetSecVtxFinderTool
 if (InDetFlags.doPrintConfigurables()):
   printfunc (' InDetSecVtxFinderTool : ', InDetSecVtxFinderTool )
 
+
+from InDetAdaptiveMultiSecVtxFinderTool.InDetAdaptiveMultiSecVtxFinderToolConf import InDet__InDetAdaptiveMultiSecVtxFinderTool
+InDetAdaptiveMultiSecVtxFinderTool = InDet__InDetAdaptiveMultiSecVtxFinderTool(name  = "InDetAdaptiveMultiSecVtxFinderTool",
+                                    VertexFitterTool         = InDetAdaptiveMultiSecVtxFitterTool,
+                                    BaseTrackSelector        = InDetTrackSelectorToolRelax,
+                                    SecVtxTrackSelector      = InDetSecVtxTrackSelectorTool,
+                                    SeedFinder               = InDetIncSecVtxSeedFinder,
+                                    ImpactPoint3dEstimator   = InDetImpactPoint3dEstimator,
+                                    LinearizedTrackFactory   = getFullLinearizedTrackFactoryIncSecVtx,
+                                    significanceCutSeeding   = 9.,
+                                    minTrackWeightAtVtx        = 0.02,
+                                    maxVertices              = 20,
+                                    MomentumProjectionOnDirection = -999.9,
+                                    OutputLevel              = myPrint) 
+
+ToolSvc += InDetAdaptiveMultiSecVtxFinderTool
+
+if (InDetFlags.doPrintConfigurables()):
+  printfunc (' InDetAdaptiveMultiSecVtxFinderTool : ', InDetAdaptiveMultiSecVtxFinderTool )
+
+
 from TrkVertexTools.TrkVertexToolsConf import Trk__SecVertexMergingTool
 SecVertexMergingTool = Trk__SecVertexMergingTool( name   = "IncSecMergeTool",
                                                   VertexFitterTool = InDetIncSecVtxFitterTool,
-#                                                  OutputLevel              = DEBUG,
                                                   MininumDistance = 5. ,
                                                   CompatibilityDimension = 2 
                                                 )
@@ -233,16 +238,19 @@ ToolSvc += SecVertexMergingTool
 if (InDetFlags.doPrintConfigurables()):
   printfunc (' SecVertexMergingTool : ', SecVertexMergingTool)
 
-from InDetInclusiveSecVtx.InDetInclusiveSecVtxConf import InDet__InDetSecVtxFinder
-InDetIncSecVtxFinder = InDet__InDetSecVtxFinder(name             = "InDetIncSecVtxFinder",
-                                    VertexFinderTool            = InDetSecVtxFinderTool,
-                                    TracksName                  = InDetKeys.xAODTrackParticleContainer(),
-                                    VxCandidatesOutputName      = "InclusiveSecVtx",
-                                    doVertexMerging             = True,
-                                    VertexMergingTool           = SecVertexMergingTool,
-                                    OutputLevel                 = myPrint)
+### IMPORTANT : vertex merging option and AMVF finding is not possible together!
 
-topSequence += InDetIncSecVtxFinder
+from InDetSecVtxFinder.InDetSecVtxFinderConf import InDet__InDetSecVtxFinder
+InDetSecVtxFinder = InDet__InDetSecVtxFinder(name                    = "InDetSecVtxFinder",
+                                    FinderTool                       = "AMVF",
+                                    InclusiveVertexFinderTool        = InDetSecVtxFinderTool,
+                                    AdaptiveMultiVertexFinderTool    = InDetAdaptiveMultiSecVtxFinderTool,
+                                    inputTrackParticles              = InDetKeys.xAODTrackParticleContainer(),
+                                    outputSecondaryVertices          = "RecoSecVtx",
+                                    doVertexMerging                  = False,
+                                    VertexMergingTool                = SecVertexMergingTool,
+                                    OutputLevel                      = myPrint)
+
 if InDetFlags.doPrintConfigurables():
-    printfunc (' InDetIncSecVtxFinder : ' , InDetIncSecVtxFinder)
+    printfunc (' InDetSecVtxFinder : ' , InDetSecVtxFinder)
 
