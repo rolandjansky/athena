@@ -15,8 +15,10 @@ logOverlay.info(str(overlayArgs))
 
 # PerfMon
 from PerfMonComps.PerfMonFlags import jobproperties as pm
-pm.PerfMonFlags.doMonitoring = True  # to enable monitoring
-pm.PerfMonFlags.doFastMon = True     # to only enable a lightweight monitoring
+pm.PerfMonFlags.doFastMonMT = (overlayArgs.perfmon == 'fastmonmt')
+pm.PerfMonFlags.doFullMonMT = (overlayArgs.perfmon == 'fullmonmt')
+pm.PerfMonFlags.OutputJSON  = "permonmt_Overlay.json"
+include( "PerfMonComps/PerfMonMTSvc_jobOptions.py" ) # noqa F821
 
 # Pre-exec
 if hasattr(overlayArgs, 'preExec') and overlayArgs.preExec != 'NONE':
