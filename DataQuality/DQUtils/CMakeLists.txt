@@ -19,7 +19,7 @@ string(REPLACE "-Wl,--as-needed" "" CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LI
 atlas_add_library( DQUtils
                    src/quick_retrieve.cxx
                    src/pythonic_coracool.cxx
-                   PUBLIC_HEADERS DQUtils
+                   NO_PUBLIC_HEADERS
                    INCLUDE_DIRS ${ORACLE_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${Python_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ORACLE_LIBRARIES} ${ROOT_LIBRARIES}
@@ -38,5 +38,5 @@ atlas_install_python_modules( python/*.py python/ext python/sugar
 atlas_install_scripts( share/count_filled_lbs.py share/dqu_grldiff.py share/dqu_lumi.py share/dqu_grl_extract_period.py share/dqu_dump_periods.py )
 
 foreach( _test coracool events iovset_pickle read )
-   atlas_add_test( ${_test} SCRIPT tests/test_${_test}.py PROPERTIES TIMEOUT 300 POST_EXEC_SCRIPT nopost.sh )
+   atlas_add_test( ${_test} SCRIPT tests/test_${_test}.py POST_EXEC_SCRIPT nopost.sh )
 endforeach()
