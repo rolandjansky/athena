@@ -9,7 +9,6 @@
 #include "VP1Base/VP1Msg.h"
 
 #include <QNetworkAccessManager>
-#include <QSslError>
 #include <QNetworkCookie>
 #include <QFile>
 #include <QFileInfo>
@@ -21,6 +20,8 @@
 
 #include <iostream>
 #include <QMetaType>
+
+class QSslError;
 
 /*
   Stage values:
@@ -108,8 +109,10 @@ void VP1AvailEvtsHttps::Imp::connectNetworkSignalsToSlots()
 	  m_theclass, SLOT(finished()));
   connect(m_netreply, SIGNAL(error(QNetworkReply::NetworkError)),
 	  m_theclass, SLOT(error(QNetworkReply::NetworkError)));
+#ifndef QT_NO_SSL
   connect(m_netreply, SIGNAL(sslErrors(const QList<QSslError>&)),
 	  m_theclass, SLOT(sslErrors(const QList<QSslError>&)));
+#endif
   connect(m_netreply, SIGNAL(downloadProgress(qint64,qint64)),
 	  m_theclass, SLOT(dataReadProgress(qint64,qint64)));
   m_bytesReceived = 0;
@@ -358,6 +361,7 @@ void VP1AvailEvtsHttps::error(QNetworkReply::NetworkError err)
 	  + "\n        Error decoding here: http://doc.trolltech.com/4.4/qnetworkreply.html#NetworkError-enum");
 }
 
+#ifndef QT_NO_SSL
 void VP1AvailEvtsHttps::sslErrors(const QList<QSslError>&) 
 {
   /** ---- For logging
@@ -368,6 +372,7 @@ void VP1AvailEvtsHttps::sslErrors(const QList<QSslError>&)
   **/
   m_d->m_netreply->ignoreSslErrors();
 }
+#endif
 
 void VP1AvailEvtsHttps::dataReadProgress(qint64 received, qint64)
 {

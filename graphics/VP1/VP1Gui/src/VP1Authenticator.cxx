@@ -7,7 +7,6 @@
 #include "VP1Base/VP1QtUtils.h"
 
 #include <QNetworkAccessManager>
-#include <QSslError>
 #include <QNetworkCookie>
 #include <QFile>
 #include <QFileInfo>
@@ -112,8 +111,10 @@ void VP1Authenticator::Imp::connectToAuthenticator(VP1Authenticator* authenticat
 	  authenticator, SLOT(finished()));
   connect(m_netreply, SIGNAL(error(QNetworkReply::NetworkError)),
 	  authenticator, SLOT(error(QNetworkReply::NetworkError)));
+#ifndef QT_NO_SSL
   connect(m_netreply, SIGNAL(sslErrors(const QList<QSslError>&)),
 	  authenticator, SLOT(sslErrors(const QList<QSslError>&)));
+#endif
 }
 
 void VP1Authenticator::Imp::displayError(QString message)
@@ -148,7 +149,9 @@ VP1Authenticator::VP1Authenticator(QWidget* parent, QString fileInfoUrl)
   connect(pbtnLogin,SIGNAL(clicked()),this,SLOT(loginClicked()));
   connect(pbtnCancel,SIGNAL(clicked()),this,SLOT(reject()));
 
+#ifndef QT_NO_SSL
   qRegisterMetaType<QList<QSslError> >("QList<QSslError>");
+#endif
 }
 
 VP1Authenticator::~VP1Authenticator()
@@ -546,6 +549,7 @@ void VP1Authenticator::error(QNetworkReply::NetworkError err)
   }
 }
 
+#ifndef QT_NO_SSL
 void VP1Authenticator::sslErrors(const QList<QSslError>& errlist) 
 {
   if(m_d->m_log) {
@@ -557,6 +561,7 @@ void VP1Authenticator::sslErrors(const QList<QSslError>& errlist)
   }
   m_d->m_netreply->ignoreSslErrors();
 }
+#endif
 
 //____________ GUI slots________________
 void VP1Authenticator::loginClicked()

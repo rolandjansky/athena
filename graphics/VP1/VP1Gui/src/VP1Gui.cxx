@@ -133,7 +133,11 @@ bool VP1Gui::argumentsAreValid() const
 
       // For the https mode check if the platform supports SSL
       if(m_d->singleEventSource.startsWith("https://") 
+#ifndef QT_NO_SSL
 	 && ! (QSslSocket::supportsSsl()) ) {
+#else
+         ) {
+#endif
 	VP1Msg::message("VP1ExecutionScheduler::init ERROR: Unable to retrieve events over Https. The platform does not support SSL");
 	return false;
       }
