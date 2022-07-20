@@ -106,8 +106,9 @@ else:
 
 # runNumber is MC channel number in reco
 if hasattr(overlayArgs, 'runNumber'):
-    overlayFlags.MCChannelNumber.set_Value(overlayArgs.runNumber)
-    logOverlay.info('Got MC channel number %d from runNumber', overlayFlags.MCChannelNumber())
+    # always set it in legacy config
+    athenaCommonFlags.MCChannelNumber.set_Value(overlayArgs.runNumber)
+    logOverlay.info('Got MC channel number %d from runNumber', athenaCommonFlags.MCChannelNumber())
 
 # Digitization flags
 if hasattr(overlayArgs, 'digiSeedOffset1'):

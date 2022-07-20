@@ -168,5 +168,7 @@ private:
   /// code to reproduce serial output in an AthenaMP job, albeit with
   /// a significant performance penalty.
   Gaudi::Property<bool> m_allowSerialAndMPToDiffer;
+
+  Gaudi::Property<uint32_t> m_mcChannelNumber{ this, "MCChannelNumber", 0, "sample MC channel number" };
 };
 #endif // PILEUPTOOLS_PILEUPEVENTLOOPMGR_H

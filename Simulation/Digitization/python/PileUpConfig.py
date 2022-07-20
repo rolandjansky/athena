@@ -267,4 +267,8 @@ def getPileUpEventLoopMgr(name="PileUpEventLoopMgr", **kwargs):
     # as original xAOD::EventInfo is created before conditions data could
     # be read. Only the "EventInfoName" should change.
 
+    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+    if athenaCommonFlags.MCChannelNumber() > 0:
+        kwargs.setdefault("MCChannelNumber", athenaCommonFlags.MCChannelNumber())
+
     return CfgMgr.PileUpEventLoopMgr(name, **kwargs)

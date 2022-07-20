@@ -342,6 +342,12 @@ class RuntimeStrictness(JobProperty):
 
         return super( RuntimeStrictness, self )._do_action( *args, **kwds )
 
+class MCChannelNumber(JobProperty):
+    """MC channel number tracking"""
+    statusOn=True
+    allowedTypes=['int']
+    StoredValue = 0
+
 ##-----------------------------------------------------------------------------
 ## 2nd step
 ## Definition of the AthenaCommon flag container
@@ -385,6 +391,7 @@ jobproperties.AthenaCommonFlags.add_JobProperty(isOnline)
 jobproperties.AthenaCommonFlags.add_JobProperty(isOnlineStateless)
 jobproperties.AthenaCommonFlags.add_JobProperty(RuntimeStrictness)
 jobproperties.AthenaCommonFlags.add_JobProperty(DoFullChain)
+jobproperties.AthenaCommonFlags.add_JobProperty(MCChannelNumber)
 
 ##-----------------------------------------------------------------------------
 ## 5th step
