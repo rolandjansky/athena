@@ -684,7 +684,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
     m_muonIsolationSFTool.setTypeAndName("CP::MuonEfficiencyScaleFactors/"+toolName);
     // Use for the low-pt WP a dedicated set of isolation scale-factors having an extra uncertainty in place
-    ATH_CHECK( m_muonIsolationSFTool.setProperty("WorkingPoint",(m_muId == 5 ? "LowPt_" : "") + tmp_muIso_WP + "Iso") );
+    ATH_CHECK( m_muonIsolationSFTool.setProperty("WorkingPoint", tmp_muIso_WP + "Iso") );
     ATH_CHECK( m_muonIsolationSFTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_muonIsolationSFTool.retrieve() );
 
@@ -714,7 +714,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
     m_muonHighPtIsolationSFTool.setTypeAndName("CP::MuonEfficiencyScaleFactors/"+toolName);
     // Use for the low-pt WP a dedicated set of isolation scale-factors having an extra uncertainty in place
-    ATH_CHECK( m_muonHighPtIsolationSFTool.setProperty("WorkingPoint",(m_muId == 5 ? "LowPt_" : "") + tmp_muIsoHighPt_WP + "Iso") );
+    ATH_CHECK( m_muonHighPtIsolationSFTool.setProperty("WorkingPoint", tmp_muIsoHighPt_WP + "Iso") );
     ATH_CHECK( m_muonHighPtIsolationSFTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_muonHighPtIsolationSFTool.retrieve() );
 
