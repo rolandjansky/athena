@@ -11,7 +11,8 @@
 #include <AsgAnalysisAlgorithms/AsgFlagSelectionTool.h>
 #include <AsgAnalysisAlgorithms/AsgPtEtaSelectionTool.h>
 #include <AsgAnalysisAlgorithms/AsgCutBookkeeperAlg.h>
-#include <AsgAnalysisAlgorithms/AsgCutBookkeeperAlg.h>
+#include <AsgAnalysisAlgorithms/AsgClassificationDecorationAlg.h>
+#include <AsgAnalysisAlgorithms/AsgPriorityDecorationAlg.h>
 #include <AsgAnalysisAlgorithms/AsgEventScaleFactorAlg.h>
 #include <AsgAnalysisAlgorithms/AsgLeptonTrackSelectionAlg.h>
 #include <AsgAnalysisAlgorithms/AsgOriginalObjectLinkAlg.h>
@@ -35,7 +36,8 @@ DECLARE_NAMESPACE_TOOL_FACTORY (CP, AsgIntValueSelectionTool)
 DECLARE_NAMESPACE_TOOL_FACTORY (CP, AsgFlagSelectionTool)
 DECLARE_NAMESPACE_TOOL_FACTORY (CP, AsgPtEtaSelectionTool)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, AsgCutBookkeeperAlg)
-DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, AsgCutBookkeeperAlg)
+DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, AsgClassificationDecorationAlg)
+DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, AsgPriorityDecorationAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, AsgEventScaleFactorAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, AsgLeptonTrackSelectionAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, AsgOriginalObjectLinkAlg)
@@ -60,6 +62,8 @@ DECLARE_FACTORY_ENTRIES(AsgAnalysisAlgorithms) {
   DECLARE_NAMESPACE_ALGTOOL (CP, AsgFlagSelectionTool)
   DECLARE_NAMESPACE_ALGTOOL (CP, AsgPtEtaSelectionTool)
   DECLARE_NAMESPACE_ALGORITHM (CP, AsgCutBookkeeperAlg)
+  DECLARE_NAMESPACE_ALGORITHM (CP, AsgClassificationDecorationAlg)
+  DECLARE_NAMESPACE_ALGORITHM (CP, AsgPriorityDecorationAlg)
   DECLARE_NAMESPACE_ALGORITHM (CP, AsgEventScaleFactorAlg)
   DECLARE_NAMESPACE_ALGORITHM (CP, AsgLeptonTrackSelectionAlg)
   DECLARE_NAMESPACE_ALGORITHM (CP, AsgOriginalObjectLinkAlg)
