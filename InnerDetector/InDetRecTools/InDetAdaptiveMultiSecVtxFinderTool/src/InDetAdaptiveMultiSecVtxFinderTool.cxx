@@ -265,31 +265,31 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiS
 		}
 		
 		ATH_MSG_DEBUG( " Considering n. " << VTAV(*actualCandidate).size() << " tracks for the fit. " );
+    if( actualCandidate != nullptr){
+      if(VTAV(*actualCandidate).size() < 2){
+        ATH_MSG_DEBUG("No tracks found near seed, while at least two tracks were expected.");
+      
 
-		if(VTAV(*actualCandidate).size() < 2){
+          if (VTAV.isAvailable(*actualCandidate)) {
+            for (auto tav : VTAV(*actualCandidate)) {
+              if (tav == nullptr) continue;
 
-			ATH_MSG_DEBUG("No tracks found near seed, while at least two tracks were expected.");
-			if( actualCandidate != nullptr){
-
-				if (VTAV.isAvailable(*actualCandidate)) {
-					for (auto tav : VTAV(*actualCandidate)) {
-						if (tav == nullptr) continue;
-
-						(static_cast<Trk::MVFVxTrackAtVertex*>(tav))->setLinkToVertices(nullptr);
-						delete tav;
-						tav = nullptr;
-					}
-					VTAV(*actualCandidate).clear();
-				}
-				if (MvfFitInfo.isAvailable(*actualCandidate) && MvfFitInfo(*actualCandidate) != nullptr) {
-					delete MvfFitInfo(*actualCandidate);
-					MvfFitInfo(*actualCandidate) = nullptr;
-				}
-				delete actualCandidate;
-				actualCandidate = nullptr;
-			}
-			break;
-		}
+              (static_cast<Trk::MVFVxTrackAtVertex*>(tav))->setLinkToVertices(nullptr);
+              delete tav;
+              tav = nullptr;
+            }
+            VTAV(*actualCandidate).clear();
+          }
+          if (MvfFitInfo.isAvailable(*actualCandidate) && MvfFitInfo(*actualCandidate) != nullptr) {
+            delete MvfFitInfo(*actualCandidate);
+            MvfFitInfo(*actualCandidate) = nullptr;
+          }
+          delete actualCandidate;
+          actualCandidate = nullptr;
+      
+        break;
+      }
+    }
 		ATH_MSG_DEBUG("Going to fitter.");
 
 		m_VertexFitter->addVtxTofit(actualCandidate);
@@ -573,10 +573,12 @@ const std::vector< Amg::Vector3D > InDetAdaptiveMultiSecVtxFinderTool::getVertex
 		{
       
 			const Trk::TrackParameters* sv_perigee = (tracksAtVertexIter).perigeeAtVertex() ;
-			if(!sv_perigee) ATH_MSG_DEBUG("perigeeAtVertex not available!!");
-      
+			if(!sv_perigee){
+			  ATH_MSG_DEBUG("perigeeAtVertex not available!!");
+			  continue;
+      }
 
-			double qp  = 1/(std::fabs( sv_perigee->parameters()[Trk::qOverP] )) ;
+			double qp  = 1./(std::fabs( sv_perigee->parameters()[Trk::qOverP] )) ;
 			double theta = sv_perigee->parameters()[Trk::theta];
 			double phi = sv_perigee->parameters()[Trk::phi];
 
