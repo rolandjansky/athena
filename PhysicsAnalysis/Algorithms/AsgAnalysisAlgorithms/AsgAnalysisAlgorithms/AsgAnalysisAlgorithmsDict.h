@@ -17,6 +17,7 @@
 #include <AsgAnalysisAlgorithms/AsgLeptonTrackSelectionAlg.h>
 #include <AsgAnalysisAlgorithms/AsgOriginalObjectLinkAlg.h>
 #include <AsgAnalysisAlgorithms/AsgSelectionAlg.h>
+#include <AsgAnalysisAlgorithms/AsgUnionSelectionAlg.h>
 #include <AsgAnalysisAlgorithms/AsgViewFromSelectionAlg.h>
 #include <AsgAnalysisAlgorithms/AsgxAODNTupleMakerAlg.h>
 #include <AsgAnalysisAlgorithms/EventFlagSelectionAlg.h>
