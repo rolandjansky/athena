@@ -2,14 +2,13 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType
-import InDetConfig.TrackingCommonConfig as TC
 import AthenaCommon.SystemOfUnits as Units
 
 def TRT_TrackSegmentsMaker_BarrelCosmicsCfg(flags, name='InDetTRTSegmentsMaker', **kwargs) :
     acc = ComponentAccumulator()
 
-    kwargs.setdefault("TrtManagerLocation", 'TRT') # InDetKeys.TRT_Manager
-    kwargs.setdefault("TRT_ClustersContainer", 'TRT_DriftCirclesUncalibrated') # InDetKeys.TRT_DriftCirclesUncalibrated
+    kwargs.setdefault("TrtManagerLocation", 'TRT')
+    kwargs.setdefault("TRT_ClustersContainer", 'TRT_DriftCirclesUncalibrated')
     kwargs.setdefault("IsMagneticFieldOn", flags.BField.solenoidOn)
 
     acc.setPrivateTools(CompFactory.InDet.TRT_TrackSegmentsMaker_BarrelCosmics(name = name, **kwargs))
@@ -41,17 +40,16 @@ def TRT_TrackSegmentsMaker_ATLxkCfg(flags, name = 'InDetTRT_SeedsMaker', extensi
         MinNumberDCs   = flags.InDet.Tracking.ActivePass.minSecondaryTRTonTrk
         pTmin          = flags.InDet.Tracking.ActivePass.minSecondaryPt
         sharedFrac     = flags.InDet.Tracking.ActivePass.maxSecondaryTRTShared
-    #
-    # --- offline version  of TRT segemnt making
-    #
-    from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg
-    InDetPatternPropagator = acc.popToolsAndMerge(RungeKuttaPropagatorCfg(flags, name="InDetPatternPropagator"))
-    InDetTRTExtensionTool = acc.popToolsAndMerge(TC.InDetTRT_ExtensionToolCfg(flags))
-    acc.addPublicTool(InDetTRTExtensionTool)
 
-    kwargs.setdefault("TRT_ClustersContainer", 'TRT_DriftCircles') # InDetKeys.TRT_DriftCircles
-    kwargs.setdefault("PropagatorTool", InDetPatternPropagator)
-    kwargs.setdefault("TrackExtensionTool", InDetTRTExtensionTool)
+    if "PropagatorTool" not in kwargs:
+        from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg
+        kwargs.setdefault("PropagatorTool", acc.popToolsAndMerge(RungeKuttaPropagatorCfg(flags, name="InDetPatternPropagator")))
+
+    if "TrackExtensionTool" not in kwargs:
+        from InDetConfig.TRT_TrackExtensionToolConfig import TRT_TrackExtensionToolCfg
+        kwargs.setdefault("TrackExtensionTool", acc.popToolsAndMerge(TRT_TrackExtensionToolCfg(flags)))
+
+    kwargs.setdefault("TRT_ClustersContainer", 'TRT_DriftCircles')
     kwargs.setdefault("PRDtoTrackMap", prefix+'PRDtoTrackMap'+suffix if usePrdAssociationTool else '')
     kwargs.setdefault("RemoveNoiseDriftCircles", False)
     kwargs.setdefault("MinNumberDriftCircles", MinNumberDCs)
@@ -59,8 +57,7 @@ def TRT_TrackSegmentsMaker_ATLxkCfg(flags, name = 'InDetTRT_SeedsMaker', extensi
     kwargs.setdefault("pTmin", pTmin)
     kwargs.setdefault("sharedFrac", sharedFrac)
 
-    InDetTRT_TrackSegmentsMaker = CompFactory.InDet.TRT_TrackSegmentsMaker_ATLxk(name = name, **kwargs)
-    acc.setPrivateTools(InDetTRT_TrackSegmentsMaker)
+    acc.setPrivateTools(CompFactory.InDet.TRT_TrackSegmentsMaker_ATLxk(name, **kwargs))
     return acc
 
 def TRT_TrackSegmentsMakerCondAlg_ATLxkCfg(flags, name = 'InDetTRT_SeedsMakerCondAlg', extension = '', **kwargs):
