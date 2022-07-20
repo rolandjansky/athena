@@ -370,17 +370,6 @@ def trigInDetFastTrackingCfg( inflags, roisKey="EMRoIs", signatureName='', in_vi
 ############################################################################################################################
 prefix="InDetTrigMT"
 
-def TRTDriftCircleCutCfg(flags):
-  from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTActiveCondAlgCfg
-  acc = TRTActiveCondAlgCfg(flags)
-  tool = CompFactory.InDet.InDetTrtDriftCircleCutTool('InDetTrigTRTDriftCircleCut',
-          MinOffsetDCs     = 5,
-          UseNewParameterization = True,
-          UseActiveFractionSvc   = True #DetFlags.haveRIO.TRT_on()  # Use Thomas's new parameterization by default
-  )
-  acc.addPublicTool(tool, primary=True)
-  return acc
-
 def TRTDataProviderCfg(flags):
   acc = ComponentAccumulator()
   rodDecoder = CompFactory.TRT_RodDecoder(f"{prefix}TRTRodDecoder{flags.InDet.Tracking.ActivePass.name}",
@@ -422,13 +411,17 @@ def TRTExtensionToolCfg(flags):
   updator = acc.popToolsAndMerge(KalmanUpdator_xkCfg(flags, name="InDetTrigPatternUpdator"))
   acc.addPublicTool(updator)
 
+  from InDetConfig.InDetTrackSelectorToolConfig import InDetTrigTRTDriftCircleCutToolCfg
+  driftCircleCutTool = acc.popToolsAndMerge(InDetTrigTRTDriftCircleCutToolCfg(flags))
+  acc.addPublicTool(driftCircleCutTool)
+
   from .InDetTrigCollectionKeys import TrigTRTKeys
   extensionTool = CompFactory.InDet.TRT_TrackExtensionTool_xk ( name = f"{prefix}TrackExtensionTool_{flags.InDet.Tracking.ActivePass.name}",
                                                                 TRT_ClustersContainer = TrigTRTKeys.DriftCircles,
                                                                 PropagatorTool = patternPropagator,
                                                                 UpdatorTool    = updator,
                                                                 RoadTool       = roadMaker,
-                                                                DriftCircleCutTool = acc.getPrimaryAndMerge(TRTDriftCircleCutCfg(flags)),
+                                                                DriftCircleCutTool = driftCircleCutTool,
                                                                 MinNumberDriftCircles = flags.InDet.Tracking.ActivePass.minTRTonTrk,
                                                                 ScaleHitUncertainty   = 2.,
                                                                 RoadWidth             = 20.,
@@ -497,11 +490,12 @@ def ambiguityScoringToolCfg(flags):
   acc = ComponentAccumulator()
   from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg #TODO using offline, consider porting
   from TrkConfig.TrkTrackSummaryToolConfig import InDetTrigTrackSummaryToolCfg
+  from InDetConfig.InDetTrackSelectorToolConfig import InDetTrigTRTDriftCircleCutToolCfg
 
   tool = CompFactory.InDet.InDetAmbiScoringTool(name = f"{prefix}_AmbiguityScoringTool_{flags.InDet.Tracking.ActivePass.name}",
                                                 SummaryTool = acc.popToolsAndMerge(InDetTrigTrackSummaryToolCfg(flags)),
-                                                Extrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags, name="InDetTrigExtrapolator")),
-                                                DriftCircleCutTool = acc.getPrimaryAndMerge(TRTDriftCircleCutCfg(flags)),
+                                                Extrapolator = acc.popToolsAndMerge(InDetExtrapolatorCfg(flags, name="InDetTrigExtrapolator")),
+                                                DriftCircleCutTool = acc.popToolsAndMerge(InDetTrigTRTDriftCircleCutToolCfg(flags)),
                                                 useAmbigFcn = True,
                                                 useTRT_AmbigFcn = False,
                                                 maxZImp = flags.InDet.Tracking.ActivePass.maxZImpact,
