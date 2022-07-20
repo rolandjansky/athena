@@ -265,6 +265,50 @@ jFexInputProvider::handle(const Incident& incident) {
      ATH_MSG_WARNING("Could not register jTETOB sumEt histogram for jFexInputProvider");
    }
 
+   // jTEC
+   auto h_jTEC_sumEt = std::make_unique<TH1I>( "jTECTOBsumEt", "jTEC TOB sumEt", 400, 0, 4000);
+   h_jTEC_sumEt->SetXTitle("p_{T} [GeV]");
+
+   if (m_histSvc->regShared( histPath + "jTECTOBsumEt", std::move(h_jTEC_sumEt), m_h_jTEC_sumEt ).isSuccess()){
+     ATH_MSG_DEBUG("jTECTOB sumEt histogram has been registered successfully for jFexInputProvider.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register jTECTOB sumEt histogram for jFexInputProvider");
+   }
+
+   // jTEFWD
+   auto h_jTEFWD_sumEt = std::make_unique<TH1I>( "jTEFWDTOBsumEt", "jTEFWD TOB sumEt", 400, 0, 4000);
+   h_jTEFWD_sumEt->SetXTitle("p_{T} [GeV]");
+
+   if (m_histSvc->regShared( histPath + "jTEFWDTOBsumEt", std::move(h_jTEFWD_sumEt), m_h_jTEFWD_sumEt ).isSuccess()){
+     ATH_MSG_DEBUG("jTEFWDTOB sumEt histogram has been registered successfully for jFexInputProvider.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register jTEFWDTOB sumEt histogram for jFexInputProvider");
+   }
+
+   // jTEFWDA
+   auto h_jTEFWDA_sumEt = std::make_unique<TH1I>( "jTEFWDATOBsumEt", "jTEFWDA TOB sumEt", 400, 0, 4000);
+   h_jTEFWDA_sumEt->SetXTitle("p_{T} [GeV]");
+
+   if (m_histSvc->regShared( histPath + "jTEFWDATOBsumEt", std::move(h_jTEFWDA_sumEt), m_h_jTEFWDA_sumEt ).isSuccess()){
+     ATH_MSG_DEBUG("jTEFWDATOB sumEt histogram has been registered successfully for jFexInputProvider.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register jTEFWDATOB sumEt histogram for jFexInputProvider");
+   }
+
+   // jTEFWDC
+   auto h_jTEFWDC_sumEt = std::make_unique<TH1I>( "jTEFWDCTOBsumEt", "jTEFWDC TOB sumEt", 400, 0, 4000);
+   h_jTEFWDC_sumEt->SetXTitle("p_{T} [GeV]");
+
+   if (m_histSvc->regShared( histPath + "jTEFWDCTOBsumEt", std::move(h_jTEFWDC_sumEt), m_h_jTEFWDC_sumEt ).isSuccess()){
+     ATH_MSG_DEBUG("jTEFWDCTOB sumEt histogram has been registered successfully for jFexInputProvider.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register jTEFWDCTOB sumEt histogram for jFexInputProvider");
+   }
+
 }
 
 
@@ -543,8 +587,15 @@ jFexInputProvider::fillTE(TCS::TopoInputEvent& inputEvent) const {
   SG::ReadHandle<xAOD::jFexSumETRoIContainer> jTE_EDM(m_jTE_EDMKey);
   ATH_CHECK(jTE_EDM.isValid());
   // The jFEX SumET container has 12 elements, 2 TOBs per jFEX module, so a total of 24.
-  // We want to do a sum of all Et for the FPGA 0 and FPGA 2.  
-  int global_EtTopo = 0;
+  // jTE is the Et sum for the FPGA 0 and FPGA 2.  
+  int topoTE = 0;
+  // jTE variations include jTEC, jTEFWD, jTEFWDA, jTEFWDC
+    // These quantities are defined according to the jFex module number
+    // FWDA = 5, FWDC = 0, C = 1,2,3,4
+  int topoTEC = 0;
+  int topoTEFWD = 0;
+  int topoTEFWDA = 0;
+  int topoTEFWDC = 0;
 
   for(const xAOD::jFexSumETRoI* jFexRoI : *jTE_EDM){
 
@@ -553,12 +604,6 @@ jFexInputProvider::fillTE(TCS::TopoInputEvent& inputEvent) const {
     int EtUpperTopo = jFexRoI->Et_upper()*m_sumEt_conversion;
     int jFexNumber = jFexRoI->jFexNumber();
     int fpgaNumber = jFexRoI->fpgaNumber();  
-
-    if( fpgaNumber==0 || fpgaNumber==2)
-      {
-	global_EtTopo += EtLowerTopo;
-	global_EtTopo += EtUpperTopo;
-      }
 
     ATH_MSG_DEBUG( "EDM jFex TE Number: "
                    << jFexNumber
@@ -569,14 +614,66 @@ jFexInputProvider::fillTE(TCS::TopoInputEvent& inputEvent) const {
                    << " Et_upper: "
                    << EtUpperTopo
                    );
+
+    // jTE
+    if( fpgaNumber==0 || fpgaNumber==2 )
+      {
+	topoTE += EtLowerTopo;
+	topoTE += EtUpperTopo;
+      }
+
+    // jTEC
+    if( jFexNumber!=0 && jFexNumber!=5 )
+      {
+	topoTEC += EtLowerTopo;
+	topoTEC += EtUpperTopo;
+      }
+
+    // jTEFWD
+    if( jFexNumber==0 || jFexNumber==5 )
+      {
+	topoTEFWD += EtLowerTopo;
+	topoTEFWD += EtUpperTopo;
+      }
+
+    // jTEFWDA
+    if( jFexNumber==5 )
+      {
+	topoTEFWDA += EtLowerTopo;
+	topoTEFWDA += EtUpperTopo;
+      }
+
+    // jTEFWDC
+    if( jFexNumber==0 )
+      {
+	topoTEFWDC += EtLowerTopo;
+	topoTEFWDC += EtUpperTopo;
+      }
   }
 
-  TCS::jTETOB jte( static_cast<unsigned int>(global_EtTopo), TCS::JTE );
+  TCS::jTETOB jte( static_cast<unsigned int>(topoTE), TCS::JTE );
+  TCS::jTETOB jtec( static_cast<unsigned int>(topoTEC), TCS::JTEC );
+  TCS::jTETOB jtefwd( static_cast<unsigned int>(topoTEFWD), TCS::JTEFWD );
+  TCS::jTETOB jtefwda( static_cast<unsigned int>(topoTEFWDA), TCS::JTEFWDA );
+  TCS::jTETOB jtefwdc( static_cast<unsigned int>(topoTEFWDC), TCS::JTEFWDC );
 
-  jte.setSumEtDouble( static_cast<double>(global_EtTopo*m_sumEtDouble_conversion) );
+  jte.setSumEtDouble( static_cast<double>(topoTE*m_sumEtDouble_conversion) );
+  jtec.setSumEtDouble( static_cast<double>(topoTEC*m_sumEtDouble_conversion) );
+  jtefwd.setSumEtDouble( static_cast<double>(topoTEFWD*m_sumEtDouble_conversion) );
+  jtefwda.setSumEtDouble( static_cast<double>(topoTEFWDA*m_sumEtDouble_conversion) );
+  jtefwdc.setSumEtDouble( static_cast<double>(topoTEFWDC*m_sumEtDouble_conversion) );
 
   inputEvent.setjTE( jte );
+  inputEvent.setjTEC( jtec );
+  inputEvent.setjTEFWD( jtefwd );
+  inputEvent.setjTEFWDA( jtefwda );
+  inputEvent.setjTEFWDC( jtefwdc );
+
   m_h_jTE_sumEt->Fill(jte.sumEtDouble());
+  m_h_jTEC_sumEt->Fill(jtec.sumEtDouble());
+  m_h_jTEFWD_sumEt->Fill(jtefwd.sumEtDouble());
+  m_h_jTEFWDA_sumEt->Fill(jtefwda.sumEtDouble());
+  m_h_jTEFWDC_sumEt->Fill(jtefwdc.sumEtDouble());
 
   return StatusCode::SUCCESS;
 }

@@ -50,8 +50,11 @@ def setOverlayInputFiles(runArgs, configFlags, log):
 
         # runNumber is MC channel number in reco
         if hasattr(runArgs, 'runNumber'):
-            configFlags.Overlay.MCChannelNumber = runArgs.runNumber
-            log.info('Got MC channel number %d from runNumber', configFlags.Overlay.MCChannelNumber)
+            if configFlags.Input.MCChannelNumber != runArgs.runNumber:
+                log.warning('Got different MC channel number (%d) from runNumber than from metadata (%d)', runArgs.runNumber, configFlags.Input.MCChannelNumber)
+                configFlags.Input.MCChannelNumber = runArgs.runNumber
+            else:
+                log.info('MC channel number: %d', configFlags.Input.MCChannelNumber)
     else:
         log.info('Running MC+data overlay')
         configFlags.Overlay.DataOverlay = True

@@ -396,7 +396,7 @@ protected:
 	//	std::cout << "\tChain "  << chainname << "\tpass " << (*m_tdt)->isPassed(chainname)
 	//		  << "\tpres " << (*m_tdt)->getPrescale(chainname) << std::endl;
 	
-	if ( (*(m_tdt))->isPassed(chainname) || (*(m_tdt))->getPrescale(chainname) ) analyse = true;
+	if ( (*(m_tdt))->isPassed(chainname) ) analyse = true;
 	
       }
 

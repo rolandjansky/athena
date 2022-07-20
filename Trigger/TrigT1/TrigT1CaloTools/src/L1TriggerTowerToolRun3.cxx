@@ -742,7 +742,10 @@ void L1TriggerTowerToolRun3::cpLut(const std::vector<int> &fir, const L1CaloCool
     lut(fir, scale*slope, scale*offset, scale*cut, 1, disabled, output);
   } else if(strategy == 1 || strategy == 0){
     lut(fir, slope, offset, cut, strategy, disabled, output);
-  } else ATH_MSG_WARNING(" ::cpLut: Unknown stragegy: " << strategy);
+  } else {
+        ATH_MSG_WARNING(" ::cpLut: Unknown stragegy: " << strategy);
+	output.push_back(0); //avoid crashing with Unknown stragegy
+  }
 }
 
 void L1TriggerTowerToolRun3::jepLut(const std::vector<int> &fir, const L1CaloCoolChannelId& channelId, std::vector<int> &output) const 
@@ -828,7 +831,10 @@ void L1TriggerTowerToolRun3::jepLut(const std::vector<int> &fir, const L1CaloCoo
     lut(fir, scale_menu*slope, scale_menu*offset, scale_menu*cut, 1, disabled, output);
   }else if(strategy == 1 || strategy == 0) {
     lut(fir, slope, offset, cut, strategy, disabled, output);
-  } else ATH_MSG_WARNING(" ::jepLut: Unknown stragegy: " << strategy);
+  } else { 
+    ATH_MSG_WARNING(" ::jepLut: Unknown stragegy: " << strategy);
+    output.push_back(0);
+  }
 }
 
 /** LUT simulation: pedestal subtraction, energy calibration and threshold */

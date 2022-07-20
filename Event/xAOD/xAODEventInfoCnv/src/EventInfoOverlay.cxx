@@ -95,8 +95,8 @@ StatusCode EventInfoOverlay::execute(const EventContext& ctx) const
       ATH_MSG_WARNING("Signal mcEventNumber is 0, setting it to match the eventNumber (" << signalEvent->eventNumber() << ")");
       outputEvent->setMCEventNumber(signalEvent->eventNumber());
     } else {
-      ATH_MSG_WARNING("Signal mcEventNumber is 0");
-      outputEvent->setMCEventNumber(signalEvent->mcEventNumber());  
+      ATH_MSG_ERROR("Signal eventNumber and mcEventNumber are 0");
+      return StatusCode::FAILURE;
     }
   } else {
     outputEvent->setMCEventNumber(signalEvent->mcEventNumber());

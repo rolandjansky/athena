@@ -1099,6 +1099,11 @@ bool TrigTrackSelector::selectTrack( const xAOD::TrackParticle* track, void* ) {
       double d0    = measPer->d0();
 
       double theta = measPer->theta();
+
+      /// protect against spurious qOverP = 0 BUT !!!
+      /// this should NEVER happen !!! so shouldn't really have this failing silently, but 
+      /// not allowed to put in std::cerr output
+      if ( measPer->qOverP()==0 ) return false;
       double  p    = 1/measPer->qOverP();
   
       // AAARCH!!!!! the TrackParticle pT is NOT SIGNED!!!! ( I ask you! ) 

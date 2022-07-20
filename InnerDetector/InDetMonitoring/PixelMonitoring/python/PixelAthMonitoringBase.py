@@ -63,30 +63,32 @@ ModulesBarrel = [
     "M5A", "M6A"]
 #xIBL
 ModulesIBL = [
-    "C8", " ", "C7", " ", "C6", " ", "C5", " ", "C4", " ", "C3", " ", "C2", " ",
-    "C1", " ", "A1", " ", "A2", " ", "A3", " ", "A4", " ", "A5", " ", "A6", " ",
-    "A7", " ", "A8", " "]
+    "C8_0", "C8_1", "C7_0", "C7_1", "C6_0", "C6_1", "C5_0", "C5_1", "C4_0", "C4_1", "C3_0", "C3_1", "C2_0", "C2_1",
+    "C1_0", "C1_1", "A1_0", "A1_1", "A2_0", "A2_1", "A3_0", "A3_1", "A4_0", "A4_1", "A5_0", "A5_1", "A6_0", "A6_1",
+    "A7_0", "A7_1", "A8_0", "A8_1"]
 
 LabelX = [LayersDisk, LayersDisk, ModulesBarrel, ModulesBarrel, ModulesBarrel, ModulesIBL]
 
 #same for FE
-LayersDiskFE = [" ", " ", " ", "Disk 1", " ", " ", " ", " ",
-              " ", " ", " ", "Disk 2", " ", " ", " ", " ",
-              " ", " ", " ", "Disk 3", " ", " ", " ", " "]
+LayersDiskFE = ["Disk1_FE_8_7","Disk1_FE_9_6","Disk1_FE_10_5","Disk1_FE_11_4","Disk1_FE_12_3","Disk1_FE_13_2","Disk1_FE_14_1","Disk1_FE_15_0",
+                "Disk2_FE_7_8","Disk2_FE_6_9","Disk2_FE_5_10","Disk2_FE_4_11","Disk2_FE_3_12","Disk2_FE_2_13","Disk2_FE_1_14","Disk2_FE_0_15",
+                "Disk3_FE_8_7","Disk3_FE_9_6","Disk3_FE_10_5","Disk3_FE_11_4","Disk3_FE_12_3","Disk3_FE_13_2","Disk3_FE_14_1","Disk3_FE_15_0"]
+
 ModulesBarrelFE = [
-    " ", " ", " ", "M6C", " ", " ", " ", " ",
-    " ", " ", " ", "M5C", " ", " ", " ", " ",
-    " ", " ", " ", "M4C", " ", " ", " ", " ",
-    " ", " ", " ", "M3C", " ", " ", " ", " ",
-    " ", " ", " ", "M2C", " ", " ", " ", " ",
-    " ", " ", " ", "M1C", " ", " ", " ", " ",
-    " ", " ", " ", "M0", " ", " ", " ", " ",
-    " ", " ", " ", "M1A", " ", " ", " ", " ",
-    " ", " ", " ", "M2A", " ", " ", " ", " ",
-    " ", " ", " ", "M3A", " ", " ", " ", " ",
-    " ", " ", " ", "M4A", " ", " ", " ", " ",
-    " ", " ", " ", "M5A", " ", " ", " ", " ",
-    " ", " ", " ", "M6A", " ", " ", " ", " "]
+    "M6C_FE_8_7","M6C_FE_9_6","M6C_FE_10_5","M6C_FE_11_4","M6C_FE_12_3","M6C_FE_13_2","M6C_FE_14_1","M6C_FE_15_0",
+    "M5C_FE_8_7","M5C_FE_9_6","M5C_FE_10_5","M5C_FE_11_4","M5C_FE_12_3","M5C_FE_13_2","M5C_FE_14_1","M5C_FE_15_0",
+    "M4C_FE_8_7","M4C_FE_9_6","M4C_FE_10_5","M4C_FE_11_4","M4C_FE_12_3","M4C_FE_13_2","M4C_FE_14_1","M4C_FE_15_0",
+    "M3C_FE_8_7","M3C_FE_9_6","M3C_FE_10_5","M3C_FE_11_4","M3C_FE_12_3","M3C_FE_13_2","M3C_FE_14_1","M3C_FE_15_0",
+    "M2C_FE_8_7","M2C_FE_9_6","M2C_FE_10_5","M2C_FE_11_4","M2C_FE_12_3","M2C_FE_13_2","M2C_FE_14_1","M2C_FE_15_0",
+    "M1C_FE_8_7","M1C_FE_9_6","M1C_FE_10_5","M1C_FE_11_4","M1C_FE_12_3","M1C_FE_13_2","M1C_FE_14_1","M1C_FE_15_0",
+    "M0_FE_8_7","M0_FE_9_6","M0_FE_10_5","M0_FE_11_4","M0_FE_12_3","M0_FE_13_2","M0_FE_14_1","M0_FE_15_0",
+    "M1A_FE_8_7","M1A_FE_9_6","M1A_FE_10_5","M1A_FE_11_4","M1A_FE_12_3","M1A_FE_13_2","M1A_FE_14_1","M1A_FE_15_0",
+    "M2A_FE_8_7","M2A_FE_9_6","M2A_FE_10_5","M2A_FE_11_4","M2A_FE_12_3","M2A_FE_13_2","M2A_FE_14_1","M2A_FE_15_0",
+    "M3A_FE_8_7","M3A_FE_9_6","M3A_FE_10_5","M3A_FE_11_4","M3A_FE_12_3","M3A_FE_13_2","M3A_FE_14_1","M3A_FE_15_0",
+    "M4A_FE_8_7","M4A_FE_9_6","M4A_FE_10_5","M4A_FE_11_4","M4A_FE_12_3","M4A_FE_13_2","M4A_FE_14_1","M4A_FE_15_0",
+    "M5A_FE_8_7","M5A_FE_9_6","M5A_FE_10_5","M5A_FE_11_4","M5A_FE_12_3","M5A_FE_13_2","M5A_FE_14_1","M5A_FE_15_0",
+    "M6A_FE_8_7","M6A_FE_9_6","M6A_FE_10_5","M6A_FE_11_4","M6A_FE_12_3","M6A_FE_13_2","M6A_FE_14_1","M6A_FE_15_0"]
+
 LabelFEX = [LayersDiskFE, LayersDiskFE, ModulesBarrelFE, ModulesBarrelFE, ModulesBarrelFE, ModulesIBL]
 
 ModulesECA = [
@@ -148,19 +150,19 @@ LabelY = [ModulesECA, ModulesECC, StavesL0, StavesL1, StavesL2, StavesIBL]
 #same for per-FE
 ModulesFEECA = []
 for i in ModulesECA: 
-    ModulesFEECA.extend([i, ' '])
+    ModulesFEECA.extend([i+'_FE#1', i+'_FE#2'])
 ModulesFEECC = []
 for i in ModulesECC: 
-    ModulesFEECC.extend([i, ' '])
+    ModulesFEECC.extend([i+'_FE#1', i+'_FE#2'])
 StavesFEL0 = []
 for i in StavesL0:
-    StavesFEL0.extend([i, ' '])
+    StavesFEL0.extend([i+'_FE#1', i+'_FE#2'])
 StavesFEL1 = []
 for i in StavesL1:
-    StavesFEL1.extend([i, ' '])
+    StavesFEL1.extend([i+'_FE#1', i+'_FE#2'])
 StavesFEL2 = []
 for i in StavesL2:
-    StavesFEL2.extend([i, ' '])
+    StavesFEL2.extend([i+'_FE#1', i+'_FE#2'])
 LabelFEY = [ModulesFEECA, ModulesFEECC, StavesFEL0, StavesFEL1, StavesFEL2, StavesIBL]
 
 #PP0

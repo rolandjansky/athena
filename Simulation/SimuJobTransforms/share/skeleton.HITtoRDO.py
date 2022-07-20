@@ -44,6 +44,12 @@ elif hasattr(runArgs,"inputHitsFile"):
 elif not hasattr(runArgs,"testPileUpConfig"):
     raise RuntimeError("No inputHITSFile provided.")
 
+# runNumber is MC channel number in reco
+if hasattr(runArgs, 'runNumber'):
+    # always set it in legacy config
+    athenaCommonFlags.MCChannelNumber.set_Value(runArgs.runNumber)
+    digilog.info('Got MC channel number %d from runNumber', athenaCommonFlags.MCChannelNumber())
+
 digilog.info( '**** Transformation run arguments' )
 digilog.info( str(runArgs) )
 

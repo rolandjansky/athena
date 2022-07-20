@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*- mode: python -*-
 #
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 # This is a script that is born as shell to setup the preloading and then
 # resurrected as python script for the actual athenaHLT.py application.
@@ -376,7 +376,7 @@ def main():
    g = parser.add_argument_group('Database')
    g.add_argument('--use-database', '-b', action='store_true',
                   help='configure from trigger database, reading keys from COOL if not specified')
-   g.add_argument('--db-server', metavar='DB', default='TRIGGERDB', help='DB server name')
+   g.add_argument('--db-server', metavar='DB', default='TRIGGERDB_RUN3', help='DB server name')
    g.add_argument('--smk', type=int, default=None, help='Super Master Key')
    g.add_argument('--l1psk', type=int, default=None, help='L1 prescale key')
    g.add_argument('--hltpsk', type=int, default=None, help='HLT prescale key')

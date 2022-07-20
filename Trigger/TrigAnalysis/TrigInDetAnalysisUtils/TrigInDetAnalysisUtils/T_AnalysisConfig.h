@@ -572,15 +572,13 @@ protected:
 
   template<class Collection>
   bool selectTracks( TrigTrackSelector* selector, const std::string& key ) {
-    const Collection* collection = 0;
-    if ( key!="" ) {
-      if ( m_provider->evtStore()->template contains<Collection>( key ) ) {
-	StatusCode sc = m_provider->evtStore()->retrieve( collection, key );
-	m_provider->msg(MSG::DEBUG) << "SG Collection->size() " << collection->size() << " (" << key << ")" << endmsg;
-	if( sc.isSuccess() && collection ) {
-	  selector->selectTracks( collection );
-	  return true;
-	}
+    if ( key!="" ) {     
+      SG::ReadHandle<Collection> handle(key);
+      if ( handle.isValid() ) {
+	/// commented code intentionally left for development purposes ...
+	// std::cout << "\t\t\t T_AnalysisConfig::selectTracks() - > TrackSelector" << std::endl;
+	selector->selectTracks( handle.cptr() );
+        return true;
       }
     }
     return false;

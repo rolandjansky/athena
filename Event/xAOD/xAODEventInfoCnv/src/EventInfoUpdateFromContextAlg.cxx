@@ -69,6 +69,36 @@ namespace xAODMaker
     outputEvent->setLumiBlock( ctx.eventID().lumi_block() );
     outputEvent->setTimeStamp( ctx.eventID().time_stamp() );
 
+    // Propagate MC metadata
+    if (outputEvent->mcChannelNumber() == 0) {
+      if (m_mcChannelNumber.value() != 0) {
+        ATH_MSG_WARNING("Input mcChannelNumber is 0, setting it to " << m_mcChannelNumber.value());
+        outputEvent->setMCChannelNumber(m_mcChannelNumber.value());
+      } else {
+        ATH_MSG_WARNING("Input mcChannelNumber is 0");
+      }
+    } else {
+      if (m_mcChannelNumber.value() != 0 && signalEvent->mcChannelNumber() != m_mcChannelNumber.value()) {
+        ATH_MSG_WARNING("Input mcChannelNumber (" << signalEvent->mcChannelNumber()
+                        << ") and provided mcChannelNumber (" << m_mcChannelNumber.value() << ") do not match.");
+      }
+    }
+
+    if (signalEvent->mcEventNumber() == 0) {
+      if (signalEvent->eventNumber() != 0) {
+        ATH_MSG_WARNING("Input mcEventNumber is 0, setting it to match the eventNumber (" << signalEvent->eventNumber() << ")");
+        outputEvent->setMCEventNumber(signalEvent->eventNumber());
+      } else {
+        ATH_MSG_ERROR("Input eventNumber and mcEventNumber are 0");
+        return StatusCode::FAILURE;
+      }
+    }
+
+    if (signalEvent->mcEventWeights().empty()) {
+      ATH_MSG_ERROR("Input mcEventWeights are empty. This should not happen.");
+      return StatusCode::FAILURE;
+    }
+
     // Ensure correct beam spot info
 #if !defined(XAOD_ANALYSIS) && !defined(GENERATIONBASE)
     SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
