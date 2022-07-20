@@ -13,9 +13,6 @@ def createOverlayConfigFlags():
     flags.addFlag("Overlay.DataOverlay", False)
     # Overlay skip secondary events
     flags.addFlag("Overlay.SkipSecondaryEvents", -1)
-    # Overlay MC channel number tracking
-    # TODO: to be moved in a central place
-    flags.addFlag("Overlay.MCChannelNumber", 0)
     # Overlay background StoreGate key prefix
     flags.addFlag("Overlay.BkgPrefix", "Bkg_")
     # Overlay signal StoreGate key prefix

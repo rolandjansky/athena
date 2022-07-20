@@ -321,6 +321,36 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
     *pOverEvent = *inputEventInfo;
     pOverEvent->clearSubEvents();  // start clean without any subevents
 
+    // Propagate MC metadata
+    if (pOverEvent->mcChannelNumber() == 0) {
+      if (m_mcChannelNumber.value() != 0) {
+        ATH_MSG_WARNING("Input mcChannelNumber is 0, setting it to " << m_mcChannelNumber.value());
+        pOverEvent->setMCChannelNumber(m_mcChannelNumber.value());
+      } else {
+        ATH_MSG_WARNING("Input mcChannelNumber is 0");
+      }
+    } else {
+      if (m_mcChannelNumber.value() != 0 && pOverEvent->mcChannelNumber() != m_mcChannelNumber.value()) {
+        ATH_MSG_WARNING("Input mcChannelNumber (" << pOverEvent->mcChannelNumber()
+                        << ") and provided mcChannelNumber (" << m_mcChannelNumber.value() << ") do not match.");
+      }
+    }
+
+    if (pOverEvent->mcEventNumber() == 0) {
+      if (pOverEvent->eventNumber() != 0) {
+        ATH_MSG_WARNING("Input mcEventNumber is 0, setting it to match the eventNumber (" << pOverEvent->eventNumber() << ")");
+        pOverEvent->setMCEventNumber(pOverEvent->eventNumber());
+      } else {
+        ATH_MSG_ERROR("Input eventNumber and mcEventNumber are 0");
+        return StatusCode::FAILURE;
+      }
+    }
+
+    if (pOverEvent->mcEventWeights().empty()) {
+      ATH_MSG_ERROR("Input mcEventWeights are empty. This should not happen.");
+      return StatusCode::FAILURE;
+    }
+
     // Record the xAOD object(s):
     CHECK( m_evtStore->record( pOverEventAux, m_evinfName + "Aux." ) );
     CHECK( m_evtStore->record( pOverEvent, m_evinfName ) );

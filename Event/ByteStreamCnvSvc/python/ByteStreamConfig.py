@@ -186,6 +186,7 @@ def TransientByteStreamCfg(flags, item_list=None, type_names=None, extra_inputs=
 
     bytestream_conversion = CompFactory.ByteStreamCnvSvc(
         name="ByteStreamCnvSvc",
+        FillTriggerBits=False,  # ATR-25971, transient BS is produced before trigger bits in RDOtoRDOTrigger
         ByteStreamOutputSvcList=[rdp_output.getName()],
     )
     result.addService(bytestream_conversion)

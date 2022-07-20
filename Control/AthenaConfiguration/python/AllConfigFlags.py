@@ -35,6 +35,7 @@ def _createCfgFlags():
     acf.addFlag('Input.OverrideRunNumber', False )
     acf.addFlag("Input.ConditionsRunNumber", -1) # Override the HITS file Run Number with one from a data run (TODO merge with Input.RunNumber)
     acf.addFlag('Input.RunNumber', lambda prevFlags : list(GetFileMD(prevFlags.Input.Files).get("runNumbers", []))) # former global.RunNumber
+    acf.addFlag('Input.MCChannelNumber', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("mc_channel_number", 0))
     acf.addFlag('Input.LumiBlockNumber', lambda prevFlags : list(GetFileMD(prevFlags.Input.Files).get("lumiBlockNumbers", []))) # former global.RunNumber
     acf.addFlag('Input.TimeStamp', lambda prevFlags : getInitialTimeStampsFromRunNumbers(prevFlags.Input.RunNumber) if prevFlags.Input.OverrideRunNumber else [])
     # Configure EvtIdModifierSvc with a list of dictionaries of the form:

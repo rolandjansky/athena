@@ -75,6 +75,9 @@ private:
    /// list of service names
    Gaudi::Property<std::vector<std::string>> m_ioSvcNameList{ this, "ByteStreamOutputSvcList", {}, "", "OrderedSet<T>"};
    
+   /// fill trigger bits
+   Gaudi::Property<bool> m_fillTriggerBits{this, "FillTriggerBits", true, "Read in xTrigDecision and use it to fill Trigger bits in event header"};
+
    /// Services for writing output
    std::map<std::string, ByteStreamOutputSvc*> m_ioSvcMap;
 
