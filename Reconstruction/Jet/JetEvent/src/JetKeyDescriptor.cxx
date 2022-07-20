@@ -68,6 +68,7 @@ size_t JetKeyDescriptorInstance::getIndex(const category_t& cat,
         if (!m_Stores) {
           createKeyStore();
         }
+        // cppcheck-suppress nullPointerRedundantCheck; false positive
 	m_Stores->m_catStore.push_back(cat);
 	keystore_t kStore; kStore.push_back(key);
 	m_Stores->m_keyStore.push_back(kStore);
@@ -91,6 +92,7 @@ size_t JetKeyDescriptorInstance::getIndex(const category_t& cat,
                 if (!m_Stores) {
                   createKeyStore();
                 }
+                // cppcheck-suppress nullPointerRedundantCheck; false positive
 		(m_Stores->m_keyStore[iCat]).push_back(key);
 		return (m_Stores->m_keyStore[iCat]).size()-1;
 	      }
