@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( DQUtils )
@@ -23,7 +23,7 @@ atlas_add_library( DQUtils
                    INCLUDE_DIRS ${ORACLE_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${Python_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ORACLE_LIBRARIES} ${ROOT_LIBRARIES}
-                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${Python_LIBRARIES} ${CORAL_LIBRARIES} CoraCool )
+                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${Python_LIBRARIES} ${CORAL_LIBRARIES} CoraCool CxxUtils )
 
 atlas_add_dictionary( DQUtilsDict
                       dict/dictionary.h
