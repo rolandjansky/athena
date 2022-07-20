@@ -42,7 +42,7 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/TrackingID/InDetTrackSystematicsTools
    Reconstruction/Jet/JetEDM
    ${extra_deps}
-   #External/Asg_Boost
+   Reconstruction/Jet/AthOnnxRuntimeBJT
    )
 
 # External dependencies:
@@ -67,6 +67,7 @@ atlas_add_library( BoostedJetTaggersLib
   Root/JSSWTopTaggerANN.cxx
   Root/SmoothedTopTagger.cxx
   Root/SmoothedWZTagger.cxx
+  Root/SmoothedWZDisCoJetTagger.cxx
   Root/TopoclusterTopTagger.cxx
   Root/TopoclusterTransform.cxx
    PUBLIC_HEADERS BoostedJetTaggers
@@ -78,6 +79,7 @@ atlas_add_library( BoostedJetTaggersLib
    MuonSelectorToolsLib MuonMomentumCorrectionsLib PATCoreLib PATInterfaces FlavorTagDiscriminants
    JetAnalysisInterfacesLib InDetTrackSelectionToolLib InDetTrackSystematicsToolsLib 
    MuonAnalysisInterfacesLib ${extra_libs} 
+   AthOnnxRuntimeBJTLib
    PRIVATE_LINK_LIBRARIES PathResolver JetEDM )
 
 if( NOT XAOD_STANDALONE )
@@ -178,6 +180,14 @@ if( XAOD_STANDALONE )
       xAODEventInfo xAODJet xAODCore PATInterfaces xAODCore AsgTools
       BoostedJetTaggersLib
    )
+   atlas_add_executable( test_SmoothedWZDisCoJetTagger
+      util/test_SmoothedWZDisCoJetTagger.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess
+      xAODEventInfo xAODJet xAODTruth xAODCore PATInterfaces xAODCore AsgTools
+      BoostedJetTaggersLib
+   )
+
 endif()
 
 # Install files from the package:

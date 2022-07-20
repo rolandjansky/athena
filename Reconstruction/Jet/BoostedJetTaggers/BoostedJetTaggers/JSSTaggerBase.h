@@ -6,6 +6,7 @@
 #define BOOSTEDJETSTAGGERS_JSSTAGGERBASE_H
 
 #include "AsgTools/AsgTool.h"
+#include "AsgTools/AsgToolConfig.h"
 #include "AsgTools/AnaToolHandle.h"
 
 #include "JetAnalysisInterfaces/IJetSelectorTool.h"
@@ -238,6 +239,9 @@ class JSSTaggerBase :   public asg::AsgTool ,
 
     /// Print configured cuts
     void printCuts() const;
+
+    /// decorate jets with un-grommed tracks
+    StatusCode GetUnGroomTracks(const xAOD::Jet& jet) const;
 
 };
 

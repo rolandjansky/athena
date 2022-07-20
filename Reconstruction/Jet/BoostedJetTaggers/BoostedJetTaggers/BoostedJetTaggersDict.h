@@ -10,6 +10,7 @@
 #endif // __GCCXML__
 
 // Includes for the dictionary generation:
+#include "BoostedJetTaggers/SmoothedWZDisCoJetTagger.h"
 #include "BoostedJetTaggers/SmoothedWZTagger.h"
 #include "BoostedJetTaggers/BoostedXbbTagger.h"
 #include "BoostedJetTaggers/SmoothedTopTagger.h"

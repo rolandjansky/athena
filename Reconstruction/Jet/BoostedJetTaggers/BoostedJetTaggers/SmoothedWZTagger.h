@@ -6,6 +6,7 @@
 #define BOOSTEDJETSTAGGERS_SMOOTHEDWZTAGGER_H_
 
 #include "BoostedJetTaggers/JSSTaggerBase.h"
+#include "BoostedJetTaggers/SmoothedWZDisCoJetTagger.h"
 
 class SmoothedWZTagger :
   public JSSTaggerBase {
@@ -30,14 +31,28 @@ class SmoothedWZTagger :
       /// Store functional form of cuts
       std::string m_strD2Cut;
       std::string m_strNtrkCut;
+      std::string m_strCNNCut;
+      std::string m_strDisCoCut;
 
       /// Functions that are configurable for specific cut values
-      std::unique_ptr<TF1> m_funcD2Cut;
-      std::unique_ptr<TF1> m_funcNtrkCut;
+      std::unique_ptr<const TF1> m_funcD2Cut;
+      std::unique_ptr<const TF1> m_funcNtrkCut;
+      std::unique_ptr<const TF1> m_funcCNNCut;
+      std::unique_ptr<const TF1> m_funcDisCoCut;
 
       /// Decorators
-      std::unique_ptr< SG::AuxElement::Decorator<float> > m_dec_d2cut;
-      std::unique_ptr< SG::AuxElement::Decorator<float> > m_dec_ntrkcut;
+      std::unique_ptr< const SG::AuxElement::Decorator<float> > m_dec_d2cut;
+      std::unique_ptr< const SG::AuxElement::Decorator<float> > m_dec_ntrkcut;
+      std::unique_ptr< const SG::AuxElement::Decorator<float> > m_dec_cnncut;      
+      std::unique_ptr< const SG::AuxElement::Decorator<float> > m_dec_discocut;      
+      std::unique_ptr< const SG::AuxElement::Decorator<float> > m_dec_cnn;
+      std::unique_ptr< const SG::AuxElement::Decorator<float> > m_dec_disco;
+
+      // DisCoJet helper
+      ToolHandle<ISmoothedWZDisCoJetTagger> m_DisCoJetHelper {"", this};
+      bool m_LoadCNNTagger;
+      bool m_UseCNNTagger;
+      bool m_UseDisCoTagger;
 
   };
 

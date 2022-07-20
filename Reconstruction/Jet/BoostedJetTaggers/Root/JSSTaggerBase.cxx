@@ -574,3 +574,64 @@ void JSSTaggerBase::printCuts() const {
     ATH_MSG_INFO( cut_string );
   }
 }
+
+StatusCode JSSTaggerBase::GetUnGroomTracks(const xAOD::Jet& jet) const{
+
+  // init value
+  jet.auxdecor<int>("ParentJetNTrkPt500") = -99;        
+
+  /// Get the primary vertex
+  bool validVtx = false;
+  const xAOD::Vertex* primaryVertex = 0;
+
+  const xAOD::VertexContainer* vxCont = 0;
+  if ( evtStore()->retrieve( vxCont, "PrimaryVertices" ).isFailure() ) {
+    ATH_MSG_ERROR( "Unable to retrieve primary vertex container PrimaryVertices" );
+    return StatusCode::FAILURE;
+  }
+  else {
+    for ( const auto& vx : *vxCont ) {
+      if ( vx->vertexType()==xAOD::VxType::PriVtx ) {
+        primaryVertex = vx;
+        break;
+      }
+    }
+    if ( primaryVertex ) validVtx = true;
+  }
+
+  if ( validVtx ) {
+    const xAOD::Jet * ungroomedJet = 0;
+
+    if ( acc_parent.isAvailable(jet) ) {
+      ElementLink<xAOD::JetContainer> linkToUngroomed = acc_parent(jet);
+      if (  linkToUngroomed.isValid() ) {
+        ungroomedJet = *linkToUngroomed;
+        if ( acc_NumTrkPt500.isAvailable(*ungroomedJet) ) {
+
+          // we get here the tracks multiplicity of the parent un-groomed jet
+          // this is needed according to the physics case of the W/Z tagger to reject QCD jets
+          // this decoration is not usually done in derivations, so, we get it the value
+          // and decorate the jet with it
+          const std::vector<int> NTrkPt500 = acc_NumTrkPt500(*ungroomedJet);
+          int jet_ntrk = NTrkPt500.at(primaryVertex->index());
+          jet.auxdecor<int>("ParentJetNTrkPt500") = jet_ntrk;   
+        }
+        else {
+          ATH_MSG_ERROR("WARNING: Unable to retrieve Ntrk of the ungroomed parent jet. Please make sure this variable is in your derivations!!!");
+          return StatusCode::FAILURE;
+        }
+      }
+      else {
+        ATH_MSG_ERROR("WARNING: Unable to retrieve the parent ungroomed jet. Please make sure this variable is in your derivations!!!");
+        return StatusCode::FAILURE;
+      }
+    }
+    else {
+      ATH_MSG_ERROR("WARNING: Unable to retrieve the link to the parent ungroomed jet. Please make sure this variable is in your derivations!!!");
+      return StatusCode::FAILURE;
+    }
+  }
+
+  return StatusCode::SUCCESS;
+
+}

@@ -1,5 +1,7 @@
 <lcgdict>
   <!-- Requested dictionary generation -->
+  <class name="ISmoothedWZDisCoJetTagger" />
+  <class name="SmoothedWZDisCoJetTagger" />
   <class name="SmoothedWZTagger" />
   <class name="BoostedXbbTagger" />
   <class name="SmoothedTopTagger" />

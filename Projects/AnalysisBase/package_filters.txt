@@ -76,6 +76,7 @@
 - Reconstruction/Jet/JetValidation
 + Reconstruction/Jet/Jet.*
 + Reconstruction/Jet/BoostedJetTaggers
++ Reconstruction/Jet/AthOnnxRuntimeBJT
 + Reconstruction/MET/METInterface
 + Reconstruction/MET/METUtilities
 + Reconstruction/MVAUtils
