@@ -6,7 +6,7 @@
 /***************************************************************************
                          InDetAdaptiveMultiSecVtxFinderTool.cxx  -  Description
                              -------------------
-    begin   : 01-12-2019
+    begin   : 01-12-2022
     authors : Neza Ribaric ( Lancaster University )
     information : Tool for Secondary Vertex Finding using AdaptiveMultivertexFitter and InDetTrackSelection
  ***************************************************************************
@@ -85,10 +85,11 @@ namespace InDet
 
    
 
-   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const xAOD::TrackParticleContainer* trackParticles);  // overwritten 
+   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> 
+   findVertex(const xAOD::TrackParticleContainer* trackParticles) override; 
    
 
-    void setPrimaryVertexPosition( double , double , double ) ;
+    void setPrimaryVertexPosition( double , double , double ) override;
    
 
   private:
@@ -119,12 +120,12 @@ namespace InDet
     LongProperty m_evtNum{this,"eventNum",0,"event number"};
    
 
-   std::vector<Trk::TrackParameters*> * m_seedperigees;
+   std::vector<Trk::TrackParameters*> * m_seedperigees{};
    Amg::Vector3D m_privtx ;
    mutable std::vector< Amg::VectorX > m_trkdefiPars ;
-   mutable int m_ntracks ;
-   mutable bool m_goodVertex ;
-   mutable float m_ndf;
+   mutable int m_ntracks{} ;
+   mutable bool m_goodVertex{} ;
+   mutable float m_ndf{};
 
 
  };//end of class definitions
