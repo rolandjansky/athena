@@ -114,7 +114,7 @@ StatusCode LArBadChannelHunter::initialize() {
 }
 
 //////
-StatusCode LArBadChannelHunter::stop() {
+StatusCode LArBadChannelHunter::stop ATLAS_NOT_THREAD_SAFE () {
   ATH_CHECK( detStore()->retrieve(m_onlineId, "LArOnlineID") );
   ATH_CHECK( detStore()->retrieve(m_caloId, "CaloCell_ID") );
 

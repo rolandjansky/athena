@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -22,7 +22,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "CaloIdentifier/CaloGain.h"
-
+#include "CxxUtils/checker_macros.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "LArRecConditions/LArBadChannelCont.h"
 #include "LArCabling/LArOnOffIdMapping.h"
@@ -47,19 +47,18 @@ public:
  /**
    * @brief Standard initialization method.
    */
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   /**
     * @brief Standard execute method
     * This method has to be emtpy since all the job is done in finalize
     */
-  StatusCode execute() {return StatusCode::SUCCESS;}
+  virtual StatusCode execute() override {return StatusCode::SUCCESS;}
 
   /**
-    * @brief Standard finalize method
+    * @brief Standard stop method
     */
-  StatusCode finalize(){return StatusCode::SUCCESS;}
-  StatusCode stop();
+  virtual StatusCode stop ATLAS_NOT_THREAD_SAFE () override;
 
   //void findFailedPatterns();
 
