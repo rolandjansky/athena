@@ -293,9 +293,7 @@ namespace ActsTrk {
     finderCfg.interactionPointCut = m_interactionPointCut;
     finderCfg.arithmeticAverageCotTheta = m_arithmeticAverageCotTheta;
     finderCfg.skipPreviousTopSP = m_skipPreviousTopSP;
-    for (auto& bin : m_zBinsCustomLooping) {
-      finderCfg.zBinsCustomLooping.push_back(bin);
-    }
+    finderCfg.zBinsCustomLooping = m_zBinsCustomLooping;
     finderCfg.useVariableMiddleSPRange = m_useVariableMiddleSPRange;
     finderCfg.deltaRMiddleMinSPRange = m_deltaRMiddleMinSPRange;
     finderCfg.deltaRMiddleMaxSPRange = m_deltaRMiddleMaxSPRange;
