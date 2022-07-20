@@ -31,8 +31,8 @@
 // ROOT includes
 #include "TSystem.h"
 #define MAXETA 2.47
-#define MIN_ET 10000.0
-#define MIN_ET_OF_SF 10000.0
+#define MIN_ET 7000.0
+#define MIN_ET_OF_SF 7000.0
 #define MIN_ET_Iso_SF 10000.0
 #define MIN_ET_Trig_SF 10000.0
 #define MAX_ET_OF_SF 1499999.99
@@ -64,7 +64,7 @@ AsgPhotonEfficiencyCorrectionTool::AsgPhotonEfficiencyCorrectionTool( const std:
   declareProperty( "CorrectionFileNameUnconv", m_corrFileNameUnconv="",
                    "File that stores the correction factors for simulation for unconverted photons");
 				   
-  declareProperty("MapFilePath", m_mapFile = "PhotonEfficiencyCorrection/2015_2018/rel21.2/Summer2020_Rec_v1/map1.txt",
+  declareProperty("MapFilePath", m_mapFile = "PhotonEfficiencyCorrection/2015_2025/rel22.2/2022_Summer_Prerecom_v1/map0.txt",
                   "Full path to the map file");  
 				  
   declareProperty( "ForceDataType", m_dataTypeOverwrite=-1,
