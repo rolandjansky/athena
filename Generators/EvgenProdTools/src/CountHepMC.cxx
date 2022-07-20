@@ -60,6 +60,10 @@ StatusCode CountHepMC::execute() {
   ATH_MSG_INFO("Options for HepMC event number, EvtID event number, EvtID run number = " << m_corHepMC << m_corEvtID << m_corRunNumber );
   // Fix the event number
   int newnum = m_nPass + m_firstEv - 1;
+  if (newnum<=0){
+    ATH_MSG_ERROR("Event number must be positive-definite; " << newnum << " is not allowed");
+    return StatusCode::FAILURE;
+  }
 
   if (m_corHepMC) {
     std::string   key = m_inputKeyName;
