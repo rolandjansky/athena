@@ -19,7 +19,7 @@ def GEN_AOD2xAODCfg(flags, name="GEN_AOD2xAOD", **kwargs):
 
     # Use digiSteeringConf from metadata to check whether full-PU
     # truth should be written.
-    if flags.Digitization.DigiSteeringConf == 'StandardInTimeOnlyGeantinoTruthPileUpToolsAlg':
+    if flags.Digitization.DigiSteeringConf in ['StandardPileUpToolsAlg', 'StandardInTimeOnlyTruthPileUpToolsAlg', 'StandardInTimeOnlyGeantinoTruthPileUpToolsAlg']:
         writeInTimePileUpTruth = True
 
     kwargs.setdefault('WriteInTimePileUpTruth',  writeInTimePileUpTruth)
