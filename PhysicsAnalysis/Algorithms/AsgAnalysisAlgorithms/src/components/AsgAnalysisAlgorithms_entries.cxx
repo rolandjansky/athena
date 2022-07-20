@@ -7,11 +7,11 @@
 #include <AsgAnalysisAlgorithms/AsgFlagSelectionTool.h>
 #include <AsgAnalysisAlgorithms/AsgPtEtaSelectionTool.h>
 #include <AsgAnalysisAlgorithms/AsgCutBookkeeperAlg.h>
-#include <AsgAnalysisAlgorithms/AsgCutBookkeeperAlg.h>
 #include <AsgAnalysisAlgorithms/AsgEventScaleFactorAlg.h>
 #include <AsgAnalysisAlgorithms/AsgLeptonTrackSelectionAlg.h>
 #include <AsgAnalysisAlgorithms/AsgOriginalObjectLinkAlg.h>
 #include <AsgAnalysisAlgorithms/AsgSelectionAlg.h>
+#include <AsgAnalysisAlgorithms/AsgUnionSelectionAlg.h>
 #include <AsgAnalysisAlgorithms/AsgViewFromSelectionAlg.h>
 #include <AsgAnalysisAlgorithms/AsgxAODNTupleMakerAlg.h>
 #include <AsgAnalysisAlgorithms/EventFlagSelectionAlg.h>
@@ -29,11 +29,11 @@
 DECLARE_COMPONENT (CP::AsgFlagSelectionTool)
 DECLARE_COMPONENT (CP::AsgPtEtaSelectionTool)
 DECLARE_COMPONENT (CP::AsgCutBookkeeperAlg)
-DECLARE_COMPONENT (CP::AsgCutBookkeeperAlg)
 DECLARE_COMPONENT (CP::AsgEventScaleFactorAlg)
 DECLARE_COMPONENT (CP::AsgLeptonTrackSelectionAlg)
 DECLARE_COMPONENT (CP::AsgOriginalObjectLinkAlg)
 DECLARE_COMPONENT (CP::AsgSelectionAlg)
+DECLARE_COMPONENT (CP::AsgUnionSelectionAlg)
 DECLARE_COMPONENT (CP::AsgViewFromSelectionAlg)
 DECLARE_COMPONENT (CP::AsgxAODNTupleMakerAlg)
 DECLARE_COMPONENT (CP::EventFlagSelectionAlg)

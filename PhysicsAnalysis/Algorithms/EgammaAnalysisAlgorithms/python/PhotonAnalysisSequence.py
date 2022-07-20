@@ -292,7 +292,6 @@ def makePhotonWorkingPointSequence( seq, dataType, workingPoint, postfix = '',
     # Set up an algorithm used for decorating baseline photon selection:
     alg = createAlgorithm( 'CP::AsgSelectionAlg',
                            'PhotonSelectionSummary' + postfix )
-    addPrivateTool( alg, 'selectionTool', 'CP::AsgFlagSelectionTool' )
     alg.selectionDecoration = 'baselineSelection' + postfix + ',as_char'
     seq.append( alg, inputPropName = 'particles',
                 stageName = 'selection',
