@@ -107,7 +107,9 @@ namespace MuonGM {
 
         /** space point position, corrected for chamber deformations (b-lines), if b-lines are enabled.
             Accepts a precision (x) coordinate and a y-seed, in the local layer frame, and returns a 3D position, 
-            in the same frame so that sTgcReadoutElement::transform() can be directly cast on it. 
+            in the same frame so that sTgcReadoutElement::transform() can be directly cast on it. Accounts for:
+            a) PCB deformations (as-built), if as-built conditions are enabled
+            b) Chamber deformations (b-lines), if b-lines are enabled
         */
         void spacePointPosition(const Identifier& layerId, double locXpos, double locYpos, Amg::Vector3D& pos) const;
 
