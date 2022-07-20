@@ -320,6 +320,12 @@ def PixelRadSimFluenceMapAlgCfg(flags, name="PixelRadSimFluenceMapAlg", **kwargs
     acc.addCondAlgo(CompFactory.PixelRadSimFluenceMapAlg(name, **kwargs))
     return acc
 
+def PixeldEdxAlgCfg(flags, name="PixeldEdxAlg", **kwargs):
+    """Return a ComponentAccumulator with configured PixeldEdxAlg"""
+    acc = ComponentAccumulator()
+    acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/PixdEdx", "/PIXEL/PixdEdx", className='AthenaAttributeList'))
+    acc.addCondAlgo(CompFactory.PixeldEdxAlg(name, ReadFromCOOL = True, **kwargs))
+    return acc
 
 def PixelDetectorElementStatusCondAlgActiveOnlyCfg(flags, name = "PixelDetectorElementStatusCondAlgNoByteStreamErrorActiveOnly", **kwargs) :
     '''

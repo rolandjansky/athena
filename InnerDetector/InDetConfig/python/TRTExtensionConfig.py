@@ -5,17 +5,15 @@ from AthenaConfiguration.Enums import BeamType
 import InDetConfig.TrackingCommonConfig as TC
 
 #///////////////////////////////////////////////////////////////////////////////////////////////
-def TRT_TrackExtensionAlgCfg(flags, name = 'InDetTRT_ExtensionPhase', SiTrackCollection=None, ExtendedTracksMap="ExtendedTracksMap", TrackExtensionTool=None, **kwargs):
+def TRT_TrackExtensionAlgCfg(flags, name = 'InDetTRT_ExtensionPhase', SiTrackCollection=None, ExtendedTracksMap="ExtendedTracksMap", **kwargs):
     acc = ComponentAccumulator()
-    # set output extension map name
-    OutputExtendedTracks = ExtendedTracksMap
-    if TrackExtensionTool is None:
-        TrackExtensionTool = acc.popToolsAndMerge(TC.InDetTRT_ExtensionToolPhaseCfg(flags))
-        acc.addPublicTool(TrackExtensionTool)
+
+    if "TrackExtensionTool" not in kwargs:
+        from InDetConfig.TRT_TrackExtensionToolConfig import TRT_TrackExtensionToolCfg
+        kwargs.setdefault("TrackExtensionTool", acc.popToolsAndMerge(TRT_TrackExtensionToolCfg(flags)))
 
     kwargs.setdefault("InputTracksLocation", SiTrackCollection)
-    kwargs.setdefault("ExtendedTracksLocation", OutputExtendedTracks )
-    kwargs.setdefault("TrackExtensionTool", TrackExtensionTool)
+    kwargs.setdefault("ExtendedTracksLocation", ExtendedTracksMap)
 
     acc.addEventAlgo(CompFactory.InDet.TRT_TrackExtensionAlg(name = name, **kwargs))
     return acc
@@ -123,9 +121,8 @@ def NewTrackingTRTExtensionCfg(flags, SiTrackCollection = None, ExtendedTrackCol
     #
     acc.merge(TRT_TrackExtensionAlgCfg(flags,
                                        name = 'InDetTRT_Extension' + flags.InDet.Tracking.ActivePass.extension,
-                                       SiTrackCollection=SiTrackCollection,
-                                       ExtendedTracksMap = ExtendedTracksMap,
-                                       TrackExtensionTool = acc.popToolsAndMerge(TC.InDetTRT_ExtensionToolCfg(flags))))
+                                       SiTrackCollection = SiTrackCollection,
+                                       ExtendedTracksMap = ExtendedTracksMap))
 
     acc.merge(InDetExtensionProcessorCfg(flags,
                                          SiTrackCollection = SiTrackCollection,
