@@ -171,7 +171,7 @@ def update_trigconf_keys(args):
    if args.smk is None or args.l1psk is None or args.hltpsk is None:
       try:
          log.info("Reading trigger configuration keys from COOL for run %s", args.run_number)
-         trigconf = AthHLT.get_trigconf_keys(args.run_number)
+         trigconf = AthHLT.get_trigconf_keys(args.run_number, args.lb_number)
          if args.smk is None:
             args.smk = trigconf['SMK']
          if args.l1psk is None:
@@ -443,8 +443,13 @@ def main():
       log.warning("Looping over files without specifying number of events will run forever!")
 
    # Update args and set athena flags
+   from TrigPSC import PscConfig
+
    update_run_params(args)
    if args.use_database:
+      # If HLTPSK was given on the command line, we ignore what is stored in COOL
+      PscConfig.forcePSK = (args.hltpsk is not None)
+      # We always read the keys corresponding to the run/LB in the first file
       update_trigconf_keys(args)
 
    # get HLTMPPY config dictionary
@@ -457,7 +462,6 @@ def main():
    update_pcommands(args, cdict)
 
    # Extra Psc configuration
-   from TrigPSC import PscConfig
    PscConfig.interactive = args.interactive
    PscConfig.dumpJobProperties = args.dump_config or args.dump_config_exit or args.dump_config_reload
    PscConfig.exitAfterDump = args.dump_config_exit

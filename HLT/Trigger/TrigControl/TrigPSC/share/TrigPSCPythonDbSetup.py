@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ###############################################################
 ## @file   TrigPSCPythonDbSetup.py
@@ -39,8 +39,9 @@ from GaudiPython import *
 from GaudiPython.Bindings import iProperty
 from TrigCommon.TrigPyHelper import trigApp
 
-## If HLT PSK is set on command line read it from DB (and not COOL)
-if 'hltkey' in PscConfig.optmap['JOBOPTIONSPATH']:
+
+## If HLT PSK is set on command line read it from DB instead of COOL (ATR-25974)
+if PscConfig.forcePSK:
    trigApp.changeJobProperties('HLTPrescaleCondAlg', 'Source', 'DB')
 
 ## Set OutputLevel in JobOptionsSvc if "-l" option was used in athenaHLT
