@@ -13,9 +13,10 @@ from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 def AFP_SiClusterTools_Cfg(flags, kwargs={}):
         
-        clusterNeighbour = CompFactory.AFPSiClusterBasicNearestNeighbour("AFPSiClusterBasicNearestNeighbour")
+        # original tool from Athena
+        # clusterNeighbour = CompFactory.AFPSiClusterBasicNearestNeighbour("AFPSiClusterBasicNearestNeighbour")
         # it's also possible to get the same clustering tool as in AFPAnalysisToolbox
-        # clusterNeighbour = CompFactory.AFPSiClusterAllNeighbours("AFPSiClusterAllNeighbours", neighbourhoodType="X")
+        clusterNeighbour = CompFactory.AFPSiClusterAllNeighbours("AFPSiClusterAllNeighbours", neighbourhoodType="X")
         
         rowColToLocal = CompFactory.AFPSiRowColToLocalCSTool("AFPSiRowColToLocalCSTool")
         
