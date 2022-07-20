@@ -328,6 +328,9 @@ def PileUpEventLoopMgrCfg(flags, name="PileUpEventLoopMgr", **kwargs):
     # as original xAOD::EventInfo is created before conditions data could
     # be read. Only the "EventInfoName" should change.
 
+    if flags.Input.MCChannelNumber > 0:
+        kwargs.setdefault("MCChannelNumber", flags.Input.MCChannelNumber)
+
     # write PileUpEventInfo
     if flags.Output.doWriteRDO:
         from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg

@@ -32,6 +32,14 @@ def fromRunArgs(runArgs):
     ConfigFlags.Input.Files = runArgs.inputHITSFile
     ConfigFlags.Output.RDOFileName = runArgs.outputRDOFile
 
+    # runNumber is MC channel number in reco
+    if hasattr(runArgs, 'runNumber'):
+        if ConfigFlags.Input.MCChannelNumber != runArgs.runNumber:
+            log.warning('Got different MC channel number (%d) from runNumber than from metadata (%d)', runArgs.runNumber, ConfigFlags.Input.MCChannelNumber)
+            ConfigFlags.Input.MCChannelNumber = runArgs.runNumber
+        else:
+            log.info('MC channel number: %d', ConfigFlags.Input.MCChannelNumber)
+
     # Autoconfigure enabled subdetectors
     if hasattr(runArgs, 'detectors'):
         detectors = runArgs.detectors
