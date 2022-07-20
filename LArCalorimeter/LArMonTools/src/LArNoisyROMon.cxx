@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArNoisyROMon.h"
@@ -562,7 +562,7 @@ void LArNoisyROMon::copyHisto(LWHist1D* from,LWHist1D* to)
 
 void LArNoisyROMon::divideHisto(LWHist1D* to,LWHist1D* num,LWHist1D* denom)
 {
-  static double OneSigOneSided = 0.159; // 0.5*(1-0.681) where 0.681 means 68%CL
+  static const double OneSigOneSided = 0.159; // 0.5*(1-0.681) where 0.681 means 68%CL
   
   to->Reset();
   unsigned Nbins = num->GetNbinsX();

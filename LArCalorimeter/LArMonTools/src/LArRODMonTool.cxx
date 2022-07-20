@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -39,8 +39,7 @@
 #include "AthenaKernel/errorcheck.h"
 #include <cmath>
 
-const int max_dump=100;
-int ndump=0;
+const unsigned max_dump=100;
 
 /*---------------------------------------------------------*/
 LArRODMonTool::LArRODMonTool(const std::string& type, 
@@ -50,6 +49,7 @@ LArRODMonTool::LArRODMonTool(const std::string& type,
     m_LArOnlineIDHelper(nullptr),
     m_counter(0),
     m_eventsCounter(0),
+    m_ndump(0),
     m_histos(N_PARTITIONS),
     m_errcounters(N_PARTITIONS),
     m_BC(0),
@@ -1170,7 +1170,7 @@ StatusCode LArRODMonTool::compareChannels(const CaloDetDescrManager* /*ddman*/,
         hg.m_hOut_E_FT_vs_SLOT_shadow[(m_curr_lb % m_history_size) / m_history_granularity ]->Fill(slot_fD,feedthrough_fD);
       }
       //adding dumper
-      if(m_IsOnline && ndump<max_dump) {
+      if(m_IsOnline && m_ndump<max_dump) {
          const int channel=m_LArOnlineIDHelper->channel(chid);
          const HWIdentifier febid=m_LArOnlineIDHelper->feb_Id(chid);
          ATH_MSG_INFO( "Channel: " << channel << " of FEB " << febid );
@@ -1230,7 +1230,7 @@ StatusCode LArRODMonTool::compareChannels(const CaloDetDescrManager* /*ddman*/,
          emon *= escale;
          emon += ramp0;
          ATH_MSG_INFO( "intercept + Escale*Sum[(sample-ped)*OFCa] "<<emon);
-       ++ndump;
+       ++m_ndump;
       } // DE cut
     } // dumper
   }// end energy histograms

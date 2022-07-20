@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -118,8 +118,9 @@ class LArRODMonTool: public ManagedMonitorToolBase
   
 private:
   const LArOnlineID* m_LArOnlineIDHelper;
-  unsigned  m_counter;
+  unsigned m_counter;
   unsigned m_eventsCounter;
+  unsigned m_ndump;
   enum PARTITION {EMBC=0,EMBA,EMECC,EMECA,HECC,HECA,FCALC,FCALA,N_PARTITIONS};
 
   

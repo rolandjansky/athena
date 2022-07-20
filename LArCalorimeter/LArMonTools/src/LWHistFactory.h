@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARMONTOOLS_LWHISTFACTORY_H
@@ -24,20 +24,20 @@ public:
     m_laronlineidstrhelper=l;
     m_xaxislabels_detstr=detector_str;
   }
-  virtual LWHist * create(const char*name) const = 0;
-  LWHist * create(const std::string&name) const { return create(name.c_str()); }
-  LWHist * create(const char*name,const char*title) const {
+  virtual LWHist * create(const char*name) = 0;
+  LWHist * create(const std::string&name) { return create(name.c_str()); }
+  LWHist * create(const char*name,const char*title) {
     LWHist * h = create(name);
     h->SetTitle((std::string(h->GetTitle())+title).c_str());
     return h;
   }
-  LWHist * create(const std::string&name,const std::string&title) const {
+  LWHist * create(const std::string&name,const std::string&title) {
     LWHist * h = create(name.c_str());
     h->SetTitle((std::string(h->GetTitle())+title).c_str());
     return h;
   }
 protected:
-  void apply(LWHist*h) const {
+  void apply(LWHist*h) {
     h->SetTitle(m_title.c_str());
     if (!m_xtitle.empty()) h->SetXTitle(m_xtitle.c_str());
     if (!m_ytitle.empty()) h->SetYTitle(m_ytitle.c_str());
@@ -64,7 +64,7 @@ public:
   LWHist1DFactory(const char*title, unsigned nbins, double xmin, double xmax)
     : LWHistFactoryBase(title), m_nbins(nbins), m_xmin(xmin), m_xmax(xmax) {}
   ~LWHist1DFactory(){}
-  LWHist * create(const char*name) const
+  LWHist * create(const char*name)
   {
     TH1x_LW * h=TH1x_LW::create(name,"",m_nbins,m_xmin,m_xmax);
     apply(h);
@@ -108,7 +108,7 @@ public:
     }
   }
   ~LWHist2DFactory(){if( m_varbinsx != 0x0 ) delete[] m_varbinsx;}
-  LWHist * create(const char*name) const
+  LWHist * create(const char*name)
   {
     TH2x_LW * h(0);
     if (m_varbinsx)
@@ -136,7 +136,7 @@ public:
   LWHistProfileFactory(const char*title, unsigned nbinsx, double xmin, double xmax, double ymin=0.0, double ymax=0.0)
     : LWHistFactoryBase(title), m_nbinsx(nbinsx), m_xmin(xmin), m_xmax(xmax), m_ymin(ymin), m_ymax(ymax) {}
   ~LWHistProfileFactory(){}
-  LWHist * create(const char*name) const
+  LWHist * create(const char*name)
   {
     TProfile_LW * h=TProfile_LW::create(name,"",m_nbinsx,m_xmin,m_xmax,m_ymin,m_ymax);
     apply((LWHist*)h);
@@ -166,7 +166,7 @@ public:
       m_varbinsx[i]=xvarbins[i];
   }
   ~LWHistProfile2DFactory(){ delete [] m_varbinsx; }
-  LWHist * create(const char*name) const
+  LWHist * create(const char*name)
   {
     TProfile2D_LW * h(0);
     if (m_varbinsx)
