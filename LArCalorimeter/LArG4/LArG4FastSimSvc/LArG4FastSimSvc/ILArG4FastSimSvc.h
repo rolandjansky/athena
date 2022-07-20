@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef LARG4FASTSIMSVC_ILARG4FASTSIMSVC_H
 #define LARG4FASTSIMSVC_ILARG4FASTSIMSVC_H
@@ -29,7 +29,7 @@ class ILArG4FastSimSvc : virtual public IInterface {
     virtual bool   ContainCrack()       const = 0;            //!< Apply check containment in crack region
 
     virtual bool                generateFSStartingPoints() const = 0;
-    virtual bool                generateFSStartingPoint( const HepMC::GenEvent*) const = 0;
+    virtual bool                generateFSStartingPoint( const HepMC::GenEvent*) = 0;
     virtual float               generateFSStartingPointsRatio() const = 0;
 
     virtual int DetectorTag() const = 0;
