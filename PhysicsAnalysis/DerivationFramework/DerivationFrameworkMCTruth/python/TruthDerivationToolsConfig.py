@@ -12,9 +12,10 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
-simBarcodeOffset = 200000
-if hasattr(ConfigFlags,'Sim') and hasattr(ConfigFlags.Sim,'SimBarcodeOffset'):
-    simBarcodeOffset = ConfigFlags.Sim.SimBarcodeOffset
+def _simBarcodeOffset():
+    if hasattr(ConfigFlags,'Sim') and hasattr(ConfigFlags.Sim,'SimBarcodeOffset'):
+        return ConfigFlags.Sim.SimBarcodeOffset
+    return 200000
 
 
 #==============================================================================
@@ -34,7 +35,7 @@ def DFCommonTruthMuonToolCfg():
     return TruthCollectionMakerCfg(name                    = "DFCommonTruthMuonTool",
                                    NewCollectionName       = "TruthMuons",
                                    KeepNavigationInfo      = False,
-                                   ParticleSelectionString = "(abs(TruthParticles.pdgId) == 13) && (TruthParticles.status == 1) && TruthParticles.barcode < "+str(simBarcodeOffset))
+                                   ParticleSelectionString = "(abs(TruthParticles.pdgId) == 13) && (TruthParticles.status == 1) && TruthParticles.barcode < "+str(_simBarcodeOffset()))
 
 
 def DFCommonTruthElectronToolCfg():
@@ -42,14 +43,14 @@ def DFCommonTruthElectronToolCfg():
     return TruthCollectionMakerCfg(name                    = "DFCommonTruthElectronTool",
                                    NewCollectionName       = "TruthElectrons",
                                    KeepNavigationInfo      = False,
-                                   ParticleSelectionString = "(abs(TruthParticles.pdgId) == 11) && (TruthParticles.status == 1) && TruthParticles.barcode < "+str(simBarcodeOffset))
+                                   ParticleSelectionString = "(abs(TruthParticles.pdgId) == 11) && (TruthParticles.status == 1) && TruthParticles.barcode < "+str(_simBarcodeOffset()))
 
 def DFCommonTruthPhotonToolCfg():
     """Photon truth collection maker"""
     return TruthCollectionMakerCfg(name                    = "DFCommonTruthPhotonTool",
                                    NewCollectionName       = "TruthPhotons",
                                    KeepNavigationInfo      = False,
-                                   ParticleSelectionString = "(abs(TruthParticles.pdgId) == 22) && (TruthParticles.status == 1) && TruthParticles.barcode < "+str(simBarcodeOffset))   
+                                   ParticleSelectionString = "(abs(TruthParticles.pdgId) == 22) && (TruthParticles.status == 1) && TruthParticles.barcode < "+str(_simBarcodeOffset()))   
 
 # this tool is needed for making TruthPhotons from sim samples, where extra cuts are needed. Origin 42 (pi0) and 23 (light meson) cut way down uninteresting photons
 def DFCommonTruthPhotonToolSimCfg():
@@ -57,11 +58,11 @@ def DFCommonTruthPhotonToolSimCfg():
     return TruthCollectionMakerCfg(name                    = "DFCommonTruthPhotonToolSim",
                                    NewCollectionName       = "TruthPhotons",
                                    KeepNavigationInfo      = False,
-                                   ParticleSelectionString = "(abs(TruthParticles.pdgId) == 22) && (TruthParticles.status == 1) && ((TruthParticles.classifierParticleOrigin != 42 && TruthParticles.classifierParticleOrigin !=23) || (TruthParticles.pt > 20.0*GeV)) && ( TruthParticles.barcode < "+str(simBarcodeOffset)+")")   
+                                   ParticleSelectionString = "(abs(TruthParticles.pdgId) == 22) && (TruthParticles.status == 1) && ((TruthParticles.classifierParticleOrigin != 42 && TruthParticles.classifierParticleOrigin !=23) || (TruthParticles.pt > 20.0*GeV)) && ( TruthParticles.barcode < "+str(_simBarcodeOffset())+")")   
 
 def DFCommonTruthNeutrinoToolCfg():
     """Neutrino truth collection maker"""
-    neutrinoexpression = "(TruthParticles.isNeutrino && TruthParticles.status == 1) && TruthParticles.barcode < "+str(simBarcodeOffset)
+    neutrinoexpression = "(TruthParticles.isNeutrino && TruthParticles.status == 1) && TruthParticles.barcode < "+str(_simBarcodeOffset())
     return TruthCollectionMakerCfg(name = "DFCommonTruthNeutrinoTool",
                                    NewCollectionName       = "TruthNeutrinos",
                                    KeepNavigationInfo      = False,
