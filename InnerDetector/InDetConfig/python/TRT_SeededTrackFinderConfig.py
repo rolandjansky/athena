@@ -24,27 +24,29 @@ def TRT_SeededTrackFinderCfg(flags, name='InDetTRT_SeededTrackFinder', InputColl
         from InDetConfig.SiCombinatorialTrackFinderToolConfig import SiDetElementBoundaryLinksCondAlg_xk_SCT_Cfg
         acc.merge(SiDetElementBoundaryLinksCondAlg_xk_SCT_Cfg(flags))
 
-    from TrkConfig.CommonTrackFitterConfig import InDetTrackFitterBTCfg
-    InDetTrackFitterBT = acc.popToolsAndMerge(InDetTrackFitterBTCfg(flags))
-    from InDetConfig.TrackingCommonConfig import InDetTRT_ExtensionToolCfg
-    InDetTRTExtensionTool = acc.popToolsAndMerge(InDetTRT_ExtensionToolCfg(flags))
-    acc.addPublicTool(InDetTRTExtensionTool)
+    if "RefitterTool" not in kwargs:
+        from TrkConfig.CommonTrackFitterConfig import InDetTrackFitterBTCfg
+        kwargs.setdefault("RefitterTool", acc.popToolsAndMerge(InDetTrackFitterBTCfg(flags)))
 
-    from TrkConfig.TrkTrackSummaryToolConfig import InDetTrackSummaryToolNoHoleSearchCfg
-    InDetTrackSummaryToolNoHoleSearch = acc.popToolsAndMerge(InDetTrackSummaryToolNoHoleSearchCfg(flags))
+    if "TrackExtensionTool" not in kwargs:
+        from InDetConfig.TRT_TrackExtensionToolConfig import TRT_TrackExtensionToolCfg
+        kwargs.setdefault("TrackExtensionTool", acc.popToolsAndMerge(TRT_TrackExtensionToolCfg(flags)))
 
-    from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
-    InDetExtrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
+    if "TrackSummaryTool" not in kwargs:
+        from TrkConfig.TrkTrackSummaryToolConfig import InDetTrackSummaryToolNoHoleSearchCfg
+        kwargs.setdefault("TrackSummaryTool", acc.popToolsAndMerge(InDetTrackSummaryToolNoHoleSearchCfg(flags)))
 
-    from InDetConfig.TRT_SeededTrackFinderToolConfig import TRT_SeededTrackFinder_ATLCfg
-    InDetTRT_SeededTrackTool = acc.popToolsAndMerge(TRT_SeededTrackFinder_ATLCfg(flags, InputCollections=InputCollections))
-    acc.addPublicTool(InDetTRT_SeededTrackTool)
+    if "Extrapolator" not in kwargs:
+        from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
+        kwargs.setdefault("Extrapolator", acc.popToolsAndMerge(InDetExtrapolatorCfg(flags)))
 
-    kwargs.setdefault("RefitterTool", InDetTrackFitterBT)
-    kwargs.setdefault("TrackTool", InDetTRT_SeededTrackTool)
+    if "TrackTool" not in kwargs:
+        from InDetConfig.TRT_SeededTrackFinderToolConfig import TRT_SeededTrackFinder_ATLCfg
+        InDetTRT_SeededTrackTool = acc.popToolsAndMerge(TRT_SeededTrackFinder_ATLCfg(flags, InputCollections=InputCollections))
+        acc.addPublicTool(InDetTRT_SeededTrackTool)
+        kwargs.setdefault("TrackTool", InDetTRT_SeededTrackTool)
+
     kwargs.setdefault("PRDtoTrackMap", 'InDetSegmentPRDtoTrackMap' if usePrdAssociationTool else "")
-    kwargs.setdefault("TrackSummaryTool", InDetTrackSummaryToolNoHoleSearch)
-    kwargs.setdefault("TrackExtensionTool", InDetTRTExtensionTool)
     kwargs.setdefault("MinTRTonSegment", flags.InDet.Tracking.ActivePass.minSecondaryTRTonTrk)
     kwargs.setdefault("MinTRTonly", flags.InDet.Tracking.ActivePass.minTRTonly)
     kwargs.setdefault("TrtExtension", True)
@@ -53,7 +55,6 @@ def TRT_SeededTrackFinderCfg(flags, name='InDetTRT_SeededTrackFinder', InputColl
     kwargs.setdefault("maxRPhiImp", flags.InDet.Tracking.ActivePass.maxSecondaryImpact)
     kwargs.setdefault("maxZImp", flags.InDet.Tracking.ActivePass.maxZImpact)
     kwargs.setdefault("maxEta", flags.InDet.Tracking.ActivePass.maxEta)
-    kwargs.setdefault("Extrapolator", InDetExtrapolator)
     kwargs.setdefault("RejectShortExtension", flags.InDet.Tracking.ActivePass.rejectShortExtensions)
     kwargs.setdefault("FinalRefit", False)
     kwargs.setdefault("FinalStatistics", False)
