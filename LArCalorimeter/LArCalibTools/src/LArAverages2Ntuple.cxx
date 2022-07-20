@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArAverages2Ntuple.h"
@@ -15,7 +15,6 @@ LArAverages2Ntuple::LArAverages2Ntuple(const std::string& name, ISvcLocator* pSv
   declareProperty("NSamples",m_Nsamples=50);
   declareProperty("KeepOnlyPulsed",m_keepPulsed=true);
   declareProperty("KeepFT",m_keepFT);
-  declareProperty("isSC",m_isSC=false);
   m_ipass=0;
 }
 
@@ -29,11 +28,6 @@ StatusCode LArAverages2Ntuple::initialize()
 
   const CaloCell_ID* idHelper = nullptr;
   ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
-  m_emId = idHelper->em_idHelper();
-  if (!m_emId) {
-    ATH_MSG_ERROR ( "Could not access lar EM ID helper" );
-    return StatusCode::FAILURE;
-  }
   
   StatusCode sc;
   if ( m_isSC ){
@@ -59,9 +53,6 @@ StatusCode LArAverages2Ntuple::initialize()
       ATH_MSG_DEBUG(" Found the LArOnlineID helper. ");
     }
   }
-  ATH_CHECK(m_cablingKey.initialize());
-  ATH_CHECK(m_calibMapKey.initialize());
-
   m_ntName = "AVERAGES";
   m_ntTitle="Averages";
   m_ntpath=std::string("/NTUPLES/FILE1/")+m_ntName+m_contKey;
@@ -92,10 +83,10 @@ StatusCode LArAverages2Ntuple::execute()
   
   const EventContext& ctx = Gaudi::Hive::currentContext();
 
-  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey, ctx};
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{cablingKey(), ctx};
   const LArOnOffIdMapping* cabling{*cablingHdl};
   if(!cabling) {
-     ATH_MSG_ERROR( "DO not have cabling from the key " << m_cablingKey.key() );
+     ATH_MSG_ERROR( "DO not have cabling from the key " << cablingKey().key() );
      return StatusCode::FAILURE;
   }
   SG::ReadCondHandle<LArCalibLineMapping> clHdl{m_calibMapKey, ctx};
