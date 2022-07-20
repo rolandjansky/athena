@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArPulseShape.h"
@@ -29,8 +29,9 @@ LArPulseShape::~LArPulseShape() {
 }
 
 StatusCode LArPulseShape::initialize() {
-  ATH_CHECK( detStore()->retrieve( m_caloIdMgr ) );
-  m_calo_id      = m_caloIdMgr->getCaloCell_ID();
+  const CaloIdManager* caloIdMgr{nullptr};
+  ATH_CHECK( detStore()->retrieve( caloIdMgr ) );
+  m_calo_id      = caloIdMgr->getCaloCell_ID();
 
   ATH_CHECK( m_lumiDataKey.initialize() );
   

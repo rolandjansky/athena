@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Dear emacs, this is -*-c++-*-
 #ifndef LARFEBTIMEOFFSET2NTUPLE_H
 #define LARFEBTIMEOFFSET2NTUPLE_H
 
-//#include "AthenaBaseComps/AthAlgorithm.h"
+#include "CxxUtils/checker_macros.h"
 #include "LArCalibTools/LArCond2NtupleBase.h"
 
 class LArFebTimeOffset2Ntuple: public LArCond2NtupleBase {
@@ -17,10 +17,9 @@ class LArFebTimeOffset2Ntuple: public LArCond2NtupleBase {
 
   virtual ~LArFebTimeOffset2Ntuple();
 
-  StatusCode initialize();
-  StatusCode execute()  {return StatusCode::SUCCESS;}
-  StatusCode stop(); //<< Do the work here
-  StatusCode finalize() {return StatusCode::SUCCESS;}
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override {return StatusCode::SUCCESS;}
+  virtual StatusCode stop ATLAS_NOT_THREAD_SAFE() override; //<< Do the work here
 
 
  private:
