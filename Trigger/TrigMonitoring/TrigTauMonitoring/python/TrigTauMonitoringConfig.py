@@ -254,37 +254,37 @@ class TrigTauMonAlgBuilder:
   
       l1seeds.append(info.L1seed())
 
-      self.bookbasicVars( monAlg, trigger, '0P', online=True )
-      self.bookbasicVars( monAlg, trigger, '1P', online=True )
-      self.bookbasicVars( monAlg, trigger, 'MP', online=True )
-      self.bookbasicVars( monAlg, trigger, '1P', online=False )
-      self.bookbasicVars( monAlg, trigger, '3P', online=False )
-
-      self.bookHLTEffHistograms( monAlg, trigger,nProng='1P')
-      self.bookHLTEffHistograms( monAlg, trigger,nProng='3P')
-
       self.bookTruth( monAlg, trigger, nProng='1P')
       self.bookTruth( monAlg, trigger, nProng='3P')
       self.bookTruthEfficiency( monAlg, trigger, nProng='1P')
       self.bookTruthEfficiency( monAlg, trigger, nProng='3P')
 
-      self.bookRNNInputVars( monAlg, trigger,nProng='0P', online=True ) 
-      self.bookRNNInputVars( monAlg, trigger,nProng='1P', online=True )
-      self.bookRNNInputVars( monAlg, trigger,nProng='MP', online=True )
-      self.bookRNNInputVars( monAlg, trigger,nProng='1P', online=False )
-      self.bookRNNInputVars( monAlg, trigger,nProng='3P', online=False )
-      self.bookRNNTrack( monAlg, trigger, online=True )
-      self.bookRNNCluster( monAlg, trigger, online=True )
-      self.bookRNNTrack( monAlg, trigger, online=False )
-      self.bookRNNCluster( monAlg, trigger, online=False )
-
       if(info.isDiTau()):
         self.bookDiTauVars(monAlg, trigger)   
         self.bookDiTauHLTEffHistograms(monAlg, trigger)
-
-      if(info.isTAndP()):
+      elif(info.isTAndP()):
         self.bookTAndPVars(monAlg, trigger)
         self.bookTAndPHLTEffHistograms(monAlg, trigger)
+      else:
+        self.bookbasicVars( monAlg, trigger, '0P', online=True )
+        self.bookbasicVars( monAlg, trigger, '1P', online=True )
+        self.bookbasicVars( monAlg, trigger, 'MP', online=True )
+        self.bookbasicVars( monAlg, trigger, '1P', online=False )
+        self.bookbasicVars( monAlg, trigger, '3P', online=False )
+
+        self.bookHLTEffHistograms( monAlg, trigger,nProng='1P')
+        self.bookHLTEffHistograms( monAlg, trigger,nProng='3P')
+
+        self.bookRNNInputVars( monAlg, trigger,nProng='0P', online=True )
+        self.bookRNNInputVars( monAlg, trigger,nProng='1P', online=True )
+        self.bookRNNInputVars( monAlg, trigger,nProng='MP', online=True )
+        self.bookRNNInputVars( monAlg, trigger,nProng='1P', online=False )
+        self.bookRNNInputVars( monAlg, trigger,nProng='3P', online=False )
+        self.bookRNNTrack( monAlg, trigger, online=True )
+        self.bookRNNCluster( monAlg, trigger, online=True )
+        self.bookRNNTrack( monAlg, trigger, online=False )
+        self.bookRNNCluster( monAlg, trigger, online=False )
+
 
     #remove duplicated from L1 seed list
     l1seeds = list(dict.fromkeys(l1seeds))
