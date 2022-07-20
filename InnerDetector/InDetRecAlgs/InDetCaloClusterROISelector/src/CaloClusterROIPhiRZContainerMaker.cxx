@@ -130,9 +130,11 @@ StatusCode CaloClusterROIPhiRZContainerMaker::execute(const EventContext& ctx) c
             addROI(*cluster, *caloMgr, rois, max_output, n_rois);
         }
     }
-    if  (rois.size()  > inputClusterContainer->size() ) {
-       ATH_MSG_INFO( "Did not reserve enough storage for " << m_outputClusterContainerName[m_outputIndex[0]].key() );
-    }
+    // This may happen if a ROI close to +-pi gets duplicated...
+    //   so don't warn.  See ATLASRECTS-7160.
+    //if  (rois.size()  > inputClusterContainer->size() ) {
+    //   ATH_MSG_INFO( "Did not reserve enough storage for " << m_outputClusterContainerName[m_outputIndex[0]].key() );
+    //}
 
 
     // create ROI output container
@@ -268,6 +270,9 @@ void CaloClusterROIPhiRZContainerMaker::addROI( const xAOD::CaloCluster &cluster
      }
      // addROI may duplicate the ROI at phi - 2 pi
      // So, have to set the last output_idx for all newly added ROIs
+     if (max_output.size() < output_rois.size()) {
+       max_output.resize (output_rois.size());
+     }
      for (; roi_idx < output_rois.size(); ++roi_idx) {
         max_output[roi_idx]=output_idx;
      }

@@ -61,7 +61,7 @@ def TrackParticleCreatorToolPIDCheckCfg(flags, name="InDetxAODParticleCreatorToo
     # have to create special public instance depending on PID tool configuration
     if name=="InDetxAODParticleCreatorTool" :
         pixel_pid = flags.InDet.Tracking.ActivePass.RunPixelPID
-        trt_pid = flags.InDet.Tracking.ActivePass.RunPixelPID
+        trt_pid = flags.InDet.Tracking.ActivePass.RunTRTPID
         if not trt_pid and not pixel_pid :
             name  += "NoPID"
         elif not trt_pid :

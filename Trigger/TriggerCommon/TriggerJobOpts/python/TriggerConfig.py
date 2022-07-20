@@ -601,7 +601,9 @@ def triggerRunCfg( flags, menu=None ):
 
     acc.addSequence( seqOR( "HLTTop") )
 
-    acc.addSequence( parOR("HLTPreSeq"), parentName="HLTTop" )
+    # HLTPreSeq only used for CostMon so far, skip if CostMon disabled
+    if flags.Trigger.CostMonitoring.doCostMonitoring:
+        acc.addSequence( parOR("HLTPreSeq"), parentName="HLTTop" )
 
     from TrigCostMonitor.TrigCostMonitorConfig import TrigCostMonitorCfg
     acc.merge( TrigCostMonitorCfg( flags ), sequenceName="HLTPreSeq" )

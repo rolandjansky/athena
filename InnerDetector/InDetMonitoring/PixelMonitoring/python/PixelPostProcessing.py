@@ -18,7 +18,8 @@ def normalize_perEvent(inputs):
     histo = inputs[0][1][0].Clone()
     errorName = histoName.split('_')[0]
     histo.SetName(errorName + '_Norm_' + layer)
-    histo.Scale(1.0/nAllEvents)
+    if nAllEvents != 0:
+        histo.Scale(1.0/nAllEvents)
     return [histo]
 
 def badEtaPhi_forAllMaskPatterns(inputs):

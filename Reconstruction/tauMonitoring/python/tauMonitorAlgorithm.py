@@ -208,7 +208,7 @@ def tauMonitoringConfig(inputFlags,**kwargs):
                xbins=30,xmin=-2.55,xmax=2.55,ybins=32,ymin=PHIMIN,ymax=PHIMAX)
 
             igroup.defineHistogram(namer('nTauCandidates', 'nTauCandidates',"",postfix), title='Number of tau candidates;Number of Taus per Event', 
-                                   xbins=60, xmin=-0.5, xmax=60.5,path=folder)
+                                   xbins=61, xmin=-0.5, xmax=60.5,path=folder)
 
 
             igroup.defineHistogram(namer('tauCharge','tauCharge','',postfix), title='Charge of tau candidates;Charge;Number of Candidates',

@@ -102,6 +102,11 @@ if hasattr(overlayArgs, 'detectors'):
 else:
     overlayDetectors = None
 
+# runNumber is MC channel number in reco
+if hasattr(overlayArgs, 'runNumber'):
+    overlayFlags.MCChannelNumber.set_Value(overlayArgs.runNumber)
+    logOverlay.info('Got MC channel number %d from runNumber', overlayFlags.MCChannelNumber())
+
 # Digitization flags
 if hasattr(overlayArgs, 'digiSeedOffset1'):
     digitizationFlags.rndmSeedOffset1 = int(overlayArgs.digiSeedOffset1)

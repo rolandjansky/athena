@@ -15,6 +15,9 @@ def getEventInfoOverlay(name="EventInfoOverlay", **kwargs):
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
     kwargs.setdefault("ValidateBeamSpot", not overlayFlags.isDataOverlay() and commonGeoFlags.Run() == "RUN3")
 
+    if overlayFlags.MCChannelNumber() > 0:
+        kwargs.setdefault("MCChannelNumber", overlayFlags.MCChannelNumber())
+
     return CfgMgr.xAODMaker__EventInfoOverlay(name, **kwargs)
 
 

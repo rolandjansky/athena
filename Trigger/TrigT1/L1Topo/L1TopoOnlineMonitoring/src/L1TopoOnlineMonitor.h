@@ -10,6 +10,7 @@
 #include "xAODTrigger/L1TopoSimResultsContainer.h"
 #include "TrigT1Interfaces/TrigT1StoreGateKeys.h"
 #include "TrigT1Result/CTP_RDO.h"
+#include "TrigConfData/L1Menu.h"
 
 
 // Athena includes
@@ -39,6 +40,7 @@ public:
   
   // ------------------------- AthReentrantAlgorithm methods -------------------
   virtual StatusCode initialize() override;
+  virtual StatusCode start() override;
   virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
 
 private:
@@ -59,6 +61,9 @@ private:
       return opt.value();
     }
   };
+
+  std::vector<unsigned> m_ctpIds;
+  
   // ------------------------- Properties and handles --------------------------
   ToolHandle<GenericMonitoringTool> m_monTool {
     this, "MonTool", "" ,
@@ -71,6 +76,9 @@ private:
     this, "doHwMon", false, "Enable L1Topo HW readout from RAW"};
   Gaudi::Property<bool> m_doComp {
     this, "doComp", true, "Enable L1Topo HW/Sim comparison"};
+
+  ServiceHandle<StoreGateSvc> m_detStore { this, "DetectorStore", "StoreGateSvc/DetectorStore", "Detector store to get the menu" };
+
   
   SG::ReadHandleKey<xAOD::L1TopoSimResultsContainer> m_l1topoKey {
     this, "L1_TopoKey", "L1_TopoSimResults", "l1topo EDM"};
@@ -96,6 +104,9 @@ private:
   
   /// Compare hardware and simulation
   StatusCode doComp(DecisionBits& decisionBits) const;
+
+  /// Get CTP ids from menu
+  std::vector<unsigned> getCtpIds(const TrigConf::L1Menu& l1menu);
 
 };
 

@@ -48,6 +48,9 @@ def EventInfoOverlayAlgCfg(flags, name="EventInfoOverlay", **kwargs):
     kwargs.setdefault("DataOverlay", flags.Overlay.DataOverlay)
     kwargs.setdefault("ValidateBeamSpot", not flags.Overlay.DataOverlay and flags.GeoModel.Run is LHCPeriod.Run3)
 
+    if flags.Overlay.MCChannelNumber > 0:
+        kwargs.setdefault("MCChannelNumber", flags.Overlay.MCChannelNumber)
+
     # Do the xAOD::EventInfo overlay
     xAODMaker__EventInfoOverlay = CompFactory.xAODMaker.EventInfoOverlay
     alg = xAODMaker__EventInfoOverlay(name, **kwargs)

@@ -45,6 +45,7 @@ private:
 
   Gaudi::Property<bool> m_dataOverlay{ this, "DataOverlay", false, "True if running data overlay" };
   Gaudi::Property<bool> m_validateBeamSpot{ this, "ValidateBeamSpot", false, "validate input beamspot size" };
+  Gaudi::Property<uint32_t> m_mcChannelNumber{ this, "MCChannelNumber", false, "sample MC channel number" };
 };
 
 } // namespace xAODMaker
