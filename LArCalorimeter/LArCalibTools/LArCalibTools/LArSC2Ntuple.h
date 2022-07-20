@@ -26,8 +26,6 @@ class LArSC2Ntuple : public LArDigits2Ntuple
 
  private:
 
-  long m_event;
-
   Gaudi::Property< std::vector<std::string> > m_contKeys{ this, "SCContainerKeys", {},"which containers to dump"};
   Gaudi::Property< bool > m_overwriteEventNumber{this, "OverwriteEventNumber", false, "overwrite the event number from EventInfo ?"};
   Gaudi::Property< unsigned int >  m_Net{this, "Net", 5, "number of energies to store"};
@@ -36,7 +34,6 @@ class LArSC2Ntuple : public LArDigits2Ntuple
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKeyAdditional{this,"CablingKeyAdditional","LArOnOffIdMap","SG Key of LArOnOffIdMapping object for standard cells"};
   ToolHandle<ICaloSuperCellIDTool>   m_scidtool{this, "CaloSuperCellIDTool", "CaloSuperCellIDTool", "Offline / SuperCell ID mapping tool"};
 
-  NTuple::Item<short> m_ELVL1Id;
   NTuple::Item<short> m_latomeChannel;
 
   NTuple::Array<float>  m_ROD_energy;

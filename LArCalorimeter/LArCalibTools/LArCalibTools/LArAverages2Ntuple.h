@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -37,11 +37,7 @@ class LArAverages2Ntuple : public LArCond2NtupleBase
   StatusCode finalize(){return StatusCode::SUCCESS;}
 
  private:
-  const LArEM_Base_ID* m_emId;
   const LArOnlineID_Base* m_onlineHelper;
-
-  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
-  SG::ReadCondHandleKey<LArCalibLineMapping> m_calibMapKey{this,"CalibMapKey","LArCalibLineMap","SG Key of calib line mapping object"};
 
   std::string m_ntName;
   std::string m_contKey;
