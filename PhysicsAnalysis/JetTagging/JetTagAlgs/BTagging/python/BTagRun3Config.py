@@ -67,9 +67,9 @@ def GetTaggerTrainingMap(jet_collection_list):
     return derivationTrainingMap[jet_collection_list]
 
 
-def RetagRenameInputContainerCfg(suffix, JetCollectionShort, tracksKey = 'InDetTrackParticles'):
+def RetagRenameInputContainerCfg(suffix, JetCollectionShort, tracksKey='InDetTrackParticles', addRenameMaps=None):
+    
     acc=ComponentAccumulator()
-    # Delete BTagging container read from input ESD
     AddressRemappingSvc, ProxyProviderSvc=CompFactory.getComps("AddressRemappingSvc","ProxyProviderSvc",)
     AddressRemappingSvc = AddressRemappingSvc("AddressRemappingSvc")
     AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::JetAuxContainer#' + JetCollectionShort + 'Jets.BTagTrackToJetAssociator->' + JetCollectionShort + 'Jets.BTagTrackToJetAssociator_' + suffix]
@@ -91,9 +91,17 @@ def RetagRenameInputContainerCfg(suffix, JetCollectionShort, tracksKey = 'InDetT
     AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::TrackParticleAuxContainer#' + tracksKey + '.btagIp_trackDisplacement->' + tracksKey + '.btagIp_trackDisplacement_' + suffix]
     AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::TrackParticleAuxContainer#' + tracksKey + '.JetFitter_TrackCompatibility_antikt4empflow->' + tracksKey + '.JetFitter_TrackCompatibility_antikt4empflow_' + suffix]
     AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::JetAuxContainer#' + JetCollectionShort + 'Jets.TracksForBTagging->' + JetCollectionShort + 'Jets.TracksForBTagging' + suffix]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::JetAuxContainer#' + JetCollectionShort + 'Jets.TracksForBTaggingOverPtThreshold->' + JetCollectionShort + 'Jets.TracksForBTaggingOverPtThreshold' + suffix]
     AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::JetAuxContainer#' + JetCollectionShort + 'Jets.MuonsForBTagging->' + JetCollectionShort + 'Jets.MuonsForBTagging' + suffix]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::JetAuxContainer#' + JetCollectionShort + 'Jets.MuonsForBTaggingOverPtThreshold->' + JetCollectionShort + 'Jets.MuonsForBTaggingOverPtThreshold' + suffix]
+    
+    # add extra mappings if present
+    if addRenameMaps:
+        AddressRemappingSvc.TypeKeyRenameMaps += addRenameMaps
+    
     acc.addService(AddressRemappingSvc)
     acc.addService(ProxyProviderSvc(ProviderNames = [ "AddressRemappingSvc" ]))
+
     return acc
 
 
