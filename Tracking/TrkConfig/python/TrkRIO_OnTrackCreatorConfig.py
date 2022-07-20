@@ -10,9 +10,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import LHCPeriod
 
 
-def InDetRotCreatorCfg(flags,
-                       name='InDetRotCreator',
-                       **kwargs):
+def InDetRotCreatorCfg(flags, name='InDetRotCreator', **kwargs):
     if flags.Detector.GeometryITk:
         name = name.replace("InDet", "ITk")
         from InDetConfig.ITkTrackingCommonConfig import ITkRotCreatorCfg
@@ -52,12 +50,10 @@ def InDetRotCreatorCfg(flags,
         kwargs.setdefault("ToolSCT_Cluster", ToolSCT_Cluster)
 
     if 'ToolTRT_DriftCircle' not in kwargs:
-        from InDetConfig.TrackingCommonConfig import (
-            InDetTRT_DriftCircleOnTrackToolCfg)
-        kwargs.setdefault("ToolTRT_DriftCircle",
-                          acc.popToolsAndMerge(
-                              InDetTRT_DriftCircleOnTrackToolCfg(flags))
-                          )
+        from InDetConfig.TRT_DriftCircleOnTrackToolConfig import (
+            TRT_DriftCircleOnTrackToolCfg)
+        kwargs.setdefault("ToolTRT_DriftCircle", acc.popToolsAndMerge(
+            TRT_DriftCircleOnTrackToolCfg(flags)))
 
     kwargs.setdefault('Mode', 'indet')
 
@@ -65,87 +61,72 @@ def InDetRotCreatorCfg(flags,
     return acc
 
 
-def InDetBroadRotCreatorCfg(flags,
-                            name='InDetBroadInDetRotCreator',
-                            **kwargs):
+def InDetBroadRotCreatorCfg(flags, name='InDetBroadInDetRotCreator', **kwargs):
     acc = ComponentAccumulator()
 
     if 'ToolPixelCluster' not in kwargs:
         from InDetConfig.SiClusterOnTrackTool_PixelConfig import (
             InDetBroadPixelClusterOnTrackToolCfg)
-        InDetBroadPixelClusterOnTrackTool = acc.popToolsAndMerge(
-            InDetBroadPixelClusterOnTrackToolCfg(flags))
-        kwargs.setdefault('ToolPixelCluster',
-                          InDetBroadPixelClusterOnTrackTool)
+        kwargs.setdefault('ToolPixelCluster', acc.popToolsAndMerge(
+            InDetBroadPixelClusterOnTrackToolCfg(flags)))
 
     if 'ToolSCT_Cluster' not in kwargs:
         from InDetConfig.SiClusterOnTrackTool_SCTStripConfig import (
             InDetBroadSCT_ClusterOnTrackToolCfg)
-        InDetBroadSCT_ClusterOnTrackTool = acc.popToolsAndMerge(
-            InDetBroadSCT_ClusterOnTrackToolCfg(flags))
-        kwargs.setdefault('ToolSCT_Cluster', InDetBroadSCT_ClusterOnTrackTool)
+        kwargs.setdefault('ToolSCT_Cluster', acc.popToolsAndMerge(
+            InDetBroadSCT_ClusterOnTrackToolCfg(flags)))
 
-    if flags.Detector.EnableTRT:
-        if 'ToolTRT_DriftCircle' not in kwargs:
-            from InDetConfig.TrackingCommonConfig import (
-                TRT_DriftCircleOnTrackNoDriftTimeToolCfg)
-            TRT_DriftCircleOnTrackNoDriftTimeTool = acc.popToolsAndMerge(
-                TRT_DriftCircleOnTrackNoDriftTimeToolCfg())
-            kwargs.setdefault('ToolTRT_DriftCircle',
-                              TRT_DriftCircleOnTrackNoDriftTimeTool)
+    if flags.Detector.EnableTRT and 'ToolTRT_DriftCircle' not in kwargs:
+        from InDetConfig.TRT_DriftCircleOnTrackToolConfig import (
+            TRT_DriftCircleOnTrackNoDriftTimeToolCfg)
+        kwargs.setdefault('ToolTRT_DriftCircle', acc.popToolsAndMerge(
+            TRT_DriftCircleOnTrackNoDriftTimeToolCfg(flags)))
 
-    InDetRotCreator = acc.popToolsAndMerge(
-        InDetRotCreatorCfg(flags, name, **kwargs))
-    acc.setPrivateTools(InDetRotCreator)
+    acc.setPrivateTools(acc.popToolsAndMerge(
+        InDetRotCreatorCfg(flags, name, **kwargs)))
     return acc
 
 
 def InDetRefitRotCreatorCfg(flags, name='InDetRefitRotCreator', **kwargs):
     acc = ComponentAccumulator()
-    default_ScaleHitUncertainty = 2.5
-    ScaleHitUncertainty = kwargs.pop(
-        'ScaleHitUncertainty', default_ScaleHitUncertainty)
+
     if flags.Detector.EnableTRT and flags.InDet.Tracking.redoTRT_LR:
         if 'ToolTRT_DriftCircle' not in kwargs:
-            from InDetConfig.TrackingCommonConfig import (
-                InDetTRT_DriftCircleOnTrackUniversalToolCfg)
-            ToolTRT_DriftCircle = acc.popToolsAndMerge(
-                InDetTRT_DriftCircleOnTrackUniversalToolCfg(
-                    ScaleHitUncertainty=ScaleHitUncertainty)
-            )
-            kwargs.setdefault("ToolTRT_DriftCircle", ToolTRT_DriftCircle)
-    InDetRotCreator = acc.popToolsAndMerge(
-        InDetRotCreatorCfg(flags, name, **kwargs))
-    acc.setPrivateTools(InDetRotCreator)
+            from InDetConfig.TRT_DriftCircleOnTrackToolConfig import (
+                TRT_DriftCircleOnTrackUniversalToolCfg)
+            kwargs.setdefault("ToolTRT_DriftCircle", acc.popToolsAndMerge(
+                TRT_DriftCircleOnTrackUniversalToolCfg(flags)))
+
+    acc.setPrivateTools(acc.popToolsAndMerge(
+        InDetRotCreatorCfg(flags, name, **kwargs)))
     return acc
 
 
-def InDetRotCreatorDigitalCfg(flags,
-                              name='InDetRotCreatorDigital',
-                              **kwargs):
+def InDetRotCreatorDigitalCfg(flags, name='InDetRotCreatorDigital', **kwargs):
     acc = ComponentAccumulator()
+
     if 'ToolPixelCluster' not in kwargs:
         from InDetConfig.SiClusterOnTrackTool_PixelConfig import (
             InDetPixelClusterOnTrackToolDigitalCfg)
-        ToolPixelCluster = acc.popToolsAndMerge(
-            InDetPixelClusterOnTrackToolDigitalCfg(flags))
-        kwargs.setdefault('ToolPixelCluster', ToolPixelCluster)
+        kwargs.setdefault('ToolPixelCluster', acc.popToolsAndMerge(
+            InDetPixelClusterOnTrackToolDigitalCfg(flags)))
 
-    acc.setPrivateTools(
-        acc.popToolsAndMerge(
-            InDetRotCreatorCfg(flags, name=name, **kwargs)))
+    acc.setPrivateTools(acc.popToolsAndMerge(
+        InDetRotCreatorCfg(flags, name, **kwargs)))
     return acc
 
 
 def InDetRotCreatorDBMCfg(flags, name='InDetRotCreatorDBM', **kwargs):
     acc = ComponentAccumulator()
+
     if 'ToolPixelCluster' not in kwargs:
         from InDetConfig.SiClusterOnTrackTool_PixelConfig import (
             InDetPixelClusterOnTrackToolDBMCfg)
-        ToolPixelCluster = InDetPixelClusterOnTrackToolDBMCfg(flags)
-        kwargs.setdefault('ToolPixelCluster', ToolPixelCluster)
-    acc.setPrivateTools(
-        acc.popToolsAndMerge(InDetRotCreatorCfg(flags, name=name, **kwargs)))
+        kwargs.setdefault('ToolPixelCluster', acc.popToolsAndMerge(
+            InDetPixelClusterOnTrackToolDBMCfg(flags)))
+
+    acc.setPrivateTools(acc.popToolsAndMerge(
+        InDetRotCreatorCfg(flags, name, **kwargs)))
     return acc
 
 
@@ -155,16 +136,14 @@ def TrigRotCreatorCfg(flags, name='InDetTrigRotCreator', **kwargs):
     if 'ToolPixelCluster' not in kwargs:
         from InDetConfig.SiClusterOnTrackTool_PixelConfig import (
             TrigPixelClusterOnTrackToolBaseCfg)
-        ToolPixelCluster = acc.popToolsAndMerge(
-            TrigPixelClusterOnTrackToolBaseCfg(flags))
-        kwargs.setdefault("ToolPixelCluster", ToolPixelCluster)
+        kwargs.setdefault("ToolPixelCluster", acc.popToolsAndMerge(
+            TrigPixelClusterOnTrackToolBaseCfg(flags)))
 
     if 'ToolSCT_Cluster' not in kwargs:
         from InDetConfig.SiClusterOnTrackTool_SCTStripConfig import (
             InDetSCT_ClusterOnTrackToolCfg)
-        ToolSCT_Cluster = acc.popToolsAndMerge(
-            InDetSCT_ClusterOnTrackToolCfg(flags))
-        kwargs.setdefault("ToolSCT_Cluster", ToolSCT_Cluster)
+        kwargs.setdefault("ToolSCT_Cluster", acc.popToolsAndMerge(
+            InDetSCT_ClusterOnTrackToolCfg(flags)))
 
     kwargs.setdefault('Mode', 'indet')
 
@@ -178,16 +157,14 @@ def ITkRotCreatorCfg(flags, name='ITkRotCreator', **kwargs):
     if 'ToolPixelCluster' not in kwargs:
         from InDetConfig.SiClusterOnTrackTool_PixelConfig import (
             ITkPixelClusterOnTrackToolCfg)
-        ToolPixelCluster = acc.popToolsAndMerge(
-            ITkPixelClusterOnTrackToolCfg(flags))
-        kwargs.setdefault("ToolPixelCluster", ToolPixelCluster)
+        kwargs.setdefault("ToolPixelCluster", acc.popToolsAndMerge(
+            ITkPixelClusterOnTrackToolCfg(flags)))
 
     if 'ToolSCT_Cluster' not in kwargs:
         from InDetConfig.SiClusterOnTrackTool_SCTStripConfig import (
             ITkStripClusterOnTrackToolCfg)
-        ToolStripCluster = acc.popToolsAndMerge(
-            ITkStripClusterOnTrackToolCfg(flags))
-        kwargs.setdefault("ToolSCT_Cluster", ToolStripCluster)
+        kwargs.setdefault("ToolSCT_Cluster", acc.popToolsAndMerge(
+            ITkStripClusterOnTrackToolCfg(flags)))
 
     kwargs.setdefault("ToolTRT_DriftCircle", None)
     kwargs.setdefault('Mode', 'indet')
@@ -202,20 +179,17 @@ def ITkBroadRotCreatorCfg(flags, name='ITkBroadRotCreator', **kwargs):
     if 'ToolPixelCluster' not in kwargs:
         from InDetConfig.SiClusterOnTrackTool_PixelConfig import (
             ITkBroadPixelClusterOnTrackToolCfg)
-        ITkBroadPixelClusterOnTrackTool = acc.popToolsAndMerge(
-            ITkBroadPixelClusterOnTrackToolCfg(flags))
-        kwargs.setdefault('ToolPixelCluster', ITkBroadPixelClusterOnTrackTool)
+        kwargs.setdefault('ToolPixelCluster', acc.popToolsAndMerge(
+            ITkBroadPixelClusterOnTrackToolCfg(flags)))
 
     if 'ToolSCT_Cluster' not in kwargs:
         from InDetConfig.SiClusterOnTrackTool_SCTStripConfig import (
             ITkBroadStripClusterOnTrackToolCfg)
-        ITkBroadStripClusterOnTrackTool = acc.popToolsAndMerge(
-            ITkBroadStripClusterOnTrackToolCfg(flags))
-        kwargs.setdefault('ToolSCT_Cluster', ITkBroadStripClusterOnTrackTool)
+        kwargs.setdefault('ToolSCT_Cluster', acc.popToolsAndMerge(
+            ITkBroadStripClusterOnTrackToolCfg(flags)))
 
-    ITkRotCreator = acc.popToolsAndMerge(
-        ITkRotCreatorCfg(flags, name, **kwargs))
-    acc.setPrivateTools(ITkRotCreator)
+    acc.setPrivateTools(acc.popToolsAndMerge(
+        ITkRotCreatorCfg(flags, name, **kwargs)))
     return acc
 
 
