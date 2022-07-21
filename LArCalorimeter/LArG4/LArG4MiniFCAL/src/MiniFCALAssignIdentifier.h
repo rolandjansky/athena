@@ -10,19 +10,11 @@
 #ifndef LARG4MINIFCAL_MINIFCALASSIGNIDENTIFIER_H
 #define LARG4MINIFCAL_MINIFCALASSIGNIDENTIFIER_H
 
-#include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
-#include "GaudiKernel/Algorithm.h"
-
-#include "G4TrackStatus.hh"
-#include "G4ParticleDefinition.hh"
-#include "G4DynamicParticle.hh"
-#include "G4ThreeVector.hh"
+#include "AthenaBaseComps/AthMessaging.h"
 
 #include "globals.hh"
 
 #include <map>
-#include <vector>
 
 typedef std::map<int,int> MapNumToIndex;
 
@@ -39,7 +31,7 @@ namespace LArG4 {
 
     enum eMiniFCALAssignIdentifierType { kActive, kInactive, kDead };
 
-    class MiniFCALAssignIdentifier {
+    class MiniFCALAssignIdentifier : public AthMessaging {
 
     public:
 
