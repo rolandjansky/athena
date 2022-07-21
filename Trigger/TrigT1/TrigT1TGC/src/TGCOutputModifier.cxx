@@ -31,9 +31,14 @@ namespace LVL1TGCTrigger {
     ATH_MSG_INFO( "NSWVetoMode="<<m_nswVetoMode.value());
     ATH_MSG_INFO( "EmulateA="<<m_emulateA.value());
     ATH_MSG_INFO( "EmulateC="<<m_emulateC.value());
-    ATH_MSG_INFO( "DeltaEtaCut="<<m_deltaEtaCut.value() );
-    ATH_MSG_INFO( "DeltaPhiCut="<<m_deltaPhiCut.value() );
-    ATH_MSG_INFO( "DeltaThetaCut="<<m_deltaThetaCut.value() );
+    ATH_MSG_INFO( "EtaBoundary1="<<m_etaBoundary1.value() );
+    ATH_MSG_INFO( "DeltaEtaCut1="<<m_deltaEtaCut1.value() );
+    ATH_MSG_INFO( "DeltaPhiCut1="<<m_deltaPhiCut1.value() );
+    ATH_MSG_INFO( "DeltaThetaCut1="<<m_deltaThetaCut1.value() );
+    ATH_MSG_INFO( "EtaBoundary2="<<m_etaBoundary2.value() );
+    ATH_MSG_INFO( "DeltaEtaCut2="<<m_deltaEtaCut2.value() );
+    ATH_MSG_INFO( "DeltaPhiCut2="<<m_deltaPhiCut2.value() );
+    ATH_MSG_INFO( "DeltaThetaCut2="<<m_deltaThetaCut2.value() );
     ATH_MSG_INFO( "InputMuctpiLocation="<<m_inputKey.key() );
     ATH_MSG_INFO( "OutputMuctpiLocation="<<m_outputKey.key() );
     ATH_MSG_INFO( "MuonSegmentContainer="<<m_musegKey.key() );
@@ -56,7 +61,7 @@ namespace LVL1TGCTrigger {
     }
     const LVL1MUONIF::Lvl1MuCTPIInputPhase1* inTgc2Muctpi = rh_muctpiTgc.cptr();
 
-    std::vector<MuSegData> muSegDataColl;
+    std::vector<const xAOD::MuonSegment*> muSegDataColl;
     if( m_nswVetoMode.value() ){
       SG::ReadHandle<xAOD::MuonSegmentContainer> rh_museg(m_musegKey, eventContext);
       if(!rh_museg.isValid()){
@@ -69,15 +74,7 @@ namespace LVL1TGCTrigger {
 	   seg->chamberIndex() != Muon::MuonStationIndex::EIL &&
 	   seg->chamberIndex() != Muon::MuonStationIndex::CSS &&
 	   seg->chamberIndex() != Muon::MuonStationIndex::CSL   )continue;
-	MuSegData data;
-	data.pos.SetXYZ(seg->x(),seg->y(),seg->z());
-	data.vec.SetXYZ(seg->px(),seg->py(),seg->pz());
-	muSegDataColl.push_back(data);
-	ATH_MSG_DEBUG(" found a muon segment:"
-		      << " segEta=" << data.pos.Eta()
-		      << " segPhi=" << data.pos.Phi()
-		      << " segEtaVec=" << data.vec.Eta()
-		      << " segPhiVec=" << data.vec.Phi());
+	muSegDataColl.push_back(seg);
       }
     }
 
@@ -154,7 +151,7 @@ namespace LVL1TGCTrigger {
       if(sldataOrg->is2candidates(icand))sldataNew.set2candidates(icand);
     }
   }
-  void TGCOutputModifier::Update(const std::vector<MuSegData>& muSegDataColl,
+  void TGCOutputModifier::Update(const std::vector<const xAOD::MuonSegment*>& muSegDataColl,
 				 LVL1MUONIF::Lvl1MuSectorLogicDataPhase1& sldata,
 				 size_t systemId,
 				 size_t subSystemId,
@@ -177,24 +174,52 @@ namespace LVL1TGCTrigger {
       if( std::abs(roiPos.Eta()) < 1.3 ) continue; // only NSW region
       ATH_MSG_DEBUG("RoI pT=" << sldata.pt(icand)
 		    << " roiEta=" << roiPos.Eta()
-		    << " roiPhi=" << roiPos.Phi() );
+		    << " roiPhi=" << roiPos.Phi()
+		    << " flagF=" << sldata.bw2or3(icand)
+		    << " flagC=" << sldata.innercoin(icand)
+		    << " flagH=" << sldata.goodmf(icand) );
       bool matched = !m_nswVetoMode.value();
-      for(auto muSegData : muSegDataColl){
-	if(matched)break;
-	float deltaEta = std::abs( muSegData.pos.Eta() - roiPos.Eta() );
-	float deltaPhi = std::abs( muSegData.pos.DeltaPhi( roiPos ) );
-	float deltaTheta = std::abs( muSegData.vec.Theta() - muSegData.pos.Theta() );
-	matched |= (deltaEta < m_deltaEtaCut.value() &&
-		    deltaPhi < m_deltaPhiCut.value() &&
-		    deltaTheta < m_deltaThetaCut.value());
-	ATH_MSG_DEBUG(" matched=" << matched
-		      << " segEta=" << muSegData.pos.Eta()
-		      << " segPhi=" << muSegData.pos.Phi()
-		      << " segEtaVec=" << muSegData.vec.Eta()
-		      << " segPhiVec=" << muSegData.vec.Phi()
+      double deltaEtaCut=0,deltaPhiCut=0,deltaThetaCut=0;
+      if( std::abs(roiPos.Eta()) < m_etaBoundary1.value() ){
+	deltaEtaCut=m_deltaEtaCut1.value();
+	deltaPhiCut=m_deltaPhiCut1.value();
+	deltaThetaCut=m_deltaThetaCut1.value();
+      }else if( std::abs(roiPos.Eta()) > m_etaBoundary2.value() ){
+	deltaEtaCut=m_deltaEtaCut2.value();
+	deltaPhiCut=m_deltaPhiCut2.value();
+	deltaThetaCut=m_deltaThetaCut2.value();
+      }else{
+	matched = true;
+      }
+      for(const auto seg : muSegDataColl){
+	TVector3 segPos(seg->x(),seg->y(),seg->z());
+	TVector3 segVec(seg->px(),seg->py(),seg->pz());
+	float deltaEta = std::abs( segPos.Eta() - roiPos.Eta() );
+	float deltaPhi = std::abs( segPos.DeltaPhi( roiPos ) );
+	float deltaTheta = std::abs( segVec.Theta() - segPos.Theta() );
+	bool tmpmatched = (deltaEta < deltaEtaCut &&
+			   deltaPhi < deltaPhiCut &&
+			   deltaTheta < deltaThetaCut);
+	ATH_MSG_DEBUG(" matched=" << tmpmatched
+		      << " RoI pT=" << sldata.pt(icand)
+		      << " roiEta=" << roiPos.Eta()
+		      << " roiPhi=" << roiPos.Phi()
+		      << " segEta=" << segPos.Eta()
+		      << " segPhi=" << segPos.Phi()
+		      << " segEtaVec=" << segVec.Eta()
+		      << " segPhiVec=" << segVec.Phi()
+		      << " chi2=" << seg->chiSquared()
+		      << " ndof=" << seg->numberDoF()
+		      << " sector=" << seg->sector()
+		      << " etaIndex=" << seg->etaIndex()
+		      << " technology=" << seg->technology()
+		      << " nPrecisionHits=" << seg->nPrecisionHits()
+		      << " nPhiLayers=" << seg->nPhiLayers()
+		      << " nTrigEtaLayers=" << seg->nTrigEtaLayers()
 		      << " deltaEta=" << deltaEta
 		      << " deltaPhi=" << deltaPhi
 		      << " deltaTheta=" << deltaTheta);
+	matched |= tmpmatched;
       }
       sldata.innercoin(icand,matched);
     }
