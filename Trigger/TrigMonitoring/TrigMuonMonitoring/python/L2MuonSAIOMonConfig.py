@@ -10,7 +10,17 @@ def L2MuonSAIOMonConfig(helper):
     GroupName = 'L2MuonSAIO'
 
     monAlg = helper.addAlgorithm(CompFactory.L2MuonSAIOMon,'L2MuonSAIOMon')
-    monAlg.MonitoredChains = ['HLT_mu4_l2io_L1MU3V', 'HLT_mu26_ivarmedium_mu6_l2io_probe_L1MU14FCH']
+
+    ### monitorig groups
+    from TrigConfigSvc.TriggerConfigAccess import getHLTMonitoringAccess
+    moniAccess = getHLTMonitoringAccess(helper.inputFlags)
+    Chains = moniAccess.monitoredChains(signatures="muonMon",monLevels=["shifter","t0","val"])
+    monAlg.MonitoredChains = [c for c in Chains if ('l2io' in c)] 
+
+    # if mon groups not found fall back to hard-coded trigger monitoring list
+    if len(monAlg.MonitoredChains) == 0:
+      monAlg.MonitoredChains = ['HLT_mu4_l2io_L1MU3V', 'HLT_mu26_ivarmedium_mu6_l2io_probe_L1MU14FCH']
+
     monAlg.Group = GroupName
 
     for chain in monAlg.MonitoredChains:
