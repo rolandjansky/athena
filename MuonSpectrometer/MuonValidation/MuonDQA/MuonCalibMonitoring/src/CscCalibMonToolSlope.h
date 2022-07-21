@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCALIBMONITORING_CSCCALIBMONTOOLSLOPE_H
@@ -79,43 +79,43 @@ class CscCalibMonToolSlope: public CscCalibMonToolBase
 
     private:
         /**Do neighbor ratios*/
-        bool m_doNeighborRatios;
+        bool m_doNeighborRatios{};
 
         /**Histogram all values for all histograms*/
-        bool m_histAttenLevels;
+        bool m_histAttenLevels{};
 
         /**Maximum deviation from expected values allowed before m_h_numBad is incremented*/
-        float m_slopeMaxDiff,m_interceptMax,m_chi2Max, m_fracDevMax, m_peaktMaxDiff;
+        float m_slopeMaxDiff{},m_interceptMax{},m_chi2Max{}, m_fracDevMax{}, m_peaktMaxDiff{};
 
         /**Bin corresponding to each category in m_h_numbad*/
-        int m_slopeBadBin, m_interceptBadBin, m_chi2BadBin, m_peaktBadBin, m_fracBadBin, 
-            m_deadBadBin,m_missingBadBin;
+        int m_slopeBadBin{1}, m_interceptBadBin{2}, m_chi2BadBin{3}, m_peaktBadBin{4}, m_fracBadBin{5}, 
+            m_deadBadBin{6},m_missingBadBin{7};
 
-        int m_totalLiveBin, m_totalDeadBin, m_newLiveBin, m_newDeadBin;
+        int m_totalLiveBin{1}, m_totalDeadBin{2}, m_newLiveBin{3}, m_newDeadBin{4};
         /**Stores number of channels that are bad in several categories*/
-        TH1I *m_h_numBad;
+        TH1I *m_h_numBad{};
         
         /**Histograms that simply histogram all entries for a value*/
-        TH1F *m_h_slopeCompareOverview, *m_h_interceptOverview,*m_h_chi2Overview, 
-             *m_h_slopeMissingChans;
+        TH1F *m_h_slopeCompareOverview{}, *m_h_interceptOverview{},*m_h_chi2Overview{}, 
+             *m_h_slopeMissingChans{};
         //TH1F* m_h_peaktCompareOverview;
         
         /**Overview of dead channels and changes*/
-        TH1F *m_h_deadOverview;
+        TH1F *m_h_deadOverview{};
         
        /**Holds fractional deviation TProfiles*/
         std::vector<TProfile*> m_fracProfs;
         
         /**HistCollections. See CscCalibMonToolBase for definition*/ 
-        HistCollection *m_slopeNewColl, *m_slopeOldColl, *m_slopeDiffColl;
-        HistCollection *m_peaktNewColl, *m_peaktOldColl, *m_peaktDiffColl;
-        HistCollection *m_interceptColl;
-        HistCollection *m_chi2Coll;       
-        HistCollection *m_deadNewColl, *m_deadDiffColl;
-        HistCollection *m_slopeRatioColl;
+        HistCollection *m_slopeNewColl{}, *m_slopeOldColl{}, *m_slopeDiffColl{};
+        HistCollection *m_peaktNewColl{}, *m_peaktOldColl{}, *m_peaktDiffColl{};
+        HistCollection *m_interceptColl{};
+        HistCollection *m_chi2Coll{};       
+        HistCollection *m_deadNewColl{}, *m_deadDiffColl{};
+        HistCollection *m_slopeRatioColl{};
 
 
-        HistCollection * m_fitResColl;
+        HistCollection * m_fitResColl{};
 
         DataVector<HistCollection> m_ampColls;
 
@@ -128,7 +128,6 @@ class CscCalibMonToolSlope: public CscCalibMonToolBase
         /**Dead channel finding user defined parameters*/
         int m_deadPulserLevelCutoff, m_deadADCCutoff;
         
-        unsigned int m_expectedChamberLayer;
         /**Hash Ids one would expect to be in calibration data*/
         //std::set<int> m_expectedHashIdsAll, m_expectedHashIdsPrec;
 };
