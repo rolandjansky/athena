@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -30,6 +30,10 @@ UPDATES:  - Calculate identifier method used by CalibrationCalculator.
 #include "LArStraightElectrodes.h"
 #include "LArCoudeElectrodes.h"
 #include "LArCoudeAbsorbers.h"
+
+// values of the radial separations between samplings
+#include "LArBarrelSampling.h"  // Rmax1, Rmax2
+
 
 namespace LArG4 {
 
@@ -320,8 +324,6 @@ namespace LArG4 {
                             G4int& iregion, G4int& isampling, G4int& ieta,
                             G4int& isamp2, G4int& ieta2) const
     {
-      static G4double Rmax1[448];
-      static G4double Rmax2[56];
       static G4double Eta_max,Eta_max_s1,Eta_max_s3,R_max_acc,Z_max_acc,R_min_acc,R_min_highz;
       static G4double Dr_s12;
       static G4double deltaz,Z_max_lowr,dzdr;
@@ -350,9 +352,6 @@ namespace LArG4 {
         Eta_max_s1=1.4;     // maximum eta region 0
         Eta_max_s3=1.325;   // maximum eta for S3 in region 0
         deta=0.025;         // basic granularity
-
-        // values of the radial separations between samplings
-#include "LArBarrelSampling.icc"
 
         // compute z edge taken by readout strips on the edge
 
