@@ -128,9 +128,19 @@ def MuonRdo2PrdConfig(flags):
     if not flags.Trigger.L1MuonSim.EmulateNSW or not flags.Trigger.L1MuonSim.NSWVetoMode:
         return acc
     postFix = "_L1MuonSim"
+    suffix = "" if flags.Input.isMC else "_L1"
+    if flags.Input.Format is Format.POOL:
+        rdoInputs = [
+            ('RpcPadContainer','RPCPAD'),
+            ('TgcRdoContainer','TGCRDO'),
+            ('CscRawDataContainer','CSCRDO'),
+            ('MdtCsmContainer','MDTCSM')
+        ]
+        from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
+        acc.merge(SGInputLoaderCfg(flags, Load=rdoInputs))
     ### CSC RDO data ###
     if flags.Detector.GeometryCSC:
-        CscRdoToCscPrepDataTool = CompFactory.Muon.CscRdoToCscPrepDataToolMT(name = "CscRdoToCscPrepDataToolMT" + postFix, RDOContainer = "CSCRDO_L1")
+        CscRdoToCscPrepDataTool = CompFactory.Muon.CscRdoToCscPrepDataToolMT(name = "CscRdoToCscPrepDataToolMT" + postFix, RDOContainer = "CSCRDO"+suffix)
         CscRdoToCscPrepData = CompFactory.CscRdoToCscPrepData(name = "CscRdoToCscPrepData" + postFix,
                                                               CscRdoToCscPrepDataTool = CscRdoToCscPrepDataTool)
         acc.addEventAlgo(CscRdoToCscPrepData)
@@ -139,17 +149,17 @@ def MuonRdo2PrdConfig(flags):
                                                                    cluster_builder = CscClusterBuilderTool)
         acc.addEventAlgo(CscClusterBuilder)
     ### MDT RDO data ###
-    MdtRdoToMdtPrepDataTool = CompFactory.Muon.MdtRdoToPrepDataToolMT(name = "MdtRdoToPrepDataToolMT" + postFix, RDOContainer = "MDTCSM_L1")
+    MdtRdoToMdtPrepDataTool = CompFactory.Muon.MdtRdoToPrepDataToolMT(name = "MdtRdoToPrepDataToolMT" + postFix, RDOContainer = "MDTCSM"+suffix)
     MdtRdoToMdtPrepData = CompFactory.MdtRdoToMdtPrepData(name = "MdtRdoToMdtPrepData" + postFix,
                                                           DecodingTool = MdtRdoToMdtPrepDataTool)
     acc.addEventAlgo(MdtRdoToMdtPrepData)
     ### RPC RDO data ###
-    RpcRdoToRpcPrepDataTool = CompFactory.Muon.RpcRdoToPrepDataToolMT(name = "RpcRdoToPrepDataToolMT" + postFix, OutputCollection = "RPCPAD_L1")
+    RpcRdoToRpcPrepDataTool = CompFactory.Muon.RpcRdoToPrepDataToolMT(name = "RpcRdoToPrepDataToolMT" + postFix, OutputCollection = "RPCPAD"+suffix)
     RpcRdoToRpcPrepData = CompFactory.RpcRdoToRpcPrepData(name = "RpcRdoToRpcPrepData" + postFix,
                                                           DecodingTool = RpcRdoToRpcPrepDataTool)
     acc.addEventAlgo(RpcRdoToRpcPrepData)
     ### TGC RDO data ###
-    TgcRdoToTgcPrepDataTool = CompFactory.Muon.TgcRdoToPrepDataToolMT(name = "TgcRdoToPrepDataToolMT" + postFix, RDOContainer = "TGCRDO_L1")
+    TgcRdoToTgcPrepDataTool = CompFactory.Muon.TgcRdoToPrepDataToolMT(name = "TgcRdoToPrepDataToolMT" + postFix, RDOContainer = "TGCRDO"+suffix)
     TgcRdoToTgcPrepData = CompFactory.TgcRdoToTgcPrepData(name = "TgcRdoToTgcPrepData" + postFix,
                                                           DecodingTool = TgcRdoToTgcPrepDataTool)
     acc.addEventAlgo(TgcRdoToTgcPrepData)
