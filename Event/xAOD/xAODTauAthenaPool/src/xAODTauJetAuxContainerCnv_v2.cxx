@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODTauJetAuxContainerCnv_v2.cxx 653224 2015-03-11 09:59:03Z will $
@@ -40,15 +40,13 @@ xAODTauJetAuxContainerCnv_v2::xAODTauJetAuxContainerCnv_v2()
 }
 
 
-ServiceHandle<StoreGateSvc> evtStore ("StoreGateSvc", "tauJetCnv_v2");
-
-
 void xAODTauJetAuxContainerCnv_v2::
 persToTransWithKey( const xAOD::TauJetAuxContainer_v2* oldObj,
                     xAOD::TauJetAuxContainer* newObj,
                     const std::string& key,
                     MsgStream& log ) const {
 
+  ServiceHandle<StoreGateSvc> evtStore ("StoreGateSvc", "tauJetCnv_v2");
   if (evtStore.retrieve().isFailure()) {
     ATH_MSG("Cannot get StoreGateHandle");
     return;
