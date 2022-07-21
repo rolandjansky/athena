@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -32,11 +32,11 @@ ISF::PunchThroughParticle::PunchThroughParticle(int pdg, bool doAnti):
   m_histCorrHighE(0),
   m_corrHistDomains(0),
   m_pdfNumParticles(nullptr),	//does this number ever change?
-  m_pdfExitEnergy(nullptr),
-  m_pdfExitDeltaTheta(nullptr),
-  m_pdfExitDeltaPhi(nullptr),
-  m_pdfMomDeltaTheta(nullptr),
-  m_pdfMomDeltaPhi(nullptr)
+  m_pdf_pca0(nullptr),
+  m_pdf_pca1(nullptr),
+  m_pdf_pca2(nullptr),
+  m_pdf_pca3(nullptr),
+  m_pdf_pca4(nullptr)
 { }
 
 /*=========================================================================
@@ -139,9 +139,9 @@ void ISF::PunchThroughParticle::setCorrelation(int corrPdg,
  *  ==> see headerfile
  *=======================================================================*/
 
-void ISF::PunchThroughParticle::setExitEnergyPDF(std::unique_ptr<PDFcreator> pdf)
+void ISF::PunchThroughParticle::setPCA0PDF(std::unique_ptr<PDFcreator> pdf)
 {
-  m_pdfExitEnergy = std::move(pdf);
+  m_pdf_pca0 = std::move(pdf);
 }
 
 /*=========================================================================
@@ -149,9 +149,9 @@ void ISF::PunchThroughParticle::setExitEnergyPDF(std::unique_ptr<PDFcreator> pdf
  *  ==> see headerfile
  *=======================================================================*/
 
-void ISF::PunchThroughParticle::setExitDeltaThetaPDF(std::unique_ptr<PDFcreator> pdf)
+void ISF::PunchThroughParticle::setPCA1PDF(std::unique_ptr<PDFcreator> pdf)
 {
-  m_pdfExitDeltaTheta = std::move(pdf);
+  m_pdf_pca1 = std::move(pdf);
 }
 
 /*=========================================================================
@@ -159,25 +159,25 @@ void ISF::PunchThroughParticle::setExitDeltaThetaPDF(std::unique_ptr<PDFcreator>
  *  ==> see headerfile
  *=======================================================================*/
 
-void ISF::PunchThroughParticle::setExitDeltaPhiPDF(std::unique_ptr<PDFcreator> pdf)
+void ISF::PunchThroughParticle::setPCA2PDF(std::unique_ptr<PDFcreator> pdf)
 {
-  m_pdfExitDeltaPhi = std::move(pdf);
+  m_pdf_pca2 = std::move(pdf);
 }
 
 /*=========================================================================
  *  DESCRIPTION OF FUNCTION:
  *  ==> see headerfile
  *=======================================================================*/
-void ISF::PunchThroughParticle::setMomDeltaThetaPDF(std::unique_ptr<PDFcreator> pdf)
+void ISF::PunchThroughParticle::setPCA3PDF(std::unique_ptr<PDFcreator> pdf)
 {
-  m_pdfMomDeltaTheta = std::move(pdf);
+  m_pdf_pca3 = std::move(pdf);
 }
 
 /*=========================================================================
  *  DESCRIPTION OF FUNCTION:
  *  ==> see headerfile
  *=======================================================================*/
-void ISF::PunchThroughParticle::setMomDeltaPhiPDF(std::unique_ptr<PDFcreator> pdf)
+void ISF::PunchThroughParticle::setPCA4PDF(std::unique_ptr<PDFcreator> pdf)
 {
-  m_pdfMomDeltaPhi = std::move(pdf);
+  m_pdf_pca4 = std::move(pdf);
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -15,6 +15,8 @@
 #include <string>
 #include <algorithm>
 #include <vector>
+#include <numeric>
+
 
 // standard C libraries
 #include <math.h>
@@ -66,6 +68,7 @@
 //Amg
 #include "GeoPrimitives/GeoPrimitivesHelpers.h"
 
+
 /*=========================================================================
  *  DESCRIPTION OF FUNCTION:
  *  ==> see headerfile
@@ -76,6 +79,7 @@ ISF::PunchThroughTool::PunchThroughTool( const std::string& type,
                                          const IInterface*  parent )
 : base_class(type, name, parent),
   m_randomSvc("AtDSFMTGenSvc", name),
+  m_punchThroughClassifier("ISF_PunchThroughClassifier"),
   m_pdgInitiators(),
   m_initiatorsMinEnergy(),
   m_initiatorsEtaRange(),
@@ -97,7 +101,10 @@ ISF::PunchThroughTool::PunchThroughTool( const std::string& type,
 {
   // property definition and initialization - allows to set variables from python
 
+  declareProperty( "PunchThroughClassifier",       m_punchThroughClassifier);
   declareProperty( "FilenameLookupTable",          m_filenameLookupTable   );
+  declareProperty( "FilenameInverseCdf",           m_filenameInverseCDF  );
+  declareProperty( "FilenameInversePca",           m_filenameInversePCA    );
   declareProperty( "PunchThroughInitiators",       m_pdgInitiators         );
   declareProperty( "InitiatorsMinEnergy",          m_initiatorsMinEnergy   );
   declareProperty( "InitiatorsEtaRange",           m_initiatorsEtaRange    );
@@ -136,6 +143,12 @@ StatusCode ISF::PunchThroughTool::initialize()
 {
   ATH_MSG_INFO( "initialize()" );
 
+  if (m_punchThroughClassifier.retrieve().isFailure() )
+  {
+    ATH_MSG_ERROR (m_punchThroughClassifier.propertyName() << ": Failed to retrieve tool " << m_punchThroughClassifier.type());
+    return StatusCode::FAILURE;
+  }
+
   // resolving lookuptable file
   std::string resolvedFileName = PathResolverFindCalibFile (m_filenameLookupTable);
   if (resolvedFileName != "")
@@ -152,13 +165,27 @@ StatusCode ISF::PunchThroughTool::initialize()
   m_fileLookupTable = new TFile( resolvedFileName.c_str(), "READ");
   if (!m_fileLookupTable)
     {
-      ATH_MSG_WARNING("[ punchthrough ] unable to open the lookup-tabel for the punch-through simulation (file does not exist)");
+      ATH_MSG_WARNING("[ punchthrough ] unable to open the lookup-table for the punch-through simulation (file does not exist)");
       return StatusCode::FAILURE;
     }
 
   if (!m_fileLookupTable->IsOpen())
     {
-      ATH_MSG_WARNING("[ punchthrough ] unable to open the lookup-tabel for the punch-through simulation (wrong or empty file?)");
+      ATH_MSG_WARNING("[ punchthrough ] unable to open the lookup-table for the punch-through simulation (wrong or empty file?)");
+      return StatusCode::FAILURE;
+    }
+
+    if (!initializeInverseCDF(PathResolverFindCalibFile(m_filenameInverseCDF)))
+      {
+        ATH_MSG_WARNING("[ punchthrough ] unable to open or read the inverse CDF config");
+        return StatusCode::FAILURE;
+      }
+
+
+
+  if (!initializeInversePCA(PathResolverFindCalibFile(m_filenameInversePCA)))
+    {
+      ATH_MSG_WARNING("[ punchthrough ] unable to open or read the inverse PCA config");
       return StatusCode::FAILURE;
     }
 
@@ -346,7 +373,7 @@ StatusCode ISF::PunchThroughTool::finalize()
  *  ==> see headerfile
  *=======================================================================*/
 
-const ISF::ISFParticleVector* ISF::PunchThroughTool::computePunchThroughParticles(const ISF::ISFParticle &isfp) const
+const ISF::ISFParticleVector* ISF::PunchThroughTool::computePunchThroughParticles(const ISF::ISFParticle &isfp, const TFCSSimulationState& simulstate ) const
 {
   ATH_MSG_DEBUG( "[ punchthrough ] starting punch-through simulation");
 
@@ -408,7 +435,22 @@ const ISF::ISFParticleVector* ISF::PunchThroughTool::computePunchThroughParticle
     return 0;
   }
 
-  //if initial particle is on ID surface, points to the calorimeter, is a punch-through initiator, meets initiator min enery and eta range
+
+  //Calculate probability of punch through using punchThroughClassifier
+  double punchThroughProbability = m_punchThroughClassifier->computePunchThroughProbability(isfp, simulstate);
+
+  //Draw random number to compare to probability
+  double punchThroughClassifierRand = CLHEP::RandFlat::shoot(m_randomEngine);
+
+  ATH_MSG_INFO("[ punchthrough ] punchThroughProbability output: " << punchThroughProbability << " RandFlat: " << punchThroughClassifierRand );
+
+  //If probability < random number then don't simulate punch through
+  if( punchThroughClassifierRand > punchThroughProbability){
+      ATH_MSG_DEBUG("[ punchthrough ] particle not classified to create punch through. Dropping it in the calo.");
+      return 0;
+  }
+
+  //if initial particle is on ID surface, points to the calorimeter, is a punch-through initiator, meets initiator min enery and eta range, and passes punchThroughClassifier
 
   // store initial particle mass
   const double mass = m_initPs->mass();
@@ -418,9 +460,16 @@ const ISF::ISFParticleVector* ISF::PunchThroughTool::computePunchThroughParticle
   // in this class
   //  -> the energy
   m_initEnergy = std::sqrt( m_initPs->momentum().mag2() + mass*mass );
+
+  m_interpEnergy = interpolateEnergy(m_initEnergy);
+
   //  -> get geometrical properties
   //  -> the pseudorapidity eta
   m_initEta = m_initPs->position().eta();
+
+
+  m_interpEta = interpolateEta(m_initEta);
+
   //  -> the angle theta
   m_initTheta = m_initPs->position().theta();
   //  -> the azimutal angle phi
@@ -435,67 +484,77 @@ const ISF::ISFParticleVector* ISF::PunchThroughTool::computePunchThroughParticle
   std::map<int, int> corrPdgNumDone;
 
 
+  int maxTries = 10;
+  int nTries = 0;
+
   // loop over all particle pdgs
-  for (const auto& currentParticle : m_particles)
-    {
-      // the pdg that is currently treated
-      int doPdg = currentParticle.first;
-      // get the current particle's correlated pdg
-      int corrPdg = currentParticle.second->getCorrelatedPdg();
-
-      // if there is a correlated particle type to this one
-      if (corrPdg)
+  while(m_isfpCont->size() < 1 && nTries < maxTries) { //ensure we always create at least one punch through particle, maxTries to catch very rare cases
+      for (const auto& currentParticle : m_particles)
         {
-          // find out if the current pdg was already simulated
-          std::map<int,int>::iterator pos = corrPdgNumDone.find(doPdg);
-          // if the current pdg was not simulated yet, find out if
-          // it's correlated one was simulated
-          if ( pos == corrPdgNumDone.end() ) pos = corrPdgNumDone.find(corrPdg);
+            // the pdg that is currently treated
+            int doPdg = currentParticle.first;
+            // get the current particle's correlated pdg
+            int corrPdg = currentParticle.second->getCorrelatedPdg();
 
-          // neither this nor the correlated particle type was simulated
-          // so far:
-          if ( pos == corrPdgNumDone.end() )
+            // if there is a correlated particle type to this one
+            if (corrPdg)
             {
-              // -> roll a dice if we create this particle or its correlated one
-              if ( CLHEP::RandFlat::shoot(m_randomEngine) > 0.5 ) doPdg = corrPdg;
-              // now create the particles with the given pdg and note how many
-              // particles of this pdg are created
-              corrPdgNumDone[doPdg] = getAllParticles(doPdg);
+                // find out if the current pdg was already simulated
+                std::map<int,int>::iterator pos = corrPdgNumDone.find(doPdg);
+                // if the current pdg was not simulated yet, find out if
+                // it's correlated one was simulated
+                if ( pos == corrPdgNumDone.end() ) pos = corrPdgNumDone.find(corrPdg);
+
+                // neither this nor the correlated particle type was simulated
+                // so far:
+                if ( pos == corrPdgNumDone.end() )
+                {
+                    // -> roll a dice if we create this particle or its correlated one
+                    if ( CLHEP::RandFlat::shoot(m_randomEngine) > 0.5 ) doPdg = corrPdg;
+                    // now create the particles with the given pdg and note how many
+                    // particles of this pdg are created
+                    corrPdgNumDone[doPdg] = getAllParticles(doPdg);
+                }
+
+                // one of the two correlated particle types was already simulated
+                // 'pos' points to the already simulated one
+                else
+                {
+                    // get the pdg of the already simulated particle and the number
+                    // of these particles that were created
+                    const int donePdg = pos->first;
+                    const int doneNumPart = pos->second;
+                    // set the pdg of the particle type that will be done
+                    if (donePdg == doPdg) doPdg = corrPdg;
+
+                    // now create the correlated particles
+                    getCorrelatedParticles(doPdg, doneNumPart);
+                    // note: no need to take note, that this particle type is now simulated,
+                    // since this is the second of two correlated particles, which is
+                    // simulated and we do not have correlations of more than two particles.
+                }
+
+                // if no correlation for this particle
+                // -> directly create all particles with the current pdg
             }
-
-          // one of the two correlated particle types was already simulated
-          // 'pos' points to the already simulated one
-          else
-            {
-              // get the pdg of the already simulated particle and the number
-              // of these particles that were created
-              const int donePdg = pos->first;
-              const int doneNumPart = pos->second;
-              // set the pdg of the particle type that will be done
-              if (donePdg == doPdg) doPdg = corrPdg;
-
-              // now create the correlated particles
-              getCorrelatedParticles(doPdg, doneNumPart);
-              // note: no need to take note, that this particle type is now simulated,
-              // since this is the second of two correlated particles, which is
-              // simulated and we do not have correlations of more than two particles.
+            else  {
+                getAllParticles(doPdg);
             }
+        } // for-loop over all particle pdgs
 
-          // if no correlation for this particle
-          // -> directly create all particles with the current pdg
-        }
-      else getAllParticles(doPdg);
+        nTries++;
+    }
 
-    } // for-loop over all particle pdgs
+  if (m_isfpCont->size() < 1)  ATH_MSG_DEBUG( "[ punchthrough ] no particles in ISFparticle vector , size: "<<m_isfpCont->size() );
 
-  if (m_isfpCont->size() > 0)  ATH_MSG_DEBUG( "[ punchthrough ] returning ISFparticle vector , size: "<<m_isfpCont->size() );
+  else if (m_isfpCont->size() > 0)  ATH_MSG_DEBUG( "[ punchthrough ] returning ISFparticle vector , size: "<<m_isfpCont->size() );
 
   for (ISF::ISFParticle *particle : *m_isfpCont) {
     ATH_MSG_DEBUG("codes of produced punch through particle: pdg = "<< particle->pdgCode());
     Amg::Vector3D position = particle->position();
     ATH_MSG_DEBUG("position of produced punch-through particle: x = "<< position.x() <<" y = "<< position.y() <<" z = "<< position.z());
     Amg::Vector3D momentum = particle->momentum();
-    ATH_MSG_DEBUG("momentum of produced punch-through particle: px = "<< momentum.x() <<" py = "<< momentum.x() <<" pz = "<< momentum.x() <<" e = "<< particle->ekin() << " mass = " << particle->mass());
+    ATH_MSG_DEBUG("momentum of produced punch-through particle: px = "<< momentum.x() <<" py = "<< momentum.y() <<" pz = "<< momentum.z() <<" e = "<< particle->ekin() << " mass = " << particle->mass());
   }
 
   return m_isfpCont;
@@ -518,9 +577,10 @@ int ISF::PunchThroughTool::getAllParticles(int pdg, int numParticles) const
   if ( numParticles < 0 )
     {
       // prepare the function arguments for the PDFcreator class
-      std::vector<double> parameters;
-      parameters.push_back( m_initEnergy );
-      parameters.push_back( std::fabs(m_initEta) );
+      std::vector<int> parameters;
+
+      parameters.push_back( std::round(m_interpEnergy) );
+      parameters.push_back( std::round(m_interpEta*100) );
       // the maximum number of particles which should be produced
       // if no maximum number is given, this is -1
       int maxParticles = p->getMaxNumParticles();
@@ -529,7 +589,7 @@ int ISF::PunchThroughTool::getAllParticles(int pdg, int numParticles) const
       // and ensure that we do not create too many particles
       do
         {
-          numParticles = lround( p->getNumParticlesPDF()->getRand(parameters) );
+          numParticles = floor( p->getNumParticlesPDF()->getRand(parameters) );
 
           // scale the number of particles if requested
           numParticles = lround( numParticles *= p->getNumParticlesFactor() );
@@ -651,6 +711,7 @@ int ISF::PunchThroughTool::getCorrelatedParticles(int pdg, int corrParticles) co
 
 ISF::ISFParticle *ISF::PunchThroughTool::getOneParticle(int pdg, double maxEnergy) const
 {
+
   // get a local copy of the needed punch-through particle class
   PunchThroughParticle *p = m_particles[pdg];
 
@@ -666,13 +727,54 @@ ISF::ISFParticle *ISF::PunchThroughTool::getOneParticle(int pdg, double maxEnerg
 
   // (2.) get the right punch-through distributions
   // prepare the function arguments for the PDFcreator class
-  std::vector<double> parInitEnergyEta;
-  parInitEnergyEta.push_back( m_initEnergy );
-  parInitEnergyEta.push_back( std::fabs(m_initEta) );
+  std::vector<int> parInitEnergyEta;
+  parInitEnergyEta.push_back( std::round(m_interpEnergy) );
+  parInitEnergyEta.push_back( std::round(m_interpEta*100) );
 
-  // (2.1) get the energy
-  double energy = p->getExitEnergyPDF()->getRand(
-                                                 parInitEnergyEta, 0., p->getMinEnergy(), maxEnergy/p->getEnergyFactor() );
+  //initialise variables to store punch through particle kinematics
+  double energy = 0.;
+  double deltaTheta = 0.;
+  double deltaPhi = 0.;
+  double momDeltaTheta = 0.;
+  double momDeltaPhi = 0.;
+
+  double principal_component_0 = 0.;
+  double principal_component_1 = 0.;
+  double principal_component_2 = 0.;
+  double principal_component_3 = 0.;
+  double principal_component_4 = 0.;
+  std::vector<double> transformed_variables;
+
+  while (energy < p->getMinEnergy()){
+
+      principal_component_0 = p->getPCA0PDF()->getRand(parInitEnergyEta);
+      principal_component_1 = p->getPCA1PDF()->getRand(parInitEnergyEta);
+      principal_component_2 = p->getPCA2PDF()->getRand(parInitEnergyEta);
+      principal_component_3 = p->getPCA3PDF()->getRand(parInitEnergyEta);
+      principal_component_4 = p->getPCA4PDF()->getRand(parInitEnergyEta);
+
+      ATH_MSG_DEBUG("Drawn punch through kinematics PCA components: PCA0 = "<< principal_component_0 <<" PCA1 = "<< principal_component_1 <<" PCA2 = "<< principal_component_2 <<" PCA3 = "<< principal_component_3 <<" PCA4 = "<< principal_component_4 );
+
+      std::vector<double> principal_components;
+      principal_components.push_back(principal_component_0);
+      principal_components.push_back(principal_component_1);
+      principal_components.push_back(principal_component_2);
+      principal_components.push_back(principal_component_3);
+      principal_components.push_back(principal_component_4);
+
+      transformed_variables = inversePCA(principal_components);
+
+      energy = inverseCdfTransform(transformed_variables.at(0), m_variable0_inverse_cdf);
+      deltaTheta = inverseCdfTransform(transformed_variables.at(1), m_variable1_inverse_cdf);
+      deltaPhi = inverseCdfTransform(transformed_variables.at(2), m_variable2_inverse_cdf);
+      momDeltaTheta = inverseCdfTransform(transformed_variables.at(3), m_variable3_inverse_cdf);
+      momDeltaPhi = inverseCdfTransform(transformed_variables.at(4), m_variable4_inverse_cdf);
+
+      ATH_MSG_DEBUG("Transformed punch through kinematics: energy = "<< energy <<" deltaTheta = "<< deltaTheta <<" deltaPhi = "<< deltaPhi <<" momDeltaTheta = "<< momDeltaTheta <<" momDeltaPhi = "<< momDeltaPhi );
+
+  }
+
+
   energy *= p->getEnergyFactor(); // scale the energy if requested
 
   // (2.2) get the particles delta theta relative to the incoming particle
@@ -680,9 +782,6 @@ ISF::ISFParticle *ISF::PunchThroughTool::getOneParticle(int pdg, double maxEnerg
   // loop to keep theta within range [0,PI]
   do
     {
-      // get random value
-      double deltaTheta = p->getExitDeltaThetaPDF()->getRand(
-                                                             parInitEnergyEta, energy);
       // decide if delta positive/negative
       deltaTheta *=  ( CLHEP::RandFlat::shoot(m_randomEngine) > 0.5 ) ? 1. : -1.;
       // calculate the exact theta value of the later created
@@ -693,8 +792,7 @@ ISF::ISFParticle *ISF::PunchThroughTool::getOneParticle(int pdg, double maxEnerg
   while ( (theta > M_PI) || (theta < 0.) );
   // (2.3) get the particle's delta phi relative to the incoming particle
 
-  double deltaPhi = p->getExitDeltaPhiPDF()->getRand(
-                                                     parInitEnergyEta, energy);
+
   deltaPhi *=  ( CLHEP::RandFlat::shoot(m_randomEngine) > 0.5 ) ? 1. : -1.;
 
   // keep phi within range [-PI,PI]
@@ -703,6 +801,7 @@ ISF::ISFParticle *ISF::PunchThroughTool::getOneParticle(int pdg, double maxEnerg
   while (phi >  M_PI) phi -= 2*M_PI;
   while (phi < -M_PI) phi += 2*M_PI;
 
+
   // (2.4) get the particle momentum delta theta, relative to its position
   //
   // loop to keep momTheta within range [0,PI]
@@ -710,22 +809,16 @@ ISF::ISFParticle *ISF::PunchThroughTool::getOneParticle(int pdg, double maxEnerg
   double momTheta = 0.;
   do
     {
-      // get random value
-      double momDeltaTheta = p->getMomDeltaThetaPDF()->getRand(
-                                                               parInitEnergyEta, energy);
       // decide if delta positive/negative
       momDeltaTheta *=  ( CLHEP::RandFlat::shoot(m_randomEngine) > 0.5 ) ? 1. : -1.;
       // calculate the exact momentum theta value of the later created
       // punch-through particle
       momTheta = theta + momDeltaTheta*p->getMomAngleFactor();
-
     }
   while ( (momTheta > M_PI) || (momTheta < 0.) );
 
   // (2.5) get the particle momentum delta phi, relative to its position
 
-  double momDeltaPhi = p->getMomDeltaPhiPDF()->getRand(
-                                                       parInitEnergyEta, energy);
   momDeltaPhi *=  ( CLHEP::RandFlat::shoot(m_randomEngine) > 0.5 ) ? 1. : -1.;
 
   double momPhi = phi + momDeltaPhi*p->getMomAngleFactor();
@@ -733,6 +826,7 @@ ISF::ISFParticle *ISF::PunchThroughTool::getOneParticle(int pdg, double maxEnerg
   while ( std::fabs(momPhi) > 2*M_PI) momPhi /= 2.;
   while (momPhi >  M_PI) momPhi -= 2*M_PI;
   while (momPhi < -M_PI) momPhi += 2*M_PI;
+
 
   //assign barcodes to the produced particles
   m_processCode = 0;
@@ -742,11 +836,271 @@ ISF::ISFParticle *ISF::PunchThroughTool::getOneParticle(int pdg, double maxEnerg
 
   ATH_MSG_DEBUG("createExitPs input parameters: doAnti? = "<< pdg*anti <<" energy = "<< energy <<" theta = "<< theta <<" phi = "<< phi <<" momTheta = "<< momTheta << " momPhi " << momPhi );
 
-
   ISF::ISFParticle *par = createExitPs( pdg*anti, energy, theta, phi, momTheta, momPhi);
 
   return par;
 }
+
+
+double ISF::PunchThroughTool::normal_cdf(double x) const{
+
+    return  0.5 * TMath::Erfc(-x * m_SQRT_0p5);
+}
+
+std::vector<double> ISF::PunchThroughTool::dotProduct(const std::vector<std::vector<double>> &m, const std::vector<double> &v) const
+{
+    std::vector<double> result;
+    for (auto& r : m){
+        result.push_back(std::inner_product(v.begin(), v.end(), r.begin(), 0.0));
+    }
+
+    return result;
+}
+
+std::vector<double> ISF::PunchThroughTool::inversePCA(std::vector<double> &variables) const
+{
+    std::vector<double> transformed_variables = dotProduct(m_inverse_PCA_matrix, variables);
+
+    std::transform (transformed_variables.begin(), transformed_variables.end(), m_PCA_means.begin(), transformed_variables.begin(), std::plus<double>()); // + means
+
+    return transformed_variables;
+}
+
+StatusCode ISF::PunchThroughTool::initializeInversePCA(std::string inversePCAConfigFile){
+
+    xmlDocPtr doc = xmlParseFile( inversePCAConfigFile.c_str() );
+
+    ATH_MSG_INFO( "[ punchthrough ] Loading inversePCA: " << inversePCAConfigFile);
+
+    for( xmlNodePtr nodeRoot = doc->children; nodeRoot != nullptr; nodeRoot = nodeRoot->next) {
+
+        if (xmlStrEqual( nodeRoot->name, BAD_CAST "PCAinverse" )) {
+            for( xmlNodePtr nodePCAinverse = nodeRoot->children; nodePCAinverse != nullptr; nodePCAinverse = nodePCAinverse->next ) {
+
+                if (xmlStrEqual( nodePCAinverse->name, BAD_CAST "PCAmatrix" )) {
+
+                    std::vector<double> PCA_matrix_row;
+
+                    PCA_matrix_row.push_back( atof( (const char*) xmlGetProp( nodePCAinverse, BAD_CAST "comp_0" ) ) );
+                    PCA_matrix_row.push_back( atof( (const char*) xmlGetProp( nodePCAinverse, BAD_CAST "comp_1" ) ) );
+                    PCA_matrix_row.push_back( atof( (const char*) xmlGetProp( nodePCAinverse, BAD_CAST "comp_2" ) ) );
+                    PCA_matrix_row.push_back( atof( (const char*) xmlGetProp( nodePCAinverse, BAD_CAST "comp_3" ) ) );
+
+                    m_inverse_PCA_matrix.push_back(PCA_matrix_row);
+
+                }
+
+                else if (xmlStrEqual( nodePCAinverse->name, BAD_CAST "PCAmeans" )) {
+
+                    m_PCA_means.push_back( atof( (const char*) xmlGetProp( nodePCAinverse, BAD_CAST "mean_0" ) ) );
+                    m_PCA_means.push_back( atof( (const char*) xmlGetProp( nodePCAinverse, BAD_CAST "mean_1" ) ) );
+                    m_PCA_means.push_back( atof( (const char*) xmlGetProp( nodePCAinverse, BAD_CAST "mean_2" ) ) );
+                    m_PCA_means.push_back( atof( (const char*) xmlGetProp( nodePCAinverse, BAD_CAST "mean_3" ) ) );
+
+                }
+            }
+        }
+    }
+    return StatusCode::SUCCESS;
+}
+
+
+StatusCode ISF::PunchThroughTool::initializeInverseCDF(std::string inverseCdfConfigFile){
+
+    //parse xml that contains config for inverse CDF for each of punch through particle kinematics
+
+    xmlDocPtr doc = xmlParseFile( inverseCdfConfigFile.c_str() );
+
+    ATH_MSG_INFO( "[ punchthrough ] Loading inverse CDF: " << inverseCdfConfigFile);
+
+    for( xmlNodePtr nodeRoot = doc->children; nodeRoot != nullptr; nodeRoot = nodeRoot->next) {
+
+        if (xmlStrEqual( nodeRoot->name, BAD_CAST "CDFMappings" )) {
+            for( xmlNodePtr nodeMappings = nodeRoot->children; nodeMappings != nullptr; nodeMappings = nodeMappings->next ) {
+
+                if (xmlStrEqual( nodeMappings->name, BAD_CAST "variable0" )) {
+                    m_variable0_inverse_cdf = getVariableCDFmappings(nodeMappings);
+                }
+                else if (xmlStrEqual( nodeMappings->name, BAD_CAST "variable1" )) {
+                    m_variable1_inverse_cdf = getVariableCDFmappings(nodeMappings);
+                }
+                else if (xmlStrEqual( nodeMappings->name, BAD_CAST "variable2" )) {
+                    m_variable2_inverse_cdf = getVariableCDFmappings(nodeMappings);
+                }
+                else if (xmlStrEqual( nodeMappings->name, BAD_CAST "variable3" )) {
+                    m_variable3_inverse_cdf = getVariableCDFmappings(nodeMappings);
+                }
+                else if (xmlStrEqual( nodeMappings->name, BAD_CAST "variable4" )) {
+                    m_variable4_inverse_cdf = getVariableCDFmappings(nodeMappings);
+                }
+            }
+        }
+    }
+
+    return StatusCode::SUCCESS;
+}
+
+std::map<double, double> ISF::PunchThroughTool::getVariableCDFmappings(xmlNodePtr& nodeParent){
+
+    std::map<double, double>  m_mappings;
+
+    for( xmlNodePtr node = nodeParent->children; node != nullptr; node = node->next ) {
+        //Get min and max values that we normalise values to
+        if (xmlStrEqual( node->name, BAD_CAST "CDFmap" )) {
+            double ref = atof( (const char*) xmlGetProp( node, BAD_CAST "ref" ) );
+            double quant = atof( (const char*) xmlGetProp( node, BAD_CAST "quant" ) );
+
+            m_mappings.insert(std::pair<double, double>(ref, quant) );
+
+        }
+    }
+
+    return m_mappings;
+}
+
+
+double ISF::PunchThroughTool::inverseCdfTransform(double variable, std::map<double, double> inverse_cdf_map) const{
+
+    double norm_cdf = normal_cdf(variable);
+
+    auto upper = inverse_cdf_map.upper_bound(norm_cdf);
+    auto lower = upper--;
+
+    double m = (upper->second - lower->second)/(upper->first - lower->first);
+    double c = lower->second - m * lower->first;
+    double transformed = m * norm_cdf + c;
+
+    return transformed;
+
+}
+
+double ISF::PunchThroughTool::interpolateEnergy(double &energy) const{
+
+    ATH_MSG_DEBUG("[ punchthrough ] interpolating incoming energy: " << energy);
+
+    std::string energyPointsString;
+    for (auto element:m_energyPoints){
+        energyPointsString += std::to_string(element) + " ";
+    }
+
+    ATH_MSG_DEBUG("[ punchthrough ] available energy points: " << energyPointsString);
+
+    auto const upperEnergy = std::upper_bound(m_energyPoints.begin(), m_energyPoints.end(), energy);
+
+    if(upperEnergy == m_etaPoints.end()){ //if no energy greater than input energy, choose greatest energy
+        ATH_MSG_DEBUG("[ punchthrough ] incoming energy > largest energy point, returning greatest energy point: " << m_energyPoints.back());
+        return m_energyPoints.back();
+    }
+    else if(upperEnergy == m_etaPoints.begin()){ //if smallest energy greater than input energy, choose smallest energy
+        ATH_MSG_DEBUG("[ punchthrough ] incoming energy < smallest energy point, returning smallest energy point: " << *upperEnergy);
+        return *upperEnergy;
+    }
+
+    ATH_MSG_DEBUG("[ punchthrough ] energy points upper_bound: "<< *upperEnergy);
+
+    double randomShoot = CLHEP::RandFlat::shoot(m_randomEngine);
+
+    ATH_MSG_DEBUG("[ punchthrough ] Shooting random number: "<< randomShoot);
+
+    double midPoint = *std::prev(upperEnergy)*m_SQRT_2;
+
+    if(energy <  midPoint){ //if energy smaller than mid point in log(energy)
+
+        double distance = std::abs(energy - *std::prev(upperEnergy))/((midPoint) - *std::prev(upperEnergy));
+
+        ATH_MSG_DEBUG( "[ punchthrough ] incoming energy is closest to prev(upper_bound) in log(energy), distance: " << distance );
+
+        if(randomShoot < distance){
+            ATH_MSG_DEBUG( "[ punchthrough ] randomShoot < distance, returning upper_bound " << *upperEnergy );
+            return *upperEnergy;
+        }
+        ATH_MSG_DEBUG( "[ punchthrough ] randomShoot > distance, returning prev(upper_bound) " << *std::prev(upperEnergy) );
+
+        return *std::prev(upperEnergy);
+    }
+    else if(energy >  midPoint){ //if energy greater than mid point in log(energy)
+
+        double distance = std::abs(energy - *upperEnergy)/((*upperEnergy - midPoint));
+
+        ATH_MSG_DEBUG( "[ punchthrough ] incoming energy is closest to upper_bound in log(energy), distance: " << distance );
+
+        if(randomShoot < distance){
+            ATH_MSG_DEBUG( "[ punchthrough ] randomShoot < distance, returning prev(upper_bound) " << *std::prev(upperEnergy) );
+            return *std::prev(upperEnergy);
+        }
+        ATH_MSG_DEBUG( "[ punchthrough ] randomShoot > distance, returning upper_bound " << *upperEnergy );
+        return *upperEnergy;
+    }
+
+    return *upperEnergy;
+}
+
+double ISF::PunchThroughTool::interpolateEta(double &eta) const{
+
+    double absEta = std::abs(eta);
+
+    ATH_MSG_DEBUG("[ punchthrough ] interpolating incoming abs(eta): " << absEta);
+
+    std::string etaPointsString;
+    for (auto element:m_etaPoints){
+        etaPointsString += std::to_string(element) + " ";
+    }
+
+    ATH_MSG_DEBUG("[ punchthrough ] available eta points: " << etaPointsString);
+
+    auto const upperEta = std::upper_bound(m_etaPoints.begin(), m_etaPoints.end(), absEta);
+
+    if(upperEta == m_etaPoints.end()){
+        ATH_MSG_DEBUG("[ punchthrough ] incoming abs(eta) > largest eta point, returning greatest eta point: " << m_etaPoints.back());
+        return m_etaPoints.back();
+    }
+
+
+    ATH_MSG_DEBUG("[ punchthrough ] eta points upper_bound: "<< *upperEta);
+
+    double randomShoot = CLHEP::RandFlat::shoot(m_randomEngine);
+
+    ATH_MSG_DEBUG("[ punchthrough ] Shooting random number: "<< randomShoot);
+
+    if(std::abs(absEta - *upperEta) <  std::abs(absEta - *std::prev(upperEta))){
+
+        double distance = std::abs(absEta - *upperEta)/((*upperEta - *std::prev(upperEta))/2);
+
+        ATH_MSG_DEBUG( "[ punchthrough ] abs(eta) is closer to eta points upper_bound, distance: " << distance );
+
+        if(randomShoot > distance){
+            ATH_MSG_DEBUG( "[ punchthrough ] randomShoot > distance, returning upper_bound " << *upperEta );
+            return *upperEta;
+        }
+
+        ATH_MSG_DEBUG( "[ punchthrough ] randomShoot < distance, returning prev(upper_bound) " << *std::prev(upperEta) );
+
+        return *std::prev(upperEta);
+    }
+    else if(std::abs(absEta - *std::prev(upperEta)) <  std::abs(absEta - *upperEta)){
+
+        if(std::prev(upperEta) == m_etaPoints.begin()){
+            ATH_MSG_DEBUG( "[ punchthrough ] prev of upper bound is begin, returning that: " << *std::prev(upperEta) );
+            return *std::prev(upperEta);
+        }
+
+        double distance = std::abs(absEta - *std::prev(upperEta))/((*std::prev(upperEta) - *std::prev(std::prev(upperEta)))/2);
+
+        ATH_MSG_DEBUG( "[ punchthrough ] abs(eta) is closer to eta points prev(upper_bound), distance: " << distance );
+
+        if(randomShoot > distance){
+            ATH_MSG_DEBUG( "[ punchthrough ] randomShoot > distance, returning prev(prev(upper_bound)) " << *std::prev(std::prev(upperEta)) );
+
+            return *std::prev(std::prev(upperEta));
+        }
+        ATH_MSG_DEBUG( "[ punchthrough ] randomShoot < distance, returning prev(upper_bound) " << *std::prev(upperEta) );
+
+        return *std::prev(upperEta);
+    }
+
+    return *std::prev(upperEta);
+}
+
 
 /*=========================================================================
  *  DESCRIPTION OF FUNCTION:
@@ -761,42 +1115,42 @@ ISF::PunchThroughTool::registerParticle(int pdg, bool doAntiparticle,
   // read in the data needed to construct the distributions for the number of punch-through particles
 
   // (1.) get the distribution function for the number of punch-through particles
-  std::unique_ptr<ISF::PDFcreator> pdf_num(readLookuptablePDF(pdg, "NumExitPDG"));
+  std::unique_ptr<ISF::PDFcreator> pdf_num(readLookuptablePDF(pdg, "FREQ_PDG"));
   if (!pdf_num ) return StatusCode::FAILURE; // return error if something went wrong
 
   // (2.) get the PDF for the punch-through energy
-  std::unique_ptr<PDFcreator> pdf_energy (readLookuptablePDF(pdg, "ExitEnergyPDG"));
-  if (!pdf_energy)
+  std::unique_ptr<PDFcreator> pdf_pca0 (readLookuptablePDF(pdg, "PCA0_PDG"));
+  if (!pdf_pca0)
     {
       return StatusCode::FAILURE; // return error if something went wrong
     }
 
   // (3.) get the PDF for the punch-through particles difference in
   //      theta compared to the incoming particle
-  std::unique_ptr<PDFcreator> pdf_theta (readLookuptablePDF(pdg, "ExitDeltaThetaPDG"));
-  if (!pdf_theta)
+  std::unique_ptr<PDFcreator> pdf_pca1 (readLookuptablePDF(pdg, "PCA1_PDG"));
+  if (!pdf_pca1)
     {
       return StatusCode::FAILURE;
     }
 
   // (4.) get the PDF for the punch-through particles difference in
   //      phi compared to the incoming particle
-  std::unique_ptr<PDFcreator> pdf_phi (readLookuptablePDF(pdg, "ExitDeltaPhiPDG"));
-  if (!pdf_phi)
+  std::unique_ptr<PDFcreator> pdf_pca2 (readLookuptablePDF(pdg, "PCA2_PDG"));
+  if (!pdf_pca2)
     {
       return StatusCode::FAILURE;
     }
 
   // (5.) get the PDF for the punch-through particle momentum delta theta angle
-  std::unique_ptr<PDFcreator> pdf_momTheta (readLookuptablePDF(pdg, "MomDeltaThetaPDG"));
-  if (!pdf_momTheta)
+  std::unique_ptr<PDFcreator> pdf_pca3 (readLookuptablePDF(pdg, "PCA3_PDG"));
+  if (!pdf_pca3)
     {
       return StatusCode::FAILURE;
     }
 
   // (6.) get the PDF for the punch-through particle momentum delta phi angle
-  std::unique_ptr<PDFcreator> pdf_momPhi (readLookuptablePDF(pdg, "MomDeltaPhiPDG"));
-  if (!pdf_momPhi)
+  std::unique_ptr<PDFcreator> pdf_pca4 (readLookuptablePDF(pdg, "PCA4_PDG"));
+  if (!pdf_pca4)
     {
       return StatusCode::FAILURE;
     }
@@ -804,11 +1158,11 @@ ISF::PunchThroughTool::registerParticle(int pdg, bool doAntiparticle,
   // (7.) now finally store all this in the right std::map
   PunchThroughParticle *particle = new PunchThroughParticle(pdg, doAntiparticle);
   particle->setNumParticlesPDF(std::move(pdf_num));
-  particle->setExitEnergyPDF(std::move(pdf_energy));
-  particle->setExitDeltaThetaPDF(std::move(pdf_theta));
-  particle->setExitDeltaPhiPDF(std::move(pdf_phi));
-  particle->setMomDeltaThetaPDF(std::move(pdf_momTheta));
-  particle->setMomDeltaPhiPDF(std::move(pdf_momPhi));
+  particle->setPCA0PDF(std::move(pdf_pca0));
+  particle->setPCA1PDF(std::move(pdf_pca1));
+  particle->setPCA2PDF(std::move(pdf_pca2));
+  particle->setPCA3PDF(std::move(pdf_pca3));
+  particle->setPCA4PDF(std::move(pdf_pca4));
 
   // (8.) set some additional particle and simulation properties
   const double restMass = m_particleDataTable->particle(std::abs(pdg))->mass();
@@ -916,17 +1270,14 @@ std::unique_ptr<ISF::PDFcreator> ISF::PunchThroughTool::readLookuptablePDF(int p
       while ((key = (TKey*)keyList())) {
 
         //Get histogram object from key and its name
-        TH1* hist1D = nullptr;
-        TH2* hist2D = nullptr;
+        TH1* hist = nullptr;
+
         std::string histName;
         if(strcmp(key->GetClassName(), "TH1F") == 0){
-          hist1D = (TH1*)key->ReadObj();
-          histName = hist1D->GetName();
+          hist = (TH1*)key->ReadObj();
+          histName = hist->GetName();
         }
-        if(strcmp(key->GetClassName(), "TH2F") == 0){
-          hist2D = (TH2*)key->ReadObj();
-          histName = hist2D->GetName();
-        }
+
         //extract energy and eta from hist name 6 and 1 to position delimeters correctly
         std::string strEnergy = histName.substr( histName.find_first_of("E") + 1, histName.find_first_of("_")-histName.find_first_of("E") - 1 );
         histName.erase(0, histName.find_first_of("_") + 1);
@@ -934,39 +1285,25 @@ std::unique_ptr<ISF::PDFcreator> ISF::PunchThroughTool::readLookuptablePDF(int p
         histName.erase(0, histName.find("_") + 1);
         std::string strEtaMax = histName.substr( histName.find("etaMax") + 6, histName.length());
 
-        //convert string slice information to int and push back to vector
-        std::vector<double> energyEtaMinEtaMax;
-        energyEtaMinEtaMax.push_back(std::stod(strEnergy));
-        energyEtaMinEtaMax.push_back(std::stod(strEtaMin));
-        energyEtaMinEtaMax.push_back(std::stod(strEtaMax));
-
-        //create vector with just eta range and energy double
-        const double energy = std::stod(strEnergy);
-        std::vector<double> etaMinEtaMax;
-        etaMinEtaMax.push_back(std::stod(strEtaMin)/100.);
-        etaMinEtaMax.push_back(std::stod(strEtaMax)/100.);
-
+        //create integers to store in map
+        const int energy = std::stoi(strEnergy);
+        const int etaMin = std::stoi(strEtaMin);
 
         //Add entry to pdf map
-        if(strcmp(key->GetClassName(), "TH1F") == 0){
-          pdf->addToEnergyEtaRangeHist1DMap(energy, etaMinEtaMax, new TFCS1DFunctionInt32Histogram(hist1D));
+        pdf->addToEnergyEtaHist1DMap(energy, etaMin, hist);
+
+        //create doubles to store energy and eta points for interpolation
+        const double energyDbl = static_cast<double>(energy);
+        const double etaDbl = static_cast<double>(etaMin)/100.;
+
+        //create vectors to store the eta and energy points, this allows us to interpolate
+        if (std::find(m_energyPoints.begin(), m_energyPoints.end(), energyDbl) == m_energyPoints.end()) {
+            m_energyPoints.push_back(energyDbl);
         }
-        if(strcmp(key->GetClassName(), "TH2F") == 0){
-
-          //Store 2D histogram as map of x bins to y-projection 1D hists.
-          std::map<double, TFCS1DFunction*>* histMap2D = new std::map<double, TFCS1DFunction*>;
-
-          for(int ibinx = 0; ibinx < hist2D->GetXaxis()->GetNbins(); ibinx ++){
-
-            TH1 * histYProjection = hist2D->ProjectionY((hist2D->GetName() + std::string("_bin") + std::to_string(ibinx + 1)).c_str(),ibinx + 1,ibinx + 1); //get y projection
-
-            if(histYProjection->Integral() < std::numeric_limits<Double_t>::epsilon()){continue;} // don't add to map if y projection has no entries
-
-            histMap2D->insert(std::make_pair(hist2D->GetXaxis()->GetBinCenter(ibinx + 1), new TFCS1DFunctionInt32Histogram(histYProjection)));
-          }
-
-          pdf->addToEnergyEtaRangeHist2DMap(energy, etaMinEtaMax, histMap2D);
+        if (std::find(m_etaPoints.begin(), m_etaPoints.end(), etaDbl) == m_etaPoints.end()) {
+            m_etaPoints.push_back(etaDbl);
         }
+
       }
 
 

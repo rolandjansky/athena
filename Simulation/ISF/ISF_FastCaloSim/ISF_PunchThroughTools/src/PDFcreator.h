@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -44,23 +44,17 @@ namespace ISF
 
     /** all following is used to set up the class */
     void setName( std::string PDFname ){ m_name = PDFname; }; //get the pdf's name
-    void addToEnergyEtaRangeHist1DMap(double energy, std::vector<double> etaMinEtaMax, TFCS1DFunction *hist); //add entry to map linking energy, eta window and histogram
-    void addToEnergyEtaRangeHist2DMap(double energy, std::vector<double> etaMinEtaMax, std::map< double , TFCS1DFunction* > *hist); //add entry to map linking energy, eta window and histogram
+    void addToEnergyEtaHist1DMap(int energy, int etaMin, TH1 *hist); //add entry to map linking energy, eta window and histogram
 
     /** get the random value with this method, by providing the input parameters */
-    double getRand( const std::vector<double>& inputPar, const double& outEnergy = 0., const double& randMin = 0., const double& randMax = 0.) const;
+    double getRand( const std::vector<int>& inputPar) const;
     std::string getName() const {return m_name;};
-    static bool compareEnergy1D(const std::pair< double , std::map< std::vector<double>, TFCS1DFunction*> > map, const double value){ return map.first < value; };
-    static bool compareEnergy2D(const std::pair< double , std::map< std::vector<double>, std::map< double , TFCS1DFunction* >* > > map, const double value){ return map.first < value; };
-    static bool compareEtaMax1D(const std::pair< std::vector<double>, TFCS1DFunction*> map, const double value){ return map.first.at(1) < value; };
-    static bool compareEtaMax2D(const std::pair< std::vector<double>, std::map< double , TFCS1DFunction* >* > map, const double value){ return map.first.at(1) < value; };
 
   private:
     CLHEP::HepRandomEngine             *m_randomEngine;       //!< Random Engine
     std::string                         m_name;               //!< Give pdf a name for debug purposes
-    std::map< double , std::map< std::vector<double>, TFCS1DFunction*> > m_energy_etaRange_hists1D; //!< map of energies to map of eta ranges to 1D histograms
+    std::map< int , std::map< int, TH1*> > m_energy_eta_hists1D; //!< map of energies to map of eta ranges to 1D histograms
     std::map< double , std::map< std::vector<double>, std::map< double , TFCS1DFunction* >* > > m_energy_etaRange_hists2D; //!< map of energies to map of eta ranges to 2D histograms
-    constexpr static double sqrtOf2 = std::sqrt(2);
 
   };
 }

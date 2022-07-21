@@ -666,23 +666,32 @@ def getPunchThroughTool(name="ISF_PunchThroughTool", **kwargs):
     kwargs.setdefault("RandomNumberService"     , simFlags.RandomSvc()                               )
     kwargs.setdefault("RandomStreamName"        , ISF_FastCaloSimFlags.RandomStreamName()            )
     kwargs.setdefault("FilenameLookupTable"     , ISF_FastCaloSimFlags.PunchThroughParamsInputFilename())
+    kwargs.setdefault("FilenameInverseCdf"      , ISF_FastCaloSimFlags.PunchThroughParamsInverseCdfFilename())
+    kwargs.setdefault("FilenameInversePca"      , ISF_FastCaloSimFlags.PunchThroughParamsInversePcaFilename())
     kwargs.setdefault("PunchThroughInitiators"  , [ 211 ]                                            )
     kwargs.setdefault("InitiatorsMinEnergy"     , [ 65536 ]                                         )
-    kwargs.setdefault("InitiatorsEtaRange"      , [       -2.7,     2.7 ]                               )
-    kwargs.setdefault("PunchThroughParticles"   , [    2212,     211,      22,      11,      13 ]    )
-    kwargs.setdefault("DoAntiParticles"         , [   True,    True,   False,    True,    True ]    )
+    kwargs.setdefault("InitiatorsEtaRange"      , [ -3.2,   3.2 ]                               )
+    kwargs.setdefault("PunchThroughParticles"   , [ 2212,   211,    22,     11,     13,     2112,   321,    310,    130 ]    )
+    kwargs.setdefault("DoAntiParticles"         , [ True,   True,   False,  True,   True,   False,  True,   False,  False ]    )
     #kwargs.setdefault("CorrelatedParticle"      , [     211,    2212,      11,      22,       0 ]    )
     kwargs.setdefault("CorrelatedParticle"      , []    )
-    kwargs.setdefault("FullCorrelationEnergy"   , [ 100000., 100000., 100000., 100000.,      0. ]    )
-    kwargs.setdefault("MinEnergy"               , [   938.3,   135.6,     50.,     50.,   105.7 ]    )
-    kwargs.setdefault("MaxNumParticles"         , [      -1,      -1,      -1,      -1,      -1 ]    )
-    kwargs.setdefault("EnergyFactor"            , [      1.,      1.,      1.,      1.,      1. ]    )
+    kwargs.setdefault("FullCorrelationEnergy"   , [ 100000., 100000., 100000., 100000.,      0., 100000., 100000., 100000., 100000.]    )
+    kwargs.setdefault("MinEnergy"               , [   938.3,   135.6,     50.,     50.,   105.7,   939.6, 493.7,   497.6,   497.6 ]    )
+    kwargs.setdefault("MaxNumParticles"         , [      -1,      -1,      -1,      -1,      -1,    -1,     -1,     -1,     -1 ]    )
+    kwargs.setdefault("EnergyFactor"            , [      1.,      1.,      1.,      1.,      1.,    1.,      1.,      1.,     1. ]    )
     kwargs.setdefault("BarcodeSvc"              , simFlags.TruthStrategy.BarcodeServiceName()        )
     kwargs.setdefault("EnvelopeDefSvc"          , getService('AtlasGeometry_EnvelopeDefSvc')         )
     kwargs.setdefault("BeamPipeRadius"          , 500.                                               )
 
     from ISF_PunchThroughTools.ISF_PunchThroughToolsConf import ISF__PunchThroughTool
     return ISF__PunchThroughTool(name, **kwargs )
+
+def getPunchThroughClassifier(name="ISF_PunchThroughClassifier", **kwargs):
+    kwargs.setdefault("ScalerConfigFileName"     , ISF_FastCaloSimFlags.PunchThroughClassifierScalerFilename() )
+    kwargs.setdefault("NetworkConfigFileName"     , ISF_FastCaloSimFlags.PunchThroughClassifierNetworkFilename() )
+    kwargs.setdefault("CalibratorConfigFileName"    , ISF_FastCaloSimFlags.PunchThroughClassifierCalibratorFilename())
+    from ISF_PunchThroughTools.ISF_PunchThroughToolsConf import ISF__PunchThroughClassifier
+    return ISF__PunchThroughClassifier(name, **kwargs )
 
 def getEmptyCellBuilderTool(name="ISF_EmptyCellBuilderTool", **kwargs):
     from FastCaloSim.FastCaloSimConf import EmptyCellBuilderTool

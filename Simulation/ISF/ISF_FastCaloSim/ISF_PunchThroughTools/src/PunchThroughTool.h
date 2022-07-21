@@ -1,11 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_PUNCHTHROUGHTOOLS_SRC_PUNCHTHROUGHTOOL_H
 #define ISF_PUNCHTHROUGHTOOLS_SRC_PUNCHTHROUGHTOOL_H 1
 
 #include "ISF_FastCaloSimInterfaces/IPunchThroughTool.h"
+
+#include "ISF_FastCaloSimInterfaces/IPunchThroughClassifier.h"
+
 #include <string>
 
 // Athena Base
@@ -16,6 +19,15 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 
 #include "ISF_Event/ISFParticleVector.h"
+
+//libXML
+#include <libxml/xmlmemory.h>
+#include <libxml/parser.h>
+#include <libxml/tree.h>
+#include <libxml/xmlreader.h>
+#include <libxml/xpath.h>
+#include <libxml/xpathInternals.h>
+
 /*-------------------------------------------------------------------------
  *  Forward declarations
  *-------------------------------------------------------------------------*/
@@ -42,7 +54,6 @@ namespace Barcode {
 }
 
 namespace ISF {
-
   class PunchThroughParticle;
   class PDFcreator;
   class IGeoIDSvc;
@@ -64,7 +75,7 @@ namespace ISF {
     /** AlgTool finalize method */
     virtual StatusCode finalize  ();
     /** interface function: fill a vector with the punch-through particles */
-    const ISF::ISFParticleVector* computePunchThroughParticles(const ISF::ISFParticle &isfp) const;
+    const ISF::ISFParticleVector* computePunchThroughParticles(const ISF::ISFParticle &isfp, const TFCSSimulationState& simulstate) const;
 
   private:
     /*---------------------------------------------------------------------
@@ -106,6 +117,33 @@ namespace ISF {
     /** get particle through the calorimeter */
     Amg::Vector3D propagator(double theta, double phi) const;
 
+    //apply the inverse PCA transform
+    std::vector<double> inversePCA(std::vector<double> &variables) const;
+
+    //apply the inverse CDF trainsform
+    double inverseCdfTransform(double variable, std::map<double, double> inverse_cdf_map) const;
+
+    //dot product between matrix and vector, used to inverse PCA
+    std::vector<double> dotProduct(const std::vector<std::vector<double>> &m, const std::vector<double> &v) const;
+
+    //returns normal cdf based on normal gaussian value
+    double normal_cdf(double x) const;
+
+    //apply energy interpolation
+    double interpolateEnergy(double &energy) const;
+
+    //apply eta interpolation
+    double interpolateEta(double &eta) const;
+
+    //load inverse quantile transformer from XML
+    StatusCode initializeInverseCDF(std::string quantileTransformerConfigFile);
+
+    //get CDF mapping for individual XML node
+    std::map<double, double> getVariableCDFmappings(xmlNodePtr& nodeParent);
+
+    //load inverse PCA from XML
+    StatusCode initializeInversePCA(std::string inversePCAConfigFile);
+
     /*---------------------------------------------------------------------
      *  Private members
      *---------------------------------------------------------------------*/
@@ -116,6 +154,12 @@ namespace ISF {
     mutable double                       m_initEta{0.};     //!< the incoming particle's eta
     mutable double                       m_initTheta{0.};   //!< the incoming particle's theta
     mutable double                       m_initPhi{0.};     //!< the incoming particle's phi
+
+    mutable double                      m_interpEnergy{0.};
+    mutable double                      m_interpEta{0.};
+
+    std::vector<double>                 m_energyPoints;
+    std::vector<double>                 m_etaPoints;
 
     /** calo-MS borders */
     double                               m_R1{0.};
@@ -157,6 +201,10 @@ namespace ISF {
 
     /** Properties */
     std::string                          m_filenameLookupTable{"CaloPunchThroughParametrisation.root"};     //!< holds the filename of the lookup table (property)
+    std::string                          m_filenameInverseCDF;     //!< holds the filename of inverse quantile transformer config
+    std::string                          m_filenameInversePCA;     //!< holds the filename of inverse PCA config
+
+    ToolHandle< IPunchThroughClassifier >     m_punchThroughClassifier;
     std::vector<int>                     m_pdgInitiators;           //!< vector of punch-through initiator pgds
     std::vector<int>                     m_initiatorsMinEnergy;     //!< vector of punch-through initiator min energyies to create punch through
     std::vector<double>                  m_initiatorsEtaRange;      //!< vector of min and max abs eta range to allow punch through initiators
@@ -173,6 +221,13 @@ namespace ISF {
     std::vector<double>                  m_energyFactor;            //!< scale the energy of the punch-through particles
 
     /*---------------------------------------------------------------------
+     *  Constants
+     *---------------------------------------------------------------------*/
+     constexpr static double m_SQRT_0p5 = std::sqrt(0.5);
+     constexpr static double m_SQRT_2 = std::sqrt(2);
+
+
+    /*---------------------------------------------------------------------
      *  ServiceHandles
      *---------------------------------------------------------------------*/
     ServiceHandle<IPartPropSvc>          m_particlePropSvc;         //!< particle properties svc
@@ -182,6 +237,16 @@ namespace ISF {
 
     /** beam pipe radius */
     double                              m_beamPipe{500.};
+
+    std::vector<std::vector<double>> m_inverse_PCA_matrix;
+    std::vector<double> m_PCA_means;
+
+    std::map<double, double>  m_variable0_inverse_cdf;
+    std::map<double, double>  m_variable1_inverse_cdf;
+    std::map<double, double>  m_variable2_inverse_cdf;
+    std::map<double, double>  m_variable3_inverse_cdf;
+    std::map<double, double>  m_variable4_inverse_cdf;
+
   };
 }
 
