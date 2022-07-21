@@ -476,12 +476,19 @@ void test3( StoreGateSvc* cs )
 
   SG::WriteCondHandleKey<MyObj>  k3 ("test3_3");
   assert ( k3.initialize().isSuccess() );
+  SG::WriteCondHandleKey<MyObj>  k4 ("test3_4");
+  assert ( k4.initialize().isSuccess() );
 
   {
     SG::WriteCondHandle h3 (k3, ctx);
     h3.addDependency (h1);
     h3.addDependency (h2);
     assert ( h3.record (std::make_unique<MyObj>(3)).isSuccess() );
+  }
+  {
+    SG::WriteCondHandle h4 (k4, ctx);
+    h4.addDependency (h2);
+    assert ( h4.record (std::make_unique<MyObj>(4)).isSuccess() );
   }
 
   CondCont<MyObj>* cc1 = nullptr;
@@ -490,10 +497,15 @@ void test3( StoreGateSvc* cs )
   assert ( cs->retrieve (cc2, "test3_2").isSuccess() );
   CondCont<MyObj>* cc3 = nullptr;
   assert ( cs->retrieve (cc3, "test3_3").isSuccess() );
+  CondCont<MyObj>* cc4 = nullptr;
+  assert ( cs->retrieve (cc4, "test3_4").isSuccess() );
 
-  std::vector<CondContBase*> v { cc1, cc2 };
+  std::vector<CondContBase*> v { cc3, cc4 };
   std::sort (v.begin(), v.end());
-  assert (cc3->getDeps() == v);
+  assert (cc1->getDeps() == std::vector<CondContBase*> {cc3});
+  assert (cc2->getDeps() == v);
+  assert (cc3->getDeps() == std::vector<CondContBase*> {});
+  assert (cc4->getDeps() == std::vector<CondContBase*> {});
 
   {
     SG::WriteCondHandle h3 (k3, ctx);
@@ -501,7 +513,16 @@ void test3( StoreGateSvc* cs )
     h3.addDependency (h2);
     assert ( h3.record (std::make_unique<MyObj>(3)).isSuccess() );
   }
-  assert (cc3->getDeps() == v);
+  {
+    SG::WriteCondHandle h4 (k4, ctx);
+    h4.addDependency (h2);
+    assert ( h4.record (std::make_unique<MyObj>(4)).isSuccess() );
+  }
+
+  assert (cc1->getDeps() == std::vector<CondContBase*> {cc3});
+  assert (cc2->getDeps() == v);
+  assert (cc3->getDeps() == std::vector<CondContBase*> {});
+  assert (cc4->getDeps() == std::vector<CondContBase*> {});
 }
 
 
