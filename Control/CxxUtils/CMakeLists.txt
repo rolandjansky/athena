@@ -148,24 +148,15 @@ if( ATLAS_RELEASE_MODE )
    return()
 endif()
 
-# Install the ubsan and gccchecker config files already during the CMake configuration.
+# Install the ubsan config files already during the CMake configuration.
 # This is necessary because the file may be needed very early during the
 # build, and we don't explicitly make everything else wait for this
 # file's installation. Creating a race condition.
+set( _install
+   "share/ubsan.supp" )
 
-option( CHECKERGCCPLUGINS_PEDANTIC
-   "Enable pedantic checkergcc plugin settings" OFF )
-
-if( CHECKERGCCPLUGINS_PEDANTIC )
-   set( CHECKERGCCPLUGINS_CONFIG_NAME "checkergcc-pedantic.config" )
-else()
-   set( CHECKERGCCPLUGINS_CONFIG_NAME "checkergcc.config" )
-endif()
-
-file( INSTALL share/ubsan.supp share/${CHECKERGCCPLUGINS_CONFIG_NAME}
-   DESTINATION ${CMAKE_SHARE_OUTPUT_DIRECTORY} )
-install( FILES share/ubsan.supp share/${CHECKERGCCPLUGINS_CONFIG_NAME}
-   DESTINATION ${CMAKE_INSTALL_SHAREDIR} )
+file( INSTALL ${_install} DESTINATION ${CMAKE_SHARE_OUTPUT_DIRECTORY} )
+install( FILES ${_install} DESTINATION ${CMAKE_INSTALL_SHAREDIR} )
 
 # Set the directory to put the configured environment setup file into:
 set( CxxUtilsEnvironment_DIR
@@ -174,7 +165,7 @@ set( CxxUtilsEnvironment_DIR
 
 # Configure the environment setup module:
 configure_file(
-   ${CMAKE_CURRENT_SOURCE_DIR}/CxxUtilsEnvironmentConfig.cmake.in
+   ${CMAKE_CURRENT_SOURCE_DIR}/cmake/CxxUtilsEnvironmentConfig.cmake.in
    ${CxxUtilsEnvironment_DIR}/CxxUtilsEnvironmentConfig.cmake
    @ONLY )
 
