@@ -23,7 +23,7 @@ namespace CoralUtilities {
 	bool writeBlobFromJson   (const nlohmann::json& , coral::Blob&);
 	bool writeBlobFromTTree  (      TTree*          , coral::Blob&);
 
-	bool uncompressBlob      (const coral::Blob&, unsigned char*&, unsigned long&);
+	bool uncompressBlob      (const coral::Blob&, std::unique_ptr<unsigned char[]>&, unsigned long&);
 	bool readBlobAsString    (const coral::Blob&, std::string&                   );
 	bool readBlobAsJson      (const coral::Blob&, nlohmann::json&                );
 	bool readBlobAsTTree     (const coral::Blob&, std::unique_ptr<TTree>& );

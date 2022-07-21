@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 # Utilities used in athenaHLT.py
 #
@@ -64,8 +64,8 @@ def get_sor_params(run_number):
 
 
 @cache
-def get_trigconf_keys(run_number):
-   """Read HLT keys from COOL"""
+def get_trigconf_keys(run_number, lb_number):
+   """Read Trigger keys from COOL"""
 
    from TrigConfStorage.TriggerCoolUtil import TriggerCoolUtil
 
@@ -74,9 +74,16 @@ def get_trigconf_keys(run_number):
    run_range = [[run_number,run_number]]
    d = {}
    d['SMK'] = TriggerCoolUtil.getHLTConfigKeys(db, run_range)[run_number]['SMK']
-   # First HLT/L1 prescale key used in the run
-   d['HLTPSK'] = TriggerCoolUtil.getHLTPrescaleKeys(db, run_range)[run_number]['HLTPSK2'][0][0]
-   d['LVL1PSK'] = TriggerCoolUtil.getL1ConfigKeys(db, run_range)[run_number]['LVL1PSK'][0][0]
+
+   def findKey(keys):
+      for (key, firstLB, lastLB) in keys:
+         if lb_number>=firstLB and lb_number<=lastLB:
+            return key
+      return None
+
+   # Find L1/HLT prescale key
+   d['LVL1PSK'] = findKey(TriggerCoolUtil.getL1ConfigKeys(db, run_range)[run_number]['LVL1PSK'])
+   d['HLTPSK'] = findKey(TriggerCoolUtil.getHLTPrescaleKeys(db, run_range)[run_number]['HLTPSK2'])
 
    return d
 
@@ -99,8 +106,15 @@ if __name__=='__main__':
    print(d)
    assert(d['DetectorMask']==281474976710647)
 
-   d = get_trigconf_keys(360026)
+   # Config keys
+   d = get_trigconf_keys(360026, 1)
    print(d)
    assert(d['SMK']==2749)
    assert(d['LVL1PSK']==15186)
    assert(d['HLTPSK']==17719)
+
+   d = get_trigconf_keys(360026, 100)
+   print(d)
+   assert(d['SMK']==2749)
+   assert(d['LVL1PSK']==23504)
+   assert(d['HLTPSK']==17792)

@@ -21,14 +21,22 @@ def TrigMuonEfficiencyMonTTbarConfig(helper):
     
     from AthenaConfiguration.ComponentFactory import CompFactory
 
-    # HLT_mu6_L1MU6 is test chain for small statistics, so it will be removed.
-    Chains = ['HLT_mu6_L1MU5VF', 'HLT_mu26_ivarmedium_L1MU14FCH', 'HLT_mu50_L1MU14FCH', 'HLT_mu60_0eta105_msonly_L1MU14FCH', 'HLT_mu14_L1MU8F', 'HLT_mu22_mu8noL1_L1MU14FCH']
+    ### monitorig groups
+    from TrigConfigSvc.TriggerConfigAccess import getHLTMonitoringAccess
+    moniAccess = getHLTMonitoringAccess(helper.inputFlags)
+    Chains = moniAccess.monitoredChains(signatures="muonMon",monLevels=["shifter","t0","val"])
+    MonitoredChains = [c for c in Chains if '2mu14' not in c]
+  
+    # if mon groups not found fall back to hard-coded trigger monitoring list
+    if len(MonitoredChains) == 0:
+        # HLT_mu6_L1MU6 is test chain for small statistics, so it will be removed.
+        MonitoredChains = ['HLT_mu6_L1MU5VF', 'HLT_mu24_ivarmedium_L1MU14FCH', 'HLT_mu50_L1MU14FCH', 'HLT_mu60_0eta105_msonly_L1MU14FCH', 'HLT_mu14_L1MU8F', 'HLT_mu22_mu8noL1_L1MU14FCH']
 
-    for chain in Chains:
+    for chain in MonitoredChains:
         monAlg = helper.addAlgorithm(CompFactory.TrigMuonEfficiencyMon,'TrigMuEff_ttbar_'+chain)
 
-        monAlg.EventTrigger = 'HLT_mu26_ivarmedium_L1MU14FCH'
-        monAlg.TagTrigger = 'HLT_mu26_ivarmedium_L1MU14FCH'
+        monAlg.EventTrigger = 'HLT_mu24_ivarmedium_L1MU14FCH'
+        monAlg.TagTrigger = 'HLT_mu24_ivarmedium_L1MU14FCH'
         monAlg.Method = 'TTbarTagAndProbe'
         monAlg.MonitoredChains = [chain]
         threshold, level1 = regex('HLT_mu([0-9]+).*_(L1MU[0-9].*[A-Z])').match(chain).groups()
@@ -49,14 +57,22 @@ def TrigMuonEfficiencyMonZTPConfig(helper):
 
     from AthenaConfiguration.ComponentFactory import CompFactory
 
-    # HLT_mu6_L1MU6 is test chain for small statistics, so it will be removed.
-    Chains = ['HLT_mu6_L1MU5VF', 'HLT_mu26_ivarmedium_L1MU14FCH', 'HLT_mu50_L1MU14FCH', 'HLT_mu60_0eta105_msonly_L1MU14FCH', 'HLT_mu14_L1MU8F', 'HLT_mu22_mu8noL1_L1MU14FCH']
+    ### monitorig groups
+    from TrigConfigSvc.TriggerConfigAccess import getHLTMonitoringAccess
+    moniAccess = getHLTMonitoringAccess(helper.inputFlags)
+    Chains = moniAccess.monitoredChains(signatures="muonMon",monLevels=["shifter","t0","val"])
+    MonitoredChains = [c for c in Chains if '2mu14' not in c]
+  
+    # if mon groups not found fall back to hard-coded trigger monitoring list
+    if len(MonitoredChains) == 0:
+        # HLT_mu6_L1MU6 is test chain for small statistics, so it will be removed.
+        MonitoredChains = ['HLT_mu6_L1MU5VF', 'HLT_mu24_ivarmedium_L1MU14FCH', 'HLT_mu50_L1MU14FCH', 'HLT_mu60_0eta105_msonly_L1MU14FCH', 'HLT_mu14_L1MU8F', 'HLT_mu22_mu8noL1_L1MU14FCH']
 
-    for chain in Chains:
+    for chain in MonitoredChains:
         monAlg = helper.addAlgorithm(CompFactory.TrigMuonEfficiencyMon,'TrigMuEff_ZTP_'+chain)
 
-        monAlg.EventTrigger = 'HLT_mu26_ivarmedium_L1MU14FCH'
-        monAlg.TagTrigger = 'HLT_mu26_ivarmedium_L1MU14FCH'
+        monAlg.EventTrigger = 'HLT_mu24_ivarmedium_L1MU14FCH'
+        monAlg.TagTrigger = 'HLT_mu24_ivarmedium_L1MU14FCH'
         monAlg.Method = 'ZTagAndProbe'
         monAlg.MonitoredChains = [chain]
         threshold, level1 = regex('HLT_mu([0-9]+).*_(L1MU[0-9].*[A-Z])').match(chain).groups()
