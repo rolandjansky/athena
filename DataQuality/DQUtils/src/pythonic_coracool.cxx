@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Efficient pythonic CoraCool bindings
@@ -30,6 +30,10 @@
 
 #include <string>
 #include <iostream>
+
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;   // Python-bindings
+
 using std::cout;
 using std::endl;
 using std::string;
@@ -185,7 +189,7 @@ const cool::RecordSpecification
 inline PyObject* make_iov_key(PyObject *iovkey_wrapper, 
                               unsigned long long value)
 {
-    static char *argtypes = const_cast<char *>("K");
+    static const char * const argtypes = const_cast<char *>("K");
     if (iovkey_wrapper && iovkey_wrapper != Py_None)
         return PyObject_CallFunction(iovkey_wrapper, argtypes, value);
     return PyLong_FromUnsignedLongLong(value);
