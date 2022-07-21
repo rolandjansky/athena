@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -16,7 +16,7 @@
 #include <AsgExampleTools/UnitTestService1.h>
 #include <cmath>
 #include <gtest/gtest.h>
-#include <sstream>
+#include <string>
 
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
@@ -33,10 +33,8 @@ namespace asg
     /// \brief make a unique service name to be used in unit tests
     std::string makeUniqueName ()
     {
-      static unsigned index = 0;
-      std::ostringstream str;
-      str << "unique" << ++ index;
-      return str.str();
+      static std::atomic<unsigned> index = 0;
+      return "unique" + std::to_string(++index);
     }
   }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -14,6 +14,9 @@
 
 #include <gtest/gtest.h>
 #include <map>
+
+#include <CxxUtils/checker_macros.h>
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // unit test
 
 //
 // method implementations
