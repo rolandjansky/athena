@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Aug-2008: M.Fincke  First implementation for SLHC MiniFCal
@@ -41,8 +41,6 @@ namespace LArG4 {
                               const eCalculatorProcessing process = kEnergyAndID) const override final;
 
     private:
-      MiniFCALAssignIdentifier* m_geometryCalculator = nullptr;
-
       eMiniFCALAssignIdentifierType m_geometryType;
       std::string m_strgeometryType;
 

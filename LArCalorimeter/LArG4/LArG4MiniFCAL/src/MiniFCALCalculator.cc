@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MiniFCALCalculator.h"
@@ -33,7 +33,6 @@ StatusCode MiniFCALCalculator::initialize()
 
    ATH_MSG_INFO("Use the MiniFCALCalculator for the MiniFCAL");
 
-   m_Geometry = LArG4::MiniFCAL::MiniFCALAssignIdentifier::GetInstance();
    return StatusCode::SUCCESS;
 }
 
@@ -57,7 +56,7 @@ G4bool MiniFCALCalculator::Process(const G4Step* a_step, std::vector<LArHitData>
   hdata[0].time = (timeOfFlight - point.mag()/CLHEP::c_light)/Units::ns;
 
   // Calculate the identifier.
-  hdata[0].id = m_Geometry->CalculateIdentifier( a_step, LArG4::MiniFCAL::kActive);
+  hdata[0].id = LArG4::MiniFCAL::MiniFCALAssignIdentifier::GetInstance().CalculateIdentifier( a_step, LArG4::MiniFCAL::kActive);
 
   return true;
 }

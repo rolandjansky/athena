@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArG4::MiniFCAL::MiniFCALAssignIdentifier
@@ -45,13 +45,10 @@ namespace LArG4 {
 
   namespace MiniFCAL {
 
-    MiniFCALAssignIdentifier* MiniFCALAssignIdentifier::m_instance = 0;
-
-
-    MiniFCALAssignIdentifier* MiniFCALAssignIdentifier::GetInstance()
+    const MiniFCALAssignIdentifier& MiniFCALAssignIdentifier::GetInstance()
     {
-      if (m_instance == nullptr) m_instance = new MiniFCALAssignIdentifier();
-      return m_instance;
+      static const MiniFCALAssignIdentifier instance;
+      return instance;
     }
 
 
@@ -153,7 +150,7 @@ namespace LArG4 {
       HepGeom::Point3D<double>  globalPosition = pre_step_point->GetPosition();
       HepGeom::Point3D<double>  globalPosition2 = post_step_point->GetPosition();
 
-      G4TouchableHistory* theTouchable = (G4TouchableHistory*) (pre_step_point->GetTouchable());
+      const G4TouchableHistory* theTouchable = static_cast<const G4TouchableHistory*>(pre_step_point->GetTouchable());
       G4String volumeName = theTouchable->GetVolume()->GetName() ;
       G4String volumeName2 = post_step_point->GetTouchable()->GetVolume()->GetName() ;
 

@@ -44,7 +44,7 @@ namespace LArG4 {
     public:
 
       // Standard implementation of a singleton pattern.
-      static MiniFCALAssignIdentifier* GetInstance();
+      static const MiniFCALAssignIdentifier& GetInstance();
       virtual ~MiniFCALAssignIdentifier(){  ;}
 
       LArG4Identifier CalculateIdentifier( const G4Step* a_step, const eMiniFCALAssignIdentifierType type = kActive ) const;
@@ -55,9 +55,6 @@ namespace LArG4 {
       IMessageSvc* m_msgsvc = nullptr;
 
     private:
-      static MiniFCALAssignIdentifier *m_instance;
-
-
       G4double m_halfLength;
       G4double m_absThick;
       G4double m_layThick;
