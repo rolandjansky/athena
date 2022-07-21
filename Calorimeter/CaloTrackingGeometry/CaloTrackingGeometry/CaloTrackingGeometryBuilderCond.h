@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -71,18 +71,20 @@ public:
   virtual ~CaloTrackingGeometryBuilderCond();
 
   /** AlgTool initailize method.*/
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   /** AlgTool finalize method */
-  StatusCode finalize();
+  virtual StatusCode finalize() override;
 
-  /** TrackingGeometry Interface methode */
-  std::pair<EventIDRange, Trk::TrackingGeometry*> trackingGeometry(
+  /** TrackingGeometry Interface method */
+  virtual
+  std::unique_ptr<Trk::TrackingGeometry> trackingGeometry(
     const EventContext& ctx,
-    std::pair<EventIDRange, const Trk::TrackingVolume*> tVolPair) const;
+    const Trk::TrackingVolume* innerVol,
+    SG::WriteCondHandle<Trk::TrackingGeometry>& whandle) const override;
 
   /** The unique signature */
-  Trk::GeometrySignature geometrySignature() const { return Trk::Calo; }
+  virtual Trk::GeometrySignature geometrySignature() const override { return Trk::Calo; }
 
 private:
   ToolHandle<Trk::ITrackingVolumeArrayCreator>

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -68,21 +68,26 @@ namespace Muon {
         MuonInertMaterialBuilderCond(const std::string&, const std::string&, const IInterface*);
         /** Destructor */
         virtual ~MuonInertMaterialBuilderCond() = default;
-        /** AlgTool initailize method.*/
-        StatusCode initialize();
+        /** AlgTool initialize method.*/
+        virtual StatusCode initialize() override;
         /** AlgTool finalize method */
-        StatusCode finalize();
+        virtual StatusCode finalize() override;
 
         /** Method returning cloned and positioned material objects */
-        std::tuple<EventIDRange, std::unique_ptr<const std::vector<std::unique_ptr<const Trk::DetachedTrackingVolume> > >,
-                   std::unique_ptr<std::vector<std::vector<std::pair<std::unique_ptr<const Trk::Volume>, float> > > > >
-        buildDetachedTrackingVolumes(const EventContext& ctx, bool blend = false) const;
+        virtual
+        std::pair<std::unique_ptr<const std::vector<std::unique_ptr<const Trk::DetachedTrackingVolume> > >,
+                  std::unique_ptr<std::vector<std::vector<std::pair<std::unique_ptr<const Trk::Volume>, float> > > > >
+        buildDetachedTrackingVolumes(const EventContext& ctx,
+                                     SG::WriteCondHandle<Trk::TrackingGeometry>& whandle,
+                                     bool blend = false) const;
 
     private:
         /** Method creating material object prototypes */
-        std::tuple<EventIDRange, const std::vector<std::pair<const Trk::DetachedTrackingVolume*, std::vector<Amg::Transform3D> > >*,
-                   std::unique_ptr<std::vector<std::vector<std::pair<std::unique_ptr<const Trk::Volume>, float> > > > >
-        buildDetachedTrackingVolumeTypes(const EventContext& ctx, bool blend) const;
+        std::pair<const std::vector<std::pair<const Trk::DetachedTrackingVolume*, std::vector<Amg::Transform3D> > >*,
+                  std::unique_ptr<std::vector<std::vector<std::pair<std::unique_ptr<const Trk::Volume>, float> > > > >
+        buildDetachedTrackingVolumeTypes(const EventContext& ctx,
+                                         SG::WriteCondHandle<Trk::TrackingGeometry>& whandle,
+                                         bool blend) const;
         /** Method extracting material objects from GeoModel tree */
         void getObjsForTranslation(const GeoVPhysVol* pv, const Amg::Transform3D&,
                                    std::vector<std::pair<const GeoLogVol*, std::vector<Amg::Transform3D> > >& vols) const;

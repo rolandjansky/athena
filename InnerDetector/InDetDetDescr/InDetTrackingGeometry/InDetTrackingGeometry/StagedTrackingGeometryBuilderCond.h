@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -146,18 +146,20 @@ struct LayerSetupCond
       /** Destructor */
       virtual ~StagedTrackingGeometryBuilderCond();
         
-      /** AlgTool initailize method.*/
-      StatusCode initialize();
+      /** AlgTool initialize method.*/
+      virtual StatusCode initialize() override;
       /** AlgTool finalize method */
-      StatusCode finalize();
-      /** TrackingGeometry Interface methode */
-      std::pair<EventIDRange, Trk::TrackingGeometry*> trackingGeometry
+      virtual StatusCode finalize() override;
+      /** TrackingGeometry Interface method */
+      virtual
+      std::unique_ptr<Trk::TrackingGeometry> trackingGeometry
       ATLAS_NOT_THREAD_SAFE(
         const EventContext& ctx,
-        std::pair<EventIDRange, const Trk::TrackingVolume*> tVolPair) const;
+        const Trk::TrackingVolume* tVol,
+        SG::WriteCondHandle<Trk::TrackingGeometry>& whandle) const override;
 
       /** The unique signature */
-      Trk::GeometrySignature geometrySignature() const { return Trk::ID; }
+      virtual Trk::GeometrySignature geometrySignature() const override { return Trk::ID; }
       
     private:
       /** Private helper method, estimates the overal dimensions */

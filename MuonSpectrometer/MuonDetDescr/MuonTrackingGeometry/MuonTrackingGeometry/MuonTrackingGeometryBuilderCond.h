@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -61,15 +61,18 @@ namespace Muon {
         /** Destructor */
         virtual ~MuonTrackingGeometryBuilderCond() = default;
         /** AlgTool initailize method.*/
-        StatusCode initialize();
+        virtual StatusCode initialize() override;
         /** AlgTool finalize method */
-        StatusCode finalize();
+        virtual StatusCode finalize() override;
         /** TrackingGeometry Interface method */
-        std::pair<EventIDRange, Trk::TrackingGeometry*> trackingGeometry(
-            const EventContext& ctx, std::pair<EventIDRange, const Trk::TrackingVolume*> tVolPair) const;
+        virtual
+        std::unique_ptr<Trk::TrackingGeometry> trackingGeometry(
+            const EventContext& ctx,
+            const Trk::TrackingVolume* tvol,
+            SG::WriteCondHandle<Trk::TrackingGeometry>& whandle) const override;
 
         /** The unique signature */
-        Trk::GeometrySignature geometrySignature() const { return Trk::MS; }
+        virtual Trk::GeometrySignature geometrySignature() const override { return Trk::MS; }
 
     private:
         /** Private struct to contain local variables we dont want to be global in this class*/

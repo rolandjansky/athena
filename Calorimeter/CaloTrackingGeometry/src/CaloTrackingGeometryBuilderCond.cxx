@@ -189,16 +189,15 @@ StatusCode Calo::CaloTrackingGeometryBuilderCond::finalize()
   return StatusCode::SUCCESS;
 }
 
-std::pair<EventIDRange, Trk::TrackingGeometry*>
+std::unique_ptr<Trk::TrackingGeometry>
 Calo::CaloTrackingGeometryBuilderCond::trackingGeometry(
   const EventContext& ctx, 
-  std::pair<EventIDRange, const Trk::TrackingVolume*> tVolPair) const
+  const Trk::TrackingVolume* innerVol,
+  SG::WriteCondHandle<Trk::TrackingGeometry>& /*whandle*/) const
 {
 
   ATH_MSG_VERBOSE( "Starting to build CaloTrackingGeometry ..." );   
   
-  // the return TG
-  Trk::TrackingGeometry* caloTrackingGeometry = nullptr; 
   Trk::TrackingVolume*            calorimeter = nullptr;                     
 
   // the key dimensions
@@ -212,13 +211,6 @@ Calo::CaloTrackingGeometryBuilderCond::trackingGeometry(
    Trk::LayerArray* dummyLayers = nullptr;
    Trk::TrackingVolumeArray* dummyVolumes = nullptr;
   
-  //TODO/FIXME: just passing on range, no Calo IOV range used
-  EventIDRange range=IOVInfiniteRange::infiniteMixed();
-  const Trk::TrackingVolume* innerVol = nullptr;
-  if(tVolPair.second != nullptr){
-    range = tVolPair.first;
-    innerVol = tVolPair.second;
-  }
   if (innerVol) {  
     ATH_MSG_VERBOSE( "Got Inner Detector Volume: " << innerVol->volumeName() ); 
     innerVol->screenDump(msg(MSG::VERBOSE)); 
@@ -847,11 +839,8 @@ Calo::CaloTrackingGeometryBuilderCond::trackingGeometry(
 
    
    if ( rFcalBP > lArPositiveFcalBounds->innerRadius()) {
-     ATH_MSG_ERROR("PROBLEM : beam pipe collide with Fcal:"<< rFcalBP <<">" << lArPositiveFcalBounds->innerRadius()<<", abort" );  
-     // create dummy infinite IOV Range 
-     EventIDRange range=IOVInfiniteRange::infiniteMixed();
-     return std::pair<EventIDRange, Trk::TrackingGeometry*>(range,0);
-     
+     ATH_MSG_ERROR("PROBLEM : beam pipe collide with Fcal:"<< rFcalBP <<">" << lArPositiveFcalBounds->innerRadius()<<", abort" );
+     return nullptr;
    }
 
    // create the Bounds
@@ -1430,7 +1419,7 @@ Calo::CaloTrackingGeometryBuilderCond::trackingGeometry(
   delete lArVolumes; lArVolumes = nullptr;
   delete tileVolumes; tileVolumes = nullptr;
   
-  caloTrackingGeometry = new Trk::TrackingGeometry(calorimeter);
+  auto caloTrackingGeometry = std::make_unique<Trk::TrackingGeometry>(calorimeter);
   
   if (msgLvl(MSG::VERBOSE) && caloTrackingGeometry) 
     caloTrackingGeometry->printVolumeHierarchy(msg(MSG::VERBOSE));   
@@ -1449,9 +1438,8 @@ Calo::CaloTrackingGeometryBuilderCond::trackingGeometry(
 //       FCAL0, FCAL1, FCAL2,                   // Forward EM endcap
 //       Unknown
 //     };
-  // create dummy infinite IOV Range 
   // return what you have ...
-  return std::make_pair(range, caloTrackingGeometry);
+  return caloTrackingGeometry;
 }
 
 void Calo::CaloTrackingGeometryBuilderCond::registerInLayerIndexCaloSampleMap(

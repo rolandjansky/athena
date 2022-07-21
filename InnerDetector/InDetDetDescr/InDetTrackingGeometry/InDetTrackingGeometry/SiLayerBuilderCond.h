@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -78,17 +78,19 @@ namespace InDet {
       virtual StatusCode finalize() override;
 
       /** LayerBuilder interface method - returning Barrel-like layers */
-      virtual std::pair<EventIDRange, const std::vector<Trk::CylinderLayer*>*>
-      cylindricalLayers(const EventContext& ctx) const override final;
+      virtual std::unique_ptr<const std::vector<Trk::CylinderLayer*> >
+      cylindricalLayers(const EventContext& ctx,
+                        SG::WriteCondHandle<Trk::TrackingGeometry>& whandle) const override final;
 
       /** LayerBuilder interface method - returning Endcap-like layers */
-      virtual std::pair<EventIDRange, const std::vector<Trk::DiscLayer*>*>
-      discLayers(const EventContext& ctx) const override final;
+      virtual std::unique_ptr<const std::vector<Trk::DiscLayer*> >
+      discLayers(const EventContext& ctx,
+                 SG::WriteCondHandle<Trk::TrackingGeometry>& whandle) const override final;
 
       /** LayerBuilder interface method - returning Planar-like layers */
-      virtual std::pair<EventIDRange,
-                        const std::vector<Trk::PlaneLayer*>*>
-      planarLayers(const EventContext& ctx) const override final;
+      virtual std::unique_ptr<const std::vector<Trk::PlaneLayer*> >
+      planarLayers(const EventContext& ctx,
+                   SG::WriteCondHandle<Trk::TrackingGeometry>& whandle) const override final;
 
       /** Name identification */
       virtual const std::string& identification() const override final;
@@ -96,19 +98,21 @@ namespace InDet {
     private:
       SG::ReadCondHandle<InDetDD::SiDetectorElementCollection>
       retrieveSiDetElements(const EventContext& ctx) const;
-      std::vector<Trk::CylinderLayer*>* dressCylinderLayers(
-        const std::vector<Trk::CylinderLayer*>& dLayers) const;
+      std::unique_ptr<std::vector<Trk::CylinderLayer*> >
+      dressCylinderLayers(const std::vector<Trk::CylinderLayer*>& dLayers) const;
 
       /** create the disc layers, if no vector is given, then it's the first
        * pass, else it's the DBM for the Pixels */
-      std::pair<EventIDRange, std::vector<Trk::DiscLayer*>*> createDiscLayers(
-        const EventContext& ctx,
-        std::vector<Trk::DiscLayer*>* dLayers = nullptr) const;
+      std::unique_ptr<std::vector<Trk::DiscLayer*> >
+      createDiscLayers(const EventContext& ctx,
+                       SG::WriteCondHandle<Trk::TrackingGeometry>& whandle,
+                       std::unique_ptr<std::vector<Trk::DiscLayer*> > discLayers = nullptr) const;
 
       /** create the disc layers, it is dedicated to ITk implementation of the
        * endcap rings. Used for ITk specific case. */
-      std::pair<EventIDRange, std::vector<Trk::DiscLayer*>*> createRingLayers(
-        const EventContext& ctx) const;
+      std::unique_ptr<std::vector<Trk::DiscLayer*> >
+      createRingLayers(const EventContext& ctx,
+                       SG::WriteCondHandle<Trk::TrackingGeometry>& whandle) const;
 
       //!< helper method to construct barrel material
       const Trk::BinnedLayerMaterial barrelLayerMaterial(double r,
@@ -159,13 +163,11 @@ namespace InDet {
                       
   };
 
-  inline std::pair<EventIDRange, const std::vector<Trk::PlaneLayer*>*>
-  SiLayerBuilderCond::planarLayers(const EventContext&) const
+  inline std::unique_ptr<const std::vector<Trk::PlaneLayer*> >
+  SiLayerBuilderCond::planarLayers(const EventContext&,
+                                   SG::WriteCondHandle<Trk::TrackingGeometry>& /*whandle*/) const
   {
-    // create dummy infinite range
-    EventIDRange range;
-    return std::pair<EventIDRange, const std::vector<Trk::PlaneLayer*>*>(
-      range, nullptr);
+    return nullptr;
   }
 
   inline const std::string&

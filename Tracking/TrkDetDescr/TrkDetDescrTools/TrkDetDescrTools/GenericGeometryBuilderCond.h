@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -49,16 +49,18 @@ namespace Trk {
         virtual ~GenericGeometryBuilderCond();
 
         /** AlgTool initialize method */
-        StatusCode initialize();
+        virtual StatusCode initialize() override;
         
 
         /** TrackingGeometry Interface method - optionally a pointer to Bounds */
-        std::pair<EventIDRange, Trk::TrackingGeometry*> trackingGeometry(
+        virtual
+        std::unique_ptr<Trk::TrackingGeometry > trackingGeometry(
           const EventContext& ctx,
-          std::pair<EventIDRange, const Trk::TrackingVolume*> tVolPair) const;
+          const Trk::TrackingVolume* tVol,
+          SG::WriteCondHandle<TrackingGeometry>& whandle) const override;
 
         /** The unique signature */
-        GeometrySignature geometrySignature() const;
+        virtual GeometrySignature geometrySignature() const override;
 
       private:
         ServiceHandle<IEnvelopeDefSvc>          m_enclosingEnvelopeSvc;         //!< The service that determines the outermost boundaries
