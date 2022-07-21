@@ -34,6 +34,8 @@ def getTaggerList(flags):
     # NOTE: MV2c10 is deprecated but something in trigger is asking
     # for it... maybe online monitoring?
     base = ['IP2D','IP3D','SV1','JetFitterNN']
+    if flags.GeoModel.Run >= LHCPeriod.Run4:
+        base += ['MV2c10']
     flip = ['IP2DNeg', 'IP3DNeg','IP2DFlip', 'IP3DFlip','SV1Flip']
     if flags.BTagging.RunFlipTaggers:
         return base + flip
@@ -61,7 +63,7 @@ def createBTaggingConfigFlags():
     btagcf.addFlag("BTagging.Grades", getGrades)
 
     # Taggers for validation
-    btagcf.addFlag("BTagging.SaveSV1Probabilities",False)
+    btagcf.addFlag("BTagging.SaveSV1Probabilities", lambda prevFlags: prevFlags.GeoModel.Run>=LHCPeriod.Run4)
     btagcf.addFlag("BTagging.RunJetFitterNN",False)
     #Do we really need this in AthConfigFlags?
     #Comments in BTaggingConfiguration.py
