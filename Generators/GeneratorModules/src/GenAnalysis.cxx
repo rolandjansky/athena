@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeneratorModules/GenAnalysis.h"
@@ -111,14 +111,14 @@ TH2D* GenAnalysis::bookHisto2D(const std::string& path, const std::string& title
 
 
 
-TH1* GenAnalysis::histo(std::string key) {
+TH1* GenAnalysis::histo(const std::string& key) {
   TH1* h = 0;
   StatusCode st = histSvc()->getHist(fullhistopath(key), h);
   if (st.isFailure()) ATH_MSG_WARNING("No histogram with key " << key);
   return h;
 }
 
-TProfile* GenAnalysis::profile(std::string key) {
+TProfile* GenAnalysis::profile(const std::string& key) {
   TH1* h = 0;
   StatusCode st = histSvc()->getHist(fullhistopath(key), h);
   if (st.isFailure()) ATH_MSG_WARNING("No histogram with key " << key);
