@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArParamsProperties.h"
@@ -47,9 +47,8 @@ unsigned LArParamsProperties::getClassIndex(const LArOFCBinComplete*)    { retur
 //-----------------------
 const std::vector< std::string > & LArParamsProperties::ClassNames() 
 {
-  static std::vector<std::string> names ;
-  if ( names.size() == 0 ) {
-    names.resize(END_OF_LIST) ;
+  static const std::vector<std::string> names = []() {
+    std::vector<std::string> names(END_OF_LIST);
     names[CaliPulseParamsComplete]    =  "LArCaliPulseParamsComplete" ;
     names[DetCellParamsComplete]      =  "LArDetCellParamsComplete" ;
     names[PhysCaliTdiffComplete]      =  "LArPhysCaliTdiffComplete" ;
@@ -65,7 +64,8 @@ const std::vector< std::string > & LArParamsProperties::ClassNames()
     //names[CaliPulseParamsVsCalib]     =  "LArCaliPulseParamsVsCalib" ;
     names[OFCBinComplete]             =  "LArOFCBinComplete" ;
     names[PhysCaliTdiffComplete]      =  "LArPhysCaliTdiffComplete" ;
-  }
+    return names ;
+  }() ;
   return names ;
 } 
 
@@ -73,9 +73,8 @@ const std::vector< std::string > & LArParamsProperties::ClassNames()
 //------------------------------------------------
 unsigned LArParamsProperties::numberOfParams(unsigned index) 
 {
-  static std::vector<unsigned> nOfPars ;
-  if ( nOfPars.size() == 0 ) {
-    nOfPars.resize(END_OF_LIST) ;
+  static const std::vector<unsigned> nOfPars = []() {
+    std::vector<unsigned> nOfPars(END_OF_LIST) ;
     nOfPars[CaliPulseParamsComplete]   = 5 ; 
     nOfPars[DetCellParamsComplete]     = 2 ;
     nOfPars[PhysCaliTdiffComplete]     = 1 ;
@@ -90,8 +89,9 @@ unsigned LArParamsProperties::numberOfParams(unsigned index)
     nOfPars[CableAttenuationComplete]  = 1 ;
     //nOfPars[CaliPulseParamsVsCalib]    = 5 ; 
     nOfPars[OFCBinComplete]            = 1 ; 
-    nOfPars[PhysCaliTdiffComplete]     = 1 ; 
-  }
+    nOfPars[PhysCaliTdiffComplete]     = 1 ;
+    return nOfPars ;
+  }() ;
   if ( index < END_OF_LIST ) return nOfPars[index] ;
   return 0 ;
 }
@@ -100,9 +100,8 @@ unsigned LArParamsProperties::numberOfParams(unsigned index)
 //------------------------------------------
 bool LArParamsProperties::isGainDependent(unsigned index) 
 {
-  static std::vector<bool> useGain ;
-  if ( useGain.size() == 0 ) {
-    useGain.resize(END_OF_LIST) ;
+  static const std::vector<bool> useGain = []() {
+    std::vector<bool> useGain(END_OF_LIST) ;
     useGain[CaliPulseParamsComplete]   = true ; 
     useGain[DetCellParamsComplete]     = true ;
     useGain[PhysCaliTdiffComplete]     = true ;
@@ -117,8 +116,9 @@ bool LArParamsProperties::isGainDependent(unsigned index)
     useGain[CableAttenuationComplete]  = false ;
     //useGain[CaliPulseParamsVsCalib]    = false ; 
     useGain[OFCBinComplete]            = true ; 
-    useGain[PhysCaliTdiffComplete]     = true ; 
-  }
+    useGain[PhysCaliTdiffComplete]     = true ;
+    return useGain ;
+  }() ;
   if ( index < END_OF_LIST ) return useGain[index] ;
   return false ;
 }
@@ -127,7 +127,7 @@ bool LArParamsProperties::isGainDependent(unsigned index)
 //---------------------------------------------------
 const std::string & LArParamsProperties::getClassName(unsigned index) 
 {
-  static std::string empty("");
+  static const std::string empty("");
   const std::vector<std::string> & names = ClassNames() ;
   if ( index < names.size() )  return names[index] ;
   return empty ;

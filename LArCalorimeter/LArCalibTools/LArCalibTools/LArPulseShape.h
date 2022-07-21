@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARPULSESHAPE_H
@@ -12,7 +12,6 @@
 #include "LArElecCalib/ILArFEBTempTool.h"
 #include "LArCalibTools/LArCond2NtupleBase.h"
 
-#include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include <iostream>
 #include "TProfile.h"
@@ -66,7 +65,6 @@ class LArPulseShape : public AthAlgorithm {
    NTuple::Item<short> m_useHgIntercept;
    NTuple::Item<short> m_useMgIntercept;
    NTuple::Item<short> m_useLgIntercept;
-   const DataHandle<CaloIdManager> m_caloIdMgr;
    int m_OffId = 0;  
    int m_OffId_conv = 0;     
    const char * m_id_char = nullptr;  

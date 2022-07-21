@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArFebTimeOffset2Ntuple.h"
@@ -28,7 +28,7 @@ StatusCode LArFebTimeOffset2Ntuple::initialize() {
   return LArCond2NtupleBase::initialize();
 }
 
-StatusCode LArFebTimeOffset2Ntuple::stop() {
+StatusCode LArFebTimeOffset2Ntuple::stop ATLAS_NOT_THREAD_SAFE () {
 
   //std::cout << detStore()->dump() << std::endl;
   NTuple::Item<float> offset;

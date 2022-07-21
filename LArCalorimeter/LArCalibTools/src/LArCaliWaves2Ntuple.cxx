@@ -38,7 +38,7 @@ StatusCode LArCaliWaves2Ntuple::initialize() {
 LArCaliWaves2Ntuple::~LArCaliWaves2Ntuple()
 {}
 
-StatusCode LArCaliWaves2Ntuple::stop() 
+StatusCode LArCaliWaves2Ntuple::stop ATLAS_NOT_THREAD_SAFE ()
 { 
   
   // Check DACSatur jobOption consistency, in case setup default values

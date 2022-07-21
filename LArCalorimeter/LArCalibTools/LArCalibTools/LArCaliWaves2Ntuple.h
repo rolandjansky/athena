@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -17,10 +17,10 @@
 
 #ifndef LARCALIWAVES2NTUPLE_H
 #define LARCALIWAVES2NTUPLE_H
+
+#include "CxxUtils/checker_macros.h"
 #include "LArCalibTools/LArWaves2Ntuple.h"
-
 #include "LArRawConditions/LArCaliWaveContainer.h"
-
 #include "LArRawConditions/LArWaveHelper.h"
 
 class LArCaliWaves2Ntuple : public  LArWaves2Ntuple
@@ -32,9 +32,8 @@ class LArCaliWaves2Ntuple : public  LArWaves2Ntuple
   ~LArCaliWaves2Ntuple();
 
   //standard algorithm methods
-  StatusCode initialize();
-  virtual StatusCode stop();
-  StatusCode finalize(){return StatusCode::SUCCESS;}
+  virtual StatusCode initialize() override;
+  virtual StatusCode stop ATLAS_NOT_THREAD_SAFE () override;
 
  private:
   bool writeEntry(const HWIdentifier chid,  const unsigned gain, const LArCaliWave& wave, const LArCalibLineMapping *clCont); 
