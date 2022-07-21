@@ -99,7 +99,7 @@ def makeMuonCalibrationSequence( seq, dataType,
                 metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
                               'selectionDecorNamesOutput' : [alg.selectionDecoration],
                               'selectionDecorCount' : [2]},
-                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])})
+                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNamesOutput"])})
 
     # Set up the track selection algorithm:
     alg = createAlgorithm( 'CP::AsgLeptonTrackSelectionAlg',
@@ -112,7 +112,7 @@ def makeMuonCalibrationSequence( seq, dataType,
                 metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
                               'selectionDecorNamesOutput' : [alg.selectionDecoration],
                               'selectionDecorCount' : [3]},
-                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])})
+                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNamesOutput"])})
 
     # Set up the muon calibration and smearing algorithm:
     alg = createAlgorithm( 'CP::MuonCalibrationAndSmearingAlg',
@@ -122,7 +122,7 @@ def makeMuonCalibrationSequence( seq, dataType,
     alg.calibrationAndSmearingTool.calibrationMode = 2 # choose ID+MS with no sagitta bias
     seq.append( alg, inputPropName = 'muons', outputPropName = 'muonsOut',
                 stageName = 'calibration',
-                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])})
+                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNamesOutput"])})
 
     # Set up the the pt selection
     alg = createAlgorithm( 'CP::AsgSelectionAlg', 'MuonPtCutAlg' + postfix )
@@ -134,7 +134,7 @@ def makeMuonCalibrationSequence( seq, dataType,
                 metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
                               'selectionDecorNamesOutput' : [alg.selectionDecoration] if ptSelectionOutput else [],
                               'selectionDecorCount' : [2]},
-                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])})
+                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNamesOutput"])})
     pass
 
 
@@ -203,7 +203,7 @@ def makeMuonWorkingPointSequence( seq, dataType, workingPoint, postfix = '',
                 metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
                               'selectionDecorNamesOutput' : [alg.selectionDecoration] if qualitySelectionOutput else [],
                               'selectionDecorCount' : [4]},
-                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])})
+                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNamesOutput"])})
 
     # Set up the isolation calculation algorithm:
     if splitWP[1] != 'NonIso' :
@@ -216,7 +216,7 @@ def makeMuonWorkingPointSequence( seq, dataType, workingPoint, postfix = '',
                     metaConfig = {'selectionDecorNames' : [alg.isolationDecoration],
                                   'selectionDecorNamesOutput' : [alg.isolationDecoration],
                                   'selectionDecorCount' : [1]},
-                    dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])})
+                    dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNamesOutput"])})
         pass
 
     # Set up the efficiency scale factor calculation algorithm:
@@ -231,7 +231,7 @@ def makeMuonWorkingPointSequence( seq, dataType, workingPoint, postfix = '',
     if dataType != 'data':
         seq.append( alg, inputPropName = 'muons',
                     stageName = 'efficiency',
-                    dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])})
+                    dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNamesOutput"])})
 
     # Set up an algorithm used for decorating baseline muon selection:
     alg = createAlgorithm( 'CP::AsgSelectionAlg',
@@ -240,5 +240,5 @@ def makeMuonWorkingPointSequence( seq, dataType, workingPoint, postfix = '',
     alg.selectionDecoration = 'baselineSelection' + postfix + ',as_char'
     seq.append( alg, inputPropName = 'particles',
                 stageName = 'selection',
-                dynConfig = {'selectionTool.selectionFlags' : lambda meta : meta["selectionDecorNames"][:]})
+                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNamesOutput"])})
     pass
