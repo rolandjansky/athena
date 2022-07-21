@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -20,6 +20,7 @@
 
 #include "RegistrationServices/IIOVRegistrationSvc.h"
 #include "StoreGate/DataHandle.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaKernel/IOVSvcDefs.h"
@@ -38,7 +39,7 @@ public:
     IOVDbTestAlg (const std::string& name, ISvcLocator* pSvcLocator);
     virtual ~IOVDbTestAlg();
 
-    virtual StatusCode initialize() override;
+    virtual StatusCode initialize ATLAS_NOT_THREAD_SAFE() override;
     virtual StatusCode execute (const EventContext& ctx) const override;
     virtual StatusCode finalize() override;
 

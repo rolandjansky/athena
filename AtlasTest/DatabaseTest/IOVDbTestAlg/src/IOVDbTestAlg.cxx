@@ -120,7 +120,8 @@ StatusCode IOVDbTestAlg::testCallBack( IOVSVC_CALLBACK_ARGS_P( i, keys) ) {
 }
 
 
-StatusCode IOVDbTestAlg::initialize(){
+// Not thread-safe due to binding DataHandle.
+StatusCode IOVDbTestAlg::initialize ATLAS_NOT_THREAD_SAFE (){
     ATH_MSG_DEBUG( "in initialize()" );
 
     // Get Output Stream tool for writing
