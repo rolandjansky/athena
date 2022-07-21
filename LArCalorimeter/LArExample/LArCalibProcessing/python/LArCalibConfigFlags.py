@@ -4,7 +4,7 @@ def addLArCalibFlags(flags):
     
     flags.Input.isMC=False
     flags.addFlag("LArCalib.isSC",False)
-    flags.addFlag("LArCalib.BadChannelDB","COOLOFL_LAR")
+    flags.addFlag("LArCalib.BadChannelDB","LAR_OFL")
     flags.addFlag("LArCalib.BadChannelTag","-RUN2-UPD3-00")
 
     #Folders:
