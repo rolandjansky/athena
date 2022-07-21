@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // BarrelConstruction
@@ -9,8 +9,12 @@
 #ifndef LARGEOBARREL_BARRELCONSTRUCTION_H
 #define LARGEOBARREL_BARRELCONSTRUCTION_H
 
-#include "LArGeoCode/VDetectorParameters.h"
-#include "GeoModelKernel/GeoFullPhysVol.h"
+
+
+class GeoFullPhysVol;
+namespace LArGeo{
+  class VDetectorParameters;
+}
 
 namespace LArGeo {
 
@@ -45,16 +49,16 @@ namespace LArGeo {
     BarrelConstruction & operator= (const BarrelConstruction &);
     
     // Detector parameters ACCG, ACCA, ACMB, ACCO
-    const LArGeo::VDetectorParameters* m_parameters;
+    const LArGeo::VDetectorParameters* m_parameters{};
 
-    bool                    m_A_SAGGING;
-    int                     m_NVISLIM;
+    bool                    m_A_SAGGING{};
+    int                     m_NVISLIM{-1};
     
     // volumes that are private member variables:
-    GeoFullPhysVol*  m_ecamPhysicalPos;
-    GeoFullPhysVol*  m_ecamPhysicalNeg;
+    GeoFullPhysVol*  m_ecamPhysicalPos{};
+    GeoFullPhysVol*  m_ecamPhysicalNeg{};
     
-    bool             m_fullGeo;  // true->FULL, false->RECO
+    bool             m_fullGeo{};  // true->FULL, false->RECO
   };
 
  
