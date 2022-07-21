@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // IOVDbTestCoolDCS.cxx
@@ -40,7 +40,9 @@ StatusCode IOVDbTestCoolDCS::execute (const EventContext& ctx) const {
                "," << ctx.eventID().event_number() << "] timestamp " << time);
   // print the timestamp in UTC
   time_t ttime=static_cast<time_t>(time);
-  ATH_MSG_INFO("Timestamp UTC: " << asctime(gmtime(&ttime)));
+  struct tm tm;
+  char tmbuf[32];
+  ATH_MSG_INFO("Timestamp UTC: " << asctime_r(gmtime_r(&ttime, &tm), tmbuf));
 
   // print all the AthenaAttributeList
   const AthenaAttributeList* atrlist = nullptr;;
