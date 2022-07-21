@@ -28,8 +28,6 @@
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "NavFourMom/INavigable4MomentumCollection.h"
-// PunchThrough Tool
-#include "ISF_FastCaloSimInterfaces/IPunchThroughTool.h"
 
 /** Constructor **/
 ISF::NativeFastCaloSimSvc::NativeFastCaloSimSvc(const std::string& name,ISvcLocator* svc) :
@@ -39,11 +37,9 @@ ISF::NativeFastCaloSimSvc::NativeFastCaloSimSvc(const std::string& name,ISvcLoca
   m_simulateUndefinedBCs(false),
   m_caloCellsOutputName("AllCalo"),
   m_caloCellHack(false),
-  m_doPunchThrough(false),
   m_caloCellMakerTools_setup(),
   m_caloCellMakerTools_simulate(),
   m_caloCellMakerTools_release(),
-  m_punchThroughTool(""),
   m_theContainer(0),
   m_particleBroker ("ISF_ParticleBroker",name)
 {
@@ -52,10 +48,8 @@ ISF::NativeFastCaloSimSvc::NativeFastCaloSimSvc(const std::string& name,ISvcLoca
   declareProperty("CaloCellMakerTools_setup"   ,       m_caloCellMakerTools_setup) ;
   declareProperty("CaloCellMakerTools_simulate",       m_caloCellMakerTools_simulate) ;
   declareProperty("CaloCellMakerTools_release" ,       m_caloCellMakerTools_release) ;
-  declareProperty("PunchThroughTool",                  m_punchThroughTool);
   declareProperty("CaloCellsOutputName",               m_caloCellsOutputName) ;
   declareProperty("CaloCellHack",                      m_caloCellHack) ;
-  declareProperty("DoPunchThroughSimulation", 	       m_doPunchThrough) ;
   declareProperty("SimulateUndefinedBarcodeParticles",
                   m_simulateUndefinedBCs,
                   "Whether or not to simulate paritcles with undefined barcode" );
@@ -83,11 +77,6 @@ StatusCode ISF::NativeFastCaloSimSvc::initialize()
    if ( retrieveTools<ICaloCellMakerTool>(m_caloCellMakerTools_release).isFailure() )
         return StatusCode::FAILURE;
 
-   if (m_doPunchThrough && m_punchThroughTool.retrieve().isFailure() )
-   {
-     ATH_MSG_ERROR (m_punchThroughTool.propertyName() << ": Failed to retrieve tool " << m_punchThroughTool.type());
-     return StatusCode::FAILURE;
-   }
 
    ATH_MSG_DEBUG( m_screenOutputPrefix << " Output CaloCellContainer Name " << m_caloCellsOutputName );
    if (m_ownPolicy==SG::OWN_ELEMENTS){
@@ -275,20 +264,6 @@ StatusCode ISF::NativeFastCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
   Barcode::ParticleBarcode bc = isfp.barcode();
 //lets do punch-through here
 //----------------------------------------------------------
-
-  // punch-through simulation
-
-  if (m_doPunchThrough) {
-    // call punch-through simulation
-    const ISF::ISFParticleVector* isfpVec = m_punchThroughTool->computePunchThroughParticles(isfp);
-
-    // add punch-through particles to the ISF particle broker
-    if (isfpVec) {
-      for (ISF::ISFParticle *particle : *isfpVec) {
-        m_particleBroker->push( particle, &isfp);
-      }
-    }
-  }
 
   // (a.) batch process mode, ignore the incoming particle for now
   if ( m_batchProcessMcTruth) {

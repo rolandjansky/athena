@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -48,11 +48,11 @@ namespace ISF
                         double midE = 0., double upperE = 0.);     /*!< set the correlated particle type + correlation histograms
                                                                      + full energy correlation threshold
                                                                      + histogram domains histLowE:[lowE,midE] histHighE:[midE,upperE]*/
-    void setExitEnergyPDF(std::unique_ptr<PDFcreator> pdf);                       //!< set the PDFcreator for the energy distribution
-    void setExitDeltaThetaPDF(std::unique_ptr<PDFcreator> pdf);                   //!< set the PDFcreator for the deltaTheta distribution
-    void setExitDeltaPhiPDF(std::unique_ptr<PDFcreator> pdf);                     //!< set the PDFcreator for the deltaPhi distribution
-    void setMomDeltaThetaPDF(std::unique_ptr<PDFcreator> pdf);                    //!< set the PDFcreator for the momentumDeltaTheta distribution
-    void setMomDeltaPhiPDF(std::unique_ptr<PDFcreator> pdf);                      //!< set the PDFcreator for the momentumDeltaPhi distribution
+    void setPCA0PDF(std::unique_ptr<PDFcreator> pdf);                       //!< set the PDFcreator for the energy distribution
+    void setPCA1PDF(std::unique_ptr<PDFcreator> pdf);                   //!< set the PDFcreator for the deltaTheta distribution
+    void setPCA2PDF(std::unique_ptr<PDFcreator> pdf);                     //!< set the PDFcreator for the deltaPhi distribution
+    void setPCA3PDF(std::unique_ptr<PDFcreator> pdf);                    //!< set the PDFcreator for the momentumDeltaTheta distribution
+    void setPCA4PDF(std::unique_ptr<PDFcreator> pdf);                      //!< set the PDFcreator for the momentumDeltaPhi distribution
 
 
     /** get-access methods */
@@ -72,11 +72,11 @@ namespace ISF
     inline TH2F *getCorrelationHighEHist()    { return m_histCorrHighE; };      //!< the correlation histogram (high energies)
     inline double *getCorrelationHistDomains(){ return m_corrHistDomains; };    //!< correlation histogram domains [lowE,midE,upperE]
     inline PDFcreator * getNumParticlesPDF()   { return m_pdfNumParticles.get(); };    //!< distribution parameters for the number of particles
-    inline PDFcreator * getExitEnergyPDF()     { return m_pdfExitEnergy.get(); };      //!< distribution parameters for the exit energy
-    inline PDFcreator * getExitDeltaThetaPDF() { return m_pdfExitDeltaTheta.get(); };  //!< distribution parameters for the exit delta theta
-    inline PDFcreator * getExitDeltaPhiPDF()   { return m_pdfExitDeltaPhi.get(); };    //!< distribution parameters for the exit delta phi
-    inline PDFcreator * getMomDeltaThetaPDF()  { return m_pdfMomDeltaTheta.get(); };  //!< distribution parameters for the momentum delta theta
-    inline PDFcreator * getMomDeltaPhiPDF()    { return m_pdfMomDeltaPhi.get(); };     //!< distribution parameters for the momentum delta phi
+    inline PDFcreator * getPCA0PDF()     { return m_pdf_pca0.get(); };      //!< distribution parameters for the exit energy
+    inline PDFcreator * getPCA1PDF() { return m_pdf_pca1.get(); };  //!< distribution parameters for the exit delta theta
+    inline PDFcreator * getPCA2PDF()   { return m_pdf_pca2.get(); };    //!< distribution parameters for the exit delta phi
+    inline PDFcreator * getPCA3PDF()  { return m_pdf_pca3.get(); };  //!< distribution parameters for the momentum delta theta
+    inline PDFcreator * getPCA4PDF()    { return m_pdf_pca4.get(); };     //!< distribution parameters for the momentum delta phi
 
   private:
     int                          m_pdgId;                     //!< the pdg-id of this particle
@@ -102,11 +102,11 @@ namespace ISF
     TH2F*                        m_histCorrHighE;             //!< high energy correlation histogram (x:this particle, y:the correlated particle)
     double                      *m_corrHistDomains;           //!< correlation histogram domains
     std::unique_ptr<PDFcreator>                  m_pdfNumParticles;           //!< number of punch-through particles
-    std::unique_ptr<PDFcreator>                  m_pdfExitEnergy;             //!< energy of punch-through particles
-    std::unique_ptr<PDFcreator>                  m_pdfExitDeltaTheta;         //!< theta deviation of punch-through particles
-    std::unique_ptr<PDFcreator>                  m_pdfExitDeltaPhi;           //!< phi deviation of punch-through particles
-    std::unique_ptr<PDFcreator>                  m_pdfMomDeltaTheta;          //!< delta theta angle of punch-through particle momentum
-    std::unique_ptr<PDFcreator>                  m_pdfMomDeltaPhi;            //!< delta phi angle of punch-through particle momentum
+    std::unique_ptr<PDFcreator>                  m_pdf_pca0;             //!< energy of punch-through particles
+    std::unique_ptr<PDFcreator>                  m_pdf_pca1;         //!< theta deviation of punch-through particles
+    std::unique_ptr<PDFcreator>                  m_pdf_pca2;           //!< phi deviation of punch-through particles
+    std::unique_ptr<PDFcreator>                  m_pdf_pca3;          //!< delta theta angle of punch-through particle momentum
+    std::unique_ptr<PDFcreator>                  m_pdf_pca4;            //!< delta phi angle of punch-through particle momentum
   };
 }
 

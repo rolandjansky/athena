@@ -72,7 +72,38 @@ class PunchThroughParamsInputFilename(JobProperty):
     """ Filename of the muon punch through input parametrizations file. """
     statusOn     = True
     allowedTypes = ['str']
-    StoredValue  = 'FastCaloSim/MC16/TFCSparam_mpt_v01.root'
+    StoredValue  = 'FastCaloSim/MC16/TFCSparam_mpt_v04.root'
+
+class PunchThroughParamsInverseCdfFilename(JobProperty):
+    """ Filename of the muon punch through param inverse cdf config. """
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'FastCaloSim/MC16/TFCSparam_mpt_inverseCdf_v01.xml'
+
+class PunchThroughParamsInversePcaFilename(JobProperty):
+    """ Filename of the muon punch through param inverse pca config. """
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'FastCaloSim/MC16/TFCSparam_mpt_inversePca_v01.xml'
+
+class PunchThroughClassifierScalerFilename(JobProperty):
+    """ Filename of the muon punch through classifier input variable MinMaxScaler. """
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'FastCaloSim/MC16/TFCSparam_mpt_classScaler_v01.xml'
+
+class PunchThroughClassifierNetworkFilename(JobProperty):
+    """ Filename of the muon punch through classifier neural network. """
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'FastCaloSim/MC16/TFCSparam_mpt_classNet_v01.json'
+
+class PunchThroughClassifierCalibratorFilename(JobProperty):
+    """ Filename of the muon punch through classifier calibrator. """
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'FastCaloSim/MC16/TFCSparam_mpt_classCalib_v01.xml'
+
 
 ##-----------------------------------------------------------------------------
 ## 2nd step
@@ -99,6 +130,12 @@ jobproperties.ISF_FastCaloSimJobProperties.add_JobProperty( DoRandomFluctuations
 jobproperties.ISF_FastCaloSimJobProperties.add_JobProperty( ParamsInputFilename        )
 jobproperties.ISF_FastCaloSimJobProperties.add_JobProperty( DoPunchThroughSimulation   )
 jobproperties.ISF_FastCaloSimJobProperties.add_JobProperty( PunchThroughParamsInputFilename)
+jobproperties.ISF_FastCaloSimJobProperties.add_JobProperty( PunchThroughParamsInverseCdfFilename)
+jobproperties.ISF_FastCaloSimJobProperties.add_JobProperty( PunchThroughParamsInversePcaFilename)
+jobproperties.ISF_FastCaloSimJobProperties.add_JobProperty( PunchThroughClassifierScalerFilename)
+jobproperties.ISF_FastCaloSimJobProperties.add_JobProperty( PunchThroughClassifierNetworkFilename)
+jobproperties.ISF_FastCaloSimJobProperties.add_JobProperty( PunchThroughClassifierCalibratorFilename)
+
 
 ##-----------------------------------------------------------------------------
 ## 5th step

@@ -16,6 +16,8 @@
 #include "ISF_FastCaloSimEvent/TFCSTruthState.h"
 #include "ISF_FastCaloSimEvent/TFCSExtrapolationState.h"
 #include "ISF_FastCaloSimParametrization/CaloGeometryFromCaloDDM.h"
+#include "ISF_FastCaloSimParametrization/FCS_Cell.h"
+
 
 //!
 #include "AtlasDetDescr/AtlasDetectorID.h"
@@ -175,31 +177,6 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
   Amg::Vector3D particle_position =  isfp.position();
   Amg::Vector3D particle_direction(isfp.momentum().x(),isfp.momentum().y(),isfp.momentum().z());
 
-  if (m_doPunchThrough) {
-
-     Barcode::PhysicsProcessCode process = 201;
-
-     // call punch-through simulation
-     const ISF::ISFParticleVector* isfpVec = m_punchThroughTool->computePunchThroughParticles(isfp);
-
-     // add punch-through particles to the ISF particle broker
-     if (isfpVec) {
-
-       //Record truth incident for created punch through particles
-       ISF::ISFTruthIncident truth( const_cast<ISF::ISFParticle&>(isfp),
-                                    *isfpVec,
-                                    process,
-                                    isfp.nextGeoID(),  // inherits from the parent
-                                    ISF::fKillsPrimary);
-       m_truthRecordSvc->registerTruthIncident( truth, true );
-
-       for (ISF::ISFParticle *particle : *isfpVec) {
-         m_particleBroker->push( particle, &isfp);
-       }
-
-     }
-   }
-
    //int barcode=isfp.barcode(); // isfp barcode, eta and phi: in case we need them
   // float eta_isfp = particle_position.eta();
   // float phi_isfp = particle_position.phi();
@@ -244,6 +221,33 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
       CaloCell* theCell = (CaloCell*)m_theContainer->findCell(iter.first->calo_hash());
       theCell->addEnergy(iter.second);
     }
+
+    //now perform punch through
+    if (m_doPunchThrough) {
+
+       Barcode::PhysicsProcessCode process = 201;
+
+       // call punch-through simulation
+       const ISF::ISFParticleVector* isfpVec = m_punchThroughTool->computePunchThroughParticles(isfp, simulstate);
+
+       // add punch-through particles to the ISF particle broker
+       if (isfpVec) {
+
+         //Record truth incident for created punch through particles
+         ISF::ISFTruthIncident truth( const_cast<ISF::ISFParticle&>(isfp),
+                                      *isfpVec,
+                                      process,
+                                      isfp.nextGeoID(),  // inherits from the parent
+                                      ISF::fKillsPrimary);
+         m_truthRecordSvc->registerTruthIncident( truth, true );
+
+         for (ISF::ISFParticle *particle : *isfpVec) {
+           m_particleBroker->push( particle, &isfp);
+         }
+
+       }
+     }
+
   }
   else ATH_MSG_DEBUG("Skipping simulation as extrapolation to ID-Calo boundary failed.");
 

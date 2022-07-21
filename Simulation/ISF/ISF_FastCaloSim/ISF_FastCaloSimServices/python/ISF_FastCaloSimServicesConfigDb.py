@@ -12,6 +12,7 @@ addTool("ISF_FastCaloSimServices.AdditionalConfig.getNIPropagator",             
 addTool("ISF_FastCaloSimServices.AdditionalConfig.getNITimedExtrapolator",             "ISF_NITimedExtrapolator")
 addTool("ISF_FastCaloSimServices.AdditionalConfig.getTimedExtrapolator",               "TimedExtrapolator")
 addTool("ISF_FastCaloSimServices.AdditionalConfig.getPunchThroughTool",                "ISF_PunchThroughTool")
+addTool("ISF_FastCaloSimServices.AdditionalConfig.getPunchThroughClassifier",          "ISF_PunchThroughClassifier")
 addTool("ISF_FastCaloSimServices.AdditionalConfig.getEmptyCellBuilderTool",            "ISF_EmptyCellBuilderTool")
 addTool("ISF_FastCaloSimServices.AdditionalConfig.getFastShowerCellBuilderTool",       "ISF_FastShowerCellBuilderTool")
 addTool("ISF_FastCaloSimServices.AdditionalConfig.getLegacyFastShowerCellBuilderTool", "ISF_LegacyFastShowerCellBuilderTool")
