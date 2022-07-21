@@ -1587,26 +1587,25 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   
   if (!m_ToptagConfig.empty())
     {
-      if (m_ToptagConfig.find("50Eff") != std::string::npos){
-	TopTagEff = "50";
-      }
-      else if (m_ToptagConfig.find("80Eff") != std::string::npos){
-	TopTagEff = "80";
-      }
-      else {
-	ATH_MSG_ERROR("You have specified a large-R Top-tag config without a matching uncertainties file. Please fix this. Currently the 50% and 80% WPs are supported");
-      }
+      if(m_ToptagConfig.find("AntiKt10LCTopo") != std::string::npos){
+        if (m_ToptagConfig.find("50Eff") != std::string::npos)      TopTagEff = "50";
+        else if (m_ToptagConfig.find("80Eff") != std::string::npos) TopTagEff = "80";
+        else {ATH_MSG_ERROR("You have specified a large-R Top-tag config without a matching uncertainties file. Please fix this. Currently the 50% and 80% WPs are supported");}
       
-      if (m_ToptagConfig.find("Inclusive") != std::string::npos){
-	TopTagType = "Inclusive";
+        if (m_ToptagConfig.find("Inclusive") != std::string::npos)    TopTagType = "Inclusive";
+        else if (m_ToptagConfig.find("Contained") != std::string::npos)	TopTagType = "Contained";
+        else {ATH_MSG_ERROR("You have specified a large-R Top-tag config without a matching uncertainties file. Please fix this. Currently the contained and inclusive WPs are supported");}
+          
+        m_TopTagUncConfig = "R10_SF_LCTopo_TopTag"+TopTagType+"_SigEff"+TopTagEff+".config";
       }
-      else if (m_ToptagConfig.find("Contained") != std::string::npos){
-	TopTagType = "Contained";
-      }
+      else if(m_ToptagConfig.find("AntiKt10UFOSD") != std::string::npos) {
+        ATH_MSG_ERROR("Uncertainties file for AntiKt10UFOSD top-tag is currently not available. Turning OFF uncertainties.");
+        m_TopTagUncConfig = "";
+        }
       else {
-	ATH_MSG_ERROR("You have specified a large-R Top-tag config without a matching uncertainties file. Please fix this. Currently the contained and inclusive WPs are supported");
+      	ATH_MSG_ERROR("You have specified an invalide large-R Top-tag config. Please fix this.");
+        return StatusCode::FAILURE;
       }
- m_TopTagUncConfig = "R10_SF_LCTopo_TopTag"+TopTagType+"_SigEff"+TopTagEff+".config";
     }
   
   //** validate configuration
