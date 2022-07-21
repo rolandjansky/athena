@@ -17,6 +17,7 @@
 #include <AsgAnalysisAlgorithms/AsgLeptonTrackSelectionAlg.h>
 #include <AsgAnalysisAlgorithms/AsgOriginalObjectLinkAlg.h>
 #include <AsgAnalysisAlgorithms/AsgSelectionAlg.h>
+#include <AsgAnalysisAlgorithms/AsgUnionSelectionAlg.h>
 #include <AsgAnalysisAlgorithms/AsgViewFromSelectionAlg.h>
 #include <AsgAnalysisAlgorithms/AsgxAODNTupleMakerAlg.h>
 #include <AsgAnalysisAlgorithms/EventFlagSelectionAlg.h>
@@ -42,6 +43,7 @@ DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, AsgEventScaleFactorAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, AsgLeptonTrackSelectionAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, AsgOriginalObjectLinkAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, AsgSelectionAlg)
+DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, AsgUnionSelectionAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, AsgViewFromSelectionAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, AsgxAODNTupleMakerAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, EventFlagSelectionAlg)
@@ -68,6 +70,7 @@ DECLARE_FACTORY_ENTRIES(AsgAnalysisAlgorithms) {
   DECLARE_NAMESPACE_ALGORITHM (CP, AsgLeptonTrackSelectionAlg)
   DECLARE_NAMESPACE_ALGORITHM (CP, AsgOriginalObjectLinkAlg)
   DECLARE_NAMESPACE_ALGORITHM (CP, AsgSelectionAlg)
+  DECLARE_NAMESPACE_ALGORITHM (CP, AsgUnionSelectionAlg)
   DECLARE_NAMESPACE_ALGORITHM (CP, AsgViewFromSelectionAlg)
   DECLARE_NAMESPACE_ALGORITHM (CP, AsgxAODNTupleMakerAlg)
   DECLARE_NAMESPACE_ALGORITHM (CP, EventFlagSelectionAlg)

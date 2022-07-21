@@ -11,6 +11,7 @@
    <class name="CP::AsgOriginalObjectLinkAlg" />
    <class name="CP::AsgPriorityDecorationAlg" />
    <class name="CP::AsgSelectionAlg" />
+   <class name="CP::AsgUnionSelectionAlg" />
    <class name="CP::AsgViewFromSelectionAlg" />
    <class name="CP::AsgxAODNTupleMakerAlg" />
    <class name="CP::EventFlagSelectionAlg" />

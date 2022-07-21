@@ -178,10 +178,9 @@ def makeTauWorkingPointSequence( seq, dataType, workingPoint, postfix = '',
     # Set up an algorithm used for decorating baseline tau selection:
     alg = createAlgorithm( 'CP::AsgSelectionAlg',
                            'TauSelectionSummary' + postfix )
-    addPrivateTool( alg, 'selectionTool', 'CP::AsgFlagSelectionTool' )
     alg.selectionDecoration = 'baselineSelection' + postfix + ',as_char'
     seq.append( alg, inputPropName = 'particles',
                 stageName = 'selection',
-                dynConfig = {'selectionTool.selectionFlags' : lambda meta : meta["selectionDecorNames"][:]} )
+                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
 
     pass

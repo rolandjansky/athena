@@ -290,7 +290,6 @@ def makeElectronWorkingPointSequence( seq, dataType, workingPoint,
     # Set up an algorithm used for decorating baseline electron selection:
     alg = createAlgorithm( 'CP::AsgSelectionAlg',
                            'ElectronSelectionSummary' + postfix )
-    addPrivateTool( alg, 'selectionTool', 'CP::AsgFlagSelectionTool' )
     alg.selectionDecoration = 'baselineSelection' + postfix + ',as_char'
     seq.append( alg, inputPropName = 'particles',
                 stageName = 'selection',

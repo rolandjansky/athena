@@ -34,21 +34,27 @@ namespace CP
   StatusCode AsgSelectionAlg ::
   initialize ()
   {
-    ANA_CHECK (m_selectionTool.retrieve());
-    m_systematicsTool = dynamic_cast<ISystematicsTool*>(&*m_selectionTool);
-    if (m_systematicsTool)
-      ANA_CHECK (m_systematicsList.addSystematics (*m_systematicsTool));
+    if (!m_selectionTool.empty())
+    {
+      ANA_CHECK (m_selectionTool.retrieve());
+      m_systematicsTool = dynamic_cast<ISystematicsTool*>(&*m_selectionTool);
+      if (m_systematicsTool)
+        ANA_CHECK (m_systematicsList.addSystematics (*m_systematicsTool));
+    }
       
     ANA_CHECK (m_particlesHandle.initialize (m_systematicsList));
     ANA_CHECK (m_preselection.initialize (m_systematicsList, m_particlesHandle, SG::AllowEmpty));
     ANA_CHECK (m_selectionHandle.initialize (m_systematicsList, m_particlesHandle));
     ANA_CHECK (m_systematicsList.initialize());
 
-    Root::TAccept blankAccept = m_selectionTool->getTAccept();
-    // Just in case this isn't initially set up as a failure clear it this one
-    // time. This only calls reset on the bitset
-    blankAccept.clear();
-    m_setOnFail = selectionFromAccept(blankAccept);
+    if (!m_selectionTool.empty())
+    {
+      Root::TAccept blankAccept = m_selectionTool->getTAccept();
+      // Just in case this isn't initially set up as a failure clear it this one
+      // time. This only calls reset on the bitset
+      blankAccept.clear();
+      m_setOnFail = selectionFromAccept(blankAccept);
+    }
 
     return StatusCode::SUCCESS;
   }
@@ -69,12 +75,26 @@ namespace CP
       {
         if (m_preselection.getBool (*particle, sys))
         {
-          m_selectionHandle.setBits
-            (*particle, selectionFromAccept (m_selectionTool->accept (particle)), sys);
+          if (!m_selectionTool.empty())
+          {
+            m_selectionHandle.setBits
+              (*particle, selectionFromAccept (m_selectionTool->accept (particle)), sys);
+          }
+          else
+          {
+            m_selectionHandle.setBool (*particle, true, sys);
+          }
         }
         else
         {
-          m_selectionHandle.setBits(*particle, m_setOnFail, sys);
+          if (!m_selectionTool.empty())
+          {
+            m_selectionHandle.setBits (*particle, m_setOnFail, sys);
+          }
+          else
+          {
+            m_selectionHandle.setBool (*particle, false, sys);
+          }
         }
       }
     }
