@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGOUTPUTHANDLING_HLTRESULTMTMAKER_H
@@ -39,8 +39,10 @@ public:
   virtual StatusCode finalize() override;
 
   // ------------------------- Specific methods of this tool -------------------
-  /// Builds the HLTResultMT and records it in the event store
+  /// Create and fill a new HLTResultMT, and record it in the event store
   StatusCode makeResult(const EventContext& eventContext) const;
+  /// Fill an existing HLTResultMT with event information
+  StatusCode fillResult(HLT::HLTResultMT& hltResult, const EventContext& eventContext) const;
   /// Return name of the HLTResultMT
   const std::string& resultName() const {return m_hltResultWHKey.key();}
 

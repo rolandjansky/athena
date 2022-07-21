@@ -210,10 +210,15 @@ def make_all_hypo_algs(num_chains, concurrent=False):
 
 def hlt_result_cfg(flags, hypo_algs):
     from TrigEDMConfig.DataScoutingInfo import getFullHLTResultID
+    from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3, EDMDetailsRun3
     from TrigOutputHandling.TrigOutputHandlingConfig import TriggerEDMSerialiserToolCfg, StreamTagMakerToolCfg, TriggerBitsMakerToolCfg
 
     # Tool serialising EDM objects to fill the HLT result
     serialiser = TriggerEDMSerialiserToolCfg('Serialiser')
+    # Add some framework EDM to the output, but skip the ones in EDMDetailsRun3 to avoid the fuss
+    serialiser.addCollectionListToMainResult([
+        coll[0] for coll in TriggerHLTListRun3 if 'BS' in coll[1] and coll[2]=='Steer' and not coll[0].split('#')[0] in EDMDetailsRun3
+    ])
     for hypo in hypo_algs:
         serialiser.addCollectionListToMainResult([
             'xAOD::TrigCompositeContainer_v1#%s' % hypo.HypoOutputDecisions,
