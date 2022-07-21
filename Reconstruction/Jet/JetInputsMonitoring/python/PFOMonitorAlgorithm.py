@@ -25,15 +25,19 @@ def PFOMonitoringConfig(inputFlags):
 
 
     ### STEP 2 ###
-    # Adding an algorithm to the helper. Here, we will use the example 
-    # algorithm in the AthenaMonitoring package. Just pass the type to the 
+    # Adding an algorithm to the helper. Just pass the type to the
     # helper. Then, the helper will instantiate an instance and set up the 
     # base class configuration following the inputFlags. The returned object 
     # is the algorithm.
     # This uses the new Configurables object system.
+    from AthenaMonitoring.AtlasReadyFilterConfig import AtlasReadyFilterCfg
+    from AthenaMonitoring.BadLBFilterToolConfig import LArBadLBFilterToolCfg
+    
     from AthenaConfiguration.ComponentFactory import CompFactory
-    PFOMonAlg = helper.addAlgorithm(CompFactory.PFOMonitorAlgorithm,'PFOMonAlg')
-
+    PFOMonAlg = helper.addAlgorithm(CompFactory.PFOMonitorAlgorithm,'PFOMonAlg',
+                                            addFilterTools = [AtlasReadyFilterCfg(inputFlags),
+                                                              LArBadLBFilterToolCfg(inputFlags)
+                                                              ])
 
     ### STEP 3 ###
     # Edit properties of a algorithm
@@ -72,12 +76,12 @@ def PFOMonitoringConfig(inputFlags):
 
     #############################################
     # Configure histograms - All PFOs
-    pfosAllGroup.defineHistogram('nPFOs',  title='No. of PFOs;N_{PFOs};Events',xbins=200,xmin=0.0,xmax=1000.0)    
-    pfosAllGroup.defineHistogram('pfopT',  title='PFO transverse momentum;pT;Events',xbins=100,xmin=0.0,xmax=200)
+    pfosAllGroup.defineHistogram('nPFOs',  title='No. of PFOs;N_{PFOs};Events',xbins=200,xmin=0.0,xmax=2000.0)
+    pfosAllGroup.defineHistogram('pfopT',  title='PFO transverse momentum;pT;Events',xbins=200,xmin=0.0,xmax=400)
     pfosAllGroup.defineHistogram('pfoEta', title='PFO eta;eta;Events',xbins=98,xmin=-4.9,xmax=4.9)
     pfosAllGroup.defineHistogram('pfoPhi', title='PFO phi;phi;Events',xbins=64,xmin=-3.15,xmax=3.15)
     pfosAllGroup.defineHistogram('pfoMass',title='PFO mass;Mass;Events',xbins=100,xmin=0.0,xmax=100)
-    pfosAllGroup.defineHistogram('pfoE',   title='PFO energy;E;Events',xbins=300,xmin=0.0,xmax=300)
+    pfosAllGroup.defineHistogram('pfoE',   title='PFO energy;E;Events',xbins=300,xmin=0.0,xmax=600)
     pfosAllGroup.defineHistogram('pfoRapidity', title='PFO rapidity;y;Events',xbins=98,xmin=-4.9,xmax=4.9)
 
     pfosAllGroup.defineHistogram('pfoEta,pfoPhi,pfoE', type='TProfile2D', title='Average PFO Energy;eta;phi',
@@ -113,12 +117,12 @@ def PFOMonitoringConfig(inputFlags):
 
     #############################################
     # Configure histograms - Neutral PFOs
-    pfosNeutralGroup.defineHistogram('nNuPFOs',  title='No. of Neutral PFOs;N_{PFOs};Events',xbins=200,xmin=0.0,xmax=1000.0)    
-    pfosNeutralGroup.defineHistogram('NupfopT',  title='Neutral PFO transverse momentum;pT;Events',xbins=100,xmin=0.0,xmax=200)
+    pfosNeutralGroup.defineHistogram('nNuPFOs',  title='No. of Neutral PFOs;N_{PFOs};Events',xbins=200,xmin=0.0,xmax=2000.0)
+    pfosNeutralGroup.defineHistogram('NupfopT',  title='Neutral PFO transverse momentum;pT;Events',xbins=200,xmin=0.0,xmax=400)
     pfosNeutralGroup.defineHistogram('NupfoEta', title='Neutral PFO eta;eta;Events',xbins=98,xmin=-4.9,xmax=4.9)
     pfosNeutralGroup.defineHistogram('NupfoPhi', title='Neutral PFO phi;phi;Events',xbins=64,xmin=-3.15,xmax=3.15)
     pfosNeutralGroup.defineHistogram('NupfoMass',title='Neutral PFO mass;Mass;Events',xbins=100,xmin=0.0,xmax=100)
-    pfosNeutralGroup.defineHistogram('NupfoE',   title='Neutral PFO energy;E;Events',xbins=300,xmin=0.0,xmax=300)
+    pfosNeutralGroup.defineHistogram('NupfoE',   title='Neutral PFO energy;E;Events',xbins=300,xmin=0.0,xmax=600)
     pfosNeutralGroup.defineHistogram('NupfoRapidity', title='Neutral PFO rapidity;y;Events',xbins=98,xmin=-4.9,xmax=4.9)
     pfosNeutralGroup.defineHistogram('NupfoIsolation', title='Neutral PFO Isolation;Iso;Events',xbins=100,xmin=-1.5,xmax=2.0)
     pfosNeutralGroup.defineHistogram('NupfoEPos',title='Neutral PFO Energy From Positive Cells;E_{pos};Events',xbins=500,xmin=0.0,xmax=10000.0)
