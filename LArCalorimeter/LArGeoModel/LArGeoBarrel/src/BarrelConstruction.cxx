@@ -15,6 +15,7 @@
 #include "BarrelAuxFunctions.h"
 
 #include "LArGeoCode/VDetectorParameters.h"
+#include "GeoModelKernel/GeoFullPhysVol.h"
 
 #include "GeoModelKernel/GeoElement.h"
 #include "GeoModelKernel/GeoMaterial.h"
@@ -106,10 +107,6 @@
 LArGeo::BarrelConstruction::BarrelConstruction(bool fullGeo,
                                                const VDetectorParameters* params)
   :m_parameters(params),
-   m_A_SAGGING(false),
-   m_NVISLIM(-1),
-   m_ecamPhysicalPos(NULL),
-   m_ecamPhysicalNeg(NULL),
    m_fullGeo(fullGeo)
 {
 }
@@ -887,7 +884,9 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 // Zcp1 = z max for eta=0.8 at the radius of the middle of the fold
 // Zcp2 = z max for eta=1.475 at the radius of the middle of the fold
 // Along = lenght of the straight sections
-    double Zcp1[15],Zcp2[15],Along[14];
+    double Zcp1[15]={};
+    double Zcp2[15]={};
+    double Along[14]={};
 
 // Rhol = radius at the beginning of the straight section
 // Rhoh = radius at the end of the straight section
@@ -895,8 +894,8 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 // Zcp1h = z max for eta=0.8 at the end of the straight section
 // Zcp2l = z max for eta~=1.475 at the beginning of the straight section
 // Zcp2h = z max for eta~=1.475 at the end of the straight section
-    double Zcp1l[14],Zcp1h[14],Zcp2l[14],Zcp2h[14];
-    double Rhol[14],Rhoh[14];
+    double Zcp1l[14]={},Zcp1h[14]={},Zcp2l[14]={},Zcp2h[14]={};
+    double Rhol[14]={},Rhoh[14]={};
 
     double safety_along = 0.007*Gaudi::Units::mm;
  
