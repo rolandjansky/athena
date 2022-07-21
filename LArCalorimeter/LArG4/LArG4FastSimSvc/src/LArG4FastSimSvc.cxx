@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // include header file
@@ -162,7 +162,7 @@ void LArG4FastSimSvc::print() const
   msg(MSG::INFO) << "Containment check at high eta:  " << (this->m_containHigh  ? "YES" : "NO") << endmsg;
 }
 
-bool LArG4FastSimSvc::generateFSStartingPoint( const HepMC::GenEvent * ge ) const
+bool LArG4FastSimSvc::generateFSStartingPoint( const HepMC::GenEvent * ge )
 {
 	if (!m_generate_starting_points)
 			return false;

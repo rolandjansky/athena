@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef LARG4FASTSIMSVC_LARG4FASTSIMSVC_H
 #define LARG4FASTSIMSVC_LARG4FASTSIMSVC_H
@@ -36,7 +36,6 @@ template <class TYPE> class SvcFactory;
    *  @author Wolfgang Ehrenfeld, University of Hamburg, Germany
    *  @author Zachary Marshal
    *
-   * @version $Id: LArG4FastSimSvc.h 485620 2012-02-28 20:00:50Z gsedov $
    *
    */
 
@@ -62,7 +61,7 @@ class LArG4FastSimSvc : public AthService, virtual public ILArG4FastSimSvc {
   inline virtual bool ContainCrack()         const;           //!< Apply check containment in crack region
 
   inline virtual bool              generateFSStartingPoints() const;
-  virtual bool                     generateFSStartingPoint( const HepMC::GenEvent * ge) const;
+  virtual bool                     generateFSStartingPoint( const HepMC::GenEvent * ge);
   inline virtual float             generateFSStartingPointsRatio() const;
 
   inline virtual int DetectorTag() const;
