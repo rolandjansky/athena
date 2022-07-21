@@ -186,6 +186,10 @@ def MuonInDetToMuonSystemExtensionAlgCfg(flags, name="MuonInDetToMuonSystemExten
     kwargs.setdefault("WriteStauCandidates", "InDetCandidatesStaus")
     kwargs.setdefault("UseOnlyHitSectors", flags.Beam.Type is BeamType.Collisions)
     
+    if not flags.Muon.MuonTrigger:
+        from MuonConfig.MuonSegmentFindingConfig import MuonLayerHoughAlgCfg
+        result.merge(MuonLayerHoughAlgCfg(flags))
+    kwargs.setdefault("UseOnlyHitSectors", not flags.Muon.MuonTrigger) 
     alg = CompFactory.MuonInDetToMuonSystemExtensionAlg(name, **kwargs)
     result.addEventAlgo(alg, primary=True)
     return result
