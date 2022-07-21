@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GENERATORMODULES_GENANALYSIS_H
@@ -69,15 +69,15 @@ protected:
                     const std::string& xtitle="", const std::string& ytitle="", const std::string& ztitle="");
 
   /// Get a histogram's full path, given the name local to the analysis
-  std::string fullhistopath(const std::string localpath) {
+  std::string fullhistopath(const std::string& localpath) {
     return "/" + m_histkey + "/" + name() + "/" + localpath;
   }
 
   /// Retrieve a histogram (as TH1* base class pointer)
-  TH1* histo(std::string key);
+  TH1* histo(const std::string& key);
 
   /// Retrieve a profile histogram
-  TProfile* profile(std::string key);
+  TProfile* profile(const std::string& key);
 
   /// Directly access the histogram service
   const ServiceHandle<ITHistSvc> histSvc() const {
