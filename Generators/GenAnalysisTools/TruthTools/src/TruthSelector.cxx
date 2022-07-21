@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -9,15 +9,17 @@
  @todo AB: Only in ID acceptance? Why?
 ***************************************************************************/
 
-#include <cmath>
-#include <iomanip>
+
 #include "HepPDT/ParticleData.hh"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/IPartPropSvc.h"
 #include "GeneratorObjects/McEventCollection.h"
-#include "GeneratorObjects/HepMcParticleLink.h"
 #include "TruthUtils/HepMCHelpers.h"
 #include "TruthSelector.h"
+#include "HepPDT/ParticleDataTable.hh"
+
+#include <cstdlib> //for std::abs
+#include <iomanip>
 
 
 TruthSelector::TruthSelector (const std::string& type, const std::string& name, const IInterface* parent)

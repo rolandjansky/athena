@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -13,11 +13,19 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "HepPDT/ParticleDataTable.hh"
-#include "AtlasHepMC/GenParticle.h"
 #include "GenInterfaces/ITruthSelector.h"
+#include "AtlasHepMC/GenParticle.h" //for ConstGenParticlePtr typedef
 
+#include <map>
+#include <vector>
+#include <string>
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
+class IInterface;
+class McEventCollection;
+
+namespace HepPDT{
+  class ParticleDataTable;
+}
 
 class TruthSelector: public AthAlgTool,
 		     virtual public ITruthSelector
@@ -65,7 +73,7 @@ private:
     double				m_minREndSecondary;
     double				m_minZEndPrimary;
     double				m_minZEndSecondary;
-    const HepPDT::ParticleDataTable*	m_particleDataTable;
+    const HepPDT::ParticleDataTable*	m_particleDataTable{};
 
 };
    
