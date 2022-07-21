@@ -29,8 +29,8 @@ def TrackParticleCreatorToolCfg(flags, name="InDetxAODParticleCreatorTool", **kw
         kwargs.setdefault("TRT_ElectronPidTool", result.popToolsAndMerge(TRT_ElectronPidToolCfg(flags, name="InDetTRT_ElectronPidTool")))
 
     if 'PixelToTPIDTool' not in kwargs :
-        from InDetConfig.TrackingCommonConfig import InDetPixelToTPIDToolCfg
-        kwargs.setdefault("PixelToTPIDTool", result.popToolsAndMerge(InDetPixelToTPIDToolCfg(flags)))
+        from InDetConfig.PixelToTPIDToolConfig import PixelToTPIDToolCfg
+        kwargs.setdefault("PixelToTPIDTool", result.popToolsAndMerge(PixelToTPIDToolCfg(flags)))
 
     kwargs.setdefault("BadClusterID", 3) # Select the mode to identify suspicous pixel cluster
     kwargs.setdefault("KeepParameters", True)
