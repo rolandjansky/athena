@@ -133,51 +133,55 @@ StatusCode HLTResultMTMaker::finalize() {
 }
 
 // =============================================================================
-// The main method of the tool
+// Create, record and fill a new result
 // =============================================================================
 StatusCode HLTResultMTMaker::makeResult(const EventContext& eventContext) const {
-  auto monTime =  Monitored::Timer<std::chrono::duration<float, std::milli>>("TIME_makeResult");
-
-  // Create and record the HLTResultMT object
   auto hltResult = SG::makeHandle(m_hltResultWHKey,eventContext);
   ATH_CHECK( hltResult.record(std::make_unique<HLT::HLTResultMT>()) );
   ATH_MSG_DEBUG("Recorded HLTResultMT with key " << m_hltResultWHKey.key());
+  ATH_CHECK(fillResult(*hltResult, eventContext));
+  return StatusCode::SUCCESS;
+}
+
+// =============================================================================
+// The main method of the tool
+// =============================================================================
+StatusCode HLTResultMTMaker::fillResult(HLT::HLTResultMT& hltResult, const EventContext& eventContext) const {
+  auto monTime =  Monitored::Timer<std::chrono::duration<float, std::milli>>("TIME_fillResult");
 
   // Save HLT runtime metadata
   SG::WriteHandle<xAOD::TrigCompositeContainer> runtimeMetadataOutput = TrigCompositeUtils::createAndStore(m_runtimeMetadataWHKey, eventContext);
-  
-  xAOD::TrigComposite* tc = new xAOD::TrigComposite();
-  runtimeMetadataOutput->push_back(tc);
+  runtimeMetadataOutput->push_back(std::make_unique<xAOD::TrigComposite>());
   char hostname [HOST_NAME_MAX];
   bool errcode = !gethostname(hostname, HOST_NAME_MAX); // returns 0 on success and -1 on failure, casted to false on success, true on failure
   std::string hostnameString = std::string(hostname); // setDetail needs a reference
-  errcode &= tc->setDetail("hostname", hostnameString);
+  errcode &= runtimeMetadataOutput->back()->setDetail("hostname", hostnameString);
   if (!errcode) ATH_MSG_WARNING("Failed to append hostname to HLT Runtime Metadata TC");
 
   // Fill the stream tags
   StatusCode finalStatus = StatusCode::SUCCESS;
-  if (m_streamTagMaker.isEnabled() && m_streamTagMaker->fill(*hltResult, eventContext).isFailure()) {
+  if (m_streamTagMaker.isEnabled() && m_streamTagMaker->fill(hltResult, eventContext).isFailure()) {
     ATH_MSG_ERROR(m_streamTagMaker->name() << " failed");
     finalStatus = StatusCode::FAILURE;
   }
 
   // Fill the result using all other tools if the event was accepted
-  if (hltResult->isAccepted()) {
+  if (hltResult.isAccepted()) {
     for (auto& maker: m_makerTools) {
       ATH_MSG_DEBUG("Calling " << maker->name() << " for accepted event");
-      if (StatusCode sc = maker->fill(*hltResult, eventContext); sc.isFailure()) {
+      if (StatusCode sc = maker->fill(hltResult, eventContext); sc.isFailure()) {
         ATH_MSG_ERROR(maker->name() << " failed");
         finalStatus = sc;
       }
     }
 
-    if (!m_skipValidatePEBInfo) validatePEBInfo(*hltResult);
+    if (!m_skipValidatePEBInfo) validatePEBInfo(hltResult);
   }
   else {
     ATH_MSG_DEBUG("Rejected event, further result filling skipped after stream tag maker");
   }
 
-  ATH_MSG_DEBUG(*hltResult);
+  ATH_MSG_DEBUG(hltResult);
 
   Monitored::Group(m_monTool, monTime);
   return finalStatus;
