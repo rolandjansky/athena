@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetSecVertexTruthMatchTool_h
@@ -72,9 +72,9 @@ class InDetSecVertexTruthMatchTool : public virtual IInDetSecVertexTruthMatchToo
   virtual StatusCode finalize() override;
 
   //take const collection of vertices, match them, and decorate with matching info
-  virtual StatusCode matchVertices( const xAOD::VertexContainer& vtxContainer, const xAOD::TruthVertexContainer& truthVtxContainer ) const override;
+  virtual StatusCode matchVertices( const xAOD::VertexContainer& vtxContainer, const xAOD::TruthVertexContainer& truthVtxContainer ) override;
   //take const collection of truth vertices and decorate with type info
-  virtual StatusCode labelTruthVertices( const xAOD::TruthVertexContainer & truthVtxContainer ) const override;
+  virtual StatusCode labelTruthVertices( const xAOD::TruthVertexContainer & truthVtxContainer ) override;
 
  private:
 
@@ -97,8 +97,8 @@ class InDetSecVertexTruthMatchTool : public virtual IInDetSecVertexTruthMatchToo
   std::vector<int> checkParticle( const xAOD::TruthParticle& part, const xAOD::TrackParticleContainer &tkCont ) const;
 
   // (optional) write out histograms
-  virtual StatusCode fillRecoPlots( const xAOD::Vertex& secVtx ) const;
-  virtual StatusCode fillTruthPlots( const xAOD::TruthVertex& truthVtx ) const;
+  StatusCode fillRecoPlots( const xAOD::Vertex& secVtx );
+  StatusCode fillTruthPlots( const xAOD::TruthVertex& truthVtx );
 
   //private internal variables (not properties)
   std::vector<int> m_pdgIdList;

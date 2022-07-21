@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IInDetSecVertexTruthMatchTool_h
@@ -27,9 +27,9 @@ public:
 
 //take const collection of vertices, match them, and decorate with matching info
  virtual StatusCode matchVertices( const xAOD::VertexContainer & vtxContainer,
-                                   const xAOD::TruthVertexContainer & truthVtxContainer ) const = 0;
+                                   const xAOD::TruthVertexContainer & truthVtxContainer ) = 0;
 
- virtual StatusCode labelTruthVertices( const xAOD::TruthVertexContainer & truthVtxContainer ) const = 0;
+ virtual StatusCode labelTruthVertices( const xAOD::TruthVertexContainer & truthVtxContainer ) = 0;
 
 };
 
