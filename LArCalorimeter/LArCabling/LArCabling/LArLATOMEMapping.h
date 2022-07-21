@@ -32,7 +32,7 @@ class LArLATOMEMapping {
   friend class LArLATOMEMappingAlg; //The conditions alg filling this object
 
  public:
-  LArLATOMEMapping();
+  LArLATOMEMapping(unsigned nLatomes=0);
   
   /**
    * create a HWIdentifier from an Identifier (not inline)<br>
