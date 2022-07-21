@@ -106,25 +106,25 @@ SG::ReadCondHandle<InDetDD::HGTD_DetectorElementCollection> HGTD_LayerBuilderCon
 
 
 /** LayerBuilder interface method - returning Endcap-like layers */
-std::pair<EventIDRange, const std::vector<Trk::DiscLayer*>*>
-HGTD_LayerBuilderCond::discLayers(const EventContext& ctx) const
+std::unique_ptr<const std::vector<Trk::DiscLayer*> >
+HGTD_LayerBuilderCond::discLayers(const EventContext& ctx,
+                                  SG::WriteCondHandle<Trk::TrackingGeometry>& whandle) const
 {
   ATH_MSG_DEBUG( "calling HGTD_LayerBuilderCond::discLayers()" );
   
   // sanity check for HGTD Helper
   if (!m_hgtdHelper){
     ATH_MSG_ERROR("HGTD Detector Manager or ID Helper could not be retrieved - giving up.");
-    //create dummy infinite range
-    EventIDRange range = IOVInfiniteRange::infiniteMixed();
-    return std::pair<EventIDRange, const std::vector<Trk::DiscLayer*>*>(range,nullptr);
+    return nullptr;
   } 
   
   // get general layout
   SG::ReadCondHandle<InDetDD::HGTD_DetectorElementCollection> readHandle = retrieveHGTDdetElements(ctx);
   if(*readHandle == nullptr){
-    EventIDRange range = IOVInfiniteRange::infiniteMixed();
-    return std::pair<EventIDRange, std::vector<Trk::DiscLayer*>*>(range,nullptr);
+    return nullptr;
   }
+  whandle.addDependency (readHandle);
+
   const InDetDD::HGTD_DetectorElementCollection* readCdo{*readHandle};
   InDetDD::HGTD_DetectorElementCollection::const_iterator hgtdDetIter = readCdo->begin();
     
@@ -211,7 +211,7 @@ HGTD_LayerBuilderCond::discLayers(const EventContext& ctx) const
   minRmin -= m_discEnvelopeR;  
   
   // construct the layers
-  std::vector<Trk::DiscLayer*>* discLayers = new std::vector<Trk::DiscLayer* >;
+  auto discLayers = std::make_unique<std::vector<Trk::DiscLayer*> >();
   
   double thickness = m_discThickness;
   
@@ -325,8 +325,7 @@ HGTD_LayerBuilderCond::discLayers(const EventContext& ctx) const
   Trk::DiscLayerSorterZ zSorter;
   std::sort(discLayers->begin(), discLayers->end(), zSorter);
  
-  EventIDRange range = readHandle.getRange();
-  return std::make_pair(range, discLayers);
+  return discLayers;
 }
 
 const Trk::BinnedLayerMaterial HGTD_LayerBuilderCond::discLayerMaterial(double rMin, double rMax) const

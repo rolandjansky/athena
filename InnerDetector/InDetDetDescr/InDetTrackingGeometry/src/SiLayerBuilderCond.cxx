@@ -165,19 +165,18 @@ SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> InDet::SiLayerBuilderCo
 }
 
 /** LayerBuilder interface method - returning Barrel-like layers */
-std::pair<EventIDRange, const std::vector<Trk::CylinderLayer*>*>
-InDet::SiLayerBuilderCond::cylindricalLayers(const EventContext& ctx) const
+std::unique_ptr<const std::vector<Trk::CylinderLayer*> >
+InDet::SiLayerBuilderCond::cylindricalLayers(const EventContext& ctx,
+                                             SG::WriteCondHandle<Trk::TrackingGeometry>& whandle) const
 {
 
   // sanity check for ID Helper
   if (!m_pixIdHelper && !m_sctIdHelper){
     ATH_MSG_ERROR("Neither Pixel nor SCT Detector Manager or ID Helper could be retrieved - giving up.");
-    //create dummy infinite range
-    EventIDRange range = IOVInfiniteRange::infiniteMixed();
-    return std::pair<EventIDRange, const std::vector<Trk::CylinderLayer*>*>(range,nullptr);
+    return nullptr;
   }
 
-  // take the numerlogoy
+  // take the numerology
   const InDetDD::SiNumerology& siNumerology = m_siMgr->numerology();     
     
   // pre-set parameters for the run
@@ -219,9 +218,10 @@ InDet::SiLayerBuilderCond::cylindricalLayers(const EventContext& ctx) const
   // iterate over the detector elements for layer dimension, etc.   
   SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> readHandle = retrieveSiDetElements(ctx);
   if(*readHandle == nullptr){
-    EventIDRange range = IOVInfiniteRange::infiniteMixed();
-    return std::pair<EventIDRange, const std::vector<Trk::CylinderLayer*>*>(range,nullptr);
+    return nullptr;
   }
+  whandle.addDependency (readHandle);
+
   const InDetDD::SiDetectorElementCollection* readCdo{*readHandle};
   InDetDD::SiDetectorElementCollection::const_iterator sidetIter = readCdo->begin();    
   for (; sidetIter != readCdo->end(); ++sidetIter){
@@ -479,7 +479,7 @@ InDet::SiLayerBuilderCond::cylindricalLayers(const EventContext& ctx) const
   // --------------------------- enf of detection layer construction loop ----------------------------------
 
   ATH_MSG_DEBUG("Creating the final CylinderLayer collection with (potentially) additional layers.");
-  std::vector< Trk::CylinderLayer* >* cylinderLayers = dressCylinderLayers(cylinderDetectionLayers);
+  std::unique_ptr<std::vector< Trk::CylinderLayer* > > cylinderLayers = dressCylinderLayers(cylinderDetectionLayers);
   
   // multiply the check number in case of SCT 
   sumCheckBarrelModules *= (m_pixelCase) ? 1 : 2; 
@@ -489,53 +489,52 @@ InDet::SiLayerBuilderCond::cylindricalLayers(const EventContext& ctx) const
      ATH_MSG_WARNING( barrelModules-sumCheckBarrelModules << " Modules not registered properly in binned array." );       
 
   ATH_MSG_DEBUG("Returning " << cylinderLayers->size() << " cylinder layers.");
-  EventIDRange range = readHandle.getRange();
-  std::pair<EventIDRange, const std::vector<Trk::CylinderLayer*>*> cylinderLayersPair = std::make_pair(range,cylinderLayers);
-  return cylinderLayersPair;
+  return cylinderLayers;
 }
 
 /** LayerBuilder interface method - returning Endcap-like layers */
-std::pair<EventIDRange, const std::vector<Trk::DiscLayer*>*>
-InDet::SiLayerBuilderCond::discLayers(const EventContext& ctx) const
+std::unique_ptr<const std::vector<Trk::DiscLayer*> >
+InDet::SiLayerBuilderCond::discLayers(const EventContext& ctx,
+                                      SG::WriteCondHandle<Trk::TrackingGeometry>& whandle) const
 {
   // sanity check for ID Helper
   if (!m_pixIdHelper && !m_sctIdHelper){
        ATH_MSG_ERROR("Neither Pixel nor SCT Detector Manager or ID Helper could be retrieved - giving up.");
-    //create dummy infinite range
-    EventIDRange range = IOVInfiniteRange::infiniteMixed();
-    return std::pair<EventIDRange, const std::vector<Trk::DiscLayer*>*>(range,nullptr);
+       return nullptr;
   } 
 
   // check for DBMS
   int nDBMLayers = m_siMgr->numerology().numEndcapsDBM();
-  if (!nDBMLayers) return ((m_pixelCase and m_useRingLayout) ? createRingLayers(ctx) : createDiscLayers(ctx));
+  if (!nDBMLayers) return ((m_pixelCase and m_useRingLayout) ? createRingLayers(ctx, whandle) : createDiscLayers(ctx, whandle));
   
   ATH_MSG_DEBUG( "Found " << m_siMgr->numerology().numEndcapsDBM() << " DBM layers active, building first ECs, then DBMS");
-  std::pair<EventIDRange, std::vector<Trk::DiscLayer*>*>  ecLayers = createDiscLayers(ctx);
-  if (ecLayers.second) {
-      ATH_MSG_VERBOSE( "Created " << ecLayers.second->size() << " endcap layers w/o  DBM.");
-      ecLayers = createDiscLayers(ctx, ecLayers.second);
-      ATH_MSG_VERBOSE( "Created " << ecLayers.second->size() << " endcap layers with DBM.");
+  std::unique_ptr<std::vector<Trk::DiscLayer*> >  ecLayers = createDiscLayers(ctx, whandle);
+  if (ecLayers) {
+      ATH_MSG_VERBOSE( "Created " << ecLayers->size() << " endcap layers w/o  DBM.");
+      ecLayers = createDiscLayers(ctx, whandle, std::move(ecLayers));
+      ATH_MSG_VERBOSE( "Created " << ecLayers->size() << " endcap layers with DBM.");
   }
   return ecLayers;
 }
 
 /** LayerBuilder interface method - returning Endcap-like layers */
-std::pair<EventIDRange, std::vector<Trk::DiscLayer*>*>
+std::unique_ptr<std::vector<Trk::DiscLayer*> >
 InDet::SiLayerBuilderCond::createDiscLayers(
   const EventContext& ctx,
-  std::vector<Trk::DiscLayer*>* dLayers) const
+  SG::WriteCondHandle<Trk::TrackingGeometry>& whandle,
+  std::unique_ptr<std::vector<Trk::DiscLayer*> > discLayers) const
 {
 
   // this is the DBM flag
-  bool isDBM = (dLayers!=nullptr);
+  bool isDBM = (discLayers!=nullptr);
   
   // get general layout
   SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> readHandle = retrieveSiDetElements(ctx);
   if(*readHandle == nullptr){
-    EventIDRange range = IOVInfiniteRange::infiniteMixed();
-    return std::pair<EventIDRange, std::vector<Trk::DiscLayer*>*>(range,nullptr);
+    return nullptr;
   }
+  whandle.addDependency (readHandle);
+
   const InDetDD::SiDetectorElementCollection* readCdo{*readHandle};
   InDetDD::SiDetectorElementCollection::const_iterator sidetIter = readCdo->begin();    
     
@@ -704,7 +703,9 @@ InDet::SiLayerBuilderCond::createDiscLayers(
     
   // [-B-] ------------------------ Construction of the layers -----------------------------------
   // construct the layers
-  std::vector< Trk::DiscLayer* >* discLayers = dLayers ? dLayers : new std::vector< Trk::DiscLayer* >;
+  if (!discLayers) {
+    discLayers = std::make_unique<std::vector< Trk::DiscLayer* > >();
+  }
   std::vector<double>::iterator discZposIter = discZpos.begin();
   int discCounter = 0;
                                               
@@ -980,21 +981,22 @@ InDet::SiLayerBuilderCond::createDiscLayers(
     sortEnd   = discLayers->end(); 
     std::sort(sortIter, sortEnd, zSorter);
   }
- 
-  EventIDRange range = readHandle.getRange();
-  return std::make_pair(range, discLayers);
+
+  return discLayers;
 }
 
 /** LayerBuilder interface method - returning ring-like layers */
 /** this is ITk pixel specific and doesn't include DBM modules */
-std::pair<EventIDRange, std::vector< Trk::DiscLayer* >* > InDet::SiLayerBuilderCond::createRingLayers(const EventContext& ctx) const {
+std::unique_ptr<std::vector< Trk::DiscLayer*> >
+InDet::SiLayerBuilderCond::createRingLayers(const EventContext& ctx,
+                                            SG::WriteCondHandle<Trk::TrackingGeometry>& whandle) const {
  
   // get general layout
   SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> readHandle = retrieveSiDetElements(ctx);
   if(*readHandle == nullptr){
-    EventIDRange range = IOVInfiniteRange::infiniteMixed();
-    return std::pair<EventIDRange, std::vector<Trk::DiscLayer*>*>(range,nullptr);
+    return nullptr;
   }
+  whandle.addDependency (readHandle);
     
   // save way to estimate the number of barrels
   unsigned int endcapLayers = 0;
@@ -1108,7 +1110,7 @@ std::pair<EventIDRange, std::vector< Trk::DiscLayer* >* > InDet::SiLayerBuilderC
       
   // [-B-] ------------------------ Construction of the layers -----------------------------------
   // construct the layers
-  std::vector< Trk::DiscLayer* >* discLayers = new std::vector< Trk::DiscLayer* >;
+  auto discLayers = std::make_unique<std::vector< Trk::DiscLayer*> >();
   std::vector<double>::iterator discZposIter = discZpos.begin();
   int discCounter = 0;
                                               
@@ -1295,17 +1297,15 @@ std::pair<EventIDRange, std::vector< Trk::DiscLayer* >* > InDet::SiLayerBuilderC
     ATH_MSG_VERBOSE(" ----> Disk layer located at : " << dl->surfaceRepresentation().center().z());
   }
  
-  EventIDRange range = readHandle.getRange();
-  return std::make_pair(range, discLayers);
+  return discLayers;
 }
 
-std::vector<Trk::CylinderLayer*>*
+std::unique_ptr<std::vector<Trk::CylinderLayer*> >
 InDet::SiLayerBuilderCond::dressCylinderLayers(
   const std::vector<Trk::CylinderLayer*>& detectionLayers) const
 {
 
-  std::vector<Trk::CylinderLayer*>* cylinderLayers =
-    new std::vector<Trk::CylinderLayer*>;
+  auto cylinderLayers = std::make_unique<std::vector<Trk::CylinderLayer*> >();
   // --------------------------- start of additional layer construction loop
   // ------------------------------- for the additional layer
   if (!m_barrelAdditionalLayerR.empty()) {

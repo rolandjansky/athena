@@ -130,14 +130,14 @@ StatusCode Trk::GeometryBuilderCond::initialize()
     return StatusCode::SUCCESS;
 }
 
-std::pair<EventIDRange, Trk::TrackingGeometry*>
+std::unique_ptr< Trk::TrackingGeometry>
 Trk::GeometryBuilderCond::trackingGeometry(const EventContext& ctx,
-                                           std::pair<EventIDRange, 
-                                           const Trk::TrackingVolume*> /*tVolPair*/) const
+                                           const Trk::TrackingVolume* /*tVol*/,
+                                           SG::WriteCondHandle<TrackingGeometry>& whandle) const
 {
 
     // the geometry to be constructed
-    std::pair<EventIDRange, Trk::TrackingGeometry*> tGeometry;
+    std::unique_ptr<Trk::TrackingGeometry> tGeometry;
     if ( m_inDetGeometryBuilderCond.empty() && m_hgtdGeometryBuilderCond.empty() && m_caloGeometryBuilderCond.empty() && m_muonGeometryBuilderCond.empty() ) {
 
         ATH_MSG_VERBOSE( "Configured to only create world TrackingVolume." );
@@ -152,33 +152,25 @@ Trk::GeometryBuilderCond::trackingGeometry(const EventContext& ctx,
                                                                    nullptr,
                                                                    nullptr,
                                                                    "EmptyWorldVolume");
-        //dummy infinite IOV range
-        EventIDRange range=IOVInfiniteRange::infiniteMixed();
-
         // create a new geometry
-        tGeometry = std::make_pair(range, new Trk::TrackingGeometry(worldVolume));
+        tGeometry = std::make_unique<Trk::TrackingGeometry>(worldVolume);
     } else
-        tGeometry = atlasTrackingGeometry(ctx);
+        tGeometry = atlasTrackingGeometry(ctx, whandle);
     // sign it before you return anything
-    tGeometry.second->sign(geometrySignature());
+    tGeometry->sign(geometrySignature());
     return tGeometry;
-
 }
 
 
-std::pair<EventIDRange, Trk::TrackingGeometry*> 
-Trk::GeometryBuilderCond::atlasTrackingGeometry(const EventContext& ctx) const
+std::unique_ptr<Trk::TrackingGeometry> 
+Trk::GeometryBuilderCond::atlasTrackingGeometry(const EventContext& ctx,
+                                                SG::WriteCondHandle<TrackingGeometry>& whandle) const
 {
     // the return geometry
-    std::pair<EventIDRange, Trk::TrackingGeometry*> atlasTrackingGeometry;
-    //Set IOV range covering 0 - inf
-    EventIDRange range=IOVInfiniteRange::infiniteMixed();
+    std::unique_ptr<Trk::TrackingGeometry> atlasTrackingGeometry;
 
     // A ------------- INNER DETECTOR SECTION --------------------------------------------------------------------------------
     // get the Inner Detector and/or HGTD and/or Calorimeter trackingGeometry
-    std::pair<EventIDRange, Trk::TrackingGeometry*> inDetTrackingGeometry;
-    std::pair<EventIDRange, Trk::TrackingGeometry*> hgtdTrackingGeometry;
-    std::pair<EventIDRange, Trk::TrackingGeometry*> caloTrackingGeometry ;
 
     // the volumes to be given to higher level tracking geometry builders
     const Trk::TrackingVolume* inDetVolume    = nullptr;
@@ -199,22 +191,20 @@ Trk::GeometryBuilderCond::atlasTrackingGeometry(const EventContext& ctx) const
         // debug output
         ATH_MSG_VERBOSE( "ID Tracking Geometry is going to be built." );
         // build the geometry
-        inDetTrackingGeometry = m_inDetGeometryBuilderCond->trackingGeometry(ctx, std::pair<EventIDRange, const Trk::TrackingVolume*>(range, nullptr));
+        std::unique_ptr<Trk::TrackingGeometry> inDetTrackingGeometry =
+          m_inDetGeometryBuilderCond->trackingGeometry(ctx, nullptr, whandle);
         // check
-        if (inDetTrackingGeometry.second) {
+        if (inDetTrackingGeometry) {
             // sign it
-            inDetTrackingGeometry.second->sign(m_inDetGeometryBuilderCond->geometrySignature());
+            inDetTrackingGeometry->sign(m_inDetGeometryBuilderCond->geometrySignature());
             // check whether the world has to be created or not
             if (m_createWorld || m_hgtdGeometry || m_caloGeometry || m_muonGeometry) {
                 // checkout the highest InDet volume
-                inDetVolume = inDetTrackingGeometry.second->checkoutHighestTrackingVolume();
+                inDetVolume = inDetTrackingGeometry->checkoutHighestTrackingVolume();
                 // assign it as the highest volume
                 highestVolume = inDetVolume;
-                range = inDetTrackingGeometry.first;
-                // cleanup
-                delete inDetTrackingGeometry.second;
             } else // -> Take the exit and return ID stand alone
-                atlasTrackingGeometry = inDetTrackingGeometry;
+                atlasTrackingGeometry = std::move(inDetTrackingGeometry);
         }
 
 #ifdef TRKDETDESCR_MEMUSAGE            
@@ -233,21 +223,19 @@ Trk::GeometryBuilderCond::atlasTrackingGeometry(const EventContext& ctx) const
         else 
             ATH_MSG_VERBOSE( "HGTD Tracking Geometry is going to be built stand-alone." );
         // get the InnerDetector TrackingGeometry
-        hgtdTrackingGeometry = m_hgtdGeometryBuilderCond->trackingGeometry(ctx, std::make_pair(inDetTrackingGeometry.first, inDetVolume));
+        std::unique_ptr<Trk::TrackingGeometry> hgtdTrackingGeometry =
+          m_hgtdGeometryBuilderCond->trackingGeometry(ctx, inDetVolume, whandle);
         // if you have to create world or there is a Calo/Muon geometry builder ...
-        if (hgtdTrackingGeometry.second) {
+        if (hgtdTrackingGeometry) {
             // sign it
-            hgtdTrackingGeometry.second->sign(m_hgtdGeometryBuilderCond->geometrySignature());
+            hgtdTrackingGeometry->sign(m_hgtdGeometryBuilderCond->geometrySignature());
             if (m_createWorld || m_caloGeometry || m_muonGeometry){
                 // check out the highest Calo volume
-                hgtdVolume = hgtdTrackingGeometry.second->checkoutHighestTrackingVolume();
+                hgtdVolume = hgtdTrackingGeometry->checkoutHighestTrackingVolume();
                 // assign it as the highest volume (overwrite ID)
                 highestVolume = hgtdVolume;
-                range = hgtdTrackingGeometry.first;
-                // cleanup
-                delete hgtdTrackingGeometry.second;
             } else // -> Take the exit and return HGTD back
-                atlasTrackingGeometry = hgtdTrackingGeometry;
+                atlasTrackingGeometry = std::move(hgtdTrackingGeometry);
         }
 
 #ifdef TRKDETDESCR_MEMUSAGE            
@@ -269,24 +257,22 @@ Trk::GeometryBuilderCond::atlasTrackingGeometry(const EventContext& ctx) const
         ATH_MSG_VERBOSE( "Calorimeter Tracking Geometry is going to be built "<< enclosed );
 
         // get the InnerDetector TrackingGeometry or the HGTD tracking geometry
+        std::unique_ptr<Trk::TrackingGeometry> caloTrackingGeometry;
         if (inDetVolume and not hgtdVolume)
-          caloTrackingGeometry = m_caloGeometryBuilderCond->trackingGeometry(ctx, std::make_pair(inDetTrackingGeometry.first, inDetVolume));
+          caloTrackingGeometry = m_caloGeometryBuilderCond->trackingGeometry(ctx, inDetVolume, whandle);
         else 
-          caloTrackingGeometry = m_caloGeometryBuilderCond->trackingGeometry(ctx, std::make_pair(hgtdTrackingGeometry.first, hgtdVolume));
+          caloTrackingGeometry = m_caloGeometryBuilderCond->trackingGeometry(ctx, hgtdVolume, whandle);
         // if you have to create world or there is a Muon geometry builder ...
-        if (caloTrackingGeometry.second) {
+        if (caloTrackingGeometry) {
             // sign it
-            caloTrackingGeometry.second->sign(m_caloGeometryBuilderCond->geometrySignature());
+            caloTrackingGeometry->sign(m_caloGeometryBuilderCond->geometrySignature());
             if (m_createWorld || m_muonGeometry){
                 // check out the highest Calo volume
-                caloVolume = caloTrackingGeometry.second->checkoutHighestTrackingVolume();
+                caloVolume = caloTrackingGeometry->checkoutHighestTrackingVolume();
                 // assign it as the highest volume (overwrite ID)
                 highestVolume = caloVolume;
-                range = caloTrackingGeometry.first;
-                // cleanup
-                delete caloTrackingGeometry.second;
             } else // -> Take the exit and return Calo back
-                atlasTrackingGeometry = caloTrackingGeometry;
+                atlasTrackingGeometry = std::move(caloTrackingGeometry);
         }
 
 #ifdef TRKDETDESCR_MEMUSAGE            
@@ -324,15 +310,15 @@ Trk::GeometryBuilderCond::atlasTrackingGeometry(const EventContext& ctx) const
 
         // there's nothing outside the muons -- wrap the calo or the HGTD if one or both of them exist
         if (inDetVolume and not hgtdVolume and not caloVolume)
-            atlasTrackingGeometry = m_muonGeometryBuilderCond->trackingGeometry(ctx, std::make_pair(inDetTrackingGeometry.first, inDetVolume));
+            atlasTrackingGeometry = m_muonGeometryBuilderCond->trackingGeometry(ctx, inDetVolume, whandle);
         else if (hgtdVolume and not caloVolume)
-            atlasTrackingGeometry = m_muonGeometryBuilderCond->trackingGeometry(ctx, std::make_pair(hgtdTrackingGeometry.first, hgtdVolume));        
+            atlasTrackingGeometry = m_muonGeometryBuilderCond->trackingGeometry(ctx, hgtdVolume, whandle);
         else
-            atlasTrackingGeometry = m_muonGeometryBuilderCond->trackingGeometry(ctx, std::make_pair(caloTrackingGeometry.first, caloVolume));
+            atlasTrackingGeometry = m_muonGeometryBuilderCond->trackingGeometry(ctx, caloVolume, whandle);
 
         // sign it
-        if (atlasTrackingGeometry.second)
-            atlasTrackingGeometry.second->sign(m_muonGeometryBuilderCond->geometrySignature());
+        if (atlasTrackingGeometry)
+            atlasTrackingGeometry->sign(m_muonGeometryBuilderCond->geometrySignature());
 
 #ifdef TRKDETDESCR_MEMUSAGE            
         m_memoryLogger.refresh(getpid());
@@ -478,16 +464,14 @@ Trk::GeometryBuilderCond::atlasTrackingGeometry(const EventContext& ctx) const
         ATH_MSG_VERBOSE( "Atlas Inner/Outer Sector glued successfully together." );
 
         // job done -> create the TrackingGeometry
-        atlasTrackingGeometry.second = new Trk::TrackingGeometry(atlasVolume);
+        atlasTrackingGeometry = std::make_unique<Trk::TrackingGeometry>(atlasVolume);
 
-        atlasTrackingGeometry.first = range;
-        
         // detailed information about this tracking geometry
         ATH_MSG_VERBOSE( "Atlas TrackingGeometry built with following parameters : ");
         //ATH_MSG_VERBOSE( " - TrackingVolume containers            : " << atlasTrackingGeometry->numberOfContainerVolumes() );
         //ATH_MSG_VERBOSE( " - TrackingVolume at navigation level   : " << atlasTrackingGeometry->numberOfContainerVolumes() );
         //ATH_MSG_VERBOSE( " - Contained static layers              : " << atlasTrackingGeometry->boundaryLayers().size());        
-        ATH_MSG_VERBOSE( " - Unique material layers on boundaries : " << atlasTrackingGeometry.second->boundaryLayers().size());        
+        ATH_MSG_VERBOSE( " - Unique material layers on boundaries : " << atlasTrackingGeometry->boundaryLayers().size());        
 
 #ifdef TRKDETDESCR_MEMUSAGE            
         m_memoryLogger.refresh(getpid());
@@ -497,9 +481,9 @@ Trk::GeometryBuilderCond::atlasTrackingGeometry(const EventContext& ctx) const
 
     }
 
-    if (atlasTrackingGeometry.second) {
+    if (atlasTrackingGeometry) {
         if (m_navigationLevel < 3)
-            atlasTrackingGeometry.second->registerNavigationLevel( Trk::NavigationLevel(m_navigationLevel));
+            atlasTrackingGeometry->registerNavigationLevel( Trk::NavigationLevel(m_navigationLevel));
     }
     else ATH_MSG_WARNING( "atlasTrackingGeometry() ... atlasTrackingGeometry = 0, could not call registerNavigationLevel and propagateMagneticFieldProperties" );
 
@@ -510,11 +494,11 @@ Trk::GeometryBuilderCond::atlasTrackingGeometry(const EventContext& ctx) const
 #endif
 
     // synchronize the layers
-    if (atlasTrackingGeometry.second) {
-    if (m_synchronizeLayers) atlasTrackingGeometry.second->synchronizeLayers(msg());
+    if (atlasTrackingGeometry) {
+      if (m_synchronizeLayers) atlasTrackingGeometry->synchronizeLayers(msg());
 
-    // compactify if configured to do so
-    if (m_compactify) atlasTrackingGeometry.second->compactify(msg());
+      // compactify if configured to do so
+      if (m_compactify) atlasTrackingGeometry->compactify(msg());
     }
     return atlasTrackingGeometry;
 } 

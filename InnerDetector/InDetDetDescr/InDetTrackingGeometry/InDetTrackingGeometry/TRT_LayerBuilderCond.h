@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -66,16 +66,19 @@ namespace InDet {
       virtual StatusCode initialize() override final;
 
       /** LayerBuilderCond interface method - returning Barrel-like layers */
-      virtual std::pair<EventIDRange, const std::vector<Trk::CylinderLayer*>*>
-      cylindricalLayers(const EventContext& ctx) const override final;
+      virtual std::unique_ptr<const std::vector<Trk::CylinderLayer*> >
+      cylindricalLayers(const EventContext& ctx,
+                        SG::WriteCondHandle<Trk::TrackingGeometry>& whandle) const override final;
 
       /** LayerBuilderCond interface method - returning Endcap-like layers */
-      virtual std::pair<EventIDRange, const std::vector<Trk::DiscLayer*>*> discLayers(
-        const EventContext& ctx) const override final;
+      virtual std::unique_ptr<const std::vector<Trk::DiscLayer*> >
+      discLayers(const EventContext& ctx,
+                 SG::WriteCondHandle<Trk::TrackingGeometry>& whandle) const override final;
 
       /** LayerBuilderCond interface method - returning Planar-like layers */
-      virtual std::pair<EventIDRange, const std::vector<Trk::PlaneLayer*>*>
-      planarLayers(const EventContext& ctx) const override final;
+      virtual std::unique_ptr<const std::vector<Trk::PlaneLayer*> >
+      planarLayers(const EventContext& ctx,
+                   SG::WriteCondHandle<Trk::TrackingGeometry>& whandle) const override final;
 
       /** Name identification */
       virtual const std::string& identification() const override final;      
@@ -109,13 +112,11 @@ namespace InDet {
       
   };
 
-  inline std::pair<EventIDRange, const std::vector<Trk::PlaneLayer*>*>
-  TRT_LayerBuilderCond::planarLayers(const EventContext&) const
+  inline std::unique_ptr<const std::vector<Trk::PlaneLayer*> >
+  TRT_LayerBuilderCond::planarLayers(const EventContext&,
+                                     SG::WriteCondHandle<Trk::TrackingGeometry>& /*whandle*/) const
   {
-    // create dummy infinite range
-    EventIDRange range;
-    return std::pair<EventIDRange, const std::vector<Trk::PlaneLayer*>*>(
-      range, 0);
+    return nullptr;
   }
 
  inline const std::string& TRT_LayerBuilderCond::identification() const

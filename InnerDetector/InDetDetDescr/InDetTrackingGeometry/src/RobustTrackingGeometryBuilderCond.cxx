@@ -132,17 +132,17 @@ StatusCode InDet::RobustTrackingGeometryBuilderCond::initialize()
 }
 
 
-std::pair<EventIDRange, Trk::TrackingGeometry*> 
+std::unique_ptr<Trk::TrackingGeometry> 
 InDet::RobustTrackingGeometryBuilderCond::trackingGeometry ATLAS_NOT_THREAD_SAFE // Thread unsafe TrackingGeometry::indexStaticLayers method is used.
-(const EventContext& ctx, std::pair<EventIDRange, const Trk::TrackingVolume*>) const
+(const EventContext& ctx,
+ const Trk::TrackingVolume*,
+ SG::WriteCondHandle<Trk::TrackingGeometry>& whandle) const
 {
    // only one assumption: 
    // layer builders are ordered in increasing r
    
    ////////////////////////////////////////////////////////////////////////////////////////////////////////    
    // The Overall Geometry
-
-   Trk::TrackingGeometry* trackingGeometry = nullptr;   
 
    // retrieve all the layers and sort them
    unsigned int numLayBuilders = m_layerBuilders.size();
@@ -174,9 +174,6 @@ InDet::RobustTrackingGeometryBuilderCond::trackingGeometry ATLAS_NOT_THREAD_SAFE
    std::vector< double > discMinZ(numLayBuilders,10e10);
    std::vector< double > discMaxZ(numLayBuilders,0.);
 
-   //Start with a range covering 0 - inf, then narrow down
-   EventIDRange range = IOVInfiniteRange::infiniteMixed();
-   
    // (I) PARSE THE LAYERS FOR OVERALL DIMENSIONS -------------------------------------------------------------
    ATH_MSG_DEBUG( "[ STEP 1 ] : Parse the provided layers for the dimensions." );
    // fill the layers into the vectors
@@ -188,12 +185,10 @@ InDet::RobustTrackingGeometryBuilderCond::trackingGeometry ATLAS_NOT_THREAD_SAFE
        // retrieve the cylinder and disc layers
        ATH_MSG_DEBUG( "[ LayerBuilder : '" << m_layerBuilders[ilb]->identification() << "' ] being processed. " );
        // (a) cylinder           
-       std::pair<EventIDRange, const std::vector<Trk::CylinderLayer*>*> cylinderLayersPair = m_layerBuilders[ilb]->cylindricalLayers(ctx);
-       const auto *cylinderLayers = cylinderLayersPair.second;
+       std::unique_ptr<const std::vector<Trk::CylinderLayer*> > cylinderLayers = m_layerBuilders[ilb]->cylindricalLayers(ctx, whandle);
        // (a)
        std::vector<const Trk::Layer*> cylinderVolumeLayers;     
        if (cylinderLayers && !cylinderLayers->empty()){
-           range=EventIDRange::intersect(range,cylinderLayersPair.first);
            // screen output
            ATH_MSG_DEBUG(  "          Processing CylinderLayers : " );         
            // the ones to be filled into the double-vector
@@ -239,12 +234,10 @@ InDet::RobustTrackingGeometryBuilderCond::trackingGeometry ATLAS_NOT_THREAD_SAFE
        endcapMinExtend =  ( centralExtendZ > endcapMinExtend) ? 10e10 : endcapMinExtend; 
        
        // (b) discs       
-       std::pair<EventIDRange, const std::vector<Trk::DiscLayer*>*> discLayersPair = m_layerBuilders[ilb]->discLayers(ctx);
-       const auto *discLayers = discLayersPair.second;
+       std::unique_ptr<const std::vector<Trk::DiscLayer*> > discLayers = m_layerBuilders[ilb]->discLayers(ctx, whandle);
        std::vector<const Trk::Layer*> discVolumeLayersNeg;
        std::vector<const Trk::Layer*> discVolumeLayersPos;                        
        if (discLayers && !discLayers->empty()){
-         range=EventIDRange::intersect(range,discLayersPair.first);
          // screen output
          ATH_MSG_DEBUG(  "          Processing DiscLayers : " );            
          for (const auto & discIter : *discLayers){
@@ -301,10 +294,6 @@ InDet::RobustTrackingGeometryBuilderCond::trackingGeometry ATLAS_NOT_THREAD_SAFE
        providedDiscLayersNeg.push_back(discVolumeLayersNeg);
        providedDiscLayersPos.push_back(discVolumeLayersPos);
                 
-       // memory cleanup
-       delete discLayers;
-       delete cylinderLayers;  
-       
        if (msgLvl(MSG::VERBOSE)){
          // summary after this step
          ATH_MSG_VERBOSE( "[ Summary STEP 1  ---------------------------------------- ]  " );
@@ -342,14 +331,11 @@ InDet::RobustTrackingGeometryBuilderCond::trackingGeometry ATLAS_NOT_THREAD_SAFE
    Trk::CylinderVolumeBounds* beamPipeBounds = new Trk::CylinderVolumeBounds(overallRmin,overallExtendZ); 
    // BinnedArray needed
    Trk::BinnedArray<Trk::Layer>* beamPipeLayerArray = nullptr;
-   std::pair<EventIDRange,const std::vector<Trk::CylinderLayer*>*> beamPipeVecPair = m_beamPipeBuilder->cylindricalLayers(ctx);
-   const std::vector<Trk::CylinderLayer*>* beamPipeVecPtr = beamPipeVecPair.second;
+   std::unique_ptr<const std::vector<Trk::CylinderLayer*> > beamPipeVecPtr = m_beamPipeBuilder->cylindricalLayers(ctx, whandle);
    if (!beamPipeVecPtr->empty()) {
-     range = EventIDRange::intersect(range, beamPipeVecPair.first);
      beamPipeLayerArray = m_layerArrayCreator->cylinderLayerArray(
        *beamPipeVecPtr, 0., beamPipeBounds->outerRadius(), Trk::arbitrary);
    }
-   delete beamPipeVecPtr;
    // create the TrackingVolume
    beamPipeVolume = new Trk::TrackingVolume(nullptr,
                                             beamPipeBounds,
@@ -633,7 +619,7 @@ InDet::RobustTrackingGeometryBuilderCond::trackingGeometry ATLAS_NOT_THREAD_SAFE
       highestIdVolume = detectorWithBp;
       
   // (V) create the TrackingGeometry ------------------------------------------------------  
-  trackingGeometry = new Trk::TrackingGeometry(highestIdVolume);
+ auto trackingGeometry = std::make_unique<Trk::TrackingGeometry>(highestIdVolume);
  
  if (m_indexStaticLayers) {
       ATH_MSG_VERBOSE("Re-index the static layers ...");
@@ -643,7 +629,7 @@ InDet::RobustTrackingGeometryBuilderCond::trackingGeometry ATLAS_NOT_THREAD_SAFE
    }
 
 
-   return std::make_pair(range, trackingGeometry);
+   return trackingGeometry;
 }
 
 // finalize
