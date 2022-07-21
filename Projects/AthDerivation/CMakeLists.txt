@@ -21,6 +21,11 @@ set( TDAQ-COMMON_ATROOT
    CACHE PATH "The directory to pick up tdaq-common from" )
 mark_as_advanced( TDAQ-COMMON_ATROOT )
 
+# Apply (compiler) settings from CxxUtils:
+set( CxxUtilsSettings_DIR
+   "${CMAKE_SOURCE_DIR}/../../Control/CxxUtils/cmake" )
+find_package( CxxUtilsSettings )
+
 # Find the ATLAS CMake code:
 find_package( AtlasCMake QUIET )
 
