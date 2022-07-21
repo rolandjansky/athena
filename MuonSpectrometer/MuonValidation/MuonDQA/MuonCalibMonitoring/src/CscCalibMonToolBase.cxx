@@ -1,7 +1,12 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
+
+#include "TProfile.h"
+#include "TH1F.h"
+#include "TH1I.h"
+#include "TH2F.h"
 #include <sstream>
 #include <utility>
 
@@ -72,34 +77,29 @@ StatusCode CscCalibMonToolBase::initialize()
   //Loop through ids to find out what hash range we're working on, and to 
   //initialize histograms.
   IdContext chanContext = m_idHelperSvc->cscIdHelper().channel_context();
-  std::vector<Identifier> ids = m_idHelperSvc->cscIdHelper().idVector();
-  std::vector<Identifier>::const_iterator chamItr = ids.begin();
-  std::vector<Identifier>::const_iterator chamEnd = ids.end();
+  const std::vector<Identifier> & ids = m_idHelperSvc->cscIdHelper().idVector();
   m_maxHashId = 0;
   m_maxChamId = 0;
-  for(; chamItr != chamEnd; chamItr++)
+  for(const auto & thisChamberId:ids)
   {
     IdentifierHash chamberHash;
-    m_idHelperSvc->cscIdHelper().get_module_hash(*chamItr,chamberHash);
+    m_idHelperSvc->cscIdHelper().get_module_hash(thisChamberId,chamberHash);
     if(chamberHash > m_maxChamId)
       m_maxChamId = chamberHash;
 
     std::vector<Identifier> stripVect;
-    m_idHelperSvc->cscIdHelper().idChannels(*chamItr,stripVect);
-    std::vector<Identifier>::const_iterator stripItr = stripVect.begin();
-    std::vector<Identifier>::const_iterator stripEnd = stripVect.end();
-    for(;stripItr != stripEnd; stripItr++)
+    m_idHelperSvc->cscIdHelper().idChannels(thisChamberId,stripVect);
+    for(const auto & thisStrip:stripVect)
     {
       IdentifierHash stripHash;
-      m_idHelperSvc->cscIdHelper().get_channel_hash(*stripItr,stripHash);
-      bool measuresPhi = m_idHelperSvc->cscIdHelper().measuresPhi(*stripItr);
-
+      m_idHelperSvc->cscIdHelper().get_channel_hash(thisStrip,stripHash);
+      bool measuresPhi = m_idHelperSvc->cscIdHelper().measuresPhi(thisStrip);
       //Find maximum hash   
       if((unsigned int)stripHash > m_maxHashId)
         m_maxHashId = (int)stripHash;
 
       if(m_expectedChamberLayer 
-          == (unsigned int)m_idHelperSvc->cscIdHelper().chamberLayer(*stripItr) 
+          == (unsigned int)m_idHelperSvc->cscIdHelper().chamberLayer(thisStrip) 
         )
       {
         ATH_MSG_VERBOSE( "hash " << (int)stripHash << " is expected" );
@@ -115,7 +115,6 @@ StatusCode CscCalibMonToolBase::initialize()
   }//End chamber loop     
 
   //m_detailedHashIds determines which hashes we're going to look at detailed histograms for.
-
   m_detailedHashIds = new bool[m_maxHashId+1];
   for(unsigned int chanItr =0; chanItr <= m_maxHashId; chanItr++)
     m_detailedHashIds[chanItr] = false;
@@ -449,19 +448,17 @@ StatusCode CscCalibMonToolBase::bookLayHists(std::string histTypeDir, std::strin
 
   ATH_MSG_DEBUG( "Allocated space for " << numHists << " histograms" );
 
-  std::vector<Identifier> ids = m_idHelperSvc->cscIdHelper().idVector();
-  std::vector<Identifier>::const_iterator chamItr = ids.begin();
-  std::vector<Identifier>::const_iterator chamEnd = ids.end();
-  for(; chamItr != chamEnd; chamItr++)
+  const std::vector<Identifier> & ids = m_idHelperSvc->cscIdHelper().idVector();
+  for(const auto & thisChamberId:ids)
   {
     IdentifierHash chamHash;
-    m_idHelperSvc->cscIdHelper().get_module_hash(*chamItr,chamHash);
+    m_idHelperSvc->cscIdHelper().get_module_hash(thisChamberId,chamHash);
     ATH_MSG_DEBUG( "Booking histograms for chamber with hash " << (int)chamHash  );
 
-    stationSize = m_idHelperSvc->cscIdHelper().stationName(*chamItr); 
+    stationSize = m_idHelperSvc->cscIdHelper().stationName(thisChamberId); 
     stationName = m_idHelperSvc->cscIdHelper().stationNameString(stationSize);
-    stationPhi = m_idHelperSvc->cscIdHelper().stationPhi(*chamItr);
-    stationEta = m_idHelperSvc->cscIdHelper().stationEta(*chamItr); 
+    stationPhi = m_idHelperSvc->cscIdHelper().stationPhi(thisChamberId);
+    stationEta = m_idHelperSvc->cscIdHelper().stationEta(thisChamberId); 
     sector = getSector(stationPhi,stationSize);
     for(unsigned int orientationItr = 0; orientationItr < 2; orientationItr++)
     {
@@ -573,18 +570,17 @@ StatusCode CscCalibMonToolBase::bookChamHists(std::string histTypeDir, std::stri
   int numHists = (ignoreY) ? 32 : 64; //32 chambers, 2 orientations
   histVector.resize(numHists,nullptr);
 
-  std::vector<Identifier> ids = m_idHelperSvc->cscIdHelper().idVector();
-  std::vector<Identifier>::const_iterator chamItr = ids.begin();
-  std::vector<Identifier>::const_iterator chamEnd = ids.end();
-  for(; chamItr != chamEnd; chamItr++)
+  const std::vector<Identifier> & ids = m_idHelperSvc->cscIdHelper().idVector();
+
+  for(const auto & thisChamberId:ids)
   {
     IdentifierHash chamHash;
-    m_idHelperSvc->cscIdHelper().get_module_hash(*chamItr,chamHash);
+    m_idHelperSvc->cscIdHelper().get_module_hash(thisChamberId,chamHash);
     ATH_MSG_DEBUG( "Booking histograms for chamber with hash " << (int)chamHash  );
 
-    stationSize = m_idHelperSvc->cscIdHelper().stationName(*chamItr); //50
-    stationPhi = m_idHelperSvc->cscIdHelper().stationPhi(*chamItr);
-    stationEta = m_idHelperSvc->cscIdHelper().stationEta(*chamItr); 
+    stationSize = m_idHelperSvc->cscIdHelper().stationName(thisChamberId); //50
+    stationPhi = m_idHelperSvc->cscIdHelper().stationPhi(thisChamberId);
+    stationEta = m_idHelperSvc->cscIdHelper().stationEta(thisChamberId); 
     sector = getSector(stationPhi,stationSize);
 
     for(unsigned int orientationItr = 0; orientationItr < 2; orientationItr++)
@@ -725,10 +721,8 @@ StatusCode CscCalibMonToolBase::procHistograms()
 
     ATH_MSG_DEBUG( "There are " << calibContainer->size() << " parameters to monitor"  );
 
-    CscCalibResultContainer::const_iterator parItr = calibContainer->begin();
-    CscCalibResultContainer::const_iterator parEnd = calibContainer->end();
-    for(;parItr != parEnd ; parItr++) {
-      ATH_CHECK( handleParameter(*parItr) );
+    for(const auto & thisParameter: *calibContainer) {
+      ATH_CHECK( handleParameter(thisParameter) );
     }
     ATH_CHECK( postProc() );
   }
@@ -789,12 +783,8 @@ StatusCode CscCalibMonToolBase::procParameter(const CscCalibResultCollection *pa
 
   //--Cycle through values and fill histograms
   int numFailures = 0, maxFailures = 10;
-  CscCalibResultCollection::const_iterator chanItr = parVals->begin();
-  CscCalibResultCollection::const_iterator chanEnd = parVals->end();
-  for(;chanItr != chanEnd; chanItr++)
+  for(const auto & chan: *parVals)
   {
-    const CscCalibResult * chan = *chanItr;
-
     const int hashId = chan->hashId();
     const float val = chan->value();
     const  float error = chan->error();
@@ -876,18 +866,16 @@ StatusCode CscCalibMonToolBase::procParameter(const CscCalibResultCollection *pa
 
   if(missingChannels.size() !=0)
   {
-    std::set<int>::const_iterator chanItr = missingChannels.begin();
-    std::set<int>::const_iterator chanEnd = missingChannels.end();
-    for(;chanItr != chanEnd; chanItr++)
+    for(const auto & thisChan: missingChannels)
     {
       if(procParameterInput->missingChans != nullptr)
       {
         //If we haven't already noticed that this channel is missing, 
         //increment missing bad bin in badHist.
-        if(!procParameterInput->missingChans->GetBinContent(*chanItr+1))
+        if(!procParameterInput->missingChans->GetBinContent(thisChan+1))
           procParameterInput->badHist->Fill(procParameterInput->missingBadBin);
         //Always fill missingChans histogram 
-        procParameterInput->missingChans->Fill(*chanItr);
+        procParameterInput->missingChans->Fill(thisChan);
 
       }
     }
@@ -930,41 +918,38 @@ StatusCode CscCalibMonToolBase::copyDataToHists(HistCollection * histCollection)
   std::vector<float> & errors = histCollection->errors;
 
   //Loop through all channels, and copy relevant data from channel to histogram.
-  std::vector<Identifier> ids = m_idHelperSvc->cscIdHelper().idVector();
-  std::vector<Identifier>::const_iterator chamItr = ids.begin();
-  std::vector<Identifier>::const_iterator chamEnd = ids.end();
-  for(; chamItr != chamEnd; chamItr++)
+  const std::vector<Identifier> & ids = m_idHelperSvc->cscIdHelper().idVector();
+  for(const auto & thisChamberId:ids)
   {
     IdentifierHash chamHash;
-    m_idHelperSvc->cscIdHelper().get_module_hash(*chamItr,chamHash);
+    m_idHelperSvc->cscIdHelper().get_module_hash(thisChamberId,chamHash);
     ATH_MSG_DEBUG( "Copying data to histograms for chamber with hash" << (int)chamHash );
 
-    unsigned int stationSize = m_idHelperSvc->cscIdHelper().stationName(*chamItr); //51 = large, 50 = small
+    unsigned int stationSize = m_idHelperSvc->cscIdHelper().stationName(thisChamberId); //51 = large, 50 = small
 
-    unsigned int stationPhi = m_idHelperSvc->cscIdHelper().stationPhi(*chamItr);
-    int stationEta = m_idHelperSvc->cscIdHelper().stationEta(*chamItr); 
+    unsigned int stationPhi = m_idHelperSvc->cscIdHelper().stationPhi(thisChamberId);
+    int stationEta = m_idHelperSvc->cscIdHelper().stationEta(thisChamberId); 
     unsigned int sector = getSector(stationPhi,stationSize);
     int sectorIndex = sector * stationEta; //Histogram will go from -16 to +16. Bin 0 ignored.
 
 
 
     std::vector<Identifier> stripVect;
-    m_idHelperSvc->cscIdHelper().idChannels(*chamItr,stripVect);
-    std::vector<Identifier>::const_iterator stripItr = stripVect.begin();
-    std::vector<Identifier>::const_iterator stripEnd = stripVect.end();
-    for(;stripItr != stripEnd; stripItr++)
+    m_idHelperSvc->cscIdHelper().idChannels(thisChamberId,stripVect);
+
+    for(const auto & thisStrip:stripVect)
     { 
-      unsigned int chamberLayer = m_idHelperSvc->cscIdHelper().chamberLayer(*stripItr);
+      unsigned int chamberLayer = m_idHelperSvc->cscIdHelper().chamberLayer(thisStrip);
       if(chamberLayer != 2)
         continue;
-      int measuresPhi = m_idHelperSvc->cscIdHelper().measuresPhi(*stripItr);
+      int measuresPhi = m_idHelperSvc->cscIdHelper().measuresPhi(thisStrip);
       if(histCollection->ignoreY && measuresPhi)
         continue;
 
       IdentifierHash stripHash;
-      m_idHelperSvc->cscIdHelper().get_channel_hash(*stripItr,stripHash);
-      unsigned int layer = m_idHelperSvc->cscIdHelper().wireLayer(*stripItr);    
-      unsigned int strip = m_idHelperSvc->cscIdHelper().strip(*stripItr);
+      m_idHelperSvc->cscIdHelper().get_channel_hash(thisStrip,stripHash);
+      unsigned int layer = m_idHelperSvc->cscIdHelper().wireLayer(thisStrip);    
+      unsigned int strip = m_idHelperSvc->cscIdHelper().strip(thisStrip);
       float secLayer = (((float)stationEta*sector) + 0.2 * ((float)layer - 1) + 0.1);     
       float datum = data.at(stripHash);
 
@@ -1021,7 +1006,7 @@ StatusCode CscCalibMonToolBase::copyDataToHists(HistCollection * histCollection)
                          << "\tdata: " << datum  );
 
         //copy data array directly to 2d histogram with all channels
-        int modifiedStripNum = strip * (measuresPhi ? -1 : 1);
+        int modifiedStripNum = static_cast<int>(strip) * (measuresPhi ? -1 : 1);
         histCollection->allChan2dHist->Fill(
             modifiedStripNum, secLayer, std::abs(datum));
       }

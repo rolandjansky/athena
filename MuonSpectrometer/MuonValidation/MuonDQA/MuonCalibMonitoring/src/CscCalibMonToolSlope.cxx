@@ -1,14 +1,10 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CscCalibMonToolSlope.h"
 
-#include <cassert>
-#include <cmath>
-#include <sstream>
-#include <iomanip>
-#include <fstream>
+
 
 #include "CscCalibData/CscCalibReportContainer.h"
 #include "CscCalibData/CscCalibReportSlope.h"
@@ -19,41 +15,15 @@
 #include "TH1I.h"
 #include "TF1.h"
 
+#include <cassert>
+#include <cmath>
+#include <sstream>
+#include <iomanip>
+#include <fstream>
+
 CscCalibMonToolSlope::CscCalibMonToolSlope(const std::string & type, const std::string & name, 
     const IInterface* parent) : 
-  CscCalibMonToolBase(type, name, parent),
-  m_slopeBadBin(1),
-  m_interceptBadBin(2),
-  m_chi2BadBin(3),
-  m_peaktBadBin(4),
-  m_fracBadBin(5),
-  m_deadBadBin(6),
-  m_missingBadBin(7),
-  m_totalLiveBin(1),
-  m_totalDeadBin(2),
-  m_newLiveBin(3),
-  m_newDeadBin(4),
-  m_h_numBad(nullptr),
-  m_h_slopeCompareOverview(nullptr),
-  m_h_interceptOverview(nullptr),
-  m_h_chi2Overview(nullptr),
-  //m_h_peaktCompareOverview(NULL),
-  m_h_slopeMissingChans(nullptr),
-  m_h_deadOverview(nullptr),
-  m_slopeNewColl(nullptr),
-  m_slopeOldColl(nullptr),
-  m_slopeDiffColl(nullptr),
-  m_peaktNewColl(nullptr),
-  m_peaktOldColl(nullptr),
-  m_peaktDiffColl(nullptr),
-  m_interceptColl(nullptr),
-  m_chi2Coll(nullptr),
-  m_deadNewColl(nullptr),
-  m_deadDiffColl(nullptr),
-  m_slopeRatioColl(nullptr),
-  m_fitResColl(nullptr),
-  m_expectedChamberLayer(0)
-{
+  CscCalibMonToolBase(type, name, parent){
   declareProperty("MaxSlopeDiff",m_slopeMaxDiff=0.5);
   declareProperty("MaxIntercept",m_interceptMax = 5.0);
   declareProperty("MaxChi2_NDF",m_chi2Max = 100);
@@ -565,13 +535,10 @@ StatusCode CscCalibMonToolSlope::postProc()
   }
 
   if(m_histAttenLevels){
-    std::map <int,TProfile*>::const_iterator profItr = ampProfs->begin();
-    std::map <int,TProfile*>::const_iterator profEnd = ampProfs->end();
-    for(; profItr != profEnd; profItr++){
+    for(const auto & [attenuationVal, pProfile] : *ampProfs){
 
-      float atten = profItr->first/2.0;
-      std::stringstream  attenSS; attenSS << atten;
-      std::string attenStr = attenSS.str();
+      const float atten = attenuationVal * 0.5f;
+      const std::string attenStr = std::to_string(atten);
 
       HistCollection * ampColl = new HistCollection(m_maxHashId +1, m_maxHashId +1);
       ampColl->ignoreY = true;
@@ -590,7 +557,7 @@ StatusCode CscCalibMonToolSlope::postProc()
 
       bookHistCollection(ampColl, dataName, dataTitle, "", "", axisLabel, numBins, lowBound, highBound, subDir).ignore();
       for(unsigned int stripHash = 0; stripHash < m_maxHashId; stripHash++){
-        ampColl->data[stripHash] =  profItr->second->GetBinContent(stripHash +1);
+        ampColl->data[stripHash] =  pProfile->GetBinContent(stripHash +1);
       }
 
       ATH_CHECK( copyDataToHists(ampColl) );
@@ -760,26 +727,22 @@ StatusCode CscCalibMonToolSlope::makeFracGraphs(const CscCalibReportSlope & slop
   }
 
   //Loop through all channels in geometry:
-  std::vector <Identifier> ids = m_idHelperSvc->cscIdHelper().idVector();
-  std::vector <Identifier>::const_iterator chamItr = ids.begin();
-  std::vector <Identifier>::const_iterator chamEnd = ids.end();
-  for(; chamItr != chamEnd; chamItr++)
+  const std::vector <Identifier> & ids = m_idHelperSvc->cscIdHelper().idVector();
+  for(const auto & thisChamberId:ids)
   {
     ATH_MSG_VERBOSE( "in Chamber loop "  );
-    unsigned int stationSize = m_idHelperSvc->cscIdHelper().stationName(*chamItr); //51 = large, 50 = small
-    unsigned int stationPhi = m_idHelperSvc->cscIdHelper().stationPhi(*chamItr);
-    int stationEta = m_idHelperSvc->cscIdHelper().stationEta(*chamItr);
+    unsigned int stationSize = m_idHelperSvc->cscIdHelper().stationName(thisChamberId); //51 = large, 50 = small
+    unsigned int stationPhi = m_idHelperSvc->cscIdHelper().stationPhi(thisChamberId);
+    int stationEta = m_idHelperSvc->cscIdHelper().stationEta(thisChamberId);
     unsigned int sector = getSector(stationPhi,stationSize);
 
     std::vector <Identifier> stripVect;
-    m_idHelperSvc->cscIdHelper().idChannels(*chamItr,stripVect);
-    std::vector <Identifier>::const_iterator stripItr = stripVect.begin();
-    std::vector <Identifier>::const_iterator stripEnd = stripVect.end();
-    for(;stripItr != stripEnd; stripItr++)
+    m_idHelperSvc->cscIdHelper().idChannels(thisChamberId,stripVect);
+    for(const auto & thisStrip : stripVect)
     {
       ATH_MSG_VERBOSE( "in strip loop "  );
       IdentifierHash stripHash;
-      m_idHelperSvc->cscIdHelper().get_channel_hash(*stripItr,stripHash);
+      m_idHelperSvc->cscIdHelper().get_channel_hash(thisStrip,stripHash);
       if(!m_expectedHashIdsPrec.count((int)stripHash)){
         ATH_MSG_VERBOSE( "Skipping hash"  << (int)stripHash  );
         continue;
@@ -809,8 +772,8 @@ StatusCode CscCalibMonToolSlope::makeFracGraphs(const CscCalibReportSlope & slop
       //Note, we don't ask for measuresPhi because there should be no
       //TGraphs with Y anyways.
       ATH_MSG_VERBOSE( "getting id info " );
-      unsigned int layer = m_idHelperSvc->cscIdHelper().wireLayer(*stripItr);
-      unsigned int strip = m_idHelperSvc->cscIdHelper().strip(*stripItr);
+      unsigned int layer = m_idHelperSvc->cscIdHelper().wireLayer(thisStrip);
+      unsigned int strip = m_idHelperSvc->cscIdHelper().strip(thisStrip);
       ATH_MSG_VERBOSE( "Got strip and layer"  );
       //initialize fractional deviation profile
       ATH_MSG_VERBOSE( "initializing profile "  );
@@ -1021,27 +984,23 @@ StatusCode CscCalibMonToolSlope::findDeadChannels(const CscCalibReportSlope & sl
       std::ofstream  out("deadInfo.cal");
       out <<"00-00 " << newDead.size() + newUndead.size() << " dead_stat END_HEADER\n";
 
-      std::set <int>::const_iterator deadItr = newDead.begin(); 
-      std::set <int>::const_iterator deadEnd = newDead.end();
-      for(; deadItr != deadEnd; deadItr++)
+      for(const auto & thisDeadChannel:newDead)
       {
         Identifier id;
-        m_idHelperSvc->cscIdHelper().get_id(*deadItr,id, &channelContext);
+        m_idHelperSvc->cscIdHelper().get_id(thisDeadChannel,id, &channelContext);
         IdentifierHash chamHash;
         m_idHelperSvc->cscIdHelper().get_module_hash(id, chamHash);
-        out << *deadItr << " " << (int)chamHash << " " 
+        out << thisDeadChannel << " " << (int)chamHash << " " 
           << m_idHelperSvc->cscIdHelper().show_to_string(id, &channelContext) << " 1\n";
       }
 
-      std::set <int>::const_iterator undeadItr = newUndead.begin(); 
-      std::set <int>::const_iterator undeadEnd = newUndead.end();
-      for(; undeadItr != undeadEnd; undeadItr++)
+      for(const auto undeadChannel : newUndead)
       {
         Identifier id;
-        m_idHelperSvc->cscIdHelper().get_id(*undeadItr,id, &channelContext);
+        m_idHelperSvc->cscIdHelper().get_id(undeadChannel,id, &channelContext);
         IdentifierHash chamHash;
         m_idHelperSvc->cscIdHelper().get_module_hash(id, chamHash);
-        out << *undeadItr << " " << (int)chamHash << " " 
+        out << undeadChannel << " " << (int)chamHash << " " 
           << m_idHelperSvc->cscIdHelper().show_to_string(id, &channelContext)
           << "0\n";
       } 

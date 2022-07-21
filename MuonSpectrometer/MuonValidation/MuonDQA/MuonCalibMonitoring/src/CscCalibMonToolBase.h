@@ -1,16 +1,12 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CSCCALIBMONITORING_CSCCALIBMONTOOLBASE_H
 #define CSCCALIBMONITORING_CSCCALIBMONTOOLBASE_H
 
-#include <set>
-#include <string>
 
-#include "TH1.h"
-#include "TH2.h"
-#include "TProfile.h"
+
 #include "Rtypes.h"
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
@@ -26,6 +22,15 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
+
+#include <vector>
+#include <set>
+#include <string>
+
+class TH1I;
+class TH1F;
+class TH2F;
+class TProfile;
 
 
 class CscCondDbData;
@@ -105,26 +110,26 @@ class CscCalibMonToolBase: public ManagedMonitorToolBase
 
 
     protected:
-        unsigned int m_maxHashId;
-        unsigned int m_maxChamId;
-        unsigned int m_numBad;
-        unsigned int m_expectedChamberLayer;
+        unsigned int m_maxHashId{};
+        unsigned int m_maxChamId{};
+        unsigned int m_numBad{};
+        unsigned int m_expectedChamberLayer{};
 
         
         /**Data output options*/
-        bool  m_makeHashHists, m_makeAllChan1dHists, m_makeAllChan2dHists,  m_makeLayHists, 
-              m_makeLaySummHists, m_makeChamProfs, 
-              m_makeChamSummHists, m_makeChamHists,
-              m_doAllDetailed, m_doBadDetailed;
+        bool  m_makeHashHists{}, m_makeAllChan1dHists{}, m_makeAllChan2dHists{},  m_makeLayHists{}, 
+              m_makeLaySummHists{}, m_makeChamProfs{}, 
+              m_makeChamSummHists{}, m_makeChamHists{},
+              m_doAllDetailed{}, m_doBadDetailed{};
 
 
         
         /**To keep track of channels that should have more data printed to root file*/
-        int m_maxDetailedChannels;
-        bool * m_detailedHashIds;
+        int m_maxDetailedChannels{};
+        bool * m_detailedHashIds{};
 
         /**Hash Ids one would expect to be in calibration data*/
-        bool m_onlyExpectPrecisionHashIds;
+        bool m_onlyExpectPrecisionHashIds{};
         std::set<int> m_expectedHashIdsAll,m_expectedHashIdsPrec;
 
         /**Naming info*/
@@ -146,7 +151,7 @@ class CscCalibMonToolBase: public ManagedMonitorToolBase
           m_laySummHistTitle;
 
         /**Hist colors*/
-        int m_histCol, m_histColAlert;
+        int m_histCol{}, m_histColAlert{};
 
         /**Path of histograms*/
         std::string m_generic_path_csccalibmonitoring;
@@ -154,7 +159,7 @@ class CscCalibMonToolBase: public ManagedMonitorToolBase
           m_chamSummHistPath, m_laySummHistPath;
 
         /**Keeps track of MonGroups**/
-        DataVector<MonGroup> * m_monGroupVec;
+        DataVector<MonGroup> * m_monGroupVec{};
         std::map<std::string, MonGroup*> m_monGroupMap;
 
         /**Calibration result storegate key*/
@@ -182,16 +187,16 @@ class CscCalibMonToolBase: public ManagedMonitorToolBase
           diffs(NULL),chi2s(NULL)
           {}
 
-          TH1I *badHist;
-          TH1F *overDiff, *overChi2 ;
-          TH1F *missingChans;
-          int badBin, missingBadBin, chi2BadBin;
-          float maxDiff, chi2Max, expectedVal;
+          TH1I *badHist{};
+          TH1F *overDiff{}, *overChi2{} ;
+          TH1F *missingChans{};
+          int badBin{}, missingBadBin{}, chi2BadBin{};
+          float maxDiff{}, chi2Max{}, expectedVal{};
           std::set<int> expectedChannels;
-          bool doChi2;
+          bool doChi2{};
           std::string dbName;
           //float *vals,*errors,*oldVals,*diffs,*chi2s;
-          std::vector<float> *vals, *errors, *oldVals, *diffs,* chi2s;
+          std::vector<float> *vals{}, *errors{}, *oldVals{}, *diffs{},* chi2s{};
         };
 
         /**Contains an array with data on a per-channel basis, as well as various histograms that 
@@ -225,22 +230,22 @@ class CscCalibMonToolBase: public ManagedMonitorToolBase
           bool ignoreY;
           std::vector<float>  data;
           std::vector<float> errors;
-          std::vector<TH1F *> cscSpec;
-          TH1F * hashHist;
-          TH1F * allChan1dHistX;
-          TH1F * allChan1dHistY;
-          TH2F * allChan2dHist;
-          TProfile * chamProf;
-          std::vector<TH1F*> * layHistVect;
-          std::vector<TH1F*> * laySummVect; 
-          std::vector<TH1F*> * chamSummVect;
-          std::vector<TH1F*> * chamHistVect;
-          bool abs2d;
+          std::vector<TH1F *> cscSpec{};
+          TH1F * hashHist{};
+          TH1F * allChan1dHistX{};
+          TH1F * allChan1dHistY{};
+          TH2F * allChan2dHist{};
+          TProfile * chamProf{};
+          std::vector<TH1F*> * layHistVect{};
+          std::vector<TH1F*> * laySummVect{}; 
+          std::vector<TH1F*> * chamSummVect{};
+          std::vector<TH1F*> * chamHistVect{};
+          bool abs2d{};
         };
 
         //Stat bit from database
-        bool m_doStatDb;
-        HistCollection * m_statDbColl;
+        bool m_doStatDb{};
+        HistCollection * m_statDbColl{};
 
     protected:
         /** Initializes the histograms in a histCollection and books them. This and the other booking
