@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //************************************************************
@@ -191,7 +191,7 @@ private:
   double m_E_escaped;
 
   //STEP TOUCHABLE HISTORY AND VOLUME
-  G4TouchableHistory* m_stepTouchable;
+  const G4TouchableHistory* m_stepTouchable;
   G4VPhysicalVolume* m_stepPhysVol;
   G4String m_nameVol;
 

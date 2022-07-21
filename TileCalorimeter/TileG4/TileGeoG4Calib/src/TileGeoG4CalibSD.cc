@@ -221,7 +221,7 @@ G4bool TileGeoG4CalibSD::ProcessHits(G4Step* step, G4TouchableHistory* /*ROhist*
   bool normalHit = !(m_tile_eep->GetEscapedFlag());
 
   if (verboseLevel >= 10) {
-    G4TouchableHistory* theTouchable = (G4TouchableHistory*) (step->GetPreStepPoint()->GetTouchable());
+    auto theTouchable = static_cast<const G4TouchableHistory*>(step->GetPreStepPoint()->GetTouchable());
     G4cout << ((normalHit) ? "ProcessHits: new hit in " : "ProcessHits: escaped energy in ")
            << theTouchable->GetVolume()->GetLogicalVolume()->GetName()
            << G4endl;
