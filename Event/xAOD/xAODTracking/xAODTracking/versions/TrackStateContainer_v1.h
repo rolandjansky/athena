@@ -12,5 +12,4 @@ namespace xAOD {
     typedef DataVector<xAOD::TrackState_v1> TrackStateContainer_v1;
 }
 
-
 #endif

@@ -105,6 +105,20 @@
           id="B6DA0640-F9DC-464C-921C-0FE217A76330" />
    <typedef name="xAOD::TrackStateAuxContainer" />
 
+
+   <!-- xAOD::TrackParameters interface type(s). -->
+   <class name="xAOD::TrackParameters_v1" />
+   <class name="xAOD::TrackParametersContainer_v1"
+          id="114F2363-85E3-4082-95BD-5BF733E72797" />
+   <typedef name="xAOD::TrackParameters" />
+   <typedef name="xAOD::TrackParametersContainer" />
+
+   <!-- xAOD::TrackParameters auxiliary type(s). -->
+   <class name="xAOD::TrackParametersAuxContainer_v1"
+          id="34EBC4FB-F439-4E3B-B896-583FAB4F78BB" />
+   <typedef name="xAOD::TrackParametersAuxContainer" />
+
+
    <!-- xAOD::TrackMeasurementValidation interface type(s). -->
    <class name="xAOD::TrackMeasurementValidation_v1" />
    <class name="xAOD::TrackMeasurementValidationContainer_v1"
