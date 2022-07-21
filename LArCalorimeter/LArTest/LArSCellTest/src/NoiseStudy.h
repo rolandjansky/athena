@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -23,6 +23,7 @@
 #include "CaloConditions/CaloNoise.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloBCIDAverage.h"
+#include "CxxUtils/checker_macros.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODEventInfo/EventInfo.h"
@@ -41,9 +42,10 @@ public :
 	// Usual athena stuff
 	NoiseStudy( const std::string& name, ISvcLocator* pSvcLocator );
 	virtual ~NoiseStudy();
-	StatusCode initialize();
-	StatusCode finalize();
-	StatusCode execute(const EventContext& context) const;
+	virtual StatusCode initialize() override;
+	virtual StatusCode finalize() override;
+	virtual StatusCode execute(const EventContext& context) const override;
+	virtual bool isReEntrant() const override final { return false; } // use of TNtuple in execute
 
 private :
 
@@ -85,7 +87,8 @@ private :
 
 
         const CaloCell_SuperCell_ID*     m_schelper;
-	TNtuple* m_ntuple = nullptr;
+
+	TNtuple* m_ntuple ATLAS_THREAD_SAFE = nullptr;  // Alg is not reentrant (see above)
 	TFile * m_file = nullptr;
 	bool m_compNoise;
 	bool m_addBCID;
