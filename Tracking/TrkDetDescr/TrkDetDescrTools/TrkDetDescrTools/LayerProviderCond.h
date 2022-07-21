@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -43,11 +43,14 @@ public:
   virtual StatusCode initialize() override final;
 
   /** LayerBuilder interface method - returning the layers in the endcaps */
-  virtual std::tuple<EventIDRange, const std::vector<Layer*>, const std::vector<Layer*> > endcapLayer(const EventContext& ctx) const override final;
+  virtual std::pair<const std::vector<Layer*>, const std::vector<Layer*> >
+  endcapLayer(const EventContext& ctx,
+              SG::WriteCondHandle<TrackingGeometry>& whandle) const override final;
 
   /** LayerBuilder interface method - returning the central layers */
-  virtual std::pair<EventIDRange, const std::vector<Layer*>> centralLayers(
-    const EventContext& ctx) const override final;
+  virtual const std::vector<Layer*>
+  centralLayers(const EventContext& ctx,
+                SG::WriteCondHandle<TrackingGeometry>& whandle) const override final;
 
   /** Name identification */
   virtual const std::string& identification() const override final;

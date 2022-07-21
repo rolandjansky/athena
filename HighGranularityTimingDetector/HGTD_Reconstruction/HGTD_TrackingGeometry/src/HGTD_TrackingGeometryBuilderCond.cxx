@@ -95,30 +95,21 @@ StatusCode HGTD_TrackingGeometryBuilderCond::finalize()
   return StatusCode::SUCCESS;
 }
 
-std::pair<EventIDRange, Trk::TrackingGeometry*> HGTD_TrackingGeometryBuilderCond::trackingGeometry
+std::unique_ptr<Trk::TrackingGeometry>
+HGTD_TrackingGeometryBuilderCond::trackingGeometry
   ATLAS_NOT_THREAD_SAFE // Thread unsafe TrackingGeometry::indexStaticLayers method is used.
-  (const EventContext& ctx, std::pair<EventIDRange, const Trk::TrackingVolume*> tVolPair) const
+  (const EventContext& ctx,
+   const Trk::TrackingVolume* innerVol,
+   SG::WriteCondHandle<Trk::TrackingGeometry>& whandle) const
 
 {
 
   ATH_MSG_VERBOSE( "Starting to build HGTD_TrackingGeometry ..." );   
   
-  // the return TG
-  Trk::TrackingGeometry* hgtdTrackingGeometry = nullptr; 
-  
   // the enclosed input volume (ID)
   double enclosedInnerSectorHalflength = std::numeric_limits<float>::max();
   double enclosedOuterRadius = 0.;
   double enclosedInnerRadius = 0.;
-  
-  //Start with a range covering 0 - inf, then narrow down
-  EventIDRange range = IOVInfiniteRange::infiniteMixed();
-  
-  const Trk::TrackingVolume* innerVol = nullptr;
-  if(tVolPair.second != nullptr){
-    range = tVolPair.first;
-    innerVol = tVolPair.second;
-  }
   
   if (innerVol) {  
     ATH_MSG_VERBOSE( "Got Inner Detector Volume: " << innerVol->volumeName() ); 
@@ -169,8 +160,7 @@ std::pair<EventIDRange, Trk::TrackingGeometry*> HGTD_TrackingGeometryBuilderCond
   std::vector<const Trk::Layer*> negativeLayers;
   std::vector<const Trk::Layer*> positiveLayers;  
   
-  std::pair<EventIDRange, const std::vector<Trk::DiscLayer*>*> discLayersPair = m_layerBuilder->discLayers(ctx);
-  const auto *discLayers = discLayersPair.second;
+  std::unique_ptr<const std::vector<Trk::DiscLayer*> > discLayers = m_layerBuilder->discLayers(ctx, whandle);
   
   float maxZ = -9999.;
   float minZ =  9999.;
@@ -178,7 +168,6 @@ std::pair<EventIDRange, Trk::TrackingGeometry*> HGTD_TrackingGeometryBuilderCond
   
   // loop and fill positive and negative Layers
   if (discLayers && !discLayers->empty()){
-    range=EventIDRange::intersect(range,discLayersPair.first);
     // loop over and push into the return/cache vector 
     for (const auto & discLayer : (*discLayers) ){
       // get the center posituion 
@@ -196,9 +185,6 @@ std::pair<EventIDRange, Trk::TrackingGeometry*> HGTD_TrackingGeometryBuilderCond
       }
     }
   }
-  
-  // memory cleanup
-  delete discLayers;
   
   float envelope = thickness*0.5;
   float minZ_HGTD = minZ-envelope;
@@ -334,13 +320,12 @@ std::pair<EventIDRange, Trk::TrackingGeometry*> HGTD_TrackingGeometryBuilderCond
   ATH_MSG_VERBOSE( '\t' << '\t'<< "Created enclosed HGTD volume with bounds: " << enclosedDetector->volumeBounds() );
 
   //  create the TrackingGeometry ------------------------------------------------------  
-  hgtdTrackingGeometry = new Trk::TrackingGeometry(enclosedDetector);
+  auto hgtdTrackingGeometry = std::make_unique<Trk::TrackingGeometry>(enclosedDetector);
   
   if (m_indexStaticLayers and hgtdTrackingGeometry)
    hgtdTrackingGeometry->indexStaticLayers( geometrySignature() );   
   if (msgLvl(MSG::VERBOSE) && hgtdTrackingGeometry)
     hgtdTrackingGeometry->printVolumeHierarchy(msg(MSG::VERBOSE)); 
 
-  return std::make_pair(range, hgtdTrackingGeometry);
-  
+  return hgtdTrackingGeometry;
 }

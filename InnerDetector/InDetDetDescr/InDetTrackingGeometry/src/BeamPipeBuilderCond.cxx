@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -98,11 +98,12 @@ StatusCode InDet::BeamPipeBuilderCond::finalize()
 
 /** LayerBuilder interface method - returning Barrel-like layers */
 //TODO: context is not used, beamPipe retrieved from manager. range is infinite
-std::pair<EventIDRange, const std::vector<Trk::CylinderLayer*>*>
-InDet::BeamPipeBuilderCond::cylindricalLayers(const EventContext&) const
+std::unique_ptr<const std::vector<Trk::CylinderLayer*> >
+InDet::BeamPipeBuilderCond::cylindricalLayers(const EventContext&,
+                                              SG::WriteCondHandle<Trk::TrackingGeometry>& /*whandle*/) const
 {
 
-  std::vector<Trk::CylinderLayer*>* beamPipe = new std::vector<Trk::CylinderLayer*>;
+  auto beamPipe = std::make_unique<std::vector<Trk::CylinderLayer*> >();
   
   // the geometry
   Amg::Transform3D beamPipeTransform;
@@ -184,8 +185,6 @@ InDet::BeamPipeBuilderCond::cylindricalLayers(const EventContext&) const
                                              m_beamPipeThickness);
   }
   beamPipe->push_back(pThisCylinderLayer);
-   //create dummy infinite range
-  EventIDRange range = IOVInfiniteRange::infiniteMixed();
-  return std::make_pair(range,beamPipe);
+  return beamPipe;
 }
 

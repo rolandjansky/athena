@@ -98,18 +98,19 @@ StatusCode Muon::MuonStationBuilderCond::initialize() {
     return StatusCode::SUCCESS;
 }
 
-std::pair<EventIDRange, std::unique_ptr<const std::vector<std::unique_ptr<const Trk::DetachedTrackingVolume> > > >
-Muon::MuonStationBuilderCond::buildDetachedTrackingVolumes(const EventContext& ctx, bool blend) const {
+std::unique_ptr<const std::vector<std::unique_ptr<const Trk::DetachedTrackingVolume> > >
+Muon::MuonStationBuilderCond::buildDetachedTrackingVolumes(const EventContext& ctx,
+                                                           SG::WriteCondHandle<Trk::TrackingGeometry>& whandle,
+                                                           bool blend) const {
     auto mStations = std::make_unique<std::vector<std::unique_ptr<const Trk::DetachedTrackingVolume> > >();
-    EventIDRange range = IOVInfiniteRange::infiniteMixed();
 
     SG::ReadCondHandle<MuonGM::MuonDetectorManager> readHandle{m_muonMgrReadKey, ctx};
     if (!readHandle.isValid() || !(*readHandle)) {
         ATH_MSG_FATAL(m_muonMgrReadKey.fullKey() << " is not available.");
-        return std::make_pair(range, std::move(mStations));
+        return mStations;
     }
+    whandle.addDependency (readHandle);
 
-    readHandle.range(range);
     const MuonGM::MuonDetectorManager* muonMgr = readHandle.cptr();
     // retrieve muon station prototypes from GeoMode(this)->l
     std::vector<std::unique_ptr<Trk::DetachedTrackingVolume>> msTypes = buildDetachedTrackingVolumeTypes(blend, muonMgr);
@@ -615,7 +616,7 @@ Muon::MuonStationBuilderCond::buildDetachedTrackingVolumes(const EventContext& c
     }
     // clean up prototypes  
     ATH_MSG_INFO(name() << "returns " << mStations->size() << " stations");
-    return std::make_pair(range, std::move(mStations));
+    return mStations;
 }
 
 std::vector<std::unique_ptr<Trk::DetachedTrackingVolume>> Muon::MuonStationBuilderCond::buildDetachedTrackingVolumeTypes(

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -15,6 +15,7 @@
 #include "GaudiKernel/IAlgTool.h"
 //
 #include "TrkSurfaces/Surface.h"
+#include "StoreGate/WriteCondHandle.h"
 // STL
 #include <string>
 #include <vector>
@@ -25,6 +26,7 @@ class CylinderLayer;
 class DiscLayer;
 class PlaneLayer;
 class Layer;
+class TrackingGeometry;
 
 /** Interface ID for ILayerBuilderCond*/
 static const InterfaceID IID_ILayerBuilderCond("ILayerBuilderCond", 1, 0);
@@ -47,16 +49,19 @@ public:
   static const InterfaceID& interfaceID() { return IID_ILayerBuilderCond; }
 
   /** LayerBuilder interface method - returning Barrel-like layers */
-  virtual std::pair<EventIDRange, const std::vector<CylinderLayer*>*>
-  cylindricalLayers(const EventContext& ctx) const = 0;
+  virtual std::unique_ptr<const std::vector<CylinderLayer*> >
+  cylindricalLayers(const EventContext& ctx,
+                    SG::WriteCondHandle<TrackingGeometry>& whandle) const = 0;
 
   /** LayerBuilder interface method - returning Endcap-like layers */
-  virtual std::pair<EventIDRange, const std::vector<DiscLayer*>*> discLayers(
-    const EventContext& ctx) const = 0;
+  virtual std::unique_ptr<const std::vector<DiscLayer*> >
+  discLayers(const EventContext& ctx,
+             SG::WriteCondHandle<TrackingGeometry>& whandle) const = 0;
 
   /** LayerBuilder interface method - returning Planar-like layers */
-  virtual std::pair<EventIDRange, const std::vector<PlaneLayer*>*> planarLayers(
-    const EventContext& ctx) const = 0;
+  virtual std::unique_ptr<const std::vector<PlaneLayer*> >
+  planarLayers(const EventContext& ctx,
+               SG::WriteCondHandle<TrackingGeometry>& whandle) const = 0;
 
   /** Name identification */
   virtual const std::string& identification() const = 0;

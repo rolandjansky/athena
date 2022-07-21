@@ -114,25 +114,25 @@ StatusCode Muon::MuonTrackingGeometryBuilderCond::initialize() {
     return StatusCode::SUCCESS;
 }
 
-std::pair<EventIDRange, Trk::TrackingGeometry*> Muon::MuonTrackingGeometryBuilderCond::trackingGeometry(
-    const EventContext& ctx, std::pair<EventIDRange, const Trk::TrackingVolume*> tVolPair) const {
+std::unique_ptr<Trk::TrackingGeometry>
+Muon::MuonTrackingGeometryBuilderCond::trackingGeometry(
+    const EventContext& ctx,
+    const Trk::TrackingVolume* tvol,
+    SG::WriteCondHandle<Trk::TrackingGeometry>& whandle) const
+{
     ATH_MSG_INFO(name() << " building tracking geometry");
 
     // process muon material objects
-    EventIDRange range = IOVInfiniteRange::infiniteMixed();
     std::unique_ptr<const std::vector<std::unique_ptr<const Trk::DetachedTrackingVolume> > > stations;
     if (m_muonActive && m_stationBuilder) {
-        auto stationsPair = m_stationBuilder->buildDetachedTrackingVolumes(ctx);
-        range = EventIDRange::intersect(range, stationsPair.first);
-        stations = std::move(stationsPair.second);
+        stations = m_stationBuilder->buildDetachedTrackingVolumes(ctx, whandle);
     }
 
     std::unique_ptr<const std::vector<std::unique_ptr<const Trk::DetachedTrackingVolume> > > inertObjs;
     std::unique_ptr<std::vector<std::vector<std::pair<std::unique_ptr<const Trk::Volume>, float> > > > constituentsVector;
 
     if (m_muonInert && m_inertBuilder) {
-        auto [detVolRange, detVolInertObjs, constVec] = m_inertBuilder->buildDetachedTrackingVolumes(ctx, m_blendInertMaterial);
-        range = EventIDRange::intersect(range, detVolRange);
+        auto [detVolInertObjs, constVec] = m_inertBuilder->buildDetachedTrackingVolumes(ctx, whandle, m_blendInertMaterial);
         inertObjs = std::move(detVolInertObjs);
         constituentsVector = std::move(constVec);
     }
@@ -140,11 +140,6 @@ std::pair<EventIDRange, Trk::TrackingGeometry*> Muon::MuonTrackingGeometryBuilde
 
     m_chronoStatSvc->chronoStart("MS::build-up");
 
-    const Trk::TrackingVolume* tvol = nullptr;
-    if (tVolPair.second != nullptr) {
-        range = EventIDRange::intersect(range, tVolPair.first);
-        tvol = tVolPair.second;
-    }
     // load local variables to container
     LocalVariablesContainer aLVC;
     aLVC.m_innerBarrelRadius = m_innerBarrelRadius;
@@ -251,7 +246,7 @@ std::pair<EventIDRange, Trk::TrackingGeometry*> Muon::MuonTrackingGeometryBuilde
         Trk::TrackingVolume* topVolume =
             new Trk::TrackingVolume(nullptr, globalBounds, aLVC.m_muonMaterial, dummyLayers, dummyVolumes, "GlobalVolume");
         aLVC.m_standaloneTrackingVolume = topVolume;
-        return std::make_pair(range, new Trk::TrackingGeometry(topVolume));
+        return std::make_unique<Trk::TrackingGeometry>(topVolume);
     }
 
     ATH_MSG_INFO(name() << "building barrel+innerEndcap+outerEndcap");
@@ -305,7 +300,7 @@ std::pair<EventIDRange, Trk::TrackingGeometry*> Muon::MuonTrackingGeometryBuilde
         const Trk::CylinderVolumeBounds* enclosedDetectorBounds = dynamic_cast<const Trk::CylinderVolumeBounds*>(&(tvol->volumeBounds()));
         if (!enclosedDetectorBounds) {
             ATH_MSG_ERROR(" dynamic cast of enclosed volume to the cylinder bounds failed, aborting MTG build-up ");
-            return std::pair<EventIDRange, Trk::TrackingGeometry*>(range, nullptr);
+            return nullptr;
         }
         double enclosedDetectorHalfZ = enclosedDetectorBounds->halflengthZ();
         double enclosedDetectorOuterRadius = enclosedDetectorBounds->outerRadius();
@@ -339,7 +334,7 @@ std::pair<EventIDRange, Trk::TrackingGeometry*> Muon::MuonTrackingGeometryBuilde
                     ATH_MSG_WARNING(name() << " z adjusted ");
                 } else {
                     ATH_MSG_ERROR(name() << "assymetric Z dimensions - cannot recover " << negZ << "," << posZ);
-                    return std::pair<EventIDRange, Trk::TrackingGeometry*>(range, nullptr);
+                    return nullptr;
                 }
             }
         }
@@ -353,7 +348,7 @@ std::pair<EventIDRange, Trk::TrackingGeometry*> Muon::MuonTrackingGeometryBuilde
         const Trk::TrackingVolume* barrelR = nullptr;
         if (enclosedDetectorOuterRadius > aLVC.m_innerBarrelRadius) {
             ATH_MSG_WARNING(name() << " enclosed volume too wide, cuts into muon envelope, abandon :R:" << enclosedDetectorOuterRadius);
-            return std::pair<EventIDRange, Trk::TrackingGeometry*>(range, nullptr);
+            return nullptr;
         } else {
             aLVC.m_innerBarrelRadius = enclosedDetectorOuterRadius;
             barrelR = tvol;
@@ -361,7 +356,7 @@ std::pair<EventIDRange, Trk::TrackingGeometry*> Muon::MuonTrackingGeometryBuilde
         // adjust z
         if (enclosedDetectorHalfZ > m_barrelZ) {
             ATH_MSG_WARNING(name() << " enclosed volume too long, cuts into muon envelope, abandon :Z:" << enclosedDetectorHalfZ);
-            return std::pair<EventIDRange, Trk::TrackingGeometry*>(range, nullptr);
+            return nullptr;
         } else {
             if (enclosedDetectorHalfZ < m_barrelZ) {
                 Trk::CylinderVolumeBounds* barrelZPBounds =
@@ -715,7 +710,7 @@ std::pair<EventIDRange, Trk::TrackingGeometry*> Muon::MuonTrackingGeometryBuilde
     if (m_blendInertMaterial) blendMaterial(aLVC);
 
     // tracking geometry
-    Trk::TrackingGeometry* trackingGeometry = new Trk::TrackingGeometry(detector, Trk::globalSearch);
+    auto trackingGeometry = std::make_unique<Trk::TrackingGeometry>(detector, Trk::globalSearch);
 
     // clean-up
     if (aLVC.m_stationSpan) {
@@ -743,7 +738,7 @@ std::pair<EventIDRange, Trk::TrackingGeometry*> Muon::MuonTrackingGeometryBuilde
     ATH_MSG_INFO(name() << " returning tracking geometry ");
     ATH_MSG_INFO(name() << " with " << aLVC.m_frameNum << " subvolumes at navigation level");
     ATH_MSG_INFO(name() << "( mean number of enclosed detached volumes:" << float(aLVC.m_frameStat) / aLVC.m_frameNum << ")");
-    return std::make_pair(range, trackingGeometry);
+    return trackingGeometry;
 }
 
 // finalize
