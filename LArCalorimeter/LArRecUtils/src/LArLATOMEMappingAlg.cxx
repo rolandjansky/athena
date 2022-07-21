@@ -46,11 +46,14 @@ StatusCode LArLATOMEMappingAlg::execute() {
 
   writeHandle.addDependency(readHandle);
 
-  std::unique_ptr<LArLATOMEMapping> latomeMap=std::make_unique<LArLATOMEMapping>();
-
   //Loop over COOL channels:
   CondAttrListCollection::const_iterator chanIt=catr->begin();
   CondAttrListCollection::const_iterator chanIt_e=catr->end();
+  // needs a length of blobs first
+  const coral::Blob& bls = chanIt->second["SourceIDs"].data<coral::Blob>();
+  unsigned nLat=bls.size()/sizeof(uint32_t);
+  std::unique_ptr<LArLATOMEMapping> latomeMap=std::make_unique<LArLATOMEMapping>(nLat);
+
   for (;chanIt!=chanIt_e;++chanIt) {
     
     const coral::AttributeList& attr = chanIt->second;
