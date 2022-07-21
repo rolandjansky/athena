@@ -368,11 +368,7 @@ StatusCode HitMapBuilder::execute() {
 
   // retrieve EventInfo
   const EventInfo* eventInfo;
-  StatusCode sc = evtStore()->retrieve(eventInfo);
-  if (!sc.isSuccess()) {
-    ATH_MSG_FATAL("Unable to retrieve event info");
-    return StatusCode::FAILURE;
-  } ATH_MSG_DEBUG("Event info retrieved");
+  ATH_CHECK( evtStore()->retrieve(eventInfo) );
 
   // check LB is in allowed range
   int LB =  static_cast<int>(eventInfo->event_ID()->lumi_block());
@@ -385,8 +381,8 @@ StatusCode HitMapBuilder::execute() {
   if (m_LBrange_max < LB) m_LBrange_max = LB;
 
   // retrieve PixelRDO container
-  const DataHandle<PixelRDO_Container> pixelRDOs;
-  sc = evtStore()->retrieve(pixelRDOs, m_pixelRDOKey);
+  const PixelRDO_Container* pixelRDOs;
+  StatusCode sc = evtStore()->retrieve(pixelRDOs, m_pixelRDOKey);
   if (!sc.isSuccess()) {
     ATH_MSG_FATAL( "Unable to retrieve pixel RDO container at " << m_pixelRDOKey );
     return StatusCode::FAILURE;

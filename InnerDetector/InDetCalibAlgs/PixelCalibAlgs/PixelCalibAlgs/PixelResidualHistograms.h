@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelResidualHistograms_h
@@ -37,7 +37,7 @@ public:
 	int Write(bool writebins = false);
 	int Read();
 
-	TH1D* GetHisto(const int i) const;
+	TH1D* GetHisto(const int i);
 	TProfile* GetMeanProfile(const std::string& binname);
 	TProfile* GetRMSProfile(const std::string& binname);
 	TProfile* GetProfile(const int binnumber, bool RMS = false, bool savebins = false);
