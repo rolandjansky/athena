@@ -9,8 +9,18 @@ def L2muCombMonConfig(helper):
     GroupName = 'L2muComb'
 
     monAlg = helper.addAlgorithm(CompFactory.L2muCombMon,'L2muCombMon')
-    # HLT_mu6_L1MU6 is test chain for small statistics, so it will be removed.
-    monAlg.MonitoredChains =  ['HLT_mu6_L1MU5VF', 'HLT_mu26_ivarmedium_L1MU14FCH', 'HLT_2mu14_L12MU8F']
+
+    ### monitorig groups
+    from TrigConfigSvc.TriggerConfigAccess import getHLTMonitoringAccess
+    moniAccess = getHLTMonitoringAccess(helper.inputFlags)
+    Chains = moniAccess.monitoredChains(signatures="muonMon",monLevels=["shifter","t0","val"])
+    monAlg.MonitoredChains = [c for c in Chains if ('mu24_ivarmedium' in c) or ('2mu14' in c)]
+  
+    # if mon groups not found fall back to hard-coded trigger monitoring list
+    if len(monAlg.MonitoredChains) == 0:
+        # HLT_mu6_L1MU6 is test chain for small statistics, so it will be removed.
+        monAlg.MonitoredChains =  ['HLT_mu6_L1MU5VF', 'HLT_mu24_ivarmedium_L1MU14FCH', 'HLT_2mu14_L12MU8F']
+
     monAlg.Group = GroupName
 
     # configuration of etaphi2D and Ratio plots for non-specific chain

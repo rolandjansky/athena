@@ -29,7 +29,7 @@ def createHLTDQConfigFlags():
     acf.addFlag('DQ.Steering.HLT.doJet', lambda flags: flags.Input.Format is Format.POOL)
     acf.addFlag('DQ.Steering.HLT.doMET', lambda flags: flags.Input.Format is Format.POOL)
     acf.addFlag('DQ.Steering.HLT.doMinBias', lambda flags: flags.Input.Format is Format.POOL)
-    acf.addFlag('DQ.Steering.HLT.doMuon', True) #must be changed back to lambda flags if monGroups are implemented. Safe if ATR-23720 is completed
+    acf.addFlag('DQ.Steering.HLT.doMuon', lambda flags: flags.Input.Format is Format.POOL)
     acf.addFlag('DQ.Steering.HLT.doTau', lambda flags: flags.Input.Format is Format.POOL)
 
     return acf
