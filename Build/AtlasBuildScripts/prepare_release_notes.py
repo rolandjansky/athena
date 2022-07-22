@@ -19,26 +19,38 @@ Example:
   %prog release/21.1.6 nightly/21.1/2017-06-07T2215
 """
 
-import optparse
+import argparse
 import os
 import re
 import subprocess
+from collections import defaultdict
+
+gitlab_available=True
+try:
+    import gitlab                     
+except ImportError:
+    gitlab_available=False
 
 def main():
-    parser = optparse.OptionParser(description=__doc__, usage=usage)
-    parser.add_option('-p', '--previous', help='previous release wrt. which we diff')
-    parser.add_option('-o', '--output', default='release_notes.md', help='where the notes are written')
-    parser.add_option('-r', '--relaxed', action='store_true', help='do not stop on dubious configurations')
-    parser.add_option('-v', '--verbose', action='store_true', help='print more info')
-    (opts, args) = parser.parse_args()
-    if len(args) != 2:
-        parser.error("specify nightly and tag")
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('-p', '--previous', help='previous release wrt. which we diff')
+    parser.add_argument('-o', '--output', default='release_notes.md', help='where the notes are written')
+    parser.add_argument('-r', '--relaxed', action='store_true', help='do not stop on dubious configurations')
+    parser.add_argument('-v', '--verbose', action='store_true', help='print more info')
+    parser.add_argument('--group-merge-requests', action='store_true', help='Group merge requests with the same labels together.')
+    parser.add_argument('-t', '--token', help='Optionally pass a gitlab token to get more information.')
+    parser.add_argument('target', help='Target release')
+    parser.add_argument('nightly', help='Nightly tag to use')
+    args = parser.parse_args()
 
-    target_release = args[0]
-    nightly_tag = args[1]
-    sanitize_args(target_release, nightly_tag, keep_going=opts.relaxed)
-    previous_release = guess_previous_and_check(target_release=target_release) if not opts.previous else opts.previous
-    verbose = opts.verbose
+    if args.token and not gitlab_available:
+        print('WARNING - passing a token but was not able to import gitlab. You probably need to install python-gitlab first (see https://python-gitlab.readthedocs.io)')
+
+    target_release = args.target
+    nightly_tag = args.nightly
+    sanitize_args(target_release, nightly_tag, keep_going=args.relaxed)
+    previous_release = guess_previous_and_check(target_release=target_release) if not args.previous else args.previous
+    verbose = args.verbose
     pretty_format = '%b' # perhaps some combination of '%s%n%b' ?
     cmd = "git log "+previous_release+".."+nightly_tag+" --pretty=format:'"+pretty_format+"' --merges"
     if verbose:
@@ -49,11 +61,16 @@ def main():
         print("Git failed with: {}".format(output_log['stderr']))
         print('Are you running this script from within the athena/ directory?')
         quit(999)
-    merged_mrs = parse_mrs_from_log(output_log['stdout'].decode("utf-8"),
-                                    pretty_format=pretty_format, verbose=verbose)
+    # If possible, use Gitlab
+    gl_project=None
+    if args.token and gitlab_available:
+        gl = gitlab.Gitlab("https://gitlab.cern.ch", args.token)
+        gl_project = gl.projects.get("atlas/athena")
+    merged_mrs = parse_mrs_from_log (output_log['stdout'].decode("utf-8"),
+                                    pretty_format=pretty_format, verbose=verbose, gl_project=gl_project)
     fill_template(target_release, nightly_tag, previous_release,
-                  merged_mrs, output_filename=opts.output, verbose=verbose)
-
+                  merged_mrs, output_filename=args.output, verbose=verbose, gl_project=gl_project, group_mrs=args.group_merge_requests)
+    
 def sanitize_args(target_release, nightly_tag, keep_going=False):
     if not target_release.startswith('release/'):
         print ("The target release should start with 'release/', you are using:\n%s"%target_release)
@@ -139,8 +156,8 @@ class MergeRequestInfo(object):
                 print ("Cannot parse these lines:\n"+'\n'.join("[%02d] : '%s'" % (iL, l) for iL, l in enumerate(lines)))
         return self
 
+def parse_mrs_from_log(output, pretty_format='%b', verbose=False, gl_project=None):
 
-def parse_mrs_from_log(output, pretty_format='%b', verbose=False):
     if pretty_format!='%b':
         raise RuntimeWarning("parsing of pretty_format %s not implemented yet")
     mrs = []
@@ -150,13 +167,22 @@ def parse_mrs_from_log(output, pretty_format='%b', verbose=False):
         line = line.lstrip().strip()
         if line.startswith('See merge request'):
             lines_this_mr.append(line)
-            mrs.append(MergeRequestInfo().init_from_gitlab_message_lines(lines_this_mr, verbose))
+            mri = MergeRequestInfo().init_from_gitlab_message_lines(lines_this_mr, verbose)
+            if gl_project:
+                mrs.append(gl_project.mergerequests.get(mri.mr))
+            else:
+                mrs.append(mri)
             lines_this_mr = []
-        elif line: # skip emtpy
+        elif line: # skip empty
             lines_this_mr.append(line)
     if lines_this_mr:
-        mrs.append(MergeRequestInfo().init_from_gitlab_message_lines(lines_this_mr, verbose))
+        mri = MergeRequestInfo().init_from_gitlab_message_lines(lines_this_mr, verbose)
+        if gl_project:
+            mrs.append(gl_project.mergerequests.get(mri.mr))
+        else: 
+            mrs.append(mri)
     return mrs
+
 
 def default_template():
     return """
@@ -175,12 +201,41 @@ https://gitlab.cern.ch/atlas/athena/compare/{previous_release:s}...{target_relea
 
 """
 
+def format_mrs_from_gitlab(merged_mrs, group_mrs=False):
+    # FIXME - we don't want to dump all labels, so have an approved list
+    # However should try to think of a way to link to domain_map.py?
+    # For the time being, this list was made as follows:
+    # import domain_map.py
+    # allowed_labels = sorted(domain_map.DOMAIN_MAP.keys())
+    allowed_labels = ['ACTS', 'Analysis', 'AnalysisTop', 'BTagging', 'Build', 'CI', 'Calorimeter', 'Core', 'DQ', 'Database', 'Derivation', 'Digitization', 'EDM', 'Egamma', 'EventDisplay', 'Externals', 'ForwardDetectors', 'Generators', 'Geometry', 'HGTD', 'ITk', 'InnerDetector', 'JetEtmiss', 'LAr', 'Magnets', 'MuonSpectrometer', 'Other', 'Overlay', 'Powheg', 'QuickAna', 'Reconstruction', 'SUSYTools', 'Simulation', 'Tau', 'Test', 'TestBeam', 'Tile', 'Tools', 'Tracking', 'Trigger', 'TriggerEDM', 'TriggerID', 'TriggerJet', 'TriggerMenu', 'TriggerMinBias', 'changes-trigger-counts']
+    lines = []
+    if group_mrs:
+        grouped_mrs=defaultdict(list)
+        for mr in merged_mrs:
+            labels = ['~'+label for label in mr.labels if label in allowed_labels]
+            label_key = ", ".join(labels)
+            grouped_mrs[label_key].append('   * {} : {}'.format(mr.id, mr.title))
+        for key,value in grouped_mrs.items():
+            lines.append(' * {}'.format(key))
+            for title in value:
+                lines.append(title)
+    else:
+        for mr in merged_mrs:
+            labels = ['~'+label for label in mr.labels if label in allowed_labels]
+            lines.append(" * {id} {title} [{labels}]".format(id=mr.id, title=mr.title, labels=", ".join(labels)))
+    return '\n'.join(lines)
+
 def fill_template(target_release, nightly_tag, previous_release,
-                  merged_mrs=[], output_filename='foo.md', verbose=False):
-    formatted_mrs = '\n'.join([" * %s" % mr for mr in merged_mrs]) if merged_mrs else '* None'
+                  merged_mrs=[], output_filename='foo.md', verbose=False, gl_project=None, group_mrs=False):
+    formatted_mrs=""
+    if gl_project:
+        formatted_mrs = format_mrs_from_gitlab(merged_mrs, group_mrs)
+    else:
+        formatted_mrs = '\n'.join([" * %s" % mr for mr in merged_mrs]) if merged_mrs else '* None'
     def formatted_tag_link(tag=''):
         base_url = 'https://gitlab.cern.ch/atlas/athena/tags'
         return "[%s](%s)" % (tag, base_url+'/'+tag)
+    print('formatted_mrs', formatted_mrs)
     filled_template = default_template().format(**{'target_release' : target_release,
                                                    'target_release_link' : formatted_tag_link(target_release),
                                                    'nightly_tag' : nightly_tag,
