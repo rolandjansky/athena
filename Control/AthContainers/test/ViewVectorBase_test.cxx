@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -55,7 +55,7 @@ public:
     doToTransient (dv);
   }
 
-  void checkELV (unsigned int);
+  void checkELV (SG::sgkey_t);
 
   void checkClear()
   {
@@ -67,7 +67,7 @@ public:
 
 
 
-void ViewVectorBaseTest::checkELV (unsigned int sgkey)
+void ViewVectorBaseTest::checkELV (SG::sgkey_t sgkey)
 {
   assert (m_persKey.size() == 10);
   assert (m_persIndex.size() == 10);
@@ -87,7 +87,7 @@ void test1 (SGTest::TestStore& store)
   for (int i = 0; i < 10; i++)
     dv->push_back (new X(i));
   store.record (dv, "dv");
-  unsigned int sgkey = store.stringToKey ("dv", x_clid);
+  SG::sgkey_t sgkey = store.stringToKey ("dv", x_clid);
 
   DataVector<X> vv (SG::VIEW_ELEMENTS);
   for (int i = 0; i < 10; i++)
