@@ -1172,6 +1172,13 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
       thrMonVariables.push_back(l1item_roi_eta);
       auto l1item_roi_phi=Monitored::Collection(Form("l1item_roi_phi_%s",item.data()),passed_rois,[](const xAOD::MuonRoI*m){return m->phi();});
       thrMonVariables.push_back(l1item_roi_phi);
+      auto l1item_roi_phi_rpc=Monitored::Collection(Form("l1item_roi_phi_rpc_%s",item.data()),passed_rois,[](const xAOD::MuonRoI*m){
+	  return (m->getSource()==xAOD::MuonRoI::Barrel)?(m->phi()):(-10);
+	});
+      auto l1item_roi_phi_tgc=Monitored::Collection(Form("l1item_roi_phi_tgc_%s",item.data()),passed_rois,[](const xAOD::MuonRoI*m){
+	  return (m->getSource()!=xAOD::MuonRoI::Barrel)?(m->phi()):(-10);
+	});
+      thrMonVariables.push_back(l1item_roi_phi_tgc);
       auto l1item_roi_thrNumber=Monitored::Collection(Form("l1item_roi_thrNumber_%s",item.data()),passed_rois,[](const xAOD::MuonRoI*m){return m->getThrNumber();});
       thrMonVariables.push_back(l1item_roi_thrNumber);
       auto l1item_roi_ismorecand=Monitored::Collection(Form("l1item_roi_ismorecand_%s",item.data()),passed_rois,[](const xAOD::MuonRoI*m){
