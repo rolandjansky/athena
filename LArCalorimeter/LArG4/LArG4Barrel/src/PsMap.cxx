@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PsMap.h"
@@ -9,17 +9,14 @@
 #include "PathResolver/PathResolver.h"
 #endif
 
-PsMap* PsMap::s_thePointer=nullptr;
-
 PsMap::PsMap()
-  : m_directory ("/afs/cern.ch/atlas/offline/data/lar/calo_data")
 {
 #ifndef LARG4_STAND_ALONE
   //std::string larLocation = PathResolver::find_directory("lar","DATAPATH");
   std::string larLocation = PathResolver::find_directory("LArG4Barrel","ATLASCALDATA");
 #endif
 
-  double xnorm=15.9;  // nA/MeV normalisation for PS maps
+  const double xnorm=15.9;  // nA/MeV normalisation for PS maps
 
   for (int imap=0;imap<5;imap++) {
     // accordion folds
@@ -40,10 +37,10 @@ PsMap::PsMap()
 
 }
 
-PsMap* PsMap::GetPsMap()
+const PsMap* PsMap::GetPsMap()
 {
-  if (s_thePointer==nullptr) s_thePointer=new PsMap();
-  return s_thePointer;
+  static const PsMap instance;
+  return &instance;
 }
 
 void PsMap::Reset()
@@ -55,7 +52,7 @@ void PsMap::Reset()
   }
 }
 
-CurrMap* PsMap::GetMap(int module) const
+const CurrMap* PsMap::GetMap(int module) const
 {
   // module 0 and 1 have their own maps (code = 0 and 1)
   // module 2 and 3 have the same map (same geometry) with code 2
@@ -71,9 +68,4 @@ CurrMap* PsMap::GetMap(int module) const
     std::cout << " Code " << module << " not found in map ..." << std::endl;
     return nullptr;
   }
-}
-
-void PsMap::SetDirectory(const std::string& dir)
-{
-  m_directory=dir;
 }

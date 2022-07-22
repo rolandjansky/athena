@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArBarrelCalculator.hh
@@ -58,7 +58,7 @@ public:
 private:
 
   ServiceHandle<ILArBarrelGeometry> m_geometry;
-  AccMap*   m_accmap;
+  const AccMap*   m_accmap;
   std::unique_ptr<MapEta>   m_etamap1;
   std::unique_ptr<MapEta>   m_etamap2;
   std::unique_ptr<MapEta>   m_etamap3;
