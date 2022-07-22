@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECOSMICALGS_TILEMUONFITTER_H
@@ -259,7 +259,7 @@ class TileMuonFitter: public AthAlgorithm {
     int m_maxTopIndex;
     bool m_reg1to2;
 
-    static CaloCell_ID::SUBCALO m_caloIndex;
+    static const CaloCell_ID::SUBCALO m_caloIndex;
 
     SG::ReadHandleKey<CaloCellContainer> m_cellContainerKey{this, "CaloCellContainer", "AllCalo",
                                                             "Input CaloCellContainer name" };
