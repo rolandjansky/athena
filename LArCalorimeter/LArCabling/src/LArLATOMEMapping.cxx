@@ -5,10 +5,15 @@
 
 #define N_LATOMES 116
 
-LArLATOMEMapping::LArLATOMEMapping()
+LArLATOMEMapping::LArLATOMEMapping(unsigned nLatomes)
 {
- m_sourceID.resize(N_LATOMES);
- m_onlineID.resize(N_LATOMES);
+   if(nLatomes == 0) {
+    m_sourceID.resize(N_LATOMES);
+    m_onlineID.resize(N_LATOMES);
+   } else {
+    m_sourceID.resize(nLatomes);
+    m_onlineID.resize(nLatomes);
+   }
 }
 
 
