@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AsgExampleTools )
@@ -21,7 +21,7 @@ atlas_add_root_dictionary( AsgExampleToolsLib AsgExampleToolsCintDict
 atlas_add_library( AsgExampleToolsLib
    AsgExampleTools/*.h Root/*.cxx ${AsgExampleToolsCintDict}
    PUBLIC_HEADERS AsgExampleTools
-   LINK_LIBRARIES AsgTools AsgServicesLib AsgDataHandlesLib AsgTestingLib ${extra_lib} )
+   LINK_LIBRARIES AsgTools AsgServicesLib AsgDataHandlesLib AsgTestingLib CxxUtils ${extra_lib} )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( AsgExampleTools
