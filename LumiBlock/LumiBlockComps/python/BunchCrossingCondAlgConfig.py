@@ -2,6 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BunchStructureSource
 
 
 def BunchCrossingCondAlgCfg(configFlags):
@@ -11,10 +12,11 @@ def BunchCrossingCondAlgCfg(configFlags):
     result=ComponentAccumulator()
 
     run1=(configFlags.IOVDb.DatabaseInstance=='COMP200')
+    cfgsvc = None
+    folder = ''
 
-    if (configFlags.Input.isMC):
+    if configFlags.Beam.BunchStructureSource == BunchStructureSource.MC:
         folder = "/Digitization/Parameters"
-        Mode = 1
         from AthenaConfiguration.Enums import ProductionStep
         if configFlags.Common.ProductionStep not in [ProductionStep.Digitization, ProductionStep.PileUpPresampling, ProductionStep.Overlay, ProductionStep.FastChain]:
             result.merge(addFolders(configFlags,folder,None,className="AthenaAttributeList",tag='HEAD'))
@@ -23,16 +25,22 @@ def BunchCrossingCondAlgCfg(configFlags):
             # /Digitization/Parameters metadata is not present in the
             # input file and will be created during the job
             pass
-    else: #data case
+    elif configFlags.Beam.BunchStructureSource == BunchStructureSource.FILLPARAMS:
         folder = '/TDAQ/OLC/LHC/FILLPARAMS'
-        Mode = 0
         result.merge(addFolders(configFlags,folder,'TDAQ',className = 'AthenaAttributeList',tag='HEAD'))
-
+    elif configFlags.Beam.BunchStructureSource == BunchStructureSource.TrigConf:
+        from TrigConfxAOD.TrigConfxAODConfig import getxAODConfigSvc
+        cfgsvc = result.getPrimaryAndMerge(getxAODConfigSvc(configFlags))
+    elif configFlags.Beam.BunchStructureSource == BunchStructureSource.Lumi:
+        from .LuminosityCondAlgConfig import LuminosityCondAlgCfg
+        result.merge(LuminosityCondAlgCfg(configFlags))
 
     alg = BunchCrossingCondAlg('BunchCrossingCondAlgDefault',
                                Run1=run1,
-                               FillParamsFolderKey =folder,
-                               Mode=Mode )
+                               FillParamsFolderKey=folder,
+                               Mode=configFlags.Beam.BunchStructureSource.value,
+                               TrigConfigSvc=cfgsvc 
+                               )
 
     result.addCondAlgo(alg)
 

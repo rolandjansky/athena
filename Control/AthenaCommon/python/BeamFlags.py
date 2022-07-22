@@ -63,6 +63,15 @@ class energy (JobProperty):
     statusOn=True
     allowedTypes=['float']
     StoredValue=7*TeV
+#
+# 
+class bunchStructureSource (JobProperty):
+    """ Specify beam energy (MeV)
+    """ 
+    statusOn=True
+    allowedTypes=['int']
+    allowedValues=[0,1,2,3]
+    StoredValue=2
 
 
 
@@ -86,7 +95,7 @@ class Beam(JobPropertyContainer):
 jobproperties.add_Container(Beam)
 
 # I want always the following flags in the Beam container  
-_list_Beam=[override,bunchSpacing,numberOfCollisions,beamType,energy]
+_list_Beam=[override,bunchSpacing,numberOfCollisions,beamType,energy,bunchStructureSource]
 for j in _list_Beam: 
     jobproperties.Beam.add_JobProperty(j)
 del _list_Beam

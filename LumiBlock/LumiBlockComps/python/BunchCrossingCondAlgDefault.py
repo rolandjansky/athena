@@ -16,13 +16,17 @@ def BunchCrossingCondAlgDefault():
     
     from LumiBlockComps.LumiBlockCompsConf import BunchCrossingCondAlg
     from IOVDbSvc.CondDB import conddb
+    from AthenaCommon.BeamFlags import beamFlags
 
-    isMC=conddb.isMC
     run1=(conddb.dbdata == 'COMP200')
+    folder = None
 
-    if (isMC):
+    if conddb.isMC and beamFlags.bunchStructureSource() != 1:
+        mlog.info('This is MC, trying to reset beamFlags.bunchStructureSource to 1')
+        beamFlags.bunchStructureSource = 1
+
+    if beamFlags.bunchStructureSource() == 1:
         folder = "/Digitization/Parameters"
-        Mode = 1
         from AthenaCommon.DetFlags import DetFlags
         if not DetFlags.digitize.any_on():
             if not conddb.folderRequested(folder):
@@ -36,17 +40,18 @@ def BunchCrossingCondAlgDefault():
             # /Digitization/Parameters metadata is not present in the
             # input file and will be created during the job
             mlog.info("Folder %s will be created during the job.", folder)
-    else:
+    elif beamFlags.bunchStructureSource() == 0:
         folder = '/TDAQ/OLC/LHC/FILLPARAMS'
-        Mode = 0
         # Mistakenly created as multi-version folder, must specify HEAD 
         conddb.addFolderWithTag('TDAQ', folder, 'HEAD',
                                 className = 'AthenaAttributeList')
+    # other possibilities for BunchStructureSource: assume we are running in a context
+    # where dependencies are set up
         
     alg = BunchCrossingCondAlg(name,
                                Run1=run1,
                                FillParamsFolderKey =folder,
-                               Mode=Mode )
+                               Mode=beamFlags.bunchStructureSource() )
 
     condSeq += alg
 
