@@ -10,6 +10,7 @@
 #include "JiveXML/IServer.h"
 
 //Decoding of caller IP address
+#include <climits>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
@@ -124,23 +125,29 @@ namespace JiveXML {
       if ( ServerSvc->LogLevel() <= MSG::DEBUG ){
 
         //Get information about the requester
-        struct sockaddr_in* caller = svc_getcaller(rqstp->rq_xprt);
-        //Get port number
-        int port = caller->sin_port;
-        //Get IP-address
-        std::string IPAddr = inet_ntoa(caller->sin_addr);
-        //Try to get the hosts name
-        struct hostent *he = gethostbyaddr(&caller->sin_addr, sizeof ( struct in_addr), AF_INET);
+        auto caller = (struct sockaddr* )svc_getcaller(rqstp->rq_xprt);
+        char port[NI_MAXSERV]; 
+        char host[NI_MAXHOST];
+        char IPAddr[INET6_ADDRSTRLEN];
+
         //assemble a message
         msg << "Request from host ";
         //Add host name if we have one
-        if (he) msg << he->h_name << " ";
+        if(getnameinfo(caller, rqstp->rq_xprt->xp_addrlen,
+                       host, sizeof host,
+                       nullptr, 0,
+                       0) == 0)
+          msg << host << " ";
         //Add ip-address and port
-        msg << "(" << IPAddr << ") on port " << port;
+        if(getnameinfo(caller, rqstp->rq_xprt->xp_addrlen,
+                       IPAddr, sizeof IPAddr,
+                       port, sizeof port,
+                       NI_NUMERICSERV | NI_NUMERICHOST) == 0)
+          msg << "(" << IPAddr << ") on port " << port;
         //Deliver the message
         ServerSvc->Message(MSG::DEBUG,msg.str()); msg.str("");
       }
-      
+
       //Prepare the dispatch thread argument structure making a copy of the
       //request, so it sticks around if this thread is gone
       DispatchThreadArguments DpThreadArgs(ServerSvc, new svc_req(*rqstp), NULL, NULL);

@@ -11,8 +11,7 @@
 #include "JiveXML/EventStream.h"
 #include "JiveXML/IServerSvc.h"
 
-//Forward declaration
-extern "C" struct CLIENT;
+#include <rpc/clnt.h>
 
 namespace JiveXML {
 
