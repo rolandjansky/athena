@@ -54,9 +54,9 @@ void LVL1::eFEXtauAlgo::setup(int inputTable[3][3], int efex_id, int fpga_id, in
 
 }
 
-LVL1::eFEXtauTOB *LVL1::eFEXtauAlgo::getTauTOB()
+std::unique_ptr<LVL1::eFEXtauTOB> LVL1::eFEXtauAlgo::getTauTOB()
 {
-  eFEXtauTOB *tob = new eFEXtauTOB();
+  std::unique_ptr<eFEXtauTOB> tob = std::make_unique<eFEXtauTOB>();
   unsigned int et = getEt();
   tob->setEt(et);
   tob->setRcoreCore(rCoreCore());

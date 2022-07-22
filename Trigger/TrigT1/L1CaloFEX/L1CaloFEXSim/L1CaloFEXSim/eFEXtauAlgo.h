@@ -47,7 +47,7 @@ namespace LVL1 {
     //virtual StatusCode finalize();
 
     virtual bool isCentralTowerSeed() override;
-    virtual eFEXtauTOB* getTauTOB() override;
+    virtual std::unique_ptr<eFEXtauTOB> getTauTOB() override;
     virtual unsigned int rCoreCore() override;
     virtual unsigned int rCoreEnv() override;
     virtual void getRCore(std::vector<unsigned int> & rCoreVec) override;
