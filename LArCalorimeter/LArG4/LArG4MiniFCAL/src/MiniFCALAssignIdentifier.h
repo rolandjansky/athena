@@ -10,19 +10,11 @@
 #ifndef LARG4MINIFCAL_MINIFCALASSIGNIDENTIFIER_H
 #define LARG4MINIFCAL_MINIFCALASSIGNIDENTIFIER_H
 
-#include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
-#include "GaudiKernel/Algorithm.h"
-
-#include "G4TrackStatus.hh"
-#include "G4ParticleDefinition.hh"
-#include "G4DynamicParticle.hh"
-#include "G4ThreeVector.hh"
+#include "AthenaBaseComps/AthMessaging.h"
 
 #include "globals.hh"
 
 #include <map>
-#include <vector>
 
 typedef std::map<int,int> MapNumToIndex;
 
@@ -39,12 +31,12 @@ namespace LArG4 {
 
     enum eMiniFCALAssignIdentifierType { kActive, kInactive, kDead };
 
-    class MiniFCALAssignIdentifier {
+    class MiniFCALAssignIdentifier : public AthMessaging {
 
     public:
 
       // Standard implementation of a singleton pattern.
-      static MiniFCALAssignIdentifier* GetInstance();
+      static const MiniFCALAssignIdentifier& GetInstance();
       virtual ~MiniFCALAssignIdentifier(){  ;}
 
       LArG4Identifier CalculateIdentifier( const G4Step* a_step, const eMiniFCALAssignIdentifierType type = kActive ) const;
@@ -55,9 +47,6 @@ namespace LArG4 {
       IMessageSvc* m_msgsvc = nullptr;
 
     private:
-      static MiniFCALAssignIdentifier *m_instance;
-
-
       G4double m_halfLength;
       G4double m_absThick;
       G4double m_layThick;

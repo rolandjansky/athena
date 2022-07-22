@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // MiniFCALCalculator.hh
@@ -45,8 +45,6 @@ public:
   }
 
 private:
-
-  LArG4::MiniFCAL::MiniFCALAssignIdentifier *m_Geometry = nullptr;
 
   G4float  m_OOTcut = 0.0F;
 };

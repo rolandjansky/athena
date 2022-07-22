@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MiniFCALCalibrationCalculator.h"
@@ -35,10 +35,6 @@ namespace LArG4 {
 
       ATH_MSG_INFO("Use the MiniFCALCalibrationCalculator for the MiniFCAL");
 
-      // Initialize the geometry and energy calculators.
-      m_geometryCalculator = MiniFCALAssignIdentifier::GetInstance();
-      //m_energyCalculator   = new CaloG4::SimulationEnergies();
-
       return StatusCode::SUCCESS;
     }
 
@@ -61,7 +57,7 @@ namespace LArG4 {
 
       if ( process == kEnergyAndID  ||  process == kOnlyID ) {
         // Calculate the identifier.
-          identifier = m_geometryCalculator->CalculateIdentifier(step, m_geometryType );
+          identifier = MiniFCALAssignIdentifier::GetInstance().CalculateIdentifier(step, m_geometryType );
           // Check for bad result.
           if ( identifier == LArG4Identifier() ) return false;
 
