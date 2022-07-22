@@ -59,3 +59,10 @@ class BeamType(FlagEnum):
     Collisions = 'collisions'
     SingleBeam = 'singlebeam'
     Cosmics = 'cosmics'
+
+
+class BunchStructureSource(FlagEnum):
+    FILLPARAMS = 0
+    MC = 1
+    TrigConf = 2
+    Lumi = 3

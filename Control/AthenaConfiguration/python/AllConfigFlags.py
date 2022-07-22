@@ -3,7 +3,7 @@
 from AthenaCommon.SystemOfUnits import TeV
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from AthenaConfiguration.AutoConfigFlags import GetFileMD, getInitialTimeStampsFromRunNumbers, getRunToTimestampDict, getSpecialConfigurationMetadata
-from AthenaConfiguration.Enums import BeamType, Format, ProductionStep
+from AthenaConfiguration.Enums import BeamType, Format, ProductionStep, BunchStructureSource
 from PyUtils.moduleExists import moduleExists
 
 
@@ -130,6 +130,7 @@ def _createCfgFlags():
     acf.addFlag('Beam.Energy', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get('beam_energy',7*TeV)) # former global.BeamEnergy
     acf.addFlag('Beam.estimatedLuminosity', lambda prevFlags : ( 1E33*(prevFlags.Beam.NumberOfCollisions)/2.3 ) *\
         (25./prevFlags.Beam.BunchSpacing)) # former flobal.estimatedLuminosity
+    acf.addFlag('Beam.BunchStructureSource', lambda prevFlags: BunchStructureSource.MC if prevFlags.Input.isMC else BunchStructureSource.TrigConf)
 
 
 

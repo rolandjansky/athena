@@ -2,6 +2,8 @@
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 from LumiBlockComps.BunchCrossingCondAlgConfig import BunchCrossingCondAlgCfg
+from AthenaConfiguration.Enums import BunchStructureSource
+from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg
 from LumiBlockComps.dummyLHCFillDB import createSqlite,fillFolder
 
 import os
@@ -77,6 +79,7 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 ConfigFlags.Input.Files=[]
 ConfigFlags.Input.isMC=False
+ConfigFlags.Beam.BunchStructureSource=BunchStructureSource.FILLPARAMS
 ConfigFlags.IOVDb.DatabaseInstance="CONDBR2"
 ConfigFlags.IOVDb.GlobalTag="CONDBR2-BLKPA-2017-05"
 ConfigFlags.GeoModel.AtlasVersion="ATLAS-R2-2016-01-00-01"
@@ -105,6 +108,8 @@ result.addService(CompFactory.EvtPersistencySvc("EventPersistencySvc",CnvService
 
 result.merge(BunchCrossingCondAlgCfg(ConfigFlags))
 
+print(ConfigFlags.Beam.BunchStructureSource)
+result.merge(IOVDbSvcCfg(ConfigFlags))
 result.getService("IOVDbSvc").Folders=["<db>sqlite://;schema=test.db;dbname=CONDBR2</db><tag>HEAD</tag>/TDAQ/OLC/LHC/FILLPARAMS"]
 result.getCondAlgo("BunchCrossingCondAlgDefault").OutputLevel=1
 
