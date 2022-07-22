@@ -1,9 +1,10 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "StripGmxInterface.h"
 
+#include <GaudiKernel/GaudiException.h>
 #include <InDetReadoutGeometry/SiDetectorDesign.h>
 #include <InDetReadoutGeometry/SiDetectorElement.h>
 #include <InDetSimEvent/SiHitIdHelper.h>
@@ -11,7 +12,6 @@
 #include <SCT_ReadoutGeometry/SCT_DetectorManager.h>
 #include <SCT_ReadoutGeometry/StripBoxDesign.h>
 #include <SCT_ReadoutGeometry/StripStereoAnnulusDesign.h>
-
 
 namespace
 {
@@ -136,8 +136,8 @@ void StripGmxInterface::makeSiStripBox(const std::string &typeName,
   } else if (carrierString == "holes") {
     carrier = InDetDD::holes;
   } else {
-    ATH_MSG_FATAL("makeSiStripBox: Error: parameter carrierType should be electrons or holes for " << typeName);
-    exit(999);
+    throw GaudiException("Parameter carrierType should be electrons or holes for " + typeName,
+                         "StripGmxInterface::makeSiStripBox", StatusCode::FAILURE);
   }
 
   std::string readoutSideString;
@@ -147,8 +147,8 @@ void StripGmxInterface::makeSiStripBox(const std::string &typeName,
   } else if (readoutSideString == "-") {
     readoutSide = -1;
   } else {
-    ATH_MSG_FATAL("makeSiStripBox: Error: parameter readoutSide should be + or - for " << typeName);
-    exit(999);
+    throw GaudiException("Parameter readoutSide should be + or - for " + typeName,
+                         "StripGmxInterface::makeSiStripBox", StatusCode::FAILURE);
   }
 
   std::string fieldDirectionString;
@@ -160,8 +160,8 @@ void StripGmxInterface::makeSiStripBox(const std::string &typeName,
   } else if (fieldDirectionString == "z") {
     fieldDirection = SiDetectorDesign::zAxis;
   } else {
-    ATH_MSG_FATAL("makeSiStripBox: Error: parameter fieldDirection should be x, y, or z for " << typeName);
-    exit(999);
+    throw GaudiException("Parameter fieldDirection should be x, y, or z for " + typeName,
+                         "StripGmxInterface::makeSiStripBox", StatusCode::FAILURE);
   }
 
   std::string stripDirectionString;
@@ -173,8 +173,8 @@ void StripGmxInterface::makeSiStripBox(const std::string &typeName,
   } else if (stripDirectionString == "z") {
     stripDirection = SiDetectorDesign::zAxis;
   } else {
-    ATH_MSG_FATAL("makeSiStripBox: Error: parameter stripDirection should be x, y, or z for " << typeName);
-    exit(999);
+    throw GaudiException("Parameter stripDirection should be x, y, or z for " + typeName,
+                         "StripGmxInterface::makeSiStripBox", StatusCode::FAILURE);
   }
 
   getParameter(typeName, parameters, "thickness", thickness);
@@ -277,8 +277,8 @@ void StripGmxInterface::makeStereoAnnulus(const std::string &typeName,
   } else if (carrierString == "holes") {
     carrier = InDetDD::holes;
   } else {
-    ATH_MSG_FATAL("makeStereoAnnulus: Error: parameter carrierType should be electrons or holes for " << typeName);
-    exit(999);
+    throw GaudiException("Parameter carrierType should be electrons or holes for " + typeName,
+                         "StripGmxInterface::makeStereoAnnulus", StatusCode::FAILURE);
   }
 
   std::string readoutSideString;
@@ -288,8 +288,8 @@ void StripGmxInterface::makeStereoAnnulus(const std::string &typeName,
   } else if (readoutSideString == "-") {
     readoutSide = -1;
   } else {
-    ATH_MSG_FATAL("makeStereoAnnulus: Error: parameter readoutSide should be + or - for " << typeName);
-    exit(999);
+    throw GaudiException("Parameter readoutSide should be + or - for " + typeName,
+                         "StripGmxInterface::makeStereoAnnulus", StatusCode::FAILURE);
   }
 
   std::string fieldDirectionString;
@@ -301,8 +301,8 @@ void StripGmxInterface::makeStereoAnnulus(const std::string &typeName,
   } else if (fieldDirectionString == "z") {
     fieldDirection = SiDetectorDesign::zAxis;
   } else {
-    ATH_MSG_FATAL("makeStereoAnnulus: Error: parameter fieldDirection should be x, y, or z for " << typeName);
-    exit(999);
+    throw GaudiException("Parameter fieldDirection should be x, y, or z for " + typeName,
+                         "StripGmxInterface::makeStereoAnnulus", StatusCode::FAILURE);
   }
 
   std::string stripDirectionString;
@@ -314,8 +314,8 @@ void StripGmxInterface::makeStereoAnnulus(const std::string &typeName,
   } else if (stripDirectionString == "z") {
     stripDirection = SiDetectorDesign::zAxis;
   } else {
-    ATH_MSG_FATAL("makeStereoAnnulus: Error: parameter stripDirection should be x, y, or z for " << typeName);
-    exit(999);
+    throw GaudiException("Parameter stripDirection should be x, y, or z for " + typeName,
+                         "StripGmxInterface::makeStereoAnnulus", StatusCode::FAILURE);
   }
 
   getParameter(typeName, parameters, "thickness", thickness);
@@ -325,26 +325,26 @@ void StripGmxInterface::makeStereoAnnulus(const std::string &typeName,
 
   getParameters(typeName, parameters, "nStrips", nStrips);
   if (nStrips.size() != static_cast<size_t>(nRows)) {
-    ATH_MSG_FATAL("makeStereoAnnulus: Error: Wrong number of nStrips " << nStrips.size() << " " << typeName);
-    exit(999);
+    throw GaudiException("Wrong number of nStrips " + std::to_string(nStrips.size()) + " " + typeName,
+                         "StripGmxInterface::makeStereoAnnulus", StatusCode::FAILURE);
   }
 
   getParameters(typeName, parameters, "phiPitch", phiPitch);
   if (phiPitch.size() != static_cast<size_t>(nRows)) {
-    ATH_MSG_FATAL("makeStereoAnnulus: Error: Wrong number of pitches " << phiPitch.size() << " " << typeName);
-    exit(999);
+    throw GaudiException("Wrong number of pitches " + std::to_string(phiPitch.size()) + " " + typeName,
+                         "StripGmxInterface::makeStereoAnnulus", StatusCode::FAILURE);
   }
 
   getParameters(typeName, parameters, "startR", startR);
   if (startR.size() != static_cast<size_t>(nRows)) {
-    ATH_MSG_FATAL("makeStereoAnnulus: Error: Wrong number of startRs "  << startR.size() << " " << typeName);
-    exit(999);
+    throw GaudiException("Wrong number of startRs " + std::to_string(startR.size()) + " " + typeName,
+                         "StripGmxInterface::makeStereoAnnulus", StatusCode::FAILURE);
   }
 
   getParameters(typeName, parameters, "endR", endR);
   if (endR.size() != static_cast<size_t>(nRows)) {
-    ATH_MSG_FATAL("makeStereoAnnulus: Error: Wrong number of endRs "  << endR.size() << " " << typeName);
-    exit(999);
+    throw GaudiException("Wrong number of endRs " + std::to_string(endR.size()) + " " + typeName,
+                         "StripGmxInterface::makeStereoAnnulus", StatusCode::FAILURE);
   }
 
   if (checkParameter(typeName, parameters, "usePC", usePC)) ATH_MSG_INFO("Using polar co-ordinates for strip stereo annulus modules");
@@ -612,8 +612,8 @@ void StripGmxInterface::addAlignable(int level,
                                  0);
       break;
     default:
-      ATH_MSG_FATAL("Unknown level " << level << " for alignment in addAlignable");
-      exit(999);
+      throw GaudiException("Unknown level " + std::to_string(level) + " for alignment in addAlignable",
+                           "StripGmxInterface::addAlignable", StatusCode::FAILURE);
       break;
   }
   m_detectorManager->addAlignableTransform(level, id, transform, fpv);
