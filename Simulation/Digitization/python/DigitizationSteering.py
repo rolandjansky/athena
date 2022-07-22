@@ -37,12 +37,16 @@ def DigitizationMainServicesCfg(flags):
     """Configure main digitization services"""
     if flags.Digitization.PileUp:
         if flags.Concurrency.NumThreads > 0:
-            logDigiSteering.error("DigitizationMainServicesCfg: Attempting to run pile-up digitization AthenaMT using %s threads!", str(flags.Concurrency.NumThreads))
-            logDigiSteering.error("DigitizationMainServicesCfg: Running pile-up digitization with AthenaMT is not supported. Please update your configuration. The job will fail now.")
-            raise RuntimeError("DigitizationSteering.DigitizationMainServicesCfg: Running pile-up digitization with AthenaMT is not supported. Please update your configuration.")
-        from Digitization.PileUpConfigNew import PileUpEventLoopMgrCfg
-        acc = MainServicesCfg(flags, LoopMgr="PileUpEventLoopMgr")
-        acc.merge(PileUpEventLoopMgrCfg(flags))
+            logDigiSteering.info("DigitizationMainServicesCfg: Attempting to run pile-up digitization AthenaMT using %s threads!", str(flags.Concurrency.NumThreads))
+            logDigiSteering.info("DigitizationMainServicesCfg: Using new PileUpMT code.")
+            # raise RuntimeError("DigitizationSteering.DigitizationMainServicesCfg: Running pile-up digitization with AthenaMT is not supported. Please update your configuration.")
+            from Digitization.PileUpMTConfig import PileUpMTAlgCfg
+            acc = MainServicesCfg(flags)
+            acc.merge(PileUpMTAlgCfg(flags))
+        else:
+            from Digitization.PileUpConfigNew import PileUpEventLoopMgrCfg
+            acc = MainServicesCfg(flags, LoopMgr="PileUpEventLoopMgr")
+            acc.merge(PileUpEventLoopMgrCfg(flags))
     else:
         acc = MainServicesCfg(flags)
 
