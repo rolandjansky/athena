@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelResidualHistograms_C
@@ -128,7 +128,7 @@ int PixelResidualHistograms::Read(){
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-TH1D* PixelResidualHistograms::GetHisto(int i) const{
+TH1D* PixelResidualHistograms::GetHisto(int i) {
 	return m_HistogramsVector->GetHisto(i);
 }
 

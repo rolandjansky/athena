@@ -15,6 +15,9 @@
 #include "TKey.h"
 #include "Riostream.h"
 
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // standalone application
+
 std::vector<std::pair<std::string, std::vector<int>>> pixelMapping;
 std::vector<std::pair<int, std::vector<int>>> hashMapping;
 std::vector<std::pair<std::string, std::vector<int>>> channelMapping;
