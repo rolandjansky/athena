@@ -320,18 +320,25 @@ StatusCode LArFEBMonAlg::fillHistograms(const EventContext& ctx) const {
   if (febInErrorTree.size()>=1 || newHighWaterMarkNFebBlocksTotal || nbOfFeb < m_nbOfFebBlocksTotal ){
     evtrej=1; evt_yield = 100.;
     if (febInErrorTree.size()>=4) evtrej=2;
+    if (thisEvent->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::DATACORRUPTEDVETO)) evtyieldout=0.; // Vetoed 
+    else evtyieldout=100.; // not vetoed
   } 
+  if(evtrej > 0) {
+     fill(m_monGroupName,evtrej);
+     evtrej=-1;
+  }
 
   if (thisEvent->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error || nbOfFeb != m_nbOfFebBlocksTotal || nbOfFeb < m_nFEBnominal){ // Event in error (whatever is the cause)
     if (thisEvent->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::DATACORRUPTED) || nbOfFeb != m_nbOfFebBlocksTotal){ // Event corrupted (>=1/4 FEBs in error)
-      evtrej=3; evt_yield = 100.;
-      if (thisEvent->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::DATACORRUPTEDVETO)) evtyieldout=0.; // Vetoed 
-      else evtyieldout=100.; // not vetoed
+      evtrej=3;
       auto rbits = Monitored::Scalar<unsigned long>("rejBits", rejectionBits.to_ulong());
       fill(m_monGroupName, rbits);
     }
     if (thisEvent->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::DATACORRUPTEDVETO)) evtrej=4;
     if (thisEvent->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::NOISEBURSTVETO)) evtrej=5;
+    evt_yield = 100.;
+    if (thisEvent->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::DATACORRUPTEDVETO)) evtyieldout=0.; // Vetoed 
+    else evtyieldout=100.; // not vetoed
   } else{ // The event is NOT in error. Fill per LB TProfile
     evtrej=6; evt_yield = 0.; evtyieldout=0.;
   }
