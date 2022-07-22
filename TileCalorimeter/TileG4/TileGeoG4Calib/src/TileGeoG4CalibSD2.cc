@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////
@@ -88,7 +88,7 @@ bool TileGeoG4CalibSD::FindTileCalibSection() {
 
   //DETERMINE TOUCHABLEHISTORY AND PHYSICAL VOLUME FOR THIS STEP
   //THEY WILL BE USED BY THIS SECTION FINDER AND CALCULATOR METHODS
-  m_stepTouchable = (G4TouchableHistory*) (m_aStep->GetPreStepPoint()->GetTouchable());
+  m_stepTouchable = static_cast<const G4TouchableHistory*>(m_aStep->GetPreStepPoint()->GetTouchable());
   m_stepPhysVol = m_stepTouchable->GetVolume();
 
   //DETERMINE A NAME OF THE STEP VOLUME

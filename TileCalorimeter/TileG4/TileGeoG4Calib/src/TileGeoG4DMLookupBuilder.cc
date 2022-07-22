@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //************************************************************
@@ -72,7 +72,7 @@ TileGeoG4DMLookupBuilder::TileGeoG4DMLookupBuilder(TileGeoG4LookupBuilder* looku
   m_plateToCell(false)
 {
 
-  const DataHandle<GeoModelExperiment> theExpt;
+  const GeoModelExperiment* theExpt;
   StatusCode sc = pDetStore->retrieve(theExpt, "ATLAS");
   if (sc.isFailure()) {
     G4cout << "ERROR: Unable to retrieve GeoModelExperiment from DetectorStore" << G4endl;
@@ -112,8 +112,8 @@ void TileGeoG4DMLookupBuilder::BuildLookup(bool is_tb, int plateToCell) {
 //////////////////// G E T   S E C T I O N
 
 TileGeoG4CalibSection* TileGeoG4DMLookupBuilder::GetSection(TileCalibDddbManager::TileCalibSections key) const {
-  if (m_sectionMap && m_sectionMap->find(key) != m_sectionMap->end())
-    return m_sectionMap->operator[](key);
+  if (m_sectionMap && std::as_const(m_sectionMap)->find(key) != m_sectionMap->cend())
+    return std::as_const(m_sectionMap)->at(key);
   else
     return 0;
 }
