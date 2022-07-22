@@ -115,7 +115,7 @@ from CoolConvUtilities import AtlCoolTool
 toolNew = AtlCoolTool.AtlCoolTool("COOLOFL_LAR/CONDBR2")
 toolNew.usetag("${globalTag}")
 a=toolNew.more("/LAR/IdentifierOfl/HVLineToElectrodeMap")
-f=file('dumpMapping.txt','w')
+f=open('dumpMapping.txt','w')
 f.write(str(a))
 f.close()
 exit()
@@ -178,11 +178,11 @@ echo " "
 cat > getGlobalTagES.py << _EOF5_
 import sys
 from PyCool import cool
-sys.path.append('/afs/cern.ch/user/a/atlcond/utils/python/')
-from AtlCoolBKLib import resolveAlias
+sys.path.append('/afs/cern.ch/user/a/atlcond/utils22/')
+from CondUtilsLib.AtlCoolBKLib import resolveAlias
 resolver=resolveAlias()
 currentGlobal=resolver.getCurrentES().replace("*","ST")
-print currentGlobal
+print(currentGlobal)
 _EOF5_
 
 globalTagES=`python getGlobalTagES.py | awk '{print($1)}'`
@@ -295,7 +295,7 @@ echo " "
 echo "  After checking that everything is OK you can proceed with the database update"
 echo "  (1) /afs/cern.ch/user/a/atlcond/utils22/AtlCoolMerge.py --online HVScaleCorr.db  CONDBR2 ATONR_COOL  ATLAS_COOLONL_LAR_W  <password>"
 echo "  (2) /afs/cern.ch/user/a/atlcond/utils22/AtlCoolMerge.py --online caloSqlite_UPD1_online.db  CONDBR2 ATONR_COOL ATLAS_COOLONL_CALO_W <password>"
-echo "  (3) /afs/cern.ch/user/a/atlcond/utilsflask/AtlCoolMerge.py --flask larnoisesqlite.db CONDBR2 ATONR_GPN ATLAS_COOLOFL_LAR_W <password>"
+echo "  (3) /afs/cern.ch/user/a/atlcond/utilsflask/AtlCoolMerge.py --flask larnoisesqlite.db CONDBR2 ATONR_COOLOFL_GPN ATLAS_COOLOFL_LAR_W <password>"
 
 echo "  (note that password are different for LAr online,offline, Calo online offline databases"
 exit

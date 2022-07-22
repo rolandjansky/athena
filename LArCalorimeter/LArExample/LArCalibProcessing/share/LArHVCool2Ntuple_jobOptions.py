@@ -13,7 +13,7 @@ if "date" not in dir():
 if "TimeStamp" not in dir():
    try:
       ts=strptime(date+'/UTC','%Y-%m-%d:%H:%M:%S/%Z')
-      TimeStamp=int(timegm(ts))*1000000000L
+      TimeStamp=int(timegm(ts))*1000000000
    except ValueError:
       printfunc ("ERROR in time specification, use e.g. 2007-05-25:14:01:00")
       

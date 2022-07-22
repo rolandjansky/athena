@@ -172,5 +172,5 @@ fi
 
 echo "  "
 echo "  After checking that everything is OK, upload the new sqlite file with:"
-echo "  /afs/cern.ch/user/a/atlcond/utils/AtlCoolMerge.py --nobackup larnoisesqlite.db  CONDBR2 ATLAS_COOLWRITE ATLAS_COOLOFL_LAR_W <password>"
+echo "  /afs/cern.ch/user/a/atlcond/utilsflask/AtlCoolMerge.py --flask --nobackup larnoisesqlite.db  CONDBR2 ATONR_COOLOFL_GPN ATLAS_COOLOFL_LAR_W <password>"
 exit
