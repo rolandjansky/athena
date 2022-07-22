@@ -332,7 +332,7 @@ size_t indexOfMatchInfo( std::vector<VertexTruthMatchInfo> & matches, const Elem
 }
 
 StatusCode InDetSecVertexTruthMatchTool::matchVertices( const xAOD::VertexContainer & vtxContainer,
-                                                        const xAOD::TruthVertexContainer & truthVtxContainer) const {
+                                                        const xAOD::TruthVertexContainer & truthVtxContainer) {
 
   ATH_MSG_DEBUG("Start vertex matching");
 
@@ -548,7 +548,7 @@ StatusCode InDetSecVertexTruthMatchTool::matchVertices( const xAOD::VertexContai
 
 }
 
-StatusCode InDetSecVertexTruthMatchTool::labelTruthVertices( const xAOD::TruthVertexContainer & truthVtxContainer) const {
+StatusCode InDetSecVertexTruthMatchTool::labelTruthVertices( const xAOD::TruthVertexContainer & truthVtxContainer) {
   
   ATH_MSG_DEBUG("Labeling truth vertices");
 
@@ -676,7 +676,7 @@ std::vector<int> InDetSecVertexTruthMatchTool::checkParticle(const xAOD::TruthPa
   return {0,0,0};
 }
 
-StatusCode InDetSecVertexTruthMatchTool::fillRecoPlots( const xAOD::Vertex& secVtx ) const {
+StatusCode InDetSecVertexTruthMatchTool::fillRecoPlots( const xAOD::Vertex& secVtx ) {
   
   // set of accessors for tracks and weights
   xAOD::Vertex::ConstAccessor<xAOD::Vertex::TrackParticleLinks_t> trkAcc("trackParticleLinks");
@@ -885,7 +885,7 @@ StatusCode InDetSecVertexTruthMatchTool::fillRecoPlots( const xAOD::Vertex& secV
   return StatusCode::SUCCESS;
 }
 
-StatusCode InDetSecVertexTruthMatchTool::fillTruthPlots( const xAOD::TruthVertex& truthVtx) const {
+StatusCode InDetSecVertexTruthMatchTool::fillTruthPlots( const xAOD::TruthVertex& truthVtx) {
   
   ATH_MSG_DEBUG("Plotting truth vertex");
 
