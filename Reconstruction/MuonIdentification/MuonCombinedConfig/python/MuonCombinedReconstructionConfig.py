@@ -661,7 +661,10 @@ def MuonCombinedReconstructionCfg(flags):
     from MuonConfig.MuonRecToolsConfig import MuonTrackScoringToolCfg
     result.addPublicTool(result.popToolsAndMerge(
         MuonTrackScoringToolCfg(flags)))
-
+    from TrkConfig.TrkTrackSummaryToolConfig import MuonCombinedTrackSummaryToolCfg
+    result.addPublicTool(result.popToolsAndMerge(
+        MuonCombinedTrackSummaryToolCfg(flags)))
+    
     # post processing
     result.addEventAlgo(CompFactory.ClusterMatching.CaloClusterMatchLinkAlg(
         "MuonTCLinks", ClustersToDecorate="MuonClusterCollection"))

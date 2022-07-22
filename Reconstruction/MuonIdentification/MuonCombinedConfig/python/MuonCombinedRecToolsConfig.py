@@ -526,6 +526,7 @@ def MuidTrackCleanerCfg(flags, name='MuidTrackCleaner', **kwargs):
             "Fitter", result.popToolsAndMerge(iPatFitterCfg(flags)))
         kwargs.setdefault(
             "SLFitter", result.popToolsAndMerge(iPatSLFitterCfg(flags)))
+    kwargs.setdefault("MaxAvePullSumPerChamber", 3.5) # Set back to default, because overridden in MuonTrackCleaner.
     return MuonTrackCleanerCfg(flags, name, **kwargs)
 
 
@@ -1103,7 +1104,8 @@ def MuonLayerAmbiguitySolverToolCfg(flags, name="MuonLayerAmbiguitySolverTool", 
     result = MuonSegmentSelectionToolCfg(flags)
     kwargs.setdefault("MuonSegmentSelectionTool", result.popPrivateTools())
     kwargs.setdefault("MuonSegmentMatchingTool", result.popToolsAndMerge(
-        MuonSegmentMatchingToolCfg(flags)))
+        MuonSegmentMatchingToolCfg(flags, name='MuonSegmentMatchingToolTight', TightSegmentMatching=True)))
+
     kwargs.setdefault("MuonSegmentTrackBuilder",
                       result.popToolsAndMerge(MooTrackBuilderCfg(flags)))
     kwargs.setdefault("MuonEDMPrinterTool", result.getPrimaryAndMerge(
