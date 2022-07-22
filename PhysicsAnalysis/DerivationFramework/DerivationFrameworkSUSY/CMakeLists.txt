@@ -42,7 +42,7 @@ atlas_add_library( DerivationFrameworkSUSYLib
    LINK_LIBRARIES AthenaBaseComps xAODTruth RecoToolInterfaces
    ExpressionEvaluationLib MCTruthClassifierLib ReweightUtilsLib TrkExUtils TruthUtils
    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaKernel xAODAssociations
-   xAODEventInfo xAODJet xAODTracking GaudiKernel )
+   xAODEventInfo xAODJet xAODTracking GaudiKernel FourMomUtils)
 
 atlas_add_component( DerivationFrameworkSUSY
    src/components/*.cxx
