@@ -47,7 +47,7 @@ def TgcRawDataMonitoringConfig(inputFlags):
 
     tgcRawDataMonAlg.UseOnlyCombinedMuons = True
     tgcRawDataMonAlg.UseOnlyMuidCoStacoMuons = True
-    tgcRawDataMonAlg.UseMuonSelectorTool = False
+    tgcRawDataMonAlg.UseMuonSelectorTool = True
 
     tgcRawDataMonAlg.PrintAvailableMuonTriggers = False
 
@@ -141,6 +141,14 @@ def TgcRawDataMonitoringConfig(inputFlags):
     for monTrig in tgcRawDataMonAlg.ThrPatternList.split(','):
         if monTrig == "":continue
         monTrigGroup = helper.addGroup(tgcRawDataMonAlg, 'TgcRawDataMonitor'+monTrig, mainDir)
+
+        monTrigGroup.defineHistogram('l1item_roi_eta_'+monTrig+';L1Item_MuonRoI_Evt_Eta_'+monTrig,title='L1Item_MuonRoI_Evt_Eta_'+monTrig+';MuonRoI Eta;Entries',
+                                     path=trigThrPatternsPath,type='TH1F',xbins=100,xmin=-2.5,xmax=2.5)
+        monTrigGroup.defineHistogram('l1item_roi_phi_rpc_'+monTrig+';L1Item_MuonRoI_Evt_Phi_RPC_'+monTrig,title='L1Item_MuonRoI_Evt_Phi_RPC_'+monTrig+';MuonRoI Phi;Entries',
+                                     path=trigThrPatternsPath,type='TH1F',xbins=32,xmin=-math.pi,xmax=math.pi)
+        monTrigGroup.defineHistogram('l1item_roi_phi_tgc_'+monTrig+';L1Item_MuonRoI_Evt_Phi_TGC_'+monTrig,title='L1Item_MuonRoI_Evt_Phi_TGC_'+monTrig+';MuonRoI Phi;Entries',
+                                     path=trigThrPatternsPath,type='TH1F',xbins=48,xmin=-math.pi,xmax=math.pi)
+
         monTrigGroup.defineHistogram('l1item_roi_eta_'+monTrig+',l1item_roi_phi_'+monTrig+';L1Item_MuonRoI_Evt_EtaVsPhi_'+monTrig,title='L1Item_MuonRoI_Evt_EtaVsPhi_'+monTrig+';MuonRoI Eta;MuonRoI Phi',
                                      path=trigThrPatternsPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
         monTrigGroup.defineHistogram('l1item_roi_eta_'+monTrig+',l1item_roi_thrNumber_'+monTrig+';L1Item_MuonRoI_Evt_EtaVsThrNumber_'+monTrig,title='L1Item_MuonRoI_Evt_EtaVsThrNumber_'+monTrig+';MuonRoI Eta;MuonRoI Threshold Number',
