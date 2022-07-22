@@ -25,7 +25,7 @@ def PPMSimBSMonitoringConfig(flags):
     helper.result().merge(DetDescrCnvSvcCfg(flags))
 
     from TrigT1CaloCondSvc.L1CaloCondConfig import L1CaloCondAlgCfg 
-    helper.result().merge(L1CaloCondAlgCfg(flags)) 
+    helper.result().merge(L1CaloCondAlgCfg(flags,Physics=True, Calib1=False, Calib2=False)) 
 
     from TrigConfxAOD.TrigConfxAODConfig import getxAODConfigSvc
     helper.result().getPrimaryAndMerge(getxAODConfigSvc(flags))
