@@ -59,6 +59,11 @@ set( ATLAS_FLAKE8 flake8_atlas --select ATL,ATL902,F,E101,E7,E9,W6
 set( ATLAS_PYTHON_CHECKER ${ATLAS_FLAKE8}
    CACHE STRING "Python checker command to run during Python module compilation" )
 
+# Apply (compiler) settings from CxxUtils:
+set( CxxUtilsSettings_DIR
+   "${CMAKE_SOURCE_DIR}/../../Control/CxxUtils/cmake" )
+find_package( CxxUtilsSettings )
+
 # Find the ATLAS CMake code:
 find_package( AtlasCMake QUIET )
 

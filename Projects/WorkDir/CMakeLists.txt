@@ -21,11 +21,6 @@ set( CMAKE_CUDA_ARCHITECTURES "52" CACHE STRING
 set( ATLAS_ENABLE_CI_TESTS TRUE CACHE BOOL
    "Set up tests in CITest package" )
 
-# Let the user pick up updated AtlasCMake/AtlasLCG versions for testing.
-# Remember that it's not a problem if AtlasCMake is not found, that's why
-# we use the QUIET keyword.
-find_package( AtlasCMake QUIET )
-
 # Try to figure out what project is our parent. Just using a hard-coded list
 # of possible project names. Basically the names of all the other
 # sub-directories inside the Projects/ directory in the repository.
@@ -43,9 +38,24 @@ endforeach()
 set( ATLAS_PROJECT ${_defaultParentProject}
    CACHE STRING "The name of the parent project to build against" )
 
+# Apply (compiler) settings from CxxUtils:
+if( IS_DIRECTORY "${CMAKE_SOURCE_DIR}/../../Control/CxxUtils" )
+   set( CxxUtilsSettings_DIR
+      "${CMAKE_SOURCE_DIR}/../../Control/CxxUtils/cmake" )
+else()
+   set( CxxUtilsSettings_DIR
+      "$ENV{${ATLAS_PROJECT}_DIR}/src/Control/CxxUtils/cmake" )
+endif()
+find_package( CxxUtilsSettings )
+
 # Clean up:
 unset( _parentProjectNames )
 unset( _defaultParentProject )
+
+# Let the user pick up updated AtlasCMake/AtlasLCG versions for testing.
+# Remember that it's not a problem if AtlasCMake is not found, that's why
+# we use the QUIET keyword.
+find_package( AtlasCMake QUIET )
 
 # Find the project that we depend on:
 find_package( ${ATLAS_PROJECT} REQUIRED )
