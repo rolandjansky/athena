@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -33,6 +33,8 @@
 #include "ZdcRec/ZdcSignalSinc.h"
 #include "ZdcIdentifier/ZdcID.h"
 #include "ZdcConditions/ZdcCablingService.h"
+
+#include "CxxUtils/checker_macros.h"
 
 //Interface Id for retrieving the tool
 //Consider creating a factory class and  define the interface
@@ -110,9 +112,9 @@ StatusCode ZdcRecChannelTool::initialize()
 
 	// GSL Interpolation functions initializations
 	m_interp_acc = gsl_interp_accel_alloc ();
-	//m_interp_type = gsl_interp_cspline_periodic;
-	m_interp_type=gsl_interp_akima;
-	m_spline = gsl_spline_alloc (m_interp_type, 14); //FIXME: TWICE THE SAMPLES
+	// Thread-safe according to https://www.gnu.org/software/gsl/doc/html/roots.html
+	const gsl_interp_type *interp_type ATLAS_THREAD_SAFE = gsl_interp_akima;
+	m_spline = gsl_spline_alloc (interp_type, 14); //FIXME: TWICE THE SAMPLES
 
         //Load Mapping
 	msg(MSG::DEBUG) << "--> ZDC : START OF MODIFICATION 0" << endmsg ;
@@ -492,14 +494,12 @@ int ZdcRecChannelTool::getTimingCFD(const Identifier& id,  const std::vector<std
 	int iterations = 0;
 	int max_iterations = 100;
 
-	const gsl_root_fsolver_type *T;
-	gsl_root_fsolver *s;
+	// Thread-safe according to https://www.gnu.org/software/gsl/doc/html/roots.html
+	const gsl_root_fsolver_type *T ATLAS_THREAD_SAFE = gsl_root_fsolver_brent;
+	gsl_root_fsolver *s = gsl_root_fsolver_alloc (T);
 	gsl_function F;
 
 	CCallbackHolder cc{};
-
-	T = gsl_root_fsolver_brent;
-	s = gsl_root_fsolver_alloc (T);
 
 
 	std::vector<int>  y;
