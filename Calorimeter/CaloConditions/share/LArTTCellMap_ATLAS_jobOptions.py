@@ -23,7 +23,7 @@ if LArDBConnection!="" :
      LArDB=""
 
 from IOVDbSvc.CondDB import conddb
-conddb.addFolder(LArDB,"/LAR/Identifier/LArTTCellMapAtlas"+LArDBConnection )
+conddb.addFolder(LArDB,"/LAR/Identifier/LArTTCellMapAtlas"+LArDBConnection, className="LArTTCellMap" )
 
 # read correct mapping for old geometries where information cannot be found from global tag
 DetDescr = globalflags.DetDescrVersion()

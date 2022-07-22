@@ -100,7 +100,7 @@ from AthenaCommon.AppMgr import theApp
 import AthenaPoolCnvSvc.AthenaPool
 
 from AthenaCommon.GlobalFlags import jobproperties
-jobproperties.Global.DetDescrVersion='ATLAS-GEO-08-00-00'
+jobproperties.Global.DetDescrVersion='ATLAS-R2-2015-04-00-00'
 
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
@@ -140,11 +140,15 @@ topSequence += theL1CaloHVDummyContainers
 
 # setup l1calo database
 include('TrigT1CaloCalibConditions/L1CaloCalibConditions_jobOptions.py')
-svcMgr.IOVDbSvc.overrideTags +=  ["<prefix>/CALO/Identifier/CaloTTOnOffIdMapAtlas</prefix> <tag>CALOIdentifierCaloTTOnOffIdMapAtlas-0002</tag>"]
-svcMgr.IOVDbSvc.overrideTags += ["<prefix>/LAR/Identifier/LArTTCellMapAtlas</prefix> <tag>LARIdentifierLArTTCellMapAtlas-HadFcalFix2</tag>"]
+#svcMgr.IOVDbSvc.overrideTags +=  ["<prefix>/CALO/Identifier/CaloTTOnOffIdMapAtlas</prefix> <tag>CALOIdentifierCaloTTOnOffIdMapAtlas-RUN2-0002</tag>"]
+svcMgr.IOVDbSvc.overrideTags += ["<prefix>/LAR/Identifier/LArTTCellMapAtlas</prefix> <tag>LARIdentifierLArTTCellMapAtlas-RUN2-HadFcalFix2</tag>"]
+from IOVDbSvc.CondDB import conddb
+conddb.addFolderWithTag("CALO_ONL", "/CALO/Identifier/CaloTTOnOffIdMapAtlas", "CALOIdentifierCaloTTOnOffIdMapAtlas-RUN2-0002", className="CaloTTOnOffIdMap")
+conddb.addFolderWithTag("CALO_ONL", "/CALO/Identifier/CaloTTOnAttrIdMapAtlas", "CALOIdentifierCaloTTOnAttrIdMapAtlas-RUN2-0001", className="CaloTTOnAttrIdMap")
+conddb.addFolderWithTag("CALO_ONL", "/CALO/Identifier/CaloTTPpmRxIdMapAtlas", "CALOIdentifierCaloTTPpmRxIdMapAtlas-RUN2-0000", className="CaloTTPpmRxIdMap")
 
 from LArCabling.LArCablingAccess import LArOnOffIdMapping
-LArOnOffMapping()
+LArOnOffIdMapping()
 
 # set up tools
 from TrigT1CaloTools.TrigT1CaloToolsConf import LVL1__L1TriggerTowerTool

@@ -75,5 +75,6 @@ private:
 
 #include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( LArTTCellMap,174159653,1)
-
+#include "AthenaKernel/CondCont.h"
+CONDCONT_DEF( LArTTCellMap , 127500719 );
 #endif 

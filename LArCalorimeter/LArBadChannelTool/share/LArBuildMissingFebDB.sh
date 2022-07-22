@@ -263,7 +263,6 @@ echo "$outputTextFile: Text version of the new bad channel list (read back from 
 
 echo "" 
 echo "Upload to OFFLINE oracle server using"
-echo "export COOL_FLASK=http://aiatlas001.cern.ch:5000"
 echo "/afs/cern.ch/user/a/atlcond/utilsflask/AtlCoolMerge.py --flask ${outputSqlite} CONDBR2 ATONR_COOLOFL_GPN ATLAS_COOLOFL_LAR_W <password>"
 echo ""
 if [ $online -eq 1 ]; then
