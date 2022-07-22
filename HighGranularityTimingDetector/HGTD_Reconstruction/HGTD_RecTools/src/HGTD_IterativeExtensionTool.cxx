@@ -153,6 +153,11 @@ HGTD_IterativeExtensionTool::extendTrackToHGTD(
     // find active surfaces in the vincinity
     auto compatible_surfaces = getCompatibleSurfaces(*extrap_result, layer);
 
+    if(compatible_surfaces.empty()){
+        ATH_MSG_WARNING("No compatible surfaces for position");
+        return result;
+    } 
+
     auto extrapolated_params =
         extrapolateToSurfaces(ctx, *last_param, compatible_surfaces);
 
@@ -217,7 +222,9 @@ HGTD_IterativeExtensionTool::getCompatibleSurfaces(
   Amg::Vector3D position = param.position();
   // get the surface at the point of extrapolation
   const auto* surface_arr = layer->surfaceArray(); // these are the modules
+  if(!surface_arr) return surfaces;
   const Trk::Surface* module_surface = surface_arr->object(position); // from this binned object, get the module closeby
+  if(!module_surface) return surfaces;
   surfaces.push_back(module_surface);
 
   // pick up additional surfaces in a 4cm radius
@@ -230,6 +237,7 @@ HGTD_IterativeExtensionTool::getCompatibleSurfaces(
     Amg::Vector3D delta(radius * std::cos(angle), radius * std::sin(angle), 0);
     Amg::Vector3D result = position + delta;
     const Trk::Surface* additional_surface = surface_arr->object(result);
+    if(!additional_surface) return surfaces;
     // check if surface was added to avoid duplicates
     if (std::find(surfaces.begin(), surfaces.end(), additional_surface) ==
         surfaces.end()) {
