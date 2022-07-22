@@ -5,6 +5,7 @@
 #ifndef JIVEXML__ONCRPCSERVERPROCS_H
 #define JIVEXML__ONCRPCSERVERPROCS_H
 
+#include <rpc/rpc.h>
 #include <string>
 
 /**
@@ -13,12 +14,6 @@
  * return them to the caller.
  */
 
-//forward declaration
-#ifndef __APPLE__
-struct SVCXPRT;
-#else
-#include <rpc/rpc.h>
-#endif
 struct EventRequest;
 struct Event;
 
