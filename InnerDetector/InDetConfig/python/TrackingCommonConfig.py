@@ -1,7 +1,6 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import BeamType
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 
 #######################################################################
