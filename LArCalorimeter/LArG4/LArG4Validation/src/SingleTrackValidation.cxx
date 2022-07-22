@@ -60,7 +60,7 @@ inline  int iabs (int a) { return (a>=0)? a : -a;}
 inline int getCpu() {
   int cpuTime = 0;
   {
-    static int ticksPerJiffy = sysconf(_SC_CLK_TCK)/100;
+    static const int ticksPerJiffy = sysconf(_SC_CLK_TCK)/100;
     struct tms buff{};
     times(&buff);
     cpuTime=(buff.tms_utime + buff.tms_stime + buff.tms_cutime + buff.tms_cstime)/ticksPerJiffy;
@@ -294,7 +294,7 @@ StatusCode SingleTrackValidation::execute() {
   fieldCondObj->getInitializedCache (fieldCache);
 
   // Get the MC Truth Information
-  const DataHandle<McEventCollection> mcEvent;
+  const McEventCollection* mcEvent;
   sc=stg->retrieve(mcEvent,"TruthEvent");
   if (sc.isFailure()) return StatusCode::SUCCESS;
   DataVector<HepMC::GenEvent>::const_iterator e;
@@ -338,10 +338,10 @@ StatusCode SingleTrackValidation::execute() {
     m_histos[157]->Fill( m_c->Energy = theParticle->momentum().e()/Units::GeV );
 
     // Make an extrapolator:
-    static const Genfun::AbsFunction  * Bx = new Genfun::AtlasBComponent(0,&fieldCache);
-    static const Genfun::AbsFunction  * By = new Genfun::AtlasBComponent(1,&fieldCache);
-    static const Genfun::AbsFunction  * Bz = new Genfun::AtlasBComponent(2,&fieldCache);
-    GeoXPEngine extrapolator(*Bx,*By,*Bz, origin, momentum, charge);
+    const Genfun::AtlasBComponent Bx(0,&fieldCache);
+    const Genfun::AtlasBComponent By(1,&fieldCache);
+    const Genfun::AtlasBComponent Bz(2,&fieldCache);
+    GeoXPEngine extrapolator(Bx, By, Bz, origin, momentum, charge);
 
     // Extrapolate to the first layer in the barrel:
     m_c->x = 0;
@@ -457,7 +457,7 @@ StatusCode SingleTrackValidation::execute() {
       }
 
       StatusCode status;
-      const DataHandle<LArHitContainer> iter;
+      const LArHitContainer* iter;
       status=stg->retrieve(iter,lArKey);
 
       if (status==StatusCode::SUCCESS) {

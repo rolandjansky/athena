@@ -37,7 +37,7 @@ namespace Genfun {
     // Changes from doubles to floats and back
     double XYZ_in_mm[3] , BXYZ_in_kgmm[3];
     for (int i=0;i<3;++i) *(XYZ_in_mm+i) = a[i];
-    m_fieldCache->getField( XYZ_in_mm , BXYZ_in_kgmm );
+    m_fieldCache->getField( XYZ_in_mm , BXYZ_in_kgmm ); // const-violation, see comment in header file
     return BXYZ_in_kgmm[m_index]*kilogauss;
   }
 
