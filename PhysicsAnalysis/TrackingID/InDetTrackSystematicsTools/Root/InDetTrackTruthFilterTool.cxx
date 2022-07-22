@@ -54,7 +54,7 @@ namespace InDet {
     declareProperty("fFromB", m_fFromB);
     declareProperty("trkEffSystScale", m_trkEffSystScale);
 
-    declareProperty("calibFileNomEff", m_calibFileNomEff = "InDetTrackSystematicsTools/CalibData_21.2_2018-v15/TrackingRecommendations_final_rel21.root");
+    declareProperty("calibFileNomEff", m_calibFileNomEff = "InDetTrackSystematicsTools/CalibData_22.0_2022-v00/TrackingRecommendations_prelim_rel22.root");
   }
 
   StatusCode InDetTrackTruthFilterTool::initialize() {
@@ -76,7 +76,7 @@ namespace InDet {
     ATH_CHECK ( initTrkEffSystHistogram( m_trkEffSystScale,
            m_trkEffHistLoosePhysModel,
            m_calibFileNomEff,
-           "OneMinusRatioEfficiencyVSEtaPt_AfterRebinning_NominalVSQGS_BIC_Loose") );
+           "OneMinusRatioEfficiencyVSEtaPt_AfterRebinning_NominalVSQGSP_BIC_Loose") );
     ATH_CHECK ( initTrkEffSystHistogram( m_trkEffSystScale,
            m_trkEffHistTightGlobal,
            m_calibFileNomEff,
@@ -92,7 +92,7 @@ namespace InDet {
     ATH_CHECK ( initTrkEffSystHistogram( m_trkEffSystScale,
            m_trkEffHistTightPhysModel,
            m_calibFileNomEff,
-           "OneMinusRatioEfficiencyVSEtaPt_AfterRebinning_NominalVSQGS_BIC_TightPrimary") );
+           "OneMinusRatioEfficiencyVSEtaPt_AfterRebinning_NominalVSQGSP_BIC_TightPrimary") );
 
     ATH_MSG_INFO( "Using for nominal track efficiency the calibration file " << PathResolverFindCalibFile(m_calibFileNomEff) );
 
