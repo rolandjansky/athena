@@ -387,6 +387,10 @@ namespace MuonHough {
             hist = new TH1F(histName, histName, 100, -25000, -6500);
         else if (region == 2)
             hist = new TH1F(histName, histName, 100, 6500, 25000);
+        if (not hist){
+          std::cout<<"No histogram created in LayerAnalysis::drawSector; returning"<<std::endl;
+          return;
+        }
         hist->SetMinimum(0);
         hist->SetMaximum(12000);
         hist->Draw();
