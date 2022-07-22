@@ -236,7 +236,8 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
   std::unordered_set<Identifier> foundPixels;
   // ============== ============== ============== ============== ============== ============== ============== ============== //
   // loop over the data in the fragment
-  for (uint32_t dataword_it = 0, nwords = robFrag->rod_ndata(); dataword_it < nwords; ++dataword_it) {
+  const int nwords = robFrag->rod_ndata();
+  for (int dataword_it = 0; dataword_it < nwords; ++dataword_it) {
     const uint32_t rawDataWord = vint[dataword_it];
     corruptionError = corruptionError || checkDataWordsCorruption( rawDataWord );
     uint32_t word_type = getDataType(rawDataWord, link_start);   // get type of data word
