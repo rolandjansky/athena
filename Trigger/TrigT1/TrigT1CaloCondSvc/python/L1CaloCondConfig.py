@@ -2,28 +2,28 @@
 
 import sys
 
-def L1CaloCondFoldersCfg(flags):
+def L1CaloCondFoldersCfg(flags, Physics, Calib1, Calib2):
 
         
         L1CaloFolders = {}
+        
+        if Physics:
+                L1CaloFolders['PprChanCalibV2Physics'] = '/TRIGGER/L1Calo/V2/Calibration/Physics/PprChanCalib'
+                L1CaloFolders['PprChanCommonV2Physics'] = '/TRIGGER/L1Calo/V2/Calibration/Physics/PprChanCommon'
+                L1CaloFolders['PprChanHighMuV2Physics'] = '/TRIGGER/L1Calo/V2/Calibration/Physics/PprChanHighMu'
+                L1CaloFolders['PprChanLowMuV2Physics'] = '/TRIGGER/L1Calo/V2/Calibration/Physics/PprChanLowMu'
+        if Calib1: 
+                L1CaloFolders['PprChanCalibV2Calib1'] = '/TRIGGER/L1Calo/V2/Calibration/Calib1/PprChanCalib'
+                L1CaloFolders['PprChanCommonV2Calib1'] = '/TRIGGER/L1Calo/V2/Calibration/Calib1/PprChanCommon'
+                L1CaloFolders['PprChanHighMuV2Calib1'] = '/TRIGGER/L1Calo/V2/Calibration/Calib1/PprChanHighMu'
+                L1CaloFolders['PprChanLowMuV2Calib1'] = '/TRIGGER/L1Calo/V2/Calibration/Calib1/PprChanLowMu'
+        if Calib2:
+                L1CaloFolders['PprChanCalibV2Calib2'] = '/TRIGGER/L1Calo/V2/Calibration/Calib2/PprChanCalib'
+                L1CaloFolders['PprChanCommonV2Calib2'] = '/TRIGGER/L1Calo/V2/Calibration/Calib2/PprChanCommon'
+                L1CaloFolders['PprChanHighMuV2Calib2'] = '/TRIGGER/L1Calo/V2/Calibration/Calib2/PprChanHighMu'
+                L1CaloFolders['PprChanLowMuV2Calib2'] = '/TRIGGER/L1Calo/V2/Calibration/Calib2/PprChanLowMu'
+
         L1CaloFolders['PprChanDefaultsV2'] = '/TRIGGER/L1Calo/V2/Configuration/PprChanDefaults'
-        
-        L1CaloFolders['PprChanCalibV2Physics'] = '/TRIGGER/L1Calo/V2/Calibration/Physics/PprChanCalib'
-        L1CaloFolders['PprChanCalibV2Calib1'] = '/TRIGGER/L1Calo/V2/Calibration/Calib1/PprChanCalib'
-        L1CaloFolders['PprChanCalibV2Calib2'] = '/TRIGGER/L1Calo/V2/Calibration/Calib2/PprChanCalib'
-        
-        L1CaloFolders['PprChanCommonV2Physics'] = '/TRIGGER/L1Calo/V2/Calibration/Physics/PprChanCommon'
-        L1CaloFolders['PprChanCommonV2Calib1'] = '/TRIGGER/L1Calo/V2/Calibration/Calib1/PprChanCommon'
-        L1CaloFolders['PprChanCommonV2Calib2'] = '/TRIGGER/L1Calo/V2/Calibration/Calib2/PprChanCommon'
-        
-        L1CaloFolders['PprChanHighMuV2Physics'] = '/TRIGGER/L1Calo/V2/Calibration/Physics/PprChanHighMu'
-        L1CaloFolders['PprChanHighMuV2Calib1'] = '/TRIGGER/L1Calo/V2/Calibration/Calib1/PprChanHighMu'
-        L1CaloFolders['PprChanHighMuV2Calib2'] = '/TRIGGER/L1Calo/V2/Calibration/Calib2/PprChanHighMu'
-        
-        L1CaloFolders['PprChanLowMuV2Physics'] = '/TRIGGER/L1Calo/V2/Calibration/Physics/PprChanLowMu'
-        L1CaloFolders['PprChanLowMuV2Calib1'] = '/TRIGGER/L1Calo/V2/Calibration/Calib1/PprChanLowMu'
-        L1CaloFolders['PprChanLowMuV2Calib2'] = '/TRIGGER/L1Calo/V2/Calibration/Calib2/PprChanLowMu'
-        
         L1CaloFolders['ReadoutConfig'] =  "/TRIGGER/L1Calo/V2/Configuration/ReadoutConfig"
         L1CaloFolders['ReadoutConfigJSON'] =  "/TRIGGER/L1Calo/V2/Configuration/ReadoutConfigJSON"
         L1CaloFolders['PprChanStrategy'] = "/TRIGGER/L1Calo/V2/Configuration/PprChanStrategy"
@@ -42,10 +42,10 @@ def L1CaloCondFoldersCfg(flags):
 
 
 
-def L1CaloCondAlgCfg(flags, readTest=False):
+def L1CaloCondAlgCfg(flags, readTest=False, Physics=True, Calib1=True, Calib2=True):
         
         from AthenaConfiguration.ComponentFactory import CompFactory
-        result = L1CaloCondFoldersCfg(flags)
+        result = L1CaloCondFoldersCfg(flags, Physics, Calib1, Calib2)
         result.addCondAlgo(CompFactory.L1CaloCondAlg(), 'AthAlgSeq')
         
         if readTest:
@@ -62,9 +62,9 @@ if __name__=="__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     
-    flags.Input.Files =  defaultTestFiles.RAW 
+    flags.Input.Files = defaultTestFiles.RAW 
     flags.Exec.MaxEvents = 1
-    flags.IOVDb.GlobalTag = 'CONDBR2-BLKPA-2018-14'
+    flags.IOVDb.GlobalTag = 'CONDBR2-BLKPA-2022-02'
     flags.GeoModel.AtlasVersion="ATLAS-R2-2015-03-01-00"
     flags.Trigger.enableL1CaloLegacy = True 
     
@@ -86,10 +86,10 @@ if __name__=="__main__":
     # timingRegime = "", strategy = "" are empty. Read it from DB directly 
     # readTest False, True execute L1CaloCondAlgReader  
     ####
-    acc.merge(L1CaloCondAlgCfg(flags))
+    acc.merge(L1CaloCondAlgCfg(flags, Physics=True, Calib1=False, Calib2=False))
 
     #Example ...
-    #acc.merge(L1CaloCondAlgCfg(flags,readTest=True))
+    #acc.merge(L1CaloCondAlgCfg(flags,readTest=True, Physics=True, Calib1=False, Calib2=False))
     #acc.getCondAlgo('L1CaloCondAlg').OutputLevel = 2
     #acc.getCondAlgo('L1CaloCondAlg').timingRegime = "Calib2"
     #acc.getCondAlgo('L1CaloCondAlg').strategy = "LowMu"
