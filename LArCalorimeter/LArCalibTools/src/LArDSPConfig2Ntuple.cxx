@@ -41,21 +41,9 @@ StatusCode LArDSPConfig2Ntuple::initialize() {
      return StatusCode::FAILURE;
    }
    
-   sc=m_nt->addItem("useHGIntercept",m_useHgIntercept);
-   if (sc!=StatusCode::SUCCESS) {
-     ATH_MSG_ERROR( "addItem useHGIntercept failed" );
-     return StatusCode::FAILURE;
-   }
-   
    sc=m_nt->addItem("useMGIntercept",m_useMgIntercept);
    if (sc!=StatusCode::SUCCESS) {
      ATH_MSG_ERROR( "addItem useMGIntercept failed" );
-     return StatusCode::FAILURE;
-   }
-   
-   sc=m_nt->addItem("useLGIntercept",m_useLgIntercept);
-   if (sc!=StatusCode::SUCCESS) {
-     ATH_MSG_ERROR( "addItem useLGIntercept failed" );
      return StatusCode::FAILURE;
    }
    

@@ -7,8 +7,13 @@ if 'inputtag' not in dir():
 if 'inputdb' not in dir():
    inputdb="COOLONL_LAR/CONDBR2"
 
+if 'RunNumber' not in dir():
+   RunNumber=9999999
+
+if 'OutputRootFile' not in dir():
+   OutputRootFile="DSPConfig.root"
+
 import AthenaCommon.AtlasUnixGeneratorJob #use MC event selector
-from string import split,join
 from time import time
 ## get a handle to the default top-level algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence 
@@ -21,7 +26,7 @@ globalflags.DataSource.set_Value_and_Lock('data')
 globalflags.InputFormat.set_Value_and_Lock('bytestream')
 globalflags.DatabaseInstance.set_Value_and_Lock("CONDBR2")
 from AthenaCommon.JobProperties import jobproperties
-jobproperties.Global.DetDescrVersion = "ATLAS-GEO-20-00-00"
+jobproperties.Global.DetDescrVersion = "ATLAS-R2-2016-01-00-01"
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.Calo_setOff()
@@ -41,12 +46,12 @@ svcMgr.IOVDbSvc.GlobalTag="LARCALIB-RUN2-00"
 include( "LArConditionsCommon/LArIdMap_comm_jobOptions.py" )
 
 theApp.EvtMax = 1
-svcMgr.EventSelector.RunNumber = 500000
+svcMgr.EventSelector.RunNumber = RunNumber
 svcMgr.EventSelector.InitialTimeStamp=int(time())
 dbname="<db>COOLOFL_LAR/CONDBR2</db>"
 
-conddb.addFolder("","/LAR/BadChannelsOfl/BadChannels<key>/LAR/BadChannels/BadChannels</key>"+dbname)
-conddb.addFolder("","/LAR/BadChannelsOfl/MissingFEBs<key>/LAR/BadChannels/MissingFEBs</key>"+dbname)
+from LArBadChannelTool.LArBadChannelAccess import LArBadChannelAccess
+LArBadChannelAccess()
 conddb.addFolder("",inputfolder+"<db>"+inputdb+"</db>")
 
 
@@ -67,7 +72,7 @@ topSequence+=theLArDSPConfig2Ntuple
 theApp.HistogramPersistency = "ROOT"
 from GaudiSvc.GaudiSvcConf import NTupleSvc
 svcMgr += NTupleSvc()
-svcMgr.NTupleSvc.Output = [ "FILE1 DATAFILE='DSPConfig.root' OPT='NEW'" ]
+svcMgr.NTupleSvc.Output = [ "FILE1 DATAFILE='"+OutputRootFile+"' OPT='NEW'" ]
 
 #svcMgr.DetectorStore.Dump=True
 svcMgr.MessageSvc.OutputLevel = INFO

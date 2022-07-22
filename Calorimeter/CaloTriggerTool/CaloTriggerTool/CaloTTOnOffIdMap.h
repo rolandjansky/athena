@@ -65,5 +65,7 @@ private:
 
 #include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( CaloTTOnOffIdMap,267570070,1)
+#include "AthenaKernel/CondCont.h"
+CONDCONT_DEF( CaloTTOnOffIdMap , 24714938 );
 
 #endif
