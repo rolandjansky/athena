@@ -6,7 +6,7 @@
 #    updates to LHE handling and SUSY functionality by Emma Kuwertz <ekuwertz@cern.ch>
 #  Attempts to remove path-dependence of MadGraph
 
-import os,time,subprocess,shutil,glob,re
+import os,time,subprocess,glob,re
 from AthenaCommon import Logging
 mglog = Logging.logging.getLogger('MadGraphUtils')
 
@@ -21,35 +21,16 @@ MADGRAPH_CATCH_ERRORS=True
 # PDF setting (global setting)
 MADGRAPH_PDFSETTING=None
 MADGRAPH_COMMAND_STACK = []
+
+if 'PYTHONPATH' in os.environ and '/cvmfs/atlas.cern.ch/repo/sw/Generators/madgraph/models/latest/shutil_patch' not in os.environ['PYTHONPATH']:
+    # add shutil_patch in first place so that the patched version of shutil.py is picked up by MG instead of original version
+    # the patched version does not throw the errors that has made running MG and this code impossible on some file systems
+    os.environ['PYTHONPATH'] = '/cvmfs/atlas.cern.ch/repo/sw/Generators/madgraph/models/latest/shutil_patch:'+os.environ['PYTHONPATH']
+    MADGRAPH_COMMAND_STACK += ['export PYTHONPATH=/cvmfs/atlas.cern.ch/repo/sw/Generators/madgraph/models/latest/shutil_patch:${PYTHONPATH}']
+import shutil
+
 from MadGraphControl.MadGraphUtilsHelpers import checkSettingExists,checkSetting,checkSettingIsTrue,getDictFromCard,get_runArgs_info,get_physics_short,is_version_or_newer
 from MadGraphControl.MadGraphParamHelpers import do_PMG_updates,check_PMG_updates
-
-# Fix copy-from-cvfms issue resulting in "no space left on device" error
-if hasattr(os, 'listxattr'):                                                                                                                     
-    import errno                                                                                                                                   
-    def _copyxattr(src, dst, *, follow_symlinks=True):                                                                         
-        """Copy extended filesystem attributes from `src` to `dst`.
-        Overwrite existing attributes.
-        If `follow_symlinks` is false, symlinks won't be followed.
-        """
-        try:
-            names = os.listxattr(src, follow_symlinks=follow_symlinks)
-        except OSError as e:
-            if e.errno not in (errno.ENOTSUP, errno.ENODATA, errno.EINVAL):
-                raise
-            return
-        for name in names:
-            try:
-                value = os.getxattr(src, name, follow_symlinks=follow_symlinks)
-                os.setxattr(dst, name, value, follow_symlinks=follow_symlinks)
-            except OSError as e:
-                if e.errno not in (errno.EPERM, errno.ENOTSUP, errno.ENODATA,errno.EINVAL, errno.ENOSPC):
-                    raise
-else:
-    def _copyxattr(*args, **kwargs):
-        pass
-
-shutil._copyxattr = _copyxattr
 
 def stack_subprocess(command,**kwargs):
     global MADGRAPH_COMMAND_STACK
@@ -64,10 +45,6 @@ def setup_path_protection():
         if 'Generators/madgraph/models' not in os.environ['PYTHONPATH']:
             os.environ['PYTHONPATH'] += ':/cvmfs/atlas.cern.ch/repo/sw/Generators/madgraph/models/latest'
             MADGRAPH_COMMAND_STACK += ['export PYTHONPATH=${PYTHONPATH}:/cvmfs/atlas.cern.ch/repo/sw/Generators/madgraph/models/latest']
-            # add shutil_patch in first place so that the patched version of shutil.py is picked up by MG instead of original version
-            # the patched version does not throw the no-space-left-on-device error that has made running MG impossible on some file systems
-            os.environ['PYTHONPATH'] = '/cvmfs/atlas.cern.ch/repo/sw/Generators/madgraph/models/latest/shutil_patch:'+os.environ['PYTHONPATH']
-            MADGRAPH_COMMAND_STACK += ['export PYTHONPATH=/cvmfs/atlas.cern.ch/repo/sw/Generators/madgraph/models/latest/shutil_patch:${PYTHONPATH}']
     # Make sure that gfortran doesn't write to somewhere it shouldn't
     if 'GFORTRAN_TMPDIR' in os.environ:
         return
