@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file  DataModelAthenaPool/test/ElementLinkCnv_p1_test.cxx
@@ -38,21 +38,22 @@ CLASS_DEF (MyVI, 104857385, 1)
 typedef ElementLink<MyVI> ELI;
 
 
-void test1()
+void test1 (SGTest::TestStore& store)
 {
   std::cout << "test1\n";
   MsgStream log (0, "test");
+  SG::sgkey_t sgkey = store.stringToKey ("key", ClassID_traits<MyVI>::ID());
+
   ElementLinkCnv_p1<ELI> cnv;
   ELI el1 ("key", 23);
   ElementLinkCnv_p1<ELI>::PersLink_t p1;
   cnv.transToPers (el1, p1, log);
   assert (p1.m_elementIndex == 23);
-  assert (p1.m_SGKeyHash == 152280269);
   assert (p1.m_contName.empty());
   ELI el2;
   cnv.persToTrans (p1, el2, log);
   assert (el1.index() == el2.index());
-  assert (el1.key() == el2.key());
+  assert (SG::sgkeyEqual (el1.key(), el2.key()));
 
   SG::ThinningDecisionBase dec;
   dec.resize (50);
@@ -66,13 +67,13 @@ void test1()
                      &dec);
   cnv.transToPers (el1, p1, &cache, log);
   assert (p1.m_elementIndex == 22);
-  assert (p1.m_SGKeyHash == 152280269);
+  assert (p1.m_SGKeyHash == sgkey);
   assert (p1.m_contName.empty());
 
   ELI el3 ("key", 5);
   cnv.transToPers (el3, p1, &cache, log);
   assert (p1.m_elementIndex == 5);
-  assert (p1.m_SGKeyHash == 152280269);
+  assert (p1.m_SGKeyHash == sgkey);
   assert (p1.m_contName.empty());
 }
 
@@ -81,6 +82,6 @@ int main()
 {
   std::cout << "DataModelAthenaPool/ElementLinkCnv_p1_test\n";
   std::unique_ptr<SGTest::TestStore> testStore = SGTest::getTestStore();
-  test1();
+  test1 (*testStore);
   return 0;
 }

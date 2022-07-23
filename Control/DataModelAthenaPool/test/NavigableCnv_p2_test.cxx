@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file  DataModelAthenaPool/test/NavigableCnv_p2_test.cxx
@@ -41,10 +41,12 @@ typedef Navigable<MyVI> NI;
 typedef Navigable<MyVI, int> NIpar;
 
 
-void test1()
+void test1 (SGTest::TestStore& store)
 {
   std::cout << "test1\n";
   MsgStream log (0, "test");
+  SG::sgkey_t sgkey = store.stringToKey ("key", ClassID_traits<MyVI>::ID());
+
   NavigableCnv_p2<NI> cnv;
   NI ni1;
   ni1.insertElement (ElementLink<MyVI> ("key", 10));
@@ -53,9 +55,9 @@ void test1()
   cnv.transToPers (ni1, p1, log);
   assert (p1.m_links.size() == 2);
   assert (p1.m_links[0].m_elementIndex == 10);
-  assert (p1.m_links[0].m_SGKeyHash == 152280269);
+  assert (p1.m_links[0].m_SGKeyHash == sgkey);
   assert (p1.m_links[1].m_elementIndex == 20);
-  assert (p1.m_links[1].m_SGKeyHash == 152280269);
+  assert (p1.m_links[1].m_SGKeyHash == sgkey);
   NI ni2;
   cnv.persToTrans (p1, ni2, log);
   assert (ni2.size() == 2);
@@ -81,14 +83,16 @@ void test1()
   assert (p1.m_links[0].m_elementIndex == 0);
   assert (p1.m_links[0].m_SGKeyHash == 0);
   assert (p1.m_links[1].m_elementIndex == 19);
-  assert (p1.m_links[1].m_SGKeyHash == 152280269);
+  assert (p1.m_links[1].m_SGKeyHash == sgkey);
 }
 
 
-void test2()
+void test2 (SGTest::TestStore& store)
 {
   std::cout << "test2\n";
   MsgStream log (0, "test");
+  SG::sgkey_t sgkey = store.stringToKey ("key", ClassID_traits<MyVI>::ID());
+
   NavigableCnv_p2<NIpar> cnv;
   NIpar ni1;
   ni1.insertElement (ElementLink<MyVI> ("key", 10), 101);
@@ -97,9 +101,9 @@ void test2()
   cnv.transToPers (ni1, p1, log);
   assert (p1.m_links.size() == 2);
   assert (p1.m_links[0].m_elementIndex == 10);
-  assert (p1.m_links[0].m_SGKeyHash == 152280269);
+  assert (p1.m_links[0].m_SGKeyHash == sgkey);
   assert (p1.m_links[1].m_elementIndex == 20);
-  assert (p1.m_links[1].m_SGKeyHash == 152280269);
+  assert (p1.m_links[1].m_SGKeyHash == sgkey);
   assert (p1.m_parameters.size() == 2);
   assert (p1.m_parameters[0] == 101);
   assert (p1.m_parameters[1] == 102);
@@ -130,7 +134,7 @@ void test2()
   assert (p1.m_links[0].m_elementIndex == 0);
   assert (p1.m_links[0].m_SGKeyHash == 0);
   assert (p1.m_links[1].m_elementIndex == 19);
-  assert (p1.m_links[1].m_SGKeyHash == 152280269);
+  assert (p1.m_links[1].m_SGKeyHash == sgkey);
   assert (p1.m_parameters.size() == 2);
   assert (p1.m_parameters[0] == 101);
   assert (p1.m_parameters[1] == 102);
@@ -141,7 +145,7 @@ int main()
 {
   std::cout << "DataModelAthenaPool/NavigableCnv_p2_test\n";
   std::unique_ptr<SGTest::TestStore> testStore = SGTest::getTestStore();
-  test1();
-  test2();
+  test1 (*testStore);
+  test2 (*testStore);
   return 0;
 }
