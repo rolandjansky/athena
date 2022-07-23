@@ -11,11 +11,13 @@
 #include <AsgAnalysisAlgorithms/AsgFlagSelectionTool.h>
 #include <AsgAnalysisAlgorithms/AsgPtEtaSelectionTool.h>
 #include <AsgAnalysisAlgorithms/AsgClassificationDecorationAlg.h>
+#include <AsgAnalysisAlgorithms/AsgPriorityDecorationAlg.h>
 #include <AsgAnalysisAlgorithms/AsgCutBookkeeperAlg.h>
 #include <AsgAnalysisAlgorithms/AsgEventScaleFactorAlg.h>
 #include <AsgAnalysisAlgorithms/AsgLeptonTrackSelectionAlg.h>
 #include <AsgAnalysisAlgorithms/AsgOriginalObjectLinkAlg.h>
 #include <AsgAnalysisAlgorithms/AsgSelectionAlg.h>
+#include <AsgAnalysisAlgorithms/AsgUnionSelectionAlg.h>
 #include <AsgAnalysisAlgorithms/AsgViewFromSelectionAlg.h>
 #include <AsgAnalysisAlgorithms/AsgxAODNTupleMakerAlg.h>
 #include <AsgAnalysisAlgorithms/EventFlagSelectionAlg.h>

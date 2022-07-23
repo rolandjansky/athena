@@ -236,7 +236,6 @@ def makeMuonWorkingPointSequence( seq, dataType, workingPoint, postfix = '',
     # Set up an algorithm used for decorating baseline muon selection:
     alg = createAlgorithm( 'CP::AsgSelectionAlg',
                            'MuonSelectionSummary' + postfix )
-    addPrivateTool( alg, 'selectionTool', 'CP::AsgFlagSelectionTool' )
     alg.selectionDecoration = 'baselineSelection' + postfix + ',as_char'
     seq.append( alg, inputPropName = 'particles',
                 stageName = 'selection',
