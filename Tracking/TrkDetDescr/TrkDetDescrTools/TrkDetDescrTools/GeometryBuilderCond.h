@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -55,25 +55,28 @@ namespace Trk {
         virtual ~GeometryBuilderCond();
 
         /** AlgTool initialize method */
-        StatusCode initialize();
+        virtual StatusCode initialize() override;
 
         /** 
          * TrackingGeometry Interface method - optionally a pointer to Bounds
          * Interface marked as not thread safe
          */
-        std::pair<EventIDRange, Trk::TrackingGeometry*> trackingGeometry
+        virtual
+        std::unique_ptr<Trk::TrackingGeometry> trackingGeometry
         ATLAS_NOT_THREAD_SAFE(
           const EventContext& ctx,
-          std::pair<EventIDRange, const Trk::TrackingVolume*> tVolPair) const;
+          const Trk::TrackingVolume* tVol,
+          SG::WriteCondHandle<TrackingGeometry>& whandle) const override;
 
         /** The unique signature */
-        GeometrySignature geometrySignature() const { return Trk::Global; }
+        virtual GeometrySignature geometrySignature() const override { return Trk::Global; }
 
       private:
 
         /** TrackingGeometry for ATLAS setup */
-        std::pair<EventIDRange, Trk::TrackingGeometry*>
-          atlasTrackingGeometry ATLAS_NOT_THREAD_SAFE (const EventContext& ctx) const;
+        std::unique_ptr<Trk::TrackingGeometry>
+          atlasTrackingGeometry ATLAS_NOT_THREAD_SAFE (const EventContext& ctx,
+                                                       SG::WriteCondHandle<TrackingGeometry>& whandle) const;
 
 #ifdef TRKDETDESCR_MEMUSAGE         
         MemoryLogger                        m_memoryLogger;                //!< in case the memory is logged

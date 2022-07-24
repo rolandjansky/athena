@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTRACKINGGEOMETRY_MUONSTATIONBUILDERCOND_H
@@ -44,10 +44,13 @@ namespace Muon {
     public:
         MuonStationBuilderCond(const std::string&, const std::string&, const IInterface*);
         virtual ~MuonStationBuilderCond() = default;
-        StatusCode initialize() override;
+        virtual StatusCode initialize() override;
 
-        std::pair<EventIDRange, std::unique_ptr<const std::vector<std::unique_ptr<const Trk::DetachedTrackingVolume>>>>
-        buildDetachedTrackingVolumes(const EventContext& ctx, bool blend = false) const override;
+        virtual
+        std::unique_ptr<const std::vector<std::unique_ptr<const Trk::DetachedTrackingVolume>>>
+        buildDetachedTrackingVolumes(const EventContext& ctx,
+                                     SG::WriteCondHandle<Trk::TrackingGeometry>& whandle,
+                                     bool blend = false) const override;
 
     private:
         ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};

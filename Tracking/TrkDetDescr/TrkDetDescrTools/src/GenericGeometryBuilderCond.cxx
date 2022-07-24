@@ -86,17 +86,15 @@ StatusCode Trk::GenericGeometryBuilderCond::initialize()
     return StatusCode::SUCCESS;
 }
 
-std::pair<EventIDRange, Trk::TrackingGeometry*>
+std::unique_ptr<Trk::TrackingGeometry>
 Trk::GenericGeometryBuilderCond::trackingGeometry(
   const EventContext& /*ctx*/,
-  std::pair<EventIDRange, const Trk::TrackingVolume*> innerVolPair) const
+  const Trk::TrackingVolume* innerVol,
+  SG::WriteCondHandle<TrackingGeometry>& /*whandle*/) const
 {
 
     ATH_MSG_VERBOSE("Starting to build TrackingGeometry for GeometrySignature : " << m_geometrySignature );
 
-    // the geometry to be constructed
-    Trk::TrackingGeometry* tGeometry = nullptr;
-    
     double innerVolumeRadius             = 0.;
     double innerVolumeHalfZ              = 0.;
     double enclosingVolumeRadius         = 0.;
@@ -116,9 +114,7 @@ Trk::GenericGeometryBuilderCond::trackingGeometry(
     const auto addId=trk2DetDesc.find(m_geometrySignature);
     if (addId==trk2DetDesc.end()) {
       ATH_MSG_WARNING("No geometry signature found, return 0.");
-      //dummy infinite range
-      EventIDRange range=IOVInfiniteRange::infiniteMixed();
-      return std::make_pair(range,tGeometry);
+      return nullptr;
     }
 
     const RZPairVector& envelopeDefs=m_enclosingEnvelopeSvc->getRZBoundary(addId->second);
@@ -166,9 +162,7 @@ Trk::GenericGeometryBuilderCond::trackingGeometry(
 
     // get the inner radius and half length if a volume is provided
     const Trk::CylinderVolumeBounds* cvb = nullptr;
-    const Trk::TrackingVolume* innerVol = innerVolPair.second;
     if (innerVol){
-        range = innerVolPair.first;
         cvb = dynamic_cast<const Trk::CylinderVolumeBounds*>(&(innerVol->volumeBounds()));
         if (cvb){
             innerVolumeRadius = cvb->outerRadius();
@@ -281,12 +275,10 @@ Trk::GenericGeometryBuilderCond::trackingGeometry(
                                                                                           m_geometryName+"::Container");                                                                                      
     // now create the TrackingGeometry from the highest volume
     if (tVolume) {
-      tGeometry = new Trk::TrackingGeometry(tVolume);
-      tGeometry->indexStaticLayers(geometrySignature());   
+      auto tGeometry = std::make_unique<Trk::TrackingGeometry>(tVolume);
+      tGeometry->indexStaticLayers(geometrySignature());
+      return tGeometry;
     }
-
-
-    return std::make_pair(range, tGeometry);
-
+    return nullptr;
 }
 

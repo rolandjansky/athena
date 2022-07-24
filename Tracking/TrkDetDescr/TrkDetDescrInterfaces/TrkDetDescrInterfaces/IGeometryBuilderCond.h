@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -15,6 +15,7 @@
 // Trk - enum
 #include "TrkDetDescrUtils/GeometrySignature.h"
 #include "TrkSurfaces/Surface.h"
+#include "StoreGate/WriteCondHandle.h"
 
 // STL
 #include <vector>
@@ -55,15 +56,14 @@ public:
 
   /** TrackingGeometry Interface methode -
    *   - Event context
-   *   - pair with EventIDRange and corresponding TrackingVolume, from which
-   *     we retrieve the volume to wrap the TrackingGeometry around. If
-   *     TrackingGeometry is nullptr, range should be infinite (so
-   *     intersecting with another range has no effect)
+   *   - corresponding TrackingVolume, from which
+   *     we retrieve the volume to wrap the TrackingGeometry around.
    */
-  virtual std::pair<EventIDRange, TrackingGeometry*> trackingGeometry
+  virtual std::unique_ptr<TrackingGeometry> trackingGeometry
   ATLAS_NOT_THREAD_SAFE(
     const EventContext& ctx,
-    std::pair<EventIDRange, const Trk::TrackingVolume*> tVolPair) const = 0;
+    const Trk::TrackingVolume* tVol,
+    SG::WriteCondHandle<TrackingGeometry>& whandle) const = 0;
 
   /** The unique signature */
   virtual GeometrySignature geometrySignature() const = 0;

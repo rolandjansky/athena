@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,12 +13,14 @@
 #include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/EventIDRange.h"
+#include "StoreGate/WriteCondHandle.h"
 // STL
 #include <vector>
 
 namespace Trk {
 
   class DetachedTrackingVolume;
+  class TrackingGeometry;
  
   /** Interface ID for IDetachedTrackingVolumeBuilderConds*/  
   static const InterfaceID IID_IDetachedTrackingVolumeBuilderCond("IDetachedTrackingVolumeBuilderCond", 1, 0);
@@ -39,7 +41,10 @@ namespace Trk {
       /** AlgTool and IAlgTool interface methods */
       static const InterfaceID& interfaceID() { return IID_IDetachedTrackingVolumeBuilderCond; }
 
-      virtual std::pair<EventIDRange, std::unique_ptr<const std::vector<std::unique_ptr<const DetachedTrackingVolume> > > > buildDetachedTrackingVolumes(const EventContext& ctx, bool blend=false ) const = 0 ;
+      virtual std::unique_ptr<const std::vector<std::unique_ptr<const DetachedTrackingVolume> > >
+      buildDetachedTrackingVolumes(const EventContext& ctx,
+                                   SG::WriteCondHandle<TrackingGeometry>& whandle,
+                                   bool blend=false ) const = 0 ;
     
   };
 

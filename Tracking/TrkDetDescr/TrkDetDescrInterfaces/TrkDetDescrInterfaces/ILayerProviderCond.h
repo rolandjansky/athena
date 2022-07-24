@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,6 +13,7 @@
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/EventIDRange.h"
 #include "GaudiKernel/IAlgTool.h"
+#include "StoreGate/WriteCondHandle.h"
 // STL
 #include <string>
 #include <vector>
@@ -20,6 +21,7 @@
 namespace Trk {
 
 class Layer;
+class TrackingGeometry;
 
 /** Interface ID for ILayerProviderConds*/
 static const InterfaceID IID_ILayerProviderCond("ILayerProviderCond", 1, 0);
@@ -42,11 +44,14 @@ public:
   static const InterfaceID& interfaceID() { return IID_ILayerProviderCond; }
 
   /** LayerBuilder interface method - returning the endcap layer */
-  virtual std::tuple<EventIDRange, const std::vector<Layer*>, const std::vector<Layer*> > endcapLayer(const EventContext& ctx) const = 0;
+  virtual std::pair<const std::vector<Layer*>, const std::vector<Layer*> >
+  endcapLayer(const EventContext& ctx,
+              SG::WriteCondHandle<TrackingGeometry>& whandle) const = 0;
 
   /** LayerBuilder interface method - returning the central layers */
-  virtual std::pair<EventIDRange, const std::vector<Layer*>>
-  centralLayers(const EventContext& ctx) const = 0;
+  virtual const std::vector<Layer*>
+  centralLayers(const EventContext& ctx,
+                SG::WriteCondHandle<TrackingGeometry>& whandle) const = 0;
 
   /** Name identification */
   virtual const std::string& identification() const = 0;
