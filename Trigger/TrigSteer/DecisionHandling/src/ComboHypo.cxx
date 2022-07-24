@@ -402,7 +402,7 @@ StatusCode ComboHypo::extractFeatureAndRoI(const HLT::Identifier& chainLegId,
   }
   const NavGraphNode* start = *(subGraph.finalNodes().begin());
 
-  std::vector<uint32_t> keys;
+  std::vector<SG::sgkey_t> keys;
   std::vector<uint32_t> clids; // We don't care about the class ID. This part gets ignored.
   std::vector<uint16_t> indicies;
   std::vector<const Decision*> sources;
