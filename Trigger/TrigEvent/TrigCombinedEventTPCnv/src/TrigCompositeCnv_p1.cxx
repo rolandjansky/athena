@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigCombinedEvent/TrigComposite.h"
@@ -86,7 +86,7 @@ void copyDetails2Trans(const std::vector<std::string>& keys, const std::vector<T
   typename std::vector<T>::const_iterator vi = values.begin();
   std::vector<std::string>::const_iterator ki =  keys.begin();
   
-  for ( ;  vi != values.end() and ki != keys.end(); ki++, vi++ )
+  for ( ;  vi != values.end() and ki != keys.end(); ++ki, ++vi )
     trans->addDetail(*ki, *vi);  
 }
 
@@ -119,7 +119,7 @@ void TrigCompositeCnv_p1::persToTrans(const TrigComposite_p1* pers,
       std::vector<uint32_t>::const_iterator    indexIt = pers->m_indexes.begin();
       
       
-      for (  ; labelIt != pers->m_labels.end(); clidIt++, indexIt++, colIt++, labelIt++ ){                  
+      for (  ; labelIt != pers->m_labels.end(); ++clidIt, ++indexIt, ++colIt, ++labelIt ){
 	trans->addObject(*labelIt, TrigFeatureLink(*clidIt, *colIt, *indexIt));      
       }  	
     }else{
