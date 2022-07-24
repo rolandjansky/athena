@@ -23,7 +23,7 @@ namespace MuonPRDTest {
         unsigned int n_hits{0};
         // Get the sTGC Id hit helper
         const sTgcHitIdHelper* stgchhelper = sTgcHitIdHelper::GetHelper();
-
+        const Amg::Vector3D dummyVector(-9999.9, 0.0, 0.0);
         if (!stgcContainer->size()) ATH_MSG_DEBUG("sTGC Sim container is empty");
         for (const sTGCSimHit& hit : *stgcContainer) {
             if(hit.depositEnergy()==0.) continue; // SimHits without energy loss are not recorded. 
@@ -109,7 +109,7 @@ namespace MuonPRDTest {
                 const  Amg::Vector3D& globalPrePosition = hit.globalPrePosition();
                 m_NSWsTGC_hitGlobalPrePosition.push_back(globalPrePosition);
                 if (hit.kineticEnergy() < 0.0) {
-                    m_NSWsTGC_hitGlobalPrePosition.push_back(-9999.9);
+                    m_NSWsTGC_hitGlobalPrePosition.push_back(dummyVector);
                 }
 
                 ATH_MSG_DEBUG("sTGC geometry, retrieving detector element for: isSmall " << isSmall << " eta " << idHelperSvc()->stgcIdHelper().stationEta(offId)

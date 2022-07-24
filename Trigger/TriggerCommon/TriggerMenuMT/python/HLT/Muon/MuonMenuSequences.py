@@ -33,6 +33,7 @@ from DecisionHandling.DecisionHandlingConf import ViewCreatorInitialROITool, Vie
 #muon container names (for RoI based sequences)
 from .MuonRecoSequences import muonNames
 muNames = muonNames().getNames('RoI')
+muNamesFS = muonNames().getNames('FS')
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 #-----------------------------------------------------#
@@ -702,7 +703,7 @@ def muEFCBFSAlgSequence(ConfigFlags):
     muonMerger = MergeEFMuonsAlg("MergeEFCBFSMuons")
     muonMerger.MuonCBContainerLocation = sequenceOutCB
     muonMerger.MuonInsideOutContainerLocation = sequenceOutInsideOut
-    muonMerger.MuonOutputLocation = muNames.EFCBName
+    muonMerger.MuonOutputLocation = muNamesFS.EFCBName
     sequenceOut = muonMerger.MuonOutputLocation
 
     #Add merging alg in seq with reco seq

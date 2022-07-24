@@ -32,7 +32,7 @@ Interface definition for eFEXtauAlgo
     virtual void setup(int inputTable[3][3], int efex_id, int fpga_id, int central_eta) = 0;
     
     virtual bool isCentralTowerSeed() = 0;
-    virtual eFEXtauTOB* getTauTOB() = 0;
+    virtual std::unique_ptr<eFEXtauTOB> getTauTOB() = 0;
     virtual unsigned int rCoreCore() = 0;
     virtual unsigned int rCoreEnv() = 0;
     virtual void getRCore(std::vector<unsigned int> & rCoreVec) = 0;

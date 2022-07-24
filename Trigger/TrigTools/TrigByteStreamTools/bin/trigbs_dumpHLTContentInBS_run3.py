@@ -50,6 +50,9 @@ def get_parser():
     parser.add_argument('--confKeys',
                         action='store_true', default=False,
                         help='dump TrigConfKeys stored in the events; implies --hltres')
+    parser.add_argument('--runtimeMetadata',
+                        action='store_true', default=False,
+                        help='dump HLT_RuntimeMetadata stored in the events; implies --hltres')
     return parser
 
 
@@ -165,7 +168,7 @@ def hlt_rod_minor_version_from_event(event):
             return hlt_rod_minor_version(rob)
 
 
-def hlt_result(event, print_sizes=False, conf_keys=False):
+def hlt_result(event, print_sizes=False, conf_keys=False, runtime_metadata=False):
     num_hlt_robs = 0
     info_str = ""
     for rob in event.children():
@@ -179,10 +182,10 @@ def hlt_result(event, print_sizes=False, conf_keys=False):
             f'{version[0]:d}.{version[1]:d}',
             rob.fragment_size_word()*4
         )
-        if print_sizes or conf_keys:
+        if print_sizes or conf_keys or runtime_metadata:
             if version[0] < 1:
                 raise RuntimeError('Cannot decode data from before Run 3, HLT ROD minor version needs to be >= 1.0')
-            skip_payload = not conf_keys
+            skip_payload = not conf_keys and not runtime_metadata
             collections = hltResultMT.get_collections(rob, skip_payload=skip_payload)
             if conf_keys:
                 conf_list = [c for c in collections if 'xAOD::TrigConfKeys_v' in c.name_persistent]
@@ -197,6 +200,19 @@ def hlt_result(event, print_sizes=False, conf_keys=False):
                         conf_obj.smk(), conf_obj.l1psk(), conf_obj.hltpsk())
                 if not conf_available:
                     info_str += '\n---- TrigConfKeys unavailable in this ROB'
+            if runtime_metadata:
+                decorations = ['hostname']
+                meta_list = [c for c in collections if any([f'RuntimeMetadataAux.{decor}' in c.name() for decor in decorations])]
+                meta_available = False
+                for meta in meta_list:
+                    meta_obj = meta.deserialise()
+                    if not meta_obj:
+                        continue
+                    meta_available = True
+                    info_str += '\n---- RuntimeMetadata {:s}: {:s}'.format(
+                        meta.name_key, meta_obj.at(0))
+                if not meta_available:
+                    info_str += '\n---- RuntimeMetadata unavailable in this ROB'
             if print_sizes:
                 for coll in collections:
                     indent = '----' if not coll.is_xAOD_decoration() else '------'
@@ -295,8 +311,8 @@ def dump_info(bsfile, args):
             print(stream_tags(event))
 
         # HLT Result
-        if args.efres or args.sizes or args.confKeys:
-            print(hlt_result(event, args.sizes, args.confKeys))
+        if args.efres or args.sizes or args.confKeys or args.runtimeMetadata:
+            print(hlt_result(event, args.sizes, args.confKeys, args.runtimeMetadata))
 
     # Size summary (after the loop over events)
     if args.sizeSummary:

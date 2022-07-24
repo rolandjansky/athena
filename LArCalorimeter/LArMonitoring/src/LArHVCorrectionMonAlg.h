@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -69,11 +69,6 @@ class LArHVCorrectionMonAlg: public AthMonitorAlgorithm
   // services
   const LArOnlineID* m_LArOnlineIDHelper;
   const CaloIdManager*       m_caloIdMgr;
-
-  // Other things
-  // FIXME: How to find new LB, and fill only once per LB ?
-  mutable std::set<unsigned int> m_filledLB ATLAS_THREAD_SAFE;
-  mutable std::mutex m_mut ATLAS_THREAD_SAFE;
 
 };
 

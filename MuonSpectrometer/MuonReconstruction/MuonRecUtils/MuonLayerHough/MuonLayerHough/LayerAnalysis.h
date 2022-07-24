@@ -84,7 +84,7 @@ namespace MuonHough {
         TH1F* m_h_expt_MI_e_truth{};
         TH1F* m_h_expt_MO_e_truth{};
         TH1F* m_h_expt_MI_b_truth{};
-        TH1F* m_h_expt_MO_b_truth;
+        TH1F* m_h_expt_MO_b_truth{};
         TH1F* m_h_comp_MI_e{};
         TH1F* m_h_comp_MO_e{};
         TH1F* m_h_comp_MI_b{};

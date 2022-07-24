@@ -207,7 +207,7 @@ InDetPerfPlot_Hits::fill(const xAOD::TrackParticle& track, float mu, float weigh
     fillHisto(m_nSCTHoles_vs_etaphi, eta, phi, iSCTHoles, weight);
     if (m_iDetailLevel >= 100) fillHisto(m_nSCTHoles_vs_mu, mu, iSCTHoles, weight);
   }
-  if (track.summaryValue(iTrtHTHits, xAOD::numberOfTRTHighThresholdHits)) {
+  if (track.summaryValue(iTrtHTHits, xAOD::numberOfTRTHighThresholdHitsTotal)) {
     fillHisto(m_nTRTHighThresholdHits, iTrtHTHits, weight);
     fillHisto(m_nTRTHighThresholdHits_vs_eta, eta, iTrtHTHits, weight);
     fillHisto(m_nTRTHighThresholdHits_vs_phi, phi, iTrtHTHits, weight);

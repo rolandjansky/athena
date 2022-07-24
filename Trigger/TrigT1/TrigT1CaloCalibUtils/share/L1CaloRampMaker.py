@@ -46,7 +46,7 @@ def main():
     flags.Tile.BestPhaseFromCOOL=True
     flags.GeoModel.AtlasVersion="ATLAS-R2-2015-03-01-00"
     flags.IOVDb.DBConnection = "sqlite://;schema=energyscanresults.sqlite;dbname=L1CALO"
-    flags.IOVDb.GlobalTag = 'CONDBR2-BLKPA-2018-14'
+    flags.IOVDb.GlobalTag = 'CONDBR2-BLKPA-2022-02'
 
 
     flags.lock() 
@@ -95,7 +95,7 @@ def main():
 
     
     from TrigT1CaloCondSvc.L1CaloCondConfig import L1CaloCondAlgCfg
-    acc.merge(L1CaloCondAlgCfg(flags))
+    acc.merge(L1CaloCondAlgCfg(flags, Physics=False, Calib1=True, Calib2=False))
 
     
     decorator = CompFactory.LVL1.L1CaloTriggerTowerDecoratorAlg()

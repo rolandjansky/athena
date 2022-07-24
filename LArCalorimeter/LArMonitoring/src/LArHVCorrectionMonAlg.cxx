@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -17,8 +17,7 @@
 LArHVCorrectionMonAlg::LArHVCorrectionMonAlg(const std::string& name, ISvcLocator* pSvcLocator)
    : AthMonitorAlgorithm(name, pSvcLocator),
     m_LArOnlineIDHelper(0),
-    m_caloIdMgr(0),
-    m_filledLB()
+    m_caloIdMgr(0)
 { }
 
 /*---------------------------------------------------------*/
@@ -49,17 +48,7 @@ StatusCode LArHVCorrectionMonAlg::fillHistograms(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG( "in fillHists()" );
 
-  unsigned int thisLB=ctx.eventID().lumi_block();
-  bool doMonitor=false;
-  {
-    std::lock_guard<std::mutex> lock(m_mut);
-    if(!m_filledLB.count(thisLB)) {
-      m_filledLB.insert(thisLB);
-      doMonitor=true;
-    }
-  }
 
-  if(doMonitor) { //LB not yet monitored, so do the monitoring now
 
     SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey,ctx};
     ATH_CHECK(caloMgrHandle.isValid());
@@ -192,11 +181,6 @@ StatusCode LArHVCorrectionMonAlg::fillHistograms(const EventContext& ctx) const
     auto nnFCALC = Monitored::Scalar<int>("nonnominalFCALC",nonNominal[7]);
     fill(m_MonGroupName,monLB,nnEMBA,nnEMBC,nnEMECA,nnEMECC,nnHECA,nnFCALA,nnHECC,nnFCALC);
     
-  } else {
-    
-    return StatusCode::SUCCESS;
-    
-  }// End of event treatment
   
   return StatusCode::SUCCESS;
 }

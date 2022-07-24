@@ -240,8 +240,7 @@ def MuonCombinedTrackSummaryToolCfg(flags,
             AtlasTrackSummaryHelperToolCfg)
         kwargs.setdefault("InDetSummaryHelperTool", result.popToolsAndMerge(
             AtlasTrackSummaryHelperToolCfg(
-                flags, name="CombinedMuonIDSummaryHelper")))
-
+                flags, name="CombinedMuonIDSummaryHelper", RunningTIDE_Ambi=False)))
     if "MuonSummaryHelperTool" not in kwargs:
         from MuonConfig.MuonRecToolsConfig import MuonTrackSummaryHelperToolCfg
         kwargs.setdefault("MuonSummaryHelperTool", result.popToolsAndMerge(

@@ -38,20 +38,25 @@ StatusCode TRTStrawStatusCondAlg::execute(const EventContext &ctx) const
   ATH_MSG_DEBUG("execute " << name());
 
   SG::WriteCondHandle<TRTCond::StrawStatusData> strawStatusHandle{m_strawStatusWriteKey, ctx};
-  auto outputStrawStatus = std::make_unique<TRTCond::StrawStatusData>(m_trtId->straw_hash_max());
-
   SG::WriteCondHandle<TRTCond::StrawStatusData> strawStatusPermHandle{m_strawStatusPermWriteKey, ctx};
-  auto outputStrawStatusPerm = std::make_unique<TRTCond::StrawStatusData>(m_trtId->straw_hash_max());
-
   SG::WriteCondHandle<TRTCond::StrawStatusData> strawStatusHTHandle{m_strawStatusHTWriteKey, ctx};
-  auto outputStrawStatusHT = std::make_unique<TRTCond::StrawStatusData>(m_trtId->straw_hash_max());
-
   SG::WriteCondHandle<TRTCond::StrawStatusSummary> strawStatusSummaryHandle{m_strawStatusSummaryWriteKey, ctx};
-  auto outputStrawStatusSummary = std::make_unique<TRTCond::StrawStatusSummary>(m_trtId->straw_hash_max());
-
   SG::WriteCondHandle<TRTCond::StrawStatusSummary> strawStatusHTSummaryHandle{m_strawStatusHTSummaryWriteKey, ctx};
-  auto outputStrawStatusHTSummary = std::make_unique<TRTCond::StrawStatusSummary>(m_trtId->straw_hash_max());
 
+  bool alreadyPresent = strawStatusHandle.isValid();
+  alreadyPresent &= strawStatusPermHandle.isValid();
+  alreadyPresent &= strawStatusHTHandle.isValid();
+  alreadyPresent &= strawStatusSummaryHandle.isValid();
+  alreadyPresent &= strawStatusHTSummaryHandle.isValid();
+  if(alreadyPresent){
+    ATH_MSG_DEBUG("All objects are still valid");
+    return StatusCode::SUCCESS;
+  }
+  auto outputStrawStatusHTSummary = std::make_unique<TRTCond::StrawStatusSummary>(m_trtId->straw_hash_max());
+  auto outputStrawStatusSummary = std::make_unique<TRTCond::StrawStatusSummary>(m_trtId->straw_hash_max());
+  auto outputStrawStatusHT = std::make_unique<TRTCond::StrawStatusData>(m_trtId->straw_hash_max());
+  auto outputStrawStatusPerm = std::make_unique<TRTCond::StrawStatusData>(m_trtId->straw_hash_max());
+  auto outputStrawStatus = std::make_unique<TRTCond::StrawStatusData>(m_trtId->straw_hash_max());
   SG::ReadCondHandle<StrawStatusContainer> strawReadHandle{m_strawReadKey, ctx};
   if (!strawReadHandle.isValid()) {
     ATH_MSG_FATAL("No access to conditions " << strawReadHandle.key());
