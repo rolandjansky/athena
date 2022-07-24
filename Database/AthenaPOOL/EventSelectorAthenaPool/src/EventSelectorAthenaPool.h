@@ -157,7 +157,7 @@ private: // internal member functions
    /// Return pointer to active event SG
    StoreGateSvc* eventStore() const;
    /// Reinitialize the service when a @c fork() occured/was-issued
-   StatusCode reinit();
+   StatusCode reinit() const;
    /// Return pointer to new PoolCollectionConverter
    PoolCollectionConverter* getCollectionCnv(bool throwIncidents = false) const;
    /// Search for event with number evtNum.
@@ -193,10 +193,14 @@ private: // properties
    Gaudi::Property<std::string> m_refName{this, "RefName", "", ""};
    /// AttributeList SG key
    Gaudi::Property<std::string> m_attrListKey{this, "AttributeListKey", "Input", ""};
+
    /// InputCollections, vector with names of the input collections.
    Gaudi::Property<std::vector<std::string>> m_inputCollectionsProp{this, "InputCollections", {}, ""};
    mutable std::vector<std::string>::const_iterator m_inputCollectionsIterator ATLAS_THREAD_SAFE;
    void inputCollectionsHandler(Gaudi::Details::PropertyBase&);
+   /// flag to notify the EvSel that the inputs were changed and reinit() needs to be called ASAP
+   mutable bool m_inputCollectionsChanged ATLAS_THREAD_SAFE;
+
    /// Query string passed to APR when opening DataHeader container (kind of useless).
    Gaudi::Property<std::string> m_query{this, "Query", "", ""};
 
@@ -205,7 +209,7 @@ private: // properties
    Gaudi::Property<bool> m_keepInputFilesOpen{this, "KeepInputFilesOpen", false, ""};
 
    /// HelperTools, vector of names of AlgTools that are executed by the EventSelector
-   ToolHandleArray<IAthenaSelectorTool> m_helperTools{this};
+   mutable ToolHandleArray<IAthenaSelectorTool> m_helperTools ATLAS_THREAD_SAFE {this};
    ToolHandle<IAthenaSelectorTool> m_counterTool{this, "CounterTool", "", ""};
    ToolHandle<IAthenaIPCTool> m_eventStreamingTool{this, "SharedMemoryTool", "", ""};
    /// Make this instance a Streaming Client during first iteration automatically

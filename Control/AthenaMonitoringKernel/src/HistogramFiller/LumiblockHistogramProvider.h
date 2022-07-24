@@ -82,10 +82,11 @@ namespace Monitored {
       m_hists.emplace(maxLumiBlock(lumiPage), std::make_pair(std::move(def), hist));
 
       // deregister old histograms
-      for (const auto& [maxLB, h] : m_hists) {
+      for (auto it = m_hists.begin(); it!=m_hists.end();) {
+        const unsigned maxLB = it->first;
         if (maxLB + s_deregDelay <= lumiBlock) {
-          m_factory->remove(h.first);
-          m_hists.erase(maxLB);
+          m_factory->remove(it->second.first);
+          it = m_hists.erase(it);  // this advances iterator by one
         }
         else break;  // don't need to search further as std::map is sorted
       }

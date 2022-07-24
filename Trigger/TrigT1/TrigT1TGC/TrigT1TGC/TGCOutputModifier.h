@@ -41,11 +41,7 @@ namespace LVL1TGCTrigger {
     
     void Copy(const LVL1MUONIF::Lvl1MuSectorLogicDataPhase1* sldataOrg,
 	      LVL1MUONIF::Lvl1MuSectorLogicDataPhase1& sldataNew  ) const;
-    struct MuSegData{
-      TVector3 pos;
-      TVector3 vec;
-    };
-    void Update(const std::vector<MuSegData>&,
+    void Update(const std::vector<const xAOD::MuonSegment*>& segs,
 		LVL1MUONIF::Lvl1MuSectorLogicDataPhase1& sldata,
 		size_t systemAddress,
 		size_t subSystemAddress,
@@ -55,9 +51,14 @@ namespace LVL1TGCTrigger {
     SG::WriteHandleKey<LVL1MUONIF::Lvl1MuCTPIInputPhase1> m_outputKey{this, "OutputMuctpiLocation", "L1MuctpiStoreTGCmod", "Output Tgc2Muctpi interface container"};
     ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_recTGCRoiTool{this,"TrigT1TGCRecRoiTool","LVL1::TrigT1TGCRecRoiTool","hoge"};
     SG::ReadHandleKey<xAOD::MuonSegmentContainer> m_musegKey{this,"MuonSegmentContainer","xaodMuonSegments","MuonSegmentContainer"};
-    DoubleProperty m_deltaEtaCut{this,"DeltaEtaCut", 0.25,"Delta eta cut for MuonSegment and RoI position"};
-    DoubleProperty m_deltaPhiCut{this,"DeltaPhiCut", 0.20,"Delta phi cut for MuonSegment and RoI position"};
-    DoubleProperty m_deltaThetaCut{this,"DeltaThetaCut", 999.,"Delta theta cut for MuonSegment"};
+    DoubleProperty m_deltaThetaCut1{this,"DeltaThetaCut1", 0.008,"Delta theta cut for MuonSegment in low-eta region"};
+    DoubleProperty m_deltaEtaCut1{this,"DeltaEtaCut1", 0.09,"Delta eta cut for MuonSegment and RoI position in low-eta region"};
+    DoubleProperty m_deltaPhiCut1{this,"DeltaPhiCut1", 0.16,"Delta phi cut for MuonSegment and RoI position in low-eta region"};
+    DoubleProperty m_deltaThetaCut2{this,"DeltaThetaCut2", 0.001,"Delta theta cut for MuonSegment in high-eta region"};
+    DoubleProperty m_deltaEtaCut2{this,"DeltaEtaCut2", 0.16,"Delta eta cut for MuonSegment and RoI position in high-eta region"};
+    DoubleProperty m_deltaPhiCut2{this,"DeltaPhiCut2", 0.19,"Delta phi cut for MuonSegment and RoI position in high-eta region"};
+    DoubleProperty m_etaBoundary1{this,"EtaBoundary1", 1.9,"Eta boundary where the cuts1 are applied"};
+    DoubleProperty m_etaBoundary2{this,"EtaBoundary2", 2.1,"Eta boundary where the cuts2 are applied"};
     BooleanProperty m_emulateA{this,"EmulateA", true,"Emulate A-side"};
     BooleanProperty m_emulateC{this,"EmulateC", true,"Emulate C-side"};
     BooleanProperty m_nswVetoMode{this,"NSWVetoMode", true,"NSW veto mode or monitoring mode"};

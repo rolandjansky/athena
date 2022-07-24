@@ -58,10 +58,10 @@ bool writeBlobFromTTree(TTree* tree, coral::Blob& out) {
 // Reading and Uncompressing Functions
 // -------------------------------------------------
 
-bool uncompressBlob(const coral::Blob &blob, unsigned char*& out, unsigned long& len){
+bool uncompressBlob(const coral::Blob &blob, std::unique_ptr<unsigned char[]> & out, unsigned long& len){
     uLongf uncompLen = 50000;
 	std::unique_ptr<unsigned char[]> uncompBuf(new unsigned char[uncompLen+1]);
-	uLongf actualLen;
+	uLongf actualLen{0};
 	while(true) {
 		actualLen = uncompLen;
 		int res(uncompress(uncompBuf.get(), &actualLen, reinterpret_cast<const unsigned char*>(blob.startingAddress()), static_cast<uLongf>(blob.size())));
@@ -77,18 +77,17 @@ bool uncompressBlob(const coral::Blob &blob, unsigned char*& out, unsigned long&
 		return false;
 	}
 	uncompBuf.get()[actualLen]=0; // append 0 to terminate string
-	out = uncompBuf.release();
+	out = std::move(uncompBuf);
 	len = actualLen;
 	return true;
 }
 	 
 bool readBlobAsString(const coral::Blob &blob, std::string& out){
-	unsigned char* bf = nullptr;
+	std::unique_ptr<unsigned char[]> bf {};
 	uLongf len = 0;
 	if(!uncompressBlob(blob, bf, len)) return false;
-	const char* cstring = reinterpret_cast<const char*>(bf); // need to cast to char*
-	out.assign(cstring); // copy over to C++ string
-	delete[] bf; // also deletes cstring since it points to the same memory as bf
+	const char* cstring = reinterpret_cast<const char*>(bf.get()); // need to cast to char*
+	out.assign(cstring, len); // copy over to C++ string
 	return true;
 }
 	 

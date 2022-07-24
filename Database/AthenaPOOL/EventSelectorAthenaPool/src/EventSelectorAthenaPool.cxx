@@ -59,11 +59,12 @@ EventSelectorAthenaPool::EventSelectorAthenaPool(const std::string& name, ISvcLo
    m_initTimeStamp.verifier().setLower(0);
 
    m_inputCollectionsProp.declareUpdateHandler(&EventSelectorAthenaPool::inputCollectionsHandler, this);
+   m_inputCollectionsChanged = false;
 }
 //________________________________________________________________________________
 void EventSelectorAthenaPool::inputCollectionsHandler(Gaudi::Details::PropertyBase&) {
    if (this->FSMState() != Gaudi::StateMachine::OFFLINE) {
-      this->reinit().ignore();
+      m_inputCollectionsChanged = true;
    }
 }
 //________________________________________________________________________________
@@ -227,10 +228,12 @@ StatusCode EventSelectorAthenaPool::initialize() {
       ATH_MSG_FATAL("Cannot connect to POOL PersistencySvc.");
       return(StatusCode::FAILURE);
    }
-   return(this->reinit());
+   // Jump to reinit() to execute common init/reinit actions
+   m_guid = Guid::null();
+   return reinit();
 }
 //________________________________________________________________________________
-StatusCode EventSelectorAthenaPool::reinit() {
+StatusCode EventSelectorAthenaPool::reinit() const {
    ATH_MSG_DEBUG("reinitialization...");
 
    // reset markers
@@ -238,7 +241,6 @@ StatusCode EventSelectorAthenaPool::reinit() {
    for( auto& el : m_numEvt ) el = -1;
    m_firstEvt.resize(m_inputCollectionsProp.value().size(), -1);
    for( auto& el : m_firstEvt ) el = -1;
-   m_guid = Guid::null();
 
    // Initialize InputCollectionsIterator
    m_inputCollectionsIterator = m_inputCollectionsProp.value().begin();
@@ -246,6 +248,7 @@ StatusCode EventSelectorAthenaPool::reinit() {
    if (!m_firstEvt.empty()) {
       m_firstEvt[0] = 0;
    }
+   m_inputCollectionsChanged = false;
    m_evtCount = 0;
    m_headerIterator = 0;
    if (!m_eventStreamingTool.empty() && m_eventStreamingTool->isClient()) {
@@ -337,18 +340,16 @@ StatusCode EventSelectorAthenaPool::reinit() {
    if (m_poolCollectionConverter == nullptr || m_headerIterator == nullptr) {
       return(StatusCode::SUCCESS);
    }
-   Guid guid;
-   int tech = 0;
-   if (m_refName.value().empty()) {
-      guid = m_headerIterator->eventRef().dbID();
-      tech = m_headerIterator->eventRef().technology();
-   } else {
-      guid = m_headerIterator->currentRow().tokenList()[m_refName.value() + "_ref"].dbID();
-      tech = m_headerIterator->currentRow().tokenList()[m_refName.value() + "_ref"].technology();
-   }
+   const Token& headRef = m_refName.value().empty()?
+      m_headerIterator->eventRef()
+      : m_headerIterator->currentRow().tokenList()[m_refName.value() + "_ref"];
+   const std::string fid = headRef.dbID().toString();
+   const int tech = headRef.technology();
+   ATH_MSG_VERBOSE("reinit(): First DataHeder Token=" << headRef.toString() );
+
    // Check if File is BS, for which Incident is thrown by SingleEventInputSvc
    if (tech != 0x00001000 && m_processMetadata.value() && !m_firedIncident) {
-      FileIncident firstInputFileIncident(name(), "FirstInputFile", "FID:" + guid.toString(), "FID:" + guid.toString());
+      FileIncident firstInputFileIncident(name(), "FirstInputFile", "FID:" + fid, "FID:" + fid);
       m_incidentSvc->fireIncident(firstInputFileIncident);
       m_firedIncident = true;
    }
@@ -615,45 +616,47 @@ StatusCode EventSelectorAthenaPool::next(IEvtSelector::Context& ctxt, int jump) 
 //________________________________________________________________________________
 StatusCode EventSelectorAthenaPool::nextHandleFileTransition(IEvtSelector::Context& ctxt) const
 {
-   // Check if we're at the end of file
-   if (m_headerIterator == nullptr || m_headerIterator->next() == 0) {
-      m_headerIterator = nullptr;
-      // Close previous collection.
-      delete m_poolCollectionConverter; m_poolCollectionConverter = nullptr;
+   if( m_inputCollectionsChanged ) {
+      StatusCode rc = reinit();
+      if( rc != StatusCode::SUCCESS ) return rc;
+   }
+   else {   // advance to the next (not necessary after reinit)
+      // Check if we're at the end of file
+      if (m_headerIterator == nullptr || m_headerIterator->next() == 0) {
+         m_headerIterator = nullptr;
+         // Close previous collection.
+         delete m_poolCollectionConverter; m_poolCollectionConverter = nullptr;
 
-      // zero the current DB ID (m_guid) before disconnect() to indicate it is no longer in use
-      const SG::SourceID old_guid = m_guid.toString();
-      m_guid = Guid::null();
-      disconnectIfFinished( old_guid );
+         // zero the current DB ID (m_guid) before disconnect() to indicate it is no longer in use
+         const SG::SourceID old_guid = m_guid.toString();
+         m_guid = Guid::null();
+         disconnectIfFinished( old_guid );
 
-      // Open next file from inputCollections list.
-      ++m_inputCollectionsIterator;
-      // Create PoolCollectionConverter for input file
-      m_poolCollectionConverter = getCollectionCnv(true);
-      if (m_poolCollectionConverter == nullptr) {
-         // Return end iterator
-         ctxt = *m_endIter;
-         // This is not a real failure but a Gaudi way of handling "end of job"
-         return StatusCode::FAILURE;
+         // Open next file from inputCollections list.
+         ++m_inputCollectionsIterator;
+         // Create PoolCollectionConverter for input file
+         m_poolCollectionConverter = getCollectionCnv(true);
+         if (m_poolCollectionConverter == nullptr) {
+            // Return end iterator
+            ctxt = *m_endIter;
+            // This is not a real failure but a Gaudi way of handling "end of job"
+            return StatusCode::FAILURE;
+         }
+         // Get DataHeader iterator
+         m_headerIterator = &m_poolCollectionConverter->executeQuery();
+
+         // Return RECOVERABLE to mark we should still continue
+         return StatusCode::RECOVERABLE;
       }
-      // Get DataHeader iterator
-      m_headerIterator = &m_poolCollectionConverter->executeQuery();
-
-      // Return RECOVERABLE to mark we should still continue
-      return StatusCode::RECOVERABLE;
    }
 
-   Guid guid;
-   int tech = 0;
-   if (m_refName.value().empty()) {
-      guid = m_headerIterator->eventRef().dbID();
-      tech = m_headerIterator->eventRef().technology();
-   } else {
-      Token token;
-      m_headerIterator->currentRow().tokenList()[m_refName.value() + "_ref"].setData(&token);
-      guid = token.dbID();
-      tech = token.technology();
-   }
+   const Token& headRef = m_refName.value().empty()?
+      m_headerIterator->eventRef()
+      : m_headerIterator->currentRow().tokenList()[m_refName.value() + "_ref"];
+   const Guid guid = headRef.dbID();
+   const int tech = headRef.technology();
+   ATH_MSG_VERBOSE("next(): DataHeder Token=" << headRef.toString() );
+
    if (guid != m_guid) {
       // we are starting reading from a new DB. Check if the old one needs to be retired
       if (m_guid != Guid::null()) {
@@ -790,6 +793,12 @@ StatusCode EventSelectorAthenaPool::resetCriteria(const std::string& /*criteria*
 }
 //__________________________________________________________________________
 StatusCode EventSelectorAthenaPool::seek(Context& /*ctxt*/, int evtNum) const {
+
+   if( m_inputCollectionsChanged ) {
+      StatusCode rc = reinit();
+      if( rc != StatusCode::SUCCESS ) return rc;
+   }
+
    long newColl = findEvent(evtNum);
    if (newColl == -1 && evtNum >= m_firstEvt[m_curCollection] && evtNum < m_evtCount - 1) {
       newColl = m_curCollection;
@@ -1116,6 +1125,7 @@ StatusCode EventSelectorAthenaPool::io_reinit() {
       return(StatusCode::FAILURE);
    }
    if (!m_eventStreamingTool.empty() && m_eventStreamingTool->isClient()) {
+      m_guid = Guid::null();
       return(this->reinit());
    }
    std::vector<std::string> inputCollections = m_inputCollectionsProp.value();
@@ -1145,8 +1155,9 @@ StatusCode EventSelectorAthenaPool::io_reinit() {
       }
    }
    // all good... copy over.
-   m_inputCollectionsProp = inputCollections; // triggers reinit()
-   return(StatusCode::SUCCESS);
+   m_inputCollectionsProp = inputCollections;
+   m_guid = Guid::null();
+   return reinit();
 }
 //__________________________________________________________________________
 StatusCode EventSelectorAthenaPool::io_finalize() {
