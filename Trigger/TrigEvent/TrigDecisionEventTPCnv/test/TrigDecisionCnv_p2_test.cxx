@@ -1,8 +1,6 @@
 /*
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file TrigDecisionEventTPCnv/test/TrigDecisionCnv_p2_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -60,7 +58,7 @@ void testit (const TrigDec::TrigDecision& trans1)
 }
 
 
-void test1()
+void test1 ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test1\n";
   // Get proxies created outside of leak check.
