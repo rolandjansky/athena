@@ -527,7 +527,7 @@ void test4()
 
 
 //***************************************************************************
-// Optional performance test test.
+// Optional performance test.
 //
 
 
