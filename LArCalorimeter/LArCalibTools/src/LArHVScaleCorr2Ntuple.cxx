@@ -3,7 +3,6 @@
 */
 
 #include "LArCalibTools/LArHVScaleCorr2Ntuple.h"
-//#include "LArRawConditions/LArHVScaleCorrComplete.h"
 #include "LArElecCalib/ILArHVScaleCorr.h"
 #include "CaloIdentifier/CaloGain.h"
 
@@ -25,7 +24,7 @@ StatusCode LArHVScaleCorr2Ntuple::stop() {
  SG::ReadCondHandle<ILArHVScaleCorr> hvHdl(m_contKey, ctx);  
  const ILArHVScaleCorr* larHVScaleCorr = hvHdl.cptr();
  if(!larHVScaleCorr) {
-    ATH_MSG_WARNING("Could not retrieve the LArHVScaleCorr from CondStore with key: " << m_contKey.key());
+    ATH_MSG_WARNING("Could not retrieve the ILArHVScaleCorr from CondStore with key: " << m_contKey.key());
     return StatusCode::SUCCESS;
  }
 

@@ -10,7 +10,6 @@ from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.GlobalFlags import globalflags
 globalflags.DataSource.set_Value_and_Lock('data')
 globalflags.InputFormat.set_Value_and_Lock('bytestream')
-#globalflags.DetDescrVersion.set_Value_and_Lock('ATLAS-GEO-18-01-01')
 globalflags.DetDescrVersion.set_Value_and_Lock('ATLAS-R2-2015-04-00-00')
 globalflags.DetGeo.set_Value_and_Lock('commis')
 globalflags.Luminosity.set_Value_and_Lock('zero')
@@ -28,24 +27,18 @@ DetFlags.digitize.all_setOff()
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
 
-svcMgr.IOVDbSvc.GlobalTag = "CONDBR2-BLKPA-2017-03"
+svcMgr.IOVDbSvc.GlobalTag = "CONDBR2-BLKPA-2022-02"
 
 #Get identifier mapping (needed by LArConditionsContainer)
 include("LArConditionsCommon/LArIdMap_comm_jobOptions.py")
 
 # for LArBadChannelTool, instead of conddb.AddFolder below
-#include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py") 
+include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py") 
 
 theApp.EvtMax = 1
-#conddb.setGlobalTag("COMCOND-006-01") #For id mapping
 
 folder="/LAR/Configuration/DSPThresholdFlat/Templates"
 
-#tag="LARConfigurationDSPThresholdTemplates-Qt5sigma-samp5sigma"
-
-#ModeType="noise" # fixed, group, noise
-
-#fileName=ModeType+"tQThr5sigmasampleThr5sigma"
 fileName=ModeType+tag
 
 setName="-".join(tag.split("-")[1:])
@@ -149,7 +142,7 @@ conddb.addFolder(LArDB,"/LAR/BadChannels/MissingFEBs")
 svcMgr.PoolSvc.FileOpen = "update"
 svcMgr.PoolSvc.WriteCatalog="xmlcatalog_file:PoolFileCatalog_LARConfigurationDSPThresholdTemplates.xml"
 ##svcMgr.PoolSvc.WriteCatalog="xmlcatalog_file:PoolFileCatalog_"+fileName+".xml"
-print svcMgr.PoolSvc
+print(svcMgr.PoolSvc)
 
 #svcMgr.IOVDbSvc.dbConnection  = "sqlite://;schema=test.db;dbname=COMP200"
 #svcMgr.IOVDbSvc.dbConnection  = "sqlite://;schema="+fileName+".db;dbname=COMP200"

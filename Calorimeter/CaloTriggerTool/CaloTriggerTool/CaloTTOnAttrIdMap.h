@@ -92,5 +92,7 @@ private:
 
 #include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( CaloTTOnAttrIdMap,167960877,1)
+#include "AthenaKernel/CondCont.h"
+CONDCONT_DEF( CaloTTOnAttrIdMap , 117890917 );
 
 #endif

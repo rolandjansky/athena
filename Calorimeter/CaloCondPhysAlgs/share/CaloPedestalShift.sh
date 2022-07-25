@@ -122,5 +122,5 @@ cat dumpDB.txt
 
 echo "  "
 echo "  After checking that everything is OK, upload the new sqlite file with:"
-echo "  ~atlcond/utils/AtlCoolMerge.py caloSqlite.db  COMP200 ATLAS_COOLWRITE ATLAS_COOLOFL_CALO_W <password>"
+echo "  /afs/cern.ch/user/a/atlcond/utilsflask/AtlCoolMerge.py --flask caloSqlite.db  CONDBR2 ATONR_COOLOFL_GPN ATLAS_COOLOFL_CALO_W <password>"
 exit

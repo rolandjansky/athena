@@ -20,6 +20,6 @@ L1CaloFolderList += ["/TRIGGER/L1Calo/V2/Configuration/PprChanDefaults"]
 
 for l1calofolder in L1CaloFolderList:
   if globalflags.DataSource() == "data":
-    conddb.addFolderWithTag("TRIGGER", l1calofolder, "HEAD")
+    conddb.addFolderWithTag("TRIGGER", l1calofolder, "HEAD", className="CondAttrListCollection")
   else:
-    conddb.addFolderWithTag("TRIGGER_ONL", l1calofolder, "HEAD")
+    conddb.addFolderWithTag("TRIGGER_ONL", l1calofolder, "HEAD", className="CondAttrListCollection")

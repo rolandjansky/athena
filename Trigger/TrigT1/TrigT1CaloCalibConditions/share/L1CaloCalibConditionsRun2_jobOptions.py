@@ -36,4 +36,4 @@ L1CaloFolderList += ["/TRIGGER/Receivers/Conditions/Strategy"]
 #L1CaloFolderList += ["/TRIGGER/L1Calo/V1/Configuration/ReadoutConfig"]
 
 for l1calofolder in L1CaloFolderList:
-	conddb.addFolderWithTag("TRIGGER", l1calofolder, "HEAD")
+	conddb.addFolderWithTag("TRIGGER", l1calofolder, "HEAD", className="CondAttrListCollection")
