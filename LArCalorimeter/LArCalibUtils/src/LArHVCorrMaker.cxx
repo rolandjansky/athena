@@ -15,14 +15,7 @@
 #include <unistd.h>
 
 
-LArHVCorrMaker::LArHVCorrMaker(const std::string& name, ISvcLocator* pSvcLocator) 
-  : AthAlgorithm(name, pSvcLocator),
-    m_lar_on_id(0)
-{
-  declareProperty("keyOutput",m_keyOutput="LArHVScaleCorr","Output key for LArHVScaleCorr");
-  declareProperty("folderName",m_folderName="/LAR/ElecCalibFlat/HVScaleCorr",
-		  "Folder to store the CondAttrListCollection containing the HVScale correction");
-}
+
 
 //---------------------------------------------------------------------------
 LArHVCorrMaker::~LArHVCorrMaker()
