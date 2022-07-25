@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @file   AFPTDBasicTool.cxx
@@ -8,27 +8,17 @@
 /// 
 /// @brief  Implementation file for AFPTDBasicTool used in tracks reconstruction.
 
-// STL includes
-#include<list>
-#include<sstream>
 
 // FrameWork includes
 #include "GaudiKernel/IToolSvc.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
-// xAOD includes
-#include "xAODForward/AFPToFHit.h"
-#include "xAODForward/AFPToFHitContainer.h"
-#include "xAODForward/AFPToFTrack.h"
-#include "xAODForward/AFPToFTrackContainer.h"
-#include "xAODForward/AFPToFTrackAuxContainer.h"
-
 // AFP_LocReco includes
 #include "AFP_LocReco/AFPTDBasicTool.h"
 
 AFPTDBasicTool::AFPTDBasicTool( const std::string& type, 
-					      const std::string& name, 
-					      const IInterface* parent ) : 
+                                const std::string& name, 
+                                const IInterface* parent ) : 
   base_class ( type, name, parent )
 {
 
@@ -40,7 +30,8 @@ StatusCode AFPTDBasicTool::initialize()
   ATH_MSG_DEBUG("AFPTDBasicTool::initialize()");
   ATH_MSG_INFO("Station with ID="<<m_stationID <<" will have minimum number of "<<m_minHitsNumber <<" bars.");
   ATH_MSG_INFO("Maximal length of signal  at which bar can be joined to the track  m_maxAllowedLength = "<<m_maxAllowedLength);
-
+  
+  CHECK( m_tofLocParamDBTool.retrieve() );
   CHECK( m_hitContainerKey.initialize( SG::AllowEmpty ) );
 
   return StatusCode::SUCCESS;
@@ -97,34 +88,46 @@ StatusCode AFPTDBasicTool::reconstructTracks(std::unique_ptr<xAOD::AFPToFTrackCo
   ATH_MSG_DEBUG( "Number of AFP ToF hits in each train = " << my_trainBars[0].size()<<", "<<my_trainBars[1].size()<<", "<<my_trainBars[2].size()<<", "<<my_trainBars[3].size());
 
   // ===== do tracks reconstruction =====
-
+  
+  nlohmann::json dataTLP;
+  bool dataTLP_init{false};
+  
   for (int k=0; k<4; k++)
-	{	
-	  unsigned int TrSize = my_trainBars[k].size();
-	  double TrTime = 0.;
+  {
+    unsigned int TrSize = my_trainBars[k].size();
+    double TrTime = 0.;
     double weight = 0;
-	  unsigned int TrSat = 0;
-	  if ( TrSize >= m_minHitsNumber )
-		{
-		  for (unsigned int l=0; l<TrSize; l++)
-		  {
+    unsigned int TrSat = 0;
+    if ( TrSize >= m_minHitsNumber )
+    {
+      for (unsigned int l=0; l<TrSize; l++)
+      {
+        // for l-th hit in the k-th train, not necessary l-th bar
         if ( my_trainBars[k].at(l)->pulseLength() < m_maxAllowedLength) 
-		    {
-          TrTime += (my_trainBars[k].at(l)->time()-m_TimeOffset[my_trainBars[k].at(l)->barInTrainID()+
-                        4*my_trainBars[k].at(l)->trainID()])*m_BarWeight[my_trainBars[k].at(l)->barInTrainID()];
-          weight += m_BarWeight[my_trainBars[k].at(l)->barInTrainID()];
+        {
+          if(!dataTLP_init)
+          {
+            // read from DB only if necessary
+            dataTLP=m_tofLocParamDBTool->parametersData(ctx);
+            dataTLP_init=true;
+          }
+          
+          const AFP::ToFLocParamData TLP=m_tofLocParamDBTool->parameters(dataTLP, m_stationID, my_trainBars[k].at(l)->trainID(), my_trainBars[k].at(l)->barInTrainID());
+          
+          TrTime += (my_trainBars[k].at(l)->time()-TLP.barTimeOffset())*TLP.barWeight();
+          weight += TLP.barWeight();
         }
         else
         {
           TrSat++;
         }
-		  }
-		// time average
-		if( TrSize!=TrSat) TrTime /= weight;					
+      }
+    // time average
+    if( TrSize!=TrSat) TrTime /= weight;
     
     ATH_MSG_DEBUG("Track reconstruction complete: stationID = " + std::to_string(m_stationID) + ", train time = " + std::to_string(TrTime) + ", train size = " + std::to_string(TrSize));
     reconstructedTracks.emplace_back(m_stationID,k,TrTime, TrSize, TrSat);
-    AFPTDBasicToolTrack& theTrack = reconstructedTracks.back();					
+    AFPTDBasicToolTrack& theTrack = reconstructedTracks.back();
     for(unsigned int l=0; l<TrSize; l++) theTrack.addBar(my_trainBars[k].at(l));
     }
   }

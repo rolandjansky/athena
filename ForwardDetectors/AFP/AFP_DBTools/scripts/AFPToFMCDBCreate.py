@@ -2,16 +2,16 @@
 
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
-# file   AFPToFDBCreate.py
+# file   AFPToFMCDBCreate.py
 # author Petr Balek <petr.balek@cern.ch>
-# date   2022-06-02
+# date   2022-07-19
 #
-# brief  A python script that generates COOL database with ToF parameters for AFP. 
+# brief  A python script that generates COOL database with ToF parameters for AFP. This version of DB is intended to be used in MC simulations. Each tag has one entry with IOV from 0 to infinite. The tags reflect various alignments through data-taking.
 # usage  0. setup Athena environment (setupATLAS, asetup ...)
 #        1. run this script:
-#              python AFPToFDBCreate.py
+#              python AFPToFMCDBCreate.py
 #        2. check the output:
-#              AtlCoolConsole.py "sqlite://;schema=Example.db;dbname=CONDBR2"
+#              AtlCoolConsole.py "sqlite://;schema=ExampleMC.db;dbname=OFLP200"
 #        3. check "testAFPDB.py" for more testing
 
 
@@ -39,11 +39,9 @@ def makeFolderAndSpec(db,folderName,tag):
     # each folder contain just a single entry, this string will be JSON entry
     spec.extend("data",cool.StorageType.String64k)
 
-    runLumi=True
-
     # if there are more channels, use "CondAttrListCollection"; if there is only one channel, use "AthenaAttributeList"
     # it's also possible to use "CondAttrListCollection" if there's only one channel
-    folder=AtlCoolLib.ensureFolder(db,folderName,spec,AtlCoolLib.athenaDesc(runLumi,'CondAttrListCollection'),cool.FolderVersioning.MULTI_VERSION)
+    folder=AtlCoolLib.ensureFolder(db,folderName,spec,AtlCoolLib.athenaDesc(True,'CondAttrListCollection'),cool.FolderVersioning.MULTI_VERSION)
 
     if(folder is None):
         sys.exit(1)
@@ -53,10 +51,10 @@ def makeFolderAndSpec(db,folderName,tag):
 class AFPDBDict():
     """A class to create a dictionary, fill it with zeros in the constructor and to overwrite zeros later"""
     def __init__ (self, folderBlk):
-        if(folderBlk.folderName=="/FWD/Onl/AFP/ToFParameters/Local"):
+        if(folderBlk.folderName=="/FWD/AFP/ToFParameters/Local"):
             emptydict={"stationID":0, "trainID":-1, "barID":-1, "barWeight":1.0, "barTimeOffset":0.0}
             nchannels=32
-        elif(folderBlk.folderName=="/FWD/Onl/AFP/ToFParameters/Vertex"):
+        elif(folderBlk.folderName=="/FWD/AFP/ToFParameters/Vertex"):
             emptydict={"stationID":0, "timeGlobalOffset":0.0, "timeOffset":(0.0,0.0,0.0,0.0), "timeSlope":(0.0,0.0,0.0,0.0), "trainEdge":(0.0,0.0,0.0,0.0,0.0)}
             nchannels=2
         else:
@@ -70,11 +68,11 @@ class AFPDBDict():
         
         for i in range(0, nchannels):
             self.mydict["data"][i]=copy.deepcopy(emptydict)
-            if(folderBlk.folderName=="/FWD/Onl/AFP/ToFParameters/Local"):
+            if(folderBlk.folderName=="/FWD/AFP/ToFParameters/Local"):
                 self.mydict["data"][i]["stationID"]=(i//16)*3
                 self.mydict["data"][i]["trainID"]=(i%16)//4
                 self.mydict["data"][i]["barID"]=i%4  
-            if(folderBlk.folderName=="/FWD/Onl/AFP/ToFParameters/Vertex"):
+            if(folderBlk.folderName=="/FWD/AFP/ToFParameters/Vertex"):
                 self.mydict["data"][i]["stationID"]=i*3
     
     def append(self, stationID, trainID=-1, barID=-1, barWeight=1.0, barTimeOffset=0.0, timeGlobalOffset=0.0, timeOffset=(0.,0.,0.,0.), timeSlope=(0.,0.,0.,0.), trainEdge=(0.,0.,0.,0.,0.)):
@@ -115,16 +113,11 @@ class AFPDBDict():
             mydict_helper['timeSlope'], mydict_helper['trainEdge'] = timeSlope, trainEdge
     
     
-    def savePayload(self, folderBlk, fromRun=-2, fromLB=0):
-        """A function to transform the dictionary to JSON and save it in IOV from a given run and LB; upper limits are undefined and the maximum value (until beginning of a next entry) is used."""
-        
-        # perform some simple check so basic mistakes are avoided
-        if(fromRun<=0):
-            print ("cannot save payload, got fromRun=%d, it has to be positive" % fromRun)
-            sys.exit(1)
+    def savePayload(self, folderBlk):
+        """A function to transform the dictionary to JSON and save it in IOV from 0 to infinity; technically, upper limits are undefined and the maximum value (until beginning of a next entry) is used."""
 
         # transform run nr. and LB to the right integers
-        since=runLBtoDB(run=fromRun,lb=fromLB)
+        since=runLBtoDB(0,0)
         until=cool.ValidityKeyMax
 
         # provided set of constants have to be the right one for the provided specification
@@ -136,8 +129,8 @@ class AFPDBDict():
 
 
 def main():
-    dbFile = "Example.db"
-    dbName = "CONDBR2" 
+    dbFile = "ExampleMC.db"
+    dbName = "OFLP200" 
     
     # remove the old db file so that we can write the new one
     try:
@@ -159,13 +152,11 @@ def main():
     print ("Created database", dbString)
     
     # define the folder in the database, its specification and its tag
-    folderBlkLoc_01=makeFolderAndSpec(db,folderName="/FWD/Onl/AFP/ToFParameters/Local", tag="AFPToFLoc-01")
-    folderBlkVtx_01=makeFolderAndSpec(db,folderName="/FWD/Onl/AFP/ToFParameters/Vertex", tag="AFPToFVtx-01")
+    folderBlkLoc_ideal_01=makeFolderAndSpec(db,folderName="/FWD/AFP/ToFParameters/Local", tag="AFPMCToFLoc-ideal-01")
+    folderBlkVtx_ideal_01=makeFolderAndSpec(db,folderName="/FWD/AFP/ToFParameters/Vertex", tag="AFPMCToFVtx-ideal-01")
 
 
-    # have the same IOV as alignment
-    fromRun = 203302
-    myDict = AFPDBDict(folderBlkLoc_01)
+    myDict = AFPDBDict(folderBlkLoc_ideal_01)
     myDict.append(stationID=0, trainID=0, barID=0, barWeight=1.0, barTimeOffset=1494.0)
     myDict.append(stationID=0, trainID=0, barID=1, barWeight=1.0, barTimeOffset=1500.0)
     myDict.append(stationID=0, trainID=0, barID=2, barWeight=1.0, barTimeOffset=1500.0)
@@ -198,15 +189,13 @@ def main():
     myDict.append(stationID=3, trainID=3, barID=1, barWeight=1.0, barTimeOffset=1500.0)
     myDict.append(stationID=3, trainID=3, barID=2, barWeight=1.0, barTimeOffset=1500.0)
     myDict.append(stationID=3, trainID=3, barID=3, barWeight=1.0, barTimeOffset=1500.0)
-    myDict.savePayload(folderBlk=folderBlkLoc_01, fromRun=fromRun)
+    myDict.savePayload(folderBlk=folderBlkLoc_ideal_01)
 
 
-    # have the same IOV as alignment
-    fromRun = 203302
-    myDict = AFPDBDict(folderBlk=folderBlkVtx_01)
+    myDict = AFPDBDict(folderBlk=folderBlkVtx_ideal_01)
     myDict.append(stationID=0, timeGlobalOffset=0.0, timeOffset=(64.,45.,25.,11.), timeSlope=(-7.3,-5.0,-4.0,-4.0), trainEdge=(-18.7,-13.2,-8.1,-4.0,-2.5))
     myDict.append(stationID=3, timeGlobalOffset=5.0, timeOffset=( 2., 9.,14.,12.), timeSlope=( 4.0, 5.0, 3.0, 6.0), trainEdge=(-18.7,-13.2,-8.1,-4.0,-2.5))
-    myDict.savePayload(folderBlk=folderBlkVtx_01, fromRun=fromRun)
+    myDict.savePayload(folderBlk=folderBlkVtx_ideal_01)
     
     
     print ("\nClose database")

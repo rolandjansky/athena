@@ -32,30 +32,38 @@ def testAFPDBCfg(flags):
 
     
     # set from where to read the local information - from DB
-    acc.merge(addFolders(flags, "/FWD/Onl/AFP/Align/Local", 'FWD_ONL', className='CondAttrListCollection', tag='AFPAlignLoc-02', db="CONDBR2"))
-    acc.merge(addFolders(flags, "/FWD/Onl/AFP/Align/Global", 'FWD_ONL', className='CondAttrListCollection', tag='AFPAlignGlob-01', db="CONDBR2"))
+#     acc.merge(addFolders(flags, "/FWD/Onl/AFP/Align/Local", 'FWD_ONL', className='CondAttrListCollection', tag='AFPAlignLoc-02', db="CONDBR2"))
+#     acc.merge(addFolders(flags, "/FWD/Onl/AFP/Align/Global", 'FWD_ONL', className='CondAttrListCollection', tag='AFPAlignGlob-01', db="CONDBR2"))
     
     # set from where to read the local information - from local file
-    schema = "<db>sqlite://;schema=Example.db;dbname=CONDBR2</db>"
-    locFolder = "/FWD/Onl/AFP/ToFParameters/Local"
-    locTag = "<tag>AFPToFLoc-01</tag>"
-    vtxFolder = "/FWD/Onl/AFP/ToFParameters/Vertex"
-    vtxTag = "<tag>AFPToFVtx-01</tag>"
-    acc.merge(addFolders(flags, schema+locFolder+locTag, className='CondAttrListCollection', db='CONDBR2' ))
-    acc.merge(addFolders(flags, schema+vtxFolder+vtxTag, className='CondAttrListCollection', db='CONDBR2' ))  
-    
-    acc.addCondAlgo(CompFactory.AFPDBTester())
+#     schema = "<db>sqlite://;schema=Example.db;dbname=CONDBR2</db>"
+#     locFolder = "/FWD/Onl/AFP/ToFParameters/Local"
+#     locTag = "<tag>AFPToFLoc-01</tag>"
+#     vtxFolder = "/FWD/Onl/AFP/ToFParameters/Vertex"
+#     vtxTag = "<tag>AFPToFVtx-01</tag>"
+#     acc.merge(addFolders(flags, schema+locFolder+locTag, className='CondAttrListCollection', db='CONDBR2' ))
+#     acc.merge(addFolders(flags, schema+vtxFolder+vtxTag, className='CondAttrListCollection', db='CONDBR2' ))  
+#     
+#     acc.addCondAlgo(CompFactory.AFPDBTester())
 
     
     # this will read from DB for MC (note that the source file is still data that provides run and LB, thus this is really for testing only)
-#     schema = "<db>sqlite://;schema=ExampleMC.db;dbname=OFLP200</db>"
-#     locFolder = "/FWD/AFP/Align/Local"
-#     locTag = "<tag>AFPMCAlignLoc-329484-02</tag>"
-#     globFolder = "/FWD/AFP/Align/Global"
-#     globTag = "<tag>AFPMCAlignGlob-331020-01</tag>"
-#     acc.merge(addFolders(flags, schema+locFolder+locTag, className='CondAttrListCollection', db='OFLP200' ))
-#     acc.merge(addFolders(flags, schema+globFolder+globTag, className='CondAttrListCollection', db='OFLP200' ))    
-#     acc.addCondAlgo(CompFactory.SiAlignDBTester("SiAlignDBTester", locshiftXkey="/FWD/AFP/Align/Local", globshiftXkey="/FWD/AFP/Align/Global"))
+    schema = "<db>sqlite://;schema=ExampleMC_Align.db;dbname=OFLP200</db>"
+    locFolder = "/FWD/AFP/Align/Local"
+    locTag = "<tag>AFPMCAlignLoc-329484-02</tag>"
+    globFolder = "/FWD/AFP/Align/Global"
+    globTag = "<tag>AFPMCAlignGlob-331020-01</tag>"
+    acc.merge(addFolders(flags, schema+locFolder+locTag, className='CondAttrListCollection', db='OFLP200' ))
+    acc.merge(addFolders(flags, schema+globFolder+globTag, className='CondAttrListCollection', db='OFLP200' )) 
+    
+    schema2 = "<db>sqlite://;schema=ExampleMC_ToF.db;dbname=OFLP200</db>"
+    acc.merge(addFolders(flags, schema2+"/FWD/AFP/ToFParameters/Local", className='CondAttrListCollection', tag='AFPMCToFLoc-ideal-01', db='OFLP200' ))
+    acc.merge(addFolders(flags, schema2+"/FWD/AFP/ToFParameters/Vertex", className='CondAttrListCollection', tag='AFPMCToFVtx-ideal-01', db='OFLP200' )) 
+    
+    
+    acc.addCondAlgo(CompFactory.AFPDBTester("AFPDBTester", locshiftXkey="/FWD/AFP/Align/Local", globshiftXkey="/FWD/AFP/Align/Global", locToFkey="/FWD/AFP/ToFParameters/Local", vtxToFkey="/FWD/AFP/ToFParameters/Vertex"))
+
+    
 
     return acc
 
@@ -78,7 +86,7 @@ if __name__ == "__main__":
 
     flags.Exec.MaxEvents = 500
 
-    # AFPP align constants are not included in these (yet)
+    # AFP align constants are not included in these (yet)
     flags.IOVDb.GlobalTag = "CONDBR2-BLKPA-2017-16"
     flags.GeoModel.AtlasVersion = "ATLAS-R2-2016-01-00-01"
 

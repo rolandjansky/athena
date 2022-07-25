@@ -49,7 +49,7 @@ namespace AFP
     const ToFLocParamData parameters(const nlohmann::json& jsondata, const int stationID, const int trainID, const int barID) const override;
     
   private:
-    SG::ReadCondHandleKey<CondAttrListCollection> m_rch_loc {this, "loc_param_key", "/FWD/Onl/AFP/ToF/Local", "read condition handle for local ToF parameters"};
+    SG::ReadCondHandleKey<CondAttrListCollection> m_rch_loc {this, "loc_param_key", "/FWD/Onl/AFP/ToFParameters/Local", "read condition handle for local ToF parameters"};
   };
 
 
