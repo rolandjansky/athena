@@ -115,16 +115,15 @@ def getKeyForLimits(psk, lbStart, lbEnd):
     # COOL format of prescale entry is (key, lbStart, lbEnd)
     foundKeys = []
     for prescaleEntry in pskList:
-        if lbStart >= prescaleEntry[1] and lbEnd <= prescaleEntry[2]:
+        if prescaleEntry[1] <= lbEnd and prescaleEntry[2] >= lbStart:
             log.info("Found prescale key in the range: {0}".format(prescaleEntry))
             foundKeys.append(prescaleEntry[0])
 
     if not foundKeys:
-        log.error("Cannot find one prescale for lumiblocks {0} to {1}. Available values: {2}".format(lbStart, lbEnd, pskList))
+        log.warning("Cannot find one prescale for lumiblocks {0} to {1}. Available values: {2}".format(lbStart, lbEnd, pskList))
         return -1
     elif len(foundKeys) > 1:
-        log.error("Found more than one prescale key! {0}".format(pskList))
-        return -1
+        log.warning("Found more than one prescale key! {0} Will use the first one {1}".format(foundKeys, foundKeys[0]))
 
     return foundKeys[0]
 
@@ -136,15 +135,56 @@ def toCSV(fileName, dirName, data):
     import csv, os
 
     os.makedirs(dirName, exist_ok=True)
-    with open(dirName + '/' + fileName, mode='w') as outputCSV_file:
-        rates_csv_writer = csv.writer(outputCSV_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+    with open(dirName + '/' + fileName, mode='w') as outputFile:
+        ratesWriter = csv.writer(outputFile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
-        rates_csv_writer.writerow(['Name','Group','Rate [Hz]','Rate Err [Hz]', 'Prescale'])
-        rates_csv_writer.writerow(['Trigger name','The group this chain belongs to','Online rate','Error on rate','The prescale of this chain. Only displayed for simple combinations'])
+        ratesWriter.writerow(['Name','Group','Rate [Hz]','Rate Err [Hz]', 'Prescale'])
+        ratesWriter.writerow(['Trigger name','The group this chain belongs to','Online rate','Error on rate','The prescale of this chain. Only displayed for simple combinations'])
 
         for trig in data:
-            rates_csv_writer.writerow(trig)
-    
+            ratesWriter.writerow(trig)
+
+
+def saveMetadata(dirName, data):
+    ''' 
+    Save metadata dictionary
+    '''
+
+    mdDict = {}
+    mdDict['text'] = 'metadata'
+    mdDict['children'] = data
+
+    outFilename = dirName + '/' + "metadata.json"
+    with open(outFilename, mode='w') as outputFile:
+        import json
+        json.dump(obj=mdDict, fp=outputFile, indent=2, sort_keys=True)
+
+
+def readAvgLumi(runNumber, lbStart, lbEnd):
+    ''' 
+    Read Inst Lumi and calculate the average for given run number and lumiblock ranges
+    '''
+    from PyCool import cool
+    from DQUtils.sugar import RunLumi
+    from TrigConfStorage.TriggerCoolUtil import TriggerCoolUtil
+    db = TriggerCoolUtil.GetConnection('CONDBR2')
+    folder = db.getFolder("/TRIGGER/LUMI/OnlPrefLumi")
+    folderIterator = folder.browseObjects(RunLumi(runNumber, lbStart), RunLumi(runNumber, lbEnd), cool.ChannelSelection())    
+
+    avg = 0
+    counter = 0
+    while folderIterator.goToNext():
+        payload=folderIterator.currentRef().payload()
+        avg += payload["LBAvInstLumi"]
+        counter +=1
+
+    if counter == 0:
+        log.error("No entries in COOL database, in /TRIGGER/LUMI/OnlPrefLumi folder were found for run {0}, lumiblocks {1}-{2}".format(runNumber, lbStart, lbEnd))
+        return 0
+
+    log.debug("Avg inst lumi {0} for {1} events".format((avg/counter), counter))
+
+    return avg/counter * 1e30
 
 def main():
     from argparse import ArgumentParser
@@ -236,7 +276,7 @@ def main():
         rateUn = rate * l1Prescales[itemName]
 
         L1Items.append([itemName, "-", round(rate, 3), "0", "L1:{0}".format(l1Prescales[itemName])])
-        L1Items.append([itemName, "-", round(rateUn, 3), "0", "L1:{0}".format(l1Prescales[itemName])])
+        L1ItemsUnps.append([itemName, "-", round(rateUn, 3), "0", "L1:{0}".format(l1Prescales[itemName])])
 
     groups = []
     groupRates = groupRates | streamRates | recordingRates
@@ -256,17 +296,32 @@ def main():
     HLTTable = getTableName("HLT")
     GroupTable = getTableName("Group")
 
+    metadata = [
+        {'PredictionLumi' : readAvgLumi(args.runNumber, args.lbStart, args.lbEnd)},
+        {'RunNumber' : args.runNumber},
+        {"First lumiblock" : args.lbStart},
+        {"Last lumiblock" : args.lbEnd},
+        {'SMK' :  configMetadata[1]["SMK"]},
+        {'DB' : configMetadata[2]["DB"]},
+        {'LVL1PSK' :  getKeyForLimits(configMetadata[5]["LVL1PSK"], args.lbStart, args.lbEnd)},
+        {'HLTPSK' : getKeyForLimits(configMetadata[4]["HLTPSK"], args.lbStart, args.lbEnd)}
+    ]
 
-    prescaledDirName = "costMonitoring_OnlineTRPRates-onlinePS-LB{0}-{1}_{2}/csv/".format(args.lbStart, args.lbEnd, args.runNumber)
-    unprescaledDirName = "costMonitoring_OnlineTRPRates-noPS-LB{0}-{1}_{2}/csv/".format(args.lbStart, args.lbEnd, args.runNumber)
+    prescaledDirName = "costMonitoring_OnlineTRPRates-onlinePS-LB{0}-{1}_{2}/".format(args.lbStart, args.lbEnd, args.runNumber)
+    unprescaledDirName = "costMonitoring_OnlineTRPRates-noPS-LB{0}-{1}_{2}/".format(args.lbStart, args.lbEnd, args.runNumber)
     log.info("Exporting " + HLTTable)
-    toCSV(HLTTable, prescaledDirName, HLTChains)
-    toCSV(HLTTable, unprescaledDirName, HLTChainsUnps)
+    toCSV(HLTTable, prescaledDirName + "csv/", HLTChains)
+    toCSV(HLTTable, unprescaledDirName + "csv/", HLTChainsUnps)
     log.info("Exporting " + L1Table)
-    toCSV(L1Table, prescaledDirName, L1Items)
-    toCSV(L1Table, unprescaledDirName, L1ItemsUnps)
+    toCSV(L1Table, prescaledDirName + "csv/", L1Items)
+    toCSV(L1Table, unprescaledDirName + "csv/", L1ItemsUnps)
     log.info("Exporting " + GroupTable)
-    toCSV(GroupTable, prescaledDirName, groups)
+    toCSV(GroupTable, prescaledDirName + "csv/", groups)
+
+    prescaledMd = [*metadata, {"Details" : "Averaged rates with online prescales from online monitoring"}]
+    unprescaledMd = [*metadata, {"Details" : "Averaged rates with prescales removed from online monitoring"}]
+    saveMetadata(prescaledDirName, prescaledMd)
+    saveMetadata(unprescaledDirName, unprescaledMd)
 
 
 if __name__== "__main__":
