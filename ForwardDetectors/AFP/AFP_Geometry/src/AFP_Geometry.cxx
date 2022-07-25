@@ -85,13 +85,12 @@ HepGeom::Transform3D AFP_Geometry::getStationElementTransform(const char* pszSta
 
     AFP_TDCONFIGURATION tdcfg=m_CfgParams.tdcfg.at(eStation);
     AFP_SIDCONFIGURATION sidcfg=m_CfgParams.sidcfg.at(eStation);
-    AFP_CONSTANTS AfpConstants;
 
     double xComponent = -m_CfgParams.vecRPotFloorDistance[eStation];
     double yComponent = m_CfgParams.vecRPotYPos[eStation];
 
     double xStag = 0.0;
-    if(eElement==ESE_SID && nPlateID!=AfpConstants.Stat_GlobalVacuumSensorID)
+    if(eElement==ESE_SID && nPlateID!=AFP_CONSTANTS::Stat_GlobalVacuumSensorID)
         xStag = (nPlateID>-1) ? -sidcfg.vecXStaggering[nPlateID] : 0.0;
     
     switch(eStation)
@@ -136,7 +135,6 @@ HepGeom::Transform3D AFP_Geometry::getStationElementTransform(const char* pszSta
 
 HepGeom::Transform3D AFP_Geometry::getSIDTransform(const eSIDTransformType eType, const char* pszStationName, const int nPlateID) const
 {
-    AFP_CONSTANTS AfpConstants;
     HepGeom::Transform3D ReqTransform=HepGeom::Transform3D();
 
     std::string Station=std::string(pszStationName);
@@ -148,24 +146,24 @@ HepGeom::Transform3D AFP_Geometry::getSIDTransform(const eSIDTransformType eType
 
     if(eType==ESTT_VACUUMSENSOR)
     {
-        if(nPlateID<AfpConstants.Stat_GlobalVacuumSensorID)
+        if(nPlateID<AFP_CONSTANTS::Stat_GlobalVacuumSensorID)
         {
             double fxm=-(sidcfg.vecChipXPos[nPlateID]+0.5*sidcfg.vecChipXLength[nPlateID])*std::cos(falpha); 
-            double fZCorrOffset=(DETXSIDE==+1 || falpha==0)? -0:4*AfpConstants.SiT_CorrZOffset;
+            double fZCorrOffset=(DETXSIDE==+1 || falpha==0)? -0:4*AFP_CONSTANTS::SiT_CorrZOffset;
             HepGeom::Transform3D TransInMotherVolume=getStationElementTransform(pszStationName,ESE_SID,nPlateID);
             HepGeom::Transform3D NominalPosInPocket=HepGeom::Translate3D(0.0*CLHEP::mm,0.0*CLHEP::mm, (fzm-fZCorrOffset));
     
-            ReqTransform=HepGeom::Translate3D(0.5*AfpConstants.SiT_Plate_Main_length_x-0.5*AfpConstants.SiT_Chip_length_x, 0.0*CLHEP::mm, -0.5*AfpConstants.SiT_Plate_Main_thickness-0.5*AfpConstants.Stat_GlobalVacuumSensorThickness);
+            ReqTransform=HepGeom::Translate3D(0.5*AFP_CONSTANTS::SiT_Plate_Main_length_x-0.5*AFP_CONSTANTS::SiT_Chip_length_x, 0.0*CLHEP::mm, -0.5*AFP_CONSTANTS::SiT_Plate_Main_thickness-0.5*AFP_CONSTANTS::Stat_GlobalVacuumSensorThickness);
             ReqTransform=TransInMotherVolume*NominalPosInPocket*HepGeom::Translate3D(fxm, 0.0*CLHEP::mm, nPlateID*sidcfg.fLayerSpacing/std::cos(falpha))*HepGeom::RotateY3D(falpha)*ReqTransform;
         }
         else
         {
-            if(nPlateID==AfpConstants.Stat_GlobalVacuumSensorID)
+            if(nPlateID==AFP_CONSTANTS::Stat_GlobalVacuumSensorID)
             {
-                if(eStation==EAS_AFP00) ReqTransform=HepGeom::TranslateZ3D(-AfpConstants.Stat_GlobalVacuumSensorZOffset);
-                else if(eStation==EAS_AFP01) ReqTransform=HepGeom::TranslateZ3D(-AfpConstants.Stat_GlobalVacuumSensorZOffset);
-                else if(eStation==EAS_AFP02) ReqTransform=HepGeom::TranslateZ3D(-AfpConstants.Stat_GlobalVacuumSensorZOffset);
-                else if(eStation==EAS_AFP03) ReqTransform=HepGeom::TranslateZ3D(-AfpConstants.Stat_GlobalVacuumSensorZOffset);
+                if(eStation==EAS_AFP00) ReqTransform=HepGeom::TranslateZ3D(-AFP_CONSTANTS::Stat_GlobalVacuumSensorZOffset);
+                else if(eStation==EAS_AFP01) ReqTransform=HepGeom::TranslateZ3D(-AFP_CONSTANTS::Stat_GlobalVacuumSensorZOffset);
+                else if(eStation==EAS_AFP02) ReqTransform=HepGeom::TranslateZ3D(-AFP_CONSTANTS::Stat_GlobalVacuumSensorZOffset);
+                else if(eStation==EAS_AFP03) ReqTransform=HepGeom::TranslateZ3D(-AFP_CONSTANTS::Stat_GlobalVacuumSensorZOffset);
             }
         }
         
@@ -173,7 +171,7 @@ HepGeom::Transform3D AFP_Geometry::getSIDTransform(const eSIDTransformType eType
     }
     
     double fxm=-(sidcfg.vecChipXPos[nPlateID]+0.5*sidcfg.vecChipXLength[nPlateID])*std::cos(falpha); 
-    double fZCorrOffset=(DETXSIDE==+1 || falpha==0)? -0:4*AfpConstants.SiT_CorrZOffset;
+    double fZCorrOffset=(DETXSIDE==+1 || falpha==0)? -0:4*AFP_CONSTANTS::SiT_CorrZOffset;
     HepGeom::Transform3D TransInMotherVolume=getStationElementTransform(pszStationName,ESE_SID,nPlateID);
     HepGeom::Transform3D NominalPosInPocket=HepGeom::Translate3D(0.0*CLHEP::mm,0.0*CLHEP::mm, (fzm-fZCorrOffset));
 
@@ -184,8 +182,8 @@ HepGeom::Transform3D AFP_Geometry::getSIDTransform(const eSIDTransformType eType
     HepGeom::Transform3D TotTransform=TransInMotherVolume*TransStaggering*NominalPosInPocket;
 
     HepGeom::Transform3D PlateTotTrans=TotTransform*HepGeom::Translate3D(fxm,0.0*CLHEP::mm, nPlateID*sidcfg.fLayerSpacing/std::cos(falpha))*HepGeom::RotateY3D(falpha);
-    HepGeom::Transform3D TransFEI4=PlateTotTrans*HepGeom::Translate3D(sidcfg.vecChipXPos[nPlateID], sidcfg.vecChipYPos[nPlateID], 0.5*AfpConstants.SiT_Plate_Main_thickness+0.5*AfpConstants.SiT_Chip_thickness)*HepGeom::RotateZ3D(sidcfg.vecChipRotAngle[nPlateID]);
-    HepGeom::Transform3D TransSID=TotTransform*HepGeom::Translate3D(fxm,0.0*CLHEP::mm, nPlateID*sidcfg.fLayerSpacing/std::cos(falpha)) * HepGeom::Translate3D(sidcfg.vecChipXPos[nPlateID]+sidcfg.vecSensorXPos[nPlateID], sidcfg.vecChipYPos[nPlateID]+sidcfg.vecSensorYPos[nPlateID],  (0.5*AfpConstants.SiT_Plate_Main_thickness+AfpConstants.SiT_Chip_thickness+0.5*AfpConstants.SiT_Pixel_thickness))*HepGeom::RotateY3D(falpha) * HepGeom::RotateZ3D(sidcfg.vecChipRotAngle[nPlateID]);
+    HepGeom::Transform3D TransFEI4=PlateTotTrans*HepGeom::Translate3D(sidcfg.vecChipXPos[nPlateID], sidcfg.vecChipYPos[nPlateID], 0.5*AFP_CONSTANTS::SiT_Plate_Main_thickness+0.5*AFP_CONSTANTS::SiT_Chip_thickness)*HepGeom::RotateZ3D(sidcfg.vecChipRotAngle[nPlateID]);
+    HepGeom::Transform3D TransSID=TotTransform*HepGeom::Translate3D(fxm,0.0*CLHEP::mm, nPlateID*sidcfg.fLayerSpacing/std::cos(falpha)) * HepGeom::Translate3D(sidcfg.vecChipXPos[nPlateID]+sidcfg.vecSensorXPos[nPlateID], sidcfg.vecChipYPos[nPlateID]+sidcfg.vecSensorYPos[nPlateID],  (0.5*AFP_CONSTANTS::SiT_Plate_Main_thickness+AFP_CONSTANTS::SiT_Chip_thickness+0.5*AFP_CONSTANTS::SiT_Pixel_thickness))*HepGeom::RotateY3D(falpha) * HepGeom::RotateZ3D(sidcfg.vecChipRotAngle[nPlateID]);
     HepGeom::Transform3D TotTransSIDInWorld=TransMotherInWorld*TransSID;
     
     switch(eType)
@@ -230,14 +228,13 @@ StatusCode AFP_Geometry::getPointInSIDSensorLocalCS(const int nStationID, const 
 {
     StatusCode Status=StatusCode::FAILURE;
     LocalPoint=HepGeom::Point3D<double>();
-    AFP_CONSTANTS AfpConstants;
     eAFPStation eStation=(eAFPStation)nStationID;
 
     AFP_TDCONFIGURATION tdcfg=m_CfgParams.tdcfg.at(eStation);
 
     if(nStationID>=0 && nStationID<=3){
         if(nPlateID>=0 && nPlateID<getSIDPlatesCnt(eStation)){
-            LocalPoint=m_MapSIDTransToLocal.at(eStation).at(nPlateID)*GlobalPoint-HepGeom::Point3D<double>(0.5*AfpConstants.SiT_Pixel_length_totx,0.5*AfpConstants.SiT_Pixel_length_toty,0.5*AfpConstants.SiT_Pixel_thickness);
+            LocalPoint=m_MapSIDTransToLocal.at(eStation).at(nPlateID)*GlobalPoint-HepGeom::Point3D<double>(0.5*AFP_CONSTANTS::SiT_Pixel_length_totx,0.5*AFP_CONSTANTS::SiT_Pixel_length_toty,0.5*AFP_CONSTANTS::SiT_Pixel_thickness);
             Status=StatusCode::SUCCESS;
         }
     }
@@ -247,14 +244,13 @@ StatusCode AFP_Geometry::getPointInSIDSensorLocalCS(const int nStationID, const 
 
 StatusCode AFP_Geometry::getPointInSIDSensorGlobalCS(const int nStationID, const int nPlateID, const HepGeom::Point3D<double>& LocalPoint, HepGeom::Point3D<double>& GlobalPoint) const
 {
-    AFP_CONSTANTS AfpConstants;
     StatusCode Status=StatusCode::FAILURE;
     GlobalPoint=HepGeom::Point3D<double>();
     eAFPStation eStation=(eAFPStation)nStationID;
 
     if(nStationID>=0 && nStationID<=3){
         if(nPlateID>=0 && nPlateID<getSIDPlatesCnt(eStation)){
-            GlobalPoint=m_MapSIDTransToGlobal.at(eStation).at(nPlateID)*static_cast<HepGeom::Point3D<double> >(LocalPoint+HepGeom::Point3D<double>(0.5*AfpConstants.SiT_Pixel_length_totx,0.5*AfpConstants.SiT_Pixel_length_toty,0.5*AfpConstants.SiT_Pixel_thickness));
+            GlobalPoint=m_MapSIDTransToGlobal.at(eStation).at(nPlateID)*static_cast<HepGeom::Point3D<double> >(LocalPoint+HepGeom::Point3D<double>(0.5*AFP_CONSTANTS::SiT_Pixel_length_totx,0.5*AFP_CONSTANTS::SiT_Pixel_length_toty,0.5*AFP_CONSTANTS::SiT_Pixel_thickness));
             Status=StatusCode::SUCCESS;
         }
     }
@@ -283,13 +279,12 @@ void AFP_Geometry::setupLBarsDims(const eAFPStation eStation)
     AFPTOF_LBARDIMENSIONS BarDims;
     double fRadLength11, fLGuideLength11, fRadLength, fLGuideLength;
 
-    AFP_CONSTANTS AfpConstants;
     AFP_TDCONFIGURATION tdcfg=m_CfgParams.tdcfg.at(eStation);
     AFPTOF_LBARREFDIMENSIONS RefBarDims=tdcfg.RefBarDims;
 
     nTrainCnt=nTrainOfBar11=tdcfg.nX1PixCnt;
 
-    if(RefBarDims.fLBarThickness>(tdcfg.fPixelX2Dim-AfpConstants.ToF_MinBarGap)) RefBarDims.fLBarThickness=tdcfg.fPixelX2Dim-AfpConstants.ToF_MinBarGap;
+    if(RefBarDims.fLBarThickness>(tdcfg.fPixelX2Dim-AFP_CONSTANTS::ToF_MinBarGap)) RefBarDims.fLBarThickness=tdcfg.fPixelX2Dim-AFP_CONSTANTS::ToF_MinBarGap;
 
     //calculate dimensions for bar (1,1), move from (refx1,refx2)
     nRefTrainID = nTrainCnt-(RefBarDims.nBarX1ID-1); //reference train
@@ -298,7 +293,7 @@ void AFP_Geometry::setupLBarsDims(const eAFPStation eStation)
     fRadLength11 -= ((1-RefBarDims.nBarX2ID)*tdcfg.fPixelX2Dim)/std::tan(tdcfg.fAlpha); //move to (1,1)
     for(fLGuideLength11=RefBarDims.fLGuideLength,i=RefBarDims.nBarX1ID-1;i>=1;i--){
         nTrainID = nTrainCnt-(i-1);
-        fLGuideLength11 -= AfpConstants.ToF_LGuideTrainOffset+(tdcfg.mapTrainInfo.at(nTrainID).fLGuideWidth-tdcfg.mapTrainInfo.at(nTrainID).fTaperOffset);
+        fLGuideLength11 -= AFP_CONSTANTS::ToF_LGuideTrainOffset+(tdcfg.mapTrainInfo.at(nTrainID).fLGuideWidth-tdcfg.mapTrainInfo.at(nTrainID).fTaperOffset);
     }
 
     //calculate length of light guides
@@ -307,7 +302,7 @@ void AFP_Geometry::setupLBarsDims(const eAFPStation eStation)
     vecLGLengths[0]=fLGuideLength11;
     for(i=2;i<=tdcfg.nX1PixCnt;i++){
         nTrainID=nTrainCnt-(i-1);
-        vecLGLengths[i-1]=vecLGLengths[i-2]+AfpConstants.ToF_LGuideTrainOffset+tdcfg.mapTrainInfo.at(nTrainID+1).fLGuideWidth-tdcfg.mapTrainInfo.at(nTrainID+1).fTaperOffset;
+        vecLGLengths[i-1]=vecLGLengths[i-2]+AFP_CONSTANTS::ToF_LGuideTrainOffset+tdcfg.mapTrainInfo.at(nTrainID+1).fLGuideWidth-tdcfg.mapTrainInfo.at(nTrainID+1).fTaperOffset;
     }
 
     tdcfg.mapBarDims.clear();

@@ -36,10 +36,8 @@ AFP_SensitiveDetector::AFP_SensitiveDetector(const std::string& name, const std:
   , m_pTDSimHitCollection(TDhitCollectionName)
   , m_pSIDSimHitCollection(SIDhitCollectionName)
 {
-  AFP_CONSTANTS AfpConstants;
-  
-  m_delta_pixel_x = AfpConstants.SiT_Pixel_length_x;
-  m_delta_pixel_y = AfpConstants.SiT_Pixel_length_y;
+  m_delta_pixel_x = AFP_CONSTANTS::SiT_Pixel_length_x;
+  m_delta_pixel_y = AFP_CONSTANTS::SiT_Pixel_length_y;
 
   for( int i=0; i < 4; i++){
     m_nNOfSIDSimHits[i] = 0;
@@ -47,8 +45,8 @@ AFP_SensitiveDetector::AFP_SensitiveDetector(const std::string& name, const std:
       m_nNOfTDSimHits[i][j] = 0;
     }
     for( int j=0; j < 10; j++){
-      m_death_edge[i][j] = AfpConstants.SiT_DeathEdge; //in mm, it is left edge as the movement is horizontal
-      m_lower_edge[i][j] = AfpConstants.SiT_LowerEdge; //in mm,
+      m_death_edge[i][j] = AFP_CONSTANTS::SiT_DeathEdge; //in mm, it is left edge as the movement is horizontal
+      m_lower_edge[i][j] = AFP_CONSTANTS::SiT_LowerEdge; //in mm,
     }
   }
 }

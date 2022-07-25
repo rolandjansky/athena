@@ -13,6 +13,7 @@
 #include "AFP_GeoModelTool.h"
 #include "AFP_GeoModelFactory.h"
 #include "AFP_GeoModelManager.h"
+#include "AFP_Geometry/AFP_constants.h"
 
 /**
  ** Constructor(s)
@@ -20,28 +21,19 @@
 AFP_GeoModelTool::AFP_GeoModelTool( const std::string& type, const std::string& name, const IInterface* parent )
     : GeoModelTool( type, name, parent ), m_pAFPDetectorFactory(NULL), m_iovSvc( "IOVDbSvc", name )
 {
-	AFP_CONSTANTS AfpConstants;
     m_CfgParams.clear();
     m_pGeometry=NULL;
 
 	m_defsidcfg.clear();
 
-	m_vecAFP00XStaggering.resize(AfpConstants.SiT_Plate_amount);
-	m_vecAFP00YStaggering.resize(AfpConstants.SiT_Plate_amount);
-	std::fill_n(m_vecAFP00XStaggering.begin(),AfpConstants.SiT_Plate_amount,AfpConstants.SiT_FarDistanceToFloor);
-	std::fill_n(m_vecAFP00YStaggering.begin(),AfpConstants.SiT_Plate_amount,0.0*CLHEP::mm);
-	m_vecAFP01XStaggering.resize(AfpConstants.SiT_Plate_amount);
-	m_vecAFP01YStaggering.resize(AfpConstants.SiT_Plate_amount);
-	std::fill_n(m_vecAFP01XStaggering.begin(),AfpConstants.SiT_Plate_amount,AfpConstants.SiT_NearDistanceToFloor);
-	std::fill_n(m_vecAFP01YStaggering.begin(),AfpConstants.SiT_Plate_amount,0.0*CLHEP::mm);
-	m_vecAFP02XStaggering.resize(AfpConstants.SiT_Plate_amount);
-	m_vecAFP02YStaggering.resize(AfpConstants.SiT_Plate_amount);
-	std::fill_n(m_vecAFP02XStaggering.begin(),AfpConstants.SiT_Plate_amount,AfpConstants.SiT_NearDistanceToFloor);
-	std::fill_n(m_vecAFP02YStaggering.begin(),AfpConstants.SiT_Plate_amount,0.0*CLHEP::mm);
-	m_vecAFP03XStaggering.resize(AfpConstants.SiT_Plate_amount);
-	m_vecAFP03YStaggering.resize(AfpConstants.SiT_Plate_amount);
-	std::fill_n(m_vecAFP03XStaggering.begin(),AfpConstants.SiT_Plate_amount,AfpConstants.SiT_FarDistanceToFloor);
-	std::fill_n(m_vecAFP03YStaggering.begin(),AfpConstants.SiT_Plate_amount,0.0*CLHEP::mm);
+	m_vecAFP00XStaggering.assign(AFP_CONSTANTS::SiT_Plate_amount,AFP_CONSTANTS::SiT_FarDistanceToFloor);
+	m_vecAFP00YStaggering.assign(AFP_CONSTANTS::SiT_Plate_amount,0.0*CLHEP::mm);
+	m_vecAFP01XStaggering.assign(AFP_CONSTANTS::SiT_Plate_amount,AFP_CONSTANTS::SiT_NearDistanceToFloor);
+	m_vecAFP01YStaggering.assign(AFP_CONSTANTS::SiT_Plate_amount,0.0*CLHEP::mm);
+	m_vecAFP02XStaggering.assign(AFP_CONSTANTS::SiT_Plate_amount,AFP_CONSTANTS::SiT_NearDistanceToFloor);
+	m_vecAFP02YStaggering.assign(AFP_CONSTANTS::SiT_Plate_amount,0.0*CLHEP::mm);
+	m_vecAFP03XStaggering.assign(AFP_CONSTANTS::SiT_Plate_amount,AFP_CONSTANTS::SiT_FarDistanceToFloor);
+	m_vecAFP03YStaggering.assign(AFP_CONSTANTS::SiT_Plate_amount,0.0*CLHEP::mm);
 
     //Properties of SID
 	declareProperty("SID_AddVacuumSensors",m_defsidcfg.bAddVacuumSensors=false);
@@ -51,20 +43,20 @@ AFP_GeoModelTool::AFP_GeoModelTool( const std::string& type, const std::string& 
 
 
     //Properties of stations
-	declareProperty("AFP00_RPotFloorDistance",m_CfgParams.vecRPotFloorDistance[0]=AfpConstants.Stat_RPotFloorDistance);
-	declareProperty("AFP01_RPotFloorDistance",m_CfgParams.vecRPotFloorDistance[1]=AfpConstants.Stat_RPotFloorDistance);
-	declareProperty("AFP02_RPotFloorDistance",m_CfgParams.vecRPotFloorDistance[2]=AfpConstants.Stat_RPotFloorDistance);
-	declareProperty("AFP03_RPotFloorDistance",m_CfgParams.vecRPotFloorDistance[3]=AfpConstants.Stat_RPotFloorDistance);
+	declareProperty("AFP00_RPotFloorDistance",m_CfgParams.vecRPotFloorDistance[0]=AFP_CONSTANTS::Stat_RPotFloorDistance);
+	declareProperty("AFP01_RPotFloorDistance",m_CfgParams.vecRPotFloorDistance[1]=AFP_CONSTANTS::Stat_RPotFloorDistance);
+	declareProperty("AFP02_RPotFloorDistance",m_CfgParams.vecRPotFloorDistance[2]=AFP_CONSTANTS::Stat_RPotFloorDistance);
+	declareProperty("AFP03_RPotFloorDistance",m_CfgParams.vecRPotFloorDistance[3]=AFP_CONSTANTS::Stat_RPotFloorDistance);
 
-	declareProperty("AFP00_RPotYPos",m_CfgParams.vecRPotYPos[0]=AfpConstants.Stat_ShiftInYAxis);
-	declareProperty("AFP01_RPotYPos",m_CfgParams.vecRPotYPos[1]=AfpConstants.Stat_ShiftInYAxis);
-	declareProperty("AFP02_RPotYPos",m_CfgParams.vecRPotYPos[2]=AfpConstants.Stat_ShiftInYAxis);
-	declareProperty("AFP03_RPotYPos",m_CfgParams.vecRPotYPos[3]=AfpConstants.Stat_ShiftInYAxis);
+	declareProperty("AFP00_RPotYPos",m_CfgParams.vecRPotYPos[0]=AFP_CONSTANTS::Stat_ShiftInYAxis);
+	declareProperty("AFP01_RPotYPos",m_CfgParams.vecRPotYPos[1]=AFP_CONSTANTS::Stat_ShiftInYAxis);
+	declareProperty("AFP02_RPotYPos",m_CfgParams.vecRPotYPos[2]=AFP_CONSTANTS::Stat_ShiftInYAxis);
+	declareProperty("AFP03_RPotYPos",m_CfgParams.vecRPotYPos[3]=AFP_CONSTANTS::Stat_ShiftInYAxis);
 
-	declareProperty("AFP00_ZPos",m_CfgParams.vecStatNominalZPos[0]=AfpConstants.Stat_OuterZDistance);
-	declareProperty("AFP01_ZPos",m_CfgParams.vecStatNominalZPos[1]=AfpConstants.Stat_InnerZDistance);
-	declareProperty("AFP02_ZPos",m_CfgParams.vecStatNominalZPos[2]=-AfpConstants.Stat_InnerZDistance);
-	declareProperty("AFP03_ZPos",m_CfgParams.vecStatNominalZPos[3]=-AfpConstants.Stat_OuterZDistance);
+	declareProperty("AFP00_ZPos",m_CfgParams.vecStatNominalZPos[0]=AFP_CONSTANTS::Stat_OuterZDistance);
+	declareProperty("AFP01_ZPos",m_CfgParams.vecStatNominalZPos[1]=AFP_CONSTANTS::Stat_InnerZDistance);
+	declareProperty("AFP02_ZPos",m_CfgParams.vecStatNominalZPos[2]=-AFP_CONSTANTS::Stat_InnerZDistance);
+	declareProperty("AFP03_ZPos",m_CfgParams.vecStatNominalZPos[3]=-AFP_CONSTANTS::Stat_OuterZDistance);
 
 	m_CfgParams.sidcfg[EAS_AFP00]=m_defsidcfg;
 	m_CfgParams.sidcfg[EAS_AFP01]=m_defsidcfg;

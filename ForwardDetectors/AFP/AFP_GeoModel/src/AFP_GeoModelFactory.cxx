@@ -23,6 +23,7 @@
 #include "GeoModelUtilities/GeoMaterialPropertiesTable.h"
 #include "GeoModelUtilities/GeoBorderSurfaceContainer.h"
 #include "AFP_Geometry/AFP_Geometry.h"
+#include "AFP_Geometry/AFP_constants.h"
 
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
@@ -237,7 +238,7 @@ void AFP_GeoModelFactory::create(GeoPhysVol *world)
 
     // Initialization of Surface Container for TD Surface(s)
     GeoBorderSurfaceContainer* pBSContainer = new GeoBorderSurfaceContainer();
-    pBSContainer->reserve(m_AfpConstants.ToF_TrainsCnt*m_AfpConstants.ToF_ColumnsCnt);
+    pBSContainer->reserve(AFP_CONSTANTS::ToF_TrainsCnt*AFP_CONSTANTS::ToF_ColumnsCnt);
 
     //AFP00 (SIDE A (+z)) ------------------------------------------------------------------------------------------------------------------------------------------------------
 
