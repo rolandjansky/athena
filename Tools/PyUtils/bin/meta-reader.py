@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 # This script reads metadata from a given file
 
 from __future__ import print_function
@@ -113,11 +113,13 @@ def _main():
 						default= 'lite',
 						metavar='MODE',
 						type=str,
-						choices=['tiny', 'lite', 'full', 'peeker'],
+						choices=['tiny', 'lite', 'full', 'peeker', 'iov'],
 						help="This flag provides the user capability to select the amount of metadata retrieved. There three options: "
 							"tiny (only those values used in PyJobTransforms), "
-							"lite (same output as dump-athfile) "
-							"and full ( all  available data found) ")
+							"lite (same output as dump-athfile), "
+							"full (all available data found), "
+							"and iov (full+iov details)" )
+
 	parser.add_argument('-t',
 						'--type',
 						default= None,

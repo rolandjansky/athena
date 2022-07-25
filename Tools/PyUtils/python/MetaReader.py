@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import absolute_import
 import os
@@ -39,6 +39,10 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
     :return: a dictionary of metadata for the given input file.
     """
 
+    # make the mode available in the _convert methods
+    global _gbl_mode
+    _gbl_mode = mode
+
     from RootUtils import PyROOTFixes  # noqa F401
 
     # Check if the input is a file or a list of files.
@@ -53,12 +57,12 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
             msg.info('Forced file_type: {0}'.format(file_type))
 
     # Check the value of mode parameter
-    if mode not in ('tiny', 'lite', 'full', 'peeker'):
-        raise NameError('Allowed values for "mode" parameter are: "tiny", "lite", "peeker" or "full"')
+    if mode not in ('tiny', 'lite', 'full', 'peeker', 'iov'):
+        raise NameError('Allowed values for "mode" parameter are: "tiny", "lite", "peeker", "iov" or "full"')
     msg.info('Current mode used: {0}'.format(mode))
     msg.info('Current filenames: {0}'.format(filenames))
 
-    if mode != 'full' and len(meta_key_filter) > 0:
+    if mode != 'full' and mode !='iov' and len(meta_key_filter) > 0:
         raise NameError('It is possible to use the meta_key_filter option only for full mode')
     if meta_key_filter:
         msg.info('Filter used: {0}'.format(meta_key_filter))
@@ -194,7 +198,7 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                         '*': 'EventStreamInfo_p*'
                     }
 
-                if mode == 'full' and meta_key_filter:
+                if (mode == 'full' or mode == 'iov') and meta_key_filter:
                     meta_filter = {f: '*' for f in meta_key_filter}
                 # store all persistent classes for metadata container existing in a POOL/ROOT file.
                 persistent_instances = {}
@@ -203,6 +207,9 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                 for i in range(0, nr_of_branches):
                     branch = metadata_branches.At(i)
                     name = branch.GetName()
+                    if name == 'index_ref':
+                        # skip the index branch
+                        continue
 
                     class_name = branch.GetClassName()
 
@@ -337,6 +344,10 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                     else:
                         meta_dict[filename][key] = return_obj
 
+
+            if unique_tag_info_values and mode=='iov':
+                unique_tag_info_values = False
+                msg.info('disabling "unique_tag_info_values" option for "iov" mode')
 
             # This is a required workaround which will temporarily be fixing ATEAM-560 originated from  ATEAM-531
             # ATEAM-560: https://its.cern.ch/jira/browse/ATEAM-560
@@ -599,7 +610,11 @@ def _convert_value(value, aux = None):
                 return _extract_fields_iovmdc(value)
 
             elif cl.__cpp_name__ == 'IOVPayloadContainer_p1':
-                return _extract_fields_iovpc(value)
+                global _gbl_mode
+                if _gbl_mode == 'iov':
+                    return _extract_iov_detailed(value)
+                else:
+                    return _extract_fields_iov( value, range(value.m_attrIndexes.size()) )
 
             elif cl.__cpp_name__ == 'xAOD::EventFormat_v1':
                 return _extract_fields_ef(value)
@@ -630,83 +645,118 @@ def _convert_value(value, aux = None):
     return value
 
 
+def _get_attribute_val(iov_container, attr_name, attr_idx):
+    type_idx = attr_idx.typeIndex()
+    obj_idx = attr_idx.objIndex()
+
+    attr_value = None
+
+    if type_idx == 0:
+        attr_value = bool(iov_container.m_bool[obj_idx])
+    elif type_idx == 1:
+        attr_value = int(iov_container.m_char[obj_idx])
+    elif type_idx == 2:
+        attr_value = int(iov_container.m_unsignedChar[obj_idx])
+    elif type_idx == 3:
+        attr_value = int(iov_container.m_short[obj_idx])
+    elif type_idx == 4:
+        attr_value = int(iov_container.m_unsignedShort[obj_idx])
+    elif type_idx == 5:
+        attr_value = int(iov_container.m_int[obj_idx])
+    elif type_idx == 6:
+        attr_value = int(iov_container.m_unsignedInt[obj_idx])
+    elif type_idx == 7:
+        attr_value = int(iov_container.m_long[obj_idx])
+    elif type_idx == 8:
+        attr_value = int(iov_container.m_unsignedLong[obj_idx])
+    elif type_idx == 9:
+        attr_value = int(iov_container.m_longLong[obj_idx])
+    elif type_idx == 10:
+        attr_value = int(iov_container.m_unsignedLongLong[obj_idx])
+    elif type_idx == 11:
+        attr_value = float(iov_container.m_float[obj_idx])
+    elif type_idx == 12:
+        attr_value = float(iov_container.m_double[obj_idx])
+    elif type_idx == 13:
+        # skipping this type because is file IOVPayloadContainer_p1.h (line 120) is commented and not considered
+        pass
+    elif type_idx == 14:
+        attr_value = str(iov_container.m_string[obj_idx])
+        # Cleaning class name from value
+        if attr_value.startswith('IOVMetaDataContainer_p1_'):
+            attr_value = attr_value.replace('IOVMetaDataContainer_p1_', '')
+        if attr_value.startswith('_'):
+            attr_value = attr_value.replace('_', '/')
+        # Now it is clean
+    elif type_idx == 15:
+        attr_value = int(iov_container.m_date[obj_idx])
+    elif type_idx == 16:
+        attr_value = int(iov_container.m_timeStamp[obj_idx])
+    else:
+        raise ValueError('Unknown type id {0} for attribute {1}'.format(type_idx, attr_name))
+
+    return attr_value
+
+
+def _extract_fields_iov( iov_container, idx_range ):
+     result = {}
+
+     for idx in idx_range:
+         attr_idx = iov_container.m_attrIndexes[idx]
+         name_idx = attr_idx.nameIndex()
+         attr_name = iov_container.m_attrName[name_idx]
+         attr_value = _get_attribute_val(iov_container, attr_name, attr_idx)
+
+         if attr_name not in result:
+             result[attr_name] = [attr_value]
+         else:
+             result[attr_name].append(attr_value)
+
+     max_element_count = 0
+     for name, content in result.items():
+         if len(content) > max_element_count:
+             max_element_count = len(content)
+
+     if max_element_count <= 1:
+         for name, content in result.items():
+             if len(content) > 0:
+                 result[name] = content[0]
+             else:
+                 result[name] = None
+
+     return result
+
+
+def _extract_iov_detailed(iov_container):
+    def iovtostr(t):
+        # break iov time into high and low halves (run number usually in the higher half)
+        return "({h}:{l})".format(h=t>>32, l=t&(2^32-1))
+
+    def extract_list_collection(iov_container, listCollection ):
+        result = {}
+        ln = 0
+        for list in listCollection.m_attrLists:
+            ln = ln + 1
+            lname = 'List {ln}: iov=[{s} ,{e}];  Channel#={ch}'.format(
+                ln=ln, s=iovtostr(list.m_range.m_start),
+                e=iovtostr(list.m_range.m_stop),
+                ch=list.m_channelNumber )
+            result[ lname ] = _extract_fields_iov( iov_container, range(list.m_firstIndex, list.m_lastIndex) )
+        return result
+
+    result = {}
+    pn = 0
+    for listCollection in iov_container.m_payloadVec:
+        pn = pn + 1
+        pname = 'IOV range {n}: [{s}, {e}]'.format(n=pn, s=iovtostr(listCollection.m_start),
+                                                   e=iovtostr(listCollection.m_stop))
+        result[ pname ] = extract_list_collection(iov_container, listCollection )
+    return result
+
+
 def _extract_fields_iovmdc(value):
     return _convert_value(value.m_payload)
 
-
-def _extract_fields_iovpc(value):
-    result = {}
-
-    for attr_idx in value.m_attrIndexes:
-        name_idx = attr_idx.nameIndex()
-        type_idx = attr_idx.typeIndex()
-        obj_idx = attr_idx.objIndex()
-
-        attr_name = value.m_attrName[name_idx]
-        attr_value = None
-
-        if type_idx == 0:
-            attr_value = bool(value.m_bool[obj_idx])
-        elif type_idx == 1:
-            attr_value = int(value.m_char[obj_idx])
-        elif type_idx == 2:
-            attr_value = int(value.m_unsignedChar[obj_idx])
-        elif type_idx == 3:
-            attr_value = int(value.m_short[obj_idx])
-        elif type_idx == 4:
-            attr_value = int(value.m_unsignedShort[obj_idx])
-        elif type_idx == 5:
-            attr_value = int(value.m_int[obj_idx])
-        elif type_idx == 6:
-            attr_value = int(value.m_unsignedInt[obj_idx])
-        elif type_idx == 7:
-            attr_value = int(value.m_long[obj_idx])
-        elif type_idx == 8:
-            attr_value = int(value.m_unsignedLong[obj_idx])
-        elif type_idx == 9:
-            attr_value = int(value.m_longLong[obj_idx])
-        elif type_idx == 10:
-            attr_value = int(value.m_unsignedLongLong[obj_idx])
-        elif type_idx == 11:
-            attr_value = float(value.m_float[obj_idx])
-        elif type_idx == 12:
-            attr_value = float(value.m_double[obj_idx])
-        elif type_idx == 13:
-            # skipping this type because is file IOVPayloadContainer_p1.h (line 120) is commented and not considered
-            pass
-        elif type_idx == 14:
-            attr_value = str(value.m_string[obj_idx])
-            # Cleaning class name from value
-            if attr_value.startswith('IOVMetaDataContainer_p1_'):
-                attr_value = attr_value.replace('IOVMetaDataContainer_p1_', '')
-            if attr_value.startswith('_'):
-                attr_value = attr_value.replace('_', '/')
-            # Now it is clean
-        elif type_idx == 15:
-            attr_value = int(value.m_date[obj_idx])
-        elif type_idx == 16:
-            attr_value = int(value.m_timeStamp[obj_idx])
-        else:
-            raise ValueError('Unknown type id {0} for attribute {1}'.format(type_idx, attr_name))
-
-        if attr_name not in result:
-            result[attr_name] = []
-
-        result[attr_name].append(attr_value)
-
-    max_element_count = 0
-    for name, content in result.items():
-        if len(content) > max_element_count:
-            max_element_count = len(content)
-
-    if max_element_count <= 1:
-        for name, content in result.items():
-            if len(content) > 0:
-                result[name] = content[0]
-            else:
-                result[name] = None
-
-    return result
 
 def _extract_fields_esi(value):
     result = {}
