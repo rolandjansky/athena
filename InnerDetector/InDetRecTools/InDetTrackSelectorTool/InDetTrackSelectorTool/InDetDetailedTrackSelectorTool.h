@@ -13,6 +13,7 @@
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/VertexFwd.h"
 #include "BeamSpotConditionsData/BeamSpotData.h"
+#include "xAODEventInfo/EventInfo.h"
 // MagField cache
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "MagFieldElements/AtlasFieldCache.h"
@@ -165,8 +166,10 @@ namespace InDet
       
       std::vector<float> m_ptBenchmarks;
       
-      std::vector<int> m_nSCTValues;      
-
+      std::vector<int> m_nSCTValues;
+      SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo_key{this, "EventInfo", "EventInfo", "Input event information"};
+      bool m_useEventInfoBs;//!<Access beamspot via the EvenInfo object
+      Trk::Vertex* getBeamSpot(const EventContext&) const;
   }; //end of class definitions
 
 } //end of namespace definitions
