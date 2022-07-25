@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtCalibData/TrRelation.h"
@@ -42,9 +42,10 @@ TrRelation::TrRelation(const IRtRelation &input_rt) {
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 //:: CONSTRUCTOR (const std::vector<double> & , const std::vector<double> &) ::
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-TrRelation::TrRelation(const std::vector<double> &r_values, const std::vector<double> &t_values) {
-    m_r = r_values;
-    m_t = t_values;
+TrRelation::TrRelation(const std::vector<double> &r_values, const std::vector<double> &t_values)
+  : m_r (r_values),
+    m_t (t_values)
+{
 }
 
 //*****************************************************************************

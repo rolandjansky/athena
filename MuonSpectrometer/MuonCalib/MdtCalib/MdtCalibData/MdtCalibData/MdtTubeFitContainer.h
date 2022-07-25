@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONFIT_MDTTUBECALIBCONTAINER_H
@@ -36,7 +36,7 @@ namespace MuonCalib {
         };
 
         /** nMl = number of multilayres, nLayers = number of layers in multilayer (3 or 4); nTubes = number of tubes in one layer */
-        MdtTubeFitContainer(std::string region, unsigned int nMl, unsigned int nLayers, unsigned int nTubes) :
+        MdtTubeFitContainer(const std::string& region, unsigned int nMl, unsigned int nLayers, unsigned int nTubes) :
             MdtTubeCalibContainer(region, nMl, nLayers, nTubes),
             m_info(nMl * nLayers * nTubes),
             m_name("MdtTubeFitContainer"),
@@ -71,7 +71,7 @@ namespace MuonCalib {
         }
 
         /** set the name of the implementation used to fill this class */
-        void setImplementation(std::string impl) { m_implementation = impl; }
+        void setImplementation(const std::string& impl) { m_implementation = impl; }
 
         /** return the name of this class */
         std::string name() const { return m_name; }
@@ -80,7 +80,9 @@ namespace MuonCalib {
         std::string implementation() const { return m_implementation; }
 
         inline void setGroupBy(const std::string& group_by) {
-            for (std::vector<SingleTubeFit>::iterator it = m_info.begin(); it != m_info.end(); it++) { it->group_by = group_by; }
+            for (SingleTubeFit& fit : m_info) {
+              fit.group_by = group_by;
+            }
         }
         inline const std::string& GroupBy() const {
             if (!m_info.size()) return m_group_by;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCALIB_MDTTUBECALIBCONTAINER_H
@@ -24,7 +24,7 @@ namespace MuonCalib {
         };
 
         /** nMl = number of multilayres, nLayers = number of layers in multilayer (3 or 4); nTubes = number of tubes in one layer */
-        MdtTubeCalibContainer(std::string region, unsigned int nMl, unsigned int nLayers, unsigned int nTubes) :
+        MdtTubeCalibContainer(const std::string& region, unsigned int nMl, unsigned int nLayers, unsigned int nTubes) :
             m_regionKey(region), m_nMl(nMl), m_nLayers(nLayers), m_nTubes(nTubes), m_data(nMl * nLayers * nTubes) {}
 
         /** return calibration constants of a single tube */
