@@ -248,6 +248,8 @@ def TrigCaloMonConfig(inputFlags):
     for i in range(len(algs)):
 
         # Set properties
+        if algs[i].name == "HLT_TopoCaloClustersLCMonAlg":
+            algs[i].DoLC = True 
         algs[i].OFFContainer = 'CaloCalTopoClusters'
         algs[i].MonGroupName = 'TrigCaloMonitor'
         algs[i].HLTTypes = []

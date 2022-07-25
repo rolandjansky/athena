@@ -24,6 +24,7 @@ HLTCalo_TopoCaloClustersMonitor::HLTCalo_TopoCaloClustersMonitor( const std::str
   declareProperty("HLTMinET",  m_HLT_min_et  = -1.0);
   declareProperty("OFFMinET",  m_OFF_min_et  = -1.0);
   declareProperty("MatchType", m_match_types = false);
+  declareProperty("DoLC", m_doLC = false);
   declareProperty("MaxDeltaR", m_max_delta_r = 0.04);
 }
 
@@ -90,11 +91,23 @@ StatusCode HLTCalo_TopoCaloClustersMonitor::fillHistograms( const EventContext& 
   }
 
   // prepare OFF clusters
+  float off_clus_eta = 0;
+  float	off_clus_phi = 0;
+  float off_clus_et = 0;
   std::vector<clus_kin> vec_off_clusters;
   for (const auto off_cluster : *offCluster_readHandle) {
-	auto off_clus_et = off_cluster->et();
+        if (m_doLC){
+	  off_clus_et = off_cluster->et();
+          off_clus_eta = off_cluster->eta();
+          off_clus_phi = off_cluster->phi();
+        }
+        else{
+          off_clus_et = off_cluster->rawE()/std::cosh(std::abs(off_cluster->rawEta()));
+          off_clus_eta = off_cluster->rawEta();
+          off_clus_phi = off_cluster->rawPhi();
+        }
 	if (off_clus_et < m_OFF_min_et) continue;
-
+    
 	bool OFF_type_match = false;
 
 	for (unsigned int n = 0; n < m_OFF_types.size(); ++n) {
@@ -102,7 +115,7 @@ StatusCode HLTCalo_TopoCaloClustersMonitor::fillHistograms( const EventContext& 
 	}
 
 	if (!m_OFF_types.empty() && !OFF_type_match) continue;
-	vec_off_clusters.push_back({off_clus_et*0.001, off_cluster->eta(), off_cluster->phi(), off_cluster});
+	vec_off_clusters.push_back({off_clus_et*0.001, off_clus_eta, off_clus_phi, off_cluster});
   }
 
   
@@ -158,7 +171,7 @@ StatusCode HLTCalo_TopoCaloClustersMonitor::fillHistograms( const EventContext& 
 	++n_hlt_clusters;
 
 	// high-ET clusters
-	if (hlt_cluster.et > (m_HLT_high_et * 0.001) && fabs(hlt_cluster.eta) < 2.5) {
+	if (hlt_cluster.et > (m_HLT_high_et * 0.001) && std::abs(hlt_cluster.eta) < 2.5) {
 		++n_hlt_barrel_high_et_clusters;
 		vec_hlt_barrel_high_et.push_back(1);
 	}
@@ -357,12 +370,12 @@ StatusCode HLTCalo_TopoCaloClustersMonitor::fillHistograms( const EventContext& 
 
 float HLTCalo_TopoCaloClustersMonitor::calculateDeltaR( float max_deltar, float eta_1, float phi_1, float eta_2, float phi_2 ) const {
   // reject the match as early as possible to avoid the expensive delta r calculation
-  if (fabs(eta_1-eta_2) > max_deltar) return 99.9;
+  if (std::abs(eta_1-eta_2) > max_deltar) return 99.9;
   double DeltaPhi = calculateDeltaPhi(phi_1, phi_2);
   if (DeltaPhi > max_deltar) return 99.9;
   return sqrt( ((eta_1-eta_2)*(eta_1-eta_2)) + (DeltaPhi*DeltaPhi) );
 }
 
 float HLTCalo_TopoCaloClustersMonitor::calculateDeltaPhi( float phi_1, float phi_2 ) const {
-  return fabs( fabs( fabs( phi_1 - phi_2 ) - TMath::Pi() ) - TMath::Pi() );
+  return std::abs( std::abs( std::abs( phi_1 - phi_2 ) - TMath::Pi() ) - TMath::Pi() );
 }
