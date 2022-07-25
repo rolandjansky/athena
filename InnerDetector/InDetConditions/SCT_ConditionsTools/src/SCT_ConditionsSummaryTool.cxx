@@ -153,39 +153,46 @@ namespace {
       return ret;
    }
 }
-std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange> SCT_ConditionsSummaryTool::createDetectorElementStatus(const EventContext& ctx) const  {
+std::unique_ptr<InDet::SiDetectorElementStatus>
+SCT_ConditionsSummaryTool::createDetectorElementStatus(const EventContext& ctx,
+                                                       SG::WriteCondHandle<InDet::SiDetectorElementStatus>* whandle) const  {
       std::string tool_name (name());
       (void) tool_name;
    if (!m_SCTDetElStatusCondKey.empty()) {
       SG::ReadCondHandle<InDet::SiDetectorElementStatus> input_element_status{m_SCTDetElStatusCondKey, ctx};
-      return std::make_tuple(std::unique_ptr<InDet::SiDetectorElementStatus>(new InDet::SCT_DetectorElementStatus(*castToDerived(input_element_status.cptr()))),
-                             input_element_status.getRange() );
+      if (whandle) {
+        whandle->addDependency (input_element_status);
+      }
+      return std::make_unique<InDet::SCT_DetectorElementStatus>(*castToDerived(input_element_status.cptr()));
    }
    else if (!m_SCTDetElStatusEventKey.empty()) {
       SG::ReadHandle<InDet::SiDetectorElementStatus> input_element_status{m_SCTDetElStatusEventKey, ctx};
       std::string key (m_SCTDetElStatusEventKey.key());
       (void) key;
-      return std::make_tuple(std::unique_ptr<InDet::SiDetectorElementStatus>(new InDet::SCT_DetectorElementStatus(*castToDerived(input_element_status.cptr()))),
-                             EventIDRange() );
+      return std::make_unique<InDet::SCT_DetectorElementStatus>(*castToDerived(input_element_status.cptr()));
    }
    else {
       SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEleHandle(m_SCTDetEleCollKey, ctx);
+      if (whandle) {
+        whandle->addDependency (sctDetEleHandle);
+      }
       const InDetDD::SiDetectorElementCollection* elements(*sctDetEleHandle);
-      return std::make_tuple(std::unique_ptr<InDet::SiDetectorElementStatus>(new InDet::SCT_DetectorElementStatus(*elements)),
-                             sctDetEleHandle.getRange() );
+      return std::make_unique<InDet::SCT_DetectorElementStatus>(*elements);
    }
 }
 
-std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange> SCT_ConditionsSummaryTool::getDetectorElementStatus(const EventContext& ctx) const {
-   std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange>
-      element_status( createDetectorElementStatus(ctx) );
+std::unique_ptr<InDet::SiDetectorElementStatus>
+SCT_ConditionsSummaryTool::getDetectorElementStatus(const EventContext& ctx,
+                                                    SG::WriteCondHandle<InDet::SiDetectorElementStatus>* whandle) const {
+   std::unique_ptr<InDet::SiDetectorElementStatus>
+      element_status( createDetectorElementStatus(ctx, whandle) );
    if (not m_noReports) {
       for (const ToolHandle<ISCT_ConditionsTool>& tool: m_toolHandles) {
          // @TODO also check if it can report about chips ?
          if ((tool->canReportAbout(InDetConditions::SCT_SIDE) or
               tool->canReportAbout(InDetConditions::SCT_MODULE) or
               tool->canReportAbout(InDetConditions::SCT_STRIP))) {
-            tool->getDetectorElementStatus(ctx,*std::get<0>(element_status),std::get<1>(element_status));
+            tool->getDetectorElementStatus(ctx,*element_status,whandle);
          }
       }
    }
