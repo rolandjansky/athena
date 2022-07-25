@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -251,7 +251,7 @@ namespace VKalVrtAthena {
   StatusCode  VrtSecInclusive::selectTracksFromMuons() { 
     
     const xAOD::MuonContainer* muons ( nullptr );
-    ATH_CHECK( evtStore()->retrieve( muons, "Muons") );
+    ATH_CHECK( evtStore()->retrieve( muons, m_jp.MuonLocation) );
     
     
     for( const auto muon : *muons ) {
@@ -277,7 +277,7 @@ namespace VKalVrtAthena {
   StatusCode  VrtSecInclusive::selectTracksFromElectrons() { 
     
     const xAOD::ElectronContainer *electrons( nullptr );
-    ATH_CHECK( evtStore()->retrieve( electrons, "Electrons" ) );
+    ATH_CHECK( evtStore()->retrieve( electrons, m_jp.ElectronLocation ) );
     
     for( const auto electron : *electrons ) {
       if( 0 == electron->nTrackParticles() ) continue;

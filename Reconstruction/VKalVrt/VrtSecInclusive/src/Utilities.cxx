@@ -692,6 +692,8 @@ namespace VKalVrtAthena {
     declareProperty("GeoModel",                        m_jp.geoModel                        = VKalVrtAthena::GeoModel::Run2 );
     
     declareProperty("TrackLocation",                   m_jp.TrackLocation                   = "InDetTrackParticles"         );
+    declareProperty("MuonLocation",                    m_jp.MuonLocation                    = "Muons"                       );
+    declareProperty("ElectronLocation",                m_jp.ElectronLocation                = "Electrons"                   );
     declareProperty("PrimVrtLocation",                 m_jp.PrimVrtLocation                 = "PrimaryVertices"             );
     declareProperty("McParticleContainer",             m_jp.truthParticleContainerName      = "TruthParticles"              );
     declareProperty("MCEventContainer",                m_jp.mcEventContainerName            = "TruthEvents"                 );

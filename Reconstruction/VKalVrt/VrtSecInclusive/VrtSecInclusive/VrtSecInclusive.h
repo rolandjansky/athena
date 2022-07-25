@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // VKalVrt.h
@@ -106,6 +106,8 @@ namespace VKalVrtAthena {
       int    geoModel;
    
       std::string          TrackLocation;
+      std::string          MuonLocation;
+      std::string          ElectronLocation;
       std::string          PrimVrtLocation;
       std::string          truthParticleContainerName;
       std::string          mcEventContainerName;
