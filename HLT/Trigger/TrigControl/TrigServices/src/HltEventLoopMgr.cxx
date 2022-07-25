@@ -915,48 +915,63 @@ StatusCode HltEventLoopMgr::failedEvent(HLT::OnlineErrorCode errorCode, const Ev
   }
 
   //----------------------------------------------------------------------------
-  // Create an HLT result for the failed event (copy one if it exists)
+  // Define a debug stream tag for the HLT result
   //----------------------------------------------------------------------------
-  auto hltResultRH = SG::makeHandle(m_hltResultRHKey,eventContext);
-  if (!hltResultRH.isValid()) {
-    // Try to build a result if not available
-    m_hltResultMaker->makeResult(eventContext).ignore();
-  }
-
-  std::unique_ptr<HLT::HLTResultMT> hltResultPtr;
-  if (!hltResultRH.isValid())
-    hltResultPtr = std::make_unique<HLT::HLTResultMT>();
-  else
-    hltResultPtr = std::make_unique<HLT::HLTResultMT>(*hltResultRH);
-
-  SG::WriteHandleKey<HLT::HLTResultMT> hltResultWHK(m_hltResultRHKey.key()+"_FailedEvent");
-  ATH_CHECK(hltResultWHK.initialize());
-  auto hltResultWH = SG::makeHandle(hltResultWHK,eventContext);
-  if (hltResultWH.record(std::move(hltResultPtr)).isFailure()) {
-    ATH_MSG_ERROR("Failed to record the HLT Result in event store while handling a failed event."
-      << " Likely an issue with the store. OnlineErrorCode=" << errorCode
-      << ", local event number " << eventContext.evt() << ", slot " << eventContext.slot()
-      << ". All slots of this HltEventLoopMgr instance will be drained before proceeding.");
-    return drainAllAndProceed();
-  }
-
-  //----------------------------------------------------------------------------
-  // Set error code and make sure the debug stream tag is added
-  //----------------------------------------------------------------------------
-  hltResultWH->addErrorCode(errorCode);
+  std::string debugStreamName;
   switch (errorCode) {
     case HLT::OnlineErrorCode::PROCESSING_FAILURE:
-      ATH_CHECK(hltResultWH->addStreamTag({m_algErrorDebugStreamName.value(), eformat::DEBUG_TAG, true}));
+      debugStreamName = m_algErrorDebugStreamName.value();
       break;
     case HLT::OnlineErrorCode::TIMEOUT:
-      ATH_CHECK(hltResultWH->addStreamTag({m_timeoutDebugStreamName.value(), eformat::DEBUG_TAG, true}));
+      debugStreamName = m_timeoutDebugStreamName.value();
       break;
     case HLT::OnlineErrorCode::RESULT_TRUNCATION:
-      ATH_CHECK(hltResultWH->addStreamTag({m_truncationDebugStreamName.value(), eformat::DEBUG_TAG, true}));
+      debugStreamName = m_truncationDebugStreamName.value();
       break;
     default:
-      ATH_CHECK(hltResultWH->addStreamTag({m_fwkErrorDebugStreamName.value(), eformat::DEBUG_TAG, true}));
+      debugStreamName = m_fwkErrorDebugStreamName.value();
       break;
+  }
+  eformat::helper::StreamTag debugStreamTag{debugStreamName, eformat::DEBUG_TAG, true};
+
+  //----------------------------------------------------------------------------
+  // Create an HLT result for the failed event (copy one if it exists and contains serialised data)
+  //----------------------------------------------------------------------------
+  std::unique_ptr<HLT::HLTResultMT> hltResultPtr;
+  StatusCode buildResultCode{StatusCode::SUCCESS};
+  auto hltResultRH = SG::makeHandle(m_hltResultRHKey,eventContext);
+  if (hltResultRH.isValid() && !hltResultRH->getSerialisedData().empty()) {
+    // There is already an existing result, create a copy with the error code and stream tag
+    hltResultPtr = std::make_unique<HLT::HLTResultMT>(*hltResultRH);
+    hltResultPtr->addErrorCode(errorCode);
+    buildResultCode &= hltResultPtr->addStreamTag(debugStreamTag);
+  } else {
+    // Create a result if not available, pre-fill with error code an stream tag, then try to fill event data
+    hltResultPtr = std::make_unique<HLT::HLTResultMT>();
+    hltResultPtr->addErrorCode(errorCode);
+    buildResultCode &= hltResultPtr->addStreamTag(debugStreamTag);
+    // Fill the result unless we already failed doing this before
+    if (errorCode != HLT::OnlineErrorCode::NO_HLT_RESULT) {
+      buildResultCode &= m_hltResultMaker->fillResult(*hltResultPtr,eventContext);
+    }
+  }
+
+  // Try to record the result in th event store
+  SG::WriteHandleKey<HLT::HLTResultMT> hltResultWHK(m_hltResultRHKey.key()+"_FailedEvent");
+  buildResultCode &= hltResultWHK.initialize();
+  auto hltResultWH = SG::makeHandle(hltResultWHK,eventContext);
+  if (buildResultCode.isFailure() || hltResultWH.record(std::move(hltResultPtr)).isFailure()) {
+    if (errorCode == HLT::OnlineErrorCode::NO_HLT_RESULT) {
+      // Avoid infinite loop
+      ATH_MSG_ERROR("Second failure to build or record the HLT Result in event store while handling a failed event. "
+                    << "Cannot force-accept this event from HLT side, will rely on data collector to do this. "
+                    << "All slots of this HltEventLoopMgr instance will be drained and the loop will exit.");
+      ATH_CHECK(drainAllSlots());
+      return StatusCode::FAILURE;
+    }
+    ATH_MSG_ERROR("Failed to build or record the HLT Result in event store while handling a failed event. "
+                  << "Trying again with skipped filling of the result contents (except debug stream tag).");
+    return failedEvent(HLT::OnlineErrorCode::NO_HLT_RESULT,eventContext);
   }
 
   //----------------------------------------------------------------------------
@@ -972,39 +987,45 @@ StatusCode HltEventLoopMgr::failedEvent(HLT::OnlineErrorCode errorCode, const Ev
   // Try to build and send the output
   //----------------------------------------------------------------------------
   if (m_outputCnvSvc->connectOutput("").isFailure()) {
-    ATH_MSG_ERROR("The output conversion service failed in connectOutput() while handling a failed event."
-      << " No HLT result can be recorded for this event. OnlineErrorCode=" << errorCode
-      << ", local event number " << eventContext.evt() << ", slot " << eventContext.slot()
-      << ". All slots of this HltEventLoopMgr instance will be drained before proceeding.");
-    return drainAllAndProceed();
+    ATH_MSG_ERROR("The output conversion service failed in connectOutput() while handling a failed event. "
+                  << "Cannot force-accept this event from HLT side, will rely on data collector to do this. "
+                  << "All slots of this HltEventLoopMgr instance will be drained and the loop will exit.");
+    ATH_CHECK(drainAllSlots());
+    return StatusCode::FAILURE;
   }
 
   DataObject* hltResultDO = m_evtStore->accessData(hltResultWH.clid(),hltResultWH.key());
   if (hltResultDO == nullptr) {
-    ATH_MSG_ERROR("Failed to retrieve DataObject for the HLT result object while handling a failed event."
-      << " No HLT result can be recorded for this event. OnlineErrorCode=" << errorCode
-      << ", local event number " << eventContext.evt() << ", slot " << eventContext.slot()
-      << ". All slots of this HltEventLoopMgr instance will be drained before proceeding.");
-    return drainAllAndProceed();
+    if (errorCode == HLT::OnlineErrorCode::NO_HLT_RESULT) {
+      // Avoid infinite loop
+      ATH_MSG_ERROR("Second failure to build or record the HLT Result in event store while handling a failed event. "
+                    << "Cannot force-accept this event from HLT side, will rely on data collector to do this. "
+                    << "All slots of this HltEventLoopMgr instance will be drained and the loop will exit.");
+      ATH_CHECK(drainAllSlots());
+      return StatusCode::FAILURE;
+    }
+    ATH_MSG_ERROR("Failed to retrieve DataObject for the HLT result object while handling a failed event. "
+                  << "Trying again with skipped filling of the result contents (except debug stream tag).");
+    return failedEvent(HLT::OnlineErrorCode::NO_HLT_RESULT,eventContext);
   }
 
   IOpaqueAddress* addr = nullptr;
   if (m_outputCnvSvc->createRep(hltResultDO,addr).isFailure() || addr == nullptr) {
-    ATH_MSG_ERROR("Conversion of HLT result object to the output format failed while handling a failed event."
-      << " No HLT result can be recorded for this event. OnlineErrorCode=" << errorCode
-      << ", local event number " << eventContext.evt() << ", slot " << eventContext.slot()
-      << ". All slots of this HltEventLoopMgr instance will be drained before proceeding.");
+    ATH_MSG_ERROR("Conversion of HLT result object to the output format failed while handling a failed event. "
+                  << "Cannot force-accept this event from HLT side, will rely on data collector to do this. "
+                  << "All slots of this HltEventLoopMgr instance will be drained and the loop will exit.");
     delete addr;
-    return drainAllAndProceed();
+    ATH_CHECK(drainAllSlots());
+    return StatusCode::FAILURE;
   }
 
   if (m_outputCnvSvc->commitOutput("",true).isFailure()) {
-    ATH_MSG_ERROR("The output conversion service failed in commitOutput() while handling a failed event."
-      << " No HLT result can be recorded for this event. OnlineErrorCode=" << errorCode
-      << ", local event number " << eventContext.evt() << ", slot " << eventContext.slot()
-      << ". All slots of this HltEventLoopMgr instance will be drained before proceeding.");
+    ATH_MSG_ERROR("The output conversion service failed in commitOutput() while handling a failed event. "
+                  << "Cannot force-accept this event from HLT side, will rely on data collector to do this. "
+                  << "All slots of this HltEventLoopMgr instance will be drained and the loop will exit.");
     delete addr;
-    return drainAllAndProceed();
+    ATH_CHECK(drainAllSlots());
+    return StatusCode::FAILURE;
   }
 
   // The output has been sent out, the ByteStreamAddress can be deleted

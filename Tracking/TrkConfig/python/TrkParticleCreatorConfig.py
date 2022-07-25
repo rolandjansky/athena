@@ -243,7 +243,7 @@ def MuonCaloParticleCreatorCfg(flags, name="MuonCaloParticleCreator", **kwargs):
     if "TrackToVertex" not in kwargs:
         from InDetConfig.TrackRecoConfig import TrackToVertexCfg
         kwargs.setdefault("TrackToVertex", result.popToolsAndMerge(
-            TrackToVertexCfg(flags)))
+            TrackToVertexCfg(flags, name='TrackToVertex')))
 
     if "TrackSummaryTool" not in kwargs:
         if flags.Muon.SAMuonTrigger:

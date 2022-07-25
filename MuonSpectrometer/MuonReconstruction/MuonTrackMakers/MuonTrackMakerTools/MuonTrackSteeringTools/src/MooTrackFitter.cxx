@@ -1725,28 +1725,24 @@ namespace Muon {
         std::set<MuonStationIndex::StIndex> stations;
         rots.reserve(phiHits.size() + 5);
 
-        MeasVec::const_iterator hit = phiHits.begin();
-        MeasVec::const_iterator hit_end = phiHits.end();
-        for (; hit != hit_end; ++hit) {
-            const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(*hit);
+        for (const Trk::MeasurementBase* hit : phiHits) {
+            const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(hit);
             if (rot) {
                 if (m_idHelperSvc->issTgc(rot->identify())) {
                     rotsNSW.push_back(rot->clone());
+                    garbage.push_back(rotsNSW.back());
                     continue;
                 }
                 rots.push_back(rot);
                 ids.insert(rot->identify());
                 continue;
             }
-            const CompetingMuonClustersOnTrack* crot = dynamic_cast<const CompetingMuonClustersOnTrack*>(*hit);
+            const CompetingMuonClustersOnTrack* crot = dynamic_cast<const CompetingMuonClustersOnTrack*>(hit);
             if (crot) {
-                const std::vector<const MuonClusterOnTrack*>& mrots = crot->containedROTs();
-                std::vector<const MuonClusterOnTrack*>::const_iterator mit = mrots.begin();
-                std::vector<const MuonClusterOnTrack*>::const_iterator mit_end = mrots.end();
-                for (; mit != mit_end; ++mit) {
-                    rots.push_back(*mit);
-                    ids.insert((*mit)->identify());
-                    MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex((*mit)->identify());
+                for (const MuonClusterOnTrack* mit : crot->containedROTs()) {
+                    rots.push_back(mit);
+                    ids.insert(mit->identify());
+                    MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(mit->identify());
                     stations.insert(stIndex);
                 }
             } else {
@@ -1820,7 +1816,7 @@ namespace Muon {
         DistanceAlongParameters distAlongPars;
         double maxDistCut = 800.;
         std::vector<const Trk::MeasurementBase*> measurementsToBeAdded;
-
+        measurementsToBeAdded.reserve(newMeasurements->size());
         for (const Trk::MeasurementBase* meas : *newMeasurements) {
             garbage.push_back(meas);
 
@@ -1861,10 +1857,9 @@ namespace Muon {
 
         // now remove all previous phi hits and replace them with the new ones
 
-        hit = phiHits.begin();
-        for (; hit != hit_end; ++hit) {
-            if (!m_hitHandler->remove(**hit, fitterData.hitList))
-                ATH_MSG_WARNING(" failed to remove measurement " << m_printer->print(**hit));
+        for (const Trk::MeasurementBase* hit : phiHits) {
+            if (!m_hitHandler->remove(*hit, fitterData.hitList))
+                ATH_MSG_WARNING(" failed to remove measurement " << m_printer->print(*hit));
         }
 
         // add the new phi hits to the hit list

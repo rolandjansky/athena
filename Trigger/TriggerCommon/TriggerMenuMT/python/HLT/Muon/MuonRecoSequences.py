@@ -51,6 +51,7 @@ class muonNames(object):
     if "FS" in name:
       self.EFSAName = recordable("HLT_Muons_FS")
       self.EFCBName = recordable("HLT_MuonsCB_FS")
+      self.EFCBOutInName = "MuonsCBOutsideIn_FS"
     if "RoI" in name:
       self.EFSAName = recordable("HLT_Muons_RoI")
       self.EFCBName = recordable("HLT_MuonsCB_RoI")
@@ -626,7 +627,7 @@ def muEFCBRecoSequence( RoIs, name ):
 
   cbMuonName = muNames.EFCBOutInName
   if 'FS' in name:
-    cbMuonName = muNamesFS.EFCBName
+    cbMuonName = muNamesFS.EFCBOutInName
   elif 'LRT' in name:
     cbMuonName = muNamesLRT.EFCBName
 

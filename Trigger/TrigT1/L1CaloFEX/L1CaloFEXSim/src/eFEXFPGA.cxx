@@ -181,14 +181,14 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
 
       unsigned int maxEtCounts = thr_eEM.maxEtCounts(m_eFexStep);
       if (eEMTobEt >= maxEtCounts){
-	RetaWP = 3;
-	RhadWP = 3;
-	WstotWP = 3;
+	       RetaWP = 3;
+	       RhadWP = 3;
+	       WstotWP = 3;
       }
       else{
-	SetIsoWP(RetaCoreEnv,threshReta,RetaWP,RetaBitS);
-	SetIsoWP(RhadEMHad,threshRhad,RhadWP,RhadBitS);
-	SetIsoWP(WstotDenNum,threshWstot,WstotWP,WstotBitS);
+	       SetIsoWP(RetaCoreEnv,threshReta,RetaWP,RetaBitS);
+	       SetIsoWP(RhadEMHad,threshRhad,RhadWP,RhadBitS);
+	       SetIsoWP(WstotDenNum,threshWstot,WstotWP,WstotBitS);
       }
       int eta_ind = ieta; // No need to offset eta index with new 0-5 convention
       int phi_ind = iphi - 1;
@@ -312,7 +312,7 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
 
       // Form the tau tob word
       uint32_t tobword = m_eFEXFormTOBsTool->formTauTOBWord(m_id, eta_ind, phi_ind, eTauTobEt, rHadWP, rCoreWP, seed, und, ptTauMinToTopoCounts);
-      eFEXtauTOB* tmp_tau_tob = m_eFEXtauAlgoTool->getTauTOB();
+      std::unique_ptr<eFEXtauTOB> tmp_tau_tob = m_eFEXtauAlgoTool->getTauTOB();
       tmp_tau_tob->setFPGAID(m_id);
       tmp_tau_tob->seteFEXID(m_efexid);
       tmp_tau_tob->setEta(ieta);
