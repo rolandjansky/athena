@@ -3,7 +3,7 @@
 */
 
 //***************************************************************************
-//                           jFexRoiByteStreamTool  -  This tool decodes Run3 jFEX data!
+//                           jFexRoiByteStreamTool  -  This tool decodes Run3 jFEX RoI data!
 //                              -------------------
 //     begin                : 01 01 2022
 //     email                : Sergi.Rodriguez@cern.ch
