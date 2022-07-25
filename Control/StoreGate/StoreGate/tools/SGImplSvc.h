@@ -1,7 +1,7 @@
 /* -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STOREGATE_SGIMPLSVC_H
@@ -414,6 +414,17 @@ public:
   void registerKey (sgkey_t key,
                     const std::string& str,
                     CLID clidid) override final;
+
+
+  /**
+   * @brief Merge the string pool from another store into this one.
+   * @param other The other store.
+   *
+   * In case of collisions, the colliding entries are skipped, and false
+   * is returned.  If no collisions, then true is returned.
+   */
+  bool mergeStringPool (const SGImplSvc& other);
+
 
   //@}
 

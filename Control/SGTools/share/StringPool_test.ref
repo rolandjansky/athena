@@ -14,3 +14,7 @@ pool dump
           3fffffff         0 
 pool dump2
 test2
+test3
+           8c88eb8         1 bar1
+          2fb71076         2 foo2
+          33b8792d         1 foo1
