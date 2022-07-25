@@ -197,18 +197,36 @@ void HLTResultMTMaker::validatePEBInfo(HLT::HLTResultMT& hltResult) const {
     if (st.robs.empty() && st.dets.empty()) {continue;}
 
     std::set<uint32_t> removedROBs = removeDisabled(st.robs,m_enabledROBs);
-    if (!removedROBs.empty())
-      ATH_MSG_WARNING("StreamTag " << st.type << "_" << st.name << " requested disabled ROBs: " << format(removedROBs)
-                      << " - these ROBs were removed from the StreamTag by " << name());
-    else
+    if (!removedROBs.empty()) {
+      ATH_MSG_DEBUG("StreamTag " << st.type << "_" << st.name << " requested disabled ROBs: " << format(removedROBs)
+                    << " - these ROBs were removed from the StreamTag by " << name());
+      std::vector<eformat::SubDetector> removedSubDets;
+      for (const uint32_t rob : removedROBs) {
+        eformat::SubDetector sd{eformat::helper::SourceIdentifier(rob).subdetector_id()};
+        if (std::find(removedSubDets.begin(),removedSubDets.end(),sd)==removedSubDets.end()) {
+          removedSubDets.push_back(sd);
+        }
+      }
+      auto monRemovedROBsSubDet = Monitored::Collection(
+        "PEB_RemovedROBs_SubDet", removedSubDets,
+        [](const eformat::SubDetector sd){return eformat::helper::SubDetectorDictionary.string(sd);});
+      Monitored::Group(m_monTool, monRemovedROBsSubDet);
+    } else {
       ATH_MSG_VERBOSE("No disabled ROBs were requested by StreamTag " << st.type << "_" << st.name);
+    }
 
     std::set<eformat::SubDetector> removedSubDets = removeDisabled(st.dets,m_enabledSubDets);
-    if (!removedSubDets.empty())
-      ATH_MSG_WARNING("StreamTag " << st.type << "_" << st.name << " requested disabled SubDets: " << format(removedSubDets)
-                      << " - these SubDets were removed from the StreamTag by " << name());
-    else
+    if (!removedSubDets.empty()) {
+      ATH_MSG_DEBUG("StreamTag " << st.type << "_" << st.name << " requested disabled SubDets: " << format(removedSubDets)
+                    << " - these SubDets were removed from the StreamTag by " << name());
+      std::vector<eformat::SubDetector> removedSubDetsVec(removedSubDets.begin(),removedSubDets.end());
+      auto monRemovedSubDets = Monitored::Collection(
+        "PEB_RemovedSubDets", removedSubDetsVec,
+        [](const eformat::SubDetector sd){return eformat::helper::SubDetectorDictionary.string(sd);});
+      Monitored::Group(m_monTool, monRemovedSubDets);
+    } else {
       ATH_MSG_VERBOSE("No disabled SubDets were requested by StreamTag " << st.type << "_" << st.name);
+    }
 
     // If the PEB list now became empty, it would turn PEB into FEB - prevent this and drop the stream tag (ATR-24378)
     if (st.robs.empty() && st.dets.empty()) {
