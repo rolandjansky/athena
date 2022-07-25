@@ -8,11 +8,13 @@ from TriggerMenuMT.HLT.Config.ChainConfigurationBase import ChainConfigurationBa
 from TriggerMenuMT.HLT.Config.MenuComponents import MenuSequence, RecoFragmentsPool
 from DecisionHandling.DecisionHandlingConf import InputMakerForRoI, ViewCreatorInitialROITool
 from AthenaCommon.CFElements import seqAND, parOR
-from TrigGenericAlgs.TrigGenericAlgsConfig import TimeBurnerCfg, TimeBurnerHypoToolGen
+from TrigGenericAlgs.TrigGenericAlgsConfig import TimeBurnerCfg, TimeBurnerHypoToolGen, L1CorrelationAlgCfg
 from L1TopoOnlineMonitoring import L1TopoOnlineMonitoringConfig as TopoMonConfig
 from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.Enums import Format
+from TrigHypoCommonTools.TrigHypoCommonToolsConf import TrigGenericHypoAlg
+from TrigHypoCommonTools.TrigHypoCommonTools import TrigGenericHypoToolFromDict
 
 #----------------------------------------------------------------
 # fragments generating configuration will be functions in New JO, 
@@ -69,6 +71,27 @@ def L1TopoOnlineMonitorSequenceCfg(dummyFlags, isLegacy):
             Hypo        = hypoAlg,
             HypoToolGen = TopoMonConfig.L1TopoOnlineMonitorHypoToolGen)
 
+def MistimeMonSequenceCfg(flags):
+        inputMaker = InputMakerForRoI("IM_MistimeMon")
+        inputMaker.RoITool = ViewCreatorInitialROITool()
+        inputMaker.RoIs="MistimeMonInputRoIs"
+
+        outputName = "TrigCompositeMistimeJ400"
+        recoAlg = L1CorrelationAlgCfg("MistimeMonj400", ItemList=['L1_J400'], 
+                                      TrigCompositeWrieHandleKey=outputName, trigCompPassKey=outputName+".pass",
+                                      l1AKey=outputName+".l1a_type", otherTypeKey=outputName+".other_type",
+                                      beforeAfterKey=outputName+".beforeafterflag")
+        mistimeMonSeq = seqAND("MistimeMonSequence", [inputMaker, recoAlg])
+
+        # Hypo to select on trig composite pass flag
+        hypoAlg = TrigGenericHypoAlg("MistimeMonJ400HypoAlg", TrigCompositeContainer=outputName)
+
+        return MenuSequence(
+                Sequence    = mistimeMonSeq,
+                Maker       = inputMaker,
+                Hypo        = hypoAlg,
+                HypoToolGen = TrigGenericHypoToolFromDict)
+
 def L1TopoLegacyOnlineMonitorSequenceCfg(flags):
     return L1TopoOnlineMonitorSequenceCfg(flags, True)
 
@@ -102,6 +125,8 @@ class MonitorChainConfiguration(ChainConfigurationBase):
             chainSteps.append(self.getTimeBurnerStep())
         elif monType == 'l1topodebug':
             chainSteps.append(self.getL1TopoOnlineMonitorStep())
+        elif monType == 'mistimemonj400':
+            chainSteps.append(self.getMistimeMonStep())
         else:
             raise RuntimeError('Unexpected monType '+monType+' in MonitorChainConfiguration')
 
@@ -120,3 +145,9 @@ class MonitorChainConfiguration(ChainConfigurationBase):
         isLegacy = 'isLegacyL1' in self.chainPart and 'legacy' in self.chainPart['isLegacyL1']
         sequenceCfg = L1TopoLegacyOnlineMonitorSequenceCfg if isLegacy else L1TopoPhase1OnlineMonitorSequenceCfg
         return self.getStep(1,'L1TopoOnlineMonitor',[sequenceCfg])
+
+    # --------------------
+    # MistTimeMon configuration
+    # --------------------
+    def getMistimeMonStep(self):      
+        return self.getStep(1,'MistimeMon',[MistimeMonSequenceCfg])
