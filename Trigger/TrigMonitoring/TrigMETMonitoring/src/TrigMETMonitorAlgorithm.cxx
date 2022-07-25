@@ -450,8 +450,8 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       offline_sumEt = (offline_met->sumet())/1000.;
       offline_Et = std::sqrt(offline_Ex*offline_Ex + offline_Ey*offline_Ey);
       offline_Et_eff = std::sqrt(offline_Ex*offline_Ex + offline_Ey*offline_Ey);
+      fill(tool,offline_Ex,offline_Ey,offline_Et,offline_sumEt);
     }
-    fill(tool,offline_Ex,offline_Ey,offline_Et,offline_sumEt);
 
     
     // access L1 MET values
