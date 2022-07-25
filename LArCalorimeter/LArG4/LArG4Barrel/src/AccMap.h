@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARG4BARREL_ACCMAP_H
@@ -15,13 +15,13 @@ typedef std::map<int, CurrMap*> curr_map;
 
 class AccMap {
 public:
-  ~AccMap();
-  static AccMap* GetAccMap();
-  void SetDirectory(const std::string& dir);
+  ~AccMap() = default;
+  static const AccMap* GetAccMap();
+
   void Reset();
   int  Region(int region, int sampling, int eta) const;
-  CurrMap* GetMap(int ifold, int ielecregion) const;
-  CurrMap* GetMap(int ifold, int region, int sampling, int eta) const;
+  const CurrMap* GetMap(int ifold, int ielecregion) const;
+  const CurrMap* GetMap(int ifold, int region, int sampling, int eta) const;
   float GetXmin(int ifold) const {
     if (ifold<m_nmax && ifold >=0) return m_xmin[ifold];
     else return -999.;}
@@ -36,13 +36,19 @@ public:
     else return -999.;}
 private:
   AccMap();
-  static AccMap* s_thePointer;
   curr_map m_theMap;
-  std::string m_directory;
-  int m_nmax;
+  const int m_nmax{14};
   std::vector<float> m_xmin;
   std::vector<float> m_xmax;
   std::vector<float> m_ymin;
   std::vector<float> m_ymax;
+
+#ifdef LARG4_STAND_ALONE
+public:
+  void SetDirectory(const std::string& dir) { m_directory=dir; }
+private:
+  std::string m_directory{"/afs/cern.ch/atlas/offline/data/lar/calo_data"};
+#endif
+
 };
 #endif

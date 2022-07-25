@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Prepared 05-Dec-2002 Bill Seligman
@@ -301,7 +301,7 @@ G4bool LArBarrelPresamplerCalculator::Process(const G4Step* a_step, std::vector<
 #ifdef DEBUGSTEP
         ATH_MSG_DEBUG(" set current map for module " << imodule);
 #endif
-	CurrMap* cm = m_psmap->GetMap(imodule);
+	const CurrMap* cm = m_psmap->GetMap(imodule);
         if (!cm) {
           ATH_MSG_INFO(" LArBarrelPresamplerCalculator: cannot get map for module " << imodule);
           continue;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArBarrelPresamplerCalculator.hh
@@ -51,7 +51,7 @@ private:
   // Class for calculating the identifier.
   ServiceHandle<ILArBarrelPresamplerGeometry> m_geometry;
 
-  PsMap* m_psmap;
+  const PsMap* m_psmap;
 
   bool m_IflCur;
 

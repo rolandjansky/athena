@@ -398,7 +398,7 @@ G4bool LArBarrelCalculator::Process(const G4Step* step, std::vector<LArHitData>&
       G4double rr = sqrt(x0*x0+y0*y0);
       ATH_MSG_DEBUG("   radius,rad0 " << radloc << " " << rr);
 #endif
-      CurrMap* mapOfCurrent(nullptr);
+      const CurrMap* mapOfCurrent(nullptr);
       bool UseFold=false;
       // Are we close to a fold ?   (fold 0 has some pathology)
       if ((x0 > m_accmap->GetXmin(nfold) || nfold==0) &&

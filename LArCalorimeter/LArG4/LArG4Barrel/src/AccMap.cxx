@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AccMap.h"
@@ -9,21 +9,17 @@
 #include "PathResolver/PathResolver.h"
 #endif
 
-AccMap* AccMap::s_thePointer=nullptr;
-
 AccMap::AccMap()
-  : m_directory ("/afs/cern.ch/atlas/offline/data/lar/calo_data"),
-    m_nmax (14)
 {
-  int i1[10]={0,0,3,2,9,12,10,9,0,2};      // first fold
-  int i2[10]={2,1,12,12,13,13,13,13,1,4};  // last fold for 10 electronic regions
+  const int i1[10]={0,0,3,2,9,12,10,9,0,2};      // first fold
+  const int i2[10]={2,1,12,12,13,13,13,13,1,4};  // last fold for 10 electronic regions
 
   m_xmin.resize(m_nmax);
   m_xmax.resize(m_nmax);
   m_ymin.resize(m_nmax);
   m_ymax.resize(m_nmax);
 
-  double xnorm=14.1591;   // nA/MeV normalisation for accordion maps
+  const double xnorm=14.1591;   // nA/MeV normalisation for accordion maps
 
 #ifndef LARG4_STAND_ALONE
   //std::string larLocation = PathResolver::find_directory("lar","DATAPATH");
@@ -73,10 +69,10 @@ AccMap::AccMap()
 
 }
 
-AccMap* AccMap::GetAccMap()
+const AccMap* AccMap::GetAccMap()
 {
-  if (s_thePointer==nullptr) s_thePointer=new AccMap();
-  return s_thePointer;
+  static const AccMap instance;
+  return &instance;
 }
 
 void AccMap::Reset()
@@ -88,12 +84,12 @@ void AccMap::Reset()
   }
 }
 
-CurrMap* AccMap::GetMap(int ifold, int region, int sampling, int eta) const
+const CurrMap* AccMap::GetMap(int ifold, int region, int sampling, int eta) const
 {
   return this->GetMap(ifold,this->Region(region,sampling,eta));
 }
 
-CurrMap* AccMap::GetMap(int ifold, int ielecregion) const
+const CurrMap* AccMap::GetMap(int ifold, int ielecregion) const
 {
   const int code=10*ifold+ielecregion;
   const auto mapIter = m_theMap.find(code);
@@ -130,9 +126,4 @@ int AccMap::Region(int region, int sampling, int eta) const
     else             elecregion=9;
   }
   return elecregion;
-}
-
-void AccMap::SetDirectory(const std::string& dir)
-{
-  m_directory=dir;
 }

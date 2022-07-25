@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARG4BARREL_PsMap_h
@@ -15,15 +15,20 @@ typedef std::map<int, CurrMap*> curr_map;
 
 class PsMap {
   public:
-   ~PsMap();
-   static PsMap* GetPsMap();
-   void SetDirectory(const std::string& dir);
+   ~PsMap() = default;
+   static const PsMap* GetPsMap();
    void Reset();
-   CurrMap* GetMap (int module) const;
+   const CurrMap* GetMap (int module) const;
   private:
    PsMap();
-   static PsMap* s_thePointer;
    curr_map m_theMap;
-   std::string m_directory;
+
+#ifdef LARG4_STAND_ALONE
+public:
+  void SetDirectory(const std::string& dir) { m_directory = dir; }
+private:
+  std::string m_directory{"/afs/cern.ch/atlas/offline/data/lar/calo_data"};
+#endif
+
 };
 #endif // LARG4BARREL_PsMap_h
