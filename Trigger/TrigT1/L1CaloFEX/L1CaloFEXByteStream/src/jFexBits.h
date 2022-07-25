@@ -15,7 +15,13 @@ namespace LVL1::jFEXBits {
     ///Number of jFEX to ROD trailer words
     static constexpr uint32_t ROD_WORDS      = 2;
     static constexpr uint32_t jFEX2ROD_WORDS = 2;
+    
+    // For RoI data
     static constexpr uint32_t TOB_TRAILERS   = 2;
+    
+    // For input data
+    static constexpr uint32_t DATA_BLOCKS          = 60;
+    static constexpr uint32_t DATA_WORDS_PER_BLOCK = 8;
 
 
 /************     TOB,XTOB Counter Trailer     ************/
@@ -71,6 +77,34 @@ namespace LVL1::jFEXBits {
     
     static constexpr uint32_t ERROR_ROD_TRAILER   = 0;
     static constexpr uint32_t CRC_ROD_TRAILER     = 12;
+    
+    
+/************     Input Bulk Stream data     ************/  
+
+    ///Masking words
+    static constexpr uint32_t BS_TRAILER_1b  = 0x1;
+    static constexpr uint32_t BS_TRAILER_4b  = 0xf;
+    static constexpr uint32_t BS_TRAILER_7b  = 0x7f;
+    static constexpr uint32_t BS_TRAILER_8b  = 0xff;
+    static constexpr uint32_t BS_TRAILER_9b  = 0x1ff;
+    static constexpr uint32_t BS_TRAILER_12b = 0xfff;
+    
+    ///Bit positions Input bulk stream
+    static constexpr uint32_t BS_CHANNEL_TRAILER = 0;
+    static constexpr uint32_t BS_SATUR_0_TRAILER = 0;
+    static constexpr uint32_t BS_SATUR_1_TRAILER = 8;
+    static constexpr uint32_t BS_BCID_TRAILER    = 16;
+    static constexpr uint32_t BS_CRC_TRAILER     = 23;
+    
+    //Bit positions input data Et 
+    static constexpr uint32_t BS_ET_DATA_0 = 0;
+    static constexpr uint32_t BS_ET_DATA_1 = 12;
+    static constexpr uint32_t BS_ET_DATA_4 = 24;
+    static constexpr uint32_t BS_ET_DATA_7 = 28;
+    
+    //Bit position to merge divided Et data bits
+    static constexpr uint32_t BS_MERGE_DATA = 8;
+    
     
 
 } // namespace LVL1::jFEXBits
