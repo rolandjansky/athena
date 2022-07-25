@@ -4,6 +4,7 @@
 
 
 #include "AFP_GeoModelFactory.h"
+#include "AFP_Geometry/AFP_constants.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoBox.h"
@@ -220,9 +221,9 @@ void AFP_GeoModelFactory::addLBarSensorSeparationWindow(const char* pszStationNa
 
 	eAFPStation eStation=m_pGeometry->parseStationName(pszStationName);
 	AFP_TDCONFIGURATION TofCfg=m_CfgParams.tdcfg[eStation];
-	double fSensor2BarDistance=(TofCfg.bEmulateImmersion)? 0.0:m_AfpConstants.ToF_Sensor2BarDist;
+	double fSensor2BarDistance=(TofCfg.bEmulateImmersion)? 0.0:AFP_CONSTANTS::ToF_Sensor2BarDist;
 
-	GeoTube* pSolWindow=new GeoTube(0,0.5*m_AfpConstants.ToF_SeparationWindowDiameter,0.5*m_AfpConstants.ToF_SeparationWindowThickness);
+	GeoTube* pSolWindow=new GeoTube(0,0.5*AFP_CONSTANTS::ToF_SeparationWindowDiameter,0.5*AFP_CONSTANTS::ToF_SeparationWindowThickness);
 	
 	nPixelID=10*( TofCfg.nX1PixCnt/2-1 +1)+( TofCfg.nX1PixCnt/2-1 +1);
 	m_pGeometry->getPixelLocalPosition(eStation,nPixelID,&fX1Pos_1,&fX2Pos_1);
@@ -230,7 +231,7 @@ void AFP_GeoModelFactory::addLBarSensorSeparationWindow(const char* pszStationNa
 	m_pGeometry->getPixelLocalPosition(eStation,nPixelID,&fX1Pos_2,&fX2Pos_2);
 	
 	sprintf(szlabel,"%s_Q%i_LogLBarSensorSeparationWindow",pszStationName,nQuarticID);
-	TotTransform=TransInMotherVolume*HepGeom::Translate3D(0.5*(fX1Pos_1+fX1Pos_2),-0.5*m_AfpConstants.ToF_SeparationWindowThickness-fSensor2BarDistance,0.5*(fX2Pos_1+fX2Pos_2))*HepGeom::RotateX3D(90.0*CLHEP::deg);
+	TotTransform=TransInMotherVolume*HepGeom::Translate3D(0.5*(fX1Pos_1+fX1Pos_2),-0.5*AFP_CONSTANTS::ToF_SeparationWindowThickness-fSensor2BarDistance,0.5*(fX2Pos_1+fX2Pos_2))*HepGeom::RotateX3D(90.0*CLHEP::deg);
 	GeoLogVol* pLogWindow=new GeoLogVol(szlabel,pSolWindow,m_MapMaterials["Quartz"]);
 	GeoOpticalPhysVol* pPhysWindow=new GeoOpticalPhysVol(pLogWindow);
 	sprintf(szlabel,"%s_Q%i_LBarSensorSeparationWindow",pszStationName,nQuarticID);
@@ -256,13 +257,13 @@ void AFP_GeoModelFactory::addSensor(const char* pszStationName, const int nQuart
 
 	eAFPStation eStation=m_pGeometry->parseStationName(pszStationName);
 	AFP_TDCONFIGURATION TofCfg=m_CfgParams.tdcfg[eStation];
-	double fSensor2BarDistance=(TofCfg.bEmulateImmersion)? 0.0:m_AfpConstants.ToF_Sensor2BarDist;
+	double fSensor2BarDistance=(TofCfg.bEmulateImmersion)? 0.0:AFP_CONSTANTS::ToF_Sensor2BarDist;
 	if(m_addSeparationWindow)
 	{
-		fSensor2BarDistance += m_AfpConstants.ToF_SeparationWindowThickness;
+		fSensor2BarDistance += AFP_CONSTANTS::ToF_SeparationWindowThickness;
 	}
 
-	GeoBox* pSolSensor=new GeoBox(0.5*TofCfg.fPixelX1Dim,0.5*m_AfpConstants.ToF_SensorThickness,0.5*TofCfg.fPixelX2Dim);
+	GeoBox* pSolSensor=new GeoBox(0.5*TofCfg.fPixelX1Dim,0.5*AFP_CONSTANTS::ToF_SensorThickness,0.5*TofCfg.fPixelX2Dim);
 
 	for(i=0;i<TofCfg.nX1PixCnt;i++)
 	{
@@ -272,7 +273,7 @@ void AFP_GeoModelFactory::addSensor(const char* pszStationName, const int nQuart
 			m_pGeometry->getPixelLocalPosition(eStation,nPixelID,&fX1Pos,&fX2Pos);
 
 			sprintf(szlabel,"%s_Q%i_LogTDSensor[%i]",pszStationName,nQuarticID,nPixelID);
-			TotTransform=TransInMotherVolume*HepGeom::Translate3D(fX1Pos,-0.5*m_AfpConstants.ToF_SensorThickness-fSensor2BarDistance,fX2Pos);
+			TotTransform=TransInMotherVolume*HepGeom::Translate3D(fX1Pos,-0.5*AFP_CONSTANTS::ToF_SensorThickness-fSensor2BarDistance,fX2Pos);
 			GeoLogVol* pLogSensor=new GeoLogVol(szlabel,pSolSensor,m_MapMaterials["SiliconPMT"]);
 			GeoOpticalPhysVol* pPhysSensor=new GeoOpticalPhysVol(pLogSensor);
 			sprintf(szlabel,"%s_Q%i_TDSensor[%i]",pszStationName,nQuarticID,nPixelID);

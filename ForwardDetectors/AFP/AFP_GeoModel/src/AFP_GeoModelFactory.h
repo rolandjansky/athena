@@ -40,7 +40,6 @@ public:
     void updatePositions(AFP_BPMCOOLPARAMS* pBpmParams);
 
 private:
-    AFP_CONSTANTS m_AfpConstants;
     std::map<std::string,const GeoMaterial*> m_MapMaterials;
 
     void defineMaterials();

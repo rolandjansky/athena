@@ -8,8 +8,6 @@
 //-------------------------------------------------------------------------------------------------------------
 void AFP_CONFIGURATION::clear()
 {
-    AFP_CONSTANTS AfpConstants;
-
     AFP_SIDCONFIGURATION defsidcfg;
     defsidcfg.clear();
     sidcfg[EAS_AFP00]=defsidcfg;
@@ -24,16 +22,14 @@ void AFP_CONFIGURATION::clear()
     tdcfg[EAS_AFP02]=deftofcfg; // however, the code crashes without them
     tdcfg[EAS_AFP03]=deftofcfg;
 
-    vecRPotFloorDistance.resize(4);
-    vecRPotYPos.resize(4);
-    fill_n(vecRPotFloorDistance.begin(),vecRPotFloorDistance.size(),AfpConstants.Stat_RPotFloorDistance);
-    fill_n(vecRPotYPos.begin(),vecRPotYPos.size(),AfpConstants.Stat_ShiftInYAxis);
+    vecRPotFloorDistance.assign(4,AFP_CONSTANTS::Stat_RPotFloorDistance);
+    vecRPotYPos.assign(4,AFP_CONSTANTS::Stat_ShiftInYAxis);
 
     vecStatNominalZPos.resize(4);
-    vecStatNominalZPos[0]=AfpConstants.Stat_OuterZDistance;
-    vecStatNominalZPos[1]=AfpConstants.Stat_InnerZDistance;
-    vecStatNominalZPos[2]=-AfpConstants.Stat_InnerZDistance;
-    vecStatNominalZPos[3]=-AfpConstants.Stat_OuterZDistance;
+    vecStatNominalZPos[0]=AFP_CONSTANTS::Stat_OuterZDistance;
+    vecStatNominalZPos[1]=AFP_CONSTANTS::Stat_InnerZDistance;
+    vecStatNominalZPos[2]=-AFP_CONSTANTS::Stat_InnerZDistance;
+    vecStatNominalZPos[3]=-AFP_CONSTANTS::Stat_OuterZDistance;
 }
 
 //-------------------------------------------------------------------------------------------------------------
@@ -48,23 +44,21 @@ void AFP_HBPCONFIGURATION::clear()
 //-------------------------------------------------------------------------------------------------------------
 void AFP_SIDCONFIGURATION::clear()
 {
-    AFP_CONSTANTS AfpConstants;
-
-    fSlope=AfpConstants.SiT_Plate_rot_xz;
-    fLayerCount=AfpConstants.SiT_Plate_amount;
-    fLayerSpacing=AfpConstants.SiT_Plate_zsep;
-    fZDistanceInRPot=AfpConstants.SiT_ZDistanceInRPot;
+    fSlope=AFP_CONSTANTS::SiT_Plate_rot_xz;
+    fLayerCount=AFP_CONSTANTS::SiT_Plate_amount;
+    fLayerSpacing=AFP_CONSTANTS::SiT_Plate_zsep;
+    fZDistanceInRPot=AFP_CONSTANTS::SiT_ZDistanceInRPot;
     bAddVacuumSensors=false;
 
-    vecXStaggering.assign(AfpConstants.SiT_Plate_amount, AfpConstants.SiT_DistanceToFloor);
-    vecYStaggering.assign(AfpConstants.SiT_Plate_amount, 0.0*CLHEP::mm);
-    vecChipXPos.assign(AfpConstants.SiT_Plate_amount, AfpConstants.SiT_Chip_x);
-    vecChipYPos.assign(AfpConstants.SiT_Plate_amount, AfpConstants.SiT_Chip_y);
-    vecChipRotAngle.assign(AfpConstants.SiT_Plate_amount, AfpConstants.SiT_Chip_rot);
-    vecChipXLength.assign(AfpConstants.SiT_Plate_amount, AfpConstants.SiT_Chip_length_x);
-    vecChipYLength.assign(AfpConstants.SiT_Plate_amount, AfpConstants.SiT_Chip_length_y);
-    vecSensorXPos.assign(AfpConstants.SiT_Plate_amount, AfpConstants.SiT_Pixel_x);
-    vecSensorYPos.assign(AfpConstants.SiT_Plate_amount, AfpConstants.SiT_Pixel_y);
+    vecXStaggering.assign(AFP_CONSTANTS::SiT_Plate_amount, AFP_CONSTANTS::SiT_DistanceToFloor);
+    vecYStaggering.assign(AFP_CONSTANTS::SiT_Plate_amount, 0.0*CLHEP::mm);
+    vecChipXPos.assign(AFP_CONSTANTS::SiT_Plate_amount, AFP_CONSTANTS::SiT_Chip_x);
+    vecChipYPos.assign(AFP_CONSTANTS::SiT_Plate_amount, AFP_CONSTANTS::SiT_Chip_y);
+    vecChipRotAngle.assign(AFP_CONSTANTS::SiT_Plate_amount, AFP_CONSTANTS::SiT_Chip_rot);
+    vecChipXLength.assign(AFP_CONSTANTS::SiT_Plate_amount, AFP_CONSTANTS::SiT_Chip_length_x);
+    vecChipYLength.assign(AFP_CONSTANTS::SiT_Plate_amount, AFP_CONSTANTS::SiT_Chip_length_y);
+    vecSensorXPos.assign(AFP_CONSTANTS::SiT_Plate_amount, AFP_CONSTANTS::SiT_Pixel_x);
+    vecSensorYPos.assign(AFP_CONSTANTS::SiT_Plate_amount, AFP_CONSTANTS::SiT_Pixel_y);
 
 
     TransInStation=HepGeom::Transform3D();
@@ -94,12 +88,10 @@ void AFPTOF_LBARDIMENSIONS::setDefaults()
 }
 void AFP_TDCONFIGURATION::setDefault()
 {
-    AFP_CONSTANTS AfpConstants;
-
     eType=ELBT_METALELBOW;
-    fAlpha=AfpConstants.ToF_NominalSlope;
-    nX1PixCnt=AfpConstants.ToF_TrainsCnt;
-    nX2PixCnt=AfpConstants.ToF_ColumnsCnt;
+    fAlpha=AFP_CONSTANTS::ToF_NominalSlope;
+    nX1PixCnt=AFP_CONSTANTS::ToF_TrainsCnt;
+    nX2PixCnt=AFP_CONSTANTS::ToF_ColumnsCnt;
     fPixelX1Dim=6.25;
     fPixelX2Dim=6.25;
     bApplyBottomCut=true;
@@ -111,8 +103,8 @@ void AFP_TDCONFIGURATION::setDefault()
 
     mapBarDims.clear();
 
-    fXFloorDistance=AfpConstants.ToF_DistanceToFloor;
-    fYPosInRPot=-0.5*AfpConstants.SiT_Chip_length_y;
+    fXFloorDistance=AFP_CONSTANTS::ToF_DistanceToFloor;
+    fYPosInRPot=-0.5*AFP_CONSTANTS::SiT_Chip_length_y;
     fZPosInRPot=0.0;
 
     //setup train info

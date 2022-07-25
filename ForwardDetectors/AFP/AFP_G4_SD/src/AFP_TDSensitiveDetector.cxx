@@ -5,9 +5,6 @@
 // Class header
 #include "AFP_TDSensitiveDetector.h"
 
-// Athena headers
-#include "AFP_Geometry/AFP_constants.h"
-
 // Geant4 headers
 #include "G4TouchableHistory.hh"
 #include "G4Step.hh"

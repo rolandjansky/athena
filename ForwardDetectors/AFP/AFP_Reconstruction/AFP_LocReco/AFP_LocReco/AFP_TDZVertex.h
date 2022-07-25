@@ -17,7 +17,6 @@
 #include "TMath.h"
 
 #include "AFP_LocReco/AFP_UserObjects.h"
-//#include "AFP_Geometry/AFP_constants.h"
 
 
 class AFP_TDZVertex
