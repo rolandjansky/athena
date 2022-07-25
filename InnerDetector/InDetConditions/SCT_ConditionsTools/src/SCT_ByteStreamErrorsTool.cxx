@@ -159,7 +159,8 @@ namespace {
 
 
 void
-SCT_ByteStreamErrorsTool::getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status, EventIDRange &the_range) const {
+SCT_ByteStreamErrorsTool::getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status,
+                                                   SG::WriteCondHandle<InDet::SiDetectorElementStatus>* whandle) const {
    std::scoped_lock<std::mutex> lock{*m_cacheMutex.get(ctx)};
 
    const auto *idcCachePtr{getCacheEntry(ctx)};
@@ -167,7 +168,10 @@ SCT_ByteStreamErrorsTool::getDetectorElementStatus(const EventContext& ctx, InDe
       ATH_MSG_VERBOSE("SCT_ByteStreamErrorsTool No cache! ");
       return;
    }
-   the_range = IDetectorElementStatusTool::getInvalidRange();
+   if (whandle) {
+     ATH_MSG_ERROR("SCT_ByteStreamErrorsTool is not for conditions objects");
+     whandle->addDependency (IDetectorElementStatusTool::getInvalidRange());
+   }
 
    if (fillData(ctx).isFailure()) {
       return; // @TODO what is the correct way to handle this ?  set status to false for all ?
@@ -183,6 +187,9 @@ SCT_ByteStreamErrorsTool::getDetectorElementStatus(const EventContext& ctx, InDe
       std::stringstream msg;
       msg << "Failed to get SCT detector element collection with key " << m_SCTDetEleCollKey.key();
       throw std::runtime_error(msg.str());
+   }
+   if (whandle) {
+     whandle->addDependency (si_element_list);
    }
 
    constexpr InDet::ChipFlags_t all_flags_set = static_cast<InDet::ChipFlags_t>((1ul<<(N_CHIPS_PER_SIDE)) - 1ul);

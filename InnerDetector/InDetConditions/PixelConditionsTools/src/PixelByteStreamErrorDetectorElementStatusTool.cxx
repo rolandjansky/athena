@@ -27,10 +27,10 @@ namespace {
 
 }
 
-std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange> PixelByteStreamErrorDetectorElementStatusTool::getDetectorElementStatus(const EventContext& ctx) const  {
-   std::tuple< std::unique_ptr<InDet::SiDetectorElementStatus>,EventIDRange> element_status_and_range( createDetectorElementStatus(ctx));
-   EventIDRange &the_range = std::get<1>(element_status_and_range);
-   InDet::SiDetectorElementStatus *element_status = std::get<0>(element_status_and_range).get();
+std::unique_ptr<InDet::SiDetectorElementStatus>
+PixelByteStreamErrorDetectorElementStatusTool::getDetectorElementStatus(const EventContext& ctx,
+                                                                        SG::WriteCondHandle<InDet::SiDetectorElementStatus>* whandle) const  {
+   std::unique_ptr<InDet::SiDetectorElementStatus> element_status( createDetectorElementStatus(ctx, whandle));
    std::vector<bool> &status=element_status->getElementStatus();
    if (status.empty()) {
       status.resize(m_pixelID->wafer_hash_max(),true );
@@ -40,11 +40,12 @@ std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange> PixelB
       chip_status.resize(status.size(),0xffff);
    }
 
-   the_range = IDetectorElementStatusTool::getInvalidRange();
+   if (whandle) {
+     ATH_MSG_ERROR("PixelByteStreamErrorDetectorStatusTool is not for use with conditions objects");
+     whandle->addDependency (IDetectorElementStatusTool::getInvalidRange());
+   }
 
    if (m_readoutTechnologyMask) {
-      the_range = IDetectorElementStatusTool::getInvalidRange();
-
       SG::ReadHandle<IDCInDetBSErrContainer> idcErrCont(m_BSErrContReadKey, ctx);
       if (!idcErrCont.isValid()) {
          ATH_MSG_ERROR("Did not get bytestream error container with key " << m_BSErrContReadKey);
@@ -123,5 +124,5 @@ std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange> PixelB
       }
    }
 
-   return element_status_and_range;
+   return element_status;
 }

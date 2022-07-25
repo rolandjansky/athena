@@ -27,7 +27,7 @@ namespace InDet {
    StatusCode SiDetectorElementStatusAlg::execute(const EventContext& ctx) const
    {
       SG::WriteHandle<InDet::SiDetectorElementStatus> writeHandle{m_writeKey, ctx};
-      auto [detector_element_status, range ] = m_condSummaryTool->getDetectorElementStatus(ctx);
+      auto detector_element_status = m_condSummaryTool->getDetectorElementStatus(ctx, nullptr);
       if (writeHandle.record( std::move(detector_element_status) ).isFailure()) {
          ATH_MSG_FATAL("Could not record " << writeHandle.key()  );
          return StatusCode::FAILURE;

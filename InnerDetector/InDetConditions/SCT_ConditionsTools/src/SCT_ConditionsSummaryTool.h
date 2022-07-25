@@ -66,7 +66,9 @@ public:
   virtual bool isGood(const IdentifierHash& elementHash, const EventContext& ctx) const override;
   virtual bool isGood(const IdentifierHash& elementHash, const Identifier& elementId, const EventContext& ctx) const override;
   virtual double goodFraction(const IdentifierHash& elementHash, const Identifier& idStart, const Identifier& idEnd, const EventContext& ctx) const override;
-  virtual std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange> getDetectorElementStatus(const EventContext& ctx) const override;
+  virtual std::unique_ptr<InDet::SiDetectorElementStatus>
+  getDetectorElementStatus(const EventContext& ctx,
+                           SG::WriteCondHandle<InDet::SiDetectorElementStatus>* whandle) const override;
 
   virtual bool hasBSError(const IdentifierHash& elementHash) const override;
   virtual bool hasBSError(const IdentifierHash& elementHash, Identifier elementId) const override;
@@ -77,7 +79,9 @@ public:
   virtual uint64_t getBSErrorWord(const IdentifierHash& moduleHash, const int index, const EventContext& ctx) const  override;
   //@}
 private:
-  std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange> createDetectorElementStatus(const EventContext& ctx) const;
+  std::unique_ptr<InDet::SiDetectorElementStatus>
+  createDetectorElementStatus(const EventContext& ctx,
+                              SG::WriteCondHandle<InDet::SiDetectorElementStatus>* whandle) const;
 
   ToolHandleArray<ISCT_ConditionsTool> m_toolHandles
      {this, "ConditionsTools", {},""};

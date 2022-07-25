@@ -18,7 +18,9 @@ public:
 
    virtual StatusCode initialize() override;
 
-   virtual std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange> getDetectorElementStatus(const EventContext& ctx) const override;
+   virtual std::unique_ptr<InDet::SiDetectorElementStatus>
+   getDetectorElementStatus(const EventContext& ctx,
+                            SG::WriteCondHandle<InDet::SiDetectorElementStatus>* whandle) const override;
 };
 
 inline InterfaceID& PixelDetectorElementStatusCloneTool::interfaceID(){
