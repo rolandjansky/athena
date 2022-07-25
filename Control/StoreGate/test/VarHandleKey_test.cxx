@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file StoreGate/test/VarHandleKey_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -14,6 +12,7 @@
 #undef NDEBUG
 #include "StoreGate/VarHandleKey.h"
 #include "StoreGate/exceptions.h"
+#include "SGTools/StringPool.h"
 #include "AthenaKernel/errorcheck.h"
 #include "TestTools/initGaudi.h"
 #include "TestTools/expect_exception.h"
@@ -34,6 +33,8 @@ void test1()
 {
   std::cout << "test1\n";
 
+  SG::StringPool pool;
+
   SG::VarHandleKey k1 (1234, "aaa", Gaudi::DataHandle::Reader);
   assert (k1.clid() == 1234);
   assert (k1.key() == "aaa");
@@ -46,7 +47,7 @@ void test1()
   assert (k1.start().isSuccess());
   assert (!k1.isCondition());
   assert (!k1.empty());
-  assert (k1.hashedKey() == 752331202);
+  assert (k1.hashedKey() == pool.stringToKey ("aaa", 1234));
 
   k1 = "aab";
   assert (k1.clid() == 1234);
