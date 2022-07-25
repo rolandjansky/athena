@@ -110,6 +110,16 @@ if ( IS_DIRECTORY /usr/include/ck )
     PRIVATE "-DHAVE_CK" )
 endif()
 
+
+atlas_add_test( ConcurrentPtrSet_test
+  SOURCES test/ConcurrentPtrSet_test.cxx
+  INCLUDE_DIRS ${TBB_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CK_INCLUDE}
+  LINK_LIBRARIES CxxUtils TestTools ${TBB_LIBRARIES} ${Boost_LIBRARIES} ${CK_LIBRARIES} )
+if ( IS_DIRECTORY /usr/include/ck )
+  target_compile_definitions(CxxUtils_ConcurrentPtrSet_test
+    PRIVATE "-DHAVE_CK" )
+endif()
+
 atlas_add_test( exctrace2_test
    SOURCES test/exctrace2_test.cxx
    LINK_LIBRARIES CxxUtils

@@ -166,7 +166,7 @@ CONCURRENTSTRMAP::const_iterator::const_iterator (typename Impl_t::const_iterato
 
 
 /**
- * @brief Test if this iterator is value.
+ * @brief Test if this iterator is valid.
  *
  * This should be the same as testing for != end().
  */
@@ -405,7 +405,7 @@ auto CONCURRENTSTRMAP::insert_or_assign (const key_type& key,
 
 
 /**
- * @break Add an element to the map.
+ * @brief Add an element to the map.
  * @param p The item to add.
  *          Should be a pair where first is the string key
  *          and second is the integer value.
@@ -503,7 +503,7 @@ auto CONCURRENTSTRMAP::keyAsString (val_t val) -> const std::string*
 
 /**
  * @brief Convert a string pointer to an underlying key value.
- * @param val The string pointer.
+ * @param s The string pointer.
  */
 T_CONCURRENTSTRMAP
 inline
