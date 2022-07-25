@@ -61,12 +61,24 @@ namespace Trig
         continue;
       }
       ATH_MSG_DEBUG("Chain " << chainName << " passed");
+      VecLinkInfo_t features = m_trigDecTool->features<xAOD::IParticleContainer>(chainName);
+      // See if we have any that have invalid links. This is a sign that the
+      // input file does not contain the required information and should be seen
+      // as reason for a job failure
+      for (IPartLinkInfo_t &linkInfo : features)
+      {
+          if (!linkInfo.isValid())
+          {
+              ATH_MSG_ERROR("Chain " << chainName << " has invalid link info!");
+              throw std::runtime_error("Bad link info");
+          }
+      }
       // Now we have to build up combinations
       // TODO - right now we use a filter that passes everything that isn't pointer-equal.
       // This will probably need to be fixed to something else later - at least the unique RoI filter
       TrigCompositeUtils::Combinations combinations = TrigCompositeUtils::buildCombinations(
         chainName,
-        m_trigDecTool->features<xAOD::IParticleContainer>(chainName),
+        features,
         m_trigDecTool->ExperimentalAndExpertMethods().getChainConfigurationDetails(chainName),
         TrigCompositeUtils::FilterType::UniqueObjects);
       // Warn once per call if one of the chain groups is too small to match anything
