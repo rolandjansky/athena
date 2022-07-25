@@ -17,8 +17,8 @@
 
 #include "AthLinks/tools/DataProxyHolder.h"
 #include "AthLinks/tools/ForwardIndexingPolicy.h"
-#include "AthenaKernel/sgkey_t.h"
 #include "AthenaKernel/getThinningCache.h"
+#include "CxxUtils/sgkey_t.h"
 #include "CxxUtils/CachedPointer.h"
 #include <cstdlib>
 #include <stdint.h>
