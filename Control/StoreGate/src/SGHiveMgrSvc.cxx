@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/ConcurrencyFlags.h"
@@ -217,3 +217,15 @@ StatusCode HiveMgrSvc::finalize() {
   return StatusCode::SUCCESS;
 }
 
+
+StatusCode HiveMgrSvc::start()
+{
+  // On a start transition, merge the string pool from the default store
+  // into that of each store, so that they will know about any explicit
+  // registrations that were done during initialize().
+  // See ATEAM-846.
+  for (SG::HiveEventSlot& slot : m_slots) {
+    slot.pEvtStore->mergeStringPool (*m_hiveStore->currentStore());
+  }
+  return StatusCode::SUCCESS;
+}

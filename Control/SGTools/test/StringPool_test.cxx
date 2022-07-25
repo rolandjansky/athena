@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file  SGTools/StringPool_test.cxx
@@ -176,9 +176,31 @@ void test2()
 }
 
 
+// Test merge
+void test3()
+{
+  std::cout << "test3\n";
+
+  SG::StringPool sp1;
+  sp1.stringToKey ("foo1", 1);
+  sp1.stringToKey ("foo2", 2);
+
+  SG::StringPool sp2;
+  sp2.stringToKey ("bar1", 1);
+
+  assert (sp2.merge (sp1));
+  sp2.dump();  
+  assert (sp2.merge (sp1));
+
+  sp1.registerKey (0x8c88eb8, "fee1", 1);
+  assert (!sp2.merge (sp1));
+}
+
+
 int main()
 {
   test1();
   test2();
+  test3();
   return 0;
 }
