@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "McEventCollectionTestTool.h"
@@ -57,7 +57,7 @@ StatusCode McEventCollectionTestTool::initialize()
 
 StatusCode McEventCollectionTestTool::processEvent() {
 
-  const DataHandle<McEventCollection> p_mceventcollection;
+  const McEventCollection* p_mceventcollection;
   if(evtStore()->retrieve(p_mceventcollection, m_collection).isFailure())
     {
       return StatusCode::SUCCESS;

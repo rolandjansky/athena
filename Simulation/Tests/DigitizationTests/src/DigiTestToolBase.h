@@ -1,7 +1,7 @@
 /* -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DIGITIZATIONTESTS_DIGITESTTOOLBASE_H
@@ -14,9 +14,7 @@
 
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/ITHistSvc.h"
-// #include "GaudiKernel/ISvcLocator.h"
-// #include "GaudiKernel/Bootstrap.h"
-// #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include "TH1.h"
 #include "TH2.h"
@@ -30,30 +28,21 @@ public:
          const std::string& type,
          const IInterface* parent);
   virtual StatusCode initialize() {
+
+    CHECK( m_histSvc.retrieve() );
     return StatusCode::SUCCESS;
   }
   //@}
-  ITHistSvc* tHistSvc() {
-	static ITHistSvc* hSvc = 0;
-	if (!hSvc) {
-      ISvcLocator* svcLocator = Gaudi::svcLocator();
-      if (svcLocator->service("THistSvc", hSvc).isFailure()) {
-        ATH_MSG_ERROR("Could not get the THistSvc!!!");
-      }
-    }
-    return hSvc;
-  }
   StatusCode registerHistogram(const std::string& path, TH1* hist) {
-    CHECK(tHistSvc()->regHist(path, hist));
+    CHECK(m_histSvc->regHist(path, hist));
     return StatusCode::SUCCESS;
   }
 
 
   StatusCode registerHistogram(const std::string& path, TH2* hist) {
-    CHECK(tHistSvc()->regHist(path, hist));
+    CHECK(m_histSvc->regHist(path, hist));
     return StatusCode::SUCCESS;
   }
-
 
  protected:
   // general prefix (e.g. "/truth/")
@@ -61,24 +50,26 @@ public:
 
   /// The MC truth key
   std::string m_key;
+
+  ServiceHandle<ITHistSvc> m_histSvc;
 };
 
 // note: var should be of type "TH1*" even if it is filled with a TProfile*
 #define _TPROFILE(var,name,nbin,xmin,xmax)		       \
-  if (!tHistSvc()->exists(m_path+name)) {		       \
+  if (!m_histSvc->exists(m_path+name)) {		       \
     var = new TProfile(name,name,nbin,xmin,xmax);	       \
     CHECK(registerHistogram(m_path+name,var));		       \
   } else {						       \
-    CHECK(tHistSvc()->getHist(m_path+name, var));	       \
+    CHECK(m_histSvc->getHist(m_path+name, var));	       \
   }
 
 #define _TH1D(var,name,nbin,xmin,xmax)			       \
-  if (!tHistSvc()->exists(m_path+name)) {		       \
+  if (!m_histSvc->exists(m_path+name)) {		       \
     var = new TH1D(name,name,nbin,xmin,xmax);		       \
     var->StatOverflows();				       \
     CHECK(registerHistogram(m_path+name,var));		       \
   } else {						       \
-    CHECK(tHistSvc()->getHist(m_path+name,var));	       \
+    CHECK(m_histSvc->getHist(m_path+name,var));	       \
   }
 
 #define _TH1D_WEIGHTED(var,name,nbin,xmin,xmax)	\
@@ -86,11 +77,11 @@ public:
   var->Sumw2();
 
 #define _TH2D(var,name,nbinx,xmin,xmax,nbiny,ymin,ymax)	       \
-  if (!tHistSvc()->exists(m_path+name)) {		       \
+  if (!m_histSvc->exists(m_path+name)) {		       \
     var = new TH2D(name,name,nbinx,xmin,xmax,nbiny,ymin,ymax); \
     CHECK(registerHistogram(m_path+name,var));		       \
   } else {						       \
-    CHECK(tHistSvc()->getHist(m_path+name,var));	       \
+    CHECK(m_histSvc->getHist(m_path+name,var));	       \
   }
 
 #define _TH2D_WEIGHTED(var,name,nbinx,xmin,xmax,nbiny,ymin,ymax)	\
