@@ -6,6 +6,7 @@
 #define I_TRIGBTAGEMULATIONTOOL_H
 
 #include "GaudiKernel/IAlgTool.h"
+#include "TrigBtagEmulationTool/EmulContext.h"
 #include <string>
 
 namespace Trig {
@@ -13,8 +14,9 @@ namespace Trig {
   class ITrigBtagEmulationTool 
     : virtual public IAlgTool {
   public:
-    virtual StatusCode populateJetManagersTriggerObjects() = 0;
+    virtual const EmulContext& populateJetManagersTriggerObjects() const = 0;
     virtual bool isPassed(const std::string& chain) const = 0;
+    virtual bool isPassed(const std::string& chain, const EmulContext&) const = 0;
   };
 
 }
