@@ -17,7 +17,7 @@ logOverlay.info(str(overlayArgs))
 from PerfMonComps.PerfMonFlags import jobproperties as pm
 pm.PerfMonFlags.doFastMonMT = (overlayArgs.perfmon == 'fastmonmt')
 pm.PerfMonFlags.doFullMonMT = (overlayArgs.perfmon == 'fullmonmt')
-pm.PerfMonFlags.OutputJSON  = "permonmt_Overlay.json"
+pm.PerfMonFlags.OutputJSON  = "perfmonmt_Overlay.json"
 include( "PerfMonComps/PerfMonMTSvc_jobOptions.py" ) # noqa F821
 
 # Pre-exec
