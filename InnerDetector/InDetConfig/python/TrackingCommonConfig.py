@@ -1,24 +1,6 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
-
-#######################################################################
-
-def PixeldEdxAlg(flags, name = "PixeldEdxAlg", **kwargs):
-    acc = ComponentAccumulator()
-    acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/PixdEdx", "/PIXEL/PixdEdx", className='AthenaAttributeList'))
-    PixeldEdxAlg = CompFactory.PixeldEdxAlg(name=name, ReadFromCOOL = True, **kwargs)
-    acc.addCondAlgo(PixeldEdxAlg)
-    return acc
-
-def InDetPixelToTPIDToolCfg(flags, name = "InDetPixelToTPIDTool", **kwargs):
-    acc = PixeldEdxAlg(flags)
-    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelConfigCondAlgCfg
-    acc.merge(PixelConfigCondAlgCfg(flags)) # To produce PixelModuleData CondHandle
-    InDetPixelToTPIDTool = CompFactory.InDet.PixelToTPIDTool(name, **kwargs)
-    acc.setPrivateTools(InDetPixelToTPIDTool)
-    return acc
 
 #############################################################################################
 #TRTSegmentFinder
