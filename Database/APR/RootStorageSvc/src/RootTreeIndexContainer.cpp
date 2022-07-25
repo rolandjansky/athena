@@ -10,13 +10,16 @@
 // Root include files
 #include "TTree.h"
 #include "TBranch.h"
+#include "TTreeIndex.h"
 
 using namespace pool;
 using namespace std;
 
 RootTreeIndexContainer::RootTreeIndexContainer() :
-   m_indexBranch(nullptr), m_index_entries(0), m_index_multi( getpid() ), m_index(0), m_indexBump(0)
+   m_indexBranch(nullptr), m_index_entries(0), m_index_multi( getpid() ), m_index(0), m_indexBump(0),
+   m_firstRead(true)
 { }
+
 
 DbStatus RootTreeIndexContainer::open( DbDatabase& dbH, 
                                        const std::string& nam,
@@ -25,7 +28,7 @@ DbStatus RootTreeIndexContainer::open( DbDatabase& dbH,
 {
    auto db = static_cast<const RootDatabase*>( dbH.info() );
    m_indexBump = db? db->currentIndexMasterID() : 0;
-   return RootTreeContainer::open( dbH, nam, info, mod );
+   return  RootTreeContainer::open( dbH, nam, info, mod );
 }
 
 
@@ -73,10 +76,22 @@ DbStatus RootTreeIndexContainer::writeObject(ActionList::value_type& action)
 }
 
 
-DbStatus RootTreeIndexContainer::loadObject(void** ptr, ShapeH shape, Token::OID_t& oid) {
-   if ((oid.second >> 32) > 0) {
+DbStatus RootTreeIndexContainer::loadObject(void** ptr, ShapeH shape, Token::OID_t& oid)
+{
+   if( (oid.second >> 32) > 0 ) {
+      if( m_firstRead ) {
+         // on the first read check if the index can and should be rebuilt
+         if( m_tree->GetEntries()>0 and m_tree->GetBranch("index_ref")
+             and !m_rootDb->wasIndexRebuilt(m_tree->GetName()) ) {
+            delete m_tree->GetTreeIndex();
+            m_tree->BuildIndex("index_ref");
+            m_rootDb->markIndexRebuilt(m_tree->GetName());
+         }
+         m_firstRead = false;
+      }
       long long int evt_id = m_tree->GetEntryNumberWithIndex(oid.second);
       if (evt_id == -1) {
+         delete m_tree->GetTreeIndex();
          m_tree->BuildIndex("index_ref");
          evt_id = m_tree->GetEntryNumberWithIndex(oid.second);
       }
