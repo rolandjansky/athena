@@ -72,6 +72,9 @@ namespace pool {
 
       /// How much to increase nextRecordID to keep index values synced with other containers
       long long int m_indexBump;
+
+      /// first object retrieval attempt flag (to rebuild index)
+      bool          m_firstRead;
    };
 }
 #endif //POOL_ROOTTREEINDEXCONTAINER_H
