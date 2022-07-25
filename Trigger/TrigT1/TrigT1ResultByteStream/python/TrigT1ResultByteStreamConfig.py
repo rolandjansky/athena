@@ -7,7 +7,7 @@ from AthenaConfiguration.Enums import Format
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from libpyeformat_helper import SourceIdentifier, SubDetector
 
-from L1CaloFEXByteStream.L1CaloRoiFEXByteStreamConfig import eFexByteStreamToolCfg, jFexRoiByteStreamToolCfg
+from L1CaloFEXByteStream.L1CaloFEXByteStreamConfig import eFexByteStreamToolCfg, jFexRoiByteStreamToolCfg, jFexInputByteStreamToolCfg
 from L1TopoByteStream.L1TopoByteStreamConfig import L1TopoPhase1ByteStreamToolCfg
 from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConfig import getRun3RPCRecRoiTool
 from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConfig import getRun3TGCRecRoiTool
@@ -228,7 +228,7 @@ if __name__ == '__main__':
   if len(sys.argv) < 4:
     log.error('usage: python -m TrigT1ResultByteStream.TrigT1ResultByteStreamConfig subsystem file nevents')
     sys.exit(1)
-  supportedSubsystems = ['jFex','eFex', 'allFex','Topo']
+  supportedSubsystems = ['inputjFex','jFex','eFex', 'allFex','Topo']
   subsystem = sys.argv[1]
   filename = sys.argv[2]
   events = int(sys.argv[3])
@@ -264,16 +264,16 @@ if __name__ == '__main__':
 
   if "data22" not in filename:
     generateL1Menu(flags)
-
-  # Produce xAOD L1 RoIs from RoIBResult
-  from AnalysisTriggerAlgs.AnalysisTriggerAlgsCAConfig import RoIBResultToxAODCfg
-  xRoIBResultAcc, xRoIBResultOutputs = RoIBResultToxAODCfg(flags)
-  acc.merge(L1TriggerByteStreamDecoderCfg(flags))
-  acc.merge(xRoIBResultAcc)
-
+  
+  # Produce xAOD L1 RoIs from RoIBResult, commented for now in the testing process
+  # from AnalysisTriggerAlgs.AnalysisTriggerAlgsCAConfig import RoIBResultToxAODCfg
+  # xRoIBResultAcc, xRoIBResultOutputs = RoIBResultToxAODCfg(flags)
+  # acc.merge(L1TriggerByteStreamDecoderCfg(flags))
+  # acc.merge(xRoIBResultAcc)  
 
   decoderTools = []
   outputEDM = []
+  maybeMissingRobs = []
 
   def addEDM(edmType, edmName):
     auxType = edmType.replace('Container','AuxContainer')
@@ -287,6 +287,9 @@ if __name__ == '__main__':
 
   if subsystem in ['jFex','allFex'] :
     jFexTool = jFexRoiByteStreamToolCfg('jFexBSDecoder', flags)
+    for module_id in jFexTool.ROBIDs:
+        maybeMissingRobs.append(module_id)
+        
     decoderTools += [jFexTool]
     outputEDM += addEDM('xAOD::jFexSRJetRoIContainer', jFexTool.jJRoIContainerWriteKey.Path)
     outputEDM += addEDM('xAOD::jFexLRJetRoIContainer', jFexTool.jLJRoIContainerWriteKey.Path)
@@ -295,10 +298,23 @@ if __name__ == '__main__':
     outputEDM += addEDM('xAOD::jFexSumETRoIContainer', jFexTool.jTERoIContainerWriteKey.Path)
     outputEDM += addEDM('xAOD::jFexMETRoIContainer'  , jFexTool.jXERoIContainerWriteKey.Path)
 
+  if subsystem in ['inputjFex'] :
+    inputjFexTool = jFexInputByteStreamToolCfg('jFexInputBSDecoder', flags)
+    for module_id in inputjFexTool.ROBIDs:
+        maybeMissingRobs.append(module_id) 
+        
+    decoderTools += [inputjFexTool]
+    # example if saving/adding the xAOD container, implement in the future
+    # outputEDM += addEDM('xAOD::jFexSRJetRoIContainer', jFexTool.jJRoIContainerWriteKey.Path)
+
   if subsystem in ['eFex','allFex'] :
     eFexTool = eFexByteStreamToolCfg('eFexBSDecoder', flags)
     eFexTool_xTOBs = eFexByteStreamToolCfg('eFexBSDecoder_xTOBs', flags,xTOBs=True)
     decoderTools += [eFexTool,eFexTool_xTOBs]
+
+    for module_id in eFexTool.ROBIDs:
+        maybeMissingRobs.append(module_id)
+
     # TOB containers
     outputEDM += addEDM('xAOD::eFexEMRoIContainer', eFexTool.eEMContainerWriteKey.Path)
     outputEDM += addEDM('xAOD::eFexTauRoIContainer', eFexTool.eTAUContainerWriteKey.Path)
@@ -312,7 +328,8 @@ if __name__ == '__main__':
     outputEDM += addEDM('xAOD::L1TopoRawDataContainer', l1topoBSTool.L1TopoPhase1RAWDataWriteContainer.Path)
 
   decoderAlg = CompFactory.L1TriggerByteStreamDecoderAlg(name="L1TriggerByteStreamDecoder",
-                                                         DecoderTools=decoderTools, OutputLevel=algLogLevel)
+                                                         DecoderTools=decoderTools, OutputLevel=algLogLevel, MaybeMissingROBs=maybeMissingRobs)
+                                                         
   acc.addEventAlgo(decoderAlg, sequenceName='AthAlgSeq')
 
   from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
