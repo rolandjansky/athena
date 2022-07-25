@@ -8,7 +8,7 @@
 # art-output: log*
 # art-athena-mt: 2
 
-Reco_tf.py --AMI=q445 --preExec 'from AthenaConfiguration.AllConfigFlags import ConfigFlags; ConfigFlags.Trigger.AODEDMSet="AODFULL"' --athenaopts='--threads=1' --outputAODFile=myAOD.pool.root --imf False
+ATHENA_CORE_NUMBER=1 Reco_tf.py --AMI=q445 --preExec 'from AthenaConfiguration.AllConfigFlags import ConfigFlags; ConfigFlags.Trigger.AODEDMSet="AODFULL"' --outputAODFile=myAOD.pool.root --imf False
 echo "art-result: $? AOD_Creation"
 #art.py download Tier0ChainTests test_q221_mt1.sh 
 #AODFILE=(./ref-*/myAOD.pool.root)

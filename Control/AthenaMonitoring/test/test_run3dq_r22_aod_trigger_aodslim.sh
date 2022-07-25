@@ -8,7 +8,7 @@
 # art-output: log*
 # art-athena-mt: 2
 
-Reco_tf.py --AMI=q445 --preExec 'from AthenaConfiguration.AllConfigFlags import ConfigFlags; ConfigFlags.Trigger.AODEDMSet="AODSLIM"' --athenaopts='--threads=1' --outputAODFile=myAOD.pool.root --imf False
+ATHENA_CORE_NUMBER=1 Reco_tf.py --AMI=q445 --preExec 'from AthenaConfiguration.AllConfigFlags import ConfigFlags; ConfigFlags.Trigger.AODEDMSet="AODSLIM"' --outputAODFile=myAOD.pool.root --imf False
 echo "art-result: $? AOD_Creation"
 
 Run3DQTestingDriver.py --inputFiles=myAOD.pool.root DQ.Steering.doHLTMon=True DQ.Environment=AOD --dqOffByDefault > log.HIST_Creation 2>&1
