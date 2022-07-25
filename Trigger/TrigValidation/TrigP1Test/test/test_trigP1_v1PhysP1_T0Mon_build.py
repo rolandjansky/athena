@@ -38,6 +38,24 @@ tzrecoPreExec = ' '.join([
   f"ConfigFlags.Trigger.triggerMenuSetup=\'{triggermenu}\';",
   "ConfigFlags.Trigger.AODEDMSet=\'AODFULL\';",
   "ConfigFlags.Trigger.enableL1CaloPhase1=True;",
+  "from AthenaMonitoring.DQMonFlags import DQMonFlags;",
+  "DQMonFlags.set_All_Off();",
+  "DQMonFlags.doDataFlowMon=True;",
+  "DQMonFlags.doHLTMon=True;",
+  "DQMonFlags.doLVL1CaloMon=True;",
+  "DQMonFlags.doGlobalMon=True;", 
+  "DQMonFlags.doLVL1InterfacesMon=True;",
+  "DQMonFlags.doCTPMon=True;"
+  "ConfigFlags.DQ.Steering.HLT.doBjet=True;",
+  "ConfigFlags.DQ.Steering.HLT.doInDet=True;",
+  "ConfigFlags.DQ.Steering.HLT.doBphys=True;",
+  "ConfigFlags.DQ.Steering.HLT.doCalo=True;",
+  "ConfigFlags.DQ.Steering.HLT.doEgamma=True;",
+  "ConfigFlags.DQ.Steering.HLT.doJet=True;",
+  "ConfigFlags.DQ.Steering.HLT.doMET=True;",
+  "ConfigFlags.DQ.Steering.HLT.doMinBias=True;",
+  "ConfigFlags.DQ.Steering.HLT.doMuon=True;",
+  "ConfigFlags.DQ.Steering.HLT.doTau=True;",
 ])
 
 tzreco = ExecStep.ExecStep('Tier0Reco')
@@ -49,23 +67,16 @@ tzreco.explicit_input = True
 tzreco.max_events = 50
 tzreco.args = '--inputBSFile=' + find_file('*.physics_Main*._athenaHLT*.data')  # output of the previous step
 tzreco.args += ' --outputESDFile=ESD.pool.root --outputAODFile=AOD.pool.root'
+tzreco.args += ' --outputHISTFile=hist.root'
 tzreco.args += ' --conditionsTag=\'CONDBR2-BLKPA-RUN2-06\' --geometryVersion=\'ATLAS-R2-2016-01-00-01\''
 tzreco.args += ' --preExec="{:s}"'.format(tzrecoPreExec)
 tzreco.args += ' --postInclude="TriggerTest/disableChronoStatSvcPrintout.py"'
-
-# Tier-0 monitoring step (AOD->HIST)
-tzmon = ExecStep.ExecStep('Tier0Mon')
-tzmon.type = 'other'
-tzmon.executable = 'Run3DQTestingDriver.py'
-tzmon.input = ''
-tzmon.args = '--threads=1'
-tzmon.args += ' --dqOffByDefault'
-tzmon.args += f' Input.Files="[\'AOD.pool.root\']" DQ.Steering.doHLTMon=True Trigger.triggerMenuSetup=\'{triggermenu}\''
+tzreco.args += ' --steering doRAWtoALL'
 
 # The full test
 test = Test.Test()
 test.art_type = 'build'
-test.exec_steps = [hlt, filter_bs, tzreco, tzmon]
+test.exec_steps = [hlt, filter_bs, tzreco]
 test.check_steps = CheckSteps.default_check_steps(test)
 add_analysis_steps(test)
 
