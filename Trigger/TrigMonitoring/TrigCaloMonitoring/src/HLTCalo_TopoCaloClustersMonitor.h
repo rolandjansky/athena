@@ -11,6 +11,7 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "LumiBlockData/BunchCrossingCondData.h"
+#include <math.h>
 
 class HLTCalo_TopoCaloClustersMonitor : public AthMonitorAlgorithm {
 
@@ -38,6 +39,7 @@ private:
   std::vector<int> m_HLT_types;
   std::vector<int> m_OFF_types;
   bool m_match_types;
+  bool m_doLC;
   float m_max_delta_r;
 
 };
