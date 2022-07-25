@@ -6,21 +6,23 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from IOVDbSvc.IOVDbSvcConfig import addFolders
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 # Prepare Vertex reconstruction algorithm tools
 def AFP_VertexReco_Cfg(flags, kwargs={}):
-
-	TimeOffsetA = [64,45,25,11]
-	TimeSlopeA = [-7.3,-5.0,-4.0,-4.]
-	TimeOffsetC = [2,9,14,12]     
-	TimeSlopeC = [4,5,3,6]
-	TrainEdgesA = [-18.7,-13.2,-8.1,-4.0,-2.5]
-	TrainEdgesC = [-18.7,-13.2,-8.1,-4.0,-2.5]
-	TimeGlobalOffset = 5
-
-	afpVertexRecoTool = CompFactory.AFP_VertexRecoBasic("AFP_VertexRecoBasic",TrackDistance=0.5,TimeOffsetA = TimeOffsetA, TimeSlopeA = TimeSlopeA, TimeOffsetC = TimeOffsetC, TimeSlopeC = TimeSlopeC, TimeGlobalOffset = TimeGlobalOffset, TrainEdgesA = TrainEdgesA, TrainEdgesC = TrainEdgesC, **kwargs)
-
+	
+	acc = ComponentAccumulator()
+	
+	if flags.Input.isMC:
+		acc.merge(addFolders(flags, "/FWD/AFP/ToFParameters/Vertex<tag>AFPMCToFVtx-ideal-01</tag>", 'FWD_OFL', className='CondAttrListCollection', db='OFLP200'))
+		tofVtxParamTool  = CompFactory.getComp("AFP::ToFVtxParamDBTool")("ToFVtxParamDBTool", vtx_param_key="/FWD/AFP/ToFParameters/Vertex")
+	else:
+		acc.merge(addFolders(flags, "/FWD/Onl/AFP/ToFParameters/Vertex<tag>AFPToFVtx-01</tag>", 'FWD_ONL', className='CondAttrListCollection', db='CONDBR2'))
+		tofVtxParamTool  = CompFactory.getComp("AFP::ToFVtxParamDBTool")("ToFVtxParamDBTool", vtx_param_key="/FWD/Onl/AFP/ToFParameters/Vertex")
+	
+	afpVertexRecoTool = CompFactory.AFP_VertexRecoBasic("AFP_VertexRecoBasic", TrackDistance=0.5, tofVtxParamDBTool=tofVtxParamTool, **kwargs)
+	
 	verticesToolsList=[afpVertexRecoTool]
 
 	# collect all output names and make a list with unique names for write handle keys; if this goes wrong AFP_VertexRecoTool::initialize() will complain
@@ -39,15 +41,24 @@ def AFP_VertexReco_Cfg(flags, kwargs={}):
 	vertexRecoTool = CompFactory.AFP_VertexRecoTool("AFP_VertexRecoTool", RecoToolsList=verticesToolsList, AFPVertexContainerList=outputVertexList )
 
 	# actually setup the vertex reco
-	acc = ComponentAccumulator()
 	acc.addEventAlgo(CompFactory.AFP_VertexReco("AFP_VertexReco", recoTool = vertexRecoTool))
 	
 	return acc
 
 
 def AFP_VertexReco_HLT(flags):
+	from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+	acc = ComponentAccumulator()
 	
-	acc = AFP_VertexReco_Cfg(flags, {"AFPToFTrackContainerKey": "HLT_AFPToFTrackContainer", "AFPProtonContainerKey": "HLT_AFPProtonContainer", "verticesContainerName": recordable("HLT_AFPVertexContainer")})
+	from IOVDbSvc.CondDB import conddb
+	if flags.Input.isMC:
+		if not conddb.folderRequested('/FWD/AFP/ToFParameters/Vertex'):
+			conddb.addFolder("FWD_OFL","/FWD/AFP/ToFParameters/Vertex<tag>AFPMCToFVtx-ideal-01</tag>", className="CondAttrListCollection")
+	else:
+		if not conddb.folderRequested('/FWD/Onl/AFP/ToFParameters/Vertex'):
+			conddb.addFolder("FWD_ONL","/FWD/Onl/AFP/ToFParameters/Vertex<tag>AFPToFVtx-03</tag>", className="CondAttrListCollection")
+	
+	acc.merge(AFP_VertexReco_Cfg(flags, {"AFPToFTrackContainerKey": "HLT_AFPToFTrackContainer", "AFPProtonContainerKey": "HLT_AFPProtonContainer", "verticesContainerName": recordable("HLT_AFPVertexContainer")}))
 	
 	return acc
 

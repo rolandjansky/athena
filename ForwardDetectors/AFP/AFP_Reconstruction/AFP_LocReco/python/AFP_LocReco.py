@@ -7,6 +7,7 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import Format
+from IOVDbSvc.IOVDbSvcConfig import addFolders
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 def AFP_LocReco_SiD_Cfg(flags, kwargs={}):
@@ -59,23 +60,22 @@ def AFP_LocReco_SiD_Cfg(flags, kwargs={}):
 
 def AFP_LocReco_TD_Cfg(flags, kwargs={}):
 
-        # Prepare ToF reconstruction algorithm tools - one for each station
-        BarWeight = [1.0, 1.0, 1.0, 1.0]
-
-        TimeOffset0 = [1494, 1500, 1500, 1500,
-                       1500, 1500, 1500, 1500,
-                       1500, 1500, 1500, 1500,
-                       1500, 1500, 1500, 1500]
-        basicTool0 = CompFactory.getComp("AFPTDBasicTool")("AFPTDBasicTool0", stationID=0, maxAllowedLength=1500, TimeOffset=TimeOffset0, BarWeight=BarWeight, **kwargs)
-
-        TimeOffset3 = [1500, 1500, 1500, 1500,
-                       1500, 1500, 1500, 1500,
-                       1500, 1500, 1500, 1500,
-                       1500, 1500, 1500, 1500]
-        basicTool3 = CompFactory.getComp("AFPTDBasicTool")("AFPTDBasicTool3", stationID=3, maxAllowedLength=1500, TimeOffset=TimeOffset3, BarWeight=BarWeight, **kwargs)
-
         acc = ComponentAccumulator()
+        
+        acc.addCondAlgo(CompFactory.CondInputLoader(Load=[('CondAttrListCollection', 'ConditionStore+/FWD/AFP/ToFParameters/Local')]))
+        if flags.Input.isMC:
+                # if other tags are desired, they can be set also in postExec, e.g.
+                # --postExec 'from IOVDbSvc.CondDB import conddb; conddb.addOverride("/FWD/AFP/ToFParameters/Local","AFPMCToFLoc-329484-02");'
 
+                acc.merge(addFolders(flags, "/FWD/AFP/ToFParameters/Local<tag>AFPMCToFLoc-ideal-01</tag>", 'FWD_OFL', className='CondAttrListCollection', db='OFLP200'))
+                tofLocParamTool  = CompFactory.getComp("AFP::ToFLocParamDBTool")("ToFLocParamDBTool", loc_param_key="/FWD/AFP/ToFParameters/Local")
+        else:
+                acc.merge(addFolders(flags, "/FWD/Onl/AFP/ToFParameters/Local<tag>AFPToFLoc-01</tag>", 'FWD_ONL', className='CondAttrListCollection', db='CONDBR2'))
+                tofLocParamTool  = CompFactory.getComp("AFP::ToFLocParamDBTool")("ToFLocParamDBTool", loc_param_key="/FWD/Onl/AFP/ToFParameters/Local")
+        
+        basicTool0 = CompFactory.getComp("AFPTDBasicTool")("AFPTDBasicTool0", stationID=0, tofLocParamDBTool=tofLocParamTool, **kwargs)
+        basicTool3 = CompFactory.getComp("AFPTDBasicTool")("AFPTDBasicTool3", stationID=3, tofLocParamDBTool=tofLocParamTool, **kwargs)
+        
         if flags.Input.Format is Format.POOL:
                 if "AFPToFHitContainer" not in flags.Input.Collections:
                         basicTool0.AFPToFHitContainerKey=""
@@ -86,7 +86,7 @@ def AFP_LocReco_TD_Cfg(flags, kwargs={}):
                         
         basicToolsList=[basicTool0, basicTool3]
 
-        # collect all output names and make a list with unique names for write handle keys; if this goes wrong AFP_SIDLocRecoTool::initialize() will complain
+        # collect all output names and make a list with unique names for write handle keys; if this goes wrong AFP_TDLocRecoTool::initialize() will complain
         outputBasicList=[]
         for basicTool in basicToolsList:
                 try:
@@ -132,13 +132,22 @@ def AFP_LocReco_SiD_HLT(flags):
                monTool_AFP_BasicKalman.defineHistogram( 'TrkNHoles', path='EXPERT', type='TH1F', title='Track number of holes',xbins=100, xmin=0, xmax=100, cutmask='TrkMask' )
                monTool_AFP_BasicKalman.defineHistogram( 'TrkChi2', path='EXPERT', type='TH1F', title='Track chi2',xbins=50, xmin=0, xmax=10, cutmask='TrkMask' )
 
-               AFP_SID.recoTool.RecoToolsList[i].MonTool = monTool_AFP_BasicKalman	
+               AFP_SID.recoTool.RecoToolsList[i].MonTool = monTool_AFP_BasicKalman
 
         return acc
 
 def AFP_LocReco_TD_HLT(flags):
         from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
         acc = ComponentAccumulator()
+        
+        from IOVDbSvc.CondDB import conddb
+        if flags.Input.isMC:
+                if not conddb.folderRequested('/FWD/AFP/ToFParameters/Local'):
+                        conddb.addFolder("FWD_OFL","/FWD/AFP/ToFParameters/Local<tag>AFPMCToFLoc-ideal-01</tag>", className="CondAttrListCollection")
+        else:
+                if not conddb.folderRequested('/FWD/Onl/AFP/ToFParameters/Local'):
+                        conddb.addFolder("FWD_ONL","/FWD/Onl/AFP/ToFParameters/Local<tag>AFPToFLoc-03</tag>", className="CondAttrListCollection")
+
 
         acc.merge(AFP_LocReco_TD_Cfg(flags, {"tracksContainerName": recordable("HLT_AFPToFTrackContainer")}))
 

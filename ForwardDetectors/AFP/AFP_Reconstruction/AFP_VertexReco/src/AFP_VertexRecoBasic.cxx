@@ -1,5 +1,5 @@
  /*
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AFP_VertexReco/AFP_VertexRecoBasic.h"
@@ -19,14 +19,9 @@ StatusCode AFP_VertexRecoBasic::configInfo () const
 
   ATH_MSG_INFO("\tCuts:\n");
   ATH_MSG_INFO("\t\ttrackDistance [mm]: " << m_trackDistance );
-  ATH_MSG_INFO("\tCallibration:\n");
-  ATH_MSG_INFO("\t\ttimeGlobalOffset [ps]: " << m_timeGlobalOffset );
-  ATH_MSG_INFO("\t\ttimeOffsetA [ps]: " << m_timeOffsetA );
-  ATH_MSG_INFO("\t\ttimeSlopeA [ps/mm]: " << m_timeSlopeA );
-  ATH_MSG_INFO("\t\ttimeOffsetC [ps]: " << m_timeOffsetC );
-  ATH_MSG_INFO("\t\ttimeSlopeC [ps/mm]: " << m_timeSlopeC );
-  ATH_MSG_INFO("\t\ttrainEdgesA [mm]: " << m_trainEdgesA );
-  ATH_MSG_INFO("\t\ttrainEdgesC [mm]: " << m_trainEdgesC );
+  
+  CHECK( m_tofVtxParamDBTool.retrieve() );
+  
   return StatusCode::SUCCESS;
 }
 
@@ -59,36 +54,40 @@ StatusCode AFP_VertexRecoBasic::doVertexReco(std::unique_ptr<xAOD::AFPVertexCont
   }
 
 
-
   // Select ToF tracks on side A
   std::vector<const xAOD::AFPToFTrack*> tofTrackSideAContainer;
   std::copy_if(tofTrackContainer->begin(), tofTrackContainer->end(), std::back_inserter(tofTrackSideAContainer),
       [](auto track) { return track->stationID() == 0; });
-
+  if(tofTrackSideAContainer.empty()) return StatusCode::SUCCESS;
+  
   // Select ToF tracks on side C      
   std::vector<const xAOD::AFPToFTrack*> tofTrackSideCContainer;
   std::copy_if(tofTrackContainer->begin(), tofTrackContainer->end(), std::back_inserter(tofTrackSideCContainer),
       [](auto track) { return track->stationID() == 3; });
-
+  if(tofTrackSideCContainer.empty()) return StatusCode::SUCCESS;
 
   // Select protons on side A      
   std::vector<const xAOD::AFPProton*> protonSideAContainer;
   std::copy_if(protonContainer->begin(), protonContainer->end(), std::back_inserter(protonSideAContainer),
       [](auto proton) { return proton->side() == 0; });
-
+  if(protonSideAContainer.empty()) return StatusCode::SUCCESS;
+  
   // Select protons on side C
   std::vector<const xAOD::AFPProton*> protonSideCContainer;
   std::copy_if(protonContainer->begin(), protonContainer->end(), std::back_inserter(protonSideCContainer),
       [](auto proton) { return proton->side() == 1; });
-
-
-
-
+  if(protonSideCContainer.empty()) return StatusCode::SUCCESS;
+  
   ATH_MSG_DEBUG("tofTrackSideAContainer size: " << tofTrackSideAContainer.size());
   ATH_MSG_DEBUG("tofTrackSideCContainer size: " << tofTrackSideCContainer.size());
   ATH_MSG_DEBUG("protonSideAContainer size: " << protonSideAContainer.size());
   ATH_MSG_DEBUG("protonSideCContainer size: " << protonSideCContainer.size());
-
+  
+  
+  nlohmann::json dataTVP=m_tofVtxParamDBTool->parametersData(ctx);
+  const AFP::ToFVtxParamData TVP_A=m_tofVtxParamDBTool->parameters(dataTVP, 0);
+  const AFP::ToFVtxParamData TVP_C=m_tofVtxParamDBTool->parameters(dataTVP, 3);
+  
   // Loop over four containers
   for (const xAOD::AFPToFTrack* tofTrackSideA : tofTrackSideAContainer) {
 
@@ -98,16 +97,16 @@ StatusCode AFP_VertexRecoBasic::doVertexReco(std::unique_ptr<xAOD::AFPVertexCont
       double protonXPositionFar = protonSideA->track(0)->xLocal();
       if(protonSideA->nTracks()==2 && protonSideA->track(1)->stationID()==0) 
                                    protonXPositionFar = protonSideA->track(1)->xLocal(); 
-
-      double dx = std::min(std::abs(protonXPositionFar-m_trainEdgesA[tofTrackSideA->trainID()]),std::abs(protonXPositionFar-m_trainEdgesA[tofTrackSideA->trainID()+1])); 
+      
+      double dx = std::min(std::abs(protonXPositionFar-TVP_A.trainEdge(tofTrackSideA->trainID())),std::abs(protonXPositionFar-TVP_A.trainEdge(tofTrackSideA->trainID()+1))); 
       double distA = dx;
-      if( protonXPositionFar > m_trainEdgesA[tofTrackSideA->trainID()] && protonXPositionFar < m_trainEdgesA[tofTrackSideA->trainID()+1] ) distA = -dx;
+      if( protonXPositionFar > TVP_A.trainEdge(tofTrackSideA->trainID()) && protonXPositionFar < TVP_A.trainEdge(tofTrackSideA->trainID()+1) ) distA = -dx;
 
       if (distA > m_trackDistance) {
         ATH_MSG_DEBUG(
             "Tracks too far away from each other (xProton, xLeftPositionSideA; xRightPositionSideA; distance) [mm]: "
-            << protonXPositionFar << ", " << m_trainEdgesA[tofTrackSideA->trainID()] << "; "
-            << m_trainEdgesA[tofTrackSideA->trainID()+1]  << ", " << distA  << "; " << distA);
+            << protonXPositionFar << ", " << TVP_A.trainEdge(tofTrackSideA->trainID()) << "; "
+            << TVP_A.trainEdge(tofTrackSideA->trainID()+1)  << ", " << distA  << "; " << distA);
 
         continue;
       }
@@ -122,21 +121,21 @@ StatusCode AFP_VertexRecoBasic::doVertexReco(std::unique_ptr<xAOD::AFPVertexCont
          double protonXPositionFar = protonSideC->track(0)->xLocal();
          if(protonSideC->nTracks()==2 && protonSideC->track(1)->stationID()==3) 
                                    protonXPositionFar = protonSideC->track(1)->xLocal();
-         double dx = std::min(std::abs(protonXPositionFar-m_trainEdgesC[tofTrackSideC->trainID()]),std::abs(protonXPositionFar-m_trainEdgesC[tofTrackSideC->trainID()+1]));
+         double dx = std::min(std::abs(protonXPositionFar-TVP_C.trainEdge(tofTrackSideC->trainID())),std::abs(protonXPositionFar-TVP_C.trainEdge(tofTrackSideC->trainID()+1)));
          double distC = dx;
-         if( protonXPositionFar > m_trainEdgesC[tofTrackSideC->trainID()] && protonXPositionFar < m_trainEdgesC[tofTrackSideC->trainID()+1] ) distC = -dx;
+         if( protonXPositionFar > TVP_C.trainEdge(tofTrackSideC->trainID()) && protonXPositionFar < TVP_C.trainEdge(tofTrackSideC->trainID()+1) ) distC = -dx;
 
          if (distC > m_trackDistance) {
             ATH_MSG_DEBUG(
               "Tracks too far away from each other (xProton, xLeftPositionSideC; xRightPositionSideC; distance) [mm]: "
-              << protonXPositionFar << ", " << m_trainEdgesC[tofTrackSideC->trainID()] << "; "
-              << m_trainEdgesC[tofTrackSideC->trainID()+1]  << ", " << distC  << "; " << distC);
+              << protonXPositionFar << ", " << TVP_C.trainEdge(tofTrackSideC->trainID()) << "; "
+              << TVP_C.trainEdge(tofTrackSideC->trainID()+1)  << ", " << distC  << "; " << distC);
 
            continue;
          }
 
            // Reconstruct vertex and add it to the container
-           xAOD::AFPVertex * vertex = reco(distA, distC, tofTrackSideA, tofTrackSideC, protonSideA, protonSideC,  outputContainer);
+           xAOD::AFPVertex * vertex = reco(distA, distC, tofTrackSideA, tofTrackSideC, protonSideA, protonSideC, TVP_A, TVP_C, outputContainer);
 
            if (!vertex)
               continue;
@@ -195,28 +194,28 @@ void AFP_VertexRecoBasic::linkProtonsToVertex
 
 
 
-xAOD::AFPVertex * AFP_VertexRecoBasic::reco
-  (const double distA, const double distC,
-   const xAOD::AFPToFTrack* tofTrackSideA, const xAOD::AFPToFTrack* tofTrackSideC, 
-   const xAOD::AFPProton* protonSideA, const xAOD::AFPProton* protonSideC,
-std::unique_ptr<xAOD::AFPVertexContainer>& outputContainer) const {
+xAOD::AFPVertex * AFP_VertexRecoBasic::reco(const double distA, const double distC,
+  const xAOD::AFPToFTrack* tofTrackSideA, const xAOD::AFPToFTrack* tofTrackSideC, 
+  const xAOD::AFPProton* protonSideA, const xAOD::AFPProton* protonSideC,
+  const AFP::ToFVtxParamData& TVP_A, const AFP::ToFVtxParamData& TVP_C,
+  std::unique_ptr<xAOD::AFPVertexContainer>& outputContainer) const 
+{
+  int trainID = tofTrackSideA->trainID();
+  double protonYPositionFar = protonSideA->track(0)->yLocal();
+  if(protonSideA->nTracks()==2 && protonSideA->track(1)->stationID()==0)
+    protonYPositionFar = protonSideA->track(1)->yLocal();
+  double timeA = tofTrackSideA->trainTime() - (TVP_A.timeOffset(trainID)+TVP_A.timeSlope(trainID)*protonYPositionFar);
 
-int trainID = tofTrackSideA->trainID();
-double protonYPositionFar = protonSideA->track(0)->yLocal();
-if(protonSideA->nTracks()==2 && protonSideA->track(1)->stationID()==0)
-   protonYPositionFar = protonSideA->track(1)->yLocal();
-double timeA = tofTrackSideA->trainTime() - (m_timeOffsetA[trainID]+m_timeSlopeA[trainID]*protonYPositionFar);
+  trainID = tofTrackSideC->trainID();
+  protonYPositionFar = protonSideC->track(0)->yLocal();
+  if(protonSideC->nTracks()==2 && protonSideC->track(1)->stationID()==3)
+    protonYPositionFar = protonSideC->track(1)->yLocal();
 
-trainID = tofTrackSideC->trainID();
-protonYPositionFar = protonSideC->track(0)->yLocal();
-if(protonSideC->nTracks()==2 && protonSideC->track(1)->stationID()==3)
-   protonYPositionFar = protonSideC->track(1)->yLocal();
+  double timeC = tofTrackSideC->trainTime() - (TVP_C.timeOffset(trainID)+TVP_C.timeSlope(trainID)*protonYPositionFar);
 
-double timeC = tofTrackSideC->trainTime() - (m_timeOffsetC[trainID]+m_timeSlopeC[trainID]*protonYPositionFar);
+  double position = (timeC-timeA)/2.*0.299792458 - (TVP_C.timeGlobalOffset()-TVP_A.timeGlobalOffset()); 
 
-double position = (timeC-timeA)/2.*0.299792458 - m_timeGlobalOffset; 
-
-return createVertex(position, distA, distC, outputContainer);
+  return createVertex(position, distA, distC, outputContainer);
 }
 
 

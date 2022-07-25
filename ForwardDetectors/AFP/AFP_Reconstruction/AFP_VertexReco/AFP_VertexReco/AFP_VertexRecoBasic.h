@@ -15,6 +15,8 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #include "PathResolver/PathResolver.h"
 
 // xAOD includes
+#include "AFP_DBTools/ToFVtxParamData.h"
+#include "AFP_DBTools/IToFVtxParamDBTool.h"
 #include "xAODForward/AFPVertex.h"
 #include "xAODForward/AFPVertexContainer.h"
 #include "xAODForward/AFPVertexAuxContainer.h"
@@ -25,6 +27,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #include "xAODForward/AFPToFTrackContainer.h"
 #include "xAODForward/AFPToFTrackAuxContainer.h"
 
+#include "nlohmann/json.hpp"
 #include <string>
 #include <vector>
 #include <memory>
@@ -65,21 +68,13 @@ class AFP_VertexRecoBasic : public extends<AthAlgTool, IAFP_TimeRecoTool> {
     /// * Adds vertex to outputContainer and sets it's properties
     /// 
     /// @return Poiner to reconstucted AFPVertex
-    xAOD::AFPVertex * reco(const double distA, const double distC, const xAOD::AFPToFTrack* toFTrackA, const xAOD::AFPToFTrack* toFTrackC,const xAOD::AFPProton* protonA, const xAOD::AFPProton* protonC, std::unique_ptr<xAOD::AFPVertexContainer>& outputContainer) const;
+    xAOD::AFPVertex * reco(const double distA, const double distC, const xAOD::AFPToFTrack* toFTrackA, const xAOD::AFPToFTrack* toFTrackC,const xAOD::AFPProton* protonA, const xAOD::AFPProton* protonC, const AFP::ToFVtxParamData& TVP_A, const AFP::ToFVtxParamData& TVP_C, std::unique_ptr<xAOD::AFPVertexContainer>& outputContainer) const;
 
-
-// TODO: put the stuff below in a separate "base" class
     
-    Gaudi::Property<std::vector<double> > m_trainEdgesA {this, "TrainEdgesA", {}, "Train positions on  side A"};
-    Gaudi::Property<std::vector<double> > m_trainEdgesC {this, "TrainEdgesC", {}, "Train positions on  side C"};
-    Gaudi::Property<std::vector<double> > m_timeOffsetA {this, "TimeOffsetA", {}, "Train time offsets on  side A"};
-    Gaudi::Property<std::vector<double> > m_timeOffsetC {this, "TimeOffsetC", {}, "Train time offsets on  side C"};
-    Gaudi::Property<std::vector<double> > m_timeSlopeA {this, "TimeSlopeA", {}, "Train time/y slopes on  side A"};
-    Gaudi::Property<std::vector<double> > m_timeSlopeC {this, "TimeSlopeC", {}, "Train time/y slopes on  side C"};
+    /// @ brief Tool for accessing DB to get the vertex ToF parameters
+  ToolHandle<AFP::IToFVtxParamDBTool> m_tofVtxParamDBTool {this, "tofVtxParamDBTool", "AFP__ToFLocParamDBTool", "Tool to access DB to get the vertex ToF parameters"};
 
-    Gaudi::Property<double> m_timeGlobalOffset{this, "TimeGlobalOffset", 12 , "Time global offset between side A and C"};
     Gaudi::Property<double> m_trackDistance{this, "TrackDistance", 0.5, "Maximum distance between ToF train edge and proton"};
-
 
     SG::ReadHandleKey<xAOD::AFPToFTrackContainer> m_tofTrackContainerKey{this, "AFPToFTrackContainerKey", "AFPToFTrackContainer", "Name of the container with ToF tracks from which vertices are to be reconstructed"};
   
@@ -96,7 +91,6 @@ class AFP_VertexRecoBasic : public extends<AthAlgTool, IAFP_TimeRecoTool> {
     /// Links proton pair to reconstructed vertex
     void linkProtonsToVertex (const xAOD::AFPProton* proton, SG::ReadHandle<xAOD::AFPProtonContainer>& protonContainer, xAOD::AFPVertex * vertex) const;
 
-// TODO: put the stuff above in a separate "base" class
 };
 
 

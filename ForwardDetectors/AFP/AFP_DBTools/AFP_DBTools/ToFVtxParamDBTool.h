@@ -49,7 +49,7 @@ namespace AFP
     const ToFVtxParamData parameters(const nlohmann::json& jsondata, const int stationID) const override;
     
   private:
-    SG::ReadCondHandleKey<CondAttrListCollection> m_rch_vtx {this, "vtx_param_key", "/FWD/Onl/AFP/ToF/Vertex", "read condition handle for vertex ToF parameters"};
+    SG::ReadCondHandleKey<CondAttrListCollection> m_rch_vtx {this, "vtx_param_key", "/FWD/Onl/AFP/ToFParameters/Vertex", "read condition handle for vertex ToF parameters"};
   };
 
 
