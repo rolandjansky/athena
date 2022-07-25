@@ -42,6 +42,7 @@ namespace InDet
     , m_inDetTestPixelLayerTool("", this)
     , m_trackSumToolAvailable(true)
     , m_usePtDependentCuts(false)
+    , m_useEventInfoBs(false)
 
 
   {
@@ -111,7 +112,32 @@ namespace InDet
    
     declareProperty("UsePtDependentCuts", m_usePtDependentCuts = false);  
     declareProperty("PtBenchmarks"      , m_ptBenchmarks);  
-    declareProperty("SCTCutValues"      , m_nSCTValues);  
+    declareProperty("SCTCutValues"      , m_nSCTValues);
+    declareProperty("UseEventInfoBS"    , m_useEventInfoBs);
+  }
+
+  Trk::Vertex* InDetDetailedTrackSelectorTool::getBeamSpot(const EventContext& ctx) const
+  {
+    if(m_useEventInfoBs){
+      SG::ReadHandle<xAOD::EventInfo> evt(m_eventInfo_key, ctx);
+      if (evt.isValid()) {
+        InDet::BeamSpotData temp(evt->beamStatus(), evt->beamPosX(), evt->beamPosY(), evt->beamPosZ(),
+                                 evt->beamPosSigmaX(), evt->beamPosSigmaY(), evt->beamPosSigmaZ(),
+                                 evt->beamTiltXZ(), evt->beamTiltYZ(), evt->beamPosSigmaXY());
+        return new Trk::RecVertex(temp.beamVtx());
+      } else {
+        ATH_MSG_WARNING( " Cannot get beamSpot center from xAOD::EventInfo. Using (0,0,0)... " );
+        return new Trk::Vertex(Amg::Vector3D(0,0,0));
+      }
+    }else{
+      SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
+      if (beamSpotHandle.isValid()) {
+        return new Trk::RecVertex(beamSpotHandle->beamVtx());
+      } else {
+        ATH_MSG_WARNING( " Cannot get beamSpot center from BeamSpotData. Using (0,0,0)... " );
+        return new Trk::Vertex(Amg::Vector3D(0,0,0));
+      }
+    }
   }
 
   // ---------------------------------------------------------------------
@@ -131,7 +157,8 @@ namespace InDet
 	    }
     } 
     ATH_CHECK( m_extrapolator.retrieve() );
-    ATH_CHECK(m_beamSpotKey.initialize());
+    ATH_CHECK(m_beamSpotKey.initialize(!m_useEventInfoBs));
+    ATH_CHECK(m_eventInfo_key.initialize(m_useEventInfoBs));
     if (m_useEtaDepententMinHitTrt || m_useEtaDepententMinHitTrtWithOutliers){
 	    if(m_trtDCTool.empty()) {
 	      ATH_MSG_ERROR(" Eta delendent cut on number of TRT hits requested but TrtDCCutTool not specified. ");
@@ -193,14 +220,7 @@ namespace InDet
     const Trk::Vertex* myVertex=vertex;
     //in case no Vertex is provided by the user, beam position will be used if available
     if (myVertex==nullptr) {
-      //ATH_MSG_DEBUG( "No vertex given, using beam spot or 0,0,0" );
-      SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
-      if (beamSpotHandle.isValid()) {
-        myVertex=new Trk::RecVertex(beamSpotHandle->beamVtx());
-      } else {
-        ATH_MSG_WARNING( " Cannot get beamSpot center from BeamSpotData. Using (0,0,0)... " );
-        myVertex=new Trk::Vertex(Amg::Vector3D(0,0,0));
-      }
+      myVertex = getBeamSpot(Gaudi::Hive::currentContext());
     }
     Trk::PerigeeSurface perigeeSurface(myVertex->position());
     const Trk::TrackParameters *firstmeaspar=nullptr;
@@ -370,13 +390,7 @@ namespace InDet
     const Trk::Perigee* extrapolatedPerigee=dynamic_cast<const Trk::Perigee*>(definintParameters);
     const Trk::Vertex* myVertex=vertex;
     if (vertex==nullptr) {
-      SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
-      if (beamSpotHandle.isValid()) {
-        myVertex=new Trk::RecVertex(beamSpotHandle->beamVtx());
-      } else {
-        ATH_MSG_WARNING( " Cannot get beamSpot center from BeamSpotData. Using (0,0,0)... " );
-        myVertex=new Trk::Vertex(Amg::Vector3D(0,0,0));
-      }
+      myVertex = getBeamSpot(Gaudi::Hive::currentContext());
     }
     Trk::PerigeeSurface perigeeSurface(myVertex->position());
     const Trk::TrackParameters *firstmeaspar=nullptr;
@@ -439,9 +453,26 @@ namespace InDet
   Amg::Vector3D InDetDetailedTrackSelectorTool::getPosOrBeamSpot(const xAOD::Vertex* vertex) const
   {
     if(vertex) return vertex->position();
-    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
-    if(beamSpotHandle.isValid()) return beamSpotHandle->beamVtx().position();
-    else return Amg::Vector3D(0,0,0);
+    if(m_useEventInfoBs){
+      SG::ReadHandle<xAOD::EventInfo> evt(m_eventInfo_key);
+      if (evt.isValid()) {
+        InDet::BeamSpotData temp(evt->beamStatus(), evt->beamPosX(), evt->beamPosY(), evt->beamPosZ(),
+                                 evt->beamPosSigmaX(), evt->beamPosSigmaY(), evt->beamPosSigmaZ(),
+                                 evt->beamTiltXZ(), evt->beamTiltYZ(), evt->beamPosSigmaXY());
+        return temp.beamVtx().position();
+      } else {
+        ATH_MSG_WARNING( " Cannot get beamSpot center from xAOD::EventInfo. Using (0,0,0)... " );
+        return Amg::Vector3D(0,0,0);
+      }
+    }else{
+      SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+      if (beamSpotHandle.isValid()) {
+        return beamSpotHandle->beamVtx().position();
+      } else {
+        ATH_MSG_WARNING( " Cannot get beamSpot center from BeamSpotData. Using (0,0,0)... " );
+        return Amg::Vector3D(0,0,0);
+      }
+    }
   }
 
   // ---------------------------------------------------------------------
