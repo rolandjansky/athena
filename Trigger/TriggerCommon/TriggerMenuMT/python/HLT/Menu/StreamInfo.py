@@ -48,6 +48,7 @@ _all_streams = [
     StreamInfo('L1Calo', 'physics', True, True),
     StreamInfo('EnhancedBias', 'physics', True, True),
     StreamInfo('Late', 'physics', True, True),
+    StreamInfo('Mistimed', 'physics', True, True),
     # TLA/PEB/DATA SCOUTING (physics) STREAMS
     StreamInfo('TLA','physics',True,False),
     StreamInfo('TLAJetPEB', 'physics', True, False),
