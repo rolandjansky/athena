@@ -55,17 +55,9 @@ public:
   bool merge (const StringPoolImpl& other);
 
 private:
-  // Hash function for the key.
-  // Just cast the low bits to a size_t.
-  struct keyhash
-  {
-    std::size_t operator() (StringPool::sgkey_t key) const
-    { return static_cast<std::size_t> (key); }
-  };
-
   // The key hash table.
   typedef std::pair<StringPool::sgaux_t, std::string> pair_t;
-  typedef std::unordered_map<StringPool::sgkey_t, pair_t, keyhash> keymap_t;
+  typedef SG::SGKeyMap<pair_t> keymap_t;
   keymap_t m_keymap;
 };
 
