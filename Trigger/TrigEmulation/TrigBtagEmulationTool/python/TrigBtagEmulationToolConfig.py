@@ -12,24 +12,13 @@ def jetManagerToolCfg(flags,
                       **kwargs) -> ComponentAccumulator:
     assert isinstance(name, str), "JetManagerTool name must be a string"
     acc = ComponentAccumulator()
-    tdt = acc.getPrimaryAndMerge(TrigDecisionToolCfg(flags))
-    kwargs.setdefault('TrigDecisionTool', tdt)
+    kwargs.setdefault('BTaggingLink', 'btaggingLink')
     acc.setPrivateTools(CompFactory.Trig.JetManagerTool(name, **kwargs))
-    acc.addPublicTool(tdt)
     return acc
 
 # CNT
-def jetEMTopoCNTManagerToolCfg(flags,
-                               **kwargs) -> ComponentAccumulator:
-    kwargs.setdefault('ChainName', 'HLT_j45_subjesgsc_ftf_L1J15')
-    kwargs.setdefault('JetContainerName', 'HLT_AntiKt4EMTopoJets_subjesIS')
-    return jetManagerToolCfg(flags, 
-                             name = "JM_EMTopo_CNT",
-                             **kwargs)
-
 def jetPFlowCNTManagerToolCfg(flags,
                               **kwargs) -> ComponentAccumulator:
-    kwargs.setdefault('ChainName', 'HLT_j45_pf_subjesgsc_ftf_L1J15')
     kwargs.setdefault('JetContainerName', 'HLT_AntiKt4EMPFlowJets_subjesIS')
     return jetManagerToolCfg(flags,
                              name = "JM_PFlow_CNT",
@@ -104,22 +93,30 @@ def TrigBtagEmulationToolCfg(flags,
 
     ### add TriggerDecisionTool
     tdt = acc.getPrimaryAndMerge(TrigDecisionToolCfg(flags))
-    acc.addPublicTool(tdt)
 
     ### set tool options
     kwargs.setdefault('EmulatedChainDefinitions', chainDefinitions)
     kwargs.setdefault('TrigDecisionTool', tdt)
     kwargs.setdefault('InputChain', InputChain_PFlow)
-    
-    kwargs.setdefault('JM_EMTopo_CNT', acc.popToolsAndMerge(jetEMTopoCNTManagerToolCfg(flags,
-                                                                                       ChainName=InputChain_EMTopo,
-                                                                                       JetContainerName=InputJetContainer_EMTopo)))
+
     kwargs.setdefault('JM_PFlow_CNT' , acc.popToolsAndMerge(jetPFlowCNTManagerToolCfg(flags,
-                                                                                      ChainName=InputChain_PFlow,
                                                                                       JetContainerName=InputJetContainer_PFlow)))
 
     kwargs.setdefault('JM_EMTopo_PRESEL', acc.popToolsAndMerge(jetEMTopoPRESELManagerToolCfg(flags,
                                                                                              JetContainerName=InputJetContainer_EMTopoPresel)))
+
+    from TrigBjetHypo.TrigBjetBtagHypoTool import bTaggingWP
+    from TrigBjetHypo.TrigBjetBtagHypoTool import bbTaggingWP
+
+    working_points = { "newTagger" : 1.234 }
+    working_points.update(bTaggingWP)
+    working_points.update(bbTaggingWP)
+
+    kwargs.setdefault('WorkingPoints', working_points)
+    kwargs.setdefault('FTD_Remapping', 
+                      {"DL1d20210519r22_pu" : "DL1dEMUL_pu",
+                       "DL1d20210519r22_pc" : "DL1dEMUL_pc",
+                       "DL1d20210519r22_pb" : "DL1dEMUL_pb"})
 
     acc.setPrivateTools(CompFactory.Trig.TrigBtagEmulationTool('TrigBtagEmulationTool', **kwargs))
     return acc
@@ -139,7 +136,6 @@ def TrigBtagValidationTestCfg(flags,
 
     from TrigDecisionTool.TrigDecisionToolConfig import TrigDecisionToolCfg
     tdt = acc.getPrimaryAndMerge(TrigDecisionToolCfg(flags))
-    acc.addPublicTool(tdt)
     options['TrigDecisionTool'] = tdt
 
     acc.addEventAlgo( CompFactory.Trig.TrigBtagValidationTest('TrigBtagValidation', **options) )

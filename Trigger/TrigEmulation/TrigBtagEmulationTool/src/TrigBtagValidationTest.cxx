@@ -26,7 +26,7 @@ StatusCode TrigBtagValidationTest::initialize() {
   ATH_CHECK( m_histSvc->regHist("/VALIDATION/h_miss", m_h_miss) );
   ATH_CHECK( m_histSvc->regHist("/VALIDATION/h_falsepositive", m_h_falsepositive) );
   
-  for(int i = 1; i <= (int)m_emulatedChains.size(); i++) {
+  for(unsigned int i = 1; i <= m_emulatedChains.size(); i++) {
     m_h_tdtpass->GetXaxis()->SetBinLabel(i, m_emulatedChains[i-1].c_str());
     m_h_miss->GetXaxis()->SetBinLabel(i, m_emulatedChains[i-1].c_str());
     m_h_falsepositive->GetXaxis()->SetBinLabel(i, m_emulatedChains[i-1].c_str());
@@ -38,10 +38,10 @@ StatusCode TrigBtagValidationTest::initialize() {
 StatusCode TrigBtagValidationTest::execute() 
 {
   ATH_MSG_DEBUG("Executing " << name() );
-  ATH_CHECK( m_emulationTool->populateJetManagersTriggerObjects() );
+  const auto& emulCtx =  m_emulationTool->populateJetManagersTriggerObjects();
   int chain_idx = 0;
   for(const auto& chain: m_emulatedChains) {
-    bool tbet_pass = m_emulationTool->isPassed(chain);
+    bool tbet_pass = m_emulationTool->isPassed(chain, emulCtx);
     bool tdt_pass = m_trigDec->isPassed(chain);
     ATH_MSG_DEBUG( chain << " TDT:" << (tdt_pass ? "PASS":"NO") << " TBET:" << (tbet_pass ? "PASS":"NO"));
     
