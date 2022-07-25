@@ -722,22 +722,29 @@ namespace Muon {
                                                      const Muon::MuonSegment* etaSeg) const {
 
         std::vector<std::pair<Amg::Vector3D, Amg::Vector3D> > seeds;
+        /// Do not run an empty container
+        if (orderedClusters.empty()) return seeds;
+
         std::vector<std::vector<const Muon::MuonClusterOnTrack*> > sTgcIP(4); // IP: layers nearest to the IP will be added first
         std::vector<std::vector<const Muon::MuonClusterOnTrack*> > sTgcHO(4); // HO: layers furthest from the IP will be added first
  
         // Process clusters separately for each multilayer
-        for (int iml{1}; iml <= 2; ++iml) {
+        for (int iml : {1, 2}) {
             
             int il     = (iml == 1) ? 0 : orderedClusters.size()-1;
             int iend   = (iml == 1) ? orderedClusters.size() : -1;
             int idir   = (iml == 1) ? 1 : -1;
-            int nLayersWithHitMatch{0};
+            unsigned int nLayersWithHitMatch{0};
 
             // Loop on layers (reverse loop for HO)
             for (; il != iend; il += idir) {
 
                 double lastDistance{1000.};
-                std::vector<const Muon::MuonClusterOnTrack*>& matchedHits = (iml == 1) ? sTgcIP[nLayersWithHitMatch] : sTgcHO[nLayersWithHitMatch];
+                if (nLayersWithHitMatch >= sTgcIP.size()) {
+                    sTgcIP.resize(nLayersWithHitMatch + 1);
+                    sTgcHO.resize(nLayersWithHitMatch + 1);
+                }
+                std::vector<const Muon::MuonClusterOnTrack*>& matchedHits = (iml == 1) ? sTgcIP.at(nLayersWithHitMatch) : sTgcHO.at(nLayersWithHitMatch);
                                       
                 // Loop on the hits on this layer. Find the one closest (in eta) to the segment intersection.
                 for (const Muon::MuonClusterOnTrack* padHit : orderedClusters[il]) {
@@ -754,7 +761,7 @@ namespace Muon {
                     // local position of the segment intersection with the plane
                     const Trk::Surface& surf = padHit->associatedSurface();
                     Trk::Intersection intersect = surf.straightLineIntersection(etaSeg->globalPosition(), etaSeg->globalDirection(), false, false);
-                    Amg::Vector2D segLocPosOnSurf;
+                    Amg::Vector2D segLocPosOnSurf{0.,0.};
                     surf.globalToLocal(intersect.position, intersect.position, segLocPosOnSurf);
                                               
                     // eta distance between the hit and the segment intersection with the plane
@@ -828,61 +835,71 @@ namespace Muon {
 
 
     //============================================================================
-    std::vector<std::pair<Amg::Vector3D, Amg::Vector3D> >
-    MuonClusterSegmentFinderTool::segmentSeedFromMM( std::vector< Amg::Vector3D >& phiStereo ) const {
-      
-      std::vector<std::pair<Amg::Vector3D,Amg::Vector3D> > seeds;
-      if (phiStereo.size() < 2) return seeds;
-      
-      double dz = 0;
-      double dz_tmp = 0;
-      
-      std::vector<std::pair<unsigned int, unsigned int> > good_indices;
-      for( unsigned int ipoint = 0; ipoint < phiStereo.size(); ipoint++ ){
-        for( unsigned int jpoint = ipoint+1; jpoint < phiStereo.size(); jpoint++ ){
-	  dz_tmp = std::abs(phiStereo[jpoint].z()-phiStereo[ipoint].z());
-	  if ( dz_tmp > dz ) {
-	    dz = dz_tmp;
-            good_indices.clear();
-            good_indices.emplace_back(ipoint, jpoint);
-          } else if ( dz_tmp == dz ) {
-	    good_indices.emplace_back(ipoint, jpoint);
-          }
-        }//end jpoint                                                                                                                   
-      }//end ipoint
+    std::vector<std::pair<Amg::Vector3D, Amg::Vector3D>>
+    MuonClusterSegmentFinderTool::segmentSeedFromMM(std::vector<Amg::Vector3D> &phiStereo) const
+    {
 
-      for ( unsigned int i = 0; i < good_indices.size(); i++ ) {
-	const Amg::Vector3D segdir = phiStereo[good_indices[i].second] - phiStereo[good_indices[i].first];
-	seeds.emplace_back(phiStereo[good_indices[i].first], segdir);
-      }
+        std::vector<std::pair<Amg::Vector3D, Amg::Vector3D>> seeds;
+        if (phiStereo.size() < 2)
+            return seeds;
 
-      return seeds;
-    }
+        double dz = 0;
+        double dz_tmp = 0;
 
+        std::vector<std::pair<unsigned int, unsigned int>> good_indices;
+        for (unsigned int ipoint = 0; ipoint < phiStereo.size(); ipoint++)
+        {
+            for (unsigned int jpoint = ipoint + 1; jpoint < phiStereo.size(); jpoint++)
+            {
+                dz_tmp = std::abs(phiStereo[jpoint].z() - phiStereo[ipoint].z());
+                if (dz_tmp > dz)
+                {
+                    dz = dz_tmp;
+                    good_indices.clear();
+                    good_indices.emplace_back(ipoint, jpoint);
+                }
+                else if (dz_tmp == dz)
+                {
+                    good_indices.emplace_back(ipoint, jpoint);
+                }
+            } // end jpoint
+        }     // end ipoint
 
-    //============================================================================
-    void MuonClusterSegmentFinderTool::segmentSeedPhiOR(std::vector<std::pair<Amg::Vector3D, Amg::Vector3D> >& seeds) const {
-      
-        std::vector<std::pair<Amg::Vector3D, Amg::Vector3D> > uniqueSeeds;
-        
-        for (auto it = seeds.begin(); it != seeds.end(); ++it) {
-            double phi1 = it->first.phi();
-	    double phi2 = (it->first + it->second).phi();
-                               
-            if (std::find_if( std::next(it), seeds.end(), 
-                [&phi1, &phi2](std::pair<Amg::Vector3D, Amg::Vector3D>& s) {
-                    double dphi1 = std::abs(xAOD::P4Helpers::deltaPhi(phi1, s.first.phi()));
-                    double dphi2 = std::abs(xAOD::P4Helpers::deltaPhi(phi2, (s.first + s.second).phi()));
-                    return ( dphi1 < 0.05 && dphi2 < 0.05);}) == seeds.end()) {
-      
-                uniqueSeeds.push_back(*it);
-            }  
+        for (unsigned int i = 0; i < good_indices.size(); i++)
+        {
+            const Amg::Vector3D segdir = phiStereo[good_indices[i].second] - phiStereo[good_indices[i].first];
+            seeds.emplace_back(phiStereo[good_indices[i].first], segdir);
         }
 
-        if (uniqueSeeds.size() != seeds.size()) seeds.assign(uniqueSeeds.begin(), uniqueSeeds.end());                
-    }       
+        return seeds;
+    }
 
-    
+    //============================================================================
+    void MuonClusterSegmentFinderTool::segmentSeedPhiOR(std::vector<std::pair<Amg::Vector3D, Amg::Vector3D>> &seeds) const
+    {
+
+        std::vector<std::pair<Amg::Vector3D, Amg::Vector3D>> uniqueSeeds;
+
+        for (auto it = seeds.begin(); it != seeds.end(); ++it)
+        {
+            double phi1 = it->first.phi();
+            double phi2 = (it->first + it->second).phi();
+
+            if (std::find_if(std::next(it), seeds.end(),
+                             [&phi1, &phi2](std::pair<Amg::Vector3D, Amg::Vector3D> &s)
+                             {
+                    double dphi1 = std::abs(xAOD::P4Helpers::deltaPhi(phi1, s.first.phi()));
+                    double dphi2 = std::abs(xAOD::P4Helpers::deltaPhi(phi2, (s.first + s.second).phi()));
+                    return ( dphi1 < 0.05 && dphi2 < 0.05); }) == seeds.end())
+            {
+
+                uniqueSeeds.push_back(*it);
+            }
+        }
+
+        if (uniqueSeeds.size() != seeds.size())
+            seeds.assign(uniqueSeeds.begin(), uniqueSeeds.end());
+    }
 
     //============================================================================
     std::vector<std::pair<double, double> > MuonClusterSegmentFinderTool::getPadPhiOverlap(
@@ -938,8 +955,8 @@ namespace Muon {
                 ATH_MSG_DEBUG(" keep pad id " << m_idHelperSvc->toString(id) << " local x: " << hitPadX << " width: " << halfWidthX);
             }
 
-            padsPhiL.push_back(surfPadsPhiL);
-            padsPhiR.push_back(surfPadsPhiR);
+            padsPhiL.push_back(std::move(surfPadsPhiL));
+            padsPhiR.push_back(std::move(surfPadsPhiR));
         }
 
         unsigned int nSurf = padsPhiR.size();
