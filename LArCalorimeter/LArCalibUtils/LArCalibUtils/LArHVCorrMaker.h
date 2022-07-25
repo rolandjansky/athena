@@ -42,14 +42,11 @@ class LArHVCorrMaker : public AthAlgorithm
  private:
   const LArOnlineID*        m_lar_on_id = nullptr;
 
-  Gaudi::Property<std::string> m_keyOutput{this,"keyOutput","LArHVScaleCorr","Output key for LArHVScaleCorr"};
   Gaudi::Property<std::string> m_folderName{this,"folderName", "/LAR/ElecCalibFlat/HVScaleCorr",
       "Folder to store the CondAttrListCollection containing the HVScale correction"};
 
   SG::ReadCondHandleKey<ILArHVScaleCorr> m_scaleCorrKey
   { this, "LArHVScaleCorr", "LArHVScaleCorrRecomputed", "" };
-  SG::ReadCondHandleKey<ILArHVScaleCorr> m_onlineScaleCorrKey
-  { this, "OnlineLArHVScaleCorr", "LArHVScaleCorr", "" };
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey
   { this, "CablingKey", "LArOnOffIdMap", "SG Key of LArOnOffIdMapping object" };
   
