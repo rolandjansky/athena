@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file  SGTools/StringPool.cxx
@@ -51,6 +51,8 @@ public:
   /// Debugging dump.  Write to stdout.
   void dump() const;
 
+  /// Merge other pool into this one.
+  bool merge (const StringPoolImpl& other);
 
 private:
   // Hash function for the key.
@@ -148,6 +150,25 @@ void StringPoolImpl::dump() const
               << std::dec << std::setw(9) << it->second.first << " "
               << it->second.second << "\n";
   }
+}
+
+
+/**
+ * @brief Merge another pool into this one.
+ * @param other The other pool to merge into this one.
+ *
+ * In case of collisions, the colliding entries are skipped, and false
+ * is returned.  If no collisions, then true is returned.
+ */
+bool StringPoolImpl::merge (const StringPoolImpl& other)
+{
+  bool allgood = true;
+  for (const keymap_t::value_type& p : other.m_keymap) {
+    if (!registerKey (p.first, p.second.second, p.second.first)) {
+      allgood = false;
+    }
+  }
+  return allgood;
 }
 
 
@@ -337,6 +358,19 @@ void StringPool::dump () const
 void StringPool::clear()
 {
   m_impl->clear();
+}
+
+
+/**
+ * @brief Merge another pool into this one.
+ * @param other The other pool to merge into this one.
+ *
+ * In case of collisions, the colliding entries are skipped, and false
+ * is returned.  If no collisions, then true is returned.
+ */
+bool StringPool::merge (const StringPool& other)
+{
+  return m_impl->merge (*other.m_impl);
 }
 
 

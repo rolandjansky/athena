@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STOREGATE_HIVEMGRSVC_H
@@ -97,6 +97,7 @@ public:
   //@{ @name Gaudi Service boilerplate
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
+  virtual StatusCode start() override;
   //@}
 
   /// Standard Service Constructor. sets active store to default event store

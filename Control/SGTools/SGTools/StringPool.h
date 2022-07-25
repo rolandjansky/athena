@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file  SGTools/StringPool.h
@@ -121,6 +121,17 @@ public:
    * @brief Empty the pool.
    */
   void clear();
+
+
+  /**
+   * @brief Merge another pool into this one.
+   * @param other The other pool to merge into this one.
+   *
+   * In case of collisions, the colliding entries are skipped, and false
+   * is returned.  If no collisions, then true is returned.
+   */
+  bool merge (const StringPool& other);
+
 
 private:
   std::unique_ptr<StringPoolImpl> m_impl;

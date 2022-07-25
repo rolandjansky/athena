@@ -1555,6 +1555,30 @@ void SGImplSvc::registerKey (sgkey_t key,
   }
 }
 
+
+/**
+ * @brief Merge the string pool from another store into this one.
+ * @param other The other store.
+ *
+ * In case of collisions, the colliding entries are skipped, and false
+ * is returned.  If no collisions, then true is returned.
+ */
+bool SGImplSvc::mergeStringPool (const SGImplSvc& other)
+{
+  // We should hold m_stringPoolMutex before touching the pool.
+  // But if we acquire the locks for both this and the other store,
+  // we risk a deadlock.  So first copy the other pool, so that we
+  // don't need to hold both locks at the same time.
+  SG::StringPool tmp;
+  {
+    lock_t lock (other.m_stringPoolMutex);
+    tmp = other.m_stringpool;
+  }
+  lock_t lock (m_stringPoolMutex);
+  return m_stringpool.merge (tmp);
+}
+
+
 void
 SGImplSvc::releaseObject(const CLID& id, const std::string& key) {
   lock_t lock (m_mutex);
