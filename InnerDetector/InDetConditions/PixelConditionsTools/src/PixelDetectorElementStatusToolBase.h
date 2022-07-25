@@ -32,7 +32,9 @@ class PixelDetectorElementStatusToolBase: public extends<AthAlgTool, IDetectorEl
    /** Create a new detector element status element container.
     * Depending on the properties the container may be a copy of an event data or conditions data element status container.
     */
-    std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange> createDetectorElementStatus(const EventContext& ctx) const;
+    std::unique_ptr<InDet::SiDetectorElementStatus>
+    createDetectorElementStatus(const EventContext& ctx,
+                                SG::WriteCondHandle<InDet::SiDetectorElementStatus>* whandle) const;
 
    const PixelID* m_pixelID {};
 

@@ -36,11 +36,10 @@ namespace {
    }
 }
 
-std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange> 
-PixelActiveDetectorElementStatusTool::getDetectorElementStatus(const EventContext& ctx) const  {
-   std::tuple< std::unique_ptr<InDet::SiDetectorElementStatus>,EventIDRange> element_status_and_range( createDetectorElementStatus(ctx));
-   EventIDRange &the_range = std::get<1>(element_status_and_range);
-   InDet::SiDetectorElementStatus *element_status = std::get<0>(element_status_and_range).get();
+std::unique_ptr<InDet::SiDetectorElementStatus>
+PixelActiveDetectorElementStatusTool::getDetectorElementStatus(const EventContext& ctx,
+                                                               SG::WriteCondHandle<InDet::SiDetectorElementStatus>* whandle) const  {
+   std::unique_ptr<InDet::SiDetectorElementStatus> element_status( createDetectorElementStatus(ctx, whandle));
    std::vector<bool> &status=element_status->getElementStatus();
    if (status.empty()) {
       status.resize(m_pixelID->wafer_hash_max(),
@@ -54,7 +53,9 @@ PixelActiveDetectorElementStatusTool::getDetectorElementStatus(const EventContex
 
    SG::ReadCondHandle<PixelDCSStatusData> dcs_status_handle(m_condDCSStatusKey, ctx);
    andStatus(dcs_status_handle->moduleStatusMap(), m_activeStatusMask, status);
-   the_range = EventIDRange::intersect( the_range, dcs_status_handle.getRange() );
+   if (whandle) {
+     whandle->addDependency (dcs_status_handle);
+   }
 
-   return element_status_and_range;
+   return element_status;
 }
