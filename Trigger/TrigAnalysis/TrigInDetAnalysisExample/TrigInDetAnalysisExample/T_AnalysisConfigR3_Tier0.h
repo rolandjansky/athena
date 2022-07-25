@@ -592,13 +592,13 @@ protected:
 	//The logic should be clarified here
 	if ( pid!=0 ) { /// hooray! actually found a sensible event
 
-	  /// remove auto range loop since that unhelpfully obscures what 
-	  /// is actually being done and given the unfriendly nature of the 
-	  /// HepMC code makes it nigh on impossible to actually work out 
-	  /// which types are actually being used and how
-
-	  HepMC::GenEvent::particle_const_iterator pitr((*evitr)->particles_begin());
-	  HepMC::GenEvent::particle_const_iterator pend((*evitr)->particles_end());
+          // For HepMC2-based builds the following two functions return
+          // GenEvent::particle_const_iterator
+          // while for HepMC3-based builds they return
+          // std::vector<HepMC3::ConstGenParticlePtr>::const_iterator
+          // see AtlasHepMC/GenEvent.h for function definitions.
+          auto pitr(HepMC::begin(**evitr));
+          const auto pend(HepMC::end(**evitr));
 
 	  while ( pitr!=pend ) {
 
