@@ -46,7 +46,11 @@ def trigCostAnalysisCfg(flags, args, isMC=False):
   trigCostAnalysis.ROSToROBMap = ROSToROBMap().get_mapping()
   trigCostAnalysis.DoMonitorChainAlgorithm = args.monitorChainAlgorithm
 
-  trigCostAnalysis.AdditionalHashList = readHashes(args.joFile, args.smk, args.dbAlias)
+  if not isMC:
+    trigCostAnalysis.AdditionalHashList = readHashesFromHLTJO(args.joFile, args.smk, args.dbAlias)
+  else:
+    log.debug("Hashes from the HLTJO won't be retrieved for MC job")
+    trigCostAnalysis.AdditionalHashList = list()
 
   acc.addEventAlgo(trigCostAnalysis)
 
@@ -64,9 +68,8 @@ def readMCpayload(args):
   return payload
 
 # Read algorithm and class names from HLTJobOptions file
-def readHashes(joFileName="", smk=0, dbAlias=""):
+def readHashesFromHLTJO(joFileName="", smk=0, dbAlias=""):
   joData = {}
-
   try:
     if joFileName:
       log.debug("Reading HLTJobOptions from file {0}".format(joFileName))
@@ -78,15 +81,13 @@ def readHashes(joFileName="", smk=0, dbAlias=""):
       from TrigConfIO.HLTTriggerConfigAccess import HLTJobOptionsAccess
       joData = HLTJobOptionsAccess(dbalias = dbAlias, smkey = smk)
     else:
-      log.debug("Additional collection's names from HLTJobOptions file are not available")
+      log.debug("Additional collections' names from HLTJobOptions file are not available")
       return list()
   except Exception as err:
     log.warning("Retrieving additional names fron HLTJO failed: {0}".format(err))
     return list()
 
   namesList = set()
-  log.info("Reading additional names...")
-
   for entry in joData["properties"]:
     namesList.add(entry.split('.')[0])
 
@@ -97,7 +98,7 @@ def readHashes(joFileName="", smk=0, dbAlias=""):
       namesList.update(membersList)
 
 
-  log.info("Retrieved {0} additional names".format(len(namesList)))
+  log.info("Retrieved {0} additional names from HLT JO file".format(len(namesList)))
   return list(namesList)
 
 
@@ -239,7 +240,7 @@ if __name__=='__main__':
   cfg.addService(histSvc)
 
   # Retrieve config from cool database
-  if not args.smk or not args.dbAlias:
+  if not ConfigFlags.Input.isMC and (not args.smk or not args.dbAlias):
     (args.smk, args.dbAlias) = readConfigFromCool(args.smk, args.dbAlias)
 
   cfg.merge(hltConfigSvcCfg(ConfigFlags, args.smk, args.dbAlias))
