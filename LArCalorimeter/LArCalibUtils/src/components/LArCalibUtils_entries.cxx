@@ -12,9 +12,7 @@
 #include "LArCalibUtils/LArDigitOscillationCorrTool.h"
 #include "LArCalibUtils/LArMasterWaveBuilder.h"
 #include "LArCalibUtils/LArOFCAlg.h"
-#include "LArCalibUtils/LArPedestalInPhysicsMaker.h"
 #include "LArCalibUtils/LArPedestalMaker.h"
-#include "LArCalibUtils/LArPhysWaveBuilder.h"
 #include "LArCalibUtils/LArPhysWaveShifter.h"
 #include "LArCalibUtils/LArPhysWaveTool.h"
 #include "LArCalibUtils/LArPhysWaveHECTool.h"
@@ -24,12 +22,7 @@
 #include "LArCalibUtils/LArTCMFitterTool.h"
 #include "LArCalibUtils/LArTCMPhysWavePredictor.h"
 #include "LArCalibUtils/LArPhysWavePredictor.h"
-#include "LArCalibUtils/LArTimeTuning.h"
-#include "LArCalibUtils/LArTimeTuningNtuple.h"
 #include "LArCalibUtils/LArWFParamTool.h"
-#include "LArCalibUtils/LArPhaseToolConst.h"
-#include "LArCalibUtils/LArPhaseToolMC.h"
-#include "LArCalibUtils/LArPhaseToolTB.h"
 #include "LArCalibUtils/LArDumpShapes.h"
 #include "LArCalibUtils/LArRampCorr.h"
 #include "LArCalibUtils/LArAccumulatedCalibDigitContSplitter.h"
@@ -69,18 +62,14 @@ DECLARE_COMPONENT( LArCaliWaveSelector )
 DECLARE_COMPONENT( LArDeltaRespPredictor )
 DECLARE_COMPONENT( LArMasterWaveBuilder )
 DECLARE_COMPONENT( LArOFCAlg )
-DECLARE_COMPONENT( LArPedestalInPhysicsMaker )
 DECLARE_COMPONENT( LArPedestalMaker )
 DECLARE_COMPONENT( LArPedestalAutoCorrBuilder )
-DECLARE_COMPONENT( LArPhysWaveBuilder )
 DECLARE_COMPONENT( LArPhysWaveShifter )
 DECLARE_COMPONENT( LArRampBuilder )
 DECLARE_COMPONENT( LArRTMParamExtractor )
 DECLARE_COMPONENT( LArTCMPhysWavePredictor )
 DECLARE_COMPONENT( LArStripsCrossTalkCorrector )
 DECLARE_COMPONENT( LArPhysWavePredictor )
-DECLARE_COMPONENT( LArTimeTuning )
-DECLARE_COMPONENT( LArTimeTuningNtuple )
 DECLARE_COMPONENT( LArDumpShapes )
 DECLARE_COMPONENT( LArRampCorr )
 DECLARE_COMPONENT( LArAccumulatedCalibDigitContSplitter )
@@ -106,9 +95,6 @@ DECLARE_COMPONENT( LArPhysWaveTool )
 DECLARE_COMPONENT( LArPhysWaveHECTool )
 DECLARE_COMPONENT( LArTCMFitterTool )
 DECLARE_COMPONENT( LArWFParamTool )
-DECLARE_COMPONENT( LArPhaseToolConst )
-DECLARE_COMPONENT( LArPhaseToolMC )
-DECLARE_COMPONENT( LArPhaseToolTB )
 
 DECLARE_COMPONENT( LArPedestalMerger )
 DECLARE_COMPONENT( LArOFCMerger )
