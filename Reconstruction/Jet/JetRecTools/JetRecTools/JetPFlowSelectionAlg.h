@@ -13,7 +13,6 @@
 #define JetPFlowSelectionAlg_H
 
 #include "AnaAlgorithm/AnaReentrantAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/DataHandle.h"
 #include "StoreGate/ReadDecorHandleKey.h"
 
@@ -21,8 +20,6 @@
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODCore/AuxContainerBase.h"
-
-class IJetExecuteTool;
 
 class JetPFlowSelectionAlg : public EL::AnaReentrantAlgorithm { 
 
