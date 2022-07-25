@@ -1,7 +1,7 @@
 #!/bin/bash
 # art-description: art job for InDetPhysValMonitoring, Single ele 5GeV
 # art-type: grid
-# art-input: user.keli:user.keli.mc16_13TeV.422028.ParticleGun_single_ele_Pt5GeV
+# art-input: user.keli:user.keli.mc16_13TeV.422028.ParticleGun_single_ele_Pt5GeV_Rel22073
 # art-input-nfiles: 10
 # art-cores: 4
 # art-memory: 4096
@@ -11,6 +11,9 @@
 # art-output: *.xml 
 # art-output: art_core_0
 # art-output: dcube*
+
+#RDO is made at rel 22.0.73
+#reference plots are made at rel 22.0.73
 
 set -x
 
@@ -37,13 +40,13 @@ case $ArtProcess in
 
       dcubeXml="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPhysValMonitoring/dcube/config/IDPVMPlots_R22_GSF.xml"
       dcubeRef="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPhysValMonitoring/ReferenceHistograms/physval_ele5GeV_reco_r22.root"
-#      echo "compare with R21"
-#      $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
-#	   -p -x dcube \
-#	   -c ${dcubeXml} \
-#	   -r ${dcubeRef} \
-#	   physval.root
-#      echo "art-result: $? plots"
+      echo "compare with R22.0.73"
+      $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
+	   -p -x dcube \
+	   -c ${dcubeXml} \
+	   -r ${dcubeRef} \
+	   physval.root
+      echo "art-result: $? dcube"
 
       echo "compare with last build"
       $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
@@ -51,7 +54,7 @@ case $ArtProcess in
 	   -c ${dcubeXml} \
 	   -r last_results/physval.root \
 	   physval.root
-      echo "art-result: $? plots"
+      echo "art-result: $? dcube_last"
     else
       echo "reco failed"
     fi
