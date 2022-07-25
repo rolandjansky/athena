@@ -4,12 +4,12 @@ import AthenaCommon.Constants as Lvl
 
 from AthenaCommon.GlobalFlags import globalflags
 
-def setupVSI( suffix ):
+def setupVSI( suffix ,AugSuffix=""):
 
     from VrtSecInclusive.VrtSecInclusiveConf import VKalVrtAthena__VrtSecInclusive
-    vsiInstance = VKalVrtAthena__VrtSecInclusive("VrtSecInclusive"+suffix)
+    vsiInstance = VKalVrtAthena__VrtSecInclusive("VrtSecInclusive_"+suffix)
 
-    vsiInstance.AugmentingVersionString                = suffix
+    vsiInstance.AugmentingVersionString                = AugSuffix
     vsiInstance.OutputLevel                            = Lvl.INFO
     vsiInstance.TrackLocation                          = "InDetTrackParticles"
     vsiInstance.do_PVvetoCut                           = True
