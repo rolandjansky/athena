@@ -10,14 +10,15 @@
 #include "AsgMessaging/MessageCheck.h"
 #include "CreateDummyEl.h"
 
-#include <map>
+#include <vector>
+#include <map> //includes std::pair
 #include <tuple>
 #include <bitset>
 #include <sstream>
 #include <type_traits>
 #include <cstdlib>
 #include <limits>
-#include <utility>
+#include <algorithm> //for std::sort, std::transform
 
 #define MSGSOURCE "EgEfficiencyCorr_dumpNPs"
 
@@ -92,12 +93,9 @@ int main(int argc, char* argv[])
   #endif
 
   CP::CorrectionCode::enableFailure();
-
-  // Add bins for eta < 0, if needed.
-  for (const float eta : eta_edges) {
-    if (eta > 0) eta_edges.push_back(-eta);
-    // added in last position so loop iterator not invalidated.
-  }
+  //copy negated elements onto end of vector without duplicating the first element (which is zero)
+  std::transform(eta_edges.begin()+1,eta_edges.end(), std::back_inserter(eta_edges),std::negate());
+  //
   std::sort(eta_edges.begin(), eta_edges.end());
   std::sort(pt_edges.begin(), pt_edges.end());
   const bool duplicates_eta{
