@@ -229,7 +229,7 @@ StatusCode LArHVCondAlg::makeHVScaleCorr (const EventContext& ctx,
     rValues = static_cast<const float*>(rBlob.startingAddress());
   }
 
-  auto addDep = [&writeHandle] (SG::ReadCondHandle<CondAttrListCollection>& h) {
+  auto addDep = [&writeHandle] (SG::ReadCondHandle<CondAttrListCollection>& h) -> const EventIDRange&  {
                   writeHandle.addDependency (h);
                   return writeHandle.getRange();
                 };
@@ -288,7 +288,7 @@ StatusCode LArHVCondAlg::makeAffectedRegionInfo (const EventContext& ctx,
 
   auto vAffected = std::make_unique<CaloAffectedRegionInfoVec>();
   if (m_doAffectedHV) {
-    auto addDep = [&writeAffectedHandle] (SG::ReadCondHandle<CondAttrListCollection>& h) {
+    auto addDep = [&writeAffectedHandle] (SG::ReadCondHandle<CondAttrListCollection>& h) -> const EventIDRange& {
                     writeAffectedHandle.addDependency (h);
                     return writeAffectedHandle.getRange();
                   };
