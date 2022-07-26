@@ -1,17 +1,14 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-def OutputConditionsAlgCfg(flags, name="OutputConditionsAlg",
-                           outputFile='condobjs.root',
-                           ObjectList=[],IOVTagList=[],WriteIOV=True):
+def OutputConditionsAlgCfg(flags, name="OutputConditionsAlg",outputFile='condobjs.root', **kwargs):
 
     from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
 
     result=PoolWriteCfg(flags)
 
-    
-    oca=CompFactory.OutputConditionsAlg(name,ObjectList=ObjectList,
-                                        IOVTagList=IOVTagList,WriteIOV=WriteIOV)
+    kwargs.setdefault("WriteIOV",True)
+    oca=CompFactory.OutputConditionsAlg(name,**kwargs)
 
     
     # create outputStream tool with given filename and pass to myOCA
