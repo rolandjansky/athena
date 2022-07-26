@@ -587,14 +587,13 @@ namespace FlavorTagDiscriminants {
     ){
 
       // we rewrite the inputs if we're using flip taggers
-
       StringRegexes flip_converters {
         {"(IP[23]D)_(.*)"_r, "$1Neg_$2"},
         {"(rnnip|dips[^_]*)_(.*)"_r, "$1flip_$2"},
         {"(JetFitter|SV1|JetFitterSecondaryVertex)_(.*)"_r, "$1Flip_$2"},
         {"(rnnip|dips[^_]*)"_r, "$1flip"},
         {"^(DL1|DL1r[^_]*|DL1rmu|DL1d[^_]*)$"_r, "$1Flip"},
-        {"pt|abs_eta"_r, "$&"},
+        {"pt|abs_eta|eta"_r, "$&"},
         {"softMuon.*|smt.*"_r, "$&"}
       };
 
