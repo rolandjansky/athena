@@ -88,6 +88,8 @@ class InDetSecVertexTruthMatchTool : public virtual IInDetSecVertexTruthMatchToo
   std::string m_pdgIds;
   //turn on/off histogram output
   bool m_fillHist;
+  //Augmentation string to add to the end of patterns.
+  std::string m_AugString;
 
   //private methods to check if particles are good to use
   //returns barcode of LLP production truth vertex

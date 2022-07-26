@@ -17,6 +17,7 @@ InDetSecVertexTruthMatchTool::InDetSecVertexTruthMatchTool( const std::string & 
   declareProperty("trackPtCut", m_trkPtCut = 1000. );
   declareProperty("pdgIds", m_pdgIds = "36" );
   declareProperty("fillHist", m_fillHist = true );
+  declareProperty("AugString", m_AugString = "" );
 }
 
 StatusCode InDetSecVertexTruthMatchTool::initialize() {
@@ -416,6 +417,10 @@ StatusCode InDetSecVertexTruthMatchTool::matchVertices( const xAOD::VertexContai
       totalPt += trk.pt();
 
       // get the linked truth particle
+      if (!trk_truthPartAcc.isAvailable(trk)) {
+        ATH_MSG_DEBUG("The truth particle link decoration isn't available.");
+        continue;
+      }  
       const ElementLink<xAOD::TruthParticleContainer> & truthPartLink = trk_truthPartAcc( trk );
       float prob = trk_truthProbAcc( trk );
       ATH_MSG_DEBUG("Truth prob: " << prob);
@@ -572,7 +577,7 @@ StatusCode InDetSecVertexTruthMatchTool::labelTruthVertices( const xAOD::TruthVe
     const xAOD::TruthParticle* truthPart = truthVtx->incomingParticle(0);
     if(not truthPart) continue;
     if(std::find(m_pdgIdList.begin(), m_pdgIdList.end(), std::abs(truthPart->pdgId())) == m_pdgIdList.end()) continue;
-    
+    if(truthVtx->nOutgoingParticles()<2){continue;} //Skipping vertices with only 1 outgoing particle.
     ATH_MSG_DEBUG("Analysing Truth Vertex " << truthVtx->barcode() );
     std::vector<const xAOD::TruthParticle*> reconstructibleParticles;
     countReconstructibleDescendentParticles( *truthVtx, reconstructibleParticles );
@@ -617,7 +622,7 @@ StatusCode InDetSecVertexTruthMatchTool::labelTruthVertices( const xAOD::TruthVe
       matchTypeDecor(*truthVtx) = ACCEPTED;
     }
     if(vertexInfo.at(2) > 1){
-      ATH_MSG_DEBUG("Vertex is has at least two tracks passing track selection: " << vertexInfo.at(2));
+      ATH_MSG_DEBUG("Vertex has at least two tracks passing track selection: " << vertexInfo.at(2));
       matchTypeDecor(*truthVtx) = SEEDED;
     }
     if(isMatched(*truthVtx)){
@@ -641,7 +646,7 @@ StatusCode InDetSecVertexTruthMatchTool::labelTruthVertices( const xAOD::TruthVe
 
 std::vector<int> InDetSecVertexTruthMatchTool::checkParticle(const xAOD::TruthParticle &truthPart, const xAOD::TrackParticleContainer &trkCont) const {
 
-  xAOD::TrackParticle::ConstAccessor<char>  trackPass("is_selected");
+  xAOD::TrackParticle::ConstAccessor<char>  trackPass("is_selected"+m_AugString);
   xAOD::TrackParticle::ConstAccessor<ElementLink<xAOD::TruthParticleContainer> > trk_truthPartAcc("truthParticleLink");
   xAOD::TrackParticle::ConstAccessor<float> trk_truthProbAcc("truthMatchProbability");
 
@@ -714,6 +719,10 @@ StatusCode InDetSecVertexTruthMatchTool::fillRecoPlots( const xAOD::Vertex& secV
 
   ATH_MSG_DEBUG("Loop over tracks");
   for(size_t t = 0; t < ntracks; t++){
+    if(!trkParts[t].isValid()){
+      ATH_MSG_DEBUG("Track " << t << " is bad!");
+      continue;
+    }
     const xAOD::TrackParticle & trk = **trkParts[t];
 
     m_recoTrk_errD0->Fill(trk.definingParametersCovMatrix()(0,0));
@@ -750,6 +759,10 @@ StatusCode InDetSecVertexTruthMatchTool::fillRecoPlots( const xAOD::Vertex& secV
     TLorentzVector v_minus_iv(0,0,0,0);
     for(size_t j = 0; j < ntracks; j++){
       if (j == t){ continue; }
+      if(!trkParts[j].isValid()){
+        ATH_MSG_DEBUG("Track " << j << " is bad!");
+        continue;
+      }
 
       const xAOD::TrackParticle & trk_2 = **trkParts[j];
 
@@ -774,7 +787,7 @@ StatusCode InDetSecVertexTruthMatchTool::fillRecoPlots( const xAOD::Vertex& secV
     xAOD::TrackParticle::ConstAccessor<float> Trk_Chi2("chiSquared");
     xAOD::TrackParticle::ConstAccessor<float> Trk_nDoF("numberDoF");
 
-    if ( Trk_Chi2(trk) && Trk_nDoF(trk) )  {
+    if ( Trk_Chi2.isAvailable(trk) && Trk_Chi2(trk) && Trk_nDoF.isAvailable(trk) && Trk_nDoF(trk) )  {
       m_recoTrk_Chi2->Fill(trk.chiSquared() / trk.numberDoF());
       m_recoTrk_nDoF->Fill(trk.numberDoF()); 
     }
