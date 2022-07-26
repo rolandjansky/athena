@@ -90,7 +90,7 @@ def InDetBroadRotCreatorCfg(flags, name='InDetBroadInDetRotCreator', **kwargs):
 def InDetRefitRotCreatorCfg(flags, name='InDetRefitRotCreator', **kwargs):
     acc = ComponentAccumulator()
 
-    if flags.Detector.EnableTRT and flags.InDet.Tracking.redoTRT_LR:
+    if flags.Detector.EnableTRT:
         if 'ToolTRT_DriftCircle' not in kwargs:
             from InDetConfig.TRT_DriftCircleOnTrackToolConfig import (
                 TRT_DriftCircleOnTrackUniversalToolCfg)
