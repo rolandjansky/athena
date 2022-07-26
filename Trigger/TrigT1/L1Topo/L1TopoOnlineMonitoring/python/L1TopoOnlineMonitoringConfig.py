@@ -68,7 +68,7 @@ def getL1TopoLabels(flags,connectors = {0: 'LegacyTopo0', 1: 'LegacyTopo1'}, bma
     return topo_trigline_labels
 
 
-def getL1TopoPhase1OnlineMonitor(flags, name='L1TopoOnlineMonitoring', doSimMon=True, doHwMonCtp=False, doHwMon=False, doComp=False, logLevel = None):
+def getL1TopoPhase1OnlineMonitor(flags, name='L1TopoOnlineMonitor', doSimMon=True, doHwMonCtp=False, doHwMon=False, doComp=False, logLevel = None):
     # Placeholder for phase-1 implementation
     #raise RuntimeError('L1Topo phase-1 online monitoring not yet implemented')
     alg = CompFactory.L1TopoOnlineMonitor("L1TopoMonitoringTool",
@@ -122,9 +122,11 @@ def configureHistograms(alg, flags, doHwMonCtp, doHwMon, doComp):
     if doHwMon:
         print("L1Topo Raw data decoders are not available...")
         
-def getL1TopoLegacyOnlineMonitor(flags):
+def getL1TopoLegacyOnlineMonitor(flags, name='L1TopoLegacyOnlineMonitor', logLevel = None):
     alg = CompFactory.L1TopoLegacyOnlineMonitor()
+    if logLevel : alg.OutputLevel=logLevel
     alg.MonTool = GenericMonitoringTool('MonTool')
+    alg.MonTool.HistPath = name
     configureLegacyHistograms(alg, flags)
 
     # Disable ByteStream monitoring when running on MC
@@ -154,7 +156,10 @@ def configureLegacyHistograms(alg, flags):
     '''All histogram definitions for L1TopoLegacyOnlineMonitor'''
     # ==========================================================================
     rob_src_id_labels = []
-    for module_id in alg.DAQROBModuleIds + alg.RoIBROBModuleIds:
+    module_ids = []
+    module_ids += alg.DAQROBModuleIds
+    module_ids += alg.RoIBROBModuleIds
+    for module_id in module_ids:
         sid = SourceIdentifier(SubDetector.TDAQ_CALO_TOPO_PROC, module_id)
         rob_src_id_labels.append('{:#010x}'.format(sid.code()))
 

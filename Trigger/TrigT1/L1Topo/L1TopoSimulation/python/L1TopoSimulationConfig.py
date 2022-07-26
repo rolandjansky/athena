@@ -3,6 +3,7 @@
 from L1TopoSimulation.L1TopoSimulationConf import LVL1__L1TopoSimulation, LVL1__RoiB2TopoInputDataCnv
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import Format
 
 class L1TopoSimulation ( LVL1__L1TopoSimulation ):
 
@@ -33,7 +34,9 @@ def L1LegacyTopoSimulationCfg(flags):
                                                     InputDumpFile = "inputdump_legacy.txt",
                                                     EnableInputDump = flags.Trigger.enableL1TopoDump,
                                                     UseBitwise = flags.Trigger.enableL1TopoBWSimulation,
-                                                    MonHistBaseDir = "L1/L1LegacyTopoAlgorithms")
+                                                    MonHistBaseDir = "L1/L1LegacyTopoAlgorithms",
+                                                    FillHistoBasedOnHardware = (flags.Input.Format is Format.BS)
+                                                   )
 
     # No muon inputs to legacy Topo
     topoSimAlg.MuonInputProvider.ROIBResultLocation = ""
@@ -45,7 +48,6 @@ def L1LegacyTopoSimulationCfg(flags):
     return acc
 
 def L1TopoSimulationCfg(flags):
-    from AthenaConfiguration.Enums import Format
 
     acc = ComponentAccumulator()
 
@@ -283,7 +285,7 @@ if __name__ == '__main__':
   outputEDM += addEDM('xAOD::EnergySumRoI'     , 'LVL1EnergySumRoI')
 
   loadFromSG = [('xAOD::EventInfo', 'StoreGateSvc+EventInfo')]
-  
+ 
   if subsystem in ['Muons','AllModule']:
       loadFromSG += [( 'RpcPadContainer' , 'StoreGateSvc+RPCPAD_L1' ),
                      ( 'TgcRdoContainer' , 'StoreGateSvc+TGCRDO_L1' )]
@@ -318,10 +320,11 @@ if __name__ == '__main__':
       outputEDM += addEDM('xAOD::eFexEMRoIContainer', eFexTool.eEMContainerWriteKey.Path)
       outputEDM += addEDM('xAOD::eFexTauRoIContainer', eFexTool.eTAUContainerWriteKey.Path)
 
-  from L1TopoByteStream.L1TopoByteStreamConfig import L1TopoPhase1ByteStreamToolCfg
-  l1topoBSTool = L1TopoPhase1ByteStreamToolCfg("L1TopoBSDecoderTool",flags)
-  decoderTools += [l1topoBSTool]
-  outputEDM += addEDM('xAOD::L1TopoRawDataContainer', l1topoBSTool.L1TopoPhase1RAWDataWriteContainer.Path)
+  if 'NoModule' not in subsystem:
+      from L1TopoByteStream.L1TopoByteStreamConfig import L1TopoPhase1ByteStreamToolCfg
+      l1topoBSTool = L1TopoPhase1ByteStreamToolCfg("L1TopoBSDecoderTool",flags)
+      decoderTools += [l1topoBSTool]
+      outputEDM += addEDM('xAOD::L1TopoRawDataContainer', l1topoBSTool.L1TopoPhase1RAWDataWriteContainer.Path)
 
   
   decoderAlg = CompFactory.L1TriggerByteStreamDecoderAlg(name="L1TriggerByteStreamDecoder",
@@ -332,14 +335,25 @@ if __name__ == '__main__':
   
   acc.addEventAlgo(CompFactory.SGInputLoader(Load=loadFromSG), sequenceName="AthAlgSeq")
 
+  roib2topo = CompFactory.LVL1.RoiB2TopoInputDataCnv(name='RoiB2TopoInputDataCnv')
+  roib2topo.OutputLevel = algLogLevel
+  acc.addEventAlgo(roib2topo, sequenceName="AthAlgSeq")
+  from L1TopoByteStream.L1TopoByteStreamConfig import L1TopoByteStreamCfg
+  acc.merge(L1TopoByteStreamCfg(flags), sequenceName='AthAlgSeq')
+  acc.merge(L1LegacyTopoSimulationCfg(flags), sequenceName='AthAlgSeq')
+
   acc.merge(L1TopoSimulationStandaloneCfg(flags,outputEDM), sequenceName='AthAlgSeq')
   outputEDM += ['xAOD::L1TopoSimResultsContainer#L1_TopoSimResults']
-      
+
+  # phase1 mon
   from L1TopoOnlineMonitoring import L1TopoOnlineMonitoringConfig as TopoMonConfig
   acc.addEventAlgo(
       TopoMonConfig.getL1TopoPhase1OnlineMonitor(flags,'L1/L1TopoOffline',True,True,False,True,algLogLevel),
       sequenceName="AthAlgSeq"
   )
+  # legacy mon
+  acc.addEventAlgo(TopoMonConfig.getL1TopoLegacyOnlineMonitor(flags,'L1/L1LegacyTopoOffline',algLogLevel),
+                   sequenceName="AthAlgSeq")
 
 
   from GaudiSvc.GaudiSvcConf import THistSvc # noqa: F401
