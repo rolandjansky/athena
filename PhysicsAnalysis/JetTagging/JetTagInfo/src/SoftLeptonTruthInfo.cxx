@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetTagInfo/SoftLeptonTruthInfo.h"
@@ -11,7 +11,7 @@ namespace Analysis
 SoftLeptonTruthInfo::SoftLeptonTruthInfo() : BaseTagInfo(), m_sltrueinfo() {}
 
 /** constructor with info type */
-SoftLeptonTruthInfo::SoftLeptonTruthInfo(TagInfoType tagJetInfoType) : BaseTagInfo(tagJetInfoType),
+SoftLeptonTruthInfo::SoftLeptonTruthInfo(const TagInfoType& tagJetInfoType) : BaseTagInfo(tagJetInfoType),
 								       m_sltrueinfo()
 {
   m_sltrueinfo.clear();

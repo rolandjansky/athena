@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetTagInfo/SLTrueInfo.h"
@@ -20,15 +20,16 @@ SLTrueInfo::SLTrueInfo()
   m_ProductionVertex.setZero();
 }
 
-SLTrueInfo::SLTrueInfo(int barc, int pdg, int pdgm, bool b, bool d, bool w, const Eigen::Vector3d& p, const Eigen::Vector3d& r) {
-  m_barcode          = barc;
-  m_pdgCode          = pdg;
-  m_pdgCodeMother    = pdgm;
-  m_isFromBhadron    = b;
-  m_isFromDhadron    = d;
-  m_isFromGHboson    = w;
-  m_Momentum         = p;
-  m_ProductionVertex = r;  
+SLTrueInfo::SLTrueInfo(int barc, int pdg, int pdgm, bool b, bool d, bool w, const Eigen::Vector3d& p, const Eigen::Vector3d& r)
+  : m_barcode(barc),
+    m_pdgCode(pdg),
+    m_pdgCodeMother(pdgm),
+    m_isFromBhadron(b),
+    m_isFromDhadron(d),
+    m_isFromGHboson(w),
+    m_Momentum(p),
+    m_ProductionVertex(r)
+{
 }
 	
 MsgStream& operator<<( MsgStream& out, const SLTrueInfo& info) {

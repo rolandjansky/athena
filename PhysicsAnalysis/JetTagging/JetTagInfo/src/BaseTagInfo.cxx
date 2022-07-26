@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -28,7 +28,7 @@ BaseTagInfo::BaseTagInfo() : JetTagInfoBase(),
 }
 
 /** constructor with info type */
-BaseTagInfo::BaseTagInfo(TagInfoType tagJetInfoType) : JetTagInfoBase(),
+BaseTagInfo::BaseTagInfo(const TagInfoType& tagJetInfoType) : JetTagInfoBase(),
         m_isValid(false),
         m_tagLikelihood(std::vector<double>()),
         m_weight(0.),

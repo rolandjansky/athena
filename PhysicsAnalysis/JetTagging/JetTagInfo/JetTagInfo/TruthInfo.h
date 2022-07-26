@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETTAGINFO_TRUTHINFO_H
@@ -22,7 +22,7 @@ public:
     TruthInfo();
 
     /** constructor with info type */
-    TruthInfo(TagInfoType x);
+    TruthInfo(const TagInfoType& x);
     
     /** copy destructor */
     TruthInfo(const TruthInfo& TruthInfo);

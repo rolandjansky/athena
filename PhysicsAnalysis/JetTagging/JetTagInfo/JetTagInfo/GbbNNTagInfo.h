@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -37,7 +37,7 @@ public:
     GbbNNTagInfo();
 
     /** constructor with infotype */
-    GbbNNTagInfo(TagInfoType x);
+    GbbNNTagInfo(const TagInfoType& x);
 
     /** copy destructor */
     GbbNNTagInfo(const GbbNNTagInfo& rhs);

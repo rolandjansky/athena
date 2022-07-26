@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETTAGINFO_TRACKCOUNTINGINFO_H
@@ -29,7 +29,7 @@ class TrackCountingInfo : public BaseTagInfo {
     TrackCountingInfo();
 
     /** constructor with info type */
-    TrackCountingInfo(TagInfoType x);
+    TrackCountingInfo(const TagInfoType& x);
     
     /** copy constructor 
 	not really needed now, but the object might get more complicated ...

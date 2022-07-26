@@ -60,7 +60,7 @@ public:
   JetFitterGenericTagInfo();
 
   /** constructor with infotype */
-  JetFitterGenericTagInfo(TagInfoType x);
+  JetFitterGenericTagInfo(const TagInfoType& x);
 
 
   /** default destructor */

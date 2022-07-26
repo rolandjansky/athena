@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETTAGINFO_IPINFOBASE_H
@@ -24,7 +24,7 @@ public:
     IPInfoBase();
 
     /** constructor with info type */
-    IPInfoBase(TagInfoType x);
+    IPInfoBase(const TagInfoType& x);
     
     /** copy destructor */
     IPInfoBase(const IPInfoBase& IPInfoBase);

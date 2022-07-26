@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetTagInfo/QGPartonTruthInfo.h"
@@ -17,7 +17,7 @@ QGPartonTruthInfo::QGPartonTruthInfo()
 {}
 
 /** constructor with info type */
-QGPartonTruthInfo::QGPartonTruthInfo(TagInfoType tagJetInfoType)
+QGPartonTruthInfo::QGPartonTruthInfo(const TagInfoType& tagJetInfoType)
   : BaseTagInfo(tagJetInfoType),
     m_jetTruthLabel("N/A"),
     m_distanceToParton (999.)

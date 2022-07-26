@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetTagInfo/TrackGrade.h"
@@ -9,14 +9,16 @@
 
 namespace Analysis {
 
-  TrackGrade::TrackGrade() {
-    m_gradeNumber = -1;
-    m_gradeName = "Undefined";
-}
+  TrackGrade::TrackGrade()
+    : m_gradeNumber(-1),
+      m_gradeName("Undefined")
+  {
+  }
   
-  TrackGrade::TrackGrade(int number,const std::string& name) {
-    m_gradeNumber = number;
-    m_gradeName = name;
+  TrackGrade::TrackGrade(int number,const std::string& name)
+    : m_gradeNumber(number),
+      m_gradeName(name)
+  {
   }
   
   TrackGrade::TrackGrade(const TrackGrade & rhs)

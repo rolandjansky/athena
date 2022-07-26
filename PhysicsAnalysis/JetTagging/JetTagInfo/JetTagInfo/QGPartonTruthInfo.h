@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETTAGINFO_QGPARTONTRUTHINFO_H
@@ -21,7 +21,7 @@ public:
     QGPartonTruthInfo();
 
     /** constructor with info type */
-    QGPartonTruthInfo(TagInfoType x);
+    QGPartonTruthInfo(const TagInfoType& x);
     
     /** copy destructor */
     QGPartonTruthInfo(const QGPartonTruthInfo& QGPartonTruthInfo);

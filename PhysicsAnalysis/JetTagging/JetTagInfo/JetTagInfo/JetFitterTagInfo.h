@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*****************************-*-c++-*-*************************************
@@ -64,7 +64,7 @@ public:
     JetFitterTagInfo();
 
     /** constructor with infotype */
-    JetFitterTagInfo(TagInfoType x);
+    JetFitterTagInfo(const TagInfoType& x);
 
     /** copy destructor */
     JetFitterTagInfo(const JetFitterTagInfo& rhs);
