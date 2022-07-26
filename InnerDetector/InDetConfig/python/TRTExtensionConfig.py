@@ -18,62 +18,25 @@ def TRT_TrackExtensionAlgCfg(flags, name = 'InDetTRT_ExtensionPhase', SiTrackCol
     acc.addEventAlgo(CompFactory.InDet.TRT_TrackExtensionAlg(name = name, **kwargs))
     return acc
 
-def CompetingRIOsOnTrackToolCfg(flags, name = 'InDetCompetingRotCreator', **kwargs):
-    acc = ComponentAccumulator()
-    InDetCompetingTRT_DC_Tool = acc.popToolsAndMerge(TC.InDetCompetingTRT_DC_ToolCfg(flags))
-    acc.addPublicTool(InDetCompetingTRT_DC_Tool)
-
-    kwargs.setdefault("ToolForCompPixelClusters", None)
-    kwargs.setdefault("ToolForCompSCT_Clusters", None)
-    kwargs.setdefault("ToolForCompTRT_DriftCircles", InDetCompetingTRT_DC_Tool)
-    acc.setPrivateTools(CompFactory.Trk.CompetingRIOsOnTrackTool(name = name, **kwargs))
-    return acc
-
-def DeterministicAnnealingFilterCfg(flags, name = 'InDetDAF', **kwargs):
-    acc = ComponentAccumulator()
-    InDetCompetingRotCreator = acc.popToolsAndMerge(CompetingRIOsOnTrackToolCfg(flags))
-    acc.addPublicTool(InDetCompetingRotCreator)
-
-    from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
-    InDetExtrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
-
-    from InDetConfig.TrackingCommonConfig import InDetUpdatorCfg
-    InDetUpdator = acc.popToolsAndMerge(InDetUpdatorCfg(flags))
-
-    kwargs.setdefault("ToolForExtrapolation", InDetExtrapolator)
-    kwargs.setdefault("ToolForCompetingROTsCreation", InDetCompetingRotCreator)
-    kwargs.setdefault("ToolForUpdating", InDetUpdator)
-    kwargs.setdefault("AnnealingScheme", [200., 81., 9., 4., 1., 1., 1.])
-    kwargs.setdefault("DropOutlierCutValue", 1.E-7)
-    kwargs.setdefault("OutlierCutValue", 0.01)
-    acc.setPrivateTools(CompFactory.Trk.DeterministicAnnealingFilter(name = name, **kwargs))
-    return acc
-
 def InDetExtensionProcessorCfg(flags, SiTrackCollection=None, ExtendedTrackCollection = None, ExtendedTracksMap = None, **kwargs):
     acc = ComponentAccumulator()
 
-    if flags.InDet.Tracking.trtExtensionType == 'DAF' :
-        #
-        # --- DAF Fitter setup
-        #
-        InDetExtensionFitter = acc.popToolsAndMerge(DeterministicAnnealingFilterCfg(flags, name = 'InDetDAF'+ flags.InDet.Tracking.ActivePass.extension))
+    fitter_args = {}
+    if flags.InDet.Tracking.holeSearchInGX2Fit:
+        fitter_args.setdefault("DoHoleSearch", True)
+        from InDetConfig.InDetBoundaryCheckToolConfig import InDetBoundaryCheckToolCfg
+        InDetBoundaryCheckTool = acc.popToolsAndMerge(InDetBoundaryCheckToolCfg(flags))
+        fitter_args.setdefault("BoundaryCheckTool", InDetBoundaryCheckTool)
+
+    if flags.InDet.Tracking.ActivePass.extension != "LowPt":
+        from TrkConfig.CommonTrackFitterConfig import InDetTrackFitterCfg
+        InDetExtensionFitter = acc.popToolsAndMerge(InDetTrackFitterCfg(flags, 'InDetTrackFitter_TRTExtension'+flags.InDet.Tracking.ActivePass.extension, **fitter_args))
         acc.addPublicTool(InDetExtensionFitter)
     else:
-        fitter_args = {}
-        if flags.InDet.Tracking.holeSearchInGX2Fit:
-            fitter_args.setdefault("DoHoleSearch", True)
-            from InDetConfig.InDetBoundaryCheckToolConfig import InDetBoundaryCheckToolCfg
-            InDetBoundaryCheckTool = acc.popToolsAndMerge(InDetBoundaryCheckToolCfg(flags))
-            fitter_args.setdefault("BoundaryCheckTool", InDetBoundaryCheckTool)
+        from TrkConfig.CommonTrackFitterConfig import InDetTrackFitterLowPtCfg
+        InDetExtensionFitter = acc.popToolsAndMerge(InDetTrackFitterLowPtCfg(flags, 'InDetTrackFitter_TRTExtension'+flags.InDet.Tracking.ActivePass.extension, **fitter_args))
+        acc.addPublicTool(InDetExtensionFitter)
 
-        if flags.InDet.Tracking.ActivePass.extension != "LowPt":
-            from TrkConfig.CommonTrackFitterConfig import InDetTrackFitterCfg
-            InDetExtensionFitter = acc.popToolsAndMerge(InDetTrackFitterCfg(flags, 'InDetTrackFitter_TRTExtension'+flags.InDet.Tracking.ActivePass.extension, **fitter_args))
-            acc.addPublicTool(InDetExtensionFitter)
-        else:
-            from TrkConfig.CommonTrackFitterConfig import InDetTrackFitterLowPtCfg
-            InDetExtensionFitter = acc.popToolsAndMerge(InDetTrackFitterLowPtCfg(flags, 'InDetTrackFitter_TRTExtension'+flags.InDet.Tracking.ActivePass.extension, **fitter_args))
-            acc.addPublicTool(InDetExtensionFitter)
     #
     # --- load scoring for extension
     #

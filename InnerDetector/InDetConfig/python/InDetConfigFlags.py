@@ -99,11 +99,6 @@ def createInDetConfigFlags():
                 False)  # Use broad cluster errors for Pixel
     icf.addFlag("InDet.Tracking.useBroadSCTClusterErrors",
                 False)  # Use broad cluster errors for SCT
-    # which extension type ("xk"/"DAF")
-    icf.addFlag("InDet.Tracking.trtExtensionType", "xk")
-    # use smart TRT LR/tube hit creator and redo ROTs
-    icf.addFlag("InDet.Tracking.redoTRT_LR",
-                lambda prevFlags: (not prevFlags.InDet.Tracking.trtExtensionType == "DAF"))
 
     # Tracking passes/configurations scheduled
 
