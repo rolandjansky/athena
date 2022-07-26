@@ -2,4 +2,4 @@
 
 using namespace InDet;
 
-DECLARE_COMPONENT( InDetAdaptiveMultiSecVtxFinderTool )
+DECLARE_COMPONENT(InDetAdaptiveMultiSecVtxFinderTool)
