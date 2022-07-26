@@ -114,6 +114,74 @@ StatusCode AFPSiDBasicKalmanTool::initialize()
     return StatusCode::FAILURE;
   }
   
+  
+  if(m_layersForSeeds.size()==0)
+  {
+    ATH_MSG_ERROR("Impossible to make seeds when length of m_layersForSeeds is 0 ");
+    return StatusCode::FAILURE;
+  }
+  
+  for(auto lfs = m_layersForSeeds.begin(); lfs != m_layersForSeeds.end(); ) 
+  {
+    if(lfs->first == lfs->second)
+    {
+      ATH_MSG_WARNING("Both layer IDs in m_layersForSeeds are equal to "<<lfs->first<<", removing this pair of layer IDs");
+      lfs=m_layersForSeeds.erase(lfs);
+    }
+    else if(lfs->first >= m_numberOfLayersInStation || lfs->second >= m_numberOfLayersInStation || lfs->first < 0 || lfs->second < 0)
+    {
+      ATH_MSG_WARNING("First layer ID is "<<lfs->first<<", second layer ID is "<<lfs->second<<", while number of layers is "<<m_numberOfLayersInStation<<", removing this pair");
+      lfs=m_layersForSeeds.erase(lfs);
+    }
+    else
+    {
+      if(lfs->first > lfs->second)
+      {
+        ATH_MSG_INFO("The first layer ID for seeds ("<<lfs->first<<") is higher than the second layer ID ("<<lfs->second<<"), swapping");
+        int tmp=lfs->first;
+        lfs->first=lfs->second;
+        lfs->second=tmp;
+      }
+      
+      ++lfs;
+    }
+  }
+  
+  if(m_layersForSeeds.size()>=2)
+  {
+    std::sort( m_layersForSeeds.begin(), m_layersForSeeds.end() );
+    auto lfs1 = m_layersForSeeds.begin();
+    auto lfs2 = m_layersForSeeds.begin()+1;
+    for(;lfs2!=m_layersForSeeds.end();)
+    {
+      if(*lfs1==*lfs2)
+      {
+        ATH_MSG_WARNING("Found duplicity for {"<<lfs2->first<<","<<lfs2->second<<"}, removing the duplicity");
+        lfs2=m_layersForSeeds.erase(lfs2);
+      }
+      else
+      {
+        ++lfs1;
+        ++lfs2;
+      }
+    }
+  }
+  
+  if(m_layersForSeeds.size()==0)
+  {
+    ATH_MSG_ERROR("Nothing is left in m_layersForSeeds after cleaning, please fix the setup");
+    return StatusCode::FAILURE;
+  }
+  
+  std::string stringLayersForSeeds="{";
+  for(auto lfs = m_layersForSeeds.begin(); lfs != m_layersForSeeds.end(); ++lfs)
+  {
+    stringLayersForSeeds+="{"+std::to_string(lfs->first)+","+std::to_string(lfs->second)+"},";
+  }
+  stringLayersForSeeds.pop_back();
+  ATH_MSG_DEBUG("Pairs of layer IDs that will make track seeds = "<<stringLayersForSeeds<<"}");
+  
+  
   // print information about remaining parameters
   ATH_MSG_DEBUG("Maximal distance at which cluster can be joined to the track m_maxAllowedDistance = "<<m_maxAllowedDistance);
   ATH_MSG_DEBUG("Minimal number of clusters in track. If there are less clusters track is rejected m_minClustersNumber = "<<m_minClustersNumber);
@@ -145,11 +213,11 @@ void AFPSiDBasicKalmanTool::fillLayersWithClusters(AFPLocRecoStationBasicObj& my
   return;
 }
 
-bool AFPSiDBasicKalmanTool::areNeighbours(const xAOD::AFPSiHitsCluster* a, const xAOD::AFPSiHitsCluster* b) const
+bool AFPSiDBasicKalmanTool::areNeighbours(const xAOD::AFPSiHitsCluster* a, const xAOD::AFPSiHitsCluster* b, const double allowedDistanceBetweenClustersInSeed) const
 {
   const double dx = a->xLocal() - b->xLocal();
   const double dy = a->yLocal() - b->yLocal();
-  const double maxDistanceSq = m_allowedDistanceBetweenClustersInSeed * m_allowedDistanceBetweenClustersInSeed;
+  const double maxDistanceSq = allowedDistanceBetweenClustersInSeed * allowedDistanceBetweenClustersInSeed;
   
   if (dx * dx + dy * dy > maxDistanceSq) { return false; }
   return true;
@@ -180,46 +248,54 @@ StatusCode AFPSiDBasicKalmanTool::reconstructTracks(std::unique_ptr<xAOD::AFPTra
   fillLayersWithClusters(my_stationClusters, hitsClusterContainer);
 
   // ===== do tracks reconstruction =====
-  // start with making seeds by combining all hits from the first and second layers
-  const LayersIter_t layersEnd = my_stationClusters.layers().end();
-  LayersIter_t layersIterator = my_stationClusters.layers().begin();
-
-  // make all combinations between first and second layer
-  const std::vector<const xAOD::AFPSiHitsCluster*>& firstLayer = *layersIterator;
-  ++layersIterator;
-  const std::vector<const xAOD::AFPSiHitsCluster*>& secondLayer = *layersIterator;
-  ++layersIterator;
-
-  for (const xAOD::AFPSiHitsCluster* firstCluster : firstLayer)
-    for (const xAOD::AFPSiHitsCluster* secondCluster : secondLayer) {
-    
-      // skip if clusters are too far
-      if(!areNeighbours(firstCluster, secondCluster)) continue;
-      
-      // make the seed
-      reconstructedTracks.emplace_back(firstCluster, secondCluster, m_observationModel, m_observationNoise, m_aposterioriCov);
-      AFPSiDBasicKalmanToolTrack& theTrack = reconstructedTracks.back();
-
-      // loop over remaining layers
-      for (LayersIter_t remainingLayersIT = layersIterator; remainingLayersIT != layersEnd; ++remainingLayersIT) {
-        const xAOD::AFPSiHitsCluster* closestCluster = theTrack.findNearestCluster(*remainingLayersIT, m_maxAllowedDistance);
-        if (closestCluster != nullptr) // if there is a cluster near the track add it to the track
-          theTrack.addCluster(closestCluster, m_clusterMaxChi2);
-        else                        // if there is no cluster add a hole (missing cluster in the layer)
-          theTrack.addHole();
-      }
-
-      // process the track only if there are enough clusters, remove the ones with less tracks 
-      if (theTrack.clustersInTrack().size() >= m_minClustersNumber)
-        theTrack.smooth();
-      else 
-        reconstructedTracks.pop_back();
-        
-    } // end of loop over seeds (all combinations between the first and second layer
+  // start with making seeds by combining all hits from the first and second layer IDs
   
+  for(auto layersForSeeds = m_layersForSeeds.begin(); layersForSeeds != m_layersForSeeds.end(); ++layersForSeeds)
+  {
+    const LayersIter_t layersEnd = my_stationClusters.layers().end();
+    const LayersIter_t layersBegin = my_stationClusters.layers().begin();
+    
+    // make all combinations between first and second layer ID
+    LayersIter_t firstLayer = layersBegin+layersForSeeds->first;
+    LayersIter_t secondLayer = layersBegin+layersForSeeds->second;
 
+    for (const xAOD::AFPSiHitsCluster* firstCluster : *firstLayer)
+    {
+      for (const xAOD::AFPSiHitsCluster* secondCluster : *secondLayer)
+      {
+        // skip if clusters are too far, one "m_allowedDistanceBetweenClustersInSeed" per 1 layer difference
+        if(!areNeighbours(firstCluster, secondCluster, m_allowedDistanceBetweenClustersInSeed*(layersForSeeds->second-layersForSeeds->first)))
+        {
+          continue;
+        }
+        
+        // make the seed
+        reconstructedTracks.emplace_back(firstCluster, secondCluster, m_observationModel, m_observationNoise, m_aposterioriCov);
+        AFPSiDBasicKalmanToolTrack& theTrack = reconstructedTracks.back();
+
+        // loop over remaining layers
+        for (LayersIter_t remainingLayersIT = layersBegin; remainingLayersIT != layersEnd; ++remainingLayersIT)
+        {
+          if(remainingLayersIT==firstLayer || remainingLayersIT==secondLayer) continue;
+        
+          const xAOD::AFPSiHitsCluster* closestCluster = theTrack.findNearestCluster(*remainingLayersIT, m_maxAllowedDistance);
+          if (closestCluster != nullptr) // if there is a cluster near the track add it to the track
+            theTrack.addCluster(closestCluster, m_clusterMaxChi2);
+          else                        // if there is no cluster add a hole (missing cluster in the layer)
+            theTrack.addHole();
+        }
+
+        // process the track only if there are enough clusters, remove the ones with less tracks 
+        if (theTrack.clustersInTrack().size() >= m_minClustersNumber)
+          theTrack.smooth();
+        else 
+          reconstructedTracks.pop_back();
+        
+      } // end of loop over seeds (all combinations between the first and second layer
+    }
+  }
+  
   filterTrkCollection(reconstructedTracks);
-
 
   // === Save result to xAOD container ===
   for (const AFPSiDBasicKalmanToolTrack& track : reconstructedTracks)
@@ -283,23 +359,45 @@ void AFPSiDBasicKalmanTool::filterTrkCollection(std::list<AFPSiDBasicKalmanToolT
     // start comparing from the next object to the one currently testing
     std::list<AFPSiDBasicKalmanToolTrack>::iterator compareIterator = mainIterator;
     ++compareIterator;
-    while (compareIterator != tracksList.end()) {
-      if ( countSharedClusters(*mainIterator, *compareIterator) > m_maxSharedClusters) {
+    while (compareIterator != tracksList.end())
+    {
+      const unsigned int sharedClusters = countSharedClusters(*mainIterator, *compareIterator);
+      bool removeMain = false;
+      bool removeCompare = false;
+      
+      if(sharedClusters > m_maxSharedClusters)
+      {
         // calculate quality of the tracks preferring tracks with more clusters
         const AFPSiDBasicKalmanToolTrack& mainTrk = (*mainIterator);
         const double mainTrkQuality = mainTrk.chi2Smooth().size() + ((m_trackMaxChi2 - mainTrk.trkChi2NDFSmooth()) / (m_trackMaxChi2 + 1.));
         AFPSiDBasicKalmanToolTrack& compareTrk = (*compareIterator);
         const double compareTrkQuality = compareTrk.chi2Smooth().size() + ((m_trackMaxChi2 - compareTrk.trkChi2NDFSmooth()) / (m_trackMaxChi2 + 1.));
 
-        if ( mainTrkQuality >= compareTrkQuality) {
-          tracksList.erase(compareIterator++);
-          continue;
+        if(mainTrkQuality >= compareTrkQuality)
+        {
+          removeCompare = true;
         }
-        else {
-          tracksList.erase(mainIterator++);
-          deletedMain = true;
-          break;
+        else
+        {
+          removeMain = true;
         }
+      }
+      else if(sharedClusters == mainIterator->clustersInTrack().size() && sharedClusters == compareIterator->clustersInTrack().size())
+      {
+        // these are the same tracks
+        removeCompare = true;
+      }
+      
+      if (removeCompare)
+      {
+        tracksList.erase(compareIterator++);
+        continue;
+      }
+      else if(removeMain)
+      {
+        tracksList.erase(mainIterator++);
+        deletedMain = true;
+        break;
       }
 
       ++compareIterator;
@@ -311,9 +409,9 @@ void AFPSiDBasicKalmanTool::filterTrkCollection(std::list<AFPSiDBasicKalmanToolT
   } // end mainIterator
 }
 
-int AFPSiDBasicKalmanTool::countSharedClusters(const AFPSiDBasicKalmanToolTrack &firstTrack, const AFPSiDBasicKalmanToolTrack  &secondTrack) const
+unsigned int AFPSiDBasicKalmanTool::countSharedClusters(const AFPSiDBasicKalmanToolTrack &firstTrack, const AFPSiDBasicKalmanToolTrack  &secondTrack) const
 {
-  int sharedClustersN = 0;
+  unsigned int sharedClustersN = 0;
 
   for (const xAOD::AFPSiHitsCluster* firstCluster : firstTrack.clustersInTrack())
     for (const xAOD::AFPSiHitsCluster* secondCluster : secondTrack.clustersInTrack())
