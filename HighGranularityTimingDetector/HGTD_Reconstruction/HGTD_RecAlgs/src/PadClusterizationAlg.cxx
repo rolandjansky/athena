@@ -63,10 +63,9 @@ StatusCode PadClusterizationAlg::execute(const EventContext& ctx) const {
     if (prd_collection->empty()) {
       continue;
     }
-
+    const IdentifierHash identifyHash{prd_collection->identifyHash()};
     if (locp_prd_container
-            ->addCollection(prd_collection.release(),
-                            prd_collection->identifyHash())
+            ->addCollection(prd_collection.release(),identifyHash)
             .isFailure()) {
       ATH_MSG_WARNING("Could not add ClusterCollection to container!");
     }

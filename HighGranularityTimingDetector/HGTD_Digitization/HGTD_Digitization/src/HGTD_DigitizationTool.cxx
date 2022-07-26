@@ -324,10 +324,10 @@ void HGTD_DigitizationTool::applyProcessorTools(
 
 StatusCode HGTD_DigitizationTool::storeRDOCollection(
     std::unique_ptr<HGTD_RDO_Collection> coll) {
+  const IdentifierHash identifyHash{coll->identifierHash()};
   // Create the RDO collection
   if (m_hgtd_rdo_container
-          ->addCollection(coll.release(), coll->identifierHash())
-          .isFailure()) {
+          ->addCollection(coll.release(), identifyHash).isFailure()) {
     ATH_MSG_FATAL("HGTD RDO collection could not be added to container!");
     return StatusCode::FAILURE;
   }
