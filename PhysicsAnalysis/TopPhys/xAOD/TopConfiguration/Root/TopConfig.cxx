@@ -3866,6 +3866,9 @@ namespace top {
       
       // mc16e
       if (runnumber == 310000) return "2018";
+      
+      // Run 3 mc21a
+      if (runnumber == 330000) return "2022";
 
       return "UNKNOWN";
     }
@@ -3881,7 +3884,10 @@ namespace top {
     if (runnumber >= 324320 && runnumber <= 348835) return "2017";
 
     // 2018 : > 348835 
-    if (runnumber > 348835 && runnumber < 999999) return "2018";
+    if (runnumber > 348835 && runnumber < 400000) return "2018";
+    
+    // Run 3: 2022
+    if (runnumber > 410000 && runnumber < 999999) return "2022";
     
     return "UNKNOWN";
   }
