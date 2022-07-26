@@ -10,10 +10,6 @@
 #ifndef AFP_LOCRECO_AFPSIDBASICKALMANTOOL_H
 #define AFP_LOCRECO_AFPSIDBASICKALMANTOOL_H 1
 
-// STL includes
-#include <string>
-#include <list>
-#include <vector>
 
 #include <CLHEP/Matrix/Matrix.h>
 #include <CLHEP/Matrix/Vector.h>
@@ -37,6 +33,13 @@
 #include "AFP_LocReco/IAFPSiDLocRecoTrackAlgTool.h"
 #include "AFP_LocReco/AFPLocRecoStationBasicObj.h"
 #include "AFP_LocReco/AFPSiDBasicKalmanToolTrack.h"
+
+// STL includes
+#include <string>
+#include <list>
+#include <vector>
+#include <utility> // pair
+#include <algorithm> // sort
 
 
 /// @brief Class reconstructing tracks using basic Kalman filter.
@@ -83,7 +86,7 @@ public:
   void filterTrkCollection(std::list<AFPSiDBasicKalmanToolTrack>& reconstructedTracks) const;
 
   /// Returns number of the same clusters used to reconstruct two tracks.
-  int countSharedClusters(const AFPSiDBasicKalmanToolTrack& firstTrack, const AFPSiDBasicKalmanToolTrack& secondTrack) const;
+  unsigned int countSharedClusters(const AFPSiDBasicKalmanToolTrack& firstTrack, const AFPSiDBasicKalmanToolTrack& secondTrack) const;
 		
   /// clear all layers from clusters saved in #m_stationsClusters;
   void clearAllLayers(AFPLocRecoStationBasicObj& my_stationClusters) const
@@ -170,7 +173,7 @@ private:
   Gaudi::Property<unsigned int> m_minClustersNumber{this, "minClustersNumber", 3, "Minimal number of clusters in track. If there are less clusters track is rejected"};
 
   /// Maximal number of hits that two tracks can share. If they share more one is deleted.
-  Gaudi::Property<int> m_maxSharedClusters{this, "maxSharedClusters", 2, "Maximal number of hits that two tracks can share. If they share more one is deleted."};
+  Gaudi::Property<unsigned int> m_maxSharedClusters{this, "maxSharedClusters", 2, "Maximal number of hits that two tracks can share. If they share more one is deleted."};
 
   /// Maximal value of chi2 for which a cluster is added.
   Gaudi::Property<float> m_clusterMaxChi2{this, "clusterMaxChi2", 3, "Maximal value of chi2 for which a cluster is added."};
@@ -179,7 +182,10 @@ private:
   Gaudi::Property<float> m_trackMaxChi2{this, "trackMaxChi2", 3, "Maximal value of chi2 for the track."};
   
   /// Maximum allowed distance between clusters to be considered coming from the same proton
-  Gaudi::Property<double> m_allowedDistanceBetweenClustersInSeed{this, "allowedDistanceBetweenClustersInSeed", 0.5, "Maximum allowed distance between clusters in a seed to be considered coming from the same proton"};
+  Gaudi::Property<double> m_allowedDistanceBetweenClustersInSeed{this, "allowedDistanceBetweenClustersInSeed", 0.5, "Maximum allowed distance between clusters in a seed to be considered coming from the same proton; if the difference between clusters is 2 layers (3 layers), this distance is multiplied by 2 (3)"};
+  
+  /// Vector of pairs of layers. These pairs will be used to make seeds
+  Gaudi::Property<std::vector<std::pair<int,int>>> m_layersForSeeds{this, "layersForSeeds", {{0,1}}, "Pairs of layers that are used to create seeds."};
   
   /// Fills layers with clusters of hits, dividing them into stations and layers
   void fillLayersWithClusters(AFPLocRecoStationBasicObj& my_stationClusters, SG::ReadHandle<xAOD::AFPSiHitsClusterContainer>& hitsClusterContainer) const;
@@ -200,7 +206,7 @@ private:
   
   /// Checks if clusters are neighbours
   /// Compares distance between them to #m_allowedDistanceBetweenClustersInSeed
-  bool areNeighbours(const xAOD::AFPSiHitsCluster* a, const xAOD::AFPSiHitsCluster* b) const;
+  bool areNeighbours(const xAOD::AFPSiHitsCluster* a, const xAOD::AFPSiHitsCluster* b, const double dist) const;
 
   /// Save reconstructed track to the xAOD container
   void saveToXAOD (const AFPSiDBasicKalmanToolTrack& recoTrack, std::unique_ptr<xAOD::AFPTrackContainer>& containerToFill, SG::ReadHandle<xAOD::AFPSiHitsClusterContainer>& hitsClusterContainer) const;
