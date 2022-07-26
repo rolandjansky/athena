@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef _MUON_NSW_ELINK_H_
-#define _MUON_NSW_ELINK_H_
+#ifndef MUONNSWCOMMONDECODE_NSWELINK_H
+#define MUONNSWCOMMONDECODE_NSWELINK_H
 
 #include <stdint.h>
 #include <vector>
@@ -50,6 +50,9 @@ namespace Muon
       //NSWElink (); to be implemented for simulation
       NSWElink (const uint32_t *bs, uint32_t remaining);
       virtual ~NSWElink ();
+
+      NSWElink (const NSWElink&) = delete;
+      NSWElink& operator= (const NSWElink&) = delete;
 
       const std::vector <Muon::nsw::VMMChannel *> &get_channels () const {return m_channels;};
 
@@ -129,4 +132,4 @@ inline unsigned int Muon::nsw::NSWElink::test_checksum (const uint8_t *buffer, u
   return running_checksum;
 }
 
-#endif // _MUON_NSW_ELINK_H_
+#endif // MUONNSWCOMMONDECODE_NSWELINK_H
