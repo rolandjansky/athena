@@ -15,14 +15,7 @@
 #include <unistd.h>
 
 
-LArHVCorrMaker::LArHVCorrMaker(const std::string& name, ISvcLocator* pSvcLocator) 
-  : AthAlgorithm(name, pSvcLocator),
-    m_lar_on_id(0)
-{
-  declareProperty("keyOutput",m_keyOutput="LArHVScaleCorr","Output key for LArHVScaleCorr");
-  declareProperty("folderName",m_folderName="/LAR/ElecCalibFlat/HVScaleCorr",
-		  "Folder to store the CondAttrListCollection containing the HVScale correction");
-}
+
 
 //---------------------------------------------------------------------------
 LArHVCorrMaker::~LArHVCorrMaker()
@@ -34,7 +27,6 @@ StatusCode LArHVCorrMaker::initialize()
   ATH_MSG_INFO ( "  in initialize " );
   ATH_CHECK( detStore()->retrieve(m_lar_on_id,"LArOnlineID") );
   ATH_CHECK( m_scaleCorrKey.initialize() );
-  ATH_CHECK( m_onlineScaleCorrKey.initialize() );
   ATH_CHECK( m_cablingKey.initialize() );
   return StatusCode::SUCCESS;
 }
@@ -54,7 +46,6 @@ StatusCode LArHVCorrMaker::stop()
 
   const EventContext& ctx = Gaudi::Hive::currentContext();
   SG::ReadCondHandle<ILArHVScaleCorr> scaleCorr (m_scaleCorrKey, ctx);
-  SG::ReadCondHandle<ILArHVScaleCorr> onlineScaleCorr (m_onlineScaleCorrKey, ctx);
   SG::ReadCondHandle<LArOnOffIdMapping> cabling (m_cablingKey, ctx);
 
   const unsigned hashMax=m_lar_on_id->channelHashMax();
@@ -76,19 +67,11 @@ StatusCode LArHVCorrMaker::stop()
       const HWIdentifier hwid = cabling->createSignalChannelID (id);
       ATH_MSG_VERBOSE("Filling value for id " << id.get_identifier32().get_compact());
       value=scaleCorr->HVScaleCorr(hwid);
-
-      // Scales in scaleCorr have been normalized by online correction.
-      // Undo to make the scale absolute.
-      value *= onlineScaleCorr->HVScaleCorr(hwid);
     }
     pblob[hs]=value;
   }
   coll->add(1,attrList); //Add as channel 1 to AttrListCollection
 
-  auto flatHVScale = std::make_unique<LArHVScaleCorrFlat>(coll.get());
-
-  ATH_CHECK( detStore()->record(std::move(coll), m_folderName) );
-  ATH_CHECK( detStore()->record(std::move(flatHVScale), m_keyOutput) );
-  
+  ATH_CHECK( detStore()->record(std::move(coll), m_folderName) );  
   return StatusCode::SUCCESS;
 }

@@ -12,19 +12,19 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "LArElecCalib/ILArHVScaleCorr.h"
 #include "LArCabling/LArOnOffIdMapping.h"
-#include "GaudiKernel/ToolHandle.h"
 
 
 class LArOnlineID;
 
 //-----------------------------------------------------------------------
 class LArHVCorrMaker : public AthAlgorithm
-//-----------------------------------------------------------------------
+//------`-----------------------------------------------------------------
 {
  public:
 
-  // Constructor
-  LArHVCorrMaker(const std::string & name, ISvcLocator * pSvcLocator);
+  //Delgate constructor
+  using AthAlgorithm::AthAlgorithm;
+
 
   // Destructor
   virtual ~LArHVCorrMaker();
@@ -40,13 +40,13 @@ class LArHVCorrMaker : public AthAlgorithm
   virtual StatusCode finalize() override {return StatusCode::SUCCESS;}
   
  private:
-  const LArOnlineID*        m_lar_on_id;
-  std::string m_keyOutput;
-  std::string m_folderName;
+  const LArOnlineID*        m_lar_on_id = nullptr;
+
+  Gaudi::Property<std::string> m_folderName{this,"folderName", "/LAR/ElecCalibFlat/HVScaleCorr",
+      "Folder to store the CondAttrListCollection containing the HVScale correction"};
+
   SG::ReadCondHandleKey<ILArHVScaleCorr> m_scaleCorrKey
   { this, "LArHVScaleCorr", "LArHVScaleCorrRecomputed", "" };
-  SG::ReadCondHandleKey<ILArHVScaleCorr> m_onlineScaleCorrKey
-  { this, "OnlineLArHVScaleCorr", "LArHVScaleCorr", "" };
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey
   { this, "CablingKey", "LArOnOffIdMap", "SG Key of LArOnOffIdMapping object" };
   
