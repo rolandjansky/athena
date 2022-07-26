@@ -66,7 +66,4 @@ private:
 
 #include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( CaloTTPpmRxIdMap,196539089,1)
-#include "AthenaKernel/CondCont.h"
-CONDCONT_DEF( CaloTTPpmRxIdMap , 30750539 );
-
 #endif
