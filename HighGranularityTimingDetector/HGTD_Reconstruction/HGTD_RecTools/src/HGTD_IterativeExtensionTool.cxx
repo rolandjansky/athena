@@ -26,8 +26,9 @@
 #include <iostream>
 #include <vector>
 
-HGTD_IterativeExtensionTool::HGTD_IterativeExtensionTool(
-    const std::string& t, const std::string& n, const IInterface* p)
+HGTD_IterativeExtensionTool::HGTD_IterativeExtensionTool(const std::string& t,
+                                                         const std::string& n,
+                                                         const IInterface* p)
     : base_class(t, n, p) {}
 
 StatusCode HGTD_IterativeExtensionTool::initialize() {
@@ -48,20 +49,14 @@ StatusCode HGTD_IterativeExtensionTool::initialize() {
   return sc;
 }
 
-HGTD::ExtensionObject
-HGTD_IterativeExtensionTool::extendTrackToHGTD(
-    const EventContext& ctx,
-    const xAOD::TrackParticle& track_ptkl,
-    const HGTD_ClusterContainer* container,
-    const HepMC::GenEvent* hs_event,
+HGTD::ExtensionObject HGTD_IterativeExtensionTool::extendTrackToHGTD(
+    const EventContext& ctx, const xAOD::TrackParticle& track_ptkl,
+    const HGTD_ClusterContainer* container, const HepMC::GenEvent* hs_event,
     const InDetSimDataCollection* sim_data) {
 
   ATH_MSG_DEBUG("Start extending");
 
   const Trk::Track* track = track_ptkl.track();
-
-  m_track = track;                 // FIXME should avoid this
-  m_cluster_container = container; // FIXME same here
 
   HGTD::ExtensionObject result;
 
@@ -108,7 +103,8 @@ HGTD_IterativeExtensionTool::extendTrackToHGTD(
   // get the layers, traverse depending on endcap used
   // since they are not in ascending z order!!
   Trk::BinnedArraySpan<const Trk::Layer* const> layers =
-      confined_layers->arrayObjects(); // is CxxUtils::span<const Trk::Layer* const>
+      confined_layers
+          ->arrayObjects(); // is CxxUtils::span<const Trk::Layer* const>
   size_t layer_size = layers.size();
 
   short position = is_pos_endcap ? 0 : layer_size - 1;
@@ -131,9 +127,18 @@ HGTD_IterativeExtensionTool::extendTrackToHGTD(
     // TODO: BoundaryCheck set to false as in 20.20 -> what does this do?
     std::unique_ptr<const Trk::TrackParameters> extrap_result = nullptr;
 
-    extrap_result = m_extrapolator->extrapolate( ctx,
-        *last_param, surf_obj, Trk::PropDirection::alongMomentum, false,
+    extrap_result = m_extrapolator->extrapolate(
+        ctx, *last_param, surf_obj, Trk::PropDirection::alongMomentum, false,
         track->info().particleHypothesis());
+
+    //
+    if (not extrap_result) {
+      ATH_MSG_WARNING("Extrapolator returned null");
+      result.m_hits.at(hgtd_layer_i) = nullptr;
+      result.m_truth_primary_hits.at(hgtd_layer_i) = nullptr;
+      result.m_truth_primary_info.at(hgtd_layer_i) = HGTD::ClusterTruthInfo();
+      continue;
+    }
 
     // get the extrapolation position info only on the first layer
     if (hgtd_layer_i == 0) {
@@ -153,16 +158,20 @@ HGTD_IterativeExtensionTool::extendTrackToHGTD(
     // find active surfaces in the vincinity
     auto compatible_surfaces = getCompatibleSurfaces(*extrap_result, layer);
 
-    if(compatible_surfaces.empty()){
-        ATH_MSG_WARNING("No compatible surfaces for position");
-        return result;
-    } 
+    if (compatible_surfaces.empty()) {
+      ATH_MSG_WARNING("No compatible surfaces for position");
+      result.m_hits.at(hgtd_layer_i) = nullptr;
+      result.m_truth_primary_hits.at(hgtd_layer_i) = nullptr;
+      result.m_truth_primary_info.at(hgtd_layer_i) = HGTD::ClusterTruthInfo();
+      continue;
+    }
 
     auto extrapolated_params =
         extrapolateToSurfaces(ctx, *last_param, compatible_surfaces);
 
     std::unique_ptr<const Trk::TrackStateOnSurface> updated_state =
-        updateStateWithBestFittingCluster(extrapolated_params);
+        updateStateWithBestFittingCluster(track, extrapolated_params,
+                                          container);
 
     if (not updated_state) {
       result.m_hits.at(hgtd_layer_i) = nullptr;
@@ -174,7 +183,7 @@ HGTD_IterativeExtensionTool::extendTrackToHGTD(
     // parameter
     last_param = updated_state->trackParameters();
     // store the last track state to be returned
-    
+
     std::pair<const HGTD_Cluster*, HGTD::ClusterTruthInfo> truth_info =
         getTruthMatchedCluster(compatible_surfaces, container, truth_ptkl,
                                hs_event, sim_data);
@@ -199,7 +208,7 @@ HGTD_IterativeExtensionTool::getLastHitOnTrack(const Trk::Track& track) const {
   // loop over the associated hits in ITk in reverse order, since we want to
   // select the one closest to HGTD to start the extrapolation
   for (auto i = tsos->rbegin(); i != tsos->rend(); ++i) {
-    const auto *curr_last_tsos = *i;
+    const auto* curr_last_tsos = *i;
     if (not curr_last_tsos) {
       continue;
     }
@@ -222,9 +231,14 @@ HGTD_IterativeExtensionTool::getCompatibleSurfaces(
   Amg::Vector3D position = param.position();
   // get the surface at the point of extrapolation
   const auto* surface_arr = layer->surfaceArray(); // these are the modules
-  if(!surface_arr) return surfaces;
-  const Trk::Surface* module_surface = surface_arr->object(position); // from this binned object, get the module closeby
-  if(!module_surface) return surfaces;
+  if (!surface_arr) {
+    return surfaces;
+  }
+  const Trk::Surface* module_surface = surface_arr->object(
+      position); // from this binned object, get the module closeby
+  if (!module_surface) {
+    return surfaces;
+  }
   surfaces.push_back(module_surface);
 
   // pick up additional surfaces in a 4cm radius
@@ -237,7 +251,9 @@ HGTD_IterativeExtensionTool::getCompatibleSurfaces(
     Amg::Vector3D delta(radius * std::cos(angle), radius * std::sin(angle), 0);
     Amg::Vector3D result = position + delta;
     const Trk::Surface* additional_surface = surface_arr->object(result);
-    if(!additional_surface) return surfaces;
+    if (!additional_surface) {
+      continue;
+    }
     // check if surface was added to avoid duplicates
     if (std::find(surfaces.begin(), surfaces.end(), additional_surface) ==
         surfaces.end()) {
@@ -250,8 +266,7 @@ HGTD_IterativeExtensionTool::getCompatibleSurfaces(
 
 std::vector<std::unique_ptr<const Trk::TrackParameters>>
 HGTD_IterativeExtensionTool::extrapolateToSurfaces(
-    const EventContext& ctx,
-    const Trk::TrackParameters& param,
+    const EventContext& ctx, const Trk::TrackParameters& param,
     const std::vector<const Trk::Surface*>& surfaces) const {
 
   std::vector<std::unique_ptr<const Trk::TrackParameters>> params;
@@ -260,10 +275,12 @@ HGTD_IterativeExtensionTool::extrapolateToSurfaces(
   for (const auto* surface : surfaces) {
     std::unique_ptr<const Trk::TrackParameters> extrapolated_params = nullptr;
 
-    extrapolated_params = m_extrapolator->extrapolate( ctx,
-        param, *surface, Trk::alongMomentum, false,
+    extrapolated_params = m_extrapolator->extrapolate(
+        ctx, param, *surface, Trk::alongMomentum, false,
         static_cast<Trk::ParticleHypothesis>(m_particle_hypot.value()));
-
+    if (not extrapolated_params) {
+      continue;
+    }
     params.push_back(std::move(extrapolated_params));
   }
 
@@ -272,7 +289,9 @@ HGTD_IterativeExtensionTool::extrapolateToSurfaces(
 
 std::unique_ptr<const Trk::TrackStateOnSurface>
 HGTD_IterativeExtensionTool::updateStateWithBestFittingCluster(
-    const std::vector<std::unique_ptr<const Trk::TrackParameters>>& params) const {
+    const Trk::Track* track,
+    const std::vector<std::unique_ptr<const Trk::TrackParameters>>& params,
+    const HGTD_ClusterContainer* container) const {
   ATH_MSG_DEBUG("[updateStateWithBestFittingCluster] start updating");
 
   std::unique_ptr<const Trk::TrackStateOnSurface> updated_state = nullptr;
@@ -281,7 +300,7 @@ HGTD_IterativeExtensionTool::updateStateWithBestFittingCluster(
   // all compatible surfaces are tested for the best fitting cluster
   for (const auto& param : params) {
     std::unique_ptr<const Trk::TrackStateOnSurface> best_tsos =
-        findBestCompatibleCluster(param.get());
+        findBestCompatibleCluster(track, param.get(), container);
     if (not best_tsos) {
       ATH_MSG_DEBUG("[updateStateWithBestFittingCluster] tsos is null");
       continue;
@@ -300,19 +319,21 @@ HGTD_IterativeExtensionTool::updateStateWithBestFittingCluster(
     }
   }
 
-  return updated_state; // no need to std::move thanks to Return Value Optimization (RVO)
+  return updated_state; // no need to std::move thanks to Return Value
+                        // Optimization (RVO)
 }
 
 std::unique_ptr<const Trk::TrackStateOnSurface>
 HGTD_IterativeExtensionTool::findBestCompatibleCluster(
-    const Trk::TrackParameters* param) const {
+    const Trk::Track* track, const Trk::TrackParameters* param,
+    const HGTD_ClusterContainer* container) const {
 
   ATH_MSG_DEBUG("[findBestCompatibleCluster] start");
 
   std::unique_ptr<const Trk::TrackStateOnSurface> tsos = nullptr;
 
   double lowest_chi2 = -1;
-  for (const auto *collection : *m_cluster_container) {
+  for (const auto* collection : *container) {
     // find the one collection that can be associated to the surface
     if (collection->identify() !=
         param->associatedSurface().associatedDetectorElementIdentifier()) {
@@ -324,7 +345,7 @@ HGTD_IterativeExtensionTool::findBestCompatibleCluster(
     for (const auto* cluster : *collection) {
       // update the track parameters with the found cluster
       std::unique_ptr<const Trk::TrackStateOnSurface> candidate =
-          updateState(param, cluster);
+          updateState(track, param, cluster);
 
       if (not candidate) {
         continue;
@@ -355,7 +376,7 @@ HGTD_IterativeExtensionTool::findBestCompatibleCluster(
 }
 
 std::unique_ptr<const Trk::TrackStateOnSurface>
-HGTD_IterativeExtensionTool::updateState(const Trk::TrackParameters* param,
+HGTD_IterativeExtensionTool::updateState(const Trk::Track* track, const Trk::TrackParameters* param,
                                          const HGTD_Cluster* cluster) const {
   ATH_MSG_DEBUG("[updateState] calling the updator");
 
@@ -367,12 +388,13 @@ HGTD_IterativeExtensionTool::updateState(const Trk::TrackParameters* param,
   // in the HGTD_ClusterOnTrack
   std::pair<float, float> corr_time_and_res =
       m_tof_corr_tool->correctTimeAndResolution(
-          *m_track, *cluster, cluster->time(), cluster->timeResolution());
+          *track, *cluster, cluster->time(), cluster->timeResolution());
 
-  std::unique_ptr<const HGTD_ClusterOnTrack> cot = std::make_unique<HGTD_ClusterOnTrack>(
-      cluster, Trk::LocalParameters(cluster->localPosition()),
-      cluster->localCovariance(), corr_time_and_res.first,
-      corr_time_and_res.second, det_el->identifyHash());
+  std::unique_ptr<const HGTD_ClusterOnTrack> cot =
+      std::make_unique<HGTD_ClusterOnTrack>(
+          cluster, Trk::LocalParameters(cluster->localPosition()),
+          cluster->localCovariance(), corr_time_and_res.first,
+          corr_time_and_res.second, det_el->identifyHash());
 
   Trk::FitQualityOnSurface* quality = nullptr;
 
@@ -380,9 +402,8 @@ HGTD_IterativeExtensionTool::updateState(const Trk::TrackParameters* param,
       *param, cot->localParameters(), cot->localCovariance(), quality);
 
   return std::make_unique<const Trk::TrackStateOnSurface>(
-    std::move(cot),
-    std::move(pars),
-    std::unique_ptr<Trk::FitQualityOnSurface>(quality));
+      std::move(cot), std::move(pars),
+      std::unique_ptr<Trk::FitQualityOnSurface>(quality));
 }
 
 std::pair<const HGTD_Cluster*, HGTD::ClusterTruthInfo>
