@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 
 from glob import glob
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 def GetCustomAthArgs():
     from argparse import ArgumentParser
     IDPVMparser = ArgumentParser(description='Parser for IDPVM configuration')
-    IDPVMparser.add_argument("--filesInput")
+    IDPVMparser.add_argument("--filesInput", required=True)
     IDPVMparser.add_argument("--doLargeD0Tracks", help='also run LRT plots', action='store_true', default=False)
     IDPVMparser.add_argument("--doMergedLargeD0Tracks", help='also run merged STD+LRT plots', action='store_true', default=False)
     IDPVMparser.add_argument("--doLoose", help='also run loose plots', action='store_true', default=False)
@@ -59,12 +58,12 @@ ConfigFlags.Input.Files = []
 for path in MyArgs.filesInput.split(','):
     ConfigFlags.Input.Files += glob(path)
 
+ConfigFlags.lock()
+
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 acc = MainServicesCfg(ConfigFlags)
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 acc.merge(PoolReadCfg(ConfigFlags))
-
-ConfigFlags.lock()
 
 from InDetPhysValMonitoring.InDetPhysValMonitoringConfig import InDetPhysValMonitoringCfg
 acc.merge(InDetPhysValMonitoringCfg(ConfigFlags))
