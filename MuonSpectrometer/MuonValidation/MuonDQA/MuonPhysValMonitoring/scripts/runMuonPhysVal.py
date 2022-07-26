@@ -7,7 +7,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 def GetCustomAthArgs():
     from argparse import ArgumentParser
     parser = ArgumentParser(description='Parser for MuonPhysVal configuration')
-    parser.add_argument("--filesInput")
+    parser.add_argument("--filesInput", required=True)
     parser.add_argument("--outputFile", help='Name of output file',default="M_output.root")
     return parser.parse_args()
 

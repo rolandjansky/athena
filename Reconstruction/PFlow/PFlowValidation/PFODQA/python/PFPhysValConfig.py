@@ -32,18 +32,17 @@ def PhysValPFOCfg(flags):
     acc.setPrivateTools(tools)
     return acc
 
-def PFODQACf(flags):
+def PFODQACf(flags, **kwargs):
     acc = ComponentAccumulator()
 
-    monMan = CompFactory.AthenaMonManager( "PhysValMonManager" )
-    monMan.FileKey = "PhysVal"
-    monMan.Environment = "altprod"
-    monMan.ManualDataTypeSetup = True
-    monMan.DataType = "monteCarlo"
-    monMan.ManualRunLBSetup = True
-    monMan.Run = 1
-    monMan.LumiBlock = 1
-    monMan.AthenaMonTools += acc.popToolsAndMerge(PhysValPFOCfg(flags))
-   
-    acc.addEventAlgo(monMan, primary = True)
+    kwargs.setdefault("FileKey", "PhysVal")
+    kwargs.setdefault("Environment", "altprod")
+    kwargs.setdefault("ManualDataTypeSetup", True)
+    kwargs.setdefault("DataType", "monteCarlo")
+    kwargs.setdefault("ManualRunLBSetup", True)
+    kwargs.setdefault("Run", 1)
+    kwargs.setdefault("LumiBlock", 1)
+    kwargs.setdefault("AthenaMonTools", acc.popToolsAndMerge(PhysValPFOCfg(flags)))
+    acc.addEventAlgo(CompFactory.AthenaMonManager( "PhysValMonManager", **kwargs), primary = True)
+ 
     return acc
