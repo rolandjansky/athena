@@ -475,24 +475,23 @@ StatusCode L1TopoLegacyOnlineMonitor::doSimMon(xAOD::TrigComposite& errorFlags,
   }
 
   // Do the comparison and fill histograms only if the L1Topo items did not overflow
-  if (overflowBits.none()) {
-    const std::vector<size_t> triggerBitIndicesSim = bitsetIndices(triggerBitsSim);
-    const std::vector<size_t> triggerBitIndicesHdw = bitsetIndices(triggerBits);
-    const std::vector<size_t> triggerBitIndicesSimNotHdw = bitsetIndices(triggerBitsSim & (~triggerBits));
-    const std::vector<size_t> triggerBitIndicesHdwNotSim = bitsetIndices(triggerBits & (~triggerBitsSim));
-    auto monSim = Monitored::Collection("SimResults", triggerBitIndicesSim);
-    auto monHdw = Monitored::Collection("HdwResults", triggerBitIndicesHdw);
-    auto monSimNotHdw = Monitored::Collection("SimNotHdwResult", triggerBitIndicesSimNotHdw);
-    auto monHdwNotSim = Monitored::Collection("HdwNotSimResult", triggerBitIndicesHdwNotSim);
-    Monitored::Group(m_monTool, monSim, monHdw, monSimNotHdw, monHdwNotSim);
+  const std::vector<size_t> triggerBitIndicesSim = bitsetIndices(triggerBitsSim);
+  const std::vector<size_t> triggerBitIndicesHdw = bitsetIndices(triggerBits & (~overflowBits));
+  const std::vector<size_t> triggerBitIndicesSimNotHdw = bitsetIndices(triggerBitsSim & (~triggerBits));
+  const std::vector<size_t> triggerBitIndicesHdwNotSim = bitsetIndices(triggerBits & (~triggerBitsSim));
+  auto monSim = Monitored::Collection("SimResults", triggerBitIndicesSim);
+  auto monHdw = Monitored::Collection("HdwResults", triggerBitIndicesHdw);
+  auto monSimNotHdw = Monitored::Collection("SimNotHdwResult", triggerBitIndicesSimNotHdw);
+  auto monHdwNotSim = Monitored::Collection("HdwNotSimResult", triggerBitIndicesHdwNotSim);
+  Monitored::Group(m_monTool, monSim, monHdw, monSimNotHdw, monHdwNotSim);
 
-    // debug printout
-    ATH_MSG_DEBUG("Simulated output from L1Topo from StoreGate with key " << m_simTopoCTPKey.key());
-    ATH_MSG_DEBUG("L1Topo word 1 at clock 0 is: 0x" << L1Topo::formatHex8(simTopoCTP->cableWord1(0)));
-    ATH_MSG_DEBUG("L1Topo word 2 at clock 0 is: 0x" << L1Topo::formatHex8(simTopoCTP->cableWord2(0)));
-    ATH_MSG_DEBUG("L1Topo word 1 at clock 1 is: 0x" << L1Topo::formatHex8(simTopoCTP->cableWord1(1)));
-    ATH_MSG_DEBUG("L1Topo word 2 at clock 1 is: 0x" << L1Topo::formatHex8(simTopoCTP->cableWord2(1)));
-  }
+  // debug printout
+  ATH_MSG_DEBUG("Simulated output from L1Topo from StoreGate with key " << m_simTopoCTPKey.key());
+  ATH_MSG_DEBUG("L1Topo word 1 at clock 0 is: 0x" << L1Topo::formatHex8(simTopoCTP->cableWord1(0)));
+  ATH_MSG_DEBUG("L1Topo word 2 at clock 0 is: 0x" << L1Topo::formatHex8(simTopoCTP->cableWord2(0)));
+  ATH_MSG_DEBUG("L1Topo word 1 at clock 1 is: 0x" << L1Topo::formatHex8(simTopoCTP->cableWord1(1)));
+  ATH_MSG_DEBUG("L1Topo word 2 at clock 1 is: 0x" << L1Topo::formatHex8(simTopoCTP->cableWord2(1)));
+    //}
   // Perform the hardware versus simulation comparison
   const std::vector<size_t> simHdwDiff = compBitSets("L1Topo hardware", "L1Topo simulation",
                                                      triggerBits, triggerBitsSim);
