@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -25,9 +25,10 @@ namespace Analysis
   {   } 
   
   JetConstituent::JetConstituent(NameType& name):
+    m_name (name),
     m_wtCryoLocal    ( 0 ),
     m_energyInSample ( CaloSampling::Unknown )//reserve space in vector 
-  { m_name = name; }  
+  {  }  
   
   
   void JetConstituent::setName(NameType& name) {m_name = name;}      
