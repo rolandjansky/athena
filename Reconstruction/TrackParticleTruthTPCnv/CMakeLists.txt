@@ -17,7 +17,7 @@ atlas_add_dictionary( TrackParticleTruthTPCnvDict
 atlas_add_test( TrackParticleTruthCollectionCnv_p1_test
                 SOURCES
                 test/TrackParticleTruthCollectionCnv_p1_test.cxx
-                LINK_LIBRARIES AthenaPoolCnvSvcLib AtlasHepMCLib DataModelAthenaPoolLib GeneratorObjectsTPCnv Particle ParticleTruth SGTools TestTools TrackParticleTruthTPCnv )
+                LINK_LIBRARIES AthenaPoolCnvSvcLib AtlasHepMCLib DataModelAthenaPoolLib GeneratorObjectsTPCnv Particle ParticleTruth SGTools TestTools TrackParticleTruthTPCnv CxxUtils )
 
 atlas_add_test( TrackParticleTruthCollectionCnv_p2_test
                 SOURCES
