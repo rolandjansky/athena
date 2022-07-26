@@ -1459,59 +1459,14 @@ def getInDetTRT_TrackExtensionTool_xk(name='InDetTRT_ExtensionTool', TrackingCut
     from TRT_TrackExtensionTool_xk.TRT_TrackExtensionTool_xkConf import InDet__TRT_TrackExtensionTool_xk
     return InDet__TRT_TrackExtensionTool_xk(the_name, **kwargs)
 
-@makePublicTool
-def getInDetWeightCalculator(name='InDetWeightCalculator',**kwargs) :
-    the_name = makeName( name, kwargs)
-    from TrkDeterministicAnnealingFilter.TrkDeterministicAnnealingFilterConf import Trk__DAF_SimpleWeightCalculator
-    return Trk__DAF_SimpleWeightCalculator( name = the_name, **kwargs)
-
-
-@makePublicTool
-def getInDetCompetingTRT_DC_Tool(name='InDetCompetingTRT_DC_Tool',**kwargs) :
-    the_name = makeName( name, kwargs)
-
-    if 'Extrapolator' not in kwargs :
-        kwargs=setDefaults(kwargs, Extrapolator                          = getInDetExtrapolator())
-
-    if 'ToolForWeightCalculation' not in kwargs :
-        kwargs=setDefaults(kwargs, ToolForWeightCalculation              = getInDetWeightCalculator())
-
-    if 'ToolForTRT_DriftCircleOnTrackCreation' not in kwargs :
-        kwargs=setDefaults(kwargs, ToolForTRT_DriftCircleOnTrackCreation = getInDetTRT_DriftCircleOnTrackTool())
-
-    from InDetCompetingRIOsOnTrackTool.InDetCompetingRIOsOnTrackToolConf import InDet__CompetingTRT_DriftCirclesOnTrackTool
-    return InDet__CompetingTRT_DriftCirclesOnTrackTool( the_name, **kwargs)
-
-
-@makePublicTool
-def getInDetTRT_TrackExtensionTool_DAF(name='TRT_TrackExtensionTool_DAF',**kwargs) :
-    the_name = makeName( name, kwargs)
-    if 'CompetingDriftCircleTool' not in kwargs :
-        kwargs=setDefaults(kwargs, CompetingDriftCircleTool    = getInDetCompetingTRT_DC_Tool())
-
-    if 'PropagatorTool' not in kwargs :
-        kwargs=setDefaults(kwargs, PropagatorTool              = getInDetPatternPropagator())
-
-    if 'RoadTool' not in kwargs :
-        kwargs=setDefaults(kwargs, RoadTool                    = getInDetTRT_RoadMaker())
-
-    from InDetRecExample.InDetKeys import InDetKeys
-    kwargs = setDefaults(kwargs, TRT_DriftCircleContainer = InDetKeys.TRT_DriftCircles())
-
-    from TRT_TrackExtensionTool_DAF.TRT_TrackExtensionTool_DAFConf import InDet__TRT_TrackExtensionTool_DAF
-    return InDet__TRT_TrackExtensionTool_DAF(the_name,**kwargs)
-
 
 def getInDetTRT_ExtensionTool(TrackingCuts=None, **kwargs) :
     # @TODO set all names to InDetTRT_ExtensionTool ?
     from InDetRecExample.InDetJobProperties import InDetFlags
-    if (InDetFlags.trtExtensionType() == 'xk') or (not InDetFlags.doNewTracking()) :
-        if InDetFlags.doCosmics():
-            return getInDetTRT_ExtensionToolCosmics(**kwargs)
-        else :
-            return getInDetTRT_TrackExtensionTool_xk(TrackingCuts=TrackingCuts, **kwargs)
-    elif InDetFlags.trtExtensionType() == 'DAF' :
-        return getInDetTRT_TrackExtensionTool_DAF('InDetTRT_ExtensionTool',**kwargs)
+    if InDetFlags.doCosmics():
+        return getInDetTRT_ExtensionToolCosmics(**kwargs)
+    else :
+        return getInDetTRT_TrackExtensionTool_xk(TrackingCuts=TrackingCuts, **kwargs)
 
 def getTRT_DetElementsRoadCondAlg(**kwargs):
     the_name=kwargs.pop("name","InDet__TRT_DetElementsRoadCondAlg_xk")

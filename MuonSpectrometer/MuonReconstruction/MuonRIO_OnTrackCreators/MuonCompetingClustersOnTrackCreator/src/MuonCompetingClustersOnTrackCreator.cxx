@@ -31,7 +31,6 @@ namespace Muon {
   {
     // algtool interface - necessary!
     declareInterface<IMuonCompetingClustersOnTrackCreator>(this);
-    declareInterface<Trk::ICompetingRIOsOnTrackTool>(this);
   }
 
   StatusCode MuonCompetingClustersOnTrackCreator::initialize()

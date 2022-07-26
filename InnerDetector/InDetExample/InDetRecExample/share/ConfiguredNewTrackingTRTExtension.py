@@ -69,43 +69,16 @@ class  ConfiguredNewTrackingTRTExtension:
       # ------------ Track Extension Processor
       #
       if InDetFlags.doExtensionProcessor() and InDetFlags.doTRTExtensionNew():
-            
-         if InDetFlags.trtExtensionType() == 'DAF' :
-            #
-            # --- DAF Fitter setup
-            #
-            from TrkCompetingRIOsOnTrackTool.TrkCompetingRIOsOnTrackToolConf import Trk__CompetingRIOsOnTrackTool
-            InDetCompetingRotCreator =  Trk__CompetingRIOsOnTrackTool( name                        = 'InDetCompetingRotCreator'+NewTrackingCuts.extension(),
-                                                                       ToolForCompPixelClusters    = None,      # default
-                                                                       ToolForCompSCT_Clusters     = None,      # default
-                                                                       ToolForCompTRT_DriftCircles = InDetCompetingTRT_DC_Tool )
-            ToolSvc += InDetCompetingRotCreator
-            if (InDetFlags.doPrintConfigurables()):
-               printfunc (InDetCompetingRotCreator)
-            #
-            from TrkDeterministicAnnealingFilter.TrkDeterministicAnnealingFilterConf import Trk__DeterministicAnnealingFilter
-            InDetExtensionFitter =  Trk__DeterministicAnnealingFilter( name = 'InDetDAF'+NewTrackingCuts.extension(),
-                                                                       ToolForExtrapolation           = InDetExtrapolator,
-                                                                       ToolForCompetingROTsCreation   = InDetCompetingRotCreator,
-                                                                       ToolForUpdating                = InDetUpdator,
-                                                                       AnnealingScheme                = [200., 81., 9., 4., 1., 1., 1.],
-                                                                       DropOutlierCutValue            = 1.E-7,
-                                                                       OutlierCutValue                = 0.01 )
-            ToolSvc += InDetExtensionFitter
-            if (InDetFlags.doPrintConfigurables()):
-               printfunc (InDetExtensionFitter)
-         else:
-            from AthenaCommon import CfgGetter
-            fitter_args = {}
-            if InDetFlags.holeSearchInGX2Fit():
-               from InDetRecExample.TrackingCommon import setDefaults
-               fitter_args = setDefaults(fitter_args,
-               DoHoleSearch                 = True,
-               BoundaryCheckTool            = TrackingCommon.getInDetBoundaryCheckTool())
-            InDetExtensionFitter = CfgGetter.getPublicToolClone('InDetTrackFitter_TRTExtension'+NewTrackingCuts.extension(),'InDetTrackFitter' if NewTrackingCuts.mode() != "LowPt" else  'InDetTrackFitterLowPt',**fitter_args)
-           
 
-            
+         from AthenaCommon import CfgGetter
+         fitter_args = {}
+         if InDetFlags.holeSearchInGX2Fit():
+            from InDetRecExample.TrackingCommon import setDefaults
+            fitter_args = setDefaults(fitter_args,
+                                      DoHoleSearch                 = True,
+                                      BoundaryCheckTool            = TrackingCommon.getInDetBoundaryCheckTool())
+         InDetExtensionFitter = CfgGetter.getPublicToolClone('InDetTrackFitter_TRTExtension'+NewTrackingCuts.extension(),'InDetTrackFitter' if NewTrackingCuts.mode() != "LowPt" else  'InDetTrackFitterLowPt',**fitter_args)
+
 
          #
          # --- load scoring for extension

@@ -516,13 +516,6 @@ class doTRTExtensionNew(InDetFlagsJobProperty):
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = True
-
-class trtExtensionType(InDetFlagsJobProperty):
-    """ which extension type ("xk"/"DAF") """
-    statusOn     = True
-    allowedTypes = ['str']
-    allowedValues= ['xk','DAF']
-    StoredValue  = 'xk'
       
 class redoTRT_LR(InDetFlagsJobProperty):
     """ use smart TRT LR/tube hit creator and redo ROTs """
@@ -1834,8 +1827,6 @@ class InDetJobProperties(JobPropertyContainer):
       # some tracking switches
       # -------------------------------------------------------------------
       self.redoTRT_LR = DetFlags.haveRIO.TRT_on()
-      if self.trtExtensionType() == 'DAF':
-         self.redoTRT_LR            = False
       #
       # --------------------------------------------------------------------
       # ---- Refit of tracks
@@ -2639,9 +2630,7 @@ _list_InDetJobProperties = [Enabled,
                             useZvertexTool,
                             useActsPriVertexing,
                             doSiSPSeededTrackFinder,
-#                            doTRTExtension,
                             doTRTExtensionNew,
-                            trtExtensionType,
                             redoTRT_LR,
                             doTrtSegments,
                             doTRTPhaseCalculation,

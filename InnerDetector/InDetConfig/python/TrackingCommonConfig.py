@@ -6,29 +6,6 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 #TRTSegmentFinder
 #############################################################################################
 
-def InDetWeightCalculatorCfg(name='InDetWeightCalculator', **kwargs):
-    acc = ComponentAccumulator()
-    acc.setPrivateTools(CompFactory.Trk.DAF_SimpleWeightCalculator(name, **kwargs))
-    return acc
-
-def InDetCompetingTRT_DC_ToolCfg(flags, name='InDetCompetingTRT_DC_Tool', **kwargs):
-    acc = ComponentAccumulator()
-
-    if 'Extrapolator' not in kwargs:
-        from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
-        kwargs.setdefault("Extrapolator", acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags)))
-
-    if 'ToolForWeightCalculation' not in kwargs:
-        InDetWeightCalculator = acc.popToolsAndMerge(InDetWeightCalculatorCfg())
-        kwargs.setdefault("ToolForWeightCalculation", InDetWeightCalculator)
-
-    if 'ToolForTRT_DriftCircleOnTrackCreation' not in kwargs:
-        from InDetConfig.TRT_DriftCircleOnTrackToolConfig import TRT_DriftCircleOnTrackToolCfg
-        kwargs.setdefault("ToolForTRT_DriftCircleOnTrackCreation", acc.popToolsAndMerge(TRT_DriftCircleOnTrackToolCfg(flags)))
-
-    acc.setPrivateTools(CompFactory.InDet.CompetingTRT_DriftCirclesOnTrackTool(name, **kwargs))
-    return acc
-
 def InDetTRT_RoadMakerCfg(flags, name='InDetTRT_RoadMaker', **kwargs):
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     acc = MagneticFieldSvcCfg(flags)
