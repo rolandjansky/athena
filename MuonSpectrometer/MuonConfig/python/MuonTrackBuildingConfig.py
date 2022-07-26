@@ -208,7 +208,7 @@ def MooCandidateMatchingToolCfg(flags, name="MooCandidateMatchingTool", doSegmen
 def MuonSegmentRegionRecoveryToolCfg(flags, name="MuonSegmentRegionRecoveryTool", **kwargs):
     Muon__MuonSegmentRegionRecoveryTool=CompFactory.Muon.MuonSegmentRegionRecoveryTool
     from TrkConfig.AtlasExtrapolatorConfig import MuonExtrapolatorCfg
-    from TrkConfig.TrkTrackSummaryToolConfig import MuonTrackSummaryToolCfg
+    from TrkConfig.TrkTrackSummaryToolConfig import MuonCombinedTrackSummaryToolCfg
     from MuonConfig.MuonCondAlgConfig import MuonStationIntersectCondAlgCfg
     from MuonCombinedConfig.MuonCombinedRecToolsConfig import CombinedMuonTrackBuilderFitCfg
     from MuonConfig.MuonRecToolsConfig import MuonHitSummaryToolCfg
@@ -276,7 +276,7 @@ def MuonSegmentRegionRecoveryToolCfg(flags, name="MuonSegmentRegionRecoveryTool"
         kwargs.setdefault("MMRegionSelector", "")
 
     if "TrackSummaryTool" not in kwargs:
-        kwargs.setdefault("TrackSummaryTool", result.popToolsAndMerge(MuonTrackSummaryToolCfg(flags)))
+        kwargs.setdefault("TrackSummaryTool", result.popToolsAndMerge(MuonCombinedTrackSummaryToolCfg(flags)))
 
     segment_region_recovery_tool = Muon__MuonSegmentRegionRecoveryTool(name, **kwargs)
     result.setPrivateTools(segment_region_recovery_tool)
