@@ -87,9 +87,6 @@ class ATLAS_NOT_THREAD_SAFE GetLCDeadMaterialTree : public AthAlgorithm {
      * @brief save additional cluster info from calibrated collections */
     bool m_doSaveCalibClusInfo;
 
-    /**
-     * @brief to work on testbeam data */
-    bool m_isTestbeam;        // H6 testbeam flag
 
     double m_energyMin;
     //double m_energyMax;

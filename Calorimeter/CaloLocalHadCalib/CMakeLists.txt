@@ -13,13 +13,13 @@ atlas_add_component( CaloLocalHadCalib
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-		             LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel CaloConditions CaloDetDescrLib CaloDmDetDescr CaloEvent CaloGeoHelpers CaloIdentifier CaloSimEvent CaloUtilsLib CxxUtils GaudiKernel GeneratorObjects PathResolver StoreGateLib TBEvent xAODCaloEvent )
+		             LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel CaloConditions CaloDetDescrLib CaloDmDetDescr CaloEvent CaloGeoHelpers CaloIdentifier CaloSimEvent CaloUtilsLib CxxUtils GaudiKernel GeneratorObjects PathResolver StoreGateLib xAODCaloEvent )
 
 atlas_add_dictionary( CaloLocalHadCalibDict
                       CaloLocalHadCalib/CaloLocalHadCalibDict.h
                       CaloLocalHadCalib/selection.xml
                       INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-		              LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel CaloConditions CaloDetDescrLib CaloDmDetDescr CaloEvent CaloGeoHelpers CaloIdentifier CaloSimEvent CaloUtilsLib CxxUtils GaudiKernel GeneratorObjects PathResolver StoreGateLib TBEvent xAODCaloEvent )
+		              LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel CaloConditions CaloDetDescrLib CaloDmDetDescr CaloEvent CaloGeoHelpers CaloIdentifier CaloSimEvent CaloUtilsLib CxxUtils GaudiKernel GeneratorObjects PathResolver StoreGateLib xAODCaloEvent )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.txt share/*.py )

@@ -41,7 +41,6 @@
 #include "CaloLocalHadCalib/CaloHadDMCoeffData.h"
 #include "CaloEvent/CaloCompositeKineBase.h"
 #include "CaloEvent/CaloRecoStatus.h"
-#include "TBEvent/TBEventInfo.h"
 #include "CaloLocalHadCalib/GetLCSinglePionsPerf.h"
 #include "StoreGate/ReadHandle.h"
 
@@ -67,7 +66,6 @@ GetLCDeadMaterialTree::GetLCDeadMaterialTree(const std::string& name,
     m_HadDMCoeff(nullptr),
     m_data(nullptr),
     m_doSaveCalibClusInfo(false),
-    m_isTestbeam(false),
     m_energyMin(200*MeV),
     m_calo_id(nullptr)
 {
@@ -83,9 +81,6 @@ GetLCDeadMaterialTree::GetLCDeadMaterialTree(const std::string& name,
 
   // Name of ClusterContainer (calibrated) to use
   declareProperty("ClusterCollectionNameCalib",m_clusterCollNameCalib); 
-
-  // to work with testbeam data
-  declareProperty("isTestbeam",m_isTestbeam);
 
   // to save additional info from the collection with calibrated clusters
   declareProperty("doSaveCalibClusInfo", m_doSaveCalibClusInfo);
@@ -202,14 +197,6 @@ StatusCode GetLCDeadMaterialTree::execute()
   SG::ReadHandle<xAOD::CaloClusterContainer> pClusColl (m_clusterCollName);
 
   /* ********************************************
-  reading TBEventInfo
-  ******************************************** */
-  const TBEventInfo* theTBEventInfo = nullptr;
-  if(m_isTestbeam) {
-    ATH_CHECK(  evtStore()->retrieve(theTBEventInfo,"TBEventInfo") );
-  }
-
-  /* ********************************************
   reading primary particle
   ******************************************** */
   const McEventCollection* truthEvent=nullptr;
@@ -223,12 +210,6 @@ StatusCode GetLCDeadMaterialTree::execute()
 
   double mc_eta = gen->momentum().pseudoRapidity();
   double mc_phi = gen->momentum().phi();
-  if(m_isTestbeam) {
-    double x0 = gen->production_vertex()->position().x();
-    double y0 = gen->production_vertex()->position().y();
-    // to calculate ATKAS-like eta, phi coordinates of incident particle
-    GetLCSinglePionsPerf::as_in_atlas(mc_eta, mc_phi, x0, y0, (double)theTBEventInfo->getCryoX());
-  }
 
   m_data->clear();
 
