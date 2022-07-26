@@ -71,3 +71,11 @@ def BkgElectronClassificationCfg(ConfigFlags, name, **kwargs):
                       primary = True)
     return acc
 
+# Standard + LRT electron collection merger
+def ElectronMergerCfg(ConfigFlags, name, **kwargs):
+    """Configure the track particle merger tool"""
+    acc = ComponentAccumulator()
+    ElectronMerger = CompFactory.DerivationFramework.ElectronMergerTool
+    acc.addPublicTool(ElectronMerger(name, **kwargs),
+                      primary = True)
+    return acc
