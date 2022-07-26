@@ -37,7 +37,6 @@
 #include <CLHEP/Vector/LorentzVector.h>
 #include "CaloEvent/CaloCompositeKineBase.h"
 #include "CaloEvent/CaloRecoStatus.h"
-#include "TBEvent/TBEventInfo.h"
 
 #include "xAODCaloEvent/CaloCluster.h"
 
@@ -79,7 +78,6 @@ GetLCSinglePionsPerf::GetLCSinglePionsPerf(const std::string& name, ISvcLocator*
     m_nmoments(0),
     m_nmomsums(6),
     m_truthPiEngFraction(0.1),
-    m_isTestbeam(false),
     m_doEngRecOverTruth(true),
     m_doEngTag(true),
     m_doEngRecSpect(true),
@@ -133,8 +131,6 @@ GetLCSinglePionsPerf::GetLCSinglePionsPerf(const std::string& name, ISvcLocator*
   declareProperty("logenermin",m_logenermin);
   declareProperty("logenermax",m_logenermax);
   declareProperty("nlogenerbin",m_nlogenerbin);
-
-  declareProperty("isTestbeam",m_isTestbeam);
 
   declareProperty("doCalibHitsValidation",m_doCalibHitsValidation);
 //   Only use clusters that contain at least m_truthPiEngFraction % of the true pion energy
@@ -661,14 +657,6 @@ StatusCode GetLCSinglePionsPerf::execute()
   const EventContext& ctx = getContext();
 
   /* ********************************************
-  reading TBEventInfo
-  ******************************************** */
-  const TBEventInfo* theTBEventInfo = nullptr;
-  if(m_isTestbeam) {
-    ATH_CHECK( evtStore()->retrieve(theTBEventInfo,"TBEventInfo") );
-  }
-
-  /* ********************************************
   reading particles
   ******************************************** */
   const McEventCollection* truthEvent=nullptr;
@@ -691,18 +679,6 @@ StatusCode GetLCSinglePionsPerf::execute()
   m_mc_eta = gen->momentum().pseudoRapidity();
   m_mc_phi = gen->momentum().phi();
   m_mc_ener = gen->momentum().e();
-
-  if(m_isTestbeam) {
-    if( theTBEventInfo->getTableY() < m_ytable_min || theTBEventInfo->getTableY() > m_ytable_max
-     || theTBEventInfo->getCryoX() < m_xcryo_min || theTBEventInfo->getCryoX() >= m_xcryo_max) return StatusCode::SUCCESS;
-
-    double x0 = gen->production_vertex()->position().x();
-    double y0 = gen->production_vertex()->position().y();
-    //double theta = gen->momentum().theta();
-    // to calculate ATKAS-like eta, phi coordinates of incident particle
-    as_in_atlas(m_mc_eta, m_mc_phi, x0, y0, (double)theTBEventInfo->getCryoX());
-
-  }
 
   // energy and eta bins for particle
   m_mc_enerbin = int( (log10(m_mc_ener) - m_logenermin)/m_dlogener);
@@ -1330,47 +1306,4 @@ double GetLCSinglePionsPerf::angle_mollier_factor(double x)
 }
 
 
-
-/* ****************************************************************************
-convert incident particle eta,phi from testbeam to ATLAS-like values
-**************************************************************************** */
-void GetLCSinglePionsPerf::as_in_atlas ( double &eta,  double &phi, 
-                    double X0,  double Y0,  double xCryo, int iCalo)
-{
-  constexpr int Ncalo = 3;
-  constexpr double Zcalo[Ncalo] = { 3691.0, 4329.5, 4668.5 };
-  constexpr double Z0 = -21600.;
-  constexpr double Alpha = 4.668*M_PI/180.; //  [degree]
-  constexpr double PhiSh = 45.*M_PI/180.;
-  constexpr double Eta0 = 2.8;
-  constexpr double z0emec = 11115;
-  constexpr double Yrun2 = 70;
-
-  //  Get transformation parameters
-  double Beta = 2*std::atan( std::exp(-Eta0) );
-  double Zemec = Zcalo[0];
-  double b = Zemec * std::tan(Beta);
-  double Yrun1 = b*cos(Alpha) - Zemec*std::sin(Alpha);
-  double z0 = z0emec + Yrun2*std::tan(Alpha) - b*std::sin(Alpha) - Zemec*cos(Alpha);
-  double y0 = Yrun2 - Yrun1;
-  double z0calo = z0emec + (Zcalo[iCalo]-Zcalo[0]) / std::cos (Alpha);
-
-  //  Get interception point: track with calorimeter front face
-  double ctga = 1./ tan(Alpha);
-  //double tgth = tan(Theta);
-  double tgth = std::tan(2*std::atan(std::exp(-eta)))*std::sin(phi);
-  double zx = (Y0 - Z0*tgth + z0calo*ctga) / (ctga - tgth);
-  double yx = (zx - z0calo) * ctga;
-  double xx = X0 + xCryo;
-
-  TVector3 vs(0,y0,z0);
-  TVector3 vtb(xx,yx,zx);
-
-  TVector3 vat = vtb - vs;
-  vat.RotateX(-Alpha);
-
-  eta = vat.PseudoRapidity();
-  phi = vat.Phi() + PhiSh;
-  return;
-}
 

@@ -44,7 +44,6 @@ class GetLCSinglePionsPerf : public AthAlgorithm
     virtual StatusCode execute();
     virtual StatusCode finalize();
 
-    static void as_in_atlas ( double &eta,  double &phi, double X0,  double Y0,  double xCryo, int iCalo=2);
     static double angle_mollier_factor(double x);
 
  private:
@@ -95,7 +94,6 @@ class GetLCSinglePionsPerf : public AthAlgorithm
 //     int   m_nhitsums;         // number of histograms for calibration hits validation
    
     float m_truthPiEngFraction;
-    bool m_isTestbeam;        // H6 testbeam flag
     bool m_doEngRecOverTruth;
     bool m_doEngTag;
     bool m_doEngRecSpect;
