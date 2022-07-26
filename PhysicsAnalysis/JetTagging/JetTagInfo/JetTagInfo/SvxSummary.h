@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETTAGINFO_SVXSUMMARY_H
@@ -21,7 +21,7 @@ class SvxSummary : public BaseTagInfo {
   SvxSummary();
   
   /** constructor with info type */
-  SvxSummary(TagInfoType x);
+  SvxSummary(const TagInfoType& x);
   
   /** copy destructor */
   SvxSummary(const SvxSummary& svSsummary);

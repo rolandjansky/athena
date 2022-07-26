@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -30,7 +30,7 @@ LifetimeInfo::LifetimeInfo() : BaseTagInfo(),
 }
 
 /** constructor with info type */
-LifetimeInfo::LifetimeInfo(TagInfoType tagJetInfoType) : BaseTagInfo(tagJetInfoType),
+LifetimeInfo::LifetimeInfo(const TagInfoType& tagJetInfoType) : BaseTagInfo(tagJetInfoType),
         m_trackSIP(std::vector<double>()),
         m_trackSignificance(std::vector<double>()),
         m_vectorOfTrackProb(std::vector<double>()),

@@ -39,7 +39,7 @@ namespace Analysis
   }
 
   /** constructor with infotype */
-  JetFitterGenericTagInfo::JetFitterGenericTagInfo(TagInfoType tagJetInfoType) : 
+  JetFitterGenericTagInfo::JetFitterGenericTagInfo(const TagInfoType& tagJetInfoType) : 
     BaseTagInfo(tagJetInfoType)
   {
   }
@@ -144,13 +144,10 @@ namespace Analysis
   }
 
   int JetFitterGenericTagInfo::clearTemporary() { 
-    int total_removed = 0; 
-    for (std::vector<std::string>::const_iterator 
-	   itr = m_temporary_variables.begin(); 
-	 itr != m_temporary_variables.end(); 
-	 itr++) { 
-      total_removed += m_experimental_ints.erase(*itr); 
-      total_removed += m_experimental_doubles.erase(*itr); 
+    int total_removed = 0;
+    for (const std::string& var : m_temporary_variables) {
+      total_removed += m_experimental_ints.erase(var); 
+      total_removed += m_experimental_doubles.erase(var); 
     }
     m_temporary_variables.clear(); 
     return total_removed; 

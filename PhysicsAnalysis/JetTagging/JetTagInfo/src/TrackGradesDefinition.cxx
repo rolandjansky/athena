@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetTagInfo/TrackGradesDefinition.h"
@@ -32,16 +32,11 @@ namespace Analysis {
 
   int TrackGradesDefinition::grade(const std::string & myString) const {
 
-    std::vector<TrackGrade>::const_iterator begin=m_gradeList.begin();
-    std::vector<TrackGrade>::const_iterator end=m_gradeList.end();
-
-    for (std::vector<TrackGrade>::const_iterator iter=begin;iter!=end;
-	 iter++) {
-
-      const std::string & gradeString=(*iter).gradeString();
+    for (const TrackGrade& grade : m_gradeList) {
+      const std::string & gradeString=grade.gradeString();
 
       if (gradeString==myString) {
-	return (*iter).gradeNumber();
+	return grade.gradeNumber();
       }
     }
     return -1;
@@ -50,16 +45,11 @@ namespace Analysis {
   
   std::string TrackGradesDefinition::grade(int myNumber) const {
 
-    std::vector<TrackGrade>::const_iterator begin=m_gradeList.begin();
-    std::vector<TrackGrade>::const_iterator end=m_gradeList.end();
-
-    for (std::vector<TrackGrade>::const_iterator iter=begin;iter!=end;
-	 iter++) {
-
-      int gradeNumber=(*iter).gradeNumber();
+    for (const TrackGrade& grade : m_gradeList) {
+      int gradeNumber=grade.gradeNumber();
 
       if (gradeNumber==myNumber) {
-	return (*iter).gradeString();
+	return grade.gradeString();
       }
     }
     return std::string("Undefined");
@@ -69,16 +59,11 @@ namespace Analysis {
   const TrackGrade * TrackGradesDefinition::getGrade(const std::string & myString) const
   {
     
-    std::vector<TrackGrade>::const_iterator begin=m_gradeList.begin();
-    std::vector<TrackGrade>::const_iterator end=m_gradeList.end();
-    
-    for (std::vector<TrackGrade>::const_iterator iter=begin;iter!=end;
-	 iter++) {
-
-      const std::string & gradeString=(*iter).gradeString();
+    for (const TrackGrade& grade : m_gradeList) {
+      const std::string & gradeString=grade.gradeString();
 
       if (gradeString==myString) {
-	return &(*iter);
+	return &grade;
       }
     }
     return 0;
@@ -88,16 +73,11 @@ namespace Analysis {
   const TrackGrade * TrackGradesDefinition::getGrade(const int & myNumber) const
   {
     
-    std::vector<TrackGrade>::const_iterator begin=m_gradeList.begin();
-    std::vector<TrackGrade>::const_iterator end=m_gradeList.end();
-    
-    for (std::vector<TrackGrade>::const_iterator iter=begin;iter!=end;
-	 iter++) {
-
-      int gradeNumber=(*iter).gradeNumber();
+    for (const TrackGrade& grade : m_gradeList) {
+      int gradeNumber=grade.gradeNumber();
 
       if (gradeNumber==myNumber) {
-	return &(*iter);
+	return &grade;
       }
     }
     return 0;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetTagInfo/SvxSummary.h"
@@ -16,7 +16,8 @@ SvxSummary::SvxSummary() : BaseTagInfo(),
 }
 
 /** constructor with info type */
-SvxSummary::SvxSummary(TagInfoType tagJetInfoType) : BaseTagInfo(tagJetInfoType),
+SvxSummary::SvxSummary(const TagInfoType& tagJetInfoType)
+                                                   : BaseTagInfo(tagJetInfoType),
 						     m_Svx(Trk::RecVertex()),
 						     m_Results(std::vector<double>()),
 						     m_TrkFromV0(std::vector<const Rec::TrackParticle*>()) {

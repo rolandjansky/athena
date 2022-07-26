@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETTAGINFO_ATLFINFO_H
@@ -19,7 +19,7 @@ public:
     AtlfInfo();
 
     /** constructor with info type */
-    AtlfInfo(TagInfoType x);
+    AtlfInfo(const TagInfoType& x);
     
     /** copy destructor */
     AtlfInfo(const AtlfInfo& AtlfInfo);

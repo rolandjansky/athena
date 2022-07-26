@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETTAGINFO_JETPROBINFOBASE_H
@@ -24,7 +24,7 @@ public:
     JetProbInfoBase();
 
     /** constructor with info type */
-    JetProbInfoBase(TagInfoType x);
+    JetProbInfoBase(const TagInfoType& x);
     
     /** copy destructor */
     JetProbInfoBase(const JetProbInfoBase& JetProbInfoBase);

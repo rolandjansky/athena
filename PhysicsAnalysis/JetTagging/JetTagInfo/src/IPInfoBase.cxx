@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -17,7 +17,7 @@ namespace Analysis {
   }
 
   /** constructor with info type */
-  IPInfoBase::IPInfoBase(TagInfoType tagJetInfoType) : BaseTagInfo(tagJetInfoType), m_ntrk(0) { 
+  IPInfoBase::IPInfoBase(const TagInfoType& tagJetInfoType) : BaseTagInfo(tagJetInfoType), m_ntrk(0) { 
     m_tagLikelihood.clear();
   }
 

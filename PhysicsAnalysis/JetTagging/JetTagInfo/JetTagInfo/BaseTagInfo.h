@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -35,7 +35,7 @@ public:
     BaseTagInfo();
 
     /** constructor with info type */
-    BaseTagInfo(TagInfoType x);
+    BaseTagInfo(const TagInfoType& x);
 
     /** copy destructor */
     BaseTagInfo(const BaseTagInfo& BaseTagInfo);
@@ -61,7 +61,7 @@ public:
 protected:
     friend class Analysis::BaseTagInfoCnv_p1;
     void setValid (bool valid);
-    void setTagJetInfoType (TagInfoType type);
+    void setTagJetInfoType (const TagInfoType& type);
 
   bool m_isValid;                      //!< true if the tagger could tag the jet, default is false
     std::vector<double> m_tagLikelihood; //!< vector to hold the taglikelihood (signal plus N background)
@@ -118,7 +118,7 @@ inline void BaseTagInfo::setValid (bool valid)
 {
   m_isValid = valid;
 }
-inline void BaseTagInfo::setTagJetInfoType (TagInfoType type)
+inline void BaseTagInfo::setTagJetInfoType (const TagInfoType& type)
 {
   m_tagJetInfoType = type;
 }

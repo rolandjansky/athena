@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -30,7 +30,7 @@ GbbNNTagInfo::GbbNNTagInfo() : BaseTagInfo(),
 
 
 /** constructor with infotype */
-GbbNNTagInfo::GbbNNTagInfo(TagInfoType tagJetInfoType) : 
+GbbNNTagInfo::GbbNNTagInfo(const TagInfoType& tagJetInfoType) : 
   BaseTagInfo(tagJetInfoType),
   m_nMatchingTracks(-1),
   m_trkJetWidth(-1),
