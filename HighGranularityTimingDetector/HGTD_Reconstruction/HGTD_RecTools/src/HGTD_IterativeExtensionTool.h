@@ -39,7 +39,8 @@
 class HGTD_ID;
 class HGTD_DetectorManager;
 
-class HGTD_IterativeExtensionTool : public extends<AthAlgTool, IHGTD_TrackTimeExtensionTool> {
+class HGTD_IterativeExtensionTool
+    : public extends<AthAlgTool, IHGTD_TrackTimeExtensionTool> {
 
 public:
   HGTD_IterativeExtensionTool(const std::string&, const std::string&,
@@ -57,12 +58,11 @@ public:
    *
    * @return Array of compatible HGTD hits in the form of HGTD_ClusterOnTrack.
    */
-  virtual HGTD::ExtensionObject
-  extendTrackToHGTD(const EventContext& ctx,
-                    const xAOD::TrackParticle& track_ptkl,
-                    const HGTD_ClusterContainer* container,
-                    const HepMC::GenEvent* hs_event = nullptr,
-                    const InDetSimDataCollection* sim_data = nullptr) override final;
+  virtual HGTD::ExtensionObject extendTrackToHGTD(
+      const EventContext& ctx, const xAOD::TrackParticle& track_ptkl,
+      const HGTD_ClusterContainer* container,
+      const HepMC::GenEvent* hs_event = nullptr,
+      const InDetSimDataCollection* sim_data = nullptr) override final;
 
 private:
   /**
@@ -76,7 +76,8 @@ private:
    * rather const&? But: I want to check if type is OK... should I return an
    * "empty" TSOS if nothing passes the requirements?
    */
-  const Trk::TrackStateOnSurface* getLastHitOnTrack(const Trk::Track& track) const;
+  const Trk::TrackStateOnSurface*
+  getLastHitOnTrack(const Trk::Track& track) const;
 
   /**
    * @brief  Select all within the vincinity of the point of extrapolation.
@@ -90,7 +91,7 @@ private:
    */
   static std::vector<const Trk::Surface*>
   getCompatibleSurfaces(const Trk::TrackParameters& param,
-                        const Trk::Layer* layer) ;
+                        const Trk::Layer* layer);
 
   /**
    * @brief After the compatible surfaces have been selected, the extrapolation
@@ -115,14 +116,18 @@ private:
    */
   std::unique_ptr<const Trk::TrackStateOnSurface>
   updateStateWithBestFittingCluster(
-      const std::vector<std::unique_ptr<const Trk::TrackParameters>>& params) const;
+      const Trk::Track* track,
+      const std::vector<std::unique_ptr<const Trk::TrackParameters>>& params,
+      const HGTD_ClusterContainer* container) const;
 
   /**
    * @brief Find the cluster on a given surface that has the best chi2 passing
    * the cut. Is called within updateStateWithBestFittingCluster.
    */
   std::unique_ptr<const Trk::TrackStateOnSurface>
-  findBestCompatibleCluster(const Trk::TrackParameters* param) const;
+  findBestCompatibleCluster(const Trk::Track* track,
+                            const Trk::TrackParameters* param,
+                            const HGTD_ClusterContainer* container) const;
 
   /**
    * @brief Calls the TOF correction tool to build an HGTD_ClusterOnTrack with a
@@ -130,7 +135,7 @@ private:
    * update the track state.
    */
   std::unique_ptr<const Trk::TrackStateOnSurface>
-  updateState(const Trk::TrackParameters* param,
+  updateState(const Trk::Track* track, const Trk::TrackParameters* param,
               const HGTD_Cluster* cluster) const;
 
   std::pair<const HGTD_Cluster*, HGTD::ClusterTruthInfo>
@@ -141,24 +146,21 @@ private:
                          const InDetSimDataCollection* sim_data);
 
   // extrapolation tool
-  ToolHandle<Trk::IExtrapolator> m_extrapolator{this, "ExtrapolatorTool", "Trk::Extrapolator/AtlasExtrapolator", "Tool for extrapolating the track to the HGTD surfaces"};
+  ToolHandle<Trk::IExtrapolator> m_extrapolator{
+      this, "ExtrapolatorTool", "Trk::Extrapolator/AtlasExtrapolator",
+      "Tool for extrapolating the track to the HGTD surfaces"};
   // kalman updator tool
-  ToolHandle<Trk::IUpdator> m_updator{this, "UpdatorTool", "Trk::KalmanUpdator/KalmanUpdator", "Tool for updating the track parameters accounting for new measurements"};
+  ToolHandle<Trk::IUpdator> m_updator{
+      this, "UpdatorTool", "Trk::KalmanUpdator/KalmanUpdator",
+      "Tool for updating the track parameters accounting for new measurements"};
 
-  ToolHandle<IHGTD_TOFcorrectionTool> m_tof_corr_tool{this, "TOFCorrTool", "StraightLineTOFcorrectionTool", "Tool for correcting for time of flight"};
+  ToolHandle<IHGTD_TOFcorrectionTool> m_tof_corr_tool{
+      this, "TOFCorrTool", "StraightLineTOFcorrectionTool",
+      "Tool for correcting for time of flight"};
 
-  ToolHandle<IHGTD_ClusterTruthTool> m_truth_tool{this, "ClusterTruthTool", "HGTD::ClusterTruthTool/ClusterTruthTool", "Tool for classifying HGTD clusters with truth information"};
-
-  // keep a pointer to the currently used track, but does not own it!
-  // FIXME: this is needed for the TOF correction. Maybe there is a smarter way
-  // without keeping this pointer and without pushing the Trk::Track object
-  // through everything ==>> move to a TOF corr. accepting just the perigee??
-  const Trk::Track* m_track{nullptr};
-
-  /**
-   * @brief Keep pointer to current cluster container.
-   */
-  const HGTD_ClusterContainer* m_cluster_container{nullptr};
+  ToolHandle<IHGTD_ClusterTruthTool> m_truth_tool{
+      this, "ClusterTruthTool", "HGTD::ClusterTruthTool/ClusterTruthTool",
+      "Tool for classifying HGTD clusters with truth information"};
 
   const HGTD_DetectorManager* m_hgtd_det_mgr{nullptr};
   const HGTD_ID* m_hgtd_id_helper{nullptr};
@@ -167,12 +169,15 @@ private:
    * @brief Track extensions are only kept if the chi2/ndof is lower than the
    * defined cut.
    */
-  FloatProperty m_chi2_cut{this, "Chi2Cut", 5.0, "Quality cut for decision to keep track extension"};
+  FloatProperty m_chi2_cut{this, "Chi2Cut", 5.0,
+                           "Quality cut for decision to keep track extension"};
 
   /**
    * @brief Particle hypothesis used for the extrapolation.
    */
-  IntegerProperty m_particle_hypot{this, "ParticleHypothesis", Trk::ParticleHypothesis::pion, "The hypothesis of the track's particle type"};
+  IntegerProperty m_particle_hypot{
+      this, "ParticleHypothesis", Trk::ParticleHypothesis::pion,
+      "The hypothesis of the track's particle type"};
 };
 
 #endif // HGTD_ITERATIVEEXTENTSIONTOOL_H
