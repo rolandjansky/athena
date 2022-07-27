@@ -5,7 +5,7 @@ logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger(__name__)
 
 from TriggerMenuMT.HLT.Config.ChainConfigurationBase import ChainConfigurationBase
-
+from TrigLongLivedParticlesHypo.TrigDJHypoConfig import (TrigDJComboHypoToolFromDict)
 
 
 #----------------------------------------------------------------
@@ -46,8 +46,8 @@ class UnconventionalTrackingChainConfiguration(ChainConfigurationBase):
             "hitdvjet" : ['getJetReco', 'getRoITrkEmpty', 'getFTFTrackReco', 'getHitDVTrigger'],
             "fsvsi" : ['getVSIEmpty', 'getRoITrkEmpty', 'getVSITrigger'],
             "distrk" : ['getDisTrkEmpty', 'getRoITrkEmpty', 'getFTFTrackReco', 'getDisTrkTrigger'],
-            "dispjet" : ['getJetReco', 'getRoITrkEmpty', 'getFTFTrackReco', 'getDJPromptStep', 'getDJDispStep', 'getDJEDStep'],
-            "dispvtx" : ['getJetReco', 'getRoITrkEmpty', 'getFTFTrackReco', 'getHitDVTrigger', 'getDVRecoStep', 'getDVEDStep']
+            "dispvtx" : ['getJetReco', 'getRoITrkEmpty', 'getFTFTrackReco', 'getHitDVTrigger', 'getDVRecoStep', 'getDVEDStep'],
+            "dispjet" : ['getJetReco', 'getRoITrkEmpty', 'getFTFTrackReco', 'getDJPromptStep', 'getDJDispStep']
         }
 
         return stepDictionary
@@ -92,16 +92,13 @@ class UnconventionalTrackingChainConfiguration(ChainConfigurationBase):
     def getVSITrigger(self):
         return self.getStep(4,'VSITrigger',[VSITriggerCfg])
     def getDJPromptStep(self):
-        return self.getStep(3,'DJPromptStepCfg',[DJPromptStepCfg])
+        return self.getStep(3,'DJPromptStepCfg',[DJPromptStepCfg], comboTools = [TrigDJComboHypoToolFromDict])
     def getDJDispStep(self):
         return self.getStep(4,'DJDispStepCfg',[DJDispStepCfg])
-    def getDJEDStep(self):
-        return self.getStep(5,'DJEDStepCfg',[DJEDStepCfg])
     def getDVRecoStep(self):
         return self.getStep(5,'DVRecoStepCfg',[DVRecoStepCfg])
     def getDVEDStep(self):
         return self.getStep(6,'DVEDStepCfg',[DVEDStepCfg])
-
 
 
 
@@ -144,10 +141,6 @@ def DJPromptStepCfg(flags):
 def DJDispStepCfg(flags):
     from TriggerMenuMT.HLT.UnconventionalTracking.DJTriggerConfiguration import DJDispStep
     return DJDispStep()
-
-def DJEDStepCfg(flags):
-    from TriggerMenuMT.HLT.UnconventionalTracking.DJTriggerConfiguration import DJEDStep
-    return DJEDStep()
 
 def DVRecoStepCfg(flags):
     from TriggerMenuMT.HLT.UnconventionalTracking.DVTriggerConfiguration import DVRecoSequence

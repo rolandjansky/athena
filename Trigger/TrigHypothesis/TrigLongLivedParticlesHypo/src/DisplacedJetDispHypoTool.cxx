@@ -25,12 +25,19 @@ StatusCode DisplacedJetDispHypoTool::decide(  Info& info )  const {
 		return StatusCode::SUCCESS;
 	}
 
-	auto mon_jet_class = Monitored::Scalar<int>("jet_class", 0);
 	auto mon_ndisp = Monitored::Scalar<int>("ndisp", 0);
 	auto mon_nprompt = Monitored::Scalar<int>("nprompt", 0);
 	auto mon_frac_other = Monitored::Scalar<float>("frac_other", 0.0);
-	auto mon_pass_jet_pt = Monitored::Scalar<float>("pass_jet_pt", -1.0);
-  	Monitored::Group mon_group(m_monTool, mon_jet_class, mon_ndisp, mon_nprompt, mon_frac_other, mon_pass_jet_pt);
+	
+	std::vector<float> monvec_trk_d0sig;
+	std::vector<float> monvec_trk_z0st;
+	std::vector<float> monvec_trk_d0;
+
+	auto mon_trk_d0sig = Monitored::Collection("trk_d0sig", monvec_trk_d0sig);
+	auto mon_trk_z0st = Monitored::Collection("trk_z0st", monvec_trk_z0st);
+	auto mon_trk_d0 = Monitored::Collection("trk_d0", monvec_trk_d0);
+
+  	Monitored::Group mon_group(m_monTool, mon_ndisp, mon_nprompt, mon_frac_other, mon_trk_d0sig, mon_trk_z0st, mon_trk_d0);
 
 	//apply the track counting for the displaced tracks
 	int ndisp = info.counts->getDetail<int>("ndisp_"+m_cutname);
@@ -42,15 +49,18 @@ StatusCode DisplacedJetDispHypoTool::decide(  Info& info )  const {
 		if(trk->pt()/Gaudi::Units::GeV < m_min_trk_pt) continue;
 		unsigned int track_class = 0;
 
+		monvec_trk_d0.push_back(std::abs(trk->d0()));
+
 		if(std::abs(trk->d0()) < m_d0cut){
 			double dz0 = trk->z0() + trk->vz() - info.primary_vertex->z();
-		 	double dz0st = std::abs(std::sin(trk->theta()) * dz0);
+	 		double dz0st = std::abs(std::sin(trk->theta()) * dz0);
+
+	 		monvec_trk_z0st.push_back(dz0st);
 
 		  	if(dz0st <= m_z0stcut){
 		  		track_class = 1; //prompt
 		  	}
 		}else{
-			//candidate displaced
 			double d0sig = 0.0;
 
 			if(m_usebeamspot){
@@ -59,6 +69,9 @@ StatusCode DisplacedJetDispHypoTool::decide(  Info& info )  const {
 				d0sig = std::abs(xAOD::TrackingHelpers::d0significance(trk));
 			}
 
+			monvec_trk_d0sig.push_back(d0sig);
+
+			//candidate displaced
 			if(d0sig >= m_d0sigcut){
 				track_class = 2; //displaced
 				ATH_MSG_DEBUG("disp_trk in jet "<<info.jet->pt()/Gaudi::Units::GeV<<" accepted pT: "<<trk->pt()/Gaudi::Units::GeV<<" d0: "<<std::abs(trk->d0())<< " d0sig: "<<d0sig);
@@ -81,33 +94,15 @@ StatusCode DisplacedJetDispHypoTool::decide(  Info& info )  const {
 		nother_frac = nother*1.0/(nother + ndisp + nprompt);
 	}
 
-	unsigned int jet_class = 0;
-
 	ANA_MSG_DEBUG("jet pT = "<<info.jet->pt()/Gaudi::Units::GeV<<" nPrompt = "<<nprompt<<" nDisp = "<<ndisp<<" nother = "<<nother);
 
 	mon_ndisp = ndisp;
 	mon_nprompt = nprompt;
 	mon_frac_other = nother_frac;
 
-
-	if(ndisp >= m_mindisp_c2 && nprompt <= m_maxprompt_c2 && nother_frac <= m_nother_frac_c2){
-		jet_class = 2;
-	}else{
-		if(ndisp >= m_mindisp_c1 && nprompt <= m_maxprompt_c1 && nother_frac <= m_nother_frac_c1){
-			jet_class = 1;
-		}
-	}
-
-	if(jet_class > 0){
+	if(ndisp >= m_mindisp && nprompt <= m_maxprompt && nother_frac <= m_nother_frac){
 		addDecisionID( m_decisionId.numeric(), info.decision );
-		mon_pass_jet_pt = info.jet->pt()/Gaudi::Units::GeV;
 	}
-
-	info.info->setDetail<int>("djtrig_jet_class_"+m_cutname, jet_class);
-
-	mon_jet_class = jet_class;
-
-	ANA_MSG_DEBUG("jet pT = "<<info.jet->pt()/Gaudi::Units::GeV<<" assigned class "<<jet_class);
 
 	return StatusCode::SUCCESS;
 }
