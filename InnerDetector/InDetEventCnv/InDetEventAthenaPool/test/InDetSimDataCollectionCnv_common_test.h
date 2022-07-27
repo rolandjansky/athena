@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -21,6 +21,7 @@
 #include "IdDictParser/IdDictParser.h"
 #include "SGTools/TestStore.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "CxxUtils/checker_macros.h"
 #include "TestTools/initGaudi.h"
 #include "TestTools/leakcheck.h"
 
@@ -90,7 +91,7 @@ void testit(const InDetSimDataCollection& trans1)
 // TCnv: InDetSimDataCollectionCnv_pX
 // T: InDetSimDataCollection_pX
 template<typename TCnv, typename T>
-void test1(std::vector<HepMC::GenParticlePtr>& genPartVector)
+void test1 ATLAS_NOT_THREAD_SAFE (std::vector<HepMC::GenParticlePtr>& genPartVector)
 {
   std::cout << "test1\n";
   auto particle = genPartVector.at(0);
@@ -134,7 +135,7 @@ void makePixelID(ISvcLocator* pSvcLoc)
 // TCnv: InDetSimDataCollectionCnv_pX
 // T: InDetSimDataCollection_pX
 template<typename TCnv, typename T>
-int commonMain()
+int commonMain ATLAS_NOT_THREAD_SAFE ()
 {
   // Initialize Gaudi
   ISvcLocator* pSvcLoc = nullptr;

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( InDetEventAthenaPool )
@@ -63,7 +63,7 @@ foreach( name
    atlas_add_test( ${name}
       SOURCES test/${name}.cxx
       LINK_LIBRARIES
-      AtlasHepMCLib IdDict IdDictParser InDetEventAthenaPool TestTools
+      AtlasHepMCLib IdDict IdDictParser InDetEventAthenaPool TestTools CxxUtils
       ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"
       POST_EXEC_SCRIPT nopost.sh )
    set_target_properties ( InDetEventAthenaPool_${name} PROPERTIES ENABLE_EXPORTS True )
