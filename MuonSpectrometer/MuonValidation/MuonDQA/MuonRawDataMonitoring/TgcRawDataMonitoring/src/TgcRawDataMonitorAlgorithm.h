@@ -50,7 +50,9 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
     std::vector<TVector3> extPos;
     std::vector<TVector3> extVec;
     std::set<int> matchedL1ThrExclusive;
+    std::set<int> matchedL1ThrExclusiveTGC;
     std::set<int> matchedL1ThrInclusive;
+    std::set<int> matchedL1ThrInclusiveTGC;
     std::set<std::string> matchedL1Items;
     bool matchedL1Charge{};
     bool passBW3Coin{};
@@ -62,7 +64,9 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
       extPos.clear();
       extVec.clear();
       matchedL1ThrExclusive.clear();
+      matchedL1ThrExclusiveTGC.clear();
       matchedL1ThrInclusive.clear();
+      matchedL1ThrInclusiveTGC.clear();
       matchedL1Items.clear();
     }
   };
