@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -12,6 +12,7 @@
 
 #include "TestTools/initGaudi.h"
 #include "TestTools/leakcheck.h"
+#include "CxxUtils/checker_macros.h"
 
 #include "GaudiKernel/MsgStream.h"
 
@@ -75,7 +76,7 @@ void testit(const TRT_RDO_Container& trans1)
 // TCnv: TRT_LoLumRawDataContainerCnv_pX
 // T: InDetRawDataContainer_pX
 template<typename TCnv, typename T>
-void test1()
+void test1 ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test1\n";
   Athena_test::Leakcheck check;
@@ -118,7 +119,7 @@ void test1()
 // TCnv: TRT_LoLumRawDataContainerCnv_pX
 // T: InDetRawDataContainer_pX
 template<typename TCnv, typename T>
-int commonMain()
+int commonMain ATLAS_NOT_THREAD_SAFE ()
 {
   // Initialize Gaudi
   ISvcLocator* pSvcLoc = nullptr;
