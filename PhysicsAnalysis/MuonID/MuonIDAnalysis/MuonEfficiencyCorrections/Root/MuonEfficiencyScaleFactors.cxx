@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "MuonEfficiencyCorrections/MuonEfficiencyScaleFactors.h"
@@ -31,7 +31,7 @@ namespace CP {
                 m_efficiency_decoration_name_data(),
                 m_efficiency_decoration_name_mc(),
                 m_sf_decoration_name(),
-                m_calibration_version("210222_Precision_r21"),
+                m_calibration_version("220725_Preliminary_r22run2"),
                 m_lowpt_threshold(15.e3),
                 m_iso_jet_dR("dRJet"),
                 m_use2DIsoCorr(false),

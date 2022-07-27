@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 /// a simple testing macro for the MuonEfficiencyScaleFactors class
@@ -79,8 +79,8 @@ int main(int argc, char* argv[]) {
     const char* APP_NAME = argv[0];
 
     // this default is for MC16a -> data2016
-    std::string prwFilename = "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/prwConfigFiles/mc16_FULLSIM_r9364_r9315_NTUP_PILEUP.root";
-    std::string ilumiFilename = "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/ilumicalc_histograms_OflLumi-13TeV-009_data16_13TeV.periodAllYear_DetStatus-v89-pro21-01_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.root";
+    std::string prwFilename = "dev/PileupReweighting/share/DSID361xxx/pileup_mc20a_dsid361107_FS.root";
+    std::string ilumiFilename = "GoodRunsLists/data16_13TeV/20180129/PHYS_StandardGRL_All_Good_25ns_297730-311481_OflLumi-13TeV-009.root";
     std::string InFile = "";
     long long int nmax = -1;
     // read the config provided by the user
@@ -147,15 +147,13 @@ int main(int argc, char* argv[]) {
 
      const std::vector<std::string> WPs {
          // reconstruction WPs
-         "Loose", "Medium", "Tight", "HighPt", "LowPt", "LowPtMVA",
+         "Loose", "Medium", "Tight", "HighPt", "LowPt",
          // track-to-vertex-association WPs
          "TTVA",
          // BadMuon veto SFs
-         "BadMuonVeto_HighPt",
+         //"BadMuonVeto_HighPt",
          // isolation WPs
-	 "PLVLooseIso", "PLVTightIso", "HighPtTrackOnlyIso",
-	 "Loose_FixedRadIso", "Tight_FixedRadIso", "PflowLoose_FixedRadIso", "PflowTight_FixedRadIso", "TightTrackOnly_FixedRadIso",
-	 "Loose_VarRadIso", "Tight_VarRadIso", "PflowLoose_VarRadIso", "PflowTight_VarRadIso", "TightTrackOnly_VarRadIso"
+          "Loose_VarRadIso", "Tight_VarRadIso", "PflowLoose_VarRadIso", "PflowTight_VarRadIso"
     };
    
     std::vector<EffiToolInstance> EffiTools;
