@@ -133,7 +133,6 @@ if( NOT SIMULATIONBASE )
 	LArG4FastSimSvc
 	LArG4GenShowerLib
 	LArG4H6SD
-	LArG4H8SD 
 	G4AtlasTests
 	G4HitFilter
 	RHadrons
