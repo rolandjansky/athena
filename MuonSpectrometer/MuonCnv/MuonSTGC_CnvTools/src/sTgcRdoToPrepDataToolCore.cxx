@@ -215,7 +215,7 @@ const STGC_RawDataContainer* Muon::sTgcRdoToPrepDataToolCore::getRdoContainer() 
 
 
 //============================================================================
-void Muon::sTgcRdoToPrepDataToolCore::processRDOContainer( Muon::sTgcPrepDataContainer* stgcPrepDataContainer, std::vector<IdentifierHash>& idWithDataVect ) const
+void Muon::sTgcRdoToPrepDataToolCore::processRDOContainer( Muon::sTgcPrepDataContainer* stgcPrepDataContainer, const std::vector<IdentifierHash>& idsToDecode, std::vector<IdentifierHash>& idWithDataVect ) const
 {
     ATH_MSG_DEBUG("In processRDOContainer");
     const STGC_RawDataContainer* rdoContainer = getRdoContainer();
@@ -226,6 +226,14 @@ void Muon::sTgcRdoToPrepDataToolCore::processRDOContainer( Muon::sTgcPrepDataCon
         auto rdoColl = *it;
         if (rdoColl->empty()) continue;
         ATH_MSG_DEBUG("New RDO collection with " << rdoColl->size() << "STGC Hits");
+
+        const IdentifierHash hash = rdoColl->identifyHash();
+
+        // check if we actually want to decode this RDO collection
+        if(idsToDecode.size() > 0 and std::find(idsToDecode.begin(), idsToDecode.end(), hash)==idsToDecode.end()) {
+            ATH_MSG_DEBUG("Hash ID " << hash << " not in input list, ignore");
+            continue;
+        } else ATH_MSG_DEBUG("Going to decode " << hash);
 
         if(processCollection(stgcPrepDataContainer, rdoColl, idWithDataVect).isFailure()) {
             ATH_MSG_DEBUG("processCsm returns a bad StatusCode - keep going for new data collections in this event");
@@ -247,7 +255,7 @@ StatusCode Muon::sTgcRdoToPrepDataToolCore::decode( std::vector<IdentifierHash>&
 
     if (!stgcPrepDataContainer) return StatusCode::FAILURE;
 
-    processRDOContainer(stgcPrepDataContainer, idWithDataVect);
+    processRDOContainer(stgcPrepDataContainer, idVect, idWithDataVect);
     return StatusCode::SUCCESS;
 } 
 

@@ -53,20 +53,15 @@ StatusCode Muon::sTgcRawDataProvider::execute(const EventContext& ctx) const
       return StatusCode::FAILURE;
     }
 
-    // get list of offline hash IDs (module context i.e. STGC quadruplets) from region selection
-    // using an unordered_set to make sure each hash ID entry is unique
-    std::vector<IdentifierHash>        stgc_hash_ids;
-    std::unordered_set<IdentifierHash> stgc_hash_ids_set;
+    std::vector<uint32_t> robs;
+    // loop on RoIs
     for(auto roi : *muonRoI) {
       ATH_MSG_DEBUG("Getting ROBs for RoI " << *roi);
-      m_regsel_stgc->HashIDList(*roi, stgc_hash_ids);
-      for (IdentifierHash& hash : stgc_hash_ids) stgc_hash_ids_set.insert(hash);
-      stgc_hash_ids.clear();
+      // Get ROB IDs from region selector
+      m_regsel_stgc->ROBIDList(*roi, robs);
     }
 
-    // put the IDs back in the vector and decode
-    stgc_hash_ids.insert(stgc_hash_ids.end(), stgc_hash_ids_set.begin(), stgc_hash_ids_set.end());
-    if (!m_rawDataTool->convert(stgc_hash_ids, ctx).isSuccess()) {
+    if (!m_rawDataTool->convert(robs, ctx).isSuccess()) {
       ATH_MSG_ERROR("STGC BS conversion into RDOs failed");
       return StatusCode::FAILURE;
     }
