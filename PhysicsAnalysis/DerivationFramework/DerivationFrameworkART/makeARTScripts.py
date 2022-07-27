@@ -7,7 +7,7 @@ makeTrains=True
 
 formatList = ['PHYSVAL','PHYS','PHYSLITE',
               'LLP1',
-              'JETM1',
+              'JETM1','JETM3','JETM4','JETM5','JETM6','JETM8','JETM9','JETM10','JETM11','JETM12','JETM13','JETM14','JETM15',
               'IDTR2',
               'EGAM1', 'EGAM2', 'EGAM3', 'EGAM4', 'EGAM5', 'EGAM7', 'EGAM8', 'EGAM9',
               'FTAG1', 'FTAG2',
@@ -17,9 +17,12 @@ formatList = ['PHYSVAL','PHYS','PHYSLITE',
 truthFormatList = ['TRUTH0', 'TRUTH1', 'TRUTH3']
 
 trainList = [
-              ["EGAM2","EGAM3","EGAM4"],
+              ["EGAM2","EGAM3","EGAM4","JETM12"],
               ["EGAM7","EGAM8","EGAM9","JETM3"],
-              ["FTAG1","JETM1"]
+              ["JETM10","JETM14"],
+              ["EGAM1","JETM4","JETM11"],
+              ["EGAM5","JETM6"],
+              ["FTAG1","JETM1","JETM9"]
             ]
 
 
@@ -32,9 +35,9 @@ dataFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/da
 validFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.AOD.e4993_s3834_r13556/AOD.28847225._00000*"
 truthFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/mc16_13TeV.410637.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad_2000_14000.merge.EVNT.e6685_e5984/EVNT.15803543._000001.pool.root.1"
 
-preExec = " --preExec \'from AthenaCommon.DetFlags import DetFlags; DetFlags.detdescr.all_setOff(); DetFlags.BField_setOn(); DetFlags.digitize.all_setOff(); DetFlags.detdescr.Calo_setOn(); DetFlags.simulate.all_setOff(); DetFlags.pileup.all_setOff(); DetFlags.overlay.all_setOff();\' "
+preExec = " --preExec \'from AthenaCommon.DetFlags import DetFlags; DetFlags.detdescr.all_setOff(); DetFlags.BField_setOn(); DetFlags.digitize.all_setOff(); DetFlags.detdescr.Calo_setOn(); DetFlags.simulate.all_setOff(); DetFlags.pileup.all_setOff(); DetFlags.overlay.all_setOff(); DetFlags.detdescr.Muon_setOn();\'"
 preExecLLP = " --preExec \'from AthenaCommon.DetFlags import DetFlags; DetFlags.detdescr.all_setOff(); DetFlags.BField_setOn(); DetFlags.digitize.all_setOff(); DetFlags.detdescr.Calo_setOn(); DetFlags.simulate.all_setOff(); DetFlags.pileup.all_setOff(); DetFlags.overlay.all_setOff(); DetFlags.detdescr.pixel_setOn(); DetFlags.detdescr.SCT_setOn(); from InDetRecExample.InDetJobProperties import InDetFlags; InDetFlags.doR3LargeD0.set_Value_and_Lock(True);\' "
-postExec = " --postExec \'from DerivationFrameworkJetEtMiss.JetCommon import swapAlgsInSequence; swapAlgsInSequence(topSequence,\"jetalg_ConstitModCorrectPFOCSSKCHS_GPFlowCSSK\", \"UFOInfoAlgCSSK\" );\' "
+postExec = " --postExec \'from DerivationFrameworkJetEtMiss.JetCommon import swapAlgsInSequence; swapAlgsInSequence(topSequence,\"jetalg_ConstitModCorrectPFOCSSKCHS_GPFlowCSSK\", \"UFOInfoAlgCSSK\" );\'"
 
 def generateText(formatName,label,inputFile,isTruth,isMC,nEvents):
    outputFileName = "test_"+label+formatName+".sh"
@@ -42,6 +45,7 @@ def generateText(formatName,label,inputFile,isTruth,isMC,nEvents):
    outputFile.write("#!/bin/sh"+"\n")
    outputFile.write("\n")
    outputFile.write("# art-include: master/AthDerivation"+"\n")
+   outputFile.write("# art-include: master/Athena"+"\n")
    outputFile.write("# art-description: DAOD building "+formatName+" "+label+"\n")
    outputFile.write("# art-type: grid"+"\n")
    outputFile.write("# art-output: *.pool.root"+"\n")
@@ -55,9 +59,9 @@ def generateText(formatName,label,inputFile,isTruth,isMC,nEvents):
       if (formatName in ["LLP1","IDTR2"] and not isMC):
          outputFile.write("Reco_tf.py --inputAODFile "+inputFile+" --outputDAODFile art.pool.root --reductionConf "+formatName+" --maxEvents "+nEvents+preExecLLP+"\n")
       elif (formatName in ["LLP1","IDTR2"] and isMC):
-         outputFile.write("Reco_tf.py --inputAODFile "+inputFile+" --outputDAODFile art.pool.root --reductionConf "+formatName+" --maxEvents "+nEvents+preExecLLP+" --passThrough True "+"\n")
+         outputFile.write("Reco_tf.py --inputAODFile "+inputFile+" --outputDAODFile art.pool.root --reductionConf "+formatName+" --maxEvents "+nEvents+preExecLLP+" --passThrough True"+"\n")
       elif (formatName not in ["PHYS","PHYSLITE"] and isMC):
-         outputFile.write("Reco_tf.py --inputAODFile "+inputFile+" --outputDAODFile art.pool.root --reductionConf "+formatName+" --maxEvents "+nEvents+preExec+postExec+" --passThrough True "+"\n")
+         outputFile.write("Reco_tf.py --inputAODFile "+inputFile+" --outputDAODFile art.pool.root --reductionConf "+formatName+" --maxEvents "+nEvents+preExec+postExec+" --passThrough True"+"\n")
       else:
          outputFile.write("Reco_tf.py --inputAODFile "+inputFile+" --outputDAODFile art.pool.root --reductionConf "+formatName+" --maxEvents "+nEvents+preExec+postExec+"\n")
    if isTruth: outputFile.write("Derivation_tf.py --CA --inputEVNTFile "+inputFile+" --outputDAODFile art.pool.root --formats "+formatName+" --maxEvents "+nEvents+"\n")
@@ -84,13 +88,14 @@ def generateTrains(formatList,label,inputFile,isMC):
    outputFile.write("#!/bin/sh"+"\n")
    outputFile.write("\n")
    outputFile.write("# art-include: master/AthDerivation"+"\n")
+   outputFile.write("# art-include: master/Athena"+"\n")
    outputFile.write("# art-description: DAOD building "+" ".join(formatList)+" "+label+"\n")
    outputFile.write("# art-type: grid"+"\n")
    outputFile.write("# art-output: *.pool.root"+"\n")
    outputFile.write("\n")
    outputFile.write("set -e"+"\n")
    outputFile.write("\n")
-   outputFile.write("Reco_tf.py --inputAODFile "+inputFile+" --outputDAODFile art.pool.root --reductionConf "+" ".join(formatList)+" --maxEvents 500 "+preExec+postExec+" --passThrough True "+"\n")
+   outputFile.write("Reco_tf.py --inputAODFile "+inputFile+" --outputDAODFile art.pool.root --reductionConf "+" ".join(formatList)+" --maxEvents 500 "+preExec+postExec+" --passThrough True"+"\n")
    os.system("chmod +x "+outputFileName)
 
 if (makeDataDAODs or makeMCDAODs):
