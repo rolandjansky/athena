@@ -6,6 +6,7 @@
 #define JETUNCERTAINTIES_PERJETFLAVOURUNCERTAINTYCOMPONENT_H
 
 #include "JetUncertainties/UncertaintyComponent.h"
+#include "TF1.h"
 
 namespace jet
 {
@@ -37,6 +38,9 @@ class PerJetFlavourUncertaintyComponent : public UncertaintyComponent
         const bool    m_absEta;
         const std::vector<int> m_labels;
         const FlavourComp::TypeEnum m_flavourType;
+        const bool    m_constrainZresponse;
+        const TString    m_constrainZresponseFunc;
+        const TF1*    m_ZjetQuarkFrac;
 
         // Wrappers for special flavour histograms
         double getFlavourResponseUncertainty(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const;

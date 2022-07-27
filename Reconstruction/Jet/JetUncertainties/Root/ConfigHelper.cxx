@@ -56,6 +56,8 @@ ComponentHelper::ComponentHelper(TEnv& settings, const TString& compPrefix, cons
     caloMassDef = settings.GetValue(compPrefix+"CaloMassDef","");
     TAMassDef   = settings.GetValue(compPrefix+"TAMassDef","");
     truthLabelStr = settings.GetValue(compPrefix+"TruthLabels","");
+    constrainZresponseStr = settings.GetValue(compPrefix+"ConstrainZresponse","");
+    constrainZresponseFunc = settings.GetValue(compPrefix+"ConstrainZresponseFunc","");
     LargeRJetTruthLabelName = settings.GetValue(compPrefix+"LargeRJetTruthLabelName","R10TruthLabel_R21Consolidated");
     TString LargeRJetTruthLabelStrOld = settings.GetValue(compPrefix+"FatjetTruthLabels","");
     TString LargeRJetTruthLabelStrNew = settings.GetValue(compPrefix+"LargeRJetTruthLabels","");
@@ -77,6 +79,7 @@ ComponentHelper::ComponentHelper(TEnv& settings, const TString& compPrefix, cons
     uncNames        = utils::vectorize<TString>(uncNameList,", ");
     subComps        = utils::vectorize<TString>(subCompList,", ");
     truthLabels     = utils::vectorize<int>(truthLabelStr,", ");
+    constrainZresponse = (!constrainZresponseStr.CompareTo("true",TString::kIgnoreCase)) || (!constrainZresponseStr.CompareTo("yes",TString::kIgnoreCase));
     if (LargeRJetTruthLabelStrOld != "" && LargeRJetTruthLabelStrNew != "")
         throw std::runtime_error("ERROR: double-specification of the LargeRJetTruthLabels/FatjetTruthLabels property");
     else if (LargeRJetTruthLabelStrNew != "")

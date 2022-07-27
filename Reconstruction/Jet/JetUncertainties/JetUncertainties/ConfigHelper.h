@@ -46,6 +46,8 @@ class ComponentHelper
         TString caloMassDef;
         TString TAMassDef;
         TString truthLabelStr;
+        TString constrainZresponseStr;
+        TString constrainZresponseFunc;
         TString LargeRJetTruthLabelName;
         TString LargeRJetTruthLabelStr;
         TString LargeRJetTruthLabelsForSFstr;
@@ -65,6 +67,7 @@ class ComponentHelper
         std::vector<TString> uncNames;
         std::vector<TString> subComps;
         std::vector<int> truthLabels;
+        bool constrainZresponse;
         std::vector<TString> LargeRJetTruthLabelStrs;
         std::vector<LargeRJetTruthLabel::TypeEnum> LargeRJetTruthLabels;
         std::vector<TString> LargeRJetTruthLabelsForSFstrs;
