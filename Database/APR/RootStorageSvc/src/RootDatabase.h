@@ -81,6 +81,9 @@ namespace pool  {
     /// nextID of the master index
     long long     m_indexMasterID;
 
+    /// marks if the index (for index Containers) was rebuilt for given TTree
+    std::set< std::string> m_indexRebuilt;
+
     /* ---  variables used with TREE_AUTO_FLUSH option for
             managing combined TTree::Fill for branch containers
     */
@@ -133,6 +136,11 @@ namespace pool  {
     void        registerBranchContainer(RootTreeContainer*);
 
     long long   currentIndexMasterID() const   { return m_indexMasterID; }
+
+    /// Check if a given TTree had its index rebuilt
+    bool	wasIndexRebuilt(const std::string& treeName)   { return m_indexRebuilt.count(treeName)!=0; }
+    /// Mark that a given TTree had its index rebuilt
+    void	markIndexRebuilt(const std::string& treeName)  { m_indexRebuilt.insert(treeName); };
 
     /// provide access to the I/O mutex for AuxDynReader and Containers
     std::recursive_mutex& ioMutex()         { return m_iomutex; }

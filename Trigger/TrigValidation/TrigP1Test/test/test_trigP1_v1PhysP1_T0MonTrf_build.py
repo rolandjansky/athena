@@ -35,6 +35,14 @@ tzrecoPreExec = ' '.join([
  f"ConfigFlags.Trigger.triggerMenuSetup=\'{triggermenu}\';",
  "ConfigFlags.Trigger.AODEDMSet=\'AODFULL\';",
  "ConfigFlags.Trigger.enableL1CaloPhase1=True;",
+ "from AthenaMonitoring.DQMonFlags import DQMonFlags;",
+ "DQMonFlags.set_All_Off();",
+ "DQMonFlags.doDataFlowMon=True;",
+ "DQMonFlags.doHLTMon=True;",
+ "DQMonFlags.doLVL1CaloMon=True;",
+ "DQMonFlags.doGlobalMon=True;", 
+ "DQMonFlags.doLVL1InterfacesMon=True;",
+ "DQMonFlags.doCTPMon=True;"
 ])
 
 tzreco = ExecStep.ExecStep('Tier0Reco')
@@ -47,19 +55,10 @@ tzreco.max_events = 50
 tzreco.args = '--inputBSFile=RAW.pool.root'  # output of the previous step
 tzreco.args += ' --outputESDFile=ESD.pool.root --outputAODFile=AOD.pool.root'
 tzreco.args += ' --outputNTUP_TRIGRATEFile=rate.ntup.root'
+tzreco.args += ' --outputHISTFile=hist.root'
 tzreco.args += ' --conditionsTag=\'CONDBR2-BLKPA-RUN2-06\' --geometryVersion=\'ATLAS-R2-2016-01-00-01\''
 tzreco.args += ' --preExec="{:s}"'.format(tzrecoPreExec)
 tzreco.args += ' --postInclude="TriggerTest/disableChronoStatSvcPrintout.py"'
-
-#====================================================================================================
-# Tier-0 monitoring step (AOD->HIST)
-tzmon = ExecStep.ExecStep('Tier0Mon')
-tzmon.type = 'other'
-tzmon.executable = 'Run3DQTestingDriver.py'
-tzmon.input = ''
-tzmon.args = '--threads=1'
-tzmon.args += ' --dqOffByDefault'
-tzmon.args += f' Input.Files="[\'AOD.pool.root\']" DQ.Steering.doHLTMon=True Trigger.triggerMenuSetup=\'{triggermenu}\''
 
 #====================================================================================================
 # Merging NTUP_TRIGRATE/COST
@@ -79,7 +78,7 @@ tzmergerate.args = '--inputNTUP_TRIGRATEFile="rate.ntup.root" --outputNTUP_TRIGR
 # The full test
 test = Test.Test()
 test.art_type = 'build'
-test.exec_steps = [hlt,tzreco,tzmon,tzmergecost,tzmergerate]
+test.exec_steps = [hlt,tzreco,tzmergecost,tzmergerate]
 test.check_steps = CheckSteps.default_check_steps(test)
 
 # Overwrite default histogram file name for checks

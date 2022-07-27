@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( ZdcRec )
@@ -14,7 +14,7 @@ atlas_add_library( ZdcRecLib
                    INCLUDE_DIRS ${GSL_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES ${GSL_LIBRARIES} AsgTools AthenaBaseComps xAODForward xAODTrigL1Calo ZdcEvent GaudiKernel StoreGateLib ZdcAnalysisLib
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ZdcByteStreamLib ZdcConditions ZdcIdentifier )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CxxUtils ZdcByteStreamLib ZdcConditions ZdcIdentifier )
 
 atlas_add_component( ZdcRec
                      src/components/*.cxx

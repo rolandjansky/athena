@@ -39,6 +39,12 @@ def HLTResultMTMakerCfg(name="HLTResultMTMaker"):
                              xbins=200, xmin=0, xmax=50 )
    m.MonTool.defineHistogram('TIME_makeResult_extRange', path='EXPERT', type='TH1F', title='makeResult() call time;Time [ms];Events',
                              xbins=200, xmin=0, xmax=50, opt='kCanRebin' )
+   m.MonTool.defineHistogram('PEB_RemovedROBs_SubDet', path='EXPERT', type='TH1F',
+                             title='SubDet ID of ROBs removed from PEB streams because disabled in DetMask;;Entries',
+                             xbins=80, xmin=0, xmax=80)
+   m.MonTool.defineHistogram('PEB_RemovedSubDets', path='EXPERT', type='TH1F',
+                             title='SubDetectors removed from PEB streams because disabled in DetMask;;Entries',
+                             xbins=80, xmin=0, xmax=80)
 
    return m
 

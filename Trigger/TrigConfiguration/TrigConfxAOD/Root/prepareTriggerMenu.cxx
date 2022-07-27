@@ -24,6 +24,7 @@
 
 #include "TrigConfData/HLTChain.h"
 #include "TrigConfData/L1Item.h"
+#include "TrigCompositeUtils/ChainNameParser.h"
 #include <type_traits>
 // Local include(s):
 #include "TrigConfxAOD/tools/prepareTriggerMenu.h"
@@ -173,7 +174,11 @@ namespace TrigConf {
          if ( menu->chainPrescalesAvailable() ) {
              chain->set_prescale( menu->chainPrescales()[ i ]);
          }
-
+         {
+            auto parsed_multiplicities = ChainNameParser::multiplicities(menu->chainNames()[ i ]);
+            std::vector<long unsigned int> leg_multiplicities(parsed_multiplicities.begin(), parsed_multiplicities.end());
+            chain->set_leg_multiplicities( leg_multiplicities );
+         }
          // Add it to the list of chains:
          if( ! chainList.addHLTChain( chain ) ) {
             msg << MSG::FATAL << "prepareTriggerMenu(...): "

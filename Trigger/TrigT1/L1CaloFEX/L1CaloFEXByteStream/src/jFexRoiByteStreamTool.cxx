@@ -3,7 +3,7 @@
 */
 
 //***************************************************************************
-//                           jFexRoiByteStreamTool  -  description
+//                           jFexRoiByteStreamTool  -  This tool decodes Run3 jFEX RoI data!
 //                              -------------------
 //     begin                : 01 01 2022
 //     email                : Sergi.Rodriguez@cern.ch
@@ -306,7 +306,7 @@ StatusCode jFexRoiByteStreamTool::convertFromBS(const std::vector<const ROBF*>& 
                 tobIndex -= n_jJ;
             }
             //moving trailer position index to the next jFEX data block
-            trailers_pos -= (payload+2);
+            trailers_pos -= (payload + jBits::jFEX2ROD_WORDS);
             
             if(trailers_pos != tobIndex){
                 ATH_MSG_ERROR("Something went wrong decoding jFEX BS data. Trailer position: " << trailers_pos << " should match the TOB index position:" << tobIndex );

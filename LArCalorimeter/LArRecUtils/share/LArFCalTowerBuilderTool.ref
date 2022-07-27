@@ -200,14 +200,17 @@ CondInputLoader      INFO Initializing CondInputLoader...
 CondInputLoader      INFO Adding base classes:
   +  ( 'CaloRec::CaloCellPositionShift' , 'ConditionStore+LArCellPositionShift' )   -> no bases
   +  ( 'DetCondKeyTrans' , 'ConditionStore+/LAR/Align' )   ->
+  +  ( 'LArTTCellMap' , 'ConditionStore+LArTTCellMapAtlas' )   -> no bases
 CondInputLoader      INFO Will create WriteCondHandle dependencies for the following DataObjects:
     +  ( 'CaloRec::CaloCellPositionShift' , 'ConditionStore+LArCellPositionShift' ) 
     +  ( 'DetCondKeyTrans' , 'ConditionStore+/LAR/Align' ) 
+    +  ( 'LArTTCellMap' , 'ConditionStore+LArTTCellMapAtlas' )
 ClassIDSvc           INFO getRegistryEntries: read 6027 CLIDRegistry entries for module ALL
 ToolSvc.LArFCal...   INFO CaloTowerBuilder for the FCal initiated
 ApplicationMgr       INFO Application Manager Initialized successfully
 CondInputLoader      INFO created CondCont<CaloRec::CaloCellPositionShift> with key 'ConditionStore+LArCellPositionShift'
 CondInputLoader      INFO created CondCont<DetCondKeyTrans> with key 'ConditionStore+/LAR/Align'
+CondInputLoader      INFO created CondCont<LArTTCellMap> with key 'ConditionStore+LArTTCellMapAtlas'
 ApplicationMgr       INFO Application Manager Started successfully
 AthenaEventLoopMgr   INFO   ===>>>  start of run 1    <<<===
 IOVDbSvc             INFO Opening COOL connection for COOLOFL_LAR/OFLP200
@@ -254,6 +257,7 @@ Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 8667C6F
 Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cond08/cond08_mc.000003.gen.COND/cond08_mc.000003.gen.COND._0064.pool.root
 RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond08/cond08_mc.000003.gen.COND/cond08_mc.000003.gen.COND._0064.pool.root File version:52200
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #1 0 events processed so far  <<<===
+LArTTCellMapCnv      INFO initialize()
 IOVDbSvc             INFO Opening COOL connection for COOLOFL_LAR/OFLP200
 IOVDbSvc             INFO Disconnecting from COOLOFL_LAR/OFLP200
 LArAlignCondAlg      INFO recorded new GeoAlignmentStore object for LAr with key LArAlignmentStore and range {[0,l:0] - [INVALID]}
@@ -6676,7 +6680,6 @@ IOVDbFolder          INFO Folder /CALO/Ofl/Identifier/CaloTTOnOffIdMapAtlas (Poo
 IOVDbFolder          INFO Folder /CALO/Ofl/Identifier/CaloTTPpmRxIdMapAtlas (PoolRef) db-read 0/0 objs/chan/bytes 0/1/0 ((     0.00 ))s
 IOVDbFolder          INFO Folder /LAR/LArCellPositionShift (PoolRef) db-read 2/2 objs/chan/bytes 2/1/390 ((     0.04 ))s
 IOVDbFolder          INFO Folder /LAR/Identifier/LArTTCellMapAtlas (PoolRef) db-read 1/0 objs/chan/bytes 1/1/173 ((     0.03 ))s
-IOVDbFolder       WARNING Folder /LAR/Identifier/LArTTCellMapAtlas is requested but no data retrieved
 IOVDbSvc             INFO  bytes in ((      0.11 ))s
 IOVDbSvc             INFO Connection sqlite://;schema=mycool.db;dbname=OFLP200 : nConnect: 0 nFolders: 0 ReadTime: ((     0.00 ))s
 IOVDbSvc             INFO Connection COOLOFL_LAR/OFLP200 : nConnect: 3 nFolders: 3 ReadTime: ((     0.11 ))s

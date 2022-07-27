@@ -195,42 +195,44 @@ void AFP_Raw2DigiTool::setBarAndTrainID(xAOD::AFPToFHit* tofHit, const EventCont
   const int hptdcChannel = tofHit->hptdcChannel();
   const int hptdcID = tofHit->hptdcID();
   
+  int Run = (ctx.eventID().run_number() > 370000 ? 3 : 2);
+  int swapTrain = (Run==3 ? 1 : 0);
+  
   if (hptdcID == 1) {
     switch (hptdcChannel) {
     case 0:
-      tofHit->setTrainID(0);
+      tofHit->setTrainID(0+swapTrain);
       tofHit->setBarInTrainID(0);
       break;
     case 2:
-      tofHit->setTrainID(1);
+      tofHit->setTrainID(1-swapTrain);
       tofHit->setBarInTrainID(2);
       break;
     case 3:
-      tofHit->setTrainID(0);
+      tofHit->setTrainID(0+swapTrain);
       tofHit->setBarInTrainID(3);
       break;
     case 5: 
-      tofHit->setTrainID(1);
+      tofHit->setTrainID(1-swapTrain);
       tofHit->setBarInTrainID(1);
       break;
     case 6:
-      tofHit->setTrainID(0);
+      tofHit->setTrainID(0+swapTrain);
       tofHit->setBarInTrainID(2);
       break;
     case 8:
-      tofHit->setTrainID(1);
+      tofHit->setTrainID(1-swapTrain);
       tofHit->setBarInTrainID(0);
       break;
     case 9:
-      tofHit->setTrainID(0);
+      tofHit->setTrainID(0+swapTrain);
       tofHit->setBarInTrainID(1);
       break;
     case 11:
-      tofHit->setTrainID(1);
+      tofHit->setTrainID(1-swapTrain);
       tofHit->setBarInTrainID(3);
       break;
     default:
-      int Run = (ctx.eventID().run_number() > 370000 ? 3 : 2);
       if(Run==2 && (hptdcChannel==1 || hptdcChannel==4)) ATH_MSG_DEBUG("Unrecognised hptdcChannel "<<hptdcChannel<<", hptdcID "<<hptdcID);
       else                                               ATH_MSG_WARNING("Unrecognised hptdcChannel "<<hptdcChannel<<", hptdcID "<<hptdcID);
     }
@@ -238,39 +240,38 @@ void AFP_Raw2DigiTool::setBarAndTrainID(xAOD::AFPToFHit* tofHit, const EventCont
   else if (hptdcID == 2) {
     switch (hptdcChannel) {
     case 0:
-      tofHit->setTrainID(2);
+      tofHit->setTrainID(2+swapTrain);
       tofHit->setBarInTrainID(0);
       break;
     case 2:
-      tofHit->setTrainID(3);
+      tofHit->setTrainID(3-swapTrain);
       tofHit->setBarInTrainID(2);
       break;
     case 3:
-      tofHit->setTrainID(2);
+      tofHit->setTrainID(2+swapTrain);
       tofHit->setBarInTrainID(3);
       break;
     case 5:
-      tofHit->setTrainID(3);
+      tofHit->setTrainID(3-swapTrain);
       tofHit->setBarInTrainID(1);
       break;
     case 6:
-      tofHit->setTrainID(2);
+      tofHit->setTrainID(2+swapTrain);
       tofHit->setBarInTrainID(2);
       break;
     case 8:
-      tofHit->setTrainID(3);
+      tofHit->setTrainID(3-swapTrain);
       tofHit->setBarInTrainID(0);
       break;
     case 9:
-      tofHit->setTrainID(2);
+      tofHit->setTrainID(2+swapTrain);
       tofHit->setBarInTrainID(1);
       break;
     case 11:
-      tofHit->setTrainID(3);
+      tofHit->setTrainID(3-swapTrain);
       tofHit->setBarInTrainID(3);
       break;
     default:
-      int Run = (ctx.eventID().run_number() > 370000 ? 3 : 2);
       if(Run==2 && (hptdcChannel==1 || hptdcChannel==4)) ATH_MSG_DEBUG("Unrecognised hptdcChannel "<<hptdcChannel<<", hptdcID "<<hptdcID);
       else                                               ATH_MSG_WARNING("Unrecognised hptdcChannel "<<hptdcChannel<<", hptdcID "<<hptdcID);
     }

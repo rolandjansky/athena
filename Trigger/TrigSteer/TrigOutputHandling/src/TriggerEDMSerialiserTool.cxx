@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cstring>
@@ -400,12 +400,10 @@ StatusCode TriggerEDMSerialiserTool::fill( HLT::HLTResultMT& resultToFill, const
 
   // Find a list of active moduleIDs in this event to skip inactive ones
   std::set<uint16_t> activeModules = activeModuleIDs(resultToFill);
-  // No active modules means a rejected event, so we shouldn't arrive here
-  // in the first place. Since we did, assume a special running mode and
-  // don't skip any serialisation, but print a warning
-  const bool serialiseToAllModules = activeModules.empty();
-  if (serialiseToAllModules) {
-    ATH_MSG_WARNING("No active module IDs in this event. Forcing all collections to be serialised.");
+  if (activeModules.empty()) {
+    ATH_MSG_DEBUG("No active module IDs in this event. This is normal for events accepted "
+                  << "only to calibration streams. Skip all EDM serialisation.");
+    return StatusCode::SUCCESS;
   }
 
   // Create buffer for serialised data
@@ -415,16 +413,9 @@ StatusCode TriggerEDMSerialiserTool::fill( HLT::HLTResultMT& resultToFill, const
   for ( const Address& address: m_toSerialise ) {
     // Check if we need to serialise this object for this event
     std::vector<uint16_t> addressActiveModuleIds;
-    if (serialiseToAllModules) {
-      addressActiveModuleIds.insert(addressActiveModuleIds.end(),
-                                    address.moduleIdVec.begin(),
-                                    address.moduleIdVec.end());
-    }
-    else {
-      std::set_intersection(address.moduleIdVec.begin(), address.moduleIdVec.end(),
-                            activeModules.begin(), activeModules.end(),
-                            std::back_inserter(addressActiveModuleIds));
-    }
+    std::set_intersection(address.moduleIdVec.begin(), address.moduleIdVec.end(),
+                          activeModules.begin(), activeModules.end(),
+                          std::back_inserter(addressActiveModuleIds));
     if (addressActiveModuleIds.empty()) {
       ATH_MSG_DEBUG("Streaming of " << address.persTypeName() << " is skipped "
                     << "because its module IDs are not active in this event");

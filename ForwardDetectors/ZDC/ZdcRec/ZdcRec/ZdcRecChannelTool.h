@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -98,7 +98,6 @@ private:
 	int getTimingCFD (const Identifier& id, const std::vector< std::vector <int> >& wfm);
 
 	gsl_interp_accel *m_interp_acc{};
-	const gsl_interp_type *m_interp_type{};
 	gsl_spline *m_spline{};
 
 	static double fx(double x0, void *params);
