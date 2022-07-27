@@ -21,6 +21,9 @@
 #include "TrigConfHLTData/HLTChainList.h"
 #include "TrigConfL1Data/CTPConfig.h"
 #include "TrigConfL1Data/Menu.h"
+#include "TrigConfData/L1BunchGroupSet.h"
+
+#include "AsgTools/CurrentContext.h"
 
 /// Number of TDT instances
 static std::atomic<int> s_instances = 0;
@@ -157,7 +160,6 @@ bool Trig::TrigDecisionTool::getForceConfigUpdate() {
 }
 
 
-
 StatusCode Trig::TrigDecisionTool::beginEvent() {
 
   CacheGlobalMemory* cgmPtr = cgm();
@@ -178,72 +180,43 @@ StatusCode Trig::TrigDecisionTool::beginEvent() {
   // inform the CGM that we are on a new event
   ATH_MSG_VERBOSE("beginEvent: invalidating CacheGlobalMemory");
   cgmPtr->reset_decision();
-
-#ifndef XAOD_STANDALONE // AthAnalysis or full Athena
-  if(m_configSvc.empty()) {
-#endif
-    //for analysis releases we check whether we need to update the config
-    //we also do this in full athena, in the case where there was no configSvc provided ...
-    ATH_MSG_DEBUG("beginEvent: check if config update is nessecary (via config Tool)");
-
-    bool keysMatch = configKeysMatch(m_configTool->masterKey(),
-      m_configTool->lvl1PrescaleKey(),
-      m_configTool->hltPrescaleKey());
-    
-    if(!keysMatch or getForceConfigUpdate()){
-
-      ATH_MSG_INFO("Tool: updating config in slot " << slot
-        << " with SMK: " << m_configTool->masterKey() 
-        << " and L1PSK: " << m_configTool->lvl1PrescaleKey() 
-        << " and HLTPSK: " << m_configTool->hltPrescaleKey()
-        << " getForceConfigUpdate()=" << getForceConfigUpdate()
-        << " HLT Chains: " << m_configTool->chains().size());
-
-      std::vector<uint32_t>* keys = getKeys();
-      keys->resize(3);
-      keys->at(0) = m_configTool->masterKey();
-      keys->at(1) = m_configTool->lvl1PrescaleKey();
-      keys->at(2) = m_configTool->hltPrescaleKey();
-      configurationUpdate( &m_configTool->chains(), m_configTool->ctpConfig() );
-      setForceConfigUpdate(false);
-    } else{
-      ATH_MSG_DEBUG("Tool: Cached Trigger configuration keys match for this event in slot " << slot);
-    }
-#ifndef XAOD_STANDALONE // AthAnalysis or full Athena
+  TrigConf::IIHLTConfigSvc *iHLTConfig{nullptr};
+  TrigConf::IILVL1ConfigSvc *iL1Config{nullptr};
+#ifndef XAOD_STANDALONE
+  if (!m_configSvc.empty())
+  {
+      iHLTConfig = m_configSvc.get();
+      iL1Config = m_configSvc.get();
   }
+  else
 #endif
-
-#ifndef XAOD_STANDALONE // AthAnalysis or full Athena
-  if(m_configSvc.name() == "xAODConfigSvc" or m_configSvc.name() == "TrigConfigSvc") {
-    // ... and where we are using the xAOD service (instead of the TrigConfSvc)
-    ATH_MSG_DEBUG("beginEvent: check if config update is nessecary (via " << m_configSvc.name() << ")");
-
-    const uint32_t smk = m_configSvc->masterKey();
-    const uint32_t l1psk = m_configSvc->lvl1PrescaleKey();
-    const uint32_t hltpsk = m_configSvc->hltPrescaleKey();
-    bool keysMatch = configKeysMatch(smk, l1psk, hltpsk);
-
-    if(!keysMatch or getForceConfigUpdate()){
-
-      ATH_MSG_INFO("Svc: updating config in slot " << slot
-        << " with SMK: " << smk
-        << " and L1PSK: " << l1psk
-        << " and HLTPSK: " << hltpsk
-        << " getForceConfigUpdate()=" << getForceConfigUpdate()
-        << " HLT Chains: " << m_configSvc->chains().size());
-
-      std::vector<uint32_t>* keys = getKeys();
-      keys->resize(3);
-      keys->at(0) = smk;
-      keys->at(1) = l1psk;
-      keys->at(2) = hltpsk;
-      configurationUpdate( &m_configSvc->chains(), m_configSvc->ctpConfig() );
-      setForceConfigUpdate(false);
-    }else{
-      ATH_MSG_DEBUG("Svc: Cached Trigger configuration keys match for this event in slot " << slot);
-    }
+  {
+      iHLTConfig = m_configTool.operator->();
+      iL1Config = m_configTool.operator->();
   }
-#endif
+
+  ATH_MSG_DEBUG("beginEvent: check if config update is necessary");
+  std::vector<uint32_t> newKeys = {
+    iHLTConfig->masterKey(),
+    iL1Config->lvl1PrescaleKey(),
+    iHLTConfig->hltPrescaleKey(),
+    iL1Config->bunchGroupSetKey()
+  };
+  if (*getKeys() != newKeys or getForceConfigUpdate())
+  {
+    ATH_MSG_INFO("Updating config in slot " << slot
+        << " with SMK: " << newKeys[0]
+        << " and L1PSK: " << newKeys[1] 
+        << " and HLTPSK: " << newKeys[2]
+        << " and BGSK: " << newKeys[3]
+        << " getForceConfigUpdate()=" << getForceConfigUpdate()
+        << " HLT Chains: " << iHLTConfig->chains().size());
+    *getKeys() = newKeys;
+    configurationUpdate( &iHLTConfig->chains(), iL1Config->ctpConfig() );
+    setForceConfigUpdate(false);
+  }
+  else
+    ATH_MSG_DEBUG("Cached trigger configuration keys match for this event in slot " << slot);
 
   return StatusCode::SUCCESS;
 }
@@ -255,16 +228,6 @@ StatusCode Trig::TrigDecisionTool::beginInputFile() {
    ATH_MSG_VERBOSE("Trig::TrigDecisionTool::beginInputFile: setForceConfigUpdate(true, forceForAllSlots=true)");
    setForceConfigUpdate(true, /*forceForAllSlots=*/ true);
    return StatusCode::SUCCESS;
-}
-
-bool Trig::TrigDecisionTool::configKeysMatch(uint32_t smk, uint32_t lvl1psk, uint32_t hltpsk){
-  std::vector<uint32_t>* keys = getKeys(); // Slot-specific object in full athena.
-  if (keys->size() != 3) {
-    return false;
-  }
-  return ( ( smk == keys->at(0) ) &&
-           ( lvl1psk == keys->at(1) ) &&
-           ( hltpsk == keys->at(2) ) );
 }
 
 StatusCode

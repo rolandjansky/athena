@@ -51,6 +51,9 @@ namespace TrigConf {
       /**@brief accessor to the configuration lvl1 prescale key*/
       virtual uint32_t lvl1PrescaleKey() const = 0;
 
+      /**@brief accessor to the LVL1 bunch group set key**/
+      virtual uint32_t bunchGroupSetKey() const = 0;
+
       /// Returns the JSON configured L1 ptree
       virtual const ::TrigConf::L1Menu& l1Menu(const ::EventContext& ctx) const = 0;
 
