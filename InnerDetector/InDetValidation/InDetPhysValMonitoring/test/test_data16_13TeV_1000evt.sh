@@ -15,7 +15,7 @@ run() { (set -x; exec "$@") }
 lastref_dir=last_results
 artdata=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art
 inputBS=${artdata}/RecJobTransformTests/data16_13TeV.00310809.physics_Main.daq.RAW._lb1219._SFO-2._0001.data 
-dcubeXml="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPhysValMonitoring/dcube/config/IDPVMPlots_R22.xml"
+dcubeXml="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPhysValMonitoring/dcube/config/IDPVMPlots_master_data.xml"
 dcubeRef="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPhysValMonitoring/ReferenceHistograms/physval_data16_1000evt_reco_r22.root"
 
 # Reco step based on test InDetPhysValMonitoring ART setup from Josh Moss.
@@ -56,13 +56,13 @@ if [ $rec_tf_exit_code -eq 0 ]  ;then
   run art.py download --user=artprod --dst="$lastref_dir" "$ArtPackage" "$ArtJobName"
   run ls -la "$lastref_dir"
 
-  echo "compare with R22 with nightly build at 2020-12-05"
+  echo "compare with R22.0.73"
   $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
     -p -x dcube \
     -c ${dcubeXml} \
     -r ${dcubeRef} \
     physval.ntuple.root
-  echo "art-result: $? plots"
+  echo "art-result: $? dcube"
   
   echo "compare with last build"
   $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
@@ -70,6 +70,6 @@ if [ $rec_tf_exit_code -eq 0 ]  ;then
     -c ${dcubeXml} \
     -r ${lastref_dir}/physval.ntuple.root \
     physval.ntuple.root
-  echo "art-result: $? plots"
+  echo "art-result: $? dcube_last"
 fi
 
