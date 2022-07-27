@@ -9,6 +9,7 @@
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadDecorHandleKey.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "LumiBlockData/BunchCrossingCondData.h"
 #include <math.h>
@@ -28,6 +29,7 @@ private:
 
   SG::ReadCondHandleKey<BunchCrossingCondData> m_bunchCrossingKey{this, "BunchCrossingKey", "BunchCrossingData", "Key BunchCrossing CDO" };
 
+  SG::ReadDecorHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "LArStatusFlag", "EventInfo.larFlag", "Key for EventInfo object"};
   SG::ReadHandleKey<xAOD::CaloClusterContainer> m_HLT_cont_key;
   SG::ReadHandleKey<xAOD::CaloClusterContainer> m_OFF_cont_key;
   std::string m_HLT_cont_name;
