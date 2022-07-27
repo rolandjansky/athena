@@ -75,7 +75,7 @@ _all_streams = [
     StreamInfo('LArPEBDigitalTrigger', 'calibration', False, False),
     StreamInfo('L1TopoMismatches', 'calibration', False, True),
     StreamInfo('ZDCCalib', 'calibration', False, False),
-    StreamInfo('IDCalib', 'calibration', False, False),
+    StreamInfo('IDCalib', 'calibration', True, False),
     StreamInfo('AFPCalib', 'calibration', False, False),
     StreamInfo('PixelBeam', 'calibration', True, False),
     StreamInfo('VdM', 'calibration', True, False),
