@@ -9,6 +9,16 @@ from DerivationFrameworkJetEtMiss.JetCommon import OutputJets, addJetOutputs
 from DerivationFrameworkPhys import PhysCommon
 
 #====================================================================
+# SET UP STREAM
+#====================================================================
+streamName = derivationFlags.WriteDAOD_JETM8Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_JETM8Stream )
+JETM8Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+JETM8Stream.AcceptAlgs(["JETM8MainKernel"])
+augStream = MSMgr.GetStream( streamName )
+evtStream = augStream.GetEventStream()
+
+#====================================================================
 # SKIMMING TOOL 
 #====================================================================
 
@@ -141,25 +151,13 @@ OutputJets["JETM8"] = []
 #====================================================================
 
 if DerivationFrameworkIsMonteCarlo:
-  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   from DerivationFrameworkMCTruth.MCTruthCommon import addTopQuarkAndDownstreamParticles
   from DerivationFrameworkMCTruth.MCTruthCommon import addHFAndDownstreamParticles
   from DerivationFrameworkMCTruth.MCTruthCommon import addTruthCollectionNavigationDecorations
-  addStandardTruthContents()
   addTopQuarkAndDownstreamParticles()
   addHFAndDownstreamParticles(addB=True, addC=False, generations=0)
   addTruthCollectionNavigationDecorations(TruthCollections=["TruthTopQuarkWithDecayParticles","TruthBosonsWithDecayParticles"],prefix='Top')
 
-
-#====================================================================
-# SET UP STREAM   
-#====================================================================
-streamName = derivationFlags.WriteDAOD_JETM8Stream.StreamName
-fileName   = buildFileName( derivationFlags.WriteDAOD_JETM8Stream )
-JETM8Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-JETM8Stream.AcceptAlgs(["JETM8MainKernel"])
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
 
 #====================================================================
 # Add the containers to the output stream - slimming done here

@@ -36,14 +36,11 @@ namespace DerivationFramework {
 
   private:
 
-    float m_z0sinthcut;
-
     ToolHandle<CP::IWeightPFOTool> m_weightPFOTool;    /// Retrieval tool
 
     SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainer_key{this, "VertexContainer", "PrimaryVertices", "Input vertex container"};
     SG::ReadHandleKey<xAOD::FlowElementContainer> m_pfoContainer_key{this, "GlobalChargedParticleFlowObjects", "GlobalChargedParticleFlowObjects", "Input charged PFO"};
 
-    SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_PVmatchedKey {this, "PVmatchedKey", "GlobalChargedParticleFlowObjects.DFCommonPFlow_PVMatched", "Boolean indicating if PFO was matched to PV "};
     SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_corrP4_ptKey {this, "m_corrP4_ptKey", "GlobalChargedParticleFlowObjects.DFCommonPFlow_CaloCorrectedPt", "Decoration for weighted charged PFO pt"};
     SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_z0Key {this, "m_z0Key", "GlobalChargedParticleFlowObjects.DFCommonPFlow_z0", "Decoration for track z0"};
     SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_vzKey{this, "m_vzKey","GlobalChargedParticleFlowObjects.DFCommonPFlow_vz", "Decoration for track vz"};

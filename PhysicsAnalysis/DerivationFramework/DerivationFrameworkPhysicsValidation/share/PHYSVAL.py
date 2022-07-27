@@ -21,7 +21,7 @@ EGammaCommon.makeEGammaDFCommon()
 MuonsCommon.makeMuonsDFCommon()
 from DerivationFrameworkJetEtMiss.JetCommon import addEventCleanFlags, addDAODJets
 from JetRecConfig.StandardSmallRJets import AntiKt4Truth,AntiKt4EMTopo,AntiKt4LCTopo,AntiKt4EMPFlow,AntiKtVR30Rmax4Rmin02PV0Track
-from JetRecConfig.StandardLargeRJets import AntiKt10LCTopoTrimmed
+from JetRecConfig.StandardLargeRJets import AntiKt10LCTopoTrimmed,AntiKt10UFOCSSKSoftDrop
 from DerivationFrameworkJetEtMiss.METCommon import scheduleStandardMETContent
 from TriggerMenuMT.TriggerAPI.TriggerAPI import TriggerAPI
 from TriggerMenuMT.TriggerAPI.TriggerEnums import TriggerPeriod, TriggerType
@@ -45,6 +45,7 @@ AugmentationTools   = []
 
 # Special sequence 
 SeqPHYSVAL = CfgMgr.AthSequencer("SeqPHYSVAL")
+DerivationFrameworkJob += SeqPHYSVAL
 
 #====================================================================
 # MONTE CARLO TRUTH
@@ -61,20 +62,20 @@ if (DerivationFrameworkIsMonteCarlo):
                                                                   Do_Compress             = True)
    ToolSvc += PHYSVALTruthCharmTool
    #from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
-   SeqPHYSVAL += CfgMgr.DerivationFramework__CommonAugmentation("PHYSVALTruthCharmKernel",AugmentationTools=[PHYSVALTruthCharmTool])
+   DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("PHYSVALTruthCharmKernel",AugmentationTools=[PHYSVALTruthCharmTool])
    # Add HF particles
-   addHFAndDownstreamParticles(SeqPHYSVAL)
+   addHFAndDownstreamParticles(DerivationFrameworkJob)
    # Add standard truth
-   addStandardTruthContents(SeqPHYSVAL,prefix='PHYSVAL_')
+   addStandardTruthContents(DerivationFrameworkJob,prefix='PHYSVAL_')
    # Update to include charm quarks and HF particles - require a separate instance to be train safe
    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthNavigationDecorator
    PHYSVALTruthNavigationDecorator = DerivationFramework__TruthNavigationDecorator( name="PHYSVALTruthNavigationDecorator",
           InputCollections=["TruthElectrons", "TruthMuons", "TruthPhotons", "TruthTaus", "TruthNeutrinos", "TruthBSM", "TruthBottom", "TruthTop", "TruthBoson","TruthCharm","TruthHFWithDecayParticles"])
    ToolSvc += PHYSVALTruthNavigationDecorator
-   SeqPHYSVAL.PHYSVAL_MCTruthNavigationDecoratorKernel.AugmentationTools = [PHYSVALTruthNavigationDecorator]
+   DerivationFrameworkJob.PHYSVAL_MCTruthNavigationDecoratorKernel.AugmentationTools = [PHYSVALTruthNavigationDecorator]
    # Re-point links on reco objects
-   addMiniTruthCollectionLinks(SeqPHYSVAL)
-   addPVCollection(SeqPHYSVAL)
+   addMiniTruthCollectionLinks(DerivationFrameworkJob)
+   addPVCollection(DerivationFrameworkJob)
    # Set appropriate truth jet collection for tau truth matching
    ToolSvc.DFCommonTauTruthMatchingTool.TruthJetContainerName = "AntiKt4TruthDressedWZJets"
    # Add sumOfWeights metadata for LHE3 multiweights =======
@@ -134,27 +135,23 @@ AntiKt4EMPFlow_deriv = AntiKt4EMPFlow.clone(
 
 jetList = [AntiKt4EMTopo_deriv,
            AntiKt4EMPFlow_deriv,
+           AntiKt4LCTopo,
            AntiKtVR30Rmax4Rmin02PV0Track,
-           AntiKt10LCTopoTrimmed]
+           AntiKt10LCTopoTrimmed,
+           AntiKt10UFOCSSKSoftDrop]
 
-addDAODJets(jetList,SeqPHYSVAL)
+addDAODJets(jetList,DerivationFrameworkJob)
 
 # Event cleaning flags
-addEventCleanFlags(sequence=SeqPHYSVAL)
+addEventCleanFlags(sequence=DerivationFrameworkJob)
 
-scheduleStandardMETContent(sequence=SeqPHYSVAL, algname="METAssociationAlg")
-
-#====================================================================
-# Add our sequence to the top sequence
-#====================================================================
-DerivationFrameworkJob += SeqPHYSVAL
-
+scheduleStandardMETContent(sequence=DerivationFrameworkJob, algname="METAssociationAlg")
 
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #====================================================================
 # Add the kernel for thinning (requires the objects be defined)
-SeqPHYSVAL += CfgMgr.DerivationFramework__DerivationKernel("PHYSVALKernel")
+DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("PHYSVALKernel")
 
 
 #====================================================================
@@ -162,7 +159,7 @@ SeqPHYSVAL += CfgMgr.DerivationFramework__DerivationKernel("PHYSVALKernel")
 #====================================================================
 
 from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollections
-FtagJetCollections(['AntiKt4EMPFlowJets','AntiKtVR30Rmax4Rmin02TrackJets'],SeqPHYSVAL)
+FtagJetCollections(['AntiKt4EMPFlowJets','AntiKtVR30Rmax4Rmin02TrackJets'],DerivationFrameworkJob)
 
 #====================================================================
 # TC-LVT Vertices 
@@ -197,6 +194,7 @@ PHYSVALSlimmingHelper.SmartCollections = ["Electrons",
                                        "DiTauJets",
                                        "DiTauJetsLowPt",
                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                                       "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets",
                                        "AntiKtVR30Rmax4Rmin02PV0TrackJets",
                                       ]
 

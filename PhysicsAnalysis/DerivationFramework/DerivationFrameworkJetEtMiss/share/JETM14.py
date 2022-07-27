@@ -5,6 +5,7 @@
 from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob, buildFileName
 from DerivationFrameworkJetEtMiss import TriggerLists
 from DerivationFrameworkJetEtMiss.METTriggerDerivationContent import METTriggerDerivationContentManager
+from DerivationFrameworkPhys import PhysCommon
 
 #======================================================================================================================
 # SKIMMING TOOL
@@ -12,7 +13,7 @@ from DerivationFrameworkJetEtMiss.METTriggerDerivationContent import METTriggerD
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
 singleMuTriggers = TriggerLists.single_mu_Trig()
-cutExpression = "(count(Muons.DFCommonMuonsPreselection && Muons.pt > (20*GeV) && abs(Muons.eta) < 2.7) ) >= 2"
+cutExpression = "(count(Muons.DFCommonMuonPassPreselection && Muons.pt > (20*GeV) && abs(Muons.eta) < 2.7) ) >= 2"
 JETM14StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(
     name       = "JETM14StringSkimmingTool",
     expression = cutExpression)

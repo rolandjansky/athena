@@ -7,11 +7,6 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFramewor
 from DerivationFrameworkJetEtMiss.JetCommon import OutputJets, addJetOutputs, addDAODJets
 from JetRecConfig.StandardSmallRJets import AntiKt4LCTopo
 from DerivationFrameworkJetEtMiss.METCommon import addMETTruthMap, scheduleMETAssocAlg, addMETOutputs
-
-if DerivationFrameworkIsMonteCarlo:
-  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
-  addStandardTruthContents()
-
 from DerivationFrameworkPhys import PhysCommon
 
 #====================================================================

@@ -64,6 +64,7 @@ def PHYSVALCfg(ConfigFlags):
                                               "DiTauJets",
                                               "DiTauJetsLowPt",
                                               "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                                              "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets",
                                               "AntiKtVR30Rmax4Rmin02PV0TrackJets"]
    
     PHYSVALSlimmingHelper.AllVariables =  ["EventInfo",
@@ -85,7 +86,7 @@ def PHYSVALCfg(ConfigFlags):
                                            "TauJets",
                                            "DiTauJets",
                                            "DiTauJetsLowPt",
-                                           "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets","AntiKt10LCTopoJets","AntiKt4LCTopoJets",
+                                           "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets","AntiKt10LCTopoJets","AntiKt4LCTopoJets","AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets",
                                            "TruthParticles", "TruthEvents", "TruthVertices", "MuonTruthParticles", "egammaTruthParticles",
                                            "MuonTruthSegments",
                                            "MET_Truth","MET_TruthRegions",
