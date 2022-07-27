@@ -89,6 +89,9 @@ namespace TrigConf {
       /// Get the LVL1 prescale key
       virtual uint32_t lvl1PrescaleKey() const override ;
 
+      /// Get the LVL1 bunch group set key
+      virtual uint32_t bunchGroupSetKey() const override;
+
       /// @}
 
       /// @name Implementation of the IIHLTConfigSvc interface

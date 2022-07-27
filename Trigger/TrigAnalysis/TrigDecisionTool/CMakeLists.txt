@@ -10,6 +10,14 @@ set( ROOT_LIBRARIES_NOPYTHON ${ROOT_LIBRARIES} )
 unset( ROOT_FOUND )
 find_package( ROOT COMPONENTS Core PyROOT ROOTTPython )
 
+set( COMMON_LIBRARIES
+    ${Boost_LIBRARIES} AsgTools CxxUtils xAODBase xAODTrigger 
+    TrigConfHLTData TrigConfL1Data TrigNavStructure TrigRoiConversionLib 
+    TrigConfInterfaces TrigDecisionInterface TrigCompositeUtilsLib
+    TrigConfHLTUtilsLib AsgDataHandlesLib)
+set (COMMON_PRIVATE_LIBRARIES
+    ${ROOT_LIBRARIES} TrigSteeringEvent TrigConfData)
+
 # Component(s) in the package:
 if( XAOD_STANDALONE )
    atlas_add_library( TrigDecisionToolLib
@@ -17,11 +25,8 @@ if( XAOD_STANDALONE )
       PUBLIC_HEADERS TrigDecisionTool
       INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
       PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${Boost_LIBRARIES} AsgTools CxxUtils xAODBase xAODTrigger
-      TrigConfHLTData TrigConfL1Data TrigNavStructure TrigRoiConversionLib
-      TrigConfInterfaces TrigDecisionInterface AsgDataHandlesLib
-      TrigCompositeUtilsLib TrigConfHLTUtilsLib
-      PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TrigSteeringEvent  )
+      LINK_LIBRARIES ${COMMON_LIBRARIES}
+      PRIVATE_LINK_LIBRARIES ${COMMON_PRIVATE_LIBRARIES} )
 else()
    if( XAOD_ANALYSIS )
       atlas_add_library( TrigDecisionToolLib
@@ -29,26 +34,18 @@ else()
          PUBLIC_HEADERS TrigDecisionTool
          INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
          PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-         LINK_LIBRARIES ${Boost_LIBRARIES} AsgTools CxxUtils EventInfo xAODBase
-         xAODTrigger GaudiKernel TrigConfHLTData TrigConfL1Data
-         TrigNavStructure StoreGateLib TrigRoiConversionLib TrigCompositeUtilsLib
-         TrigConfInterfaces TrigDecisionInterface TrigConfHLTUtilsLib
-         PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AsgDataHandlesLib
-         TrigSteeringEvent AthenaKernel )
+         LINK_LIBRARIES ${COMMON_LIBRARIES} EventInfo GaudiKernel StoreGateLib 
+         PRIVATE_LINK_LIBRARIES ${COMMON_PRIVATE_LIBRARIES} AthenaBaseComps AthenaKernel )
    else()
       atlas_add_library( TrigDecisionToolLib
          TrigDecisionTool/*.h Root/*.cxx src/*.cxx
          PUBLIC_HEADERS TrigDecisionTool
          INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
          PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-         LINK_LIBRARIES ${Boost_LIBRARIES} AsgTools CxxUtils EventInfo xAODBase
-         xAODTrigger GaudiKernel AnalysisTriggerEvent TrigConfHLTData
-         TrigConfL1Data TrigDecisionEvent TrigMuonEvent TrigNavStructure
-         TrigStorageDefinitions StoreGateLib TrigNavigationLib
-         TrigRoiConversionLib TrigCompositeUtilsLib TrigConfInterfaces
-         TrigDecisionInterface AsgDataHandlesLib TrigConfHLTUtilsLib
+         LINK_LIBRARIES ${COMMON_LIBRARIES} EventInfo GaudiKernel StoreGateLib
+         AnalysisTriggerEvent TrigMuonEvent TrigSteeringEvent TrigNavigationLib TrigDecisionEvent
          PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES_NOPYTHON} AthenaBaseComps
-         TrigSteeringEvent AthenaKernel )
+         TrigSteeringEvent AthenaKernel TrigConfData)
    endif()
 
    atlas_add_component( TrigDecisionTool
