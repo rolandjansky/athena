@@ -16,20 +16,17 @@
 
 class MsgStream;
 
-class TauJetCnv_p2 : public T_AthenaPoolTPCnvConstBase<Analysis::TauJet, TauJet_p2>
+class TauJetCnv_p2
 {
-    public:
-        using base_class::persToTrans;
-        using base_class::transToPers;
+public:
+  TauJetCnv_p2() {};
+  void persToTrans( const TauJet_p2    *persObj,
+                    Analysis :: TauJet *transObj,
+                    MsgStream          &msg ) const;
 
-        TauJetCnv_p2() {};
-        virtual void persToTrans( const TauJet_p2    *persObj,
-                                  Analysis :: TauJet *transObj,
-                                  MsgStream          &msg ) const override;
-
-        virtual void transToPers( const Analysis :: TauJet *transObj,
-                                  TauJet_p2                *persObj,
-                                  MsgStream                &msg ) const override;
+  void transToPers( const Analysis :: TauJet *transObj,
+                    TauJet_p2                *persObj,
+                    MsgStream                &msg ) const;
 };
 
 #endif // tauEventTPCnv_TAUJETCNV_P2_H

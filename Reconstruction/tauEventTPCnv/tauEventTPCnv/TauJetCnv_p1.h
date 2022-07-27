@@ -11,7 +11,6 @@
 #ifndef tauEventTPCnv_TAUJETCNV_P1_H
 #define tauEventTPCnv_TAUJETCNV_P1_H
 
-#include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 #include "tauEventTPCnv/TauJet_p1.h"
 
 namespace Analysis
@@ -21,20 +20,17 @@ namespace Analysis
 
 class MsgStream;
 
-class TauJetCnv_p1 : public T_AthenaPoolTPCnvConstBase<Analysis::TauJet, TauJet_p1>
+class TauJetCnv_p1
 {
-    public:
-        using base_class::persToTrans;
-        using base_class::transToPers;
+public:
+  TauJetCnv_p1() {};
+  void persToTrans( const TauJet_p1    *persObj,
+                    Analysis :: TauJet *transObj,
+                    MsgStream          &msg ) const;
 
-        TauJetCnv_p1() {};
-        virtual void persToTrans( const TauJet_p1    *persObj,
-                                  Analysis :: TauJet *transObj,
-                                  MsgStream          &msg ) const override;
-
-        virtual void transToPers( const Analysis :: TauJet *transObj,
-                                  TauJet_p1                *persObj,
-                                  MsgStream                &msg ) const override;
+  void transToPers( const Analysis :: TauJet *transObj,
+                    TauJet_p1                *persObj,
+                    MsgStream                &msg ) const;
 };
 
 #endif // tauEventTPCnv_TAUJETCNV_P1_H

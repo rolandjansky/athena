@@ -19,45 +19,36 @@
 #ifndef tauEventTPCnv_TAUJETCNV_P4_H
 #define tauEventTPCnv_TAUJETCNV_P4_H
 
-#include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 #include "tauEventTPCnv/TauJet_p4.h"
 
 class MsgStream;
 
 /// Transient<->persistent converter for Analysis::TauCommonDetails v3
-class TauJetCnv_p4: 
-    public T_AthenaPoolTPCnvConstBase<Analysis::TauJet, TauJet_p4>
+class TauJetCnv_p4
 {
 public:
-    using base_class::persToTrans;
-    using base_class::transToPers;
-
     ///Constructor
     TauJetCnv_p4() {}
-
-    ///Destructor
-    virtual ~TauJetCnv_p4() {}
 
     ///Fills a transient object from a persistent object
     ///
     ///@param pers Persistent object
     ///@param trans Transient object
     ///@param msg Message stream
-    virtual void persToTrans( 
+    void persToTrans( 
 	const TauJet_p4 *pers,
 	Analysis::TauJet *trans,
-	MsgStream &msg ) const override;
+	MsgStream &msg ) const;
 
     ///Fills a persistent object from a transient object   
     ///
     ///@param trans Transient object
     ///@param pers Persistent object
     ///@param msg Message stream
-    virtual void transToPers( 
+    void transToPers( 
 	const Analysis::TauJet *trans,
 	TauJet_p4 *pers,
-	MsgStream &msg ) const override;
-private:
+	MsgStream &msg ) const;
 };
 
 #endif // tauEventTPCnv_TAUJETCNV_P4_H
