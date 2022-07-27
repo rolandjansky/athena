@@ -7,15 +7,20 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFramewor
 from DerivationFrameworkPhys import PhysCommon
 from DerivationFrameworkJetEtMiss.JetCommon import addJetOutputs, addOriginCorrectedClusters
 
-if DerivationFrameworkIsMonteCarlo:
-  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
-  addStandardTruthContents()
+#====================================================================
+# SET UP STREAM
+#====================================================================
+streamName = derivationFlags.WriteDAOD_JETM15Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_JETM15Stream )
+JETM15Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+JETM15Stream.AcceptAlgs(["JETM15MainKernel"])
+augStream = MSMgr.GetStream( streamName )
+evtStream = augStream.GetEventStream()
 
+if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth import MCTruthCommon
-  MCTruthCommon.addStandardTruthContents()
   MCTruthCommon.addBosonsAndDownstreamParticles(generations=4,rejectHadronChildren=True)
   MCTruthCommon.addTopQuarkAndDownstreamParticles(generations=4,rejectHadronChildren=True)
-
 
 #====================================================================
 # SKIMMING TOOL
@@ -36,7 +41,7 @@ orstr  = ' || '
 andstr = ' && '
 
 mutrigsel = '(EventInfo.eventTypeBitmask==1) || '+orstr.join(muonTriggers)
-muofflinesel = andstr.join(['count((Muons.pt > 20*GeV) && (Muons.DFCommonMuonsPreselection)) >= 1',
+muofflinesel = andstr.join(['count((Muons.pt > 20*GeV) && (Muons.DFCommonMuonPassPreselection)) >= 1',
                             jetSelection])
 muonSelection = ' ( (' + mutrigsel + ') && (' + muofflinesel + ') ) '
 
@@ -67,32 +72,28 @@ from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFram
 JETM15Akt10JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "JETM15Akt10JetLCTopoTPThinningTool",
                                                                         StreamName              = streamName,
                                                                         JetKey                  = "AntiKt10LCTopoJets",
-                                                                        InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                        ApplyAnd                = False)
+                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM15Akt10JetTPThinningTool
 thinningTools.append(JETM15Akt10JetTPThinningTool)
 
 JETM15Akt10JetTPThinningToolPFO = DerivationFramework__JetTrackParticleThinning( name          = "JETM15Akt10CSSKPFOJetTPThinningTool",
                                                                         StreamName              = streamName,
                                                                         JetKey                  = "AntiKt10EMPFlowCSSKJets",
-                                                                        InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                        ApplyAnd                = False)
+                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM15Akt10JetTPThinningToolPFO
 thinningTools.append(JETM15Akt10JetTPThinningToolPFO)
 
 JETM15Akt10JetEMUFOThinningToolTCC = DerivationFramework__JetTrackParticleThinning( name          = "JETM15Akt10JetCHSUFOThinningTool",
                                                                         StreamName              = streamName,
                                                                         JetKey                  = "AntiKt10UFOCHSJets",
-                                                                        InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                        ApplyAnd                = False)
+                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM15Akt10JetEMUFOThinningToolTCC
 thinningTools.append(JETM15Akt10JetEMUFOThinningToolTCC)
 
 JETM15Akt10JetCSSKUFOThinningToolTCC = DerivationFramework__JetTrackParticleThinning( name          = "JETM15Akt10JetCSSKUFOThinningTool",
                                                                         StreamName              = streamName,
                                                                         JetKey                  = "AntiKt10UFOCSSKJets",
-                                                                        InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                        ApplyAnd                = False)
+                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM15Akt10JetCSSKUFOThinningToolTCC
 thinningTools.append(JETM15Akt10JetCSSKUFOThinningToolTCC)
 
@@ -122,42 +123,41 @@ JETM15AKt10CCThinningTool = DerivationFramework__JetCaloClusterThinning(name    
                                                                       SGKey                 = "AntiKt10LCTopoJets",
                                                                       TopoClCollectionSGKey = "CaloCalTopoClusters",
                                                                       SelectionString       = "(AntiKt10LCTopoJets.pt > 300*GeV && abs(AntiKt10LCTopoJets.eta) < 2.8)",
-                                                                      AdditionalClustersKey = ["LCOriginTopoClusters", "LCOriginCSSKTopoClusters"],
-                                                                      ApplyAnd                = False)
+                                                                      AdditionalClustersKey = ["LCOriginTopoClusters", "LCOriginCSSKTopoClusters"])
 ToolSvc += JETM15AKt10CCThinningTool
 thinningTools.append(JETM15AKt10CCThinningTool)
 
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__UFOTrackParticleThinning
 JETM15EMUFOTPThinningTool = DerivationFramework__UFOTrackParticleThinning(name                      = "JETM15EMUFOTPThinningTool",
-                                                                       StreamName                   = streamName,
-                                                                       JetKey                       = "AntiKt10UFOCHSJets",
-                                                                       UFOKey                       = "CHSUFO",
-                                                                       InDetTrackParticlesKey       = "InDetTrackParticles",
-                                                                       PFOCollectionSGKey       = "JetETMiss",
-                                                                        AdditionalPFOKey  = ["CSSK", "CHS"])
+                                                                          StreamName                   = streamName,
+                                                                          JetKey                       = "AntiKt10UFOCHSJets",
+                                                                          UFOKey                       = "CHSUFO",
+                                                                          InDetTrackParticlesKey       = "InDetTrackParticles",
+                                                                          PFOCollectionSGKey       = "JetETMiss",
+                                                                          AdditionalPFOKey  = ["CSSK", "CHS"])
 ToolSvc += JETM15EMUFOTPThinningTool
 thinningTools.append(JETM15EMUFOTPThinningTool)
 
 JETM15EMCSSKUFOTPThinningTool = DerivationFramework__UFOTrackParticleThinning(name                  = "JETM15CSSKUFOTPThinningTool",
-                                                                       StreamName                   = streamName,
-                                                                       JetKey                       = "AntiKt10UFOCSSKJets",
-                                                                       UFOKey                       = "CSSKUFO",
-                                                                       InDetTrackParticlesKey       = "InDetTrackParticles",
-                                                                       PFOCollectionSGKey       = "JetETMiss",
-                                                                        AdditionalPFOKey  = ["CSSK", "CHS"])
+                                                                              StreamName                   = streamName,
+                                                                              JetKey                       = "AntiKt10UFOCSSKJets",
+                                                                              UFOKey                       = "CSSKUFO",
+                                                                              InDetTrackParticlesKey       = "InDetTrackParticles",
+                                                                              PFOCollectionSGKey       = "JetETMiss",
+                                                                              AdditionalPFOKey  = ["CSSK", "CHS"])
 ToolSvc += JETM15EMCSSKUFOTPThinningTool
 thinningTools.append(JETM15EMCSSKUFOTPThinningTool)
 
 
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetPFlowThinning
 JETM15AKt10PFOThinningTool = DerivationFramework__JetPFlowThinning(name                = "JETM15Ak10PFlowThinningTool",
-                                                                      StreamName            = streamName,
-                                                                      SGKey                 = "AntiKt10EMPFlowCSSKJets",
-                                                                      PFOCollectionSGKey    = "JetETMiss",
-                                                                      SelectionString       = "AntiKt10EMPFlowCSSKJets.pt > 300*GeV && abs(AntiKt10EMPFlowCSSKJets.eta) < 2.8",
-                                                                      AdditionalPFOKey      = ["CSSK", "CHS"],
-                                                                      )
+                                                                   StreamName            = streamName,
+                                                                   SGKey                 = "AntiKt10EMPFlowCSSKJets",
+                                                                   PFOCollectionSGKey    = "JetETMiss",
+                                                                   SelectionString       = "AntiKt10EMPFlowCSSKJets.pt > 300*GeV && abs(AntiKt10EMPFlowCSSKJets.eta) < 2.8",
+                                                                   AdditionalPFOKey      = ["CSSK", "CHS"],
+                                                                 )
 ToolSvc += JETM15AKt10PFOThinningTool
 thinningTools.append(JETM15AKt10PFOThinningTool)
 
@@ -191,15 +191,6 @@ jetm15Seq += CfgMgr.DerivationFramework__DerivationKernel( name = "JETM15MainKer
                                                           SkimmingTools = [JETM15OfflineSkimmingTool],
                                                           ThinningTools = thinningTools)
 
-#====================================================================
-# SET UP STREAM
-#====================================================================
-streamName = derivationFlags.WriteDAOD_JETM15Stream.StreamName
-fileName   = buildFileName( derivationFlags.WriteDAOD_JETM15Stream )
-JETM15Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-JETM15Stream.AcceptAlgs(["JETM15MainKernel"])
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
 
 # Truth particle thinning
 doTruthThinning = True

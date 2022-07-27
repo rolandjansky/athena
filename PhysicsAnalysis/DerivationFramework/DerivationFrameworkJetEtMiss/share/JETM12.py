@@ -19,7 +19,8 @@ andstr = ' && '
 trackRequirements = '(InDetTrackParticles.pt > 10.*GeV && InDetTrackParticles.TrkIsoPt1000_ptcone20 < 0.12*InDetTrackParticles.pt && InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV) < 5.0*mm )'
 trackRequirementsMu = '(InDetTrackParticles.pt > 70.*GeV && InDetTrackParticles.TrkIsoPt1000_ptcone20 < 0.12*InDetTrackParticles.pt && InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV) < 5.0*mm )'
 trackRequirementsTtbar = '(InDetTrackParticles.pt > 25.*GeV && InDetTrackParticles.TrkIsoPt1000_ptcone20 < 0.12*InDetTrackParticles.pt && InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV) < 5.0*mm )'
-jetRequirementsTtbar = '( AntiKt4EMTopoJets.pt > 20*GeV && BTagging_AntiKt4EMTopo.MV2c10_discriminant > 0.11 )'
+#Previously used also b-tagging criteria for slimming, to be checked in r22
+jetRequirementsTtbar = '( AntiKt4EMTopoJets.pt > 20*GeV )'
 expressionW = '( (' + orstr.join(metTriggers) + ' )' + andstr + '( count('+trackRequirements+') >=1 ) )'
 expressionMu = '( (' + orstr.join(muTriggers) + ' )' + andstr + '( count('+trackRequirementsMu+') >=1 ) )'
 expressionTtbar = '( (' + orstr.join(muTriggers) + ' )' + andstr + '( count('+trackRequirementsTtbar+') >=1 )' + andstr + '( count('+trackRequirements+') >=2 )' + andstr + '( count('+jetRequirementsTtbar+') >=1 ) )'
@@ -27,7 +28,7 @@ expression = '( '+expressionW+' || '+expressionMu+' || '+expressionTtbar+' )'
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 JETM12SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "JETM12SkimmingTool1",
-                                                                    expression = expression)
+                                                                  expression = expression)
 ToolSvc += JETM12SkimmingTool
 
 #====================================================================
@@ -68,22 +69,19 @@ TrackIsoTool500.TrackSelectionTool.CutLevel= "Loose"
 ToolSvc += TrackIsoTool500
 
 from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__trackIsolationDecorator
-import ROOT, cppyy
-cppyy.load_library('libxAODCoreRflxDict')
-cppyy.load_library('libxAODPrimitivesDict')
+import ROOT
 isoPar = ROOT.xAOD.Iso
 Pt1000IsoTrackDecorator = DerivationFramework__trackIsolationDecorator(name = "Pt1000IsoTrackDecorator",
-                                                                TrackIsolationTool = TrackIsoTool,
-                                                                TargetContainer = "InDetTrackParticles",
-                                                                ptcones = [isoPar.ptcone40,isoPar.ptcone30,isoPar.ptcone20],
-                                                                Prefix = 'TrkIsoPt1000_'
-                                                               )
+                                                                       TrackIsolationTool = TrackIsoTool,
+                                                                       TargetContainer = "InDetTrackParticles",
+                                                                       ptcones = [isoPar.ptcone40,isoPar.ptcone30,isoPar.ptcone20],
+                                                                       Prefix = 'TrkIsoPt1000_')
+
 Pt500IsoTrackDecorator = DerivationFramework__trackIsolationDecorator(name = "Pt500IsoTrackDecorator",
-                                                                TrackIsolationTool = TrackIsoTool500,
-                                                                TargetContainer = "InDetTrackParticles",
-                                                                ptcones = [isoPar.ptcone40,isoPar.ptcone30,isoPar.ptcone20],
-                                                                Prefix = 'TrkIsoPt500_'
-                                                               )
+                                                                      TrackIsolationTool = TrackIsoTool500,
+                                                                      TargetContainer = "InDetTrackParticles",
+                                                                      ptcones = [isoPar.ptcone40,isoPar.ptcone30,isoPar.ptcone20],
+                                                                      Prefix = 'TrkIsoPt500_')
 ToolSvc += Pt1000IsoTrackDecorator
 ToolSvc += Pt500IsoTrackDecorator
 
@@ -104,36 +102,39 @@ thinningTools.append(JETM12TPThinningTool)
 
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
-JETM12MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name     = "JETM12MuonTPThinningTool",
-                                                                    StreamName              = streamName,
-                                                                    MuonKey                 = "Muons",
-                                                                    InDetTrackParticlesKey  = "InDetTrackParticles")
+JETM12MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "JETM12MuonTPThinningTool",
+                                                                          StreamName              = streamName,
+                                                                          MuonKey                 = "Muons",
+                                                                          InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM12MuonTPThinningTool
 thinningTools.append(JETM12MuonTPThinningTool)
 
 # TrackParticles associated with electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 JETM12ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "JETM12ElectronTPThinningTool",
-                                                                               StreamName              = streamName,
-                                                                               SGKey                   = "Electrons",
-                                                                               InDetTrackParticlesKey  = "InDetTrackParticles")
+                                                                                StreamName              = streamName,
+                                                                                SGKey                   = "Electrons",
+                                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM12ElectronTPThinningTool
 thinningTools.append(JETM12ElectronTPThinningTool)
 
 # TrackParticles associated with photons
 JETM12PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "JETM12PhotonTPThinningTool",
-                                                                             StreamName              = streamName,
-                                                                             SGKey                   = "Photons",
-                                                                             InDetTrackParticlesKey  = "InDetTrackParticles")
+                                                                              StreamName              = streamName,
+                                                                              SGKey                   = "Photons",
+                                                                              InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM12PhotonTPThinningTool
 thinningTools.append(JETM12PhotonTPThinningTool)
 
 # TrackParticles associated with taus
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
-JETM12TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name            = "JETM12TauTPThinningTool",
-                                                                        StreamName      = streamName,
-                                                                        TauKey          = "TauJets",
-                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
+JETM12TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name                   = "JETM12TauTPThinningTool",
+                                                                         StreamName             = streamName,
+                                                                         TauKey                 = "TauJets",
+                                                                         InDetTrackParticlesKey = "InDetTrackParticles",
+                                                                         DoTauTracksThinning    = True,
+                                                                         TauTracksKey           = "TauTracks")
+
 ToolSvc += JETM12TauTPThinningTool
 thinningTools.append(JETM12TauTPThinningTool)
 
@@ -141,14 +142,15 @@ thinningTools.append(JETM12TauTPThinningTool)
 # CaloCalTopoCluster thinning
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
 JETM12CaloClusterThinning  = DerivationFramework__CaloClusterThinning(name                  = "JETM12CaloClusterThinning",
-                                                                       StreamName            = streamName,
-                                                                       SGKey                 = "InDetTrackParticles",
-                                                                       TopoClCollectionSGKey = "CaloCalTopoClusters",
-                                                                       SelectionString = "( InDetTrackParticles.pt > 10*GeV && InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV) < 5.0*mm )",
-                                                                       ConeSize = 0.6,
-                                                                       )
-ToolSvc += JETM12CaloClusterThinning
-thinningTools.append(JETM12CaloClusterThinning)
+                                                                      StreamName            = streamName,
+                                                                      SGKey                 = "InDetTrackParticles",
+                                                                      TopoClCollectionSGKey = "CaloCalTopoClusters",
+                                                                      SelectionString = "( InDetTrackParticles.pt > 10*GeV && InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV) < 5.0*mm )",
+                                                                      ConeSize = 0.6)
+
+#To be fixed, tool currently does not suppoert tracks to be used
+#ToolSvc += JETM12CaloClusterThinning
+#thinningTools.append(JETM12CaloClusterThinning)
 ###################################
 
 # Truth particle thinning
@@ -173,7 +175,6 @@ if doTruthThinning and DerivationFrameworkIsMonteCarlo:
 #=======================================
 # CREATE PRIVATE SEQUENCE
 #=======================================
-
 jetm12Seq = CfgMgr.AthSequencer("JETM12Sequence")
 DerivationFrameworkJob += jetm12Seq
 
@@ -184,16 +185,13 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 jetm12Seq += CfgMgr.DerivationFramework__DerivationKernel("JETM12KernelSkim",
                                                          SkimmingTools = [JETM12SkimmingTool],
                                                          AugmentationTools = AugmentationToolsSkim)
+
 jetm12Seq += CfgMgr.DerivationFramework__DerivationKernel("JETM12Kernel",
                                                          ThinningTools = thinningTools,
                                                          AugmentationTools = AugmentationTools)
 
 
 OutputJets["JETM12"] = []
-
-if DerivationFrameworkIsMonteCarlo:
-  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
-  addStandardTruthContents()
 
 #====================================================================
 # Add the containers to the output stream - slimming done here

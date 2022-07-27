@@ -3,11 +3,11 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-def JetCleaningToolCfg(ConfigFlags, name, jetdef, cleaningLevel):
+def JetCleaningToolCfg(ConfigFlags, name, jetdef, cleaningLevel, useDecorations):
     """Configure the jet cleaning tool"""
     acc = ComponentAccumulator()
     JetCleaningTool = CompFactory.JetCleaningTool
-    acc.setPrivateTools(JetCleaningTool(name, CutLevel=cleaningLevel, JetContainer=jetdef))
+    acc.setPrivateTools(JetCleaningTool(name, CutLevel=cleaningLevel, JetContainer=jetdef, UseDecorations=useDecorations))
     return acc
 
 
