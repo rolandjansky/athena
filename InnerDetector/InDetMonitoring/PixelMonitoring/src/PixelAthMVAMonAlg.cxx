@@ -58,8 +58,11 @@ StatusCode PixelAthMVAMonAlg::initialize() {
     }
     std::unique_ptr<TTree> trainingWeights( (TTree*)calibFile->Get("lgbm") );
     m_classBDT.emplace( std::make_pair(partitionLabel, std::make_unique<MVAUtils::BDT>( trainingWeights.get())) );
-  }
 
+    m_modData[ii]  = Monitored::buildToolMap<int>(m_tools, 
+						  pixBaseLayersLabel[ii], 
+						  PixMon::pixEtaSteps[ii]*PixMon::pixPhiSteps[ii]);
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -574,7 +577,8 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
       }
     }
   fill2DProfLayerAccum( BDT_Weights );
-
+  fill1DModProfAccum( BDT_Weights, lb );
+ 
   if (m_dumpTree) {
     auto mvaGroup = getGroup("MVA");
     auto mon_status_vec           = Monitored::Collection("status_vec", status); 

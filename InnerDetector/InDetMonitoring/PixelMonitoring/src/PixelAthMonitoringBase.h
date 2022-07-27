@@ -71,6 +71,8 @@ namespace PixMon {
   const unsigned int kNumPP0sEC {
     24
   };
+  const int pixPhiSteps[PixLayers::NBASELAYERS] = {kNumModulesDisk, kNumModulesDisk, kNumStavesL0, kNumStavesL1, kNumStavesL2, kNumStavesIBL};
+  const int pixEtaSteps[PixLayers::NBASELAYERS] = {kNumLayersDisk, kNumLayersDisk, kNumModulesBarrel, kNumModulesBarrel, kNumModulesBarrel, kNumFEsIBL};
 }
 
 const std::vector<float> iblFEetaEdges = { 0.5894, 1.0531, 1.3851, 1.6499, 1.8559, 2.0336, 2.1805, 2.3132,
@@ -116,6 +118,7 @@ public:
              int iFE, float value);
   };
   void fill2DProfLayerAccum(const VecAccumulator2DMap& accumulator) const;
+  void fill1DModProfAccum(const VecAccumulator2DMap& accumulator, int lumiblock) const;
 
   struct AccumulatorArrays {
     int DA[PixMon::kNumModulesDisk][PixMon::kNumLayersDisk];
@@ -137,6 +140,7 @@ protected:
     this, "PixelReadoutManager", "PixelReadoutManager", "Pixel readout manager"
   };
   const PixelID* m_pixelid{};
+  std::vector<int> m_modData[PixLayers::NBASELAYERS];
 
   /** @brief Optional read handle to get status data to test whether a pixel detector element is good.
    * If set to e.g. PixelDetectorElementStatus the event data will be used instead of the pixel conditions summary tool.
