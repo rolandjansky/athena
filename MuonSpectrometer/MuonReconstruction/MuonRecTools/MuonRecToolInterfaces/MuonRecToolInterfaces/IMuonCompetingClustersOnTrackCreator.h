@@ -8,7 +8,7 @@
 #include <list>
 #include <memory>
 
-#include "TrkCompetingRIOsOnTrackTool/ICompetingRIOsOnTrackTool.h"
+#include "GaudiKernel/IAlgTool.h"
 
 static const InterfaceID IID_IMuonCompetingClustersOnTrackCreator("Muon::IMuonCompetingClustersOnTrackCreator", 1, 0);
 
@@ -20,9 +20,9 @@ namespace Muon {
 
     class CompetingMuonClustersOnTrack;
 
-    /** @brief Interface for tools creating CompetingMuonClustersOnTrack objects, inherits from ICompetingRIOsOnTrackTool.
+    /** @brief Interface for tools creating CompetingMuonClustersOnTrack objects
      */
-    class IMuonCompetingClustersOnTrackCreator : virtual public Trk::ICompetingRIOsOnTrackTool {
+    class IMuonCompetingClustersOnTrackCreator : virtual public IAlgTool {
     public:
         static const InterfaceID& interfaceID();
 

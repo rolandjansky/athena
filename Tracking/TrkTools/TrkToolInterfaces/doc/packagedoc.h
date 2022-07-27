@@ -21,7 +21,6 @@ Abstract interfaces for the following tracking tasks are defined:
 @htmlinclude annotated.html
 
    - Trk::IAmbiTrackSelectionTool : forms new tracks using information about shared and already associated hits
-   - Trk::ICompetingRIOsOnTrackTool : creates Trk::CompetingRIOsOnTrack objects from a list of mutually exclusive PrepRawData and a track hypothesis
    - Trk::IDetailedTrackTruthBuilder : creates full truth information at track level
    - Trk::IDetailedTrackTruthSimilarity : Interface for track-truth match quality estimator tools
    - Trk::IPatternParametersUpdator : Interface for updating Trk::PatternTrackParameters with measurements
@@ -45,7 +44,6 @@ Abstract interfaces for the following tracking tasks are defined:
    - Trk::ITruthToTrack : converts MC-generator particle parameters into EDM representation for validation studies
    - Trk::ITruthTrajectoryBuilder : collects MC-generator information to build full (truth) trajectory across the detector
    - Trk::IUpdator : collection of methods operating on track states, mainly for Kalman filtering
-   - Trk::IWeightCalculator : encapsulates the calculations of assignmentProbabilities of competing measurements to a track
 
 This package is not built as any library, it is a simple include package.   
 

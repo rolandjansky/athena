@@ -37,29 +37,6 @@ public:
     virtual ~TriggerChamberClusterOnTrackCreator()=default;
 
     StatusCode initialize();
-
-    /** method for the creation of a single 
-	Trk::CompetingRIOsOnTrack:
-	It takes a list of RIOs (PrepRawData) and the given Track 
-	Parameter, cutValue defines
-	the cut used for calculating the initial assignment probabilities 
-	(see Trk::IWeightCalculator). Not implemented for now!! 
-    */
-    const Trk::CompetingRIOsOnTrack* createCompetingROT(const std::list< const Trk::PrepRawData* > &,
-							const Trk::TrackParameters&,
-							const Trk::IWeightCalculator::AnnealingFactor ) const
-	{
-	    return 0;
-	}
-    
-    /** method for the update of the assignment 
-	probabilities and effective measurements
-	of an Muon::CompetingMuonClustersOnTrack using a new track prediction. Not implemented for now!! */
-    void updateCompetingROT( Trk::CompetingRIOsOnTrack&,
-			     const Trk::TrackParameters&,
-			     const Trk::IWeightCalculator::AnnealingFactor ) const
-	{
-	}
     
     /** method to create a CompetingMuonClustersOnTrack using the PrepRawData hits and a scaled factor for the errors */
     std::unique_ptr<const CompetingMuonClustersOnTrack>

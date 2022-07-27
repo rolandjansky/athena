@@ -1,5 +1,5 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
-# Configuration of TRT_TrackExtensionTool_xk and TRT_TrackExtensionTool_DAF packages
+# Configuration of TRT_TrackExtensionTool_xk packages
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType
@@ -92,33 +92,8 @@ def TRT_TrackExtensionTool_xkCfg(flags, name='TRT_TrackExtensionTool_xk', **kwar
     acc.setPrivateTools(CompFactory.InDet.TRT_TrackExtensionTool_xk(name, **kwargs))
     return acc
 
-def TRT_TrackExtensionTool_DAFCfg(flags, name='TRT_TrackExtensionTool_DAF',**kwargs):
-    acc = ComponentAccumulator()
-
-    if 'CompetingDriftCircleTool' not in kwargs:
-        from InDetConfig.TrackingCommonConfig import InDetCompetingTRT_DC_ToolCfg
-        kwargs.setdefault("CompetingDriftCircleTool", acc.popToolsAndMerge(InDetCompetingTRT_DC_ToolCfg(flags)))
-
-    if 'PropagatorTool' not in kwargs:
-        from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg
-        InDetPatternPropagator = acc.popToolsAndMerge(RungeKuttaPropagatorCfg(flags, name="InDetPatternPropagator"))
-        acc.addPublicTool(InDetPatternPropagator)
-        kwargs.setdefault("PropagatorTool", InDetPatternPropagator)
-
-    if 'RoadTool' not in kwargs:
-        from InDetConfig.TrackingCommonConfig import InDetTRT_RoadMakerCfg
-        kwargs.setdefault("RoadTool", acc.popToolsAndMerge(InDetTRT_RoadMakerCfg(flags)))
-
-    kwargs.setdefault("TRT_DriftCircleContainer", 'TRT_DriftCircles')
-
-    acc.setPrivateTools(CompFactory.InDet.TRT_TrackExtensionTool_DAF(name,**kwargs))
-    return acc
-
 def TRT_TrackExtensionToolCfg(flags, name='TRT_TrackExtensionTool', **kwargs):
-    if flags.InDet.Tracking.trtExtensionType == 'xk':
-        if flags.Beam.Type is BeamType.Cosmics:
-            return TRT_TrackExtensionToolCosmicsCfg(flags, name, **kwargs)
-        else:
-            return TRT_TrackExtensionTool_xkCfg(flags, name, **kwargs)
-    if flags.InDet.Tracking.trtExtensionType == 'DAF':
-        return TRT_TrackExtensionTool_DAFCfg(flags, name, **kwargs)
+    if flags.Beam.Type is BeamType.Cosmics:
+        return TRT_TrackExtensionToolCosmicsCfg(flags, name, **kwargs)
+    else:
+        return TRT_TrackExtensionTool_xkCfg(flags, name, **kwargs)
