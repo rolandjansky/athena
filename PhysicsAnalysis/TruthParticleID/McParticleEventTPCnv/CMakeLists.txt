@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( McParticleEventTPCnv )
@@ -36,4 +36,4 @@ atlas_add_test( TruthEtIsolationsCnv_p1_test
                 SOURCES
                 test/TruthEtIsolationsCnv_p1_test.cxx
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-                LINK_LIBRARIES ${Boost_LIBRARIES} AthenaPoolCnvSvcLib DataModelAthenaPoolLib GaudiKernel GeneratorObjects McParticleEvent McParticleEventTPCnv SGTools TestTools )
+                LINK_LIBRARIES ${Boost_LIBRARIES} AthenaPoolCnvSvcLib DataModelAthenaPoolLib GaudiKernel GeneratorObjects McParticleEvent McParticleEventTPCnv SGTools TestTools CxxUtils )
