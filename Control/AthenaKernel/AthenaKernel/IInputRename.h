@@ -1,10 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file AthenaKernel/IInputRename.h
  * @author scott snyder <snyder@bnl.gov>
@@ -17,8 +14,8 @@
 #define ATHENAKERNEL_IINPUTRENAME_H
 
 
-#include "AthenaKernel/sgkey_t.h"
 #include "AthenaKernel/RCUObject.h"
+#include "CxxUtils/sgkey_t.h"
 #include "GaudiKernel/IInterface.h"
 #include <unordered_map>
 
@@ -45,7 +42,7 @@ public:
     SG::sgkey_t m_sgkey;
     std::string m_key;
   };
-  typedef std::unordered_map<SG::sgkey_t, Rename> InputRenameMap_t;
+  typedef SG::SGKeyMap<Rename> InputRenameMap_t;
   typedef RCUObject<InputRenameMap_t> InputRenameRCU_t;
 
   DeclareInterfaceID (IInputRename,1,0);
