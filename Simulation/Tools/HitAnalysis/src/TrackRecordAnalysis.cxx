@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrackRecordAnalysis.h"
@@ -214,7 +214,7 @@ StatusCode TrackRecordAnalysis::execute() {
   m_edep->clear();
   m_pdg->clear();
     
-  const DataHandle<TrackRecordCollection> TRcoll;
+  const TrackRecordCollection* TRcoll;
   if (evtStore()->retrieve(TRcoll, m_collection ) == StatusCode::SUCCESS) {
     for (TrackRecordCollection::const_iterator track = TRcoll->begin(); track != TRcoll->end(); ++track) {
       //TrackRecordCollection::const_iterator track;

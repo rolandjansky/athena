@@ -124,7 +124,7 @@ StatusCode sTGCHitAnalysis::initialize() {
 StatusCode sTGCHitAnalysis::execute() {
   ATH_MSG_DEBUG( "In sTGCHitAnalysis::execute()" );
 
-  const DataHandle<sTGCSimHitCollection> p_collection;;
+  const sTGCSimHitCollection* p_collection;
   if ((evtStore()->retrieve(p_collection,"sTGC_Hits"))==StatusCode::SUCCESS) {
     for (sTGCSimHitCollection::const_iterator i_hit = p_collection->begin(); i_hit != p_collection->end(); ++i_hit){
 
@@ -134,12 +134,12 @@ StatusCode sTGCHitAnalysis::execute() {
       int simId = (*i_hit).sTGCId();
       std::string sim_stationName = hitHelper->GetStationName(simId);
 
-      static std::string QS1C("QS1C");
-      static std::string QS2C("QS2C");
-      static std::string QS3C("QS3C");
-      static std::string QL1P("QL1P");
-      static std::string QL2P("QL2P");
-      static std::string QL3P("QL3P");
+      static const std::string QS1C("QS1C");
+      static const std::string QS2C("QS2C");
+      static const std::string QS3C("QS3C");
+      static const std::string QL1P("QL1P");
+      static const std::string QL2P("QL2P");
+      static const std::string QL3P("QL3P");
 
       int sim_side = hitHelper->GetSide(simId);
 

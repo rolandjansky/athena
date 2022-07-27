@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ZDCHitAnalysis.h"
@@ -123,7 +123,7 @@ StatusCode ZDCHitAnalysis::execute() {
   int mod_pix = -1;
 
   ZDC_SimStripHit_ConstIterator striphi;
-  const DataHandle<ZDC_SimStripHit_Collection> stripiter;
+  const ZDC_SimStripHit_Collection* stripiter;
   CHECK(evtStore()->retrieve(stripiter,"ZDC_SimStripHit_Collection"));
   for (striphi=(*stripiter).begin(); striphi != (*stripiter).end(); ++striphi) {
     ZDC_SimStripHit ghit(*striphi);
@@ -166,7 +166,7 @@ StatusCode ZDCHitAnalysis::execute() {
   }
 
   ZDC_SimPixelHit_ConstIterator pixelhi;
-  const DataHandle<ZDC_SimPixelHit_Collection> pixeliter;
+  const ZDC_SimPixelHit_Collection* pixeliter;
   CHECK(evtStore()->retrieve(pixeliter,"ZDC_SimPixelHit_Collection"));
   for (pixelhi=(*pixeliter).begin(); pixelhi != (*pixeliter).end(); ++pixelhi) {
     ZDC_SimPixelHit ghit(*pixelhi);

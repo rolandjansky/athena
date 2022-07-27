@@ -84,7 +84,7 @@ StatusCode LarEMSamplingFraction::initialize()
   ATH_CHECK(m_caloMgrKey.initialize());
   ATH_CHECK(detStore()->retrieve(m_calo_id, "CaloCell_ID"));
   
-  const DataHandle<CaloIdManager> caloIdManager;
+  const CaloIdManager* caloIdManager;
   ATH_CHECK(detStore()->retrieve(caloIdManager));
 
   m_tileID=caloIdManager->getTileID();
@@ -119,7 +119,7 @@ StatusCode LarEMSamplingFraction::execute()
   SG::ReadCondHandle<TileSamplingFraction> tileSamplingFraction(m_tileSamplingFractionKey);
   ATH_CHECK( tileSamplingFraction.isValid() );
 
-  const DataHandle<CaloCalibrationHitContainer> cchc;
+  const CaloCalibrationHitContainer* cchc;
   std::vector<const CaloCalibrationHitContainer *> v_cchc;
   std::vector<std::string>::iterator iter;
   for (iter=m_CalibrationHitContainerNames.begin();iter!=m_CalibrationHitContainerNames.end();iter++)
@@ -352,7 +352,7 @@ StatusCode LarEMSamplingFraction::execute()
   //Get all G4Hits (from CaloHitAnalysis)
   std::string  lArKey [4] = {"LArHitEMB", "LArHitEMEC", "LArHitFCAL", "LArHitHEC"};
   for (unsigned int i=0;i<4;i++) {
-    const DataHandle<LArHitContainer> iter;
+    const LArHitContainer* iter;
     ATH_MSG_DEBUG( "Checking G4Hits: "<<lArKey[i]);
     if(evtStore()->retrieve(iter,lArKey[i])==StatusCode::SUCCESS) {
       LArHitContainer::const_iterator hi;

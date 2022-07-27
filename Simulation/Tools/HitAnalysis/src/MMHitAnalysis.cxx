@@ -263,7 +263,7 @@ StatusCode MMHitAnalysis::execute() {
 
   m_hits_x->clear();
 
-  const DataHandle<MMSimHitCollection> p_collection;;
+  const MMSimHitCollection* p_collection;;
   if ((evtStore()->retrieve(p_collection,"MM_Hits"))==StatusCode::SUCCESS) {
     for (MMSimHitCollection::const_iterator i_hit = p_collection->begin(); i_hit != p_collection->end(); ++i_hit){
       
@@ -274,14 +274,14 @@ StatusCode MMHitAnalysis::execute() {
       std::string sim_stationName = hitHelper->GetStationName(simId);
       int sim_side = hitHelper->GetSide(simId);
       //Declare station name strings
-      static std::string s_m1s1("M1S1");
-      static std::string s_m2s1("M2S1");
-      static std::string s_m1s2("M1S2");
-      static std::string s_m2s2("M2S2");
-      static std::string s_m1l1("M1L1");
-      static std::string s_m2l1("M2L1");
-      static std::string s_m1l2("M1L2");
-      static std::string s_m2l2("M2L2");
+      static const std::string s_m1s1("M1S1");
+      static const std::string s_m2s1("M2S1");
+      static const std::string s_m1s2("M1S2");
+      static const std::string s_m2s2("M2S2");
+      static const std::string s_m1l1("M1L1");
+      static const std::string s_m2l1("M2L1");
+      static const std::string s_m1l2("M1L2");
+      static const std::string s_m2l2("M2L2");
 
       //Small sectors
       /*-------------------------Wedge 1 Fill histos begin-------------------------*/

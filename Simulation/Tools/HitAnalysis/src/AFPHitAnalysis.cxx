@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AFPHitAnalysis.h"
@@ -159,7 +159,7 @@ StatusCode AFPHitAnalysis::execute() {
   ATH_MSG_INFO( "AFPHitAnalysis tree branches cleared" );
 
   AFP_SIDSimHitConstIter hi;
-  const DataHandle<AFP_SIDSimHitCollection> iter;
+  const AFP_SIDSimHitCollection* iter;
   CHECK( evtStore()->retrieve(iter,"AFP_SIDSimHitCollection") );
 
   ATH_MSG_DEBUG( "AFP_SIDSSimHitCollection retrieved" );
