@@ -6,7 +6,7 @@ Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #include "BeamSpotConditionsData/BeamSpotData.h"
 
-//keep all code for handling the beamspot info in the displaced jet trigger
+//keep all code for handling the beamspot info in the displaced jet trigger in one place
 //Two tools under different hypo algs use this info so better to only write once
 class DisplacedJetBeamspotInfo
 {
