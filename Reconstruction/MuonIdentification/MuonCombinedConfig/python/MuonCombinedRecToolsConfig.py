@@ -673,10 +673,14 @@ def EMEO_MuonSegmentRegionRecoveryToolCfg(flags, name="MuonSegmentRegionRecovery
         EMEO_MuonChamberHoleRecoveryToolCfg(flags))
     trk_builder = result.popToolsAndMerge(
         EMEO_CombinedTrackBuilderFitCfg(flags))
+    from TrkConfig.TrkTrackSummaryToolConfig import MuonCombinedTrackSummaryToolCfg
+    muon_combined_track_summary = result.popToolsAndMerge(
+        MuonCombinedTrackSummaryToolCfg(flags))
     tool = result.popToolsAndMerge(MuonSegmentRegionRecoveryToolCfg(flags,
                                                                     name=name,
                                                                     ChamberHoleRecoveryTool=chamber_recovery,
                                                                     Builder=trk_builder,
+                                                                    TrackSummaryTool = muon_combined_track_summary,
                                                                     STGCRegionSelector="",
                                                                     MMRegionSelector="",
                                                                     RecoverMM=False,
@@ -1174,8 +1178,10 @@ def MuonStauRecoToolCfg(flags,  name="MuonStauRecoTool", **kwargs):
                                                                              SegmentMaker=segmentmaker, SegmentMakerNoHoles=segmentmaker))
     fitter = result.popToolsAndMerge(CombinedMuonTrackBuilderFitCfg(
         flags, name="CombinedStauTrackBuilderFit", MdtRotCreator=rotcreator))
+    from TrkConfig.TrkTrackSummaryToolConfig import MuonCombinedTrackSummaryToolCfg
+    muon_combined_track_summary = result.popToolsAndMerge(MuonCombinedTrackSummaryToolCfg(flags))
     muidsegmentregionrecovery = result.popToolsAndMerge(MuonSegmentRegionRecoveryToolCfg(flags, name="MuonStauSegmentRegionRecoveryTool", SeededSegmentFinder=seededsegmentfinder,
-                                                                                         ChamberHoleRecoveryTool=chamberholerecoverytool, Fitter=fitter))
+                                                                                         ChamberHoleRecoveryTool=chamberholerecoverytool, Fitter=fitter, TrackSummaryTool=muon_combined_track_summary))
     trackbuilder = result.popToolsAndMerge(CombinedMuonTrackBuilderCfg(
         flags, name="CombinedStauTrackBuilder", MdtRotCreator=rotcreator, MuonHoleRecovery=muidsegmentregionrecovery))
     muoncandidatetrackbuilder = CompFactory.Muon.MuonCandidateTrackBuilderTool(
