@@ -1,6 +1,7 @@
 #!/bin/sh
 
 # art-include: master/AthDerivation
+# art-include: master/Athena
 # art-description: DAOD building BPHY2 mc20
 # art-type: grid
 # art-output: *.pool.root
