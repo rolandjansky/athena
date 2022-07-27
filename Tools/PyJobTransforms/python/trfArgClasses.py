@@ -2247,6 +2247,7 @@ class argSubstepSteering(argSubstep):
     # "no" - a convenience null option for production managers, does nothing
     # "doRDO_TRIG" - run split trigger for Reco_tf and friends
     # "doOverlay" - run event overlay on presampled RDOs instead of standard HITtoRDO digitization
+    # "doFCwOverlay" - run FastChain with MC-overlay (EVNTtoRDOwOverlay) instead of standard PU digitization (EVNTtoRDO)
     # "afterburn" - run the B decay afterburner for event generation
     # "doRAWtoALL" - produce all DESDs and AODs directly from bytestream
     # "doTRIGtoALL" - produce AODs directly from trigger RDOs
@@ -2255,6 +2256,9 @@ class argSubstepSteering(argSubstep):
                       'doRDO_TRIG': {'RAWtoESD': [('in', '-', 'RDO'), ('in', '-', 'RDO_FTK'), ('in', '+', 'RDO_TRIG'), ('in', '-', 'BS')]},
                       'doOverlay': {'HITtoRDO': [('in', '-', 'HITS'), ('out', '-', 'RDO'), ('out', '-', 'RDO_FILT')],
                                     'Overlay': [('in', '+', ('HITS', 'RDO_BKG')), ('out', '+', 'RDO')]},
+                      'doFCwOverlay': {'EVNTtoRDO': [('in', '-', 'EVNT'), ('out', '-', 'RDO')],
+                                       'Overlay': [('in', '-', 'RDO_BKG'), ('out', '-', 'RDO')],
+                                       'EVNTtoRDOwOverlay': [('in', '+', ('EVNT', 'RDO_BKG')), ('out', '+', 'RDO'), ('out', '+', 'RDO_SGNL')]},
                       'afterburn': {'generate': [('out', '-', 'EVNT')]},
                       'doRAWtoALL': {'RAWtoALL': [('in', '+', 'BS'), ('in', '+', 'RDO'), ('in', '+', 'RDO_FTK'),
                                                   ('in', '+', 'DRAW_ZMUMU'), ('in', '+', 'DRAW_ZEE'), ('in', '+', 'DRAW_EMU'), ('in', '+', 'DRAW_RPVLL'), 

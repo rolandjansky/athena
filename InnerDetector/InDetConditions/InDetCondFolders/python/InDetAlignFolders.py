@@ -22,7 +22,9 @@ if DetFlags.TRT_on():
         conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/StatusPermanent","/TRT/Cond/StatusPermanent",className='TRTCond::StrawStatusMultChanContainer')
 
 # Argon straw list
-    if DetFlags.simulate.any_on() or hasattr(topSequence,"OutputConditionsAlg"):
+    from AthenaCommon.GlobalFlags  import globalflags
+    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+    if ((DetFlags.simulate.any_on() and not (athenaCommonFlags.DoFullChain() and globalflags.isOverlay())) or hasattr(topSequence,"OutputConditionsAlg")):
         conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/StatusHT","/TRT/Cond/StatusHT")
     else:
         conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/StatusHT","/TRT/Cond/StatusHT",className='TRTCond::StrawStatusMultChanContainer')

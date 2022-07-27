@@ -571,3 +571,34 @@ def readInputFileMetadata():
     ## control where metadata can be used
     del sigsimdict
     del sigtaginfodict
+
+def readPresampledMetadata():
+    logOverlayReadMetadata.info("Checking for Presampled Pile-up MetaData...")
+    import os
+    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+    from AthenaCommon.GlobalFlags import globalflags
+    from G4AtlasApps.SimFlags import simFlags
+    longpileuptype= "presampled pile-up"
+    pileupsimdict,pileuptaginfodict,pileupdigidict,result = buildDict(longpileuptype, athenaCommonFlags.PoolRDOInput.get_Value()[0])
+
+    from AthenaCommon.JobProperties import JobProperty
+    simParams = [sf for sf in dir(simFlags) if isinstance(getattr(simFlags, sf), JobProperty)]
+    sigsimdict = dict()
+    KeysToCheck = [ 'PhysicsList', 'SimLayout', 'MagneticField', 'hitFileMagicNumber' , 'IOVDbGlobalTag', 'G4Version' ]
+    for sp in simParams:
+        if sp in KeysToCheck:
+            sigsimdict.setdefault(sp, [])
+            sigsimdict[sp] = getattr(simFlags, sp).get_Value()
+    sigsimdict['hitFileMagicNumber'] = '0' # Hard-coded simulation hit (as in ISF_Metadata.py file)
+    sigsimdict['G4Version'] = str(os.environ['G4VERS'])
+    sigsimdict['IOVDbGlobalTag'] = globalflags.ConditionsTag()
+
+    if pileupMetaDataCheck(sigsimdict,pileupsimdict):
+        logOverlayReadMetadata.info("Presampled RDO File Simulation MetaData matches Signal Simulation MetaData.")
+    if pileupdigidict:
+        from EventOverlayJobTransforms.OverlayWriteMetaData import writeOverlayDigitizationMetadata
+        writeOverlayDigitizationMetadata(pileupdigidict)
+
+    del pileupsimdict
+    del pileuptaginfodict
+    del pileupdigidict
