@@ -61,6 +61,11 @@ def getTransform():
                                    inData=['RDO_BKG', 'BS_SKIM', 'HITS'],
                                    outData=['RDO', 'RDO_SGNL']))
 
+    # Sim + Overlay - execute with the argument --steering "doFCwOverlay"
+    executorSet.add(athenaExecutor(name = 'EVNTtoRDOwOverlay', skeletonFile = 'FullChainTransforms/FastChainSkeleton.EVGENtoRDOwOverlay.py',
+                                   substep = 'simoverlay', tryDropAndReload = False, perfMonFile = 'ntuple.pmon.gz',
+                                   inData = ['NULL'], outData = ['NULL']))
+
     trf = transform(executor = executorSet, description = 'Fast chain ATLAS transform with ISF simulation, digitisation'
                     ' and reconstruction. Inputs can be EVNT, with outputs of RDO, ESD, AOD or DPDs.'
                     ' See https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/FastChainTf for more details.')

@@ -112,11 +112,15 @@ def getGenEventRotator(name="GenEventRotator", **kwargs):
 def getBeamEffectsAlg(name="BeamEffectsAlg", **kwargs):
     from AthenaCommon.DetFlags import DetFlags
     from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+    from AthenaCommon.GlobalFlags  import globalflags
     if athenaCommonFlags.DoFullChain() and DetFlags.pileup.any_on():
         kwargs.setdefault('InputMcEventCollection', 'OriginalEvent_SG+GEN_EVENT') # For Fast Chain
     else:
         kwargs.setdefault('InputMcEventCollection', 'GEN_EVENT')
-    kwargs.setdefault('OutputMcEventCollection', 'BeamTruthEvent')
+    if athenaCommonFlags.DoFullChain() and globalflags.isOverlay():
+        kwargs.setdefault('OutputMcEventCollection', 'Sig_TruthEvent')
+    else:
+        kwargs.setdefault('OutputMcEventCollection', 'BeamTruthEvent')
     from G4AtlasApps.SimFlags import simFlags
     kwargs.setdefault("ISFRun", simFlags.ISFRun()) #FIXME Temporary property so that we don't change the output in the initial switch to this code.
     manipulatorList = ['GenEventValidityChecker']

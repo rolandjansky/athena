@@ -88,6 +88,8 @@ def getCopyPileupParticleTruthInfo(name="CopyPileupParticleTruthInfo", **kwargs)
 
 def getCopyMcEventCollection(name="CopyMcEventCollection", **kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
+    from AthenaCommon.GlobalFlags  import globalflags
+    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
     kwargs.setdefault("RemoveBkgHardScatterTruth", True)
 
@@ -98,7 +100,10 @@ def getCopyMcEventCollection(name="CopyMcEventCollection", **kwargs):
         else:
             kwargs.setdefault("BkgInputKey", overlayFlags.bkgPrefix() + "TruthEvent")
         kwargs.setdefault("SignalInputKey", overlayFlags.sigPrefix() + "TruthEvent")
-        kwargs.setdefault("OutputKey", "TruthEvent")
+        if athenaCommonFlags.DoFullChain() and globalflags.isOverlay():
+            kwargs.setdefault("OutputKey", "BeamTruthEvent")
+        else:
+            kwargs.setdefault("OutputKey", "TruthEvent")
     else:
         if overlayFlags.isDataOverlay():
             # Disable background for data overlay
@@ -106,7 +111,10 @@ def getCopyMcEventCollection(name="CopyMcEventCollection", **kwargs):
         else:
             kwargs.setdefault("BkgInputKey", overlayFlags.dataStore() + "+TruthEvent")
         kwargs.setdefault("SignalInputKey", overlayFlags.evtStore() + "+TruthEvent")
-        kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+TruthEvent")
+        if athenaCommonFlags.DoFullChain() and globalflags.isOverlay():
+            kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+BeamTruthEvent")
+        else:
+            kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+TruthEvent")
 
     return CfgMgr.CopyMcEventCollection(name, **kwargs)
 
