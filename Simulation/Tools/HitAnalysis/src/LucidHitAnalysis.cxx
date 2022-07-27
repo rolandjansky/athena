@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LucidHitAnalysis.h"
@@ -161,7 +161,7 @@ StatusCode LucidHitAnalysis::execute() {
   m_gen_volume->clear();
   m_wavelength->clear();
 
-  const DataHandle<LUCID_SimHitCollection> iter;
+  const LUCID_SimHitCollection* iter;
   if (evtStore()->retrieve(iter) == StatusCode::SUCCESS) {
     for (LUCID_SimHitCollection::const_iterator i_hit = (*iter).begin(); i_hit != (*iter).end(); ++i_hit) {
       double x = i_hit->GetX();

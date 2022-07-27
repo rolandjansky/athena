@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRTHitAnalysis.h"
@@ -154,7 +154,7 @@ StatusCode TRTHitAnalysis::execute() {
   m_TRT_kine_nonphotons->clear();
   m_TRT_barcode->clear();
   
-  const DataHandle<TRTUncompressedHitCollection> p_collection;
+  const TRTUncompressedHitCollection* p_collection;
   if (evtStore()->retrieve(p_collection, "TRTUncompressedHits") == StatusCode::SUCCESS) {
     for (TRTUncompressedHitConstIter i_hit = p_collection->begin(); i_hit != p_collection->end(); ++i_hit) {
       GeoTRTUncompressedHit ghit(*i_hit);

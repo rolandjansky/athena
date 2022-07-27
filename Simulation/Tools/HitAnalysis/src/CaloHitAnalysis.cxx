@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Base class
@@ -209,7 +209,7 @@ StatusCode CaloHitAnalysis::execute() {
 
   std::string  lArKey [4] = {"LArHitEMB", "LArHitEMEC", "LArHitFCAL", "LArHitHEC"};
   for (unsigned int i=0; i<4; i++) {
-    const DataHandle<LArHitContainer> iter;
+    const LArHitContainer* iter;
     if (evtStore()->retrieve(iter,lArKey[i]) == StatusCode::SUCCESS) {
       for (auto hi : *iter ) {
         const CaloDetDescrElement *hitElement = caloMgr->get_element(hi->cellID());
@@ -247,7 +247,7 @@ StatusCode CaloHitAnalysis::execute() {
     } // End statuscode success upon retrieval of hits
   } // End detector type loop
   
-  const DataHandle<TileHitVector> hitVec;
+  const TileHitVector* hitVec;
   //const TileHitVector* hitVec;
   if (evtStore()->retrieve(hitVec,"TileHitVec") == StatusCode::SUCCESS && m_tileMgr && m_tileID) {
     for (const auto& i_hit : *hitVec) {
@@ -289,7 +289,7 @@ StatusCode CaloHitAnalysis::execute() {
   std::string LArCalibKey [3] = {"LArCalibrationHitActive", "LArCalibrationHitInactive","LArCalibrationHitDeadMaterial"};
   for (unsigned int j=0; j<3; j++) {
     if (m_calib != "on") continue;
-    const DataHandle<CaloCalibrationHitContainer> iterator;
+    const CaloCalibrationHitContainer* iterator;
     if(evtStore()->retrieve(iterator, LArCalibKey[j]) == StatusCode::SUCCESS) {
       //Not tested
       for (auto hit_i : *iterator) {

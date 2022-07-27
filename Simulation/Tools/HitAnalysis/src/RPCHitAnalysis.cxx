@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RPCHitAnalysis.h"
@@ -174,7 +174,7 @@ StatusCode RPCHitAnalysis::execute() {
   m_hits_kine->clear();
   m_hits_step->clear();
   
-  const DataHandle<RPCSimHitCollection> rpc_container;
+  const RPCSimHitCollection* rpc_container;
   if (evtStore()->retrieve(rpc_container, "RPC_Hits") == StatusCode::SUCCESS) {
     for (RPCSimHitCollection::const_iterator i_hit = rpc_container->begin(); i_hit != rpc_container->end(); ++i_hit) {
       //RPCSimHitCollection::const_iterator i_hit;

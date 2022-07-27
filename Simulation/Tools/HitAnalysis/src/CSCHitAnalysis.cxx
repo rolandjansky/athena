@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CSCHitAnalysis.h"
@@ -191,7 +191,7 @@ StatusCode CSCHitAnalysis::execute() {
   m_hits_edep->clear();
   m_hits_kine->clear();
 
-  const DataHandle<CSCSimHitCollection> csc_container;
+  const CSCSimHitCollection* csc_container;
   if (evtStore()->retrieve(csc_container, "CSC_Hits") == StatusCode::SUCCESS) {
     for (CSCSimHitCollection::const_iterator i_hit = csc_container->begin(); 
 	i_hit != csc_container->end(); ++i_hit) {

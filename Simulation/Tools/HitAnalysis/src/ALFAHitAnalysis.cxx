@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ALFAHitAnalysis.h"
@@ -120,7 +120,7 @@ StatusCode ALFAHitAnalysis::execute() {
   }
   
   ALFA_HitConstIter iter;
-  const DataHandle<ALFA_HitCollection> col_alfa;
+  const ALFA_HitCollection* col_alfa;
   CHECK( evtStore()->retrieve( col_alfa, "ALFA_HitCollection" ) );
   for (iter = (*col_alfa).begin(); iter != (*col_alfa).end(); ++iter) {
     station = (*iter).GetStationNumber();

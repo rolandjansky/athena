@@ -238,7 +238,7 @@ StatusCode TruthHitAnalysis::execute() {
   m_status->clear();
   m_pdgid->clear();
   
-  const DataHandle<McEventCollection> mcCollection;
+  const McEventCollection* mcCollection;
   if (evtStore()->retrieve(mcCollection,"TruthEvent") == StatusCode::SUCCESS) {
     McEventCollection::const_iterator currentGenEventIter = mcCollection->begin(); 
     if (currentGenEventIter != mcCollection->end()) {

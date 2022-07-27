@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MDTHitAnalysis.h"
@@ -182,7 +182,7 @@ StatusCode MDTHitAnalysis::execute() {
   m_hits_kine->clear();
   m_hits_step->clear();
   
-  const DataHandle<MDTSimHitCollection> mdt_container;
+  const MDTSimHitCollection* mdt_container;
   if (evtStore()->retrieve(mdt_container, "MDT_Hits") == StatusCode::SUCCESS) {
     for (MDTSimHitCollection::const_iterator i_hit = mdt_container->begin(); i_hit != mdt_container->end(); ++i_hit) {
       //MDTSimHitCollection::const_iterator i_hit;

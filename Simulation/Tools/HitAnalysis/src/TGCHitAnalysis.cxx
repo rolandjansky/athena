@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TGCHitAnalysis.h"
@@ -197,7 +197,7 @@ StatusCode TGCHitAnalysis::execute() {
   m_hits_kine->clear();
   m_hits_step->clear();
   
-  const DataHandle<TGCSimHitCollection> tgc_container;
+  const TGCSimHitCollection* tgc_container;
   if (evtStore()->retrieve(tgc_container, "TGC_Hits" ) == StatusCode::SUCCESS) {
     for (TGCSimHitCollection::const_iterator i_hit = tgc_container->begin(); i_hit != tgc_container->end(); ++i_hit) {
       //TGCSimHitCollection::const_iterator i_hit;
