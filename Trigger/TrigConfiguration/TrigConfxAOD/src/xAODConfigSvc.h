@@ -100,6 +100,9 @@ namespace TrigConf {
       /// Get the LVL1 prescale key
       virtual uint32_t lvl1PrescaleKey() const override;
 
+      /// Get the LVL1 bunch group set key
+      virtual uint32_t bunchGroupSetKey() const override;
+
       /// @}
 
       /// @name Implementation of the IIHLTConfigSvc interface
@@ -238,6 +241,8 @@ namespace TrigConf {
  
        SG::ReadCondHandleKey<TrigConf::L1PrescalesSet> m_L1PrescaleSetKey{this, "L1Prescales", "L1Prescales", 
          "L1 prescales set condition handle, for when UseInFileMetadata=False"};
+       
+       SG::ReadCondHandleKey<TrigConf::L1BunchGroupSet> m_L1BunchGroupSetKey{this, "L1BunchGroup", "L1BunchGroup", "L1 Bunch groups"}; 
       /// @}
 
       Gaudi::Property<bool> m_useInFileMetadata{this, "UseInFileMetadata", true, "Flag for reading all configuration from the input POOL file(s). "
