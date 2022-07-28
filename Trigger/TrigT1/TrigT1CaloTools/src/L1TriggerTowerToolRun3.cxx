@@ -692,7 +692,7 @@ void L1TriggerTowerToolRun3::cpLut(const std::vector<int> &fir, const L1CaloCool
   double offsetReal = 0;
   int slope    = 0;
   int cut      = 0;
-  unsigned short scale = 0;
+  unsigned short scale_menu = 0;
   double pedMean = 0;
   int ped      = 0;
   int hwCoeffSum = 0;
@@ -700,6 +700,7 @@ void L1TriggerTowerToolRun3::cpLut(const std::vector<int> &fir, const L1CaloCool
 
 
   SG::ReadCondHandle<L1CaloPprConditionsContainerRun2>  pprConditionsRun2( m_pprConditionsContainerRun2);
+  const EventContext& ctx = Gaudi::Hive::currentContext();
 
   if(!m_pprConditionsContainerRun2.empty()) {
     auto settings = pprConditionsRun2->pprConditions(channelId.id());
@@ -708,12 +709,15 @@ void L1TriggerTowerToolRun3::cpLut(const std::vector<int> &fir, const L1CaloCool
       strategy = settings->lutCpStrategy();
       slope    = settings->lutCpSlope();
       cut      = settings->lutCpNoiseCut();
-      scale    = settings->lutCpScale();
       ped      = settings->pedValue();
       pedMean  = settings->pedMean();
 
       hwCoeffs =  getFirCoefficients<L1CaloPprConditionsContainerRun2>(channelId.id(), pprConditionsRun2);
     
+      auto l1Menu = getL1Menu(ctx);
+      scale_menu = l1Menu->thrExtraInfo().EM().emScale(); // Retrieve scale param from menu
+    
+      
       for( auto &coeffs :  *hwCoeffs) { 
 	hwCoeffSum += coeffs;
       }
@@ -739,10 +743,17 @@ void L1TriggerTowerToolRun3::cpLut(const std::vector<int> &fir, const L1CaloCool
   if (noiseCut > 0) cut = noiseCut;
   if(strategy == 2) {
     // take the global scale into account - translate strategy to 1 for Run-1 compatible treatment
-    lut(fir, scale*slope, scale*offset, scale*cut, 1, disabled, output);
+    lut(fir, scale_menu*slope, scale_menu*offset, scale_menu*cut, 1, disabled, output);
   } else if(strategy == 1 || strategy == 0){
     lut(fir, slope, offset, cut, strategy, disabled, output);
-  } else {
+  } else if (strategy == 4) {
+    // Run-3 FCAL LUT filling scheme (strategy 4) which is identical to
+    // Run-2 strategy 2, but contains an additional fixed factor of 2.
+    lut(fir, 2*scale_menu*slope, 2*scale_menu*offset, scale_menu*cut, 1, disabled, output);
+
+  }
+  
+  else {
         ATH_MSG_WARNING(" ::cpLut: Unknown stragegy: " << strategy);
 	output.push_back(0); //avoid crashing with Unknown stragegy
   }
@@ -772,7 +783,7 @@ void L1TriggerTowerToolRun3::jepLut(const std::vector<int> &fir, const L1CaloCoo
     ATH_MSG_WARNING("::jepLut: Run-1 data - behaviour undefined!");
   }
   
-  
+ 
   SG::ReadCondHandle<L1CaloPprConditionsContainerRun2>  pprConditionsRun2( m_pprConditionsContainerRun2);
   const EventContext& ctx = Gaudi::Hive::currentContext();
 
@@ -822,19 +833,30 @@ void L1TriggerTowerToolRun3::jepLut(const std::vector<int> &fir, const L1CaloCoo
   unsigned int noiseCut = 0;
   bool disabled = disabledChannel(channelId, noiseCut);
   if (noiseCut > 0) cut = noiseCut;
-
+  
   if(strategy == 3) {
     nonLinearLut(fir, slope, offset, cut, scale_db, par1, par2, par3, par4, disabled, output);
   } 
   else if(strategy == 2) {
     // take the global scale into account - translate strategy to 1 for Run-1 compatible treatment
     lut(fir, scale_menu*slope, scale_menu*offset, scale_menu*cut, 1, disabled, output);
+    
   }else if(strategy == 1 || strategy == 0) {
     lut(fir, slope, offset, cut, strategy, disabled, output);
-  } else { 
-    ATH_MSG_WARNING(" ::jepLut: Unknown stragegy: " << strategy);
-    output.push_back(0);
+  } 
+  else if (strategy == 4) {
+    // Run-3 FCAL LUT filling scheme (strategy 4) which is identical to
+    // Run-2 strategy 2, but contains an additional fixed factor of 2.
+    lut(fir, 2*scale_menu*slope, 2*scale_menu*offset, scale_menu*cut, 1, disabled, output);
+    
   }
+  
+  else { 
+    ATH_MSG_WARNING(" ::jepLut: Unknown stragegy: " << strategy);
+    output.push_back(0);//avoid crashing with Unknown stragegy
+  }
+
+ 
 }
 
 /** LUT simulation: pedestal subtraction, energy calibration and threshold */
