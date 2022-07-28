@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //============================================
@@ -25,10 +25,10 @@ class LArG4H6FrontHit
      LArG4H6FrontHit();
      LArG4H6FrontHit(int sc, double ed);
      LArG4H6FrontHit(int mw, int x1, int y1);
-     LArG4H6FrontHit(const LArG4H6FrontHit &right);
+     LArG4H6FrontHit(const LArG4H6FrontHit &right) = default;
 //     ~LArG4H6FrontHit(){;};
 
-     LArG4H6FrontHit& operator=(const LArG4H6FrontHit &right);
+     LArG4H6FrontHit& operator=(const LArG4H6FrontHit &right) = default;
      int operator==(const LArG4H6FrontHit &right);
 //     inline void *operator new(size_t, void* aHit = 0);
 //     inline void operator delete(void *aHit);
