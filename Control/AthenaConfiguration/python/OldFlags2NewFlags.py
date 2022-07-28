@@ -113,7 +113,6 @@ def getNewConfigFlags():
     if rec.doDPD():
         # flags for Physics Validation (ATLASRECTS-6636)
         ConfigFlags.BTagging.SaveSV1Probabilities = True
-        ConfigFlags.BTagging.RunJetFitterNN = True
         ConfigFlags.BTagging.RunFlipTaggers = True
 
     return ConfigFlags

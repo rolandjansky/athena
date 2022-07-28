@@ -43,7 +43,6 @@ def fromRunArgs(runArgs):
         logDerivation.info('Will attempt to make the following derived formats: {0}'.format(runArgs.formats))
         if 'PHYSVAL' in getattr(runArgs, 'formats'):
             ConfigFlags.BTagging.SaveSV1Probabilities = True
-            ConfigFlags.BTagging.RunJetFitterNN = True
             ConfigFlags.BTagging.RunFlipTaggers = True
     else:
         logDerivation.error('Derivation job started, but with no output formats specified - aborting')
