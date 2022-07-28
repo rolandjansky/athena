@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOLOCALHADCALIB_GETLCSINGLEPIONSPERF_H
@@ -82,10 +82,6 @@ class GetLCSinglePionsPerf : public AthAlgorithm
     float m_logenermax;
     int   m_nlogenerbin2;
     float m_dlogener;
-    float m_xcryo_min;
-    float m_xcryo_max;
-    float m_ytable_min;
-    float m_ytable_max;
     int   m_nnormtype;        // pion energy, calibration level, calibration level with ideal previous step
     int   m_ncluscoll;        // CaloTopoCluster, CaloWTopoCluster, CaloOOCTopoCluster, CaloCalTopoCluster
     int   m_ntagcases;        // TAGGEDEM, TAGGEDHAD, TAGGEDUNKNOWN
