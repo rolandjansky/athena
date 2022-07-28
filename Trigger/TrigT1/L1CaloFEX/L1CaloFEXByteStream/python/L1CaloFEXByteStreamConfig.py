@@ -65,6 +65,67 @@ def jFexRoiByteStreamToolCfg(name, flags, writeBS=False, xTOBs=False):
     
   return tool
 
+ 
+def gFexByteStreamToolCfg(name, flags, writeBS=False):
+  tool = CompFactory.gFexByteStreamTool(name)
+  gfex_roi_moduleids = [0x3000]
+  tool.ROBIDs = [int(SourceIdentifier(SubDetector.TDAQ_CALO_FEAT_EXTRACT_ROI, moduleid)) for moduleid in gfex_roi_moduleids]
+  if writeBS:
+    # write BS == read xAOD
+    tool.gFexRhoOutputContainerReadKey                  ="L1_gFexRhoRoI"
+    tool.gFexSRJetOutputContainerReadKey                ="L1_gFexSRJetRoI"
+    tool.gFexLRJetOutputContainerReadKey                ="L1_gFexLRJetRoI"
+    tool.gScalarEJwojOutputContainerReadKey             ="L1_gScalarEJwoj"
+    tool.gMETComponentsJwojOutputContainerReadKey       ="L1_gMETComponentsJwoj"
+    tool.gMHTComponentsJwojOutputContainerReadKey       ="L1_gMHTComponentsJwoj"
+    tool.gMSTComponentsJwojOutputContainerReadKey       ="L1_gMSTComponentsJwoj"
+    tool.gMETComponentsNoiseCutOutputContainerReadKey   ="L1_gMETComponentsNoiseCut"
+    tool.gMETComponentsRmsOutputContainerReadKey        ="L1_gMETComponentsRms"
+    tool.gScalarENoiseCutOutputContainerReadKey         ="L1_gScalarENoiseCut"
+    tool.gScalarERmsOutputContainerReadKey              ="L1_gScalarERms"
+    
+    
+    tool.gFexRhoOutputContainerWriteKey                 =""
+    tool.gFexSRJetOutputContainerWriteKey               =""
+    tool.gFexLRJetOutputContainerWriteKey               =""
+    tool.gScalarEJwojOutputContainerWriteKey            =""
+    tool.gMETComponentsJwojOutputContainerWriteKey      =""
+    tool.gMHTComponentsJwojOutputContainerWriteKey      =""
+    tool.gMSTComponentsJwojOutputContainerWriteKey      =""
+    tool.gMETComponentsNoiseCutOutputContainerWriteKey  =""
+    tool.gMETComponentsRmsOutputContainerWriteKey       =""
+    tool.gScalarENoiseCutOutputContainerWriteKey        =""
+    tool.gScalarERmsOutputContainerWriteKey             =""
+  else:
+    # read BS == write xAOD
+    tool.gFexRhoOutputContainerReadKey                  =""
+    tool.gFexSRJetOutputContainerReadKey                =""
+    tool.gFexLRJetOutputContainerReadKey                =""
+    tool.gScalarEJwojOutputContainerReadKey             =""
+    tool.gMETComponentsJwojOutputContainerReadKey       =""
+    tool.gMHTComponentsJwojOutputContainerReadKey       =""
+    tool.gMSTComponentsJwojOutputContainerReadKey       =""
+    tool.gMETComponentsNoiseCutOutputContainerReadKey   =""
+    tool.gMETComponentsRmsOutputContainerReadKey        =""
+    tool.gScalarENoiseCutOutputContainerReadKey         =""
+    tool.gScalarERmsOutputContainerReadKey              =""
+    
+    
+    tool.gFexRhoOutputContainerWriteKey                 ="L1_gFexRhoRoI"
+    tool.gFexSRJetOutputContainerWriteKey               ="L1_gFexSRJetRoI"
+    tool.gFexLRJetOutputContainerWriteKey               ="L1_gFexLRJetRoI"
+    tool.gScalarEJwojOutputContainerWriteKey            ="L1_gScalarEJwoj"
+    tool.gMETComponentsJwojOutputContainerWriteKey      ="L1_gMETComponentsJwoj"
+    tool.gMHTComponentsJwojOutputContainerWriteKey      ="L1_gMHTComponentsJwoj"
+    tool.gMSTComponentsJwojOutputContainerWriteKey      ="L1_gMSTComponentsJwoj"
+    tool.gMETComponentsNoiseCutOutputContainerWriteKey  ="L1_gMETComponentsNoiseCut"
+    tool.gMETComponentsRmsOutputContainerWriteKey       ="L1_gMETComponentsRms"
+    tool.gScalarENoiseCutOutputContainerWriteKey        ="L1_gScalarENoiseCut"
+    tool.gScalarERmsOutputContainerWriteKey             ="L1_gScalarERms"
+
+  return tool
+
+
 def jFexInputByteStreamToolCfg(name, flags, writeBS=False, xTOBs=False):
   tool = CompFactory.jFexInputByteStreamTool(name)
   jfex_roi_moduleids = [0x2000,0x2010,0x2020,0x2030,0x2040,0x2050]
