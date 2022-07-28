@@ -5,9 +5,6 @@
 // Local includes
 #include "L1TopoOnlineMonitor.h"
 
-// Athena comps
-#include "AthenaBaseComps/AthAlgorithm.h"
-
 // Trigger includes
 #include "xAODTrigger/L1TopoSimResults.h"
 #include "TrigT1Result/CTP_Decoder.h"

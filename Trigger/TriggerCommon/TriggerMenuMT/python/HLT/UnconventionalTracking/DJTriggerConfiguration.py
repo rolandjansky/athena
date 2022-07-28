@@ -41,25 +41,6 @@ def DJPromptStep():
                          HypoToolGen = TrigDJHypoPromptToolFromDict,
                      )
 
-def DJEDStep():
-    from TrigLongLivedParticlesHypo.TrigDJHypoConfig import (TrigDJHypoEDToolFromDict)
-    from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConf import (DisplacedJetEventDecisionHypoAlg)
-
-    hypo_alg = DisplacedJetEventDecisionHypoAlg("DJTrigEventDecisionHypoAlg")
-
-    #run at the event level
-    from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
-    from AthenaConfiguration.ComponentFactory import CompFactory
-    im_alg = conf2toConfigurable(CompFactory.InputMakerForRoI( "IM_DJTRRIG_ED" ))
-    im_alg.RoITool = conf2toConfigurable(CompFactory.ViewCreatorInitialROITool())
-    im_alg.mergeUsingFeature = True #need to merge using the jet feature which is attached not the roi which is the same
-
-    return MenuSequence( Sequence    = seqAND("DJTrigEDEmptyStep",[im_alg]),
-                         Maker       = im_alg,
-                         Hypo        = hypo_alg,
-                         HypoToolGen = TrigDJHypoEDToolFromDict,
-                     )
-
 def DJDispFragment(ConfigFlags):
     lrtcfg = getInDetTrigConfig( 'DJetLRT' )
     roiTool = ViewCreatorCentredOnIParticleROITool('ViewCreatorDJRoI', RoisWriteHandleKey = recordable(lrtcfg.roi), RoIEtaWidth = lrtcfg.etaHalfWidth, RoIPhiWidth = lrtcfg.phiHalfWidth)
@@ -89,7 +70,6 @@ def DJDispStep():
 
     hypo_alg.lrtTracksKey = lrtcfg.tracks_FTF()
     hypo_alg.vtxKey = fscfg.vertex_jet
-    hypo_alg.infoKey = "DispJetTrigger_Info"
 
     ( alg_seq ,im_alg) = RecoFragmentsPool.retrieve(DJDispFragment,ConfigFlags)
 

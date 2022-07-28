@@ -349,9 +349,13 @@ def TgcRawDataMonitoringConfig(inputFlags):
     myGroup.defineHistogram('roi_charge;MuonRoI_Evt_Charge',title='MuonRoI Charge;Charge;Number of events',
                             cutmask='roi_tgc',path=trigPath,xbins=3,xmin=-1.5,xmax=1.5)
     myGroup.defineHistogram('muon_l1passCharge,muon_eta4gev,muon_phi4gev;MuonRoI_Eff_EtaVsPhi_Charge',title='MuonRoI_Eff_EtaVsPhi_Charge;Offline muon eta; Offline muon phi',
-                            cutmask='muon_l1passThr1',type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
+                            cutmask='muon_l1passThr1TGC',type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
     myGroup.defineHistogram('muon_l1passCharge,muon_pt_tgc;MuonRoI_Eff_Pt_TGC_Charge',title='MuonRoI_Eff_Pt_TGC_Charge;Offline muon pT [GeV];Efficiency',
-                            cutmask='muon_l1passThr1',type='TEfficiency',path=trigPath,xbins=50,xmin=0,xmax=50)
+                            cutmask='muon_l1passThr1TGC',type='TEfficiency',path=trigPath,xbins=50,xmin=0,xmax=50)
+    myGroup.defineHistogram('muon_l1passCharge,muon_eta4gev;MuonRoI_Eff_Eta_Charge',title='MuonRoI_Eff_Eta_Charge;Offline muon eta; Efficiency',
+                            cutmask='muon_l1passThr1TGC',type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
+    myGroup.defineHistogram('muon_l1passCharge,muon_phi4gev_tgc;MuonRoI_Eff_Phi_TGC_Charge',title='MuonRoI_Eff_Phi_TGC_Charge;Offline muon phi; Efficiency',
+                            cutmask='muon_l1passThr1TGC',type='TEfficiency',path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
     myGroup.defineHistogram('roi_eta,roi_phi;MuonRoI_Evt_EtaVsPhi_Charge_Positive',type='TH2F',
                             title='MuonRoI Eta vs Phi Charge Positive;MuonRoI Eta;MuonRoI Phi',cutmask='roi_posCharge',path=trigPath,
                             xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
@@ -362,12 +366,46 @@ def TgcRawDataMonitoringConfig(inputFlags):
                             title='MuonRoI Charge vs Thr;MuonRoI Thresholds;MuonRoI Charge',cutmask='roi_tgc',path=trigPath,
                             xbins=20,xmin=-0.5,xmax=19.5,ybins=3,ymin=-1.5,ymax=1.5)
 
+    #########################
+    myGroup.defineHistogram('roi_innercoin,roi_eta_tgc;MuonRoI_Eff_Eta_wInnerCoin_ThrAll',title='MuonRoI Eff Eta wInnerCoin ThrAll;MuonRoI Eta;Efficiency',
+                            type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
+    myGroup.defineHistogram('roi_innercoin,roi_phi_tgc;MuonRoI_Eff_Phi_TGC_wInnerCoin_ThrAll',title='MuonRoI Eff Phi TGC wInnerCoin ThrAll;MuonRoI Phi;Efficiency',
+                            type='TEfficiency',path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
+    myGroup.defineHistogram('roi_innercoin,roi_eta_tgc,roi_phi_tgc;MuonRoI_Eff_EtaVsPhi_wInnerCoin_ThrAll',title='MuonRoI Eff Eta vs Phi wInnerCoin ThrAll;MuonRoI Eta;Efficiency',
+                            type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
+
+    myGroup.defineHistogram('roi_innveto,roi_eta_tgc;MuonRoI_Eff_Eta_wInnerCoinVeto_ThrAll',title='MuonRoI Eff Eta wInnerCoinVeto ThrAll;MuonRoI Eta;Efficiency',
+                            type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
+    myGroup.defineHistogram('roi_innveto,roi_phi_tgc;MuonRoI_Eff_Phi_TGC_wInnerCoinVeto_ThrAll',title='MuonRoI Eff Phi TGC wInnerCoinVeto ThrAll;MuonRoI Phi;Efficiency',
+                            type='TEfficiency',path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
+    myGroup.defineHistogram('roi_innveto,roi_eta_tgc,roi_phi_tgc;MuonRoI_Eff_EtaVsPhi_wInnerCoinVeto_ThrAll',title='MuonRoI Eff Eta vs Phi wInnerCoinVeto ThrAll;MuonRoI Eta;Efficiency',
+                            type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
+
+    myGroup.defineHistogram('roi_bw3coin,roi_eta_tgc;MuonRoI_Eff_Eta_wBW3Coin_ThrAll',title='MuonRoI Eff Eta wBW3Coin ThrAll;MuonRoI Eta;Efficiency',
+                            type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
+    myGroup.defineHistogram('roi_bw3coin,roi_phi_tgc;MuonRoI_Eff_Phi_TGC_wBW3Coin_ThrAll',title='MuonRoI Eff Phi TGC wBW3Coin ThrAll;MuonRoI Phi;Efficiency',
+                            type='TEfficiency',path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
+    myGroup.defineHistogram('roi_bw3coin,roi_eta_tgc,roi_phi_tgc;MuonRoI_Eff_EtaVsPhi_wBW3Coin_ThrAll',title='MuonRoI Eff Eta vs Phi wBW3Coin ThrAll;MuonRoI Eta;Efficiency',
+                            type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
+
+    myGroup.defineHistogram('roi_bw3coinveto,roi_eta_tgc;MuonRoI_Eff_Eta_wBW3CoinVeto_ThrAll',title='MuonRoI Eff Eta wBW3CoinVeto ThrAll;MuonRoI Eta;Efficiency',
+                            type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
+    myGroup.defineHistogram('roi_bw3coinveto,roi_phi_tgc;MuonRoI_Eff_Phi_TGC_wBW3CoinVeto_ThrAll',title='MuonRoI Eff Phi TGC wBW3CoinVeto ThrAll;MuonRoI Phi;Efficiency',
+                            type='TEfficiency',path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
+    myGroup.defineHistogram('roi_bw3coinveto,roi_eta_tgc,roi_phi_tgc;MuonRoI_Eff_EtaVsPhi_wBW3CoinVeto_ThrAll',title='MuonRoI Eff Eta vs Phi wBW3CoinVeto ThrAll;MuonRoI Eta;Efficiency',
+                            type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
+    #########################
+
     myGroup.defineHistogram('roi_bw3coin;MuonRoI_Evt_BW3Coin',title='MuonRoI BW3Coin Flag;BW3Coin Flag;Number of events',
                             cutmask='roi_tgc',path=trigPath,xbins=2,xmin=-0.5,xmax=1.5)
     myGroup.defineHistogram('muon_l1passBW3Coin,muon_eta4gev,muon_phi4gev;MuonRoI_Eff_EtaVsPhi_BW3Coin',title='MuonRoI_Eff_EtaVsPhi_BW3Coin;Offline muon eta; Offline muon phi',
-                            cutmask='muon_l1passThr1',type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
+                            cutmask='muon_l1passThr1TGC',type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
     myGroup.defineHistogram('muon_l1passBW3Coin,muon_pt_tgc;MuonRoI_Eff_Pt_TGC_BW3Coin',title='MuonRoI_Eff_Pt_TGC_BW3Coin;Offline muon pT [GeV];Efficiency',
-                            cutmask='muon_l1passThr1',type='TEfficiency',path=trigPath,xbins=50,xmin=0,xmax=50)
+                            cutmask='muon_l1passThr1TGC',type='TEfficiency',path=trigPath,xbins=50,xmin=0,xmax=50)
+    myGroup.defineHistogram('muon_l1passBW3Coin,muon_eta4gev;MuonRoI_Eff_Eta_BW3Coin',title='MuonRoI_Eff_Eta_BW3Coin;Offline muon eta; Efficiency',
+                            cutmask='muon_l1passThr1TGC',type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
+    myGroup.defineHistogram('muon_l1passBW3Coin,muon_phi4gev_tgc;MuonRoI_Eff_Phi_TGC_BW3Coin',title='MuonRoI_Eff_Phi_TGC_BW3Coin;Offline muon phi; Efficiency',
+                            cutmask='muon_l1passThr1TGC',type='TEfficiency',path=trigPath,xbins=48,xmin=-math.pi,ymax=math.pi)
     myGroup.defineHistogram('roi_eta,roi_phi;MuonRoI_Evt_EtaVsPhi_BW3Coin',type='TH2F',
                             title='MuonRoI Eta vs Phi BW3Coin;MuonRoI Eta;MuonRoI Phi',cutmask='roi_bw3coin',path=trigPath,
                             xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
@@ -378,9 +416,13 @@ def TgcRawDataMonitoringConfig(inputFlags):
     myGroup.defineHistogram('roi_bw3coinveto;MuonRoI_Evt_BW3CoinVeto',title='MuonRoI BW3CoinVeto Flag;BW3CoinVeto Flag;Number of events',
                             cutmask='roi_tgc',path=trigPath,xbins=2,xmin=-0.5,xmax=1.5)
     myGroup.defineHistogram('muon_l1passBW3CoinVeto,muon_eta4gev,muon_phi4gev;MuonRoI_Eff_EtaVsPhi_BW3CoinVeto',title='MuonRoI_Eff_EtaVsPhi_BW3CoinVeto;Offline muon eta; Offline muon phi',
-                            cutmask='muon_l1passThr1',type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
+                            cutmask='muon_l1passThr1TGC',type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
     myGroup.defineHistogram('muon_l1passBW3CoinVeto,muon_pt_tgc;MuonRoI_Eff_Pt_TGC_BW3CoinVeto',title='MuonRoI_Eff_Pt_TGC_BW3CoinVeto;Offline muon pT [GeV];Efficiency',
-                            cutmask='muon_l1passThr1',type='TEfficiency',path=trigPath,xbins=50,xmin=0,xmax=50)
+                            cutmask='muon_l1passThr1TGC',type='TEfficiency',path=trigPath,xbins=50,xmin=0,xmax=50)
+    myGroup.defineHistogram('muon_l1passBW3CoinVeto,muon_eta4gev;MuonRoI_Eff_Eta_BW3CoinVeto',title='MuonRoI_Eff_Eta_BW3CoinVeto;Offline muon eta; Efficiency',
+                            cutmask='muon_l1passThr1TGC',type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
+    myGroup.defineHistogram('muon_l1passBW3CoinVeto,muon_phi4gev_tgc;MuonRoI_Eff_Phi_TGC_BW3CoinVeto',title='MuonRoI_Eff_Phi_TGC_BW3CoinVeto;Offline muon phi; Efficiency',
+                            cutmask='muon_l1passThr1TGC',type='TEfficiency',path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
     myGroup.defineHistogram('roi_eta,roi_phi;MuonRoI_Evt_EtaVsPhi_BW3CoinVeto',type='TH2F',
                             title='MuonRoI Eta vs Phi BW3CoinVeto;MuonRoI Eta;MuonRoI Phi',cutmask='roi_bw3coinveto',path=trigPath,
                             xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
@@ -391,9 +433,25 @@ def TgcRawDataMonitoringConfig(inputFlags):
     myGroup.defineHistogram('roi_innercoin;MuonRoI_Evt_InnerCoin',title='MuonRoI InnerCoin Flag;InnerCoin Flag;Number of events',
                             cutmask='roi_tgc',path=trigPath,xbins=2,xmin=-0.5,xmax=1.5)
     myGroup.defineHistogram('muon_l1passInnerCoin,muon_eta4gev,muon_phi4gev;MuonRoI_Eff_EtaVsPhi_InnerCoin',title='MuonRoI_Eff_EtaVsPhi_InnerCoin;Offline muon eta; Offline muon phi',
-                            cutmask='muon_l1passThr1',type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
+                            cutmask='muon_l1passThr1TGC',type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
     myGroup.defineHistogram('muon_l1passInnerCoin,muon_pt_tgc;MuonRoI_Eff_Pt_TGC_InnerCoin',title='MuonRoI_Eff_Pt_TGC_InnerCoin;Offline muon pT [GeV];Efficiency',
-                            cutmask='muon_l1passThr1',type='TEfficiency',path=trigPath,xbins=50,xmin=0,xmax=50)
+                            cutmask='muon_l1passThr1TGC',type='TEfficiency',path=trigPath,xbins=50,xmin=0,xmax=50)
+    myGroup.defineHistogram('muon_l1passInnerCoin,muon_eta4gev;MuonRoI_Eff_Eta_InnerCoin',title='MuonRoI_Eff_Eta_InnerCoin;Offline muon Eta;Efficiency',
+                            cutmask='muon_l1passThr1TGC',type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
+    myGroup.defineHistogram('muon_l1passInnerCoin,muon_phi4gev_tgc;MuonRoI_Eff_Phi_TGC_InnerCoin',title='MuonRoI_Eff_Phi_TGC_InnerCoin;Offline muon Phi;Efficiency',
+                            cutmask='muon_l1passThr1TGC',type='TEfficiency',path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
+    myGroup.defineHistogram('muon_l1passInnerCoin,muon_phi4gev_1p05eta1p3;MuonRoI_Eff_Phi_TGC_1p05eta1p3_InnerCoin',title='MuonRoI_Eff_Phi_TGC_1p05eta1p3_InnerCoin;Offline muon Phi;Efficiency',
+                            cutmask='muon_l1passThr1TGC',type='TEfficiency',path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
+    myGroup.defineHistogram('muon_l1passInnerCoin,muon_phi4gev_1p05eta1p3A;MuonRoI_Eff_Phi_TGC_1p05eta1p3A_InnerCoin',title='MuonRoI_Eff_Phi_TGC_1p05eta1p3A_InnerCoin;Offline muon Phi;Efficiency',
+                            cutmask='muon_l1passThr1TGC',type='TEfficiency',path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
+    myGroup.defineHistogram('muon_l1passInnerCoin,muon_phi4gev_1p05eta1p3C;MuonRoI_Eff_Phi_TGC_1p05eta1p3C_InnerCoin',title='MuonRoI_Eff_Phi_TGC_1p05eta1p3C_InnerCoin;Offline muon Phi;Efficiency',
+                            cutmask='muon_l1passThr1TGC',type='TEfficiency',path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
+    myGroup.defineHistogram('muon_l1passInnerCoin,muon_phi4gev_1p3eta2p4;MuonRoI_Eff_Phi_TGC_1p3eta2p4_InnerCoin',title='MuonRoI_Eff_Phi_TGC_1p3eta2p4_InnerCoin;Offline muon Phi;Efficiency',
+                            cutmask='muon_l1passThr1TGC',type='TEfficiency',path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
+    myGroup.defineHistogram('muon_l1passInnerCoin,muon_phi4gev_1p3eta2p4A;MuonRoI_Eff_Phi_TGC_1p3eta2p4A_InnerCoin',title='MuonRoI_Eff_Phi_TGC_1p3eta2p4A_InnerCoin;Offline muon Phi;Efficiency',
+                            cutmask='muon_l1passThr1TGC',type='TEfficiency',path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
+    myGroup.defineHistogram('muon_l1passInnerCoin,muon_phi4gev_1p3eta2p4C;MuonRoI_Eff_Phi_TGC_1p3eta2p4C_InnerCoin',title='MuonRoI_Eff_Phi_TGC_1p3eta2p4C_InnerCoin;Offline muon Phi;Efficiency',
+                            cutmask='muon_l1passThr1TGC',type='TEfficiency',path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
     myGroup.defineHistogram('roi_eta,roi_phi;MuonRoI_Evt_EtaVsPhi_InnerCoin',type='TH2F',
                             title='MuonRoI Eta vs Phi InnerCoin;MuonRoI Eta;MuonRoI Phi',cutmask='roi_innercoin',path=trigPath,
                             xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
@@ -413,9 +471,25 @@ def TgcRawDataMonitoringConfig(inputFlags):
     myGroup.defineHistogram('roi_innveto;MuonRoI_Evt_InnerCoinVeto',title='MuonRoI InnerCoinVeto Flag;InnerCoinVeto Flag;Number of events',
                             cutmask='roi_tgc',path=trigPath,xbins=2,xmin=-0.5,xmax=1.5)
     myGroup.defineHistogram('muon_l1passInnerCoinVeto,muon_eta4gev,muon_phi4gev;MuonRoI_Eff_EtaVsPhi_InnerCoinVeto',title='MuonRoI_Eff_EtaVsPhi_InnerCoinVeto;Offline muon eta; Offline muon phi',
-                            cutmask='muon_l1passThr1',type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
+                            cutmask='muon_l1passThr1TGC',type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
     myGroup.defineHistogram('muon_l1passInnerCoinVeto,muon_pt_tgc;MuonRoI_Eff_Pt_TGC_InnerCoinVeto',title='MuonRoI_Eff_Pt_TGC_InnerCoinVeto;Offline muon pT [GeV];Efficiency',
-                            cutmask='muon_l1passThr1',type='TEfficiency',path=trigPath,xbins=50,xmin=0,xmax=50)
+                            cutmask='muon_l1passThr1TGC',type='TEfficiency',path=trigPath,xbins=50,xmin=0,xmax=50)
+    myGroup.defineHistogram('muon_l1passInnerCoinVeto,muon_eta4gev;MuonRoI_Eff_Eta_InnerCoinVeto',title='MuonRoI_Eff_Eta_InnerCoinVeto;Offline muon Eta;Efficiency',
+                            cutmask='muon_l1passThr1TGC',type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
+    myGroup.defineHistogram('muon_l1passInnerCoinVeto,muon_phi4gev_tgc;MuonRoI_Eff_Phi_TGC_InnerCoinVeto',title='MuonRoI_Eff_Phi_TGC_InnerCoinVeto;Offline muon Phi;Efficiency',
+                            cutmask='muon_l1passThr1TGC',type='TEfficiency',path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
+    myGroup.defineHistogram('muon_l1passInnerCoinVeto,muon_phi4gev_1p05eta1p3;MuonRoI_Eff_Phi_TGC_1p05eta1p3_InnerCoinVeto',title='MuonRoI_Eff_Phi_TGC_1p05eta1p3_InnerCoinVeto;Offline muon Phi;Efficiency',
+                            cutmask='muon_l1passThr1TGC',type='TEfficiency',path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
+    myGroup.defineHistogram('muon_l1passInnerCoinVeto,muon_phi4gev_1p05eta1p3A;MuonRoI_Eff_Phi_TGC_1p05eta1p3A_InnerCoinVeto',title='MuonRoI_Eff_Phi_TGC_1p05eta1p3A_InnerCoinVeto;Offline muon Phi;Efficiency',
+                            cutmask='muon_l1passThr1TGC',type='TEfficiency',path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
+    myGroup.defineHistogram('muon_l1passInnerCoinVeto,muon_phi4gev_1p05eta1p3C;MuonRoI_Eff_Phi_TGC_1p05eta1p3C_InnerCoinVeto',title='MuonRoI_Eff_Phi_TGC_1p05eta1p3C_InnerCoinVeto;Offline muon Phi;Efficiency',
+                            cutmask='muon_l1passThr1TGC',type='TEfficiency',path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
+    myGroup.defineHistogram('muon_l1passInnerCoinVeto,muon_phi4gev_1p3eta2p4;MuonRoI_Eff_Phi_TGC_1p3eta2p4_InnerCoinVeto',title='MuonRoI_Eff_Phi_TGC_1p3eta2p4_InnerCoinVeto;Offline muon Phi;Efficiency',
+                            cutmask='muon_l1passThr1TGC',type='TEfficiency',path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
+    myGroup.defineHistogram('muon_l1passInnerCoinVeto,muon_phi4gev_1p3eta2p4A;MuonRoI_Eff_Phi_TGC_1p3eta2p4A_InnerCoinVeto',title='MuonRoI_Eff_Phi_TGC_1p3eta2p4A_InnerCoinVeto;Offline muon Phi;Efficiency',
+                            cutmask='muon_l1passThr1TGC',type='TEfficiency',path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
+    myGroup.defineHistogram('muon_l1passInnerCoinVeto,muon_phi4gev_1p3eta2p4C;MuonRoI_Eff_Phi_TGC_1p3eta2p4C_InnerCoinVeto',title='MuonRoI_Eff_Phi_TGC_1p3eta2p4C_InnerCoinVeto;Offline muon Phi;Efficiency',
+                            cutmask='muon_l1passThr1TGC',type='TEfficiency',path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
     myGroup.defineHistogram('roi_eta,roi_phi;MuonRoI_Evt_EtaVsPhi_InnerCoinVeto',type='TH2F',
                             title='MuonRoI Eta vs Phi InnerCoinVeto;MuonRoI Eta;MuonRoI Phi',cutmask='roi_innveto',path=trigPath,
                             xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
@@ -426,9 +500,13 @@ def TgcRawDataMonitoringConfig(inputFlags):
     myGroup.defineHistogram('roi_goodmf;MuonRoI_Evt_GoodMF',title='MuonRoI GoodMF Flag;GoodMF Flag;Number of events',
                             cutmask='roi_tgc',path=trigPath,xbins=2,xmin=-0.5,xmax=1.5)
     myGroup.defineHistogram('muon_l1passGoodMF,muon_eta4gev,muon_phi4gev;MuonRoI_Eff_EtaVsPhi_GoodMF',title='MuonRoI_Eff_EtaVsPhi_GoodMF;Offline muon eta; Offline muon phi',
-                            cutmask='muon_l1passThr1',type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
+                            cutmask='muon_l1passThr1TGC',type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
     myGroup.defineHistogram('muon_l1passGoodMF,muon_pt_tgc;MuonRoI_Eff_Pt_TGC_GoodMF',title='MuonRoI_Eff_Pt_TGC_GoodMF;Offline muon pT [GeV];Efficiency',
-                            cutmask='muon_l1passThr1',type='TEfficiency',path=trigPath,xbins=50,xmin=0,xmax=50)
+                            cutmask='muon_l1passThr1TGC',type='TEfficiency',path=trigPath,xbins=50,xmin=0,xmax=50)
+    myGroup.defineHistogram('muon_l1passGoodMF,muon_eta4gev;MuonRoI_Eff_Eta_GoodMF',title='MuonRoI_Eff_Eta_GoodMF;Offline muon eta; Efficiency',
+                            cutmask='muon_l1passThr1TGC',type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
+    myGroup.defineHistogram('muon_l1passGoodMF,muon_phi4gev_tgc;MuonRoI_Eff_Phi_TGC_GoodMF',title='MuonRoI_Eff_Phi_TGC_GoodMF;Offline muon phi; Efficiency',
+                            cutmask='muon_l1passThr1TGC',type='TEfficiency',path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
     myGroup.defineHistogram('roi_eta,roi_phi;MuonRoI_Evt_EtaVsPhi_GoodMF',type='TH2F',
                             title='MuonRoI Eta vs Phi GoodMF;MuonRoI Eta;MuonRoI Phi',cutmask='roi_goodmf',path=trigPath,
                             xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
@@ -439,9 +517,13 @@ def TgcRawDataMonitoringConfig(inputFlags):
     myGroup.defineHistogram('roi_badmf;MuonRoI_Evt_BadMF',title='MuonRoI BadMF Flag;BadMF Flag;Number of events',
                             cutmask='roi_tgc',path=trigPath,xbins=2,xmin=-0.5,xmax=1.5)
     myGroup.defineHistogram('muon_l1passBadMF,muon_eta4gev,muon_phi4gev;MuonRoI_Eff_EtaVsPhi_BadMF',title='MuonRoI_Eff_EtaVsPhi_BadMF;Offline muon eta; Offline muon phi',
-                            cutmask='muon_l1passThr1',type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
+                            cutmask='muon_l1passThr1TGC',type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
     myGroup.defineHistogram('muon_l1passBadMF,muon_pt_tgc;MuonRoI_Eff_Pt_TGC_BadMF',title='MuonRoI_Eff_Pt_TGC_BadMF;Offline muon pT [GeV];Efficiency',
-                            cutmask='muon_l1passThr1',type='TEfficiency',path=trigPath,xbins=50,xmin=0,xmax=50)
+                            cutmask='muon_l1passThr1TGC',type='TEfficiency',path=trigPath,xbins=50,xmin=0,xmax=50)
+    myGroup.defineHistogram('muon_l1passBadMF,muon_eta4gev;MuonRoI_Eff_Eta_BadMF',title='MuonRoI_Eff_Eta_BadMF;Offline muon eta; Efficiency',
+                            cutmask='muon_l1passThr1TGC',type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
+    myGroup.defineHistogram('muon_l1passBadMF,muon_phi4gev_tgc;MuonRoI_Eff_Phi_TGC_BadMF',title='MuonRoI_Eff_Phi_TGC_BadMF;Offline muon phi; Efficiency',
+                            cutmask='muon_l1passThr1TGC',type='TEfficiency',path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
     myGroup.defineHistogram('roi_eta,roi_phi;MuonRoI_Evt_EtaVsPhi_BadMF',type='TH2F',
                             title='MuonRoI Eta vs Phi BadMF;MuonRoI Eta;MuonRoI Phi',cutmask='roi_badmf',path=trigPath,
                             xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
@@ -491,14 +573,14 @@ def TgcRawDataMonitoringConfig(inputFlags):
         myGroup.defineHistogram('roi_eta_wBW3CoinVeto;MuonRoI_Evt_Eta_wBW3CoinVeto_Thr%02d' % n,title='MuonRoI Eta wBW3CoinVeto Thr%02d;MuonRoI Eta;Number of events' % n,
                                 cutmask='thrmask'+str(n),path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
 
-        myGroup.defineHistogram('roi_phi_wInnerCoin;MuonRoI_Evt_Phi_wInnerCoin_Thr%02d' % n,title='MuonRoI Phi wInnerCoin Thr%02d;MuonRoI Phi;Number of events' % n,
+        myGroup.defineHistogram('roi_phi_wInnerCoin;MuonRoI_Evt_Phi_TGC_wInnerCoin_Thr%02d' % n,title='MuonRoI Phi TGC wInnerCoin Thr%02d;MuonRoI Phi;Number of events' % n,
                                 cutmask='thrmask'+str(n),path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
-        myGroup.defineHistogram('roi_phi_wBW3Coin;MuonRoI_Evt_Phi_wBW3Coin_Thr%02d' % n,title='MuonRoI Phi wBW3Coin Thr%02d;MuonRoI Phi;Number of events' % n,
+        myGroup.defineHistogram('roi_phi_wBW3Coin;MuonRoI_Evt_Phi_TGC_wBW3Coin_Thr%02d' % n,title='MuonRoI Phi TGC wBW3Coin Thr%02d;MuonRoI Phi;Number of events' % n,
                                 cutmask='thrmask'+str(n),path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
 
-        myGroup.defineHistogram('roi_phi_wInnerCoinVeto;MuonRoI_Evt_Phi_wInnerCoinVeto_Thr%02d' % n,title='MuonRoI Phi wInnerCoinVeto Thr%02d;MuonRoI Phi;Number of events' % n,
+        myGroup.defineHistogram('roi_phi_wInnerCoinVeto;MuonRoI_Evt_Phi_TGC_wInnerCoinVeto_Thr%02d' % n,title='MuonRoI Phi TGC wInnerCoinVeto Thr%02d;MuonRoI Phi;Number of events' % n,
                                 cutmask='thrmask'+str(n),path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
-        myGroup.defineHistogram('roi_phi_wBW3CoinVeto;MuonRoI_Evt_Phi_wBW3CoinVeto_Thr%02d' % n,title='MuonRoI Phi wBW3CoinVeto Thr%02d;MuonRoI Phi;Number of events' % n,
+        myGroup.defineHistogram('roi_phi_wBW3CoinVeto;MuonRoI_Evt_Phi_TGC_wBW3CoinVeto_Thr%02d' % n,title='MuonRoI Phi TGC wBW3CoinVeto Thr%02d;MuonRoI Phi;Number of events' % n,
                                 cutmask='thrmask'+str(n),path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
 
         myGroup.defineHistogram('roi_eta_wInnerCoin,roi_phi_wInnerCoin;MuonRoI_Evt_EtaVsPhi_wInnerCoin_Thr%02d' % n,title='MuonRoI Eta vs Phi wInnerCoin Thr%02d;MuonRoI Eta;Number of events' % n,
@@ -526,28 +608,28 @@ def TgcRawDataMonitoringConfig(inputFlags):
 
         myGroup.defineHistogram('roi_innercoin,roi_eta_tgc;MuonRoI_Eff_Eta_wInnerCoin_Thr%02d' % n,title='MuonRoI Eff Eta wInnerCoin Thr%02d;MuonRoI Eta;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
-        myGroup.defineHistogram('roi_innercoin,roi_phi_tgc;MuonRoI_Eff_Phi_wInnerCoin_Thr%02d' % n,title='MuonRoI Eff Phi wInnerCoin Thr%02d;MuonRoI Phi;Efficiency' % n,
+        myGroup.defineHistogram('roi_innercoin,roi_phi_tgc;MuonRoI_Eff_Phi_TGC_wInnerCoin_Thr%02d' % n,title='MuonRoI Eff Phi TGC wInnerCoin Thr%02d;MuonRoI Phi;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
         myGroup.defineHistogram('roi_innercoin,roi_eta_tgc,roi_phi_tgc;MuonRoI_Eff_EtaVsPhi_wInnerCoin_Thr%02d' % n,title='MuonRoI Eff Eta vs Phi wInnerCoin Thr%02d;MuonRoI Eta;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
 
         myGroup.defineHistogram('roi_innveto,roi_eta_tgc;MuonRoI_Eff_Eta_wInnerCoinVeto_Thr%02d' % n,title='MuonRoI Eff Eta wInnerCoinVeto Thr%02d;MuonRoI Eta;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
-        myGroup.defineHistogram('roi_innveto,roi_phi_tgc;MuonRoI_Eff_Phi_wInnerCoinVeto_Thr%02d' % n,title='MuonRoI Eff Phi wInnerCoinVeto Thr%02d;MuonRoI Phi;Efficiency' % n,
+        myGroup.defineHistogram('roi_innveto,roi_phi_tgc;MuonRoI_Eff_Phi_TGC_wInnerCoinVeto_Thr%02d' % n,title='MuonRoI Eff Phi TGC wInnerCoinVeto Thr%02d;MuonRoI Phi;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
         myGroup.defineHistogram('roi_innveto,roi_eta_tgc,roi_phi_tgc;MuonRoI_Eff_EtaVsPhi_wInnerCoinVeto_Thr%02d' % n,title='MuonRoI Eff Eta vs Phi wInnerCoinVeto Thr%02d;MuonRoI Eta;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
 
         myGroup.defineHistogram('roi_bw3coin,roi_eta_tgc;MuonRoI_Eff_Eta_wBW3Coin_Thr%02d' % n,title='MuonRoI Eff Eta wBW3Coin Thr%02d;MuonRoI Eta;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
-        myGroup.defineHistogram('roi_bw3coin,roi_phi_tgc;MuonRoI_Eff_Phi_wBW3Coin_Thr%02d' % n,title='MuonRoI Eff Phi wBW3Coin Thr%02d;MuonRoI Phi;Efficiency' % n,
+        myGroup.defineHistogram('roi_bw3coin,roi_phi_tgc;MuonRoI_Eff_Phi_TGC_wBW3Coin_Thr%02d' % n,title='MuonRoI Eff Phi TGC wBW3Coin Thr%02d;MuonRoI Phi;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
         myGroup.defineHistogram('roi_bw3coin,roi_eta_tgc,roi_phi_tgc;MuonRoI_Eff_EtaVsPhi_wBW3Coin_Thr%02d' % n,title='MuonRoI Eff Eta vs Phi wBW3Coin Thr%02d;MuonRoI Eta;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
 
         myGroup.defineHistogram('roi_bw3coinveto,roi_eta_tgc;MuonRoI_Eff_Eta_wBW3CoinVeto_Thr%02d' % n,title='MuonRoI Eff Eta wBW3CoinVeto Thr%02d;MuonRoI Eta;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
-        myGroup.defineHistogram('roi_bw3coinveto,roi_phi_tgc;MuonRoI_Eff_Phi_wBW3CoinVeto_Thr%02d' % n,title='MuonRoI Eff Phi wBW3CoinVeto Thr%02d;MuonRoI Phi;Efficiency' % n,
+        myGroup.defineHistogram('roi_bw3coinveto,roi_phi_tgc;MuonRoI_Eff_Phi_TGC_wBW3CoinVeto_Thr%02d' % n,title='MuonRoI Eff Phi TGC wBW3CoinVeto Thr%02d;MuonRoI Phi;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
         myGroup.defineHistogram('roi_bw3coinveto,roi_eta_tgc,roi_phi_tgc;MuonRoI_Eff_EtaVsPhi_wBW3CoinVeto_Thr%02d' % n,title='MuonRoI Eff Eta vs Phi wBW3CoinVeto Thr%02d;MuonRoI Eta;Efficiency' % n,
                                 cutmask='thrmask'+str(n),type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
@@ -1012,6 +1094,9 @@ if __name__=='__main__':
 
     ConfigFlags.Trigger.triggerConfig = "FILE"
     ConfigFlags.Trigger.triggerMenuSetup = "Dev_pp_run3_v1"
+
+    if not ConfigFlags.Input.isMC:
+        ConfigFlags.IOVDb.GlobalTag = "CONDBR2-BLKPA-2022-04"
 
     ConfigFlags.lock()
     ConfigFlags.dump()

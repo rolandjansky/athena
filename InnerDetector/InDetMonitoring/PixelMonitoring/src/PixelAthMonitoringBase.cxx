@@ -128,6 +128,35 @@ void PixelAthMonitoringBase::fill2DProfLayerAccum(const VecAccumulator2DMap& acc
   }
 }
 
+//////////////////////////////////////////////
+///
+/// take VecAccumulator2DMap and fill 3D arrays [layer, pm, em] with its values and lumiblock 
+///
+void PixelAthMonitoringBase::fill1DModProfAccum(const VecAccumulator2DMap& accumulator, int lumiblock) const {
+  auto lb = Monitored::Scalar<int>("pixmvamontool_lb", lumiblock);
+  const int em_offsets[PixLayers::NBASELAYERS] = { 0, 0, 6, 6, 6, 16};
+  // iterate over all actually filled layers
+  //
+  for (const auto& itr : accumulator.m_pm) {
+    int layer = itr.first;
+    auto pm_v  = accumulator.m_pm.at(layer);
+    auto em_v  = accumulator.m_em.at(layer);
+    auto val_v = accumulator.m_val.at(layer);
+    auto pi = pm_v.begin();
+    auto ei = em_v.begin();
+    auto vi = val_v.begin();
+    while (pi!=pm_v.end() and ei!=em_v.end() and vi!=val_v.end() ) 
+      {
+	auto pm  = *pi++;
+	auto em  = em_offsets[layer] + *ei++;
+	pm += em*PixMon::pixPhiSteps[layer];
+	auto val = Monitored::Scalar<float>(accumulator.m_prof2Dname + "_val", *vi++);
+	fill( m_tools[m_modData[layer].at(pm)], lb, val);
+      }
+  }
+}
+
+
 ///
 /// filling 1DProf per-lumi per-layer histograms ["ECA","ECC","BLayer","Layer1","Layer2","IBL","IBL2D","IBL3D"]
 ///

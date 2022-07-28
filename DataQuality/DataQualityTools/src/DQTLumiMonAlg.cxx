@@ -99,14 +99,14 @@ StatusCode DQTLumiMonAlg::fillHistograms(const EventContext& ctx) const {
                 }
                 ATH_MSG_DEBUG("nClustersAll is " << nClustersAll);
             }
-            auto nClustersAllPerAvgMu = Scalar<int>("nClustersAllPerAvg",nClustersAll*avgMuInverse);
-            auto nClustersECAPerAvgMu = Scalar<int>("nClustersECAPerAvg",nClustersECA*avgMuInverse);
-            auto nClustersECCPerAvgMu = Scalar<int>("nClustersECCPerAvg",nClustersECC*avgMuInverse);
-            auto nClustersB0PerAvgMu = Scalar<int>("nClustersB0PerAvg",nClustersB0*avgMuInverse);
-            auto nClustersB1PerAvgMu = Scalar<int>("nClustersB1PerAvg",nClustersB1*avgMuInverse);
-            auto nClustersB2PerAvgMu = Scalar<int>("nClustersB2PerAvg",nClustersB2*avgMuInverse);
+            auto nClustersAllPerAvgMu = Scalar<int>("nClustersAllPerAvgMu",nClustersAll*avgMuInverse);
+            auto nClustersECAPerAvgMu = Scalar<int>("nClustersECAPerAvgMu",nClustersECA*avgMuInverse);
+            auto nClustersECCPerAvgMu = Scalar<int>("nClustersECCPerAvgMu",nClustersECC*avgMuInverse);
+            auto nClustersB0PerAvgMu = Scalar<int>("nClustersB0PerAvgMu",nClustersB0*avgMuInverse);
+            auto nClustersB1PerAvgMu = Scalar<int>("nClustersB1PerAvgMu",nClustersB1*avgMuInverse);
+            auto nClustersB2PerAvgMu = Scalar<int>("nClustersB2PerAvgMu",nClustersB2*avgMuInverse);
 
-            fill("pixel",lumiBlock,
+            fill("pixel",lumiBlock,avgIntPerXing,
                  nClustersAll,nClustersECA,nClustersECC,
                  nClustersB0,nClustersB1,nClustersB2,
                  nClustersAllPerAvgMu,nClustersECAPerAvgMu,nClustersECCPerAvgMu,

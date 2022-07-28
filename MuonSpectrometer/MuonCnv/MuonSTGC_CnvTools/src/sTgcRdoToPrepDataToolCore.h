@@ -64,6 +64,7 @@ namespace Muon
       const STGC_RawDataContainer* getRdoContainer() const;
 
       void processRDOContainer(Muon::sTgcPrepDataContainer* stgcPrepDataContainer,
+                               const std::vector<IdentifierHash>& idsToDecode,
                                std::vector<IdentifierHash>& idWithDataVect) const;
 
       SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_muDetMgrKey {this, "DetectorManagerKey", "MuonDetectorManager", "Key of input MuonDetectorManager condition data"}; 

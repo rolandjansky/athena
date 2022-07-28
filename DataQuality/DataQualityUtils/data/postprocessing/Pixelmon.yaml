@@ -28,11 +28,11 @@ Output: [ '{LB}/Pixel/LumiBlock/DefectMap_IBL',
 Function: PixelMonitoring.PixelPostProcessing.badEtaPhi_forAllMaskPatterns
 Description: MakeAllEtaPhiPlots_perLB
 ---
-Input: [ 'Pixel/MVA/BDTWeightsReset_(?P<layer>IBL|BLayer|Layer1|Layer2|ECA|ECC)' ]
+Input: [ 'Pixel/MVA/Modules/(?P<layer>IBL|BLayer|Layer1|Layer2|ECA|ECC)/(?P<head>LI|L0|L1|L2|D1|D2|D3)_B(?P<stace>01|02|03|04|05|06|07|08|09|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26)_S(?P<bistace>0|1|2)_M(?P<module>0|1|2|3|4|5|6|7|8)(?P<side>A|C|$)', 'Pixel/MVA/BDTWeights_(?P<layer>IBL|BLayer|Layer1|Layer2|ECA|ECC)$' ]
 Output: [ 'Pixel/MVA/FixMe_{layer}']
-Function: PixelMonitoring.PixelPostProcessing.createFixMeHistograms
+Function: PixelMonitoring.PixelPostProcessing.evaluateModuleHistograms
 Parameters: { minBinStat : 5, mvaThr : 0.5, excludeOutOfAcc : True }
-Description: EvaluateMVAHistograms
+Description: EvaluateModuleMVAHistograms
 ---
 Input: [ 'Pixel/Errors/SyncErrorsMod_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
 Output: [ 'Pixel/Errors/SyncErrorsMod_Norm_{sec}' ]

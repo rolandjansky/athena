@@ -4,6 +4,8 @@
 
 #include "HLTCalo_L2CaloEMClustersMonitor.h"
 #include "CxxUtils/phihelper.h"
+#include "StoreGate/ReadDecorHandle.h"
+#include "LArRecEvent/LArEventBitInfo.h"
 
 template <typename T> struct clus_kin {
   double et;
@@ -31,12 +33,18 @@ StatusCode HLTCalo_L2CaloEMClustersMonitor::initialize() {
   ATH_CHECK(m_HLT_cont_key.initialize());
   ATH_CHECK(m_OFF_cont_key.initialize());
   ATH_CHECK( m_bunchCrossingKey.initialize());
+  ATH_CHECK( m_eventInfoKey.initialize() );
   return AthMonitorAlgorithm::initialize();
 }
 
 
 StatusCode HLTCalo_L2CaloEMClustersMonitor::fillHistograms( const EventContext& ctx ) const {
   using namespace Monitored;
+
+    // Protect against noise bursts
+    SG::ReadDecorHandle<xAOD::EventInfo,uint32_t> thisEvent(m_eventInfoKey, ctx);
+    if ( thisEvent->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::NOISEBURSTVETO)) 
+               return StatusCode::SUCCESS;
 
   // Get HLT cluster collections
   SG::ReadHandle<xAOD::TrigEMClusterContainer> hltCluster_readHandle(m_HLT_cont_key, ctx);

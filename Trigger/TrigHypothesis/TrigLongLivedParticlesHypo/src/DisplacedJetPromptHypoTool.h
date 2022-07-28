@@ -27,11 +27,12 @@ public:
 
     struct Info {
       const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs;
-      std::map<const xAOD::Jet_v1*, TrigCompositeUtils::Decision*> jet_decisions;
-      const xAOD::JetContainer* jets;
-      std::map<const xAOD::Jet_v1*, std::vector<const xAOD::TrackParticle_v1*>> jets_to_tracks;
+      TrigCompositeUtils::Decision* output_decision;
+      
+      const xAOD::Jet* jet;
+      std::vector<const xAOD::TrackParticle_v1*> tracks;
       const xAOD::Vertex* primary_vertex;
-      std::map<const xAOD::Jet*, xAOD::TrigComposite*> counts;
+      xAOD::TrigComposite* counts;
       DisplacedJetBeamspotInfo beamspot;
     };
 
