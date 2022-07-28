@@ -135,14 +135,15 @@ namespace JetVar {
         return v;
       }
       else {
-        vect_t dummy(1,-999.);
-        VectorValue junk( new VectorWrapperT(&dummy), m_scale );
+        VectorValue junk( new VectorWrapperT(&s_dummy), m_scale );
         return junk;
       }
     }
 
 
     Accessor<vect_t> m_acc;
+    // this is the value used returned when a vector attribute is not accessible
+    const static inline vect_t s_dummy{-999};
   };
 
   
