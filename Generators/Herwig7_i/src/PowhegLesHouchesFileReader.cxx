@@ -15,7 +15,6 @@
 #include "ThePEG/PDT/DecayMode.h"
 #include "ThePEG/Persistency/PersistentOStream.h"
 #include "ThePEG/Persistency/PersistentIStream.h"
-#include "ThePEG/LesHouches/LesHouchesReader.h"
 #include "ThePEG/LesHouches/LesHouchesReader.fh"
 #include "ThePEG/LesHouches/LesHouchesFileReader.h"
 #include "ThePEG/LesHouches/LesHouchesFileReader.fh"
@@ -183,10 +182,11 @@ void powhegLesHouchesFileReader::doinit() {
 	}
 	else {
 	  nameAnti=name;
-	  for(string::iterator it=nameAnti.begin();it!=nameAnti.end();++it) {
-	    if(*it=='+')      nameAnti.replace(it,it+1,"-");
-	    else if(*it=='-') nameAnti.replace(it,it+1,"+");
-	  }
+          auto swapSign=[](char & t){
+            if (t=='-') t= '+';
+            else if (t=='+') t= '-';
+          };
+          std::for_each(nameAnti.begin(),nameAnti.end(), swapSign);
 	  if(nameAnti==name) nameAnti += "bar";
 	}
 	// create the ParticleData objects
