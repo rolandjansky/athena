@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -71,7 +71,6 @@ GetLCSinglePionsPerf::GetLCSinglePionsPerf(const std::string& name, ISvcLocator*
     m_nlogenerbin(22), m_logenermin(2.0), m_logenermax(6.4),
     m_nlogenerbin2(3),
     m_dlogener(0),
-    m_xcryo_min(-80.), m_xcryo_max(80.),m_ytable_min(-1000.), m_ytable_max(1000.),
     m_nnormtype(3),
     m_ncluscoll(4),
     m_ntagcases(3),
