@@ -16,6 +16,12 @@ TGCPatchPanelOut::TGCPatchPanelOut()
     m_signalPattern[i] = 0;
   }
 }
+TGCPatchPanelOut::~TGCPatchPanelOut()
+{
+  for(int  i=0; i<NumberOfConnectorPerPPOut; i+=1){
+    if (m_signalPattern[i]!=0) delete m_signalPattern[i];
+  }
+}
 
 TGCPatchPanelOut& TGCPatchPanelOut::operator=(const TGCPatchPanelOut& right)
 {
