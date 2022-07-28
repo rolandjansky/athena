@@ -217,24 +217,21 @@ if __name__ == '__main__':
 
   parser = argparse.ArgumentParser("Running L1TopoSimulation standalone for the BS input", formatter_class=RawTextHelpFormatter)
   parser.add_argument("-i","--inputs",nargs='*',action="store", dest="inputs", help="Inputs will be used in commands", required=True)
-  parser.add_argument("-m","--module",action="store", dest="module", help="Input modules wants to be simulated.",default="NoModule", required=False)
+  parser.add_argument("-m","--module",action="store", dest="module", help="Input modules wants to be simulated.",default="", required=False)
   parser.add_argument("-l","--logLevel",action="store", dest="log", help="Log level.",default="warning", required=False)
   parser.add_argument("-n","--nevent", type=int, action="store", dest="nevent", help="Maximum number of events will be executed.",default=0, required=False)
   
   args = parser.parse_args()
 
-  supportedSubsystems = ['Muons','jFex','eFex','gFex','AllFex','AllModule','NoModule']
-  subsystem = args.module
+  supportedSubsystems = ['Muons','jFex','eFex','gFex']
+  args_subsystem = args.module.split(',')
+  subsystem = list( set(args_subsystem) & set(supportedSubsystems) )
   filename = args.inputs
   
   if args.log == 'warning': algLogLevel = WARNING
   if args.log == 'debug': algLogLevel = DEBUG
   if args.log == 'verbose': algLogLevel = VERBOSE
   
-  if subsystem not in supportedSubsystems:
-    log.error(f'subsystem "{subsystem}" not one of supported subsystems: {supportedSubsystems}')
-    sys.exit(1)
-
   if "data22" in filename:
     flags.Trigger.triggerConfig='DB'
   flags.Exec.OutputLevel = WARNING
@@ -278,6 +275,7 @@ if __name__ == '__main__':
             f'{auxType}#{edmName}Aux.']
 
   outputEDM += ['CTP_RDO#*']
+  outputEDM += ['ROIB::RoIBResult#*']
 
   outputEDM += addEDM('xAOD::JetEtRoI'         , 'LVL1JetEtRoI')
   outputEDM += addEDM('xAOD::JetRoIContainer'  , 'LVL1JetRoIs')
@@ -286,7 +284,7 @@ if __name__ == '__main__':
 
   loadFromSG = [('xAOD::EventInfo', 'StoreGateSvc+EventInfo')]
  
-  if subsystem in ['Muons','AllModule']:
+  if 'Muons' in subsystem:
       loadFromSG += [( 'RpcPadContainer' , 'StoreGateSvc+RPCPAD_L1' ),
                      ( 'TgcRdoContainer' , 'StoreGateSvc+TGCRDO_L1' )]
       from MuonConfig.MuonCablingConfig import MuonCablingConfigCfg
@@ -302,8 +300,8 @@ if __name__ == '__main__':
       from TriggerJobOpts.Lvl1MuonSimulationConfig import MuonBytestream2RdoConfig
       acc.merge(MuonBytestream2RdoConfig(flags))
 
-  if subsystem in ['jFex','AllFex','AllModule'] :
-      from L1CaloFEXByteStream.L1CaloRoiFEXByteStreamConfig import jFexRoiByteStreamToolCfg
+  if 'jFex' in subsystem:
+      from L1CaloFEXByteStream.L1CaloFEXByteStreamConfig import jFexRoiByteStreamToolCfg
       jFexTool = jFexRoiByteStreamToolCfg('jFexBSDecoder', flags, writeBS=False)
       decoderTools += [jFexTool]
       outputEDM += addEDM('xAOD::jFexSRJetRoIContainer', jFexTool.jJRoIContainerWriteKey.Path)
@@ -313,14 +311,14 @@ if __name__ == '__main__':
       outputEDM += addEDM('xAOD::jFexSumETRoIContainer', jFexTool.jTERoIContainerWriteKey.Path)
       outputEDM += addEDM('xAOD::jFexMETRoIContainer'  , jFexTool.jXERoIContainerWriteKey.Path)
   #
-  if subsystem in ['eFex','AllFex','AllModule'] :
-      from L1CaloFEXByteStream.L1CaloRoiFEXByteStreamConfig import eFexByteStreamToolCfg
+  if 'eFex' in subsystem:
+      from L1CaloFEXByteStream.L1CaloFEXByteStreamConfig import eFexByteStreamToolCfg
       eFexTool = eFexByteStreamToolCfg('eFexBSDecoder', flags, writeBS=False)
       decoderTools += [eFexTool]
       outputEDM += addEDM('xAOD::eFexEMRoIContainer', eFexTool.eEMContainerWriteKey.Path)
       outputEDM += addEDM('xAOD::eFexTauRoIContainer', eFexTool.eTAUContainerWriteKey.Path)
 
-  if 'NoModule' not in subsystem:
+  if len(subsystem) > 0:
       from L1TopoByteStream.L1TopoByteStreamConfig import L1TopoPhase1ByteStreamToolCfg
       l1topoBSTool = L1TopoPhase1ByteStreamToolCfg("L1TopoBSDecoderTool",flags)
       decoderTools += [l1topoBSTool]
@@ -340,6 +338,7 @@ if __name__ == '__main__':
   acc.addEventAlgo(roib2topo, sequenceName="AthAlgSeq")
   from L1TopoByteStream.L1TopoByteStreamConfig import L1TopoByteStreamCfg
   acc.merge(L1TopoByteStreamCfg(flags), sequenceName='AthAlgSeq')
+  outputEDM += addEDM('xAOD::L1TopoRawDataContainer', 'L1TopoRawData')
   acc.merge(L1LegacyTopoSimulationCfg(flags), sequenceName='AthAlgSeq')
 
   acc.merge(L1TopoSimulationStandaloneCfg(flags,outputEDM), sequenceName='AthAlgSeq')
