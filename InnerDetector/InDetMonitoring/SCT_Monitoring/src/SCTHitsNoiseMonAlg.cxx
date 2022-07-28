@@ -23,7 +23,7 @@ using namespace SCT_Monitoring;
 
 namespace {
   static const std::string abbreviations[N_REGIONS] = {
-    "ECp", "", "ECm"
+    "ECm", "", "ECp"
   };
 
   enum
