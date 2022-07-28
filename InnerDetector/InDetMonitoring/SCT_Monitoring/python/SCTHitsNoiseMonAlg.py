@@ -49,11 +49,11 @@ def SCTHitsNoiseMonAlgConfig(inputFlags):
 
     # Configure histograms
 
-    abbreviations = ["ECp", "", "ECm"]
-    names = ["Endcap A", "Barrel", "Endcap C"]
-    path = ["SCTEA", "SCTB", "SCTEC"]
-    noiseAbbreviations = ["ECA","BAR","ECC"]
-    titleAbbreviations = ["ECp","BAR","ECm"]
+    abbreviations = ["ECm", "", "ECp"]
+    names = ["Endcap C", "Barrel", "Endcap A"]
+    path = ["SCTEC", "SCTB", "SCTEA"]
+    noiseAbbreviations = ["ECC","BAR","ECA"]
+    titleAbbreviations = ["ECm","BAR","ECp"]
     limits = [ sctMon.N_DISKS*2, sctMon.N_BARRELS*2, sctMon.N_DISKS*2 ]
 
     for isub in range(sctMon.N_REGIONS):
