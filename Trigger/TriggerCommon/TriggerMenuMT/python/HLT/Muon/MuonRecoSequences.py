@@ -203,6 +203,9 @@ def muonDecodeCfg(flags, RoIs):
         acc.merge( mmAcc )
       #sTGC and MM RDO converter
       stgcAcc = StgcRDODecodeCfg( flags, name="StgcRdoToStgcPrepData_"+RoIs )
+      stgcAcc.getEventAlgo("StgcRdoToStgcPrepData_"+RoIs).RoIs = RoIs
+      stgcAcc.getEventAlgo("StgcRdoToStgcPrepData_"+RoIs).DoSeededDecoding = doSeededDecoding
+      stgcAcc.getEventAlgo("StgcRdoToStgcPrepData_"+RoIs).RegionSelectorTool = RegSelTool_STGC
       acc.merge( stgcAcc )
       mmAcc = MMRDODecodeCfg( flags, name="MMRdoToMMPrepData_"+RoIs )
       mmAcc.getEventAlgo("MMRdoToMMPrepData_"+RoIs).RoIs = RoIs

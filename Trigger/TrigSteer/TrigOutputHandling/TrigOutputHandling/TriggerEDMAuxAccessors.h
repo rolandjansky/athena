@@ -79,7 +79,7 @@ auto floatAccessors = initAccessors<float>(
   "SV1_L3d", "SV1_Lxy", "SV1_deltaR", "SV1_dstToMatLay", "SV1_efracsvx", "SV1_energyTrkInJet",
   "SV1_masssvx", "SV1_normdist", "SV1_significance3d",
   "AvgMu",
-  "N90Constituents",
+  "N90Constituents", "AverageLArQF", "BchCorrCell", "HECQuality", "LArQuality", "NegativeE", "FracSamplingMax",
   "DL1d20210519r22_pb",
   "DL1d20210519r22_pc",
   "DL1d20210519r22_pu",

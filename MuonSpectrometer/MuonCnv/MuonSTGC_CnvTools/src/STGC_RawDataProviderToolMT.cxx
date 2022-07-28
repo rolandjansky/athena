@@ -100,6 +100,23 @@ StatusCode  Muon::STGC_RawDataProviderToolMT::convert(const EventContext& ctx) c
   return convertIntoContainer(vecRobf, rdoIdhVect, *rdoContainer);
 }
 
+StatusCode Muon::STGC_RawDataProviderToolMT::convert(const std::vector<uint32_t>& robIds, const EventContext& ctx) const
+{
+  STGC_RawDataContainer* rdoContainer{nullptr};
+  ATH_CHECK(initRdoContainer(ctx, rdoContainer));
+  
+  if (robIds.empty()) return StatusCode::SUCCESS;
+  
+  std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> vecRobf;
+
+  m_robDataProvider->getROBData(robIds, vecRobf);
+
+  // pass empty list of ID hashes, every ROB ID in list will be decoded
+  const std::vector<IdentifierHash> hashIDList; 
+
+  return convertIntoContainer(vecRobf, hashIDList, *rdoContainer);
+
+}
 
 //===============================================================================
 StatusCode  Muon::STGC_RawDataProviderToolMT::convert() const

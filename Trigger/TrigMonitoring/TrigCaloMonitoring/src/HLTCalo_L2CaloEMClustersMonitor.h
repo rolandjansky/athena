@@ -9,6 +9,7 @@
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/ReadDecorHandleKey.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "LumiBlockData/BunchCrossingCondData.h"
@@ -24,6 +25,7 @@ public:
 private:
   float calculateDeltaR( float max_deltar, float eta_1, float phi_1, float eta_2, float phi_2 ) const;
 
+  SG::ReadDecorHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "LArStatusFlag", "EventInfo.larFlag", "Key for EventInfo object"};
   SG::ReadCondHandleKey<BunchCrossingCondData> m_bunchCrossingKey{this, "BunchCrossingKey", "BunchCrossingData", "Key BunchCrossing CDO" };
   SG::ReadHandleKey<xAOD::TrigEMClusterContainer> m_HLT_cont_key;
   SG::ReadHandleKey<xAOD::CaloClusterContainer> m_OFF_cont_key;

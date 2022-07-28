@@ -38,8 +38,6 @@ private:
   Gaudi::Property<float> m_drcut{this, "dr_cut",{0.4}, "dR cut used for jet matching of trakcs"};
   Gaudi::Property<float> m_min_trk_pt{this, "min_trk_pt",{0}, "Minimum pt for a track [GeV]"};
 
-  ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
-
   SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 };
 #endif

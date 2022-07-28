@@ -3,6 +3,8 @@
 # art-description: Run AFII simulation and full digitization of an MC16a ttbar sample with 2016a geometry and conditions, 25ns pile-up
 # art-type: grid
 # art-include: master/Athena
+# art-include: 22.0/Athena
+# art-include: 22.0-mc20/Athena
 # art-output: *.root
 # art-output: config.txt
 # art-output: dcube*

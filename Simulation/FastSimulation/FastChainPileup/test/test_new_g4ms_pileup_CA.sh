@@ -3,6 +3,8 @@
 # art-description: ATLFASTIIF_G4MS test with pile-up profile
 # art-type: grid
 # art-include: master/Athena
+# art-include: 22.0/Athena
+# art-include: 22.0-mc20/Athena
 # art-architecture: '#x86_64-intel'
 
 maxevent=25

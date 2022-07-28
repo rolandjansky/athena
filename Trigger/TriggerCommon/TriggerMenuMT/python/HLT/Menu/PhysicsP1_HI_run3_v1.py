@@ -52,7 +52,14 @@ def setupMenu():
     chains['Monitor'] = [
           ChainProp(name='HLT_noalg_CostMonDS_L1All',        l1SeedThresholds=['FSNOSEED'], stream=['CostMonitoring'], groups=['RATE:Monitoring','BW:Other']),
     ]
-
-    addP1Signatures(chains)
-
+    tempChains = ChainStore()
+    addP1Signatures(tempChains)
+    for sig, chainsInSig in tempChains.items():
+        if sig == "Beamspot":  # HI needs special beam spot setup
+                continue
+        for c in chainsInSig:
+                if "IDCalibPEB" in c.name: # heavy tracking
+                        continue
+                else:
+                        chains[sig].append(c)
     return chains

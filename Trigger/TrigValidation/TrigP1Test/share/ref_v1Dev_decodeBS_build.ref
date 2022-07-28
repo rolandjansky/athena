@@ -3671,13 +3671,11 @@ HLT_j175f_L1J50p31ETA49:
   eventCount: 0
 HLT_j175f_L1jJ90p31ETA49:
   eventCount: 0
-HLT_j180_2dispjet50_L1J100:
+HLT_j180_2dispjet50_3d2p_L1J100:
   eventCount: 0
-HLT_j180_2dispjet50_perf_L1J100:
+HLT_j180_dispjet140_x3d1p_L1J100:
   eventCount: 0
-HLT_j180_dispjet140_L1J100:
-  eventCount: 0
-HLT_j180_dispjet140_perf_L1J100:
+HLT_j180_dispjet50_3d2p_dispjet50_1p_L1J100:
   eventCount: 0
 HLT_j200_0eta180_emergingPTF0p08dR1p2_a10sd_cssk_pf_jes_ftf_preselj200_L1J100:
   eventCount: 0

@@ -5,6 +5,7 @@
 import ROOT
 import math 
 import importlib.resources
+from PixelMonitoring.PixelAthMonitoringBase import LabelX, LabelY, baselayers, xbinsl
 
 LB_deg = ROOT.TH1F('TotalDegradationPerLumi', 'b-tag degradation;LB;total b-tag degradation', 3000, -0.5, 2999.5)
 degFactor70 = [0.0032, 0.0078, 0.011, 0.020, 0.023, 0.018, 0.098, 0.10, 0.26, 0.36, 0.33, 0.17, 0.65, 0.79, 0.81]
@@ -166,36 +167,65 @@ def badEtaPhi_forAllMaskPatterns(inputs):
 
 ####################################################################
 
-def createFixMeHistograms(inputs, minBinStat=5, mvaThr=0.5, excludeOutOfAcc=True):
-    assert len(inputs) == 1 , len(inputs)
-    layer = inputs[0][0]['layer']
-    ohisto = inputs[0][1][0].Clone()
+def evaluateModuleHistograms(inputs, minBinStat=5, mvaThr=0.5, excludeOutOfAcc=True):
+    layer   = inputs[0][0]['layer']
+    ohisto  = inputs[0][1][1].Clone()
+    ohisto.Reset()
+    i_layer = baselayers.index(layer)
 
-    for i in range(1,ohisto.GetNbinsX()+1):
-        if (i<5 or i>ohisto.GetNbinsX()-4) and layer=='IBL' and excludeOutOfAcc :
-            for j in range(1,ohisto.GetNbinsY()+1):
-                stat = ohisto.GetBinEntries(ohisto.GetBin(i,j))
-                ohisto.SetBinContent(i,j,0)
-                ohisto.SetBinEntries(ohisto.GetBin(i,j),1) #OK
-        elif (i==1 or i==ohisto.GetNbinsX()) and layer=='BLayer' and excludeOutOfAcc :
-            for j in range(1,ohisto.GetNbinsY()+1):
-                stat = ohisto.GetBinEntries(ohisto.GetBin(i,j))
-                ohisto.SetBinContent(i,j,0)
-                ohisto.SetBinEntries(ohisto.GetBin(i,j),1) #OK
+    histos = [_[1][0] for _ in inputs]
+
+    for ih, histo in enumerate(histos):
+        #
+        # collect info from module's past behaviour
+        #
+        nInpBins = histo.GetNbinsX()
+        stat = 0
+        cont = 0
+        for inputbin in range(1, nInpBins + 1):
+            stat += histo.GetBinEntries(inputbin)
+            cont += histo.GetBinContent(inputbin)*histo.GetBinEntries(inputbin)
+        #
+        # from module name get binx, biny of output histo
+        #
+        splits = histo.GetName().split('_')
+        if (layer in ['BLayer','Layer1','Layer2']):
+            x = splits[3]
+            y = splits[1] + '_' + splits[2]
+        elif layer=='IBL':
+            #S0_M1A -> A1_0
+            x = splits[3][2] + splits[3][1] + '_' + splits[2][1]
+            #B14 -> #S14
+            y = 'S'+splits[1][1:]
+        else: 
+            # D1 -> Disk 1
+            x = 'Disk ' + splits[0][1]
+            # remove 'A' or 'C'
+            y = splits[1] + '_' + splits[2] + '_' + splits[3][:-1]
+        i_x = LabelX[i_layer].index(x)+1
+        i_y = LabelY[i_layer].index(y)+1
+        i_bin = i_y*(xbinsl[i_layer]+2) + i_x
+ 
+        # assessment
+        if (i_x<5 or i_x>ohisto.GetNbinsX()-4) and layer=='IBL' and excludeOutOfAcc :
+            ohisto.SetBinContent(i_x,i_y,0)
+            ohisto.SetBinEntries(i_bin,1) #OK (out of acceptance)
+        elif (i_x==1 or i_x==ohisto.GetNbinsX()) and layer=='BLayer' and excludeOutOfAcc :
+            ohisto.SetBinContent(i_x,i_y,0)
+            ohisto.SetBinEntries(i_bin,1) #OK (out of acceptance)
         else:
-            for j in range(1,ohisto.GetNbinsY()+1):
-                stat = ohisto.GetBinEntries(ohisto.GetBin(i,j))
-                val = ohisto.GetBinContent(i,j)
-                if stat>minBinStat:
-                    if val>mvaThr:
-                        ohisto.SetBinContent(i,j,1.0*stat) #not OK
-                    else:
-                        ohisto.SetBinContent(i,j,0)
-                        ohisto.SetBinEntries(ohisto.GetBin(i,j),1) #OK
-                else: #not enough info - empty
-                    ohisto.SetBinContent(i,j,0)
-                    ohisto.SetBinEntries(ohisto.GetBin(i,j),0)
-    ## exceptions
+            if stat>minBinStat:
+                if cont/stat>mvaThr: #not OK
+                    ohisto.SetBinContent(i_x,i_y,1.0)
+                    ohisto.SetBinEntries(i_bin,1)
+                else: #OK
+                    ohisto.SetBinContent(i_x,i_y,0)
+                    ohisto.SetBinEntries(i_bin,1)
+            else: #not enough info - empty
+                ohisto.SetBinContent(i_x,i_y,0)
+                ohisto.SetBinEntries(i_bin,0)
+
+    ## known exception
     if layer=='IBL':
         ohisto.SetBinContent(11,13,0) # FE S13-C3-M0 - OK
         ohisto.SetBinEntries(ohisto.GetBin(11,13),1)

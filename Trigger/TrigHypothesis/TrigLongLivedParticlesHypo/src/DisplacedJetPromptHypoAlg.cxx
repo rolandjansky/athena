@@ -34,7 +34,6 @@ StatusCode DisplacedJetPromptHypoAlg::initialize()
   ATH_CHECK(m_beamSpotKey.initialize());
 
   ATH_CHECK(m_hypoTools.retrieve());
-  if (!m_monTool.empty()) ATH_CHECK(m_monTool.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -56,9 +55,6 @@ StatusCode DisplacedJetPromptHypoAlg::execute(const EventContext& context) const
     ATH_MSG_ERROR("Found " << previousDecisionsHandle->size() <<" previous decisions.");
     return StatusCode::FAILURE;
   }
-
-  auto mon_max_pt = Monitored::Scalar<float>("leading_jet_pt");
-  Monitored::Group mon_group(m_monTool, mon_max_pt);
 
   TrigCompositeUtils::DecisionIDContainer prev;
   TrigCompositeUtils::decisionIDs( previousDecisionsHandle->at(0), prev );
@@ -103,18 +99,6 @@ StatusCode DisplacedJetPromptHypoAlg::execute(const EventContext& context) const
     return StatusCode::SUCCESS;
   }
 
-  //check if the max(jet-pt) is above the threshold
-  double max_pt = 0.0;
-  for(auto jet: *jets){
-    if(jet->pt() > max_pt){
-      max_pt = jet->pt();
-    }
-  }
-
-  mon_max_pt = max_pt/Gaudi::Units::GeV;
-
-  ATH_MSG_DEBUG("have "<<jets->size()<<" jets");
-
   auto countsContainer = std::make_unique< xAOD::TrigCompositeContainer>();
   auto countsContainerAux = std::make_unique< xAOD::TrigCompositeAuxContainer>();
   countsContainer->setStore(countsContainerAux.get());
@@ -149,13 +133,6 @@ StatusCode DisplacedJetPromptHypoAlg::execute(const EventContext& context) const
 
   ATH_CHECK(countsHandle.record(std::move(countsContainer), std::move(countsContainerAux)));
 
-  //link all of the counts to the decisions
-  for(auto pair: count_index_map){
-    auto jet_dec = pair.first;
-    auto idx = pair.second;
-    jet_dec->setObjectLink("djtrig_counts", ElementLink<xAOD::TrigCompositeContainer>(*countsHandle, idx, context));
-  }
-
   //do jet<->track association
   std::map<const xAOD::Jet_v1*, std::vector<const xAOD::TrackParticle_v1*>> jets_to_tracks;
   //association is fairly simple loop over particles and find the closest jet, then add it to that jets vector
@@ -182,11 +159,30 @@ StatusCode DisplacedJetPromptHypoAlg::execute(const EventContext& context) const
     }
   }
 
-  DisplacedJetPromptHypoTool::Info info{prev,jet_decisions, jets, jets_to_tracks, primary_vertex, jet_counts, DisplacedJetBeamspotInfo(beamSpotHandle.retrieve())};
+  DisplacedJetBeamspotInfo bs(beamSpotHandle.retrieve());
 
-  for(auto &tool:m_hypoTools)
-  {
-    ATH_CHECK(tool->decide(info));
+  for(auto j: *jets){
+    DisplacedJetPromptHypoTool::Info info{prev,jet_decisions[j], j, jets_to_tracks[j], primary_vertex, jet_counts[j], bs};
+
+    for(auto &tool:m_hypoTools)
+    {
+      ATH_CHECK(tool->decide(info));
+    }
+  }
+
+  //remove all failed decision objects to reduce number of decisions stored
+  DecisionContainer::iterator it = decisions->begin();
+
+  while(it != decisions->end()){
+    if(TrigCompositeUtils::allFailed(*it)){
+      it = decisions->erase(it);
+    }else{
+      TrigCompositeUtils::Decision* dec(*it);
+      int idx = count_index_map[dec];
+      ATH_CHECK(dec->setObjectLink("djtrig_counts", ElementLink<xAOD::TrigCompositeContainer>(*countsHandle, idx, context)));
+
+      ++it;
+    }
   }
 
   ATH_CHECK( hypoBaseOutputProcessing(outputHandle) );

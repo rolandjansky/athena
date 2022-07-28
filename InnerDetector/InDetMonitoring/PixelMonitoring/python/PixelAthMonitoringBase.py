@@ -173,6 +173,8 @@ PP0sEC = [
 
 PP0LabelX = [PP0sEC, PP0sEC, StavesL0, StavesL1, StavesL2, StavesIBL, StavesIBL]
 
+#Head of modules' name
+ModulesHead = ["D", "D", "L0", "L1", "L2", "LI"]
 #Errors
 ErrStateLabelsFEI3 = [
       ("RODTimeout", "ROD Formatter Timeout"),

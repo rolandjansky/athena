@@ -19,14 +19,14 @@ def L2MuonSAIOMonConfig(helper):
 
     # if mon groups not found fall back to hard-coded trigger monitoring list
     if len(monAlg.MonitoredChains) == 0:
-      monAlg.MonitoredChains = ['HLT_mu4_l2io_L1MU3V', 'HLT_mu26_ivarmedium_mu6_l2io_probe_L1MU14FCH']
+      monAlg.MonitoredChains = ['HLT_mu4_l2io_L1MU3V', 'HLT_mu24_ivarmedium_mu6_l2io_probe_L1MU14FCH']
 
     monAlg.Group = GroupName
 
     for chain in monAlg.MonitoredChains:
 
         histGroup = helper.addGroup(monAlg, GroupName+'_'+chain, 'HLT/MuonMon/L2MuonSAIO/'+chain)
-        if chain == 'HLT_mu26_ivarmedium_mu6_l2io_probe_L1MU14FCH':
+        if chain == 'HLT_mu24_ivarmedium_mu6_l2io_probe_L1MU14FCH':
             threshold, level1 = regex('HLT_.*_mu([0-9]+)_l2io.*_(L1MU[0-9]+)').match(chain).groups()
         else:
             threshold, level1 = regex('HLT_mu([0-9]+).*_(L1MU[0-9]+)').match(chain).groups()
@@ -34,7 +34,7 @@ def L2MuonSAIOMonConfig(helper):
 
 
         # L2Inside-Out efficiency
-        if chain == 'HLT_mu26_ivarmedium_mu6_l2io_probe_L1MU14FCH':
+        if chain == 'HLT_mu24_ivarmedium_mu6_l2io_probe_L1MU14FCH':
             histGroup.defineHistogram(chain+'_passL2InsideOut,'+chain+'_offdR;EffL2InsideOut_offdR',
                                       title='L2Inside-Out Efficiency dR of offline muon pair '+chain+';dR;Efficiency',
                                       cutmask=chain+'_passL2SA',

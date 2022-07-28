@@ -1,6 +1,8 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from .UnconventionalTrackingChainConfiguration import UnconventionalTrackingChainConfiguration
+from TriggerMenuMT.HLT.Config.Utility.ChainDictTools import splitChainDict
+from TriggerMenuMT.HLT.Config.Utility.ChainMerging import mergeChainDefs
 
 import pprint
 from AthenaCommon.Logging import logging
@@ -12,10 +14,19 @@ log.info("Importing %s",__name__)
 def generateChainConfigs( chainDict ):
     log.debug('dictionary is: %s\n', pprint.pformat(chainDict))
 
-    # Unconventional tracking chain is assembled always from the full dictionary (multiple legs are handled internally by the jet reco / hypo)
-    theChainDef = UnconventionalTrackingChainConfiguration(chainDict)
+    listOfChainDicts = splitChainDict(chainDict)
 
-    unconventionalTrackingChain = theChainDef.assembleChain()
+    listOfChainDefs=[]
+    for subChainDict in listOfChainDicts:
+        subChain = UnconventionalTrackingChainConfiguration(subChainDict).assembleChain()
+        listOfChainDefs += [subChain]
 
+    log.debug('length of chaindefs %s', len(listOfChainDefs))
 
-    return unconventionalTrackingChain
+    if len(listOfChainDefs) > 1:
+        chainDef = mergeChainDefs(listOfChainDefs, chainDict)
+    else:
+        chainDef = listOfChainDefs[0]
+
+    log.debug('ChainDef %s', chainDef)
+    return chainDef
