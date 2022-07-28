@@ -152,6 +152,16 @@ namespace TrigConf {
       }
    }
 
+   uint32_t xAODConfigTool::bunchGroupSetKey() const
+   {
+      if (m_menuJSONContainerAvailable)
+         return m_impl->m_currentBg.bgsk();
+      else {
+         ATH_MSG_DEBUG("There's no way to access the bunch group set key from a legacy AOD!");
+         return std::numeric_limits<uint32_t>::max();
+      }
+   }
+
    const HLTChainList& xAODConfigTool::chains() const {
       // Check if the object is well prepared:
       if( m_impl->m_chainList.size() == 0 ) {

@@ -25,6 +25,8 @@
 #include "AsgTools/SlotSpecificObj.h"
 
 #include "TrigConfInterfaces/ITrigConfigTool.h"
+#include "TrigConfInterfaces/IIHLTConfigSvc.h"
+#include "TrigConfInterfaces/IILVL1ConfigSvc.h"
 #include "TrigNavStructure/StandaloneNavigation.h"
 
 #ifndef XAOD_STANDALONE
@@ -106,8 +108,6 @@ namespace Trig {
 
   private:
       
-    bool configKeysMatch(uint32_t smk, uint32_t lvl1psk, uint32_t hltpsk);
-
     std::vector<uint32_t>* getKeys();
 
     void setForceConfigUpdate(bool b, bool forceForAllSlots = false);

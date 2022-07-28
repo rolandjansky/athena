@@ -91,6 +91,7 @@ namespace TrigConf {
 
       ATH_CHECK( m_HLTPrescaleSetKey.initialize( !m_useInFileMetadata ) );
       ATH_CHECK( m_L1PrescaleSetKey.initialize( !m_useInFileMetadata ) );
+      ATH_CHECK( m_L1BunchGroupSetKey.initialize( !m_useInFileMetadata ) );
 
       // Reset the internal flag:
       m_isInFailure = false;
@@ -240,6 +241,29 @@ namespace TrigConf {
       }
    }
 
+   uint32_t xAODConfigSvc::bunchGroupSetKey() const {
+      if (!m_useInFileMetadata) {
+         const bool firstEvent = !m_currentBg.get()->isInitialized();
+         if (firstEvent)
+            return std::numeric_limits<uint32_t>::max();
+         SG::ReadCondHandle<TrigConf::L1BunchGroupSet> l1BGS(m_L1BunchGroupSetKey);
+         if (!l1BGS.isValid())
+         {
+            REPORT_MESSAGE( MSG::WARNING )
+               << "Unable to load " << m_L1BunchGroupSetKey.key() << " from Conditions Store." << endmsg;
+            return std::numeric_limits<uint32_t>::max();
+         }
+         else
+            return l1BGS->bgsk();
+      } else if (m_menuJSONContainerAvailable)
+         return m_currentBg.get()->bgsk();
+      else {
+         REPORT_MESSAGE( MSG::DEBUG )
+            << "There's no way to access the bunch group set key from a legacy AOD!" << endmsg;
+         return std::numeric_limits<uint32_t>::max();
+      }
+   }
+
    uint32_t xAODConfigSvc::hltPrescaleKey() const {
       if (!m_useInFileMetadata) {
 
@@ -361,12 +385,9 @@ namespace TrigConf {
 
    const L1BunchGroupSet& xAODConfigSvc::l1BunchGroupSet(const EventContext& ctx) const {
       if (!m_useInFileMetadata) {
-         REPORT_MESSAGE( MSG::FATAL ) << "Cannot access L1 Bunchg Group data via the xAODConfigSvc when UseInFileMetadata=False. " 
-         << "Please instead use a SG::ReadCondHandle<BunchCrossingCondData>, note that this is a different format to the "
-         << "TrigConf::L1BunchGroupSet returned by this function, hence simple forwarding is not an option here." << endmsg;
-         throw GaudiException( "Service not used correctly, use a ReadCondHandle to access these data when processing RAW input.",
-                               "TrigConf::xAODConfigSvc::l1BunchGroupSet",
-                               StatusCode::FAILURE );
+         SG::ReadCondHandle<L1BunchGroupSet> l1BGS(m_L1BunchGroupSetKey, ctx);
+         if( l1BGS.isValid() )
+            return **l1BGS;
       }
       if (!m_menuJSONContainerAvailable) {
          REPORT_MESSAGE( MSG::FATAL ) << "Run 3 l1BunchGroupSet JSON not loaded." << endmsg;
@@ -808,7 +829,8 @@ namespace TrigConf {
       REPORT_MESSAGE( MSG::INFO ) << "Loaded Trigger configuration from Conditions Store and Detector Store:"
           << "  SMK = " << (currentHlt.isInitialized() ? std::to_string(currentHlt.smk()) : std::string("UNKNOWN"))
           << ", L1PSK = " << (currentL1ps.isInitialized() ? std::to_string(currentL1ps.psk()) : std::string("UNKNOWN"))
-          << ", HLTPSK = " << (currentHltps.isInitialized() ? std::to_string(currentHltps.psk()) : std::string("UNKNOWN")) << endmsg;
+          << ", HLTPSK = " << (currentHltps.isInitialized() ? std::to_string(currentHltps.psk()) : std::string("UNKNOWN"))
+          << ", BGSK = " << (currentBg.isInitialized() ? std::to_string(currentBg.bgsk()) : std::string("UNKNOWN")) << endmsg;
 
       REPORT_MESSAGE( MSG::DEBUG ) << "ctpConfig.menu().size() = " << ctpConfig.menu().size()
          << " chainList.size() = " << chainList.size()
@@ -915,7 +937,8 @@ namespace TrigConf {
       REPORT_MESSAGE( MSG::INFO ) << "Loaded xAOD::TriggerMenuJson configuration:"
           << "  SMK = " << keys->smk()
           << ", L1PSK = " << keys->l1psk()
-          << ", HLTPSK = " << keys->hltpsk() << endmsg;
+          << ", HLTPSK = " << keys->hltpsk()
+          << ", BGSK = " << (bgKey ? std::to_string(bgKey->id()) : std::string("UNKNOWN")) << endmsg;
 
       REPORT_MESSAGE( MSG::DEBUG ) << "ctpConfig.menu().size() = " << ctpConfig.menu().size()
          << " chainList.size() = " << chainList.size()
