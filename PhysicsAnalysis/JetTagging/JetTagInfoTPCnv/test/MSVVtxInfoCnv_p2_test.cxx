@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file JetTagInfoTPCnv/test/MSVVtxInfoCnv_p2_test.cxx
@@ -12,6 +12,7 @@
 #include "JetTagInfoTPCnv/MSVVtxInfoCnv_p2.h"
 #include "JetTagInfoTPCnv/JetTagInfoCnv_tlp3.h"
 #include "SGTools/TestStore.h"
+#include "CxxUtils/checker_macros.h"
 #include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ThreadLocalContext.h"
@@ -82,7 +83,7 @@ void testit (const Analysis::MSVVtxInfo& trans1)
 }
 
 
-void test1()
+void test1 ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test1\n";
   (void)Gaudi::Hive::currentContext();
@@ -116,7 +117,7 @@ void test1()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "JetTagInfoTPCnv/MSVVtxInfoCnv_p2_test\n";
 
