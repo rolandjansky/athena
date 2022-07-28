@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ActsGeometry/ActsTrackingGeometryTool.h"
@@ -9,7 +9,6 @@
 
 // PACKAGE
 #include "ActsGeometry/ActsAlignmentStore.h"
-#include "ActsGeometryInterfaces/IActsTrackingGeometrySvc.h"
 
 // STL
 #include <iostream>
@@ -17,8 +16,7 @@
 
 ActsTrackingGeometryTool::ActsTrackingGeometryTool(const std::string& type, const std::string& name,
     const IInterface* parent)
-  : base_class(type, name, parent),
-    m_trackingGeometrySvc("ActsTrackingGeometrySvc", name)
+  : base_class(type, name, parent)
 {
 }
 

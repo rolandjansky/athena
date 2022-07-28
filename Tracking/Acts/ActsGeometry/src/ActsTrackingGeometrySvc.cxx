@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ActsGeometry/ActsTrackingGeometrySvc.h"
@@ -7,6 +7,7 @@
 // ATHENA
 #include "GaudiKernel/EventContext.h"
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "PathResolver/PathResolver.h"
 #include "InDetIdentifier/TRT_ID.h"
 #include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -120,8 +121,14 @@ StatusCode ActsTrackingGeometrySvc::initialize() {
 
   if (m_useMaterialMap) {
     std::shared_ptr<const Acts::IMaterialDecorator> matDeco = nullptr;
-    std::string matFile = m_materialMapInputFile;
+
+    std::string matFile = PathResolverFindCalibFile(m_materialMapInputFile.value());
+    if (matFile.empty()) {
+      ATH_MSG_ERROR( "Material Map Input File " << m_materialMapInputFile.value() << " not found.");
+      return StatusCode::FAILURE;
+    }
     ATH_MSG_INFO("Configured to use material input: " << matFile);
+
     if (matFile.find(".json") != std::string::npos) {
       // Set up the converter first
       Acts::MaterialMapJsonConverter::Config jsonGeoConvConfig;
