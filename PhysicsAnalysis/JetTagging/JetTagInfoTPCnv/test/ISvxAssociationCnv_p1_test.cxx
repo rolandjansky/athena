@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-/*
- */
 /**
  * @file JetTagInfoTPCnv/test/ISvxAssociationCnv_p1_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -16,6 +14,7 @@
 #include "JetTagInfoTPCnv/JetTagInfoCnv_tlp3.h"
 #include "TestTools/leakcheck.h"
 #include "TestTools/initGaudi.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -53,7 +52,7 @@ void testit (const Analysis::ISvxAssociation& trans1)
 }
 
 
-void test1()
+void test1 ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test1\n";
   Analysis::ElectronAssociation trans0b ("name1");
@@ -65,7 +64,7 @@ void test1()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "JetTagInfoTPCnv/ISvxAssociationCnv_p1_test\n";
 

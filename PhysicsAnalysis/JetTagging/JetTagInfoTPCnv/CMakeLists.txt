@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( JetTagInfoTPCnv )
@@ -39,7 +39,7 @@ foreach( test AtlfInfoCnv_p1 BaseTagInfoCnv_p1 ElectronAssociationCnv_p1
   atlas_add_test( ${test}_test
                   SOURCES
                   test/${test}_test.cxx
-                  LINK_LIBRARIES GaudiKernel JetTagInfoTPCnv SGTools TestTools
+                  LINK_LIBRARIES GaudiKernel JetTagInfoTPCnv SGTools TestTools CxxUtils
                   ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
 endforeach()
               
