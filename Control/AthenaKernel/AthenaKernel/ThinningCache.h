@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
- * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file AthKernel/ThinningCache.h
@@ -16,7 +16,7 @@
 
 #include "AthenaKernel/ThinningDecisionBase.h"
 #include "AthenaKernel/ThinningInfo.h"
-#include "AthenaKernel/sgkey_t.h"
+#include "CxxUtils/sgkey_t.h"
 #include "CxxUtils/ConcurrentBitset.h"
 #include <unordered_map>
 #include <string>
@@ -153,7 +153,7 @@ private:
   map_t m_map;
 
   /// Mapping by hashed SG key.
-  typedef std::unordered_map<sgkey_t, ThinningInfo> sgmap_t;
+  typedef SGKeyMap<ThinningInfo> sgmap_t;
   sgmap_t m_sgmap;
 
   /// List of decision objects we've copied in order to handle merges.
