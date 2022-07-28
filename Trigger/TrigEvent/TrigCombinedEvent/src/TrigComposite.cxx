@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //#include <iostream>
@@ -137,6 +137,7 @@ std::map<std::string, T>& TrigComposite::detailsMap() {
   [[maybe_unused]]
   int z =
     sizeof(struct TrigComposite_does_not_support_that_type_as_a_detail);
+  std::abort();
 }
 
 template<typename T>
@@ -145,7 +146,7 @@ const std::map<std::string, T>& TrigComposite::detailsMap() const {
   [[maybe_unused]]
   int z =
     sizeof(struct TrigComposite_does_not_support_that_type_as_a_detail);
-
+  std::abort();
 }
 
 // this macro helps instantiating methods for all necessary template arguments
