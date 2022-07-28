@@ -381,15 +381,6 @@ BPHY5_Select_B2JpsipipiX = DerivationFramework__Select_onia2mumu(
 ToolSvc += BPHY5_Select_B2JpsipipiX
 print      (BPHY5_Select_B2JpsipipiX)
 
-#expression = "count(BPHY5BpmJpsiKpmCandidates.passed_Bplus) > 0"
-#from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-#BPHY5_SelectEvent = DerivationFramework__xAODStringSkimmingTool(name = "BPHY5_SelectEvent",
-#                                                                expression = expression)
-#ToolSvc += BPHY5_SelectEvent
-#print BPHY5_SelectEvent
-
-
-#from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__SelectEvent
 
 if not isSimulation: #Only Skim Data
    from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
@@ -438,8 +429,6 @@ if not isSimulation: #Only Skim Data
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  
 #====================================================================
 
-thiningCollection = [] 
-print (thiningCollection)
 
 import DerivationFrameworkJetEtMiss.JetCommon
 bphy5Seq = CfgMgr.AthSequencer("BPHY5Sequence")
@@ -455,7 +444,7 @@ bphy5Seq += CfgMgr.DerivationFramework__DerivationKernel("BPHY5Kernel",
                                                                                             BPHY5_AugOriginalCounts],
                                                                        #Only skim if not MC
                                                                        SkimmingTools     = [BPHY5SkimmingOR] if not isSimulation else [],
-                                                                       ThinningTools     = thiningCollection
+                                                                       ThinningTools     = []
                                                                        
                                                                        )
 
@@ -524,7 +513,6 @@ StaticContent += ["xAOD::VertexContainer#%s"        %                 BPHY5BdKst
 StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY5BdKstSelectAndWrite.OutputVtxContainerName]
 
 # Tagging information (in addition to that already requested by usual algorithms)
-#AllVariables += ["Electrons"] 
 AllVariables += ["GSFTrackParticles", "Electrons" , "Photons", "MuonSpectrometerTrackParticles" ]
 tagJetCollections = ['AntiKt4LCTopoJets', 'AntiKt4EMTopoJets', 'AntiKt4PV0TrackJets']
 
@@ -540,20 +528,12 @@ for jet_collection in tagJetCollections:
     AllVariables   += ["BTagging_%sJFVtx"  % (jet_collection[:-4]) ]
     AllVariables   += ["BTagging_%sSecVtx" % (jet_collection[:-4]) ]
 
-#addStandardJets("AntiKt", 0.4, "PV0Track", 2000, mods="track_ungroomed", algseq=bphy5Seq, outputGroup="BPHY5")
 
-
-# Added by ASC
 # Truth information for MC only
 if isSimulation:
     AllVariables += ["TruthEvents","TruthParticles","TruthVertices","MuonTruthParticles", "egammaTruthParticles" ]
     AllVariables += ["AntiKt4TruthJets", "AntiKt4TruthWZJets" ]
-#    addStandardJets("AntiKt", 0.4, "Truth", 5000, mods="truth_ungroomed", algseq=bphy5Seq, outputGroup="BPHY5")
-#    addStandardJets("AntiKt", 0.4, "TruthWZ", 5000, mods="truth_ungroomed", algseq=bphy5Seq, outputGroup="BPHY5")
     tagJetCollections += [ "AntiKt4TruthJets", "AntiKt4TruthWZJets"  ]
-
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
-replaceAODReducedJets(tagJetCollections, bphy5Seq  ,  "BPHY5" )
 
 
 AllVariables = list(set(AllVariables)) # remove duplicates
