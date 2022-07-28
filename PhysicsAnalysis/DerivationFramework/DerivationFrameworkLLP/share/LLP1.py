@@ -131,10 +131,14 @@ trig_g   = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=Trig
 trig_elmu = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el, additionalTriggerType=TriggerType.mu,  livefraction=0.8)
 trig_mug = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.mu, additionalTriggerType=TriggerType.g,  livefraction=0.8)
 
+trig_VBF_2018 =["HLT_j55_gsc80_bmv2c1070_split_j45_gsc60_bmv2c1085_split_j45_320eta490", "HLT_j45_gsc55_bmv2c1070_split_2j45_320eta490_L1J25.0ETA23_2J15.31ETA49", "HLT_j80_0eta240_j60_j45_320eta490_AND_2j35_gsc45_bmv2c1070_split", "HLT_ht300_2j40_0eta490_invm700_L1HT150-J20s5.ETA31_MJJ-400-CF_AND_2j35_gsc45_bmv2c1070_split", "HLT_j70_j50_0eta490_invm1100j70_dphi20_deta40_L1MJJ-500-NFF"]
 
-triggers = trig_el + trig_mu + trig_g + trig_elmu + trig_mug
+
+triggers = trig_el + trig_mu + trig_g + trig_elmu + trig_mug + trig_VBF_2018
+
 #remove duplicates
 triggers = sorted(list(set(triggers)))
+
 
 #trigger
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
@@ -147,6 +151,7 @@ print('LLP1 list of triggers used for skimming:')
 for trig in triggers: print(trig)
 
 skimmingTools.append(LLP1TriggerSkimmingTool)
+
 
 #====================================================================
 # THINNING
