@@ -13,7 +13,7 @@ atlas_add_component( L1CaloFEXByteStream
                      src/bytestreamDecoder/src/*.cxx
                      DEFINITIONS OFFLINE_DECODER
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} src/bytestreamDecoder
-                     LINK_LIBRARIES TrigT1ResultByteStreamLib xAODTrigger ${TDAQ-COMMON_LIBRARIES} )
+                     LINK_LIBRARIES TrigT1ResultByteStreamLib xAODTrigger TrigConfData ${TDAQ-COMMON_LIBRARIES} )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
