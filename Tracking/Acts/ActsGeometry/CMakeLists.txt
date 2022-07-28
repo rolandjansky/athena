@@ -38,6 +38,7 @@ atlas_add_library( ActsGeometryLib
                    InDetReadoutGeometry
                    MagFieldConditions
                    PRIVATE_LINK_LIBRARIES
+                   PathResolver
                    StoreGateLib
                    TRT_ReadoutGeometry
                    SCT_ReadoutGeometry
