@@ -76,16 +76,19 @@ namespace Muon
       virtual void printPrepData() const override;      
       
     protected:
-      /** The number of recorded Bunch Crossings (BCs) is 3. Previous, current and next BCs */
-      inline static const int NBC {3};
+      /** The number of recorded Bunch Crossings (BCs) FOR HITS is 3 (Previous, Current, and Next BCs) */
+      static constexpr int NBC_HIT = 3;
+      /** The number of recorded Bunch Crossings (BCs) FOR TRIGGER (HPT/SL) is 4 (Previous, Current, Next, and Next-to-Next BCs),
+          but for instance, the container and the collection are kept to three (Next and Next-to-next BCs are stored in the same container). */
+      static constexpr int NBC_TRIG = 3;
 
       struct State {
         /** TgcPrepRawData (hit PRD) containers */
-        TgcPrepDataContainer* m_tgcPrepDataContainer[NBC+1] = {0};
-        std::unordered_map<Identifier, TgcPrepDataCollection*> m_tgcPrepDataCollections[NBC+1];
+        TgcPrepDataContainer* m_tgcPrepDataContainer[NBC_HIT+1] = {0};   // +1 for AllBCs
+        std::unordered_map<Identifier, TgcPrepDataCollection*> m_tgcPrepDataCollections[NBC_HIT+1];
         /** TgcCoinData (coincidence PRD) containers */ 
-        TgcCoinDataContainer* m_tgcCoinDataContainer[NBC] = {0};
-        std::unordered_map<Identifier, TgcCoinDataCollection*> m_tgcCoinDataCollections[NBC];
+        TgcCoinDataContainer* m_tgcCoinDataContainer[NBC_TRIG] = {0};
+        std::unordered_map<Identifier, TgcCoinDataCollection*> m_tgcCoinDataCollections[NBC_TRIG];
       };
 
       struct CablingInfo {

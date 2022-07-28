@@ -34,7 +34,7 @@ public:  // functions
 
   // get BC Tag
   uint16_t bcTag() const;
-  enum {BC_UNDEFINED=0, BC_PREVIOUS, BC_CURRENT, BC_NEXT};
+  enum {BC_UNDEFINED=0, BC_PREVIOUS, BC_CURRENT, BC_NEXT, BC_NEXTNEXT};
 
 private: // bctag
   uint16_t  m_bcTag;
