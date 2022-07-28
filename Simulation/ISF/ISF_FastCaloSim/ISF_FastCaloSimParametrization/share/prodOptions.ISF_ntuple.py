@@ -12,10 +12,10 @@ from ISF_FastCaloSimParametrization.ISF_NativeFastCaloSimJobProperties import jo
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 alg = MSMgr.NewRootStream( "StreamNTUP_FastCaloSim", jobproperties.ISF_NativeFastCaloSimJobProperties.outputFile(), "FastCaloSim" )
 
-from ISF_FastCaloSimParametrization.ISF_FastCaloSimParametrizationConf import ISF_HitAnalysis
-alg += ISF_HitAnalysis() 
+from AthenaCommon import CfgMgr
 
-ISF_HitAnalysis = ISF_HitAnalysis()
+ISF_HitAnalysis = CfgMgr.ISF_HitAnalysis()
+alg += ISF_HitAnalysis()
 ISF_HitAnalysis.NtupleFileName = 'ISF_HitAnalysis'
 
 ##############################
