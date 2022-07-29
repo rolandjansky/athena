@@ -46,7 +46,6 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from MagFieldServices.MagFieldServicesConfig import AtlasFieldCacheCondAlgCfg
 import TrkConfig.AtlasExtrapolatorToolsConfig as TC
 
 # For debugging comparisons with old-style config it is helpful to have names match
@@ -58,9 +57,6 @@ def AtlasExtrapolatorCfg(flags, name='AtlasExtrapolator'):
     from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasMultipleScatteringUpdatorCfg
 
     result = ComponentAccumulator()
-
-    acc = AtlasFieldCacheCondAlgCfg(flags)
-    result.merge(acc)
 
     # PROPAGATOR DEFAULTS
 
