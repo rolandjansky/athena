@@ -30,8 +30,9 @@ def precisionElectronSequence_GSF(ConfigFlags, ion=False, variant=''):
     precisionElectronViewsMaker.RequireParentView = True
 
     # Configure the reconstruction algorithm sequence
-    from TriggerMenuMT.HLT.Electron.PrecisionElectronRecoSequences_GSF import precisionElectronRecoSequence_GSF
-    (electronPrecisionRec, sequenceOut, sequenceOut_dummy) = precisionElectronRecoSequence_GSF(InViewRoIs, ion, variant)
+    from TriggerMenuMT.HLT.Electron.PrecisionElectronRecoSequences import precisionElectronRecoSequence
+    
+    (electronPrecisionRec, sequenceOut, sequenceOut_dummy) = precisionElectronRecoSequence(InViewRoIs, ion, doGSF='GSF' in variant, doLRT = 'LRT' in variant)
 
     electronPrecisionInViewAlgs = parOR(tag(ion) + "InViewAlgs" + variant, [electronPrecisionRec])
     precisionElectronViewsMaker.ViewNodeName = tag(ion) + "InViewAlgs" + variant
