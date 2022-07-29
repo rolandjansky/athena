@@ -40,4 +40,4 @@ def makeMinBiasBkgInputCol(nEvts, initialList):
     #print len(uberlist)
     return uberlist
 digitizationFlags.LowPtMinBiasInputCols= makeMinBiasBkgInputCol(25*len(athenaCommonFlags.PoolHitsInput.get_Value()), minbiaslist)
-printfunc ("digitizationFlags.LowPtMinBiasInputCols size = ", len(digitizationFlags.LowPtMinBiasInputCols.get_Value()))
+print ("digitizationFlags.LowPtMinBiasInputCols size = ", len(digitizationFlags.LowPtMinBiasInputCols.get_Value()))

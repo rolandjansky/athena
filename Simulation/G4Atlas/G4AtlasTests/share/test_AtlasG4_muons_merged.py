@@ -83,7 +83,7 @@ EventSelector.InputCollections = In
 try:
   EventSelector.CollectionType = CollType
 except:
-  printfunc ("Reading from file")
+  print ("Reading from file")
 
 ServiceMgr.EventSelector.SkipEvents = 0
 
