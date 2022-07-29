@@ -13,6 +13,7 @@ TrigMuonMonitorAlgorithm ::  TrigMuonMonitorAlgorithm(const std::string& name, I
 StatusCode TrigMuonMonitorAlgorithm :: initialize(){
   StatusCode sc = AthMonitorAlgorithm::initialize();
   ATH_CHECK( m_matchTool.retrieve() );
+  ATH_CHECK( m_muonSelectionTool.retrieve() );
   ATH_CHECK( m_MuonContainerKey.initialize() );
   return sc;
 }
@@ -68,7 +69,9 @@ bool TrigMuonMonitorAlgorithm :: selectEvents() const {
 
 StatusCode TrigMuonMonitorAlgorithm :: selectMuons(SG::ReadHandle<xAOD::MuonContainer> &muons, std::vector<const xAOD::Muon*> &probes) const {
   for (const xAOD::Muon* mu : *muons) {
-    if(mu->muonType()<=m_muontype){
+    if(mu->muonType()<=m_muontype && 
+       (mu->author()==xAOD::Muon::Author::MuidCo || mu->author()==xAOD::Muon::Author::STACO) && 
+       m_muonSelectionTool->getQuality(*mu)<=xAOD::Muon::Medium ){
       probes.push_back(mu);
     }
   }

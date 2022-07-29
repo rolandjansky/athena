@@ -8,7 +8,9 @@ def L2MuonSAMonConfig(helper):
 
     GroupName = 'L2MuonSA'
 
-    monAlg = helper.addAlgorithm(CompFactory.L2MuonSAMon,'L2MuonSAMon')
+    from MuonSelectorTools.MuonSelectorToolsConfig import MuonSelectionToolCfg
+    monAlg = helper.addAlgorithm(CompFactory.L2MuonSAMon,'L2MuonSAMon',
+                                 MuonSelectionTool = helper.result().popToolsAndMerge(MuonSelectionToolCfg(helper.inputFlags, MuQuality=1)))
 
     ### monitorig groups
     from TrigConfigSvc.TriggerConfigAccess import getHLTMonitoringAccess

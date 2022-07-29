@@ -8,7 +8,9 @@ def L2OverlapRemoverMonConfig(helper):
 
     GroupName = 'OR'
 
-    monAlg = helper.addAlgorithm(CompFactory.L2OverlapRemoverMon,'L2OverlapRemoverMon')
+    from MuonSelectorTools.MuonSelectorToolsConfig import MuonSelectionToolCfg
+    monAlg = helper.addAlgorithm(CompFactory.L2OverlapRemoverMon,'L2OverlapRemoverMon',
+                                 MuonSelectionTool = helper.result().popToolsAndMerge(MuonSelectionToolCfg(helper.inputFlags, MuQuality=1)))
 
     ### monitorig groups
     from TrigConfigSvc.TriggerConfigAccess import getHLTMonitoringAccess

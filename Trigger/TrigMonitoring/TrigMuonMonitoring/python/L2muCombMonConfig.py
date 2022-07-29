@@ -8,7 +8,9 @@ def L2muCombMonConfig(helper):
 
     GroupName = 'L2muComb'
 
-    monAlg = helper.addAlgorithm(CompFactory.L2muCombMon,'L2muCombMon')
+    from MuonSelectorTools.MuonSelectorToolsConfig import MuonSelectionToolCfg
+    monAlg = helper.addAlgorithm(CompFactory.L2muCombMon,'L2muCombMon',
+                                 MuonSelectionTool = helper.result().popToolsAndMerge(MuonSelectionToolCfg(helper.inputFlags, MuQuality=1)))
 
     ### monitorig groups
     from TrigConfigSvc.TriggerConfigAccess import getHLTMonitoringAccess
