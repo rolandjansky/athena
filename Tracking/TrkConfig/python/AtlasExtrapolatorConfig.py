@@ -57,10 +57,7 @@ def AtlasExtrapolatorCfg(flags, name='AtlasExtrapolator'):
     # Rk for Global/ID STEP to be used for dense volumes.
     from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasMultipleScatteringUpdatorCfg
 
-    result = ComponentAccumulator()
-
-    acc = MagneticFieldSvcCfg(flags)
-    result.merge(acc)
+    result = MagneticFieldSvcCfg(flags)
 
     # PROPAGATOR DEFAULTS
 
@@ -273,7 +270,7 @@ def InDetExtrapolatorCfg(flags, name='InDetExtrapolator', **kwargs):
     # This is usually the RungeKutta Propagator and a material
     # effects updator without energy loss.
     # Extrapolators are in the InDet volume.
-    result = ComponentAccumulator()
+    result = MagneticFieldSvcCfg(flags)
 
     # FIXME copied from the old config, also needs fixing on the c++ side.
     if 'Propagators' not in kwargs:
