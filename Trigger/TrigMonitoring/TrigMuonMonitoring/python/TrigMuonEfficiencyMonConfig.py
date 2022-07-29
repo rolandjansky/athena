@@ -32,8 +32,10 @@ def TrigMuonEfficiencyMonTTbarConfig(helper):
         # HLT_mu6_L1MU6 is test chain for small statistics, so it will be removed.
         MonitoredChains = ['HLT_mu6_L1MU5VF', 'HLT_mu24_ivarmedium_L1MU14FCH', 'HLT_mu50_L1MU14FCH', 'HLT_mu60_0eta105_msonly_L1MU14FCH', 'HLT_mu14_L1MU8F', 'HLT_mu22_mu8noL1_L1MU14FCH']
 
+    from MuonSelectorTools.MuonSelectorToolsConfig import MuonSelectionToolCfg
     for chain in MonitoredChains:
-        monAlg = helper.addAlgorithm(CompFactory.TrigMuonEfficiencyMon,'TrigMuEff_ttbar_'+chain)
+        monAlg = helper.addAlgorithm(CompFactory.TrigMuonEfficiencyMon,'TrigMuEff_ttbar_'+chain,
+                                     MuonSelectionTool = helper.result().popToolsAndMerge(MuonSelectionToolCfg(helper.inputFlags, MuQuality=1)))
 
         monAlg.EventTrigger = 'HLT_mu24_ivarmedium_L1MU14FCH'
         monAlg.TagTrigger = 'HLT_mu24_ivarmedium_L1MU14FCH'
@@ -68,8 +70,10 @@ def TrigMuonEfficiencyMonZTPConfig(helper):
         # HLT_mu6_L1MU6 is test chain for small statistics, so it will be removed.
         MonitoredChains = ['HLT_mu6_L1MU5VF', 'HLT_mu24_ivarmedium_L1MU14FCH', 'HLT_mu50_L1MU14FCH', 'HLT_mu60_0eta105_msonly_L1MU14FCH', 'HLT_mu14_L1MU8F', 'HLT_mu22_mu8noL1_L1MU14FCH']
 
+    from MuonSelectorTools.MuonSelectorToolsConfig import MuonSelectionToolCfg
     for chain in MonitoredChains:
-        monAlg = helper.addAlgorithm(CompFactory.TrigMuonEfficiencyMon,'TrigMuEff_ZTP_'+chain)
+        monAlg = helper.addAlgorithm(CompFactory.TrigMuonEfficiencyMon,'TrigMuEff_ZTP_'+chain,
+                                     MuonSelectionTool = helper.result().popToolsAndMerge(MuonSelectionToolCfg(helper.inputFlags, MuQuality=1)))
 
         monAlg.EventTrigger = 'HLT_mu24_ivarmedium_L1MU14FCH'
         monAlg.TagTrigger = 'HLT_mu24_ivarmedium_L1MU14FCH'
