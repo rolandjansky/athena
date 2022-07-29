@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file TrigMonitoringEventTPCnv/test/TrigMonEventCnv_p1_test.cxx
@@ -11,6 +11,7 @@
 
 #undef NDEBUG
 #include "TrigMonitoringEventTPCnv/TrigMonEventCnv_p1.h"
+#include "CxxUtils/checker_macros.h"
 #include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
@@ -219,7 +220,7 @@ TrigMonTE makeMonTE (int i)
 }
 
 
-void test1()
+void test1 ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test1\n";
   Athena_test::Leakcheck check;
@@ -248,7 +249,7 @@ void test1()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "TrigMonitoringEventTPCnv/TrigMonEventCnv_p1_test\n";
   test1();
