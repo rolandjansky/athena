@@ -2,6 +2,7 @@
 # art-description: Generation test Powheg+Pythia8 Wt_DR 
 # art-include: master/AthGeneration
 # art-include: master--HepMC3/Athena
+# art-include: 22.0/Athena
 # art-type: build
 # art-output: *.root
 # art-output: log.generate

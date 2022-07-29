@@ -3,9 +3,10 @@
 # art-type: build
 # art-include: master/AthGeneration
 # art-include: master--HepMC3/Athena
+# art-include: 22.0/Athena
 # art-output: *.root
 # art-output: log.generate
-
+ 
 ## Any arguments are considered overrides, and will be added at the end
 export TRF_ECHO=True;
 Gen_tf.py --ecmEnergy=5020 --jobConfig=421120 --maxEvents=10 \
