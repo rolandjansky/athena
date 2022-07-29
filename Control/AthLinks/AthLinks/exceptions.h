@@ -17,7 +17,7 @@
 #define ATHLINKS_EXCEPTIONS_H
 
 
-#include "AthenaKernel/sgkey_t.h"
+#include "CxxUtils/sgkey_t.h"
 #include "GaudiKernel/ClassID.h"
 #include <stdexcept>
 

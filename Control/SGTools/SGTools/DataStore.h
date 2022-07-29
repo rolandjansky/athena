@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STOREGATE_DATASTORE_H
@@ -178,7 +178,7 @@ namespace SG {
     /// For the primary entry, the integer is in the index of this proxy
     /// in m_proxies; otherwise, it is -1.
     typedef std::pair<int, DataProxy*> KeyPayload_t;
-    typedef std::unordered_map<sgkey_t, KeyPayload_t> KeyMap_t;
+    typedef SGKeyMap<KeyPayload_t> KeyMap_t;
     KeyMap_t m_keyMap;
 
     StoreID::type m_storeID;

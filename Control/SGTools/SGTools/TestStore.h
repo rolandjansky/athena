@@ -1,10 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file SGTools/TestStore.h
  * @author scott snyder <snyder@bnl.gov>
@@ -125,7 +122,7 @@ public:
   typedef std::unordered_map<const void*, SG::DataProxy*> tmap_t;
   tmap_t m_tmap;
 
-  typedef std::unordered_map<sgkey_t, SG::DataProxy*> kmap_t;
+  typedef SG::SGKeyMap<SG::DataProxy*> kmap_t;
   kmap_t m_kmap;
 
   typedef std::unordered_map<TestStoreRemap, TestStoreRemap, TestStoreRemapHash> remap_t;

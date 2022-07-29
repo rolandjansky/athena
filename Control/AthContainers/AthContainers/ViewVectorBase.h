@@ -1,10 +1,8 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file ViewVectorBase.h
  * @author scott snyder <snyder@bnl.gov>
@@ -20,7 +18,9 @@
 #include "AthContainers/dataVectorAsELV.h"
 #include "AthContainers/tools/CurrentEventStore.h"
 #include "AthLinks/ElementLinkBase.h"
+#include "CxxUtils/sgkey_t.h"
 #include <vector>
+#include <cstdint>
 
 
 class ViewVectorBaseTest;
@@ -169,7 +169,7 @@ private:
   friend class ::ViewVectorBaseTest;
 
   /// The persistent form.  (sgkey, index)
-  std::vector<unsigned int> m_persKey;
+  std::vector<sgkey_t> m_persKey;
   std::vector<unsigned int> m_persIndex;
 
   /// If true, the vector should be cleared when doPersistent is called.
