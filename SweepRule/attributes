@@ -1,0 +1,13 @@
+# git attributes for manual merges of production branches into master
+#
+# Requires the following merge driver to be defined:
+#   git config --global merge.ours.driver true
+#
+# See https://atlassoftwaredocs.web.cern.ch/guides/release_coordinators
+#
+
+# Ignore changes to Projects:
+Projects/** merge=ours
+
+# Ignore trigger references:
+*ref_RDOtoRDOTrig*.ref merge=ours
