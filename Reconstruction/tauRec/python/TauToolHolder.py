@@ -101,8 +101,8 @@ def InDetTrackSelectorToolCfg(flags):
     result = ComponentAccumulator()
     _name = sPrefix + 'InDetTrackSelectorTool'
 
-    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-    result.merge(MagneticFieldSvcCfg(flags))
+    from MagFieldServices.MagFieldServicesConfig import AtlasFieldCacheCondAlgCfg
+    result.merge(AtlasFieldCacheCondAlgCfg(flags))
 
     from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
     result.merge(BeamSpotCondAlgCfg(flags))

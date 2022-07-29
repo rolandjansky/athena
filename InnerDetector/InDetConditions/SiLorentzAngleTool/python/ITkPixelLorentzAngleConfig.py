@@ -3,7 +3,7 @@
 """Define methods to configure ITkPixelLorentzAngleTool
 """
 from AthenaConfiguration.ComponentFactory import CompFactory
-from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+from MagFieldServices.MagFieldServicesConfig import AtlasFieldCacheCondAlgCfg
 from PixelConditionsAlgorithms.ITkPixelConditionsConfig import (
     ITkPixelDCSCondHVAlgCfg, ITkPixelDCSCondTempAlgCfg
 )
@@ -21,7 +21,7 @@ def ITkPixelLorentzAngleToolCfg(flags, name="ITkPixelLorentzAngleTool", **kwargs
     return acc
 
 def ITkPixelLorentzAngleCondAlgCfg(flags, name="ITkPixelSiLorentzAngleCondAlg", **kwargs):
-    acc  = MagneticFieldSvcCfg(flags)
+    acc  = AtlasFieldCacheCondAlgCfg(flags)
     acc.merge(ITkPixelReadoutGeometryCfg(flags)) # To produce ITkPixelDetectorElementCollection
     acc.merge(ITkPixelDCSCondHVAlgCfg(flags))
     acc.merge(ITkPixelDCSCondTempAlgCfg(flags))

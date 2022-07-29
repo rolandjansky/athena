@@ -54,8 +54,8 @@ def SCTHitEffMonAlgConfig(inputFlags):
     from LumiBlockComps.BunchCrossingCondAlgConfig import BunchCrossingCondAlgCfg
     result.merge(BunchCrossingCondAlgCfg(inputFlags))
 
-    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-    result.merge(MagneticFieldSvcCfg(inputFlags))
+    from MagFieldServices.MagFieldServicesConfig import AtlasFieldCacheCondAlgCfg
+    result.merge(AtlasFieldCacheCondAlgCfg(inputFlags))
 
     ### STEP 4 ###
     # Add some tools. N.B. Do not use your own trigger decion tool. Use the

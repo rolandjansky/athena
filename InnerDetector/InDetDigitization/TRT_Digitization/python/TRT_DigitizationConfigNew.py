@@ -6,7 +6,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType, ProductionStep
 from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
-from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+from MagFieldServices.MagFieldServicesConfig import AtlasFieldCacheCondAlgCfg
 from TRT_PAI_Process.TRT_PAI_ProcessConfigNew import TRT_PAI_Process_XeToolCfg
 from TRT_PAI_Process.TRT_PAI_ProcessConfigNew import TRT_PAI_Process_ArToolCfg
 from TRT_PAI_Process.TRT_PAI_ProcessConfigNew import TRT_PAI_Process_KrToolCfg
@@ -39,7 +39,7 @@ def TRT_RangeCfg(flags, name="TRTRange", **kwargs):
 def TRT_DigitizationBasicToolCfg(flags, name="TRT_DigitizationBasicTool", **kwargs):
     """Return ComponentAccumulator with common TRT digitization tool config"""
     acc = TRT_ReadoutGeometryCfg(flags)
-    acc.merge(MagneticFieldSvcCfg(flags))
+    acc.merge(AtlasFieldCacheCondAlgCfg(flags))
     PartPropSvc = CompFactory.PartPropSvc
     acc.addService(PartPropSvc(InputFile="PDGTABLE.MeV"))
     # TODO: move this data overlay in a separate place

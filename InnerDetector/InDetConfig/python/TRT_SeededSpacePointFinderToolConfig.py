@@ -6,8 +6,8 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType
 
 def SimpleTRT_SeededSpacePointFinder_ATLCfg(flags, name='InDetTRT_SeededSpFinder', InputCollections=[], **kwargs):
-    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-    acc = MagneticFieldSvcCfg(flags)
+    from MagFieldServices.MagFieldServicesConfig import AtlasFieldCacheCondAlgCfg
+    acc = AtlasFieldCacheCondAlgCfg(flags)
 
     #
     # --- decide if use the association tool

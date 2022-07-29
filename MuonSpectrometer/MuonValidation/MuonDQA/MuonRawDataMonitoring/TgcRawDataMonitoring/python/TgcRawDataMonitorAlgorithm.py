@@ -15,9 +15,9 @@ def TgcRawDataMonitoringConfig(inputFlags):
     from AthenaConfiguration.Enums import Format
     result = ComponentAccumulator()
 
-    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+    from MagFieldServices.MagFieldServicesConfig import AtlasFieldCacheCondAlgCfg
     from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
-    result.merge(MagneticFieldSvcCfg(inputFlags))
+    result.merge(AtlasFieldCacheCondAlgCfg(inputFlags))
     result.merge(AtlasGeometryCfg(inputFlags))
     
     from AthenaMonitoring import AthMonitorCfgHelper
@@ -1120,8 +1120,8 @@ if __name__=='__main__':
     cfg.getEventAlgo('TgcRawDataMonAlg').FillGapByGapHistograms = True
     
 
-    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-    cfg.merge(MagneticFieldSvcCfg(ConfigFlags))
+    from MagFieldServices.MagFieldServicesConfig import AtlasFieldCacheCondAlgCfg
+    cfg.merge(AtlasFieldCacheCondAlgCfg(ConfigFlags))
     from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
     cfg.merge(AtlasGeometryCfg(ConfigFlags))
     from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg,generateL1Menu
