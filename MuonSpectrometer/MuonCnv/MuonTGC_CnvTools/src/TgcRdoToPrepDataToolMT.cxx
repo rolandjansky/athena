@@ -729,8 +729,6 @@ StatusCode Muon::TgcRdoToPrepDataToolMT::decodeHits(State& state,
   int locId = (rd.bcTag()==TgcDigit::BC_CURRENT || rd.bcTag()==TgcDigit::BC_UNDEFINED) 
     ? 1 : rd.bcTag()-1;
  
-  ATH_MSG_WARNING("JPDEBUG locId=" << locId << " rd.bcTag()=" << rd.bcTag());
- 
   // repeat two times for ORed channel
   for(int iOr=0; iOr<2; iOr++) {
     bool orFlag = false;
