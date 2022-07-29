@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils.scripts.merge_files
 # @purpose take a bunch of input (pool/bs) files and produce a single one
@@ -89,7 +89,10 @@ def main(args):
         cfg.msg.info('input file stream is of unknown type')
         cfg.msg.info('autoconfiguration might not work...')
         pass
-        
+
+    # See ATLASRECTS-7082
+    rec.doTruth.set_Value_and_Lock(False)
+
     cfg.configure_job()
 
     if (cfg.is_rdo() or
