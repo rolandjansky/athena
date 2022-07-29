@@ -164,7 +164,6 @@ StatusCode L1CorrelationAlg::execute(const EventContext& ctx) const {
   }
   const eformat::ROBFragment<const uint32_t*>* rbf = robFragments[0];
 
-  std::vector<uint32_t>::reverse_iterator tbp_it;
   // this is the l1a accept position
   uint32_t l1a = CTPfragment::lvl1AcceptBunch(rbf);
 
