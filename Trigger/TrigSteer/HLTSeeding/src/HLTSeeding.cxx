@@ -103,11 +103,12 @@ StatusCode HLTSeeding::execute (const EventContext& ctx) const {
   HLT::IDVec activeChains; // Chains which are activated to run in the first pass (seeded and pass prescale)
   HLT::IDVec prescaledChains; // Chains which are activated but do not run in the first pass (seeded but prescaled out)
 
+  ATH_CHECK( m_prescaler->prescaleChains( ctx, l1SeededChains, activeChains ) );
+
   std::set_difference(activeChains.begin(), activeChains.end(),
                       l1SeededChains.begin(), l1SeededChains.end(),
                       std::back_inserter(prescaledChains));
 
-  ATH_CHECK( m_prescaler->prescaleChains( ctx, l1SeededChains, activeChains ) );
   ATH_CHECK( saveChainsInfo( l1SeededChains, chainsInfo, "l1seeded" ) );
   ATH_CHECK( saveChainsInfo( activeChains, chainsInfo, "unprescaled" ) );
   ATH_CHECK( saveChainsInfo( prescaledChains, chainsInfo, "prescaled" ) );
