@@ -96,6 +96,7 @@ def TgcRawDataMonitoringConfig(inputFlags):
         tgcRawDataMonAlg.ThrPatternList = ''
         tgcRawDataMonAlg.MonitorTriggerMultiplicity = False
         tgcRawDataMonAlg.CtpDecisionMoniorList = ''
+        tgcRawDataMonAlg.UseMuonSelectorTool = False
 
     if inputFlags.Input.Format is Format.BS or 'TGC_MeasurementsAllBCs' in inputFlags.Input.Collections:
         tgcRawDataMonAlg.AnaTgcPrd=True
