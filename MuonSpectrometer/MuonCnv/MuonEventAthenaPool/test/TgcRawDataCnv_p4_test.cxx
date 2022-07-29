@@ -1,8 +1,6 @@
 /*
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file MuonEventAthenaPool/test/TgcRawDataCnv_p4_test.cxx
  * @author Toshi.Sumida@cern.ch
@@ -12,6 +10,7 @@
 
 #undef NDEBUG
 #include "../src/TgcRawDataCnv_p4.h"
+#include "CxxUtils/checker_macros.h"
 #include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
@@ -77,7 +76,7 @@ void testit (const TgcRawData& trans1)
 }
 
 
-void test1()
+void test1 ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test1\n";
 
@@ -126,7 +125,7 @@ void test1()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   test1();
   return 0;
