@@ -163,6 +163,8 @@ protected:
 
   ToolHandleArray<GenericMonitoringTool> m_monTools { this, "MonTools", {} }; // insane configuration paradigm ?
 
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackdummykey{this, "OfflineTrackCollection", "InDetTrackParticles", ""};  
+  
 };
 
 
