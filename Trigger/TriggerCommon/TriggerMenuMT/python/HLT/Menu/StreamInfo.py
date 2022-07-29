@@ -66,7 +66,6 @@ _all_streams = [
     StreamInfo('LArCellsEmpty', 'calibration', False, False),
     StreamInfo('LArNoiseBurst', 'calibration', False, True),
     StreamInfo('TgcNoiseBurst', 'calibration', False, True),
-    StreamInfo('RPCSecondaryReadout', 'calibration', False, False),
     StreamInfo('CostMonitoring', 'calibration', False, False),
     StreamInfo('SCTNoise', 'calibration', False, False),
     StreamInfo('Tile', 'calibration', False, False),
