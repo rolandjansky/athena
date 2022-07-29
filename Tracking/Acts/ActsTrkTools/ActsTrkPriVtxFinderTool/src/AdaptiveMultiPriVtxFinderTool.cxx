@@ -282,7 +282,10 @@ ActsTrk::AdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx,
 
     if(!m_useBeamConstraint){
       beamSpotConstraintVtx.setPosition(Acts::Vector3::Zero());
-      beamSpotConstraintVtx.setCovariance(Acts::ActsSymMatrix<3>::Zero());
+      Amg::MatrixX looseConstraintCovariance(3, 3);
+      looseConstraintCovariance.setIdentity();
+      looseConstraintCovariance = looseConstraintCovariance * 1e+8;
+      beamSpotConstraintVtx.setCovariance(looseConstraintCovariance);
     }
 
     vertexingOptions.vertexConstraint = beamSpotConstraintVtx;
@@ -308,6 +311,9 @@ ActsTrk::AdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx,
     vtxList.reserve(allVertices.size());
 
     for(const auto& vtx : allVertices){
+      //skip the vertex with negative covariance
+      if(vtx.covariance()(0,0)<0||vtx.covariance()(1,1)<0||vtx.covariance()(2,2)<0)
+	continue;
       xAOD::Vertex* xAODVtx = new xAOD::Vertex;
       xAODVtx->makePrivateStore();
       xAODVtx->setPosition(vtx.position());
