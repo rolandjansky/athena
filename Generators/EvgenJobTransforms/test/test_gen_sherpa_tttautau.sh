@@ -3,6 +3,7 @@
 # art-type: build
 # art-include: master/AthGeneration
 # art-include: master--HepMC3/Athena
+# art-include: 22.0/Athena
 # art-output: *.root
 # art-output: log.generate
 # art-output: mc.*.py

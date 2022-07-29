@@ -2,6 +2,7 @@
 # art-description: Generation test MG+Py8 TT MET or Lepton Filter
 # art-include: master/AthGeneration
 # art-include: master--HepMC3/Athena
+# art-include: 22.0/Athena
 # art-type: build
 # art-output: *.root
 # art-output: log.generate
