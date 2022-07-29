@@ -37,6 +37,14 @@ import PyUtils.acmdlib as acmdlib
     default='<stdout>',
     help = "Path to a file where to put athena job's logfile"
     )
+@acmdlib.argument(
+    "--dump-jobo",
+    dest    = "dump_jobo",
+    default = None,
+    help    = "tell application to save the automatically generated "\
+    "joboption under some name for (mainly) debugging "\
+    "and/or customization purposes.")
+
 def main(args):
     """merge multiple input (pool/bs) files"""
 
@@ -58,7 +66,7 @@ def main(args):
     msg.info('log-files: %s', args.logfile)
 
     import AthenaCommon.ChapPy as api
-    app = api.AthenaApp()
+    app = api.AthenaApp(dump_jobo=args.dump_jobo)
     app << """
     from AthenaCommon.AthenaCommonFlags import jobproperties as jp
     acf = jp.AthenaCommonFlags

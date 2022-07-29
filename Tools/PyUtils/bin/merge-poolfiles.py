@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 ## @file PyUtils/bin/merge-poolfiles.py
 ## @brief take a bunch of input pool files and produce a single one
 ##          autoconfiguration is (attempted to be) performed
@@ -37,7 +37,14 @@ if __name__ == "__main__":
        dest = "logfile",
        default = None,
        help = "Path to a file where to put athena job's logfile (default: stdout)" )
-    
+    p("--dump-jobo",
+      dest    = "dump_jobo",
+      default = None,
+      help    = "tell application to save the automatically generated "\
+      "joboption under some name for (mainly) debugging "\
+      "and/or customization purposes.")
+
+  
     
     msg.info(':'*40)
     msg.info('welcome to poolfiles merger')
@@ -67,7 +74,8 @@ if __name__ == "__main__":
     sc = merge_pool_files(input_files=fnames, output_file=options.outfname,
                           nevts=options.evts,
                           msg=msg,
-                          logfile=options.logfile)
+                          logfile=options.logfile,
+                          dump_jobo=options.dump_jobo)
     msg.info('bye')
     msg.info(':'*40)
     sys.exit(sc)
