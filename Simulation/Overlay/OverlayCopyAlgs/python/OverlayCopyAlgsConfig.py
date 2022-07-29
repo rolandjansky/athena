@@ -170,7 +170,11 @@ def CopyMcEventCollectionCfg(flags, name="CopyMcEventCollection", **kwargs):
         inputs.append(f'McEventCollection#{kwargs["BkgInputKey"]}')
     kwargs.setdefault("SignalInputKey", f"{flags.Overlay.SigPrefix}TruthEvent")
     inputs.append(f'McEventCollection#{kwargs["SignalInputKey"]}')
-    kwargs.setdefault("OutputKey", "TruthEvent")
+
+    if flags.Sim.DoFullChain and flags.Common.isOverlay:
+        kwargs.setdefault("OutputKey", "BeamTruthEvent")
+    else:
+        kwargs.setdefault("OutputKey", "TruthEvent")
 
     from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
     acc.merge(SGInputLoaderCfg(flags, inputs))
