@@ -30,7 +30,7 @@ bool LLR(double pu, double pc, double pb, double &w)  {
   w = -100.;
   bool ll = false;
   double denom;
-  float cfrac(0.08);
+  float cfrac(0.018); // DG 2022/07/28
   if (pb > 0.) {
     denom = pu*(1.-cfrac)+pc*cfrac;
     if (denom > 0.) {
@@ -51,12 +51,12 @@ bool CalcRelPt (float muonPt, float muonEta, float muonPhi, float jetPt, float j
 
   muonT = 2.*atan( exp(-muonEta) );
   jetT = 2.*atan( exp(-jetEta) );
-  if ( (fabs(muonT) > 0.) && (fabs(jetT) > 0.) ) { 
-    muon = muonPt/fabs( sin(muonT) );
+  if ( (std::abs(muonT) > 0.) && (std::abs(jetT) > 0.) ) { 
+    muon = muonPt/std::abs( sin(muonT) );
     muonX = muonPt*cos(muonPhi); 
     muonY = muonPt*sin(muonPhi);
     muonZ = muon*cos(muonT);
-    jet = jetPt/fabs( sin(jetT) );
+    jet = jetPt/std::abs( sin(jetT) );
     jetX = jetPt*cos(jetPhi); 
     jetY = jetPt*sin(jetPhi);
     jetZ = jet*cos(jetT);
@@ -358,7 +358,7 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	std::string DeltaZH = "DeltaZ_"+trigName;
 	ATH_MSG_DEBUG( " DeltaZH: " << DeltaZH  );
 	auto DeltaZ = Monitored::Scalar<float>(DeltaZH,0.0);
-	DeltaZ = fabs(muonZ1-jetZ1);
+	DeltaZ = std::abs(muonZ1-jetZ1);
 	ATH_MSG_DEBUG("       Delta Z : " << DeltaZ);
 	if (plotDeltaZ) fill("TrigBjetMonitor",DeltaZ);
 
@@ -699,6 +699,13 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	    ed0 = Amg::error((*it)->definingParametersCovMatrix(), 0);
 	    ATH_MSG_DEBUG("        ed0: " << ed0);
 	    fill("TrigBjetMonitor",ed0);
+	    NameH = "sd0_"+trigName;
+	    ATH_MSG_DEBUG( " NameH: " << NameH  );
+	    auto sd0 = Monitored::Scalar<float>(NameH,0.0);
+	    sd0 = -10.;
+	    if (ed0 > 0.) sd0 = std::abs(d0)/ed0;
+	    ATH_MSG_DEBUG("        sd0: " << sd0);
+	    fill("TrigBjetMonitor",sd0);
 	    NameH = "ez0_"+trigName;
 	    ATH_MSG_DEBUG( " NameH: " << NameH  );
 	    auto ez0 = Monitored::Scalar<float>(NameH,0.0);
