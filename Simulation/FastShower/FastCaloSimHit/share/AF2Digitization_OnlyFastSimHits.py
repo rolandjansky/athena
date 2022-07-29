@@ -3,7 +3,7 @@
 #  Run the fast sim 
 #--------------------------------------------------------------
 
-printfunc (" Now do the FastSim .....")
+print (" Now do the FastSim .....")
 
 #--------------------------------------------------------------
 # FastHitConv
@@ -38,7 +38,7 @@ else:
     
 
 
-printfunc (topSequence)
+print (topSequence)
 
 from CaloRec.CaloCellFlags import jobproperties
 jobproperties.CaloCellFlags.doFastCaloSim = True
@@ -48,7 +48,7 @@ jobproperties.CaloCellFlags.doLArCellEmMisCalib = False
 from FastCaloSimHit.FastCaloCellGetter import CaloCellGetter
 theCaloCellGetter=CaloCellGetter()                          # CaloCellGetter then goes in front of FastHitConv
 
-printfunc ("Set the TileHitVectors and LArHitContainers")
+print ("Set the TileHitVectors and LArHitContainers")
 
 topSequence.TileHitVecToCnt.TileHitVectors = ["TileHitVec_Fast"]
 
@@ -60,5 +60,5 @@ topSequence.digitmaker1.LArPileUpTool.ForWardHitContainerName = ["LArHitFCAL_Fas
 
 
 # Print out job sequence
-printfunc (" The jobsequence is now:")
-printfunc (job)
+print (" The jobsequence is now:")
+print (job)

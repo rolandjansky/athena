@@ -153,7 +153,7 @@ for o in [ o for o in OldGlobalFlags if o in dir() ]:
 #  Run the fast sim 
 #--------------------------------------------------------------
 
-printfunc (" Now do the FastSim .....")
+print (" Now do the FastSim .....")
 
 #--------------------------------------------------------------
 # FastHitConv
@@ -167,7 +167,7 @@ job=AlgSequence()
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
-printfunc ("Digitization jobProperties values (after FastCaloSim setup):")
+print ("Digitization jobProperties values (after FastCaloSim setup):")
 #DetFlags.Print()
 #GlobalFlags.Print()
 #digitization.print_JobProperties()
@@ -183,7 +183,7 @@ topSequence.insert(0,theFastHitConv)
 job.MyFastHitConv.OutputLevel = ALL
 job.OutputLevel = DEBUG
 
-printfunc (topSequence)
+print (topSequence)
 
 from CaloRec.CaloCellFlags import jobproperties
 jobproperties.CaloCellFlags.doFastCaloSim = True
@@ -195,7 +195,7 @@ theCaloCellGetter=CaloCellGetter()
 #jobproperties.CaloCellFlags.doFastCaloSim = False
 #theCaloCellGetter._CaloCellMakerHandle.OutputLevel = 2
 
-printfunc ("Set the TileHitVectors and LArHitContainers")
+print ("Set the TileHitVectors and LArHitContainers")
 
 topSequence.TileHitVecToCnt.TileHitVectors+=["TileHitVec_Fast"]
 
@@ -206,8 +206,8 @@ topSequence.digitmaker1.ForWardHitContainerName = "LArHitFCAL_FastComb" # It rea
 
 
 # Print out job sequence
-printfunc (" The jobsequence is now:")
-printfunc (job)
+print (" The jobsequence is now:")
+print (job)
 
-printfunc (" ... and the topsequence:")
-printfunc (topSequence)
+print (" ... and the topsequence:")
+print (topSequence)

@@ -1,5 +1,5 @@
 def verbose_vertexrangechecker():
-    printfunc ("verbose Vertexrangechecker")
+    print ("verbose Vertexrangechecker")
     from G4AtlasApps import AtlasG4Eng
     AtlasG4Eng.G4Eng.menu_EventFilter().getFilter('VertexRangeChecker').SetVerboseLevel(99)
 
