@@ -61,7 +61,7 @@ class jFexInputByteStreamTool : public extends<AthAlgTool, IL1TriggerByteStreamT
         void BulkStreamTrailer (uint32_t , uint32_t ) const;
         std::array<uint16_t,3>  Dataformat1 (uint32_t ) const;
         std::array<uint16_t,4>  Dataformat2 (uint32_t ) const;
-        bool m_verbose = 1;
+        //bool m_verbose = 1;
         
 };
 
