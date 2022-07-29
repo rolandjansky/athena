@@ -17,13 +17,13 @@ class TGCPatchPanel;
 class TGCPatchPanelOut {
  public:
   TGCPatchPanelOut();
-  ~TGCPatchPanelOut() = default;
+  ~TGCPatchPanelOut();
   TGCPatchPanelOut(const TGCPatchPanelOut& right) = default;
   TGCPatchPanelOut& operator=(const TGCPatchPanelOut& right);
 
   const TGCHitPattern* getHitPattern(int connector) const;
   TGCHitPattern* getHitPattern(int connector);
-  void setHitPattern(int connector, TGCHitPattern* sig);
+  void setHitPattern(int connector, int nCh);
 
   const TGCPatchPanel* getOrigin() const;
   void setOrigin(const TGCPatchPanel* pp);
@@ -67,9 +67,10 @@ void TGCPatchPanelOut::setBid(const int bidIn)
 }
 
 inline
-void TGCPatchPanelOut::setHitPattern(int connector, TGCHitPattern* sig)
+void TGCPatchPanelOut::setHitPattern(int connector, int nCh)
 {
-  m_signalPattern[connector] = sig;
+  if(m_signalPattern[connector]!=0) delete m_signalPattern[connector];
+  m_signalPattern[connector] = new TGCHitPattern(nCh);
 }
 
 inline

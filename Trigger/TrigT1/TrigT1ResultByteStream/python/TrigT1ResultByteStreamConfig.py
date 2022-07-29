@@ -7,7 +7,7 @@ from AthenaConfiguration.Enums import Format
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from libpyeformat_helper import SourceIdentifier, SubDetector
 
-from L1CaloFEXByteStream.L1CaloFEXByteStreamConfig import eFexByteStreamToolCfg, jFexRoiByteStreamToolCfg, jFexInputByteStreamToolCfg
+from L1CaloFEXByteStream.L1CaloFEXByteStreamConfig import eFexByteStreamToolCfg, jFexRoiByteStreamToolCfg, jFexInputByteStreamToolCfg, gFexByteStreamToolCfg
 from L1TopoByteStream.L1TopoByteStreamConfig import L1TopoPhase1ByteStreamToolCfg
 from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConfig import getRun3RPCRecRoiTool
 from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConfig import getRun3TGCRecRoiTool
@@ -228,7 +228,7 @@ if __name__ == '__main__':
   if len(sys.argv) < 4:
     log.error('usage: python -m TrigT1ResultByteStream.TrigT1ResultByteStreamConfig subsystem file nevents')
     sys.exit(1)
-  supportedSubsystems = ['inputjFex','jFex','eFex', 'allFex','Topo']
+  supportedSubsystems = ['inputjFex','jFex','eFex','gFex', 'allFex','Topo']
   subsystem = sys.argv[1]
   filename = sys.argv[2]
   events = int(sys.argv[3])
@@ -321,6 +321,21 @@ if __name__ == '__main__':
     # xTOB containers
     outputEDM += addEDM('xAOD::eFexEMRoIContainer', eFexTool_xTOBs.eEMContainerWriteKey.Path)
     outputEDM += addEDM('xAOD::eFexTauRoIContainer', eFexTool_xTOBs.eTAUContainerWriteKey.Path)
+
+  if subsystem in ['gFex','allFex'] :
+    gFexTool = gFexByteStreamToolCfg('gFexBSDecoder', flags)
+    decoderTools += [gFexTool]
+    outputEDM += addEDM('xAOD::gFexJetRoIContainer',    gFexTool.gFexRhoOutputContainerWriteKey.Path)
+    outputEDM += addEDM('xAOD::gFexJetRoIContainer',    gFexTool.gFexSRJetOutputContainerWriteKey.Path)
+    outputEDM += addEDM('xAOD::gFexJetRoIContainer',    gFexTool.gFexLRJetOutputContainerWriteKey.Path)
+    outputEDM += addEDM('xAOD::gFexGlobalRoIContainer', gFexTool.gScalarEJwojOutputContainerWriteKey.Path)
+    outputEDM += addEDM('xAOD::gFexGlobalRoIContainer', gFexTool.gMETComponentsJwojOutputContainerWriteKey.Path)
+    outputEDM += addEDM('xAOD::gFexGlobalRoIContainer', gFexTool.gMHTComponentsJwojOutputContainerWriteKey.Path)
+    outputEDM += addEDM('xAOD::gFexGlobalRoIContainer', gFexTool.gMSTComponentsJwojOutputContainerWriteKey.Path)
+    outputEDM += addEDM('xAOD::gFexGlobalRoIContainer', gFexTool.gMETComponentsNoiseCutOutputContainerWriteKey.Path)
+    outputEDM += addEDM('xAOD::gFexGlobalRoIContainer', gFexTool.gMETComponentsRmsOutputContainerWriteKey.Path)
+    outputEDM += addEDM('xAOD::gFexGlobalRoIContainer', gFexTool.gScalarENoiseCutOutputContainerWriteKey.Path)
+    outputEDM += addEDM('xAOD::gFexGlobalRoIContainer', gFexTool.gScalarERmsOutputContainerWriteKey.Path)
 
   if subsystem in 'Topo':
     l1topoBSTool = L1TopoPhase1ByteStreamToolCfg()

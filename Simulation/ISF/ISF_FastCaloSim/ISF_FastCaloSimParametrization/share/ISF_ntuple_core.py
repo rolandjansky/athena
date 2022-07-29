@@ -29,10 +29,9 @@ DetFlags.Forward_setOff()
 DetFlags.pileup.all_setOff()
 DetFlags.overlay.all_setOff()
 
-from ISF_FastCaloSimParametrization.ISF_FastCaloSimParametrizationConf import ISF_HitAnalysis
-topSequence += ISF_HitAnalysis()
-
-ISF_HitAnalysis = ISF_HitAnalysis()
+from AthenaCommon import CfgMgr
+ISF_HitAnalysis = CfgMgr.ISF_HitAnalysis()
+topSequence+=ISF_HitAnalysis
 ISF_HitAnalysis.NtupleFileName = 'ISF_HitAnalysis'
 ISF_HitAnalysis.GeoFileName = 'ISF_Geometry'
 

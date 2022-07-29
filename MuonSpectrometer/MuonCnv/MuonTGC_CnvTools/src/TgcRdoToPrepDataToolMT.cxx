@@ -45,31 +45,35 @@ StatusCode Muon::TgcRdoToPrepDataToolMT::initialize()
   ATH_CHECK(AthAlgTool::initialize());
   ATH_CHECK(m_idHelperSvc.retrieve());
 
-  m_outputprepdataKeys.resize(NBC+1);
-  for(int ibc=0; ibc<NBC+1; ibc++) {      
-    int bcTag=ibc+1;
+  m_outputprepdataKeys.resize(NBC_HIT+1);
+  for (int ibc=0; ibc < NBC_HIT+1; ibc++) {
+    int bcTag = ibc+1;
     std::ostringstream location;
-    location << m_outputCollectionLocation << (bcTag==TgcDigit::BC_PREVIOUS ? "PriorBC" : "")
-	     << (bcTag==TgcDigit::BC_NEXT ? "NextBC" : "") << (bcTag==(NBC+1) ? "AllBCs" : "");    
+    location << m_outputCollectionLocation
+             << (bcTag==TgcDigit::BC_PREVIOUS ? "PriorBC" : "")
+             << (bcTag==TgcDigit::BC_CURRENT ? "" : "")
+	     << (bcTag==TgcDigit::BC_NEXT ? "NextBC" : "")
+             << (bcTag==(NBC_HIT+1) ? "AllBCs" : "");    
     m_outputprepdataKeys.at(ibc) = location.str();
   }
 
-  m_outputCoinKeys.resize(NBC);
-  for(int ibc=0; ibc<NBC; ibc++) {
-    int bcTag=ibc+1;
+  m_outputCoinKeys.resize(NBC_TRIG);
+  for (int ibc=0; ibc < NBC_TRIG; ibc++) {
+    int bcTag = ibc+1;
     std::ostringstream location;
-    location << m_outputCoinCollectionLocation << (bcTag==TgcDigit::BC_PREVIOUS ? "PriorBC" : "")
-             << (bcTag==TgcDigit::BC_NEXT ? "NextBC" : "");
+    location << m_outputCoinCollectionLocation
+             << (bcTag==TgcDigit::BC_PREVIOUS ? "PriorBC" : "")
+             << (bcTag==TgcDigit::BC_NEXT ? "NextBC" : "");   // BC_NEXTNEXT stored in NextBC
     m_outputCoinKeys.at(ibc) = location.str();
   }
-  
+
   ATH_CHECK(m_outputCoinKeys.initialize());
   ATH_CHECK(m_outputprepdataKeys.initialize());
   ATH_CHECK(m_muDetMgrKey.initialize());
- 
+
   // check if initializing of DataHandle objects success
   ATH_CHECK( m_rdoContainerKey.initialize() );
-  
+
   //try to configure the cabling service
   if (!getCabling()) {
     // ??? Is this delayed initialization still needed?
@@ -77,27 +81,31 @@ StatusCode Muon::TgcRdoToPrepDataToolMT::initialize()
   }
 
   // Build names for the keys same as done for output containers
-  if(not m_prdContainerCacheKeyStr.empty()) {
-    m_prdContainerCacheKeys.resize(NBC+1);
-    for(int ibc=0; ibc<NBC+1; ibc++) {      
-      int bcTag=ibc+1;
+  if (not m_prdContainerCacheKeyStr.empty()) {
+    m_prdContainerCacheKeys.resize(NBC_HIT+1);
+    for (int ibc=0; ibc < NBC_HIT+1; ibc++) {
+      int bcTag = ibc+1;
       std::ostringstream location;
-      location << m_prdContainerCacheKeyStr.value() << (bcTag==TgcDigit::BC_PREVIOUS ? "PriorBC" : "")
-         << (bcTag==TgcDigit::BC_NEXT ? "NextBC" : "") << (bcTag==(NBC+1) ? "AllBCs" : "");    
+      location << m_prdContainerCacheKeyStr.value()
+               << (bcTag==TgcDigit::BC_PREVIOUS ? "PriorBC" : "")
+               << (bcTag==TgcDigit::BC_CURRENT ? "" : "")
+               << (bcTag==TgcDigit::BC_NEXT ? "NextBC" : "")
+               << (bcTag==(NBC_HIT+1) ? "AllBCs" : "");    
       m_prdContainerCacheKeys.at(ibc) = location.str();
-      ATH_MSG_DEBUG( location.str() );      
+      ATH_MSG_DEBUG(location.str());      
     }
   }
 
-  if(not m_coinContainerCacheKeyStr.empty()){
-    m_coinContainerCacheKeys.resize(NBC);
-    for(int ibc=0; ibc<NBC; ibc++) {
-      int bcTag=ibc+1;
+  if (not m_coinContainerCacheKeyStr.empty()){
+    m_coinContainerCacheKeys.resize(NBC_TRIG);
+    for (int ibc=0; ibc < NBC_TRIG; ibc++) {
+      int bcTag = ibc+1;
       std::ostringstream location;
-      location << m_coinContainerCacheKeyStr.value() << (bcTag==TgcDigit::BC_PREVIOUS ? "PriorBC" : "")
-               << (bcTag==TgcDigit::BC_NEXT ? "NextBC" : "");
+      location << m_coinContainerCacheKeyStr.value()
+               << (bcTag==TgcDigit::BC_PREVIOUS ? "PriorBC" : "")
+               << (bcTag==TgcDigit::BC_NEXT ? "NextBC" : "");   // BC_NEXTNEXT stored in NextBC
       m_coinContainerCacheKeys.at(ibc) = location.str();
-      ATH_MSG_DEBUG( location.str() );
+      ATH_MSG_DEBUG(location.str());
     }
   }
 
@@ -143,10 +151,10 @@ StatusCode Muon::TgcRdoToPrepDataToolMT::decode(std::vector<IdentifierHash>& req
   const ITGCcablingSvc* tgcCabling = cinfo->m_tgcCabling;
 
   /// clean up containers for Hits
-  for(unsigned int ibc=0; ibc<NBC+1; ibc++) {      
-    // initialize with false  
+  for(unsigned int ibc=0; ibc < NBC_HIT+1; ibc++) {   //  +1 for AllBCs
+    // initialize with false
     SG::WriteHandle<TgcPrepDataContainer>  handle(m_outputprepdataKeys[ibc]);
-    
+
     const bool externalCachePRD = (m_prdContainerCacheKeys.size()>ibc) and (not m_prdContainerCacheKeys[ibc].key().empty());
     if (!externalCachePRD) {
       // record the container in storeGate
@@ -159,8 +167,7 @@ StatusCode Muon::TgcRdoToPrepDataToolMT::decode(std::vector<IdentifierHash>& req
       }
       // cache the pointer, storegate retains ownership
       state.m_tgcPrepDataContainer[ibc] = handle.ptr();
-    }
-    else {
+    } else {
       // use the cache to get the container
       SG::UpdateHandle<TgcPrepDataCollection_Cache> update(m_prdContainerCacheKeys[ibc]);
       if (!update.isValid()){
@@ -176,16 +183,15 @@ StatusCode Muon::TgcRdoToPrepDataToolMT::decode(std::vector<IdentifierHash>& req
       state.m_tgcPrepDataContainer[ibc] = handle.ptr();
       ATH_MSG_DEBUG("Created container using cache for " << m_prdContainerCacheKeys[ibc].key());
     }
-  
   }
   std::vector<const TgcRdo*> decodedRdoCollVec;
   std::vector<bool> decodedOnlineId (cinfo->m_MAX_N_ROD, false);
   
   // Could be removed (but creates a big git diff becaues of re-indenting)
   const bool nothingToDoForAllBC = false;
-  
+
   /// clean up containers for Coincidence
-  for(unsigned int ibc=0; ibc<NBC; ibc++) {
+  for (unsigned int ibc=0; ibc < NBC_TRIG; ibc++) {
     // prepare write handle for this BC
     SG::WriteHandle<TgcCoinDataContainer>  handle(m_outputCoinKeys[ibc]);
 
@@ -219,10 +225,9 @@ StatusCode Muon::TgcRdoToPrepDataToolMT::decode(std::vector<IdentifierHash>& req
 
     // cache the pointer for duration of function, storegate retains ownership
     state.m_tgcCoinDataContainer[ibc] = handle.ptr();
-  
-  }//loop on BC
+  }  // loop on BC_TRIG
 
-  if(!nothingToDoForAllBC) { // If still need to do something 
+  if (!nothingToDoForAllBC) { // If still need to do something 
     // if TGC decoding is switched off stop here
     if(!m_decodeData) {
       ATH_MSG_DEBUG("Stored empty container. Decoding TGC RDO into TGC PrepRawData is switched off");
@@ -285,8 +290,8 @@ StatusCode Muon::TgcRdoToPrepDataToolMT::decode(std::vector<IdentifierHash>& req
       for (const TgcRdo* rdo : rdoCollVec) {
         // for each RDO collection we collect up all the PRD collections and then write them once filled
         // need a vector because we have the collections for the different bunch crosssings
-        std::vector< std::unordered_map< IdentifierHash, std::unique_ptr<TgcPrepDataCollection> > > prdCollectionMap(NBC);
-        std::vector< std::unordered_map< IdentifierHash, std::unique_ptr<TgcCoinDataCollection> > > coinMap(NBC);
+        std::vector< std::unordered_map< IdentifierHash, std::unique_ptr<TgcPrepDataCollection> > > prdCollectionMap(NBC_HIT);
+        std::vector< std::unordered_map< IdentifierHash, std::unique_ptr<TgcCoinDataCollection> > > coinMap(NBC_TRIG);
         for (const TgcRawData* rd : *rdo) {
 	  //Since OnlineIds are not unique, need some additional filtering on offline hashId 
 	  //to avoid decoding RDO outside of an RoI
@@ -345,8 +350,6 @@ StatusCode Muon::TgcRdoToPrepDataToolMT::decode(std::vector<IdentifierHash>& req
       }// loop on RDO collections
 
 
-      
-
       // show the vector of IdentifierHash which contains the data within requested range
       showIdentifierHashVector(state, selectedIdHashVect);
     } else {
@@ -355,8 +358,8 @@ StatusCode Muon::TgcRdoToPrepDataToolMT::decode(std::vector<IdentifierHash>& req
 
       // loop over all elements of the rdo container 
       for(const TgcRdo* rdoColl : *rdoContainer) {
-        std::vector< std::unordered_map< IdentifierHash, std::unique_ptr<TgcPrepDataCollection> > > prdCollectionMap(NBC);
-        std::vector< std::unordered_map< IdentifierHash, std::unique_ptr<TgcCoinDataCollection> > > coinMap(NBC);
+        std::vector< std::unordered_map< IdentifierHash, std::unique_ptr<TgcPrepDataCollection> > > prdCollectionMap(NBC_HIT);
+        std::vector< std::unordered_map< IdentifierHash, std::unique_ptr<TgcCoinDataCollection> > > coinMap(NBC_TRIG);
         if(rdoColl->size()>0 && !isAlreadyConverted(decodedRdoCollVec, rdoCollVec, rdoColl)) {
           ATH_MSG_DEBUG(" Number of RawData in this rdo " << rdoColl->size());
           for (const TgcRawData* rd : *rdoColl) {
@@ -411,20 +414,21 @@ StatusCode Muon::TgcRdoToPrepDataToolMT::decode(std::vector<IdentifierHash>& req
 
   // first collect up all the HashIDs in any of the containers
   std::set<IdentifierHash> hashesInAnyBC;
-  for(unsigned int ibc = 0; ibc < NBC; ++ibc) {
+  for(unsigned int ibc = 0; ibc < NBC_HIT; ++ibc) {
     const TgcPrepDataContainer* prdCont = state.m_tgcPrepDataContainer[ibc];
     const std::vector<IdentifierHash> theseHashes = prdCont->GetAllCurrentHashes();
     hashesInAnyBC.insert(theseHashes.begin(), theseHashes.end());
   }
   ATH_MSG_DEBUG("Found " << hashesInAnyBC.size() << " hashes that must be added to AllBC container");
+
   // Now loop on all Hash IDs and fill the AllBC container
   for(const auto& tgcHashId : hashesInAnyBC) {
-    TgcPrepDataContainer::IDC_WriteHandle lock = state.m_tgcPrepDataContainer[NBC]->getWriteHandle(tgcHashId);
+    TgcPrepDataContainer::IDC_WriteHandle lock = state.m_tgcPrepDataContainer[NBC_HIT]->getWriteHandle(tgcHashId);
     if(!lock.alreadyPresent()) {
       // collection not there, need to fill it
       std::unique_ptr<TgcPrepDataCollection> collAllBc = std::make_unique<TgcPrepDataCollection>(tgcHashId);
       // look over the collections in the different BC
-      for(unsigned int ibc = 0; ibc < NBC; ++ibc) {
+      for(unsigned int ibc = 0; ibc < NBC_HIT; ++ibc) {
         const TgcPrepDataCollection* coll = state.m_tgcPrepDataContainer[ibc]->indexFindPtr(tgcHashId);
         if( coll != nullptr) { // can be null as not necessarily present in every BC
           collAllBc->setIdentifier(coll->identify());
@@ -465,7 +469,7 @@ StatusCode Muon::TgcRdoToPrepDataToolMT::decode(std::vector<IdentifierHash>& req
   }//loop on all identifier hashes
 
   // Fill the hashes with hits or coincidences 
-  if(sizeVectorRequested!=0) { // Seeded mode 
+  if (sizeVectorRequested != 0) { // Seeded mode 
     // Add requestedIdHashVect (input) hashes which have hit or coincidence PRDs to selectedIdHashVect (output) 
     // RDO collection is with granularity of a sector (there are 24 sectors in total) 
     // PRD collection is with granularity of a chamber (there are 1578 chambers in total) 
@@ -601,51 +605,21 @@ void Muon::TgcRdoToPrepDataToolMT::printPrepDataImpl
   (const TgcPrepDataContainer* const* tgcPrepDataContainer,
    const TgcCoinDataContainer* const* tgcCoinDataContainer) const
 {
-  // For debugging purpose (start)  
-  /*  
-      unsigned int nHit[NBC];  
-      unsigned int nCoin[NBC];  
-      std::cout << "Muon::TgcRdoToPrepDataToolMT::printPrepData";  
-      for(int ibc=0; ibc<NBC; ibc++) {  
-      nHit[ibc] = 0;  
-      IdentifiableContainer<Muon::TgcPrepDataCollection>::const_iterator tgcColli   = tgcPrepDataContainer[ibc]->begin();  
-      IdentifiableContainer<Muon::TgcPrepDataCollection>::const_iterator tgcColli_e = tgcPrepDataContainer[ibc]->end();  
-      for(; tgcColli!=tgcColli_e; tgcColli++) {  
-      const TgcPrepDataCollection* tgcColl = *tgcColli;  
-      TgcPrepDataCollection::const_iterator it_tgcPrepData   = tgcColl->begin();   
-      TgcPrepDataCollection::const_iterator it_tgcPrepData_e = tgcColl->end();  
-      for(; it_tgcPrepData!=it_tgcPrepData_e; it_tgcPrepData++) nHit[ibc]++;  
-      }  
-      nCoin[ibc] = 0;  
-      IdentifiableContainer<Muon::TgcCoinDataCollection>::const_iterator tgcCoinColli   = tgcCoinDataContainer[ibc]->begin();   
-      IdentifiableContainer<Muon::TgcCoinDataCollection>::const_iterator tgcCoinColli_e = tgcCoinDataContainer[ibc]->end();  
-      for(; tgcCoinColli!=tgcCoinColli_e; tgcCoinColli++) {  
-      const TgcCoinDataCollection* tgcCoinColl = *tgcCoinColli;  
-      TgcCoinDataCollection::const_iterator it_tgcCoinData   = tgcCoinColl->begin();  
-      TgcCoinDataCollection::const_iterator it_tgcCoinData_e = tgcCoinColl->end();  
-      for(; it_tgcCoinData!=it_tgcCoinData_e; it_tgcCoinData++) nCoin[ibc]++;  
-      }  
-      std::cout << " " << nHit[ibc] << " " << nCoin[ibc];  
-      }  
-      std::cout << std::endl;  
-      return;  
-  */  
-  // For debugging purpose (end)  
-  if(!(this->msgLvl(MSG::INFO))) return; 
+  if(!(this->msgLvl(MSG::INFO))) return;
 
   ATH_MSG_INFO("**************************************************************************************************");
   ATH_MSG_INFO("************** Listing TgcPrepData collections content *******************************************");
 
-  for(int ibc=0; ibc<NBC; ibc++) {
-    if(tgcPrepDataContainer[ibc]->size()==0) ATH_MSG_INFO("No TgcPrepRawData collections found");
+  for (int ibc=0; ibc < NBC_HIT; ibc++) {
+    if (tgcPrepDataContainer[ibc]->size() == 0) ATH_MSG_INFO("No TgcPrepRawData collections found");
 
     ATH_MSG_INFO("--------------------------------------------------------------------------------------------");
+    int bc_digit = ibc + 1;
     for(const TgcPrepDataCollection* tgcColl : *(tgcPrepDataContainer[ibc])) {
-
       ATH_MSG_INFO("TgcPrepDataContainer of "
-		   << (ibc==0 ? "PriorBC" : "")
-		   << (ibc==1 ? "CurrentBC" : "")
-		   << (ibc==2 ? "NextBC" : ""));
+		   << (bc_digit == TgcDigit::BC_PREVIOUS ? "PriorBC" : "")
+		   << (bc_digit == TgcDigit::BC_CURRENT ? "CurrentBC" : "")
+		   << (bc_digit == TgcDigit::BC_NEXT ? "NextBC" : ""));
 
       ATH_MSG_INFO("PrepData Collection ID "
 		   << m_idHelperSvc->tgcIdHelper().show_to_string(tgcColl->identify()));
@@ -657,17 +631,16 @@ void Muon::TgcRdoToPrepDataToolMT::printPrepDataImpl
     }
   }
 
-  for(int ibc=0; ibc<NBC; ibc++) {
-    if(tgcCoinDataContainer[ibc]->size()==0) ATH_MSG_INFO("No TgcCoinData collections found");
+  for (int ibc=0; ibc < NBC_TRIG; ibc++) {
+    if (tgcCoinDataContainer[ibc]->size() == 0) ATH_MSG_INFO("No TgcCoinData collections found");
 
     ATH_MSG_INFO("--------------------------------------------------------------------------------------------");
-
+    int bc_digit = ibc + 1;
     for(const TgcCoinDataCollection* tgcCoinColl : *(tgcCoinDataContainer[ibc])) {
-
       ATH_MSG_INFO("TgcCoinDataContainer of "
-		   << (ibc==0 ? "PriorBC" : "")
-		   << (ibc==1 ? "CurrentBC" : "")
-		   << (ibc==2 ? "NextBC" : ""));
+		   << (bc_digit == TgcDigit::BC_PREVIOUS ? "PriorBC" : "")
+		   << (bc_digit == TgcDigit::BC_CURRENT ? "CurrentBC" : "")
+		   << (bc_digit == TgcDigit::BC_NEXT ? "NextBC" : ""));   // BC_NEXTNEXT is stored in NextBCs
 
       ATH_MSG_INFO("CoinData Collection ID "
 		   << m_idHelperSvc->tgcIdHelper().show_to_string(tgcCoinColl->identify()));
@@ -755,7 +728,9 @@ StatusCode Muon::TgcRdoToPrepDataToolMT::decodeHits(State& state,
   // BC_CURRENT=2, BC_UNDEFINED=0
   int locId = (rd.bcTag()==TgcDigit::BC_CURRENT || rd.bcTag()==TgcDigit::BC_UNDEFINED) 
     ? 1 : rd.bcTag()-1;
-  
+ 
+  ATH_MSG_WARNING("JPDEBUG locId=" << locId << " rd.bcTag()=" << rd.bcTag());
+ 
   // repeat two times for ORed channel
   for(int iOr=0; iOr<2; iOr++) {
     bool orFlag = false;
@@ -2110,7 +2085,7 @@ void Muon::TgcRdoToPrepDataToolMT::showIdentifierHash(const State& state) const
 bool Muon::TgcRdoToPrepDataToolMT::isIdentifierHashFoundInAnyTgcPrepDataContainer
  (const State& state, const IdentifierHash Hash) const
 {
-  for(int ibc=0; ibc<NBC+1; ibc++) {
+  for(int ibc=0; ibc < NBC_HIT+1; ibc++) {   // +1 for AllBCs
     if(state.m_tgcPrepDataContainer[ibc]->indexFindPtr(Hash) != nullptr) {
       return true;
     }
@@ -2121,7 +2096,7 @@ bool Muon::TgcRdoToPrepDataToolMT::isIdentifierHashFoundInAnyTgcPrepDataContaine
 bool Muon::TgcRdoToPrepDataToolMT::isIdentifierHashFoundInAnyTgcCoinDataContainer
   (const State& state, const IdentifierHash Hash) const
 {
-  for(int ibc=0; ibc<NBC; ibc++) {
+  for(int ibc=0; ibc<NBC_TRIG; ibc++) {
     if(state.m_tgcCoinDataContainer[ibc]->indexFindPtr(Hash) != nullptr) {
       return true;
     }
@@ -3660,15 +3635,15 @@ void Muon::TgcRdoToPrepDataToolMT::printPrepData() const
 {
   const EventContext& ctx = Gaudi::Hive::currentContext();
 
-  const TgcPrepDataContainer* tgcPrepDataContainer[NBC+1] = {nullptr};
-  for(int ibc=0; ibc<NBC+1; ibc++) {
+  const TgcPrepDataContainer* tgcPrepDataContainer[NBC_HIT+1] = {nullptr};
+  for (int ibc=0; ibc < NBC_HIT+1; ibc++) {
     SG::ReadHandleKey<TgcPrepDataContainer> k (m_outputprepdataKeys[ibc].key());
     k.initialize().ignore();
     tgcPrepDataContainer[ibc] = SG::makeHandle(k, ctx).get();
   }
 
-  const TgcCoinDataContainer* tgcCoinDataContainer[NBC] = {nullptr};
-  for(int ibc=0; ibc<NBC; ibc++) {
+  const TgcCoinDataContainer* tgcCoinDataContainer[NBC_TRIG] = {nullptr};
+  for (int ibc=0; ibc<NBC_TRIG; ibc++) {
     SG::ReadHandleKey<TgcCoinDataContainer> k (m_outputCoinKeys[ibc].key());
     k.initialize().ignore();
     tgcCoinDataContainer[ibc] = SG::makeHandle(k, ctx).get();
@@ -3677,4 +3652,4 @@ void Muon::TgcRdoToPrepDataToolMT::printPrepData() const
   printPrepDataImpl (tgcPrepDataContainer, tgcCoinDataContainer);
 }
 
-const double Muon::TgcRdoToPrepDataToolMT::s_cutDropPrdsWithZeroWidth = 0.1; // 0.1 mm 
+const double Muon::TgcRdoToPrepDataToolMT::s_cutDropPrdsWithZeroWidth = 0.1;  // 0.1 mm
