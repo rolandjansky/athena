@@ -64,7 +64,6 @@ namespace ST {
   const static SG::AuxElement::Decorator<int> dec_wtagged("wtagged");
   const static SG::AuxElement::Decorator<int> dec_ztagged("ztagged");
   const static SG::AuxElement::Decorator<int> dec_toptagged("toptagged");
-  
 
   StatusCode SUSYObjDef_xAOD::GetJets(xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, bool recordSG, const std::string& jetkey, const xAOD::JetContainer* containerToBeCopied)
   {
@@ -226,7 +225,10 @@ namespace ST {
     }
 
     // Update the jets
+
     for (const auto& jet : *copy) {
+      if (!isData()) m_jetTruthLabelingTool->modifyJet(*jet);
+
       ATH_CHECK( this->FillTrackJet(*jet) );
     }
 
