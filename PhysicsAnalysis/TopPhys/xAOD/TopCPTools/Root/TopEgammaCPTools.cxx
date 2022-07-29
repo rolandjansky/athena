@@ -294,10 +294,6 @@ namespace top {
       }
     }
     if(electronIsolation == "PLImprovedTight" || electronIsolation == "PLImprovedVeryTight" || electronIsolationLoose == "PLImprovedTight" || electronIsolationLoose == "PLImprovedVeryTight"){
-      if(dataType == 3){
-	ATH_MSG_ERROR("electron PLIV WPs are only available for FullSim.");
-	return StatusCode::FAILURE;
-      }
       ATH_MSG_WARNING("Trigger SFs for PLIV isolation unavailable. Proceeding without online Isolation.");
     }
     
@@ -881,7 +877,7 @@ IAsgElectronEfficiencyCorrectionTool*
   std::string EgammaCPTools::electronSFMapFilePath(const std::string& type) {
     // Store here the paths to maps which may be updated with new recommendations
     // Currently can use maps for reco, id, iso, trigger but not ChargeID
-    const std::string el_calib_path = "ElectronEfficiencyCorrection/2015_2018/rel21.2/Precision_Summer2020_v1/map3.txt";
+    const std::string el_calib_path = "ElectronEfficiencyCorrection/2015_2018/rel21.2/Precision_Summer2020_v1/map4.txt";
 
     if (m_config->useHItoolsConfiguration())
       return PathResolverFindCalibFile("ElectronEfficiencyCorrection/2015_2018/rel21.2/HIData_Autumn2021_v1/map0.txt");
