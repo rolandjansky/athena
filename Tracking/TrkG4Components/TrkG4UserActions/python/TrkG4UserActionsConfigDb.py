@@ -1,6 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.CfgGetter import addTool
-addTool("TrkG4UserActions.TrkG4UserActionsConfig.getMaterialStepRecorderTool", "G4UA::MaterialStepRecorderTool")
-addTool("TrkG4UserActions.TrkG4UserActionsConfig.getEnergyLossRecorderTool", "G4UA::EnergyLossRecorderTool")
+addTool("TrkG4UserActions.TrkG4UserActionsConfigLegacy.getMaterialStepRecorderTool", "G4UA::MaterialStepRecorderTool")
+addTool("TrkG4UserActions.TrkG4UserActionsConfigLegacy.getEnergyLossRecorderTool", "G4UA::EnergyLossRecorderTool")
 
