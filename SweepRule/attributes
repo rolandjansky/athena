@@ -9,5 +9,3 @@
 # Ignore changes to Projects:
 Projects/** merge=ours
 
-# Ignore trigger references:
-*ref_RDOtoRDOTrig*.ref merge=ours
