@@ -116,20 +116,20 @@ def setupMenu():
 
         #Photon Ringer Chains ATR-24384
 
-        ChainProp(name='HLT_g20_loose_ringer_L1EM15VHI', groups=DevGroup+SinglePhotonGroup),
-        ChainProp(name='HLT_g20_medium_ringer_L1EM15VHI', groups=DevGroup+SinglePhotonGroup),
-        ChainProp(name='HLT_g20_tight_ringer_L1EM15VHI', groups=DevGroup+SinglePhotonGroup),
-        ChainProp(name='HLT_g120_loose_ringer_L1EM22VHI', groups=DevGroup+SinglePhotonGroup),
+        ChainProp(name='HLT_g20_loose_ringer_L1EM15VHI', groups=DevGroup+SinglePhotonGroup,monGroups=['egammaMon:shifter']),
+        ChainProp(name='HLT_g20_medium_ringer_L1EM15VHI', groups=DevGroup+SinglePhotonGroup,monGroups=['egammaMon:shifter']),
+        ChainProp(name='HLT_g20_tight_ringer_L1EM15VHI', groups=DevGroup+SinglePhotonGroup,monGroups=['egammaMon:shifter']),
+        ChainProp(name='HLT_g120_loose_ringer_L1EM22VHI', groups=DevGroup+SinglePhotonGroup,monGroups=['egammaMon:shifter']),
 
         # For ringer validation
-        ChainProp(name='HLT_g20_loose_L1EM15VHI',  groups=DevGroup+SinglePhotonGroup),
-        ChainProp(name='HLT_g20_medium_L1EM15VHI', groups=DevGroup+SinglePhotonGroup),
+        ChainProp(name='HLT_g20_loose_L1EM15VHI',  groups=DevGroup+SinglePhotonGroup,monGroups=['egammaMon:shifter']),
+        ChainProp(name='HLT_g20_medium_L1EM15VHI', groups=DevGroup+SinglePhotonGroup,monGroups=['egammaMon:shifter']),
 
         # For eFEX validation
-        ChainProp(name='HLT_e26_lhtight_L1EM22VHI', groups=DevGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e26_lhtight_L1EM22VHI', groups=DevGroup+SingleElectronGroup,monGroups=['egammaMon:t0_tp']),
         ChainProp(name='HLT_e26_lhtight_ivarloose_L1EM22VH', groups=DevGroup+SingleElectronGroup),
         ChainProp(name='HLT_e26_lhtight_ivarloose_nogsf_L1EM22VH', groups=DevGroup+SingleElectronGroup),
-        ChainProp(name='HLT_e26_lhtight_ivarloose_L1eEM26', groups=DevGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e26_lhtight_ivarloose_L1eEM26', groups=DevGroup+SingleElectronGroup,monGroups=['egammaMon:t0_tp']),
     ]
 
     chains['MET'] += [

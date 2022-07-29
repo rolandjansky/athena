@@ -15,10 +15,10 @@ When adding new identifiers, please follow the naming convention
     SomeNameDSVariant for Data Scouting (in DataScoutingInfo),
 where SomeName and Variant are generally camel-case unless they're acronyms
 like LAr or RPC. Variant is normally empty unless there are several variants
-like RPCPEB and RPCPEBSecondaryReadout.
+like RPCPEB.
 
 Possible examples:
-LArPEB, LumiPEB, RPCPEB, RPCPEBSecondaryReadout, TrkPEB, PhysicsTLA
+LArPEB, LumiPEB, RPCPEB, TrkPEB, PhysicsTLA
 '''
 
 
@@ -32,7 +32,6 @@ PartialEventBuildingIdentifiers = [
     'LArPEB',
     'LArPEBNoise',
     'LATOMEPEB',
-    'RPCPEBSecondaryReadout',
     'SCTPEB',
     'TilePEB',
     'AlfaPEB',

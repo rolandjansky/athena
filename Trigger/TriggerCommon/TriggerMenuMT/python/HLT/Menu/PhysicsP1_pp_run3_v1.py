@@ -34,17 +34,15 @@ def addP1Signatures(chains):
     from AthenaCommon.Logging import logging
     log = logging.getLogger( __name__ )
     log.info('[setupMenu] going to add the PhysicsP1 menu chains now')
-
+    
     chainsP1 = ChainStore()
 
-    chainsP1['Muon'] = [
-        ChainProp(name='HLT_mu50_RPCPEBSecondaryReadout_L1MU14FCH', stream=['RPCSecondaryReadout'], groups=['PS:Online']+SingleMuonGroup), # TODO: Move to Detector slice
-
+    chainsP1['Muon'] = [    
         # ATR-20650
         ChainProp(name='HLT_mu0_muoncalib_L1MU3V_EMPTY', stream=['Muon_Calibration'], groups=['PS:Online', 'RATE:Muon_Calibration','BW:Muon']),
         ChainProp(name='HLT_mu0_muoncalib_L1MU14FCH', stream=['Muon_Calibration'], groups=['PS:Online', 'RATE:Muon_Calibration','BW:Muon']),
-     ]
-
+    ]
+    
     chainsP1['Egamma'] = [
         # ATR-21355 - cannot be moved to the calibSlice because they need to configure the photon/ sequence
         ChainProp(name='HLT_g3_loose_LArPEBHLT_L1EM3', stream=['LArCells'], groups=['PS:Online']+SinglePhotonGroup+SupportLegGroup),

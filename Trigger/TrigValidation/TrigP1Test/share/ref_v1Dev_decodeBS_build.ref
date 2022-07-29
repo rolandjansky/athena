@@ -5555,6 +5555,12 @@ HLT_mu24_ivarmedium_tau80_mediumRNN_tracktwoMVA_probe_L1eTAU80_03dRAB_L1MU14FCH:
   eventCount: 0
   stepFeatures:
     0: 2
+HLT_mu24_ivarperf_L1MU14FCH:
+  eventCount: 0
+  stepCounts:
+    0: 2
+  stepFeatures:
+    0: 2
 HLT_mu24_mu6_L1MU14FCH:
   eventCount: 0
   stepCounts:
