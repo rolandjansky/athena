@@ -4,6 +4,9 @@
 
 #include "LArCalibPedMonAlg.h"
 #include "StoreGate/ReadDecorHandle.h"
+#include "LArIdentifier/LArOnlineID.h"
+#include "AthenaMonitoringKernel/Monitored.h"
+
 
 /*---------------------------------------------------------*/
 LArCalibPedMonAlg::LArCalibPedMonAlg(const std::string& name,ISvcLocator* pSvcLocator )
@@ -68,7 +71,7 @@ StatusCode LArCalibPedMonAlg::fillHistograms( const EventContext& ctx ) const {
 
     for (auto itDig: * pLArAccDigitContainer) {
         unsigned int id = (itDig->hardwareID()).get_identifier32().get_compact();
-        if(chanids.find(id) == chanids.end()) chanids.emplace(id);
+        chanids.emplace(id);
     }
 
     ATH_MSG_DEBUG("Filling nbChan: "<<chanids.size());

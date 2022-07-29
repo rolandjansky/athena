@@ -6,22 +6,24 @@
 #define LARCALIBPEDMONALG_H
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
-#include "AthenaMonitoringKernel/Monitored.h"
+
 
 #include "StoreGate/ReadHandleKey.h"
-#include "StoreGate/ReadCondHandleKey.h"
 #include "LArRawEvent/LArCalibDigitContainer.h"
 #include "LArRawEvent/LArAccumulatedDigitContainer.h"
 #include "LArRawEvent/LArAccumulatedCalibDigitContainer.h"
 
-#include "LArIdentifier/LArOnlineID.h"
 #include "LArRawEvent/LArFebHeaderContainer.h"
 #include "LArRawEvent/LArFebErrorSummary.h"
-#include "xAODEventInfo/EventInfo.h"
 #include "StoreGate/ReadDecorHandleKey.h"
 
 #include <string>
 #include <vector>
+#include <map>
+#include <cstdint>
+#include <atomic>
+
+class LArOnlineID;
 
 class LArCalibPedMonAlg: public AthMonitorAlgorithm
 {

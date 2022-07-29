@@ -6,30 +6,19 @@
 #define LArCalibDelayMonAlg_H
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
-#include "AthenaMonitoringKernel/Monitored.h"
+
 
 #include "LArRawEvent/LArCalibDigitContainer.h"
 #include "LArRawEvent/LArAccumulatedDigitContainer.h"
+
 #include "LArRawEvent/LArAccumulatedCalibDigitContainer.h"
-#include "LArRawEvent/LArDigit.h"
-#include "LArRawEvent/LArDigitContainer.h"
-
-#include "LArIdentifier/LArOnlineID.h"
-#include "LArRawEvent/LArFebHeaderContainer.h"
-#include "LArRawEvent/LArFebHeader.h"
-
-#include "CaloIdentifier/CaloGain.h"
-#include "CaloIdentifier/CaloCell_ID.h"
-#include "CaloIdentifier/CaloIdManager.h"
-#include "LArElecCalib/ILArPedestal.h"
-
 #include "StoreGate/ReadHandleKey.h"
-#include "StoreGate/ReadCondHandleKey.h"
-#include "LArRecConditions/LArBadChannelMask.h"
-#include "LArRecConditions/LArBadChannelCont.h"
-
 #include <string>
 #include <vector>
+#include <map>
+
+class LArOnlineID;
+
 
 class LArCalibDelayMonAlg: public AthMonitorAlgorithm
 {
