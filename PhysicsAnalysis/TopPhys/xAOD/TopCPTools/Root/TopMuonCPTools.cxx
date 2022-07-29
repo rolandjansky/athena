@@ -325,7 +325,7 @@ namespace top {
                    "Failed to set useRandomRunNumber for " + name + " tool");
       }
       // this is a hack to assign mc21 campaign to mc16
-      std::vector<unsigned int> campaign = {310000, 330000};
+      std::vector<unsigned int> campaign = {310000, 330000, 410000};
       top::check(asg::setProperty(tool, "MCperiods18", campaign),
                  "Failed to set MCperiods18 for " + name + " tool");
       CP::MuonCalibrationPeriodTool::CalibMode calibMode = CP::MuonCalibrationPeriodTool::CalibMode::noOption;
