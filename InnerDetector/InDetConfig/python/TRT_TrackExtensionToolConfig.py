@@ -74,8 +74,8 @@ def TRT_TrackExtensionTool_xkCfg(flags, name='TRT_TrackExtensionTool_xk', **kwar
         kwargs.setdefault("RIOonTrackToolNoDr", acc.popToolsAndMerge(TRT_DriftCircleOnTrackNoDriftTimeToolCfg(flags)))
 
     if 'RoadTool' not in kwargs:
-        from InDetConfig.TrackingCommonConfig import InDetTRT_RoadMakerCfg
-        kwargs.setdefault("RoadTool", acc.popToolsAndMerge(InDetTRT_RoadMakerCfg(flags)))
+        from InDetConfig.TRT_DetElementsRoadToolConfig import TRT_DetElementsRoadMaker_xkCfg
+        kwargs.setdefault("RoadTool", acc.popToolsAndMerge(TRT_DetElementsRoadMaker_xkCfg(flags)))
 
     kwargs.setdefault("TRT_ClustersContainer", "TRT_DriftCircles")
     kwargs.setdefault("TrtManagerLocation", "TRT")
