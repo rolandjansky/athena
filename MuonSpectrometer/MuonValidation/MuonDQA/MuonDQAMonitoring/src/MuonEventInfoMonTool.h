@@ -14,20 +14,16 @@
 #ifndef MuonEventInfoMonTool_H
 #define MuonEventInfoMonTool_H
 
-#include <sstream>
-#include <string.h>
-
-#include "StoreGate/StoreGateSvc.h" 
-#include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/Algorithm.h"
  
-#include "TH1F.h"
-
-#include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
-#include "MuonDQAEvent.h"
+#include <string>
+
+class StatusCode;
+namespace MuonDQA{
+  class MuonDQAEvent;
+}
+class TH1F;
+class StoreGateSvc;
  
 template <class ConcreteAlgorithm> class AlgFactory;
 

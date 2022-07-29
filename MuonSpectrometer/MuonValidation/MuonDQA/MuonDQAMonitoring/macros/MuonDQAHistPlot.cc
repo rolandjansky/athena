@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //================================================================================================
@@ -289,12 +289,6 @@ void MuonDQAHistPlot( string fName="",
     TIter nextcd1(currentDir->GetListOfKeys());
     TKey *key1;
 
-    /*    while (key = (TKey*)nextcd()) { 
-	  currentDir = (TDirectory*)key->ReadObj();  // NoTrigger, TriggerAware
-	  string dirname=currentDir->GetName();
-	  cout<<"("<< dirname <<")\n";
-	  TIter nextcd1(currentDir->GetListOfKeys());
-	  TKey *key1;*/
 
     while (key1 = (TKey*)nextcd1()) { 
       currentDir = (TDirectory*)key1->ReadObj();  // Generic-Selected Segm Mon
@@ -305,50 +299,7 @@ void MuonDQAHistPlot( string fName="",
       if ( dirname1.find("Selected") < dirname1.length() ) { 
 	if (ExtendedMon) {
 	  cout<<">> Skipping!\n"; continue;
-	  /*
-	    TKey *key20;
-	    while(key20=(TKey*)nextcd2()) {
-	    TDirectory *dir20 = (TDirectory*)key20->ReadObj(); //extra level: Barrel-EndCap
-	    cout<<"\n\n\t\t   ("<<dir20->GetName()<<")\n\n\n";
-	    TIter nextcd20(dir20->GetListOfKeys());	  
-	    TKey *key2a,*key2b;	
-	    //	int items = (dirname=="NoTrigger") ? 1 : numTriggerItems;
-	    //	for(int i=0; i<items; i++) {
-	    key2a = (TKey*)nextcd20(); 
-	    key2b = (TKey*)nextcd20();	  
-	    cout<<"...Drawing: \n";
-	    TDirectory *dir2a = (TDirectory*)key2a->ReadObj(); // Get MBoy - MOORE directories
-	    TDirectory *dir2b = (TDirectory*)key2b->ReadObj();
-	    string itemA=dir2a->GetName();
-	    string itemB=dir2b->GetName();	  
-	    TIter nextcd3a(dir2a->GetListOfKeys()); // Get histos from each folder
-	    TIter nextcd3b(dir2b->GetListOfKeys());
-	      
-	    if ( (doMooreSegm) && (!doMBoySegm) ) {
-	    if (strncmp(dir2a->GetName(),MBoy,13)==0) {itemA=itemB; nextcd3a=nextcd3b;}
-	    itemB=""; nextcd3b=0;
-	    cout<<"\t@ "<<itemA<<"   (green)"<< endl;
-	    }
-	    else if ( (doMBoySegm) && (!doMooreSegm) ) {
-	    if (strncmp(dir2a->GetName(),Moore,5)==0) {itemA=itemB; nextcd3a=nextcd3b;}
-	    itemB=""; nextcd3b=0;
-	    cout<<"\t@ "<<itemA<<"   (green)"<< endl;
-	    }
-	    else {
-	    cout<<"\t@ "<<itemA<<"   (green)"<< endl;
-	    cout<<"\t@ "<<itemB<<"   (blue)"<< endl;
-	    }
-	    //count hists:
-	    int nhist=0;
-	    TKey *key3;
-	    while(key3 = (TKey*)nextcd3a()) {
-	    TObject* obj=key3->ReadObj();
-	    if ( obj->IsA()->InheritsFrom( "TH1" ) ) nhist++;
-	    }
-	    nextcd3a.Reset();	  
-	    npage = DrawObjSupImposed("ALLHISTOS",itemA,nextcd3a,itemB,nextcd3b,nhist,npage,pdf,pad);
-	    }
-	  */
+	  
 	}
       }
       else {
@@ -801,7 +752,7 @@ int DrawObj(TIter dirOfHists,int npage,int nhist,TPDF* pdf,TPad *pad,string tech
   return npage;
 }
 ///////////////////////==================================================//////////////////////
-int DrawMDTSummary(TFile* file,TPDF* sumPDF,int numPdf,std::string runNumber,bool doKey,TPad *pad) 
+int DrawMDTSummary(TFile* file,TPDF* sumPDF,int numPdf,const std::string & runNumber,bool doKey,TPad *pad) 
 {
   // cout<<"in DrawMDTSummary()...\n";
   gStyle->SetOptStat(0000);//disable Statistics Info legend
@@ -863,29 +814,7 @@ int DrawMDTSummary(TFile* file,TPDF* sumPDF,int numPdf,std::string runNumber,boo
       numPdf++;     
     }
   }
-  /*  MOVED TO OVERVIWEW
-  //getting number of hits per multilayer:
-  string region[3]={"EndCapA","EndCapC","Barrel"};    
-  int iec;
-  pad->cd(0);
-  pad->Clear();
-  pad->SetFillColor(10);
-  pad->Divide(3,3);
-
-  int ipad=0;
-  for (int ireg=0; ireg<3; ireg++) {
-  for (int ilayer=0; ilayer<3; ilayer++) {
-  string hName="NumerOfHitsIn"+region[ireg]+layer[ilayer]+"PerMultiLayer";
-  if (ireg<2) iec=0; else iec=1;
-  TH1F *hist=(TH1F*)dir[iec]->Get(hName.c_str());
-  cout<<"\t\t\t--------"<<hist->GetName()<<endl;
-  pad->cd(++ipad);
-  hist -> Draw(); 
-  pad->Update();
-  }
-  }
-  numPdf++;
-  */
+  
 
   //getting hit occupancies
   cout<<"\t\t    @"<<dir[2]->GetName()<<endl;

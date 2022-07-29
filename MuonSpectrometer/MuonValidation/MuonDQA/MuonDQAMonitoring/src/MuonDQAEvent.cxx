@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonDQAEvent.h"
  
-#include <iostream>
-#include <algorithm>
+
 
 namespace MuonDQA {
  
@@ -14,8 +13,7 @@ namespace MuonDQA {
   {}
 
   MuonDQAEvent::~MuonDQAEvent() {
-    //std::cout << "MuonDQAEvent::destructor " << std::endl;
-  }
+   }
  
   MuonDQAEvent::MuonDQAEvent( const MuonDQAEvent& event ) 
   {
