@@ -3,6 +3,11 @@
 */
 
 #include "LArCalibDelayMonAlg.h"
+#include "LArIdentifier/LArOnlineID.h"
+#include "AthenaMonitoringKernel/Monitored.h"
+#include <set>
+#include <algorithm>
+
 
 /*---------------------------------------------------------*/
 LArCalibDelayMonAlg::LArCalibDelayMonAlg(const std::string& name,ISvcLocator* pSvcLocator )
@@ -76,7 +81,7 @@ StatusCode LArCalibDelayMonAlg::fillHistograms( const EventContext& ctx ) const 
     for (auto ijDig: * pLArAccCalibDigitContainer) {
         HWIdentifier id = ijDig->hardwareID();
         chid = (ijDig->hardwareID()).get_identifier32().get_compact();
-        if(chanids.find(chid) == chanids.end()) chanids.emplace(chid);
+        chanids.emplace(chid); //inserts if the chid does not exist
         
         febchid = m_onlineHelper->channel(id);
         
