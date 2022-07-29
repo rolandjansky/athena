@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -15,9 +15,9 @@
 
 int DrawObj(TIter dirOfHists,int npage,int nhist,TPDF *pdf,TPad *pad);
 
-int DrawSummary(TFile* file,TPDF* sumPDF,int numPdf,std::string runNumID="1",bool doKey=true);
+int DrawSummary(TFile* file,TPDF* sumPDF,int numPdf,const std::string & runNumID="1",bool doKey=true);
 
-void RawMuonHistPlot(char * fName="",std::string runNumber="1",bool doChambers=false,bool doMDTSummaryLegend=true)
+void RawMuonHistPlot(char * fName="",const std::string & runNumber="1",bool doChambers=false,bool doMDTSummaryLegend=true)
 {
 
   TFile* f=new TFile(fName,"READ");
@@ -179,7 +179,7 @@ int DrawObj(TIter dirOfHists,int npage,int nhist,TPDF* pdf,TPad *pad){
   return npage;
 }
 
-int DrawSummary(TFile* file,TPDF* sumPDF,int numPdf,std::string runNumID,bool doKey,TPad *pad) {
+int DrawSummary(TFile* file,TPDF* sumPDF,int numPdf,const std::string & runNumID,bool doKey,TPad *pad) {
 
   TDirectory* dir[2];
   string dirEndCap = "run_"+runNumID+"/Muon/MuonRawDataMonitoring/MDT/Summary/EndCap";
@@ -214,37 +214,7 @@ int DrawSummary(TFile* file,TPDF* sumPDF,int numPdf,std::string runNumID,bool do
       
     }
   }  
-  /*  
-  //Draw a key to the histograms.
-  if(doKey){
-    TPaveLabel* keyLabel=new TPaveLabel(0,0.95,1,1,"Run Number MDT Location & Phi Range");
-    TPaveLabel* keyDesLayer[3];
-    TPaveLabel* keyDesX=new TPaveLabel(0,0,1,0.05,"#Phi = 1...8 or 9...16");
-    TPaveLabel* keyDesPlot=new TPaveLabel(0.11,0.06,1,0.94,
-					  "Number of Hits vs. Chamber #eta");
-    TText* keyText=new TText(0.251773,0.419614,
-			     "With A-Side Positive and C-Side Negative");
-    keyDesLayer[0]=new TPaveLabel(0,0.65,0.1,0.94,"Inner");
-    keyDesLayer[1]=new TPaveLabel(0,0.35,0.1,0.64,"Middle");
-    keyDesLayer[2]=new TPaveLabel(0,0.06,0.1,0.34,"Outer");
-      key->cd(0);
-    keyLabel->SetFillColor(10);
-    keyDesX->SetFillColor(10);
-    keyDesPlot->SetFillColor(10);
-    keyLabel->Draw();
-    keyDesX->Draw();
-    keyDesPlot->Draw();
-    keyText->Draw();
-    
-    for(int l=0;l<3;l++){
-      keyDesLayer[l]->SetFillColor(10);
-      keyDesLayer[l]->Draw();
-    }
-    key->Update();
-  }
-  else
-    key->Close();
-  */
+ 
   for (int iecap=0;iecap<2;iecap++) {
     for(int iPad=0;iPad<2;iPad++) {
             

@@ -1,12 +1,15 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
+
+#include "MuonEventInfoMonTool.h"
+#include "MuonDQAEvent.h"
 
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaMonitoring/LogFileMsgStream.h"
 
-#include "MuonEventInfoMonTool.h"
+
 #include "AthenaMonitoring/AthenaMonManager.h"
 
 #include "EventInfo/EventInfo.h"
@@ -19,8 +22,8 @@
 #include "TrigT1Result/CTP_RIO.h"
 #include "TrigT1Result/CTP_Decoder.h"
 
-#include <sstream>
-#include <sys/types.h>
+
+#include "TH1F.h"
 
 namespace MuonDQA { 
 
@@ -73,27 +76,10 @@ namespace MuonDQA {
 	ATH_MSG_DEBUG( "MuonEventInfoMonTool : isNewRun" );
         
 	// Trigger types
-	
-	// 	m_hTriggerType = new TH1F("TriggerType","NumberOfEventsPerTriggerType", 4, 0., 4.);
-	// 	m_hTriggerType->SetFillColor(42);
-	// 	m_hTriggerType->GetXaxis()->SetBinLabel(1,"Tile");
-	// 	m_hTriggerType->GetXaxis()->SetBinLabel(2,"RPC");
-	// 	m_hTriggerType->GetXaxis()->SetBinLabel(3,"TGC");
-	// 	m_hTriggerType->GetXaxis()->SetBinLabel(4,"CTP");
-	// 	m_hTriggerType->GetYaxis()->SetTitle("Number of Events");        
-
 
  	m_hTriggerType = new TH1F("TriggerType","Number_of_Events_per_L1_TriggerType(8 bits)",256, -0.5, 255.5);
         m_hTriggerType->SetFillColor(42);
-	
-	//    m_hTriggerType->GetXaxis()->SetBinLabel(1,"00000001");
-	//    m_hTriggerType->GetXaxis()->SetBinLabel(2,"00000010");
-	//    m_hTriggerType->GetXaxis()->SetBinLabel(3,"00000100");
-	//    m_hTriggerType->GetXaxis()->SetBinLabel(4,"00001000");
-	//    m_hTriggerType->GetXaxis()->SetBinLabel(5,"00010000");
-	//    m_hTriggerType->GetXaxis()->SetBinLabel(6,"00100000");
-	//    m_hTriggerType->GetXaxis()->SetBinLabel(7,"01000000");
-	//    m_hTriggerType->GetXaxis()->SetBinLabel(8,"10000000");
+
      
 	m_hTriggerType->GetXaxis()->SetTitle("L1 trigger word");
 	m_hTriggerType->GetYaxis()->SetTitle("Number of Events");        

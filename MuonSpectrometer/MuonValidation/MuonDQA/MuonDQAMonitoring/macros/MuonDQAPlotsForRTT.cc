@@ -1179,8 +1179,8 @@ void drawSupImp(string dirname, string histname,TFile *f,string TrkOrSegm, int d
     sprintf(t2,"MOORE  entries= %d;  mean= %6.3f;  rms= %6.3f",hist2->GetEntries(),hist2->GetMean(1),hist2->GetRMS(1));
   }    
   else if ( doStats == 0 && (!hist1->IsA()->InheritsFrom("TH2") || !hist1->IsA()->InheritsFrom("TProfile")) ){
-    sprintf(t1,"Muonboy: number of muons= %d",norm1);
-    sprintf(t2,"MOORE:  number of muons= %d",norm2);
+    sprintf(t1,"Muonboy: number of muons= %6.0f",norm1);
+    sprintf(t2,"MOORE:  number of muons= %6.0f",norm2);
 
   } 
   else {
