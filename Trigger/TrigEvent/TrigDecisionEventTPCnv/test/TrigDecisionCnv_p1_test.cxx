@@ -59,7 +59,7 @@ void testit (const TrigDec::TrigDecision& trans1)
 }
 
 
-void test1()
+void test1 ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test1\n";
   (void)Gaudi::Hive::currentContext();
