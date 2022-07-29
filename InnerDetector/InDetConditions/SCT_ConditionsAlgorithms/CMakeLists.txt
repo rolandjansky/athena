@@ -63,12 +63,14 @@ _add_test( SCT_TdaqEnabledTestAlgConfig )
 atlas_add_test( TestLinkMasking
                 SCRIPT share/TestLinkMasking.sh
                 POST_EXEC_SCRIPT noerror.sh
+                PRIVATE_WORKING_DIRECTORY
                 PROPERTIES TIMEOUT 600
                 ENVIRONMENT THREADS=5 )
 
 atlas_add_test( TestLinkMaskingNewConf
                 SCRIPT share/TestLinkMaskingNewConf.sh
                 POST_EXEC_SCRIPT noerror.sh
+                PRIVATE_WORKING_DIRECTORY
                 PROPERTIES TIMEOUT 600 )
 
 # Install files from the package:
