@@ -803,8 +803,8 @@ bool operator < (const ElementLink<STORABLE>& lhs,
   if (rhsDefault) return false;
   if (lhs.key() == 0 || rhs.key() == 0 || lhs.isDefaultIndex() || rhs.isDefaultIndex())
     SG::throwExcIncomparableEL();
-  if (lhs.key() < rhs.key()) return true;
-  if (lhs.key() > rhs.key()) return false;
+  if (SG::sgkeyLess (lhs.key(), rhs.key())) return true;
+  if (SG::sgkeyLess (rhs.key(), lhs.key())) return false;
   if (lhs.index() < rhs.index()) return true;
   return false;
 } 

@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file SGTools/exceptions.h
@@ -15,7 +15,7 @@
 #define SGTOOLS_EXCEPTIONS_H
 
 
-#include "AthenaKernel/sgkey_t.h"
+#include "CxxUtils/sgkey_t.h"
 #include "GaudiKernel/ClassID.h"
 #include <typeinfo>
 #include <stdexcept>
