@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # @file : ChapPy.py
 # @author: Sebastien Binet <binet@cern.ch> 
@@ -266,10 +266,15 @@ class AthenaApp(object):
     '''another way at scripting `athena`
     '''
 
-    def __init__(self, cmdlineargs=None):
+    def __init__(self, cmdlineargs=None, dump_jobo=None):
 
-        import tempfile
-        self._jobo = tempfile.NamedTemporaryFile(suffix='-jobo.py', mode='w+')
+        if dump_jobo:
+            self._jobo = open (dump_jobo, 'w+')
+            self._jobo_name = dump_jobo
+        else:
+            import tempfile
+            self._jobo = tempfile.NamedTemporaryFile(suffix='-jobo.py', mode='w+')
+            self._jobo_name = self._jobo.name
         if cmdlineargs is None:
             cmdlineargs = []
         if isinstance(cmdlineargs, str):
@@ -307,7 +312,7 @@ class AthenaApp(object):
         #sh.stdin.write('%s %s'%(athena_exe,self._jobo.name))
         if stdout == os.devnull:
             stdout = open(os.devnull,'w')
-        cmd = [athena_exe] + self._cmdlineargs + [self._jobo.name]
+        cmd = [athena_exe] + self._cmdlineargs + [self._jobo_name]
         return sub.call(cmd,
                         stdout=stdout,
                         stderr=sub.STDOUT,
