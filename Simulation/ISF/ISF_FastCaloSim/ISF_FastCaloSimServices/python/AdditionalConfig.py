@@ -824,57 +824,25 @@ def getPileupFastShowerCellBuilderTool(name="ISF_PileupFastShowerCellBuilderTool
     return getFastShowerCellBuilderTool(name, **kwargs)
 
 def getFastHitConvertTool(name="ISF_FastHitConvertTool", **kwargs):
-    mergeable_collection_suffix = "_FastCaloSim"
-    region = "CALO"
+    # Suffix which the FastCaloSim HIT collection will receive
+    collectionSuffix = '_FastCaloSim'
+    region = 'CALO'
 
-    EMB_hits_bare_collection_name = "LArHitEMB"
-    EMB_hits_merger_input_property = "LArEMBHits"
-    EMB_hits_collection_name = generate_mergeable_collection_name(
-        EMB_hits_bare_collection_name,
-        mergeable_collection_suffix,
-        EMB_hits_merger_input_property,
-        region)
+    caloRegionList = ['EMB', 'EMEC', 'FCAL', 'HEC']
+    for caloRegion in caloRegionList: 
+        bareCollectionName = f'LArHit{caloRegion}'
+        inputProperty = f'LAr{caloRegion}Hits'
+        # Generates a mergeable collection name for different CALO regions
+        hitContainerName = generate_mergeable_collection_name(bareCollectionName, collectionSuffix, inputProperty, region)
+        kwargs.setdefault(f'{caloRegion.lower()}HitContainername', hitContainerName)
 
-    EMEC_hits_bare_collection_name = "LArHitEMEC"
-    EMEC_hits_merger_input_property = "LArEMECHits"
-    EMEC_hits_collection_name = generate_mergeable_collection_name(
-        EMEC_hits_bare_collection_name,
-        mergeable_collection_suffix,
-        EMEC_hits_merger_input_property,
-        region)
-
-    FCAL_hits_bare_collection_name = "LArHitFCAL"
-    FCAL_hits_merger_input_property = "LArFCALHits"
-    FCAL_hits_collection_name = generate_mergeable_collection_name(
-        FCAL_hits_bare_collection_name,
-        mergeable_collection_suffix,
-        FCAL_hits_merger_input_property,
-        region)
-
-    HEC_hits_bare_collection_name = "LArHitHEC"
-    HEC_hits_merger_input_property = "LArHECHits"
-    HEC_hits_collection_name = generate_mergeable_collection_name(
-        HEC_hits_bare_collection_name,
-        mergeable_collection_suffix,
-        HEC_hits_merger_input_property,
-        region)
-
-    tile_hits_bare_collection_name = "TileHitVec"
-    tile_hits_merger_input_property = "TileHits"
-    tile_hits_collection_name = generate_mergeable_collection_name(
-        tile_hits_bare_collection_name,
-        mergeable_collection_suffix,
-        tile_hits_merger_input_property,
-        region)
-
-    kwargs.setdefault('embHitContainername', EMB_hits_collection_name)
-    kwargs.setdefault('emecHitContainername', EMEC_hits_collection_name)
-    kwargs.setdefault('fcalHitContainername', FCAL_hits_collection_name)
-    kwargs.setdefault('hecHitContainername', HEC_hits_collection_name)
-    kwargs.setdefault('tileHitContainername', tile_hits_collection_name)
+    # For tile
+    hitContainerName = generate_mergeable_collection_name('TileHitVec', collectionSuffix, 'TileHits', region)
+    kwargs.setdefault('tileHitContainername', hitContainerName)
 
     from FastCaloSimHit.FastCaloSimHitConf import FastHitConvertTool
     return FastHitConvertTool(name,**kwargs)
+
 
 def getAddNoiseCellBuilderTool(name="ISF_AddNoiseCellBuilderTool", **kwargs):
     from FastCaloSim.AddNoiseCellBuilderToolDefault import AddNoiseCellBuilderToolDefault

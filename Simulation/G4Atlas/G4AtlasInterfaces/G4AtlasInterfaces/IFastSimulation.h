@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4ATLASINTERFACES_IFASTSIMULATION_H
@@ -26,6 +26,10 @@ class IFastSimulation : virtual public IAlgTool {
    since in a multi-threaded setup the Fast Simulation models are local and they might need to be
    initialized in each thread.  Saves us using the AlgTool's initialize() for this. */
   virtual StatusCode initializeFastSim() = 0;
+
+  /** Method to be called at the beginning of the *athena* event.  This is where the
+  hit collections should be set up, if need be. */
+  virtual StatusCode BeginOfAthenaEvent() = 0;
 
   /** Method to be called at the end of the *athena* event.  This
    ensures a simple call when we have multiple G4 events per athena

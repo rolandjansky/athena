@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 
 from AthenaCommon import CfgMgr
@@ -130,6 +130,14 @@ def getTRT_KrPhysicsRegionTool(name='TRT_KrPhysicsRegionTool', **kwargs):
     return CfgMgr.RegionCreator(name, **kwargs)
 
 # Calo Regions
+def getCALOPhysicsRegionTool(name='CALOPhysicsRegionTool', **kwargs):
+    kwargs.setdefault("RegionName", 'CALO')
+    
+    volumeList = ['CALO::CALO', 'LArMgr::LAr::Endcap::Cryostat::Cylinder::Mixed','LArMgr::LAr::Barrel::Cryostat::MotherVolume','LArMgr::ModeratorTube']
+
+    kwargs.setdefault("VolumeList",  volumeList)
+    return CfgMgr.RegionCreator(name, **kwargs)
+
 def getEMBPhysicsRegionTool(name='EMBPhysicsRegionTool', **kwargs):
     kwargs.setdefault("RegionName", 'EMB')
     volumeList = ['LArMgr::LAr::EMB::STAC']

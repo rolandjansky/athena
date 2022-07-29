@@ -5,9 +5,16 @@ from AthenaCommon import CfgMgr
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 def generateFastSimulationList():
+    
     FastSimulationList=[]
+
     from G4AtlasApps.SimFlags import simFlags
     from AthenaCommon.DetFlags import DetFlags
+
+    # Enable fast simulation of the calorimeter with FastCaloSim
+    if hasattr(simFlags, 'LArParameterization') and simFlags.LArParameterization() == 4:
+        FastSimulationList += ['FastCaloSim']
+
     if DetFlags.bpipe_on():
         if hasattr(simFlags, 'ForwardDetectors') and simFlags.ForwardDetectors.statusOn and simFlags.ForwardDetectors() == 2:
             FastSimulationList += ['ForwardTransportModel']
@@ -64,6 +71,14 @@ def generateTrackFastSimSensitiveDetectorList():
     from G4AtlasApps.SimFlags import simFlags
     if (DetFlags.Muon_on() and simFlags.CavernBG.statusOn and simFlags.CavernBG.get_Value() != 'Read' and 'Write' in simFlags.CavernBG.get_Value()) or (hasattr(simFlags, 'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn):
         SensitiveDetectorList += [ 'TrackFastSimSD' ]
+    return SensitiveDetectorList
+
+def generateCaloCellContainerSensitiveDetectorList():
+    SensitiveDetectorList=[]
+    from G4AtlasApps.SimFlags import simFlags
+    # Generate CaloCellContainer sensitive detector for FastCaloSim
+    if hasattr(simFlags, 'LArParameterization') and simFlags.LArParameterization() == 4:
+        SensitiveDetectorList += [ 'CaloCellContainerSD' ]
     return SensitiveDetectorList
 
 def generateInDetSensitiveDetectorList():
@@ -145,6 +160,7 @@ def generateSensitiveDetectorList():
     SensitiveDetectorList += generateCaloSensitiveDetectorList()
     SensitiveDetectorList += generateMuonSensitiveDetectorList()
     SensitiveDetectorList += generateTrackFastSimSensitiveDetectorList()
+    SensitiveDetectorList += generateCaloCellContainerSensitiveDetectorList()
     SensitiveDetectorList += generateFwdSensitiveDetectorList()
     return SensitiveDetectorList
 

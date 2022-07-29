@@ -31,6 +31,7 @@ class LArParameterization(FlagEnum):
     FrozenShowers = 1
     DeadMaterialFrozenShowers = 2
     FrozenShowersFCalOnly = 3
+    FastCaloSim = 4
 
 
 class SimulationFlavour(FlagEnum):
