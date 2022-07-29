@@ -164,6 +164,7 @@ TGCPatchPanel::~TGCPatchPanel()
 
   for(int i=0; i<NChOfPPOutputConnector; i+=1)
     for(int j=0; j<MaxNumberOfConnector; j+=1){
+      if (m_ASDOut[i][j] !=0) delete m_ASDOut[i][j];
       m_ASDOut[i][j] = 0;
       for(int k=0; k<NumberOfBunchKeptInPP; k+=1){
         if(m_BIDOut[i][j][k]!=0) delete m_BIDOut[i][j][k];
@@ -302,9 +303,7 @@ int TGCPatchPanel::createOutput()
                 m_PPOut[i]->setBid(m_bunchCounter);
               }
               if(m_PPOut[i]->getHitPattern(k)==0){
-                TGCHitPattern* pattern = new TGCHitPattern(nCh);
-                m_PPOut[i]->setHitPattern(k,pattern);
-                pattern = 0;
+                m_PPOut[i]->setHitPattern(k,nCh);
               }
               m_PPOut[i]->getHitPattern(k)->onChannel(j);
 #ifdef TGCDEBUG
@@ -356,9 +355,7 @@ int TGCPatchPanel::doOrLogic()
                 m_PPOut[i]->setBid(m_bunchCounter);
               }
               if(m_PPOut[i]->getHitPattern(k)==0){
-                TGCHitPattern* pattern = new TGCHitPattern(nCh);
-                m_PPOut[i]->setHitPattern(k,pattern);
-                pattern = 0;
+                m_PPOut[i]->setHitPattern(k,nCh);
               }
               m_PPOut[i]->getHitPattern(k)->onChannel(j);
               nCount+=1;

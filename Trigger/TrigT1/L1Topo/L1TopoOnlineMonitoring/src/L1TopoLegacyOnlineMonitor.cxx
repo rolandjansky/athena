@@ -475,10 +475,10 @@ StatusCode L1TopoLegacyOnlineMonitor::doSimMon(xAOD::TrigComposite& errorFlags,
   }
 
   // Do the comparison and fill histograms only if the L1Topo items did not overflow
-  const std::vector<size_t> triggerBitIndicesSim = bitsetIndices(triggerBitsSim);
+  const std::vector<size_t> triggerBitIndicesSim = bitsetIndices(triggerBitsSim & (~overflowBits));
   const std::vector<size_t> triggerBitIndicesHdw = bitsetIndices(triggerBits & (~overflowBits));
-  const std::vector<size_t> triggerBitIndicesSimNotHdw = bitsetIndices(triggerBitsSim & (~triggerBits));
-  const std::vector<size_t> triggerBitIndicesHdwNotSim = bitsetIndices(triggerBits & (~triggerBitsSim));
+  const std::vector<size_t> triggerBitIndicesSimNotHdw = bitsetIndices(triggerBitsSim & (~triggerBits) & (~overflowBits));
+  const std::vector<size_t> triggerBitIndicesHdwNotSim = bitsetIndices(triggerBits & (~triggerBitsSim) & (~overflowBits));
   auto monSim = Monitored::Collection("SimResults", triggerBitIndicesSim);
   auto monHdw = Monitored::Collection("HdwResults", triggerBitIndicesHdw);
   auto monSimNotHdw = Monitored::Collection("SimNotHdwResult", triggerBitIndicesSimNotHdw);
@@ -494,7 +494,7 @@ StatusCode L1TopoLegacyOnlineMonitor::doSimMon(xAOD::TrigComposite& errorFlags,
     //}
   // Perform the hardware versus simulation comparison
   const std::vector<size_t> simHdwDiff = compBitSets("L1Topo hardware", "L1Topo simulation",
-                                                     triggerBits, triggerBitsSim);
+                                                     triggerBits & (~overflowBits), triggerBitsSim & (~overflowBits));
   auto monSimHdwDiff = Monitored::Collection("Hdw_vs_Sim_Events", simHdwDiff);
   allMonVars.push_back(monSimHdwDiff);
 

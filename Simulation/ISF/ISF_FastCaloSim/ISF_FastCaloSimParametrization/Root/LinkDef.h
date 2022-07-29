@@ -15,9 +15,9 @@
 #pragma link C++ struct FCS_matchedcell+;
 #pragma link C++ struct std::vector<FCS_matchedcell>+;
 #pragma link C++ struct FCS_matchedcellvector+;
+#pragma link C++ class std::vector<std::vector<Long64_t>>+;
 #ifndef CaloGeometryFromFile_h
 #pragma link C++ class CaloGeometryLookup;
 #pragma link C++ class CaloGeometry;
 #endif
 #endif
-

@@ -9,9 +9,45 @@
        Used for validation of Enhanced Bias weighting.
        For the pbeast authentication use: export PBEAST_SERVER_SSO_SETUP_TYPE=AutoUpdateKerberos
 '''
+from DQUtils.sugar import RunLumi
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger('RatesAnalysisOnlineProcessing')
+
+# Class representing entry in the csv table summary
+class RateEntry:
+
+    def __init__(self, name, group, prescale):
+        self.name = name
+        self.group = group
+        self.rateSum = 0
+        self.unprescaledRateSum = 0
+        self.prescale = prescale
+        self.counter = 0
+
+    # Add to the rates' sums rate and unprescaled rate values
+    def appendRate(self, rate, unprescaledRate):
+        self.rateSum += rate
+        self.unprescaledRateSum += unprescaledRate
+        self.counter += 1
+
+    # Add used pair of keys for unprescaled rate calculation
+    def appendKeys(self, prescaleKeys):
+        self.prescale += "," + prescaleKeys
+
+    def getAvgRate(self):
+        return self.rateSum/self.counter if self.counter > 0 else 0
+
+    def getAvgUnprescaledRate(self):
+        return self.unprescaledRateSum/self.counter if self.counter > 0 else 0
+
+    def getCsvEntry(self):
+        #['Name','Group','Rate [Hz]','Rate Err [Hz]', 'Prescale']
+        return [self.name, self.group, round(self.getAvgRate(), 3), 0, self.prescale]
+
+    def getUnprescaledCsvEntry(self):
+        return [self.name, self.group, round(self.getAvgUnprescaledRate(), 3), 0, self.prescale]
+
 
 def readLbStartFromCool(runNumber, lb):
     ''' 
@@ -41,20 +77,14 @@ def readLbFromCool(runNumber, lb):
     from TrigConfStorage.TriggerCoolUtil import TriggerCoolUtil
     dbconn = TriggerCoolUtil.GetConnection("CONDBR2")
     f = dbconn.getFolder( "/TRIGGER/LUMI/LBLB" )
-    limmin=(runNumber << 32)+0
-    limmax=((runNumber+1) << 32)+0
+
+    limmin = RunLumi(runNumber, lb)
+    limmax = RunLumi(runNumber, lb+1)
 
     from PyCool import cool
-    objs = f.browseObjects( limmin, limmax, cool.ChannelSelection(0) )
-    counter = 1 # lumiblocks start indexing from 1
-    while objs.goToNext() and counter < lb:
-        counter+=1
-
-    if counter == lb:
-        return objs.currentRef().payload()
-    else:
-        log.error("Maximum lumiblock for run {0} is {1}".format(runNumber, lb))
-        return None
+    objs = f.browseObjects(limmin, limmax, cool.ChannelSelection(0))
+    objs.goToNext()
+    return objs.currentRef().payload()
 
 
 def readChainsGroups(smkey="", dbAlias=""):
@@ -102,9 +132,9 @@ def readL1Prescales(pskey="", dbAlias=""):
     return prescales
 
 
-def getKeyForLimits(psk, lbStart, lbEnd):
+def findKeysForRange(psk, lbStart, lbEnd):
     ''' 
-    Retrieve prescale within given lumiblocks
+    Retrieve all prescale keys combinations within given lumiblocks
     '''
     # Convert str to list of ntups
     it = iter("".join(c for c in psk if c not in "()[] ").split(","))
@@ -116,16 +146,14 @@ def getKeyForLimits(psk, lbStart, lbEnd):
     foundKeys = []
     for prescaleEntry in pskList:
         if prescaleEntry[1] <= lbEnd and prescaleEntry[2] >= lbStart:
-            log.info("Found prescale key in the range: {0}".format(prescaleEntry))
-            foundKeys.append(prescaleEntry[0])
+            log.debug("Found prescale key in the range: {0}".format(prescaleEntry))
+            foundKeys.append(prescaleEntry)
 
     if not foundKeys:
         log.warning("Cannot find one prescale for lumiblocks {0} to {1}. Available values: {2}".format(lbStart, lbEnd, pskList))
-        return -1
-    elif len(foundKeys) > 1:
-        log.warning("Found more than one prescale key! {0} Will use the first one {1}".format(foundKeys, foundKeys[0]))
+        return []
 
-    return foundKeys[0]
+    return foundKeys
 
 
 def toCSV(fileName, dirName, data):
@@ -212,83 +240,138 @@ def main():
     # Read prescales and groups to save in the csv summary
     from TrigCostAnalysis.CostMetadataUtil import readHLTConfigKeysFromCOOL
     configMetadata = readHLTConfigKeysFromCOOL(args.runNumber)
-    # TODO save metadata to metadata.json
 
-    hltPrescales = readHLTPrescales(getKeyForLimits(configMetadata[4]["HLTPSK"], args.lbStart, args.lbEnd), configMetadata[2]["DB"])
-    l1Prescales = readL1Prescales(getKeyForLimits(configMetadata[5]["LVL1PSK"], args.lbStart, args.lbEnd), configMetadata[2]["DB"])
+    # The start and stop lumiblock should not include the lumiblocks where we did the keys change
+    hltAvailableKeys = findKeysForRange(configMetadata[4]["HLTPSK"], args.lbStart, args.lbEnd)
+    l1AvailableKeys = findKeysForRange(configMetadata[5]["LVL1PSK"], args.lbStart, args.lbEnd)
+
+    # Create list of key ranges - it will store tuples (l1Psk, hltPsk, rangeStart, rangeEnd)
+    # Four cases are handled: L1 range starts before HLT range and ends later, HLT range starts before L1 range and ends later, 
+    #       L1 range is withing HLT range, and HLT range is within L1 range
+    keyRangesList = []
+    for hltEntry in hltAvailableKeys:
+        hltLbStart = hltEntry[1]
+        hltLbEnd = hltEntry[2]
+
+        for l1Entry in l1AvailableKeys:
+            l1LbStart = l1Entry[1]
+            l1LbEnd = l1Entry[2]
+
+            if (hltLbStart >= l1LbStart) and (hltLbEnd >= l1LbEnd) and (hltLbStart <= l1LbEnd):
+                keyRangesList.append((l1Entry[0], hltEntry[0], hltLbStart, l1LbEnd))
+            elif (hltLbStart <= l1LbStart) and (hltLbEnd <= l1LbEnd) and (l1LbStart <= hltLbEnd):
+                keyRangesList.append((l1Entry[0], hltEntry[0], l1LbStart, hltLbEnd))
+            elif (hltLbStart <= l1LbStart) and (hltLbEnd >= l1LbEnd):
+                keyRangesList.append((l1Entry[0], hltEntry[0], l1LbStart, l1LbEnd))
+            elif (hltLbStart >= l1LbStart) and (hltLbEnd <= l1LbEnd):
+                keyRangesList.append((l1Entry[0], hltEntry[0], hltLbStart, hltLbEnd))
+
+    log.debug("Available key ranges are {0}".format(keyRangesList))
     chainGroups = readChainsGroups(configMetadata[1]["SMK"], configMetadata[2]["DB"])
 
-    # Read prescaled IS rates from pbeast and calculate unprescaled rates
-    # Queries are based on TRP grafana dashboard
+    pbeast = None
     try:
         import libpbeastpy
         pbeast = libpbeastpy.ServerProxy(args.server)
-        hltRates =  pbeast.get_data('ATLAS', 'HLT_Rate', 'Output', 'ISS_TRP.HLT_.*', True, startOfRange, endOfRange)[0].data
-        l1Rates =  pbeast.get_data('ATLAS', 'L1_Rate', 'TAV', 'ISS_TRP.L1_.*', True, startOfRange, endOfRange)[0].data
-        streamRates = pbeast.get_data('ATLAS', 'HLT_Rate', 'Output', 'ISS_TRP.str_.*', True, startOfRange, endOfRange)[0].data
-        groupRates = pbeast.get_data('ATLAS', 'HLT_Rate', 'Output', 'ISS_TRP.grp_.*', True, startOfRange, endOfRange)[0].data
-        recordingRates = pbeast.get_data('ATLAS', 'SFOngCounters', 'WritingEventRate', 'DF.TopMIG-IS:HLT.Counters.*', True, startOfRange, endOfRange)[0].data
-    except ImportError:
-        log.error("Exeption when reading the pbeast information. Remember to setup the tdaq release!")
-        return
-    except RuntimeError:
-        log.error("Exception when reading the pbeast information. Remeber to export the pbeast server sso!")
+    except ImportError as e:
+        log.error("Exeption when reading the pbeast information. Remember to setup the tdaq release!\n{0}".format(e))
         return
 
-    HLTChains = []
-    HLTChainsUnps = []
-    for chain in hltRates:
-        chainName = chain.replace("ISS_TRP.", "")
-        if chainName not in chainGroups:
-            log.debug("Chain {0} is missing from the current menu".format(chainName))
-            continue
+    hltChains = {}
+    l1Items = {}
+    groups = {}
+    for keysRange in keyRangesList:
+        # Save the range start and end and make sure we are in given limits
+        lbStart = keysRange[2] if keysRange[2] > args.lbStart else args.lbStart
+        lbEnd = keysRange[3] if keysRange[3] < args.lbEnd else args.lbEnd
+        startOfKeysRange = readLbStartFromCool(args.runNumber, lbStart)
+        endOfKeysRange = readLbEndFromCool(args.runNumber, lbEnd)
+        log.debug("Current range is {0}-{1}. Timestamps are {2}-{3}".format(lbStart, lbEnd, ctime(startOfKeysRange/1E6), ctime(endOfKeysRange/1E6)))
 
-        meanRate = 0
-        meanCounter = 0
-        for dataPoint in hltRates[chain]:
-            meanRate += dataPoint.value
-            meanCounter += 1 if dataPoint.value > 0 else 0
+        hltPrescales = readHLTPrescales(keysRange[1], configMetadata[2]["DB"])
+        l1Prescales = readL1Prescales(keysRange[0], configMetadata[2]["DB"])
 
-        l1Item = "L1_" + chainName.split("L1")[1]
-        l1psk = l1Prescales[l1Item] if l1Item in l1Prescales else "-"
-        rate = meanRate/meanCounter if meanCounter > 0 else 0
-        rateUn = rate * hltPrescales[chainName] * (l1Prescales[l1Item] if l1Item in l1Prescales else 1)
+        # Read prescaled IS rates from pbeast and calculate unprescaled rates
+        # Queries are based on TRP grafana dashboard
+        try:
+            hltRates =  pbeast.get_data('ATLAS', 'HLT_Rate', 'Output', 'ISS_TRP.HLT_.*', True, startOfKeysRange, endOfKeysRange)[0].data
+            l1Rates =  pbeast.get_data('ATLAS', 'L1_Rate', 'TAV', 'ISS_TRP.L1_.*', True, startOfKeysRange, endOfKeysRange)[0].data
+            streamRates = pbeast.get_data('ATLAS', 'HLT_Rate', 'Output', 'ISS_TRP.str_.*', True, startOfKeysRange, endOfKeysRange)[0].data
+            groupRates = pbeast.get_data('ATLAS', 'HLT_Rate', 'Output', 'ISS_TRP.grp_.*', True, startOfKeysRange, endOfKeysRange)[0].data
+            recordingRates = pbeast.get_data('ATLAS', 'SFOngCounters', 'WritingEventRate', 'DF.TopMIG-IS:HLT.Counters.*', True, startOfKeysRange, endOfKeysRange)[0].data
+        except RuntimeError as e:
+            log.error("Exception when reading the pbeast information. Remember to export the pbeast server sso!\n{0}".format(e))
+            return
 
-        HLTChains.append([chainName, chainGroups[chainName],  round(rate, 3), "0", "L1:{0} HLT:{1}".format(l1psk, hltPrescales[chainName])])
-        HLTChainsUnps.append([chainName, chainGroups[chainName], round(rateUn, 3), "0", "L1:{0} HLT:{1}".format(l1psk, hltPrescales[chainName])])
+        for chain in hltRates:
+            chainName = chain.replace("ISS_TRP.", "")
+            if chainName not in chainGroups:
+                log.warning("Chain {0} is missing from the current menu".format(chainName))
+                continue
 
-    L1Items = []
-    L1ItemsUnps = []
-    for item in l1Rates:
-        
-        meanRate = 0
-        meanCounter = 0
-        for dataPoint in l1Rates[item]:
-            meanRate += dataPoint.value
-            meanCounter += 1 if dataPoint.value > 0 else 0
+            l1Item = "L1_" + chainName.split("L1")[1]
+            l1psk = l1Prescales[l1Item] if l1Item in l1Prescales else "-"
+            keysStr = "L1:{0} HLT:{1}".format(l1psk, hltPrescales[chainName])
+            if chainName not in hltChains:
+                hltChains[chainName] = RateEntry(chainName, chainGroups[chainName], keysStr)
+            else:
+                hltChains[chainName].appendKeys(keysStr)
+            
+            for dataPoint in hltRates[chain]:
+                if dataPoint.value == 0:
+                    # Skip avg rate = 0
+                    continue
+                elif dataPoint.ts < startOfKeysRange or dataPoint.ts > endOfKeysRange:
+                    # Skip data point outside analyzed range
+                    continue
 
-        itemName = item.replace("ISS_TRP.", "")
-        if "--enabled" not in itemName:
-            continue
-        else:
-            itemName = itemName.replace("--enabled", "")
-        rate = meanRate/meanCounter if meanCounter > 0 else 0
-        rateUn = rate * l1Prescales[itemName]
+                rate = dataPoint.value
+                if rate > 0 and hltPrescales[chainName] <=0:
+                    log.warning("Rate for disabled chain {0} is higher than 0! {1} timestamp {2}".format(chainName, rate, ctime(dataPoint.ts/1E6)))
 
-        L1Items.append([itemName, "-", round(rate, 3), "0", "L1:{0}".format(l1Prescales[itemName])])
-        L1ItemsUnps.append([itemName, "-", round(rateUn, 3), "0", "L1:{0}".format(l1Prescales[itemName])])
+                rateUn = rate * hltPrescales[chainName] * (l1Prescales[l1Item] if l1Item in l1Prescales else 1)
+                hltChains[chainName].appendRate(rate, rateUn)
 
-    groups = []
-    groupRates = groupRates | streamRates | recordingRates
-    for group in groupRates:
-        meanRate = 0
-        for dataPoint in groupRates[group]:
-            meanRate += dataPoint.value
-        groupName = group.replace("ISS_TRP.", "") \
-                         .replace("grp", "RATE") \
-                         .replace("str", "STREAM") \
-                         .replace("DF.TopMIG-IS:HLT.Counters.", "HLT_recording_")
-        groups.append([groupName, "-", round(meanRate/len(groupRates[group]), 3), "0", "Multiple"])
+        for item in l1Rates:
+            itemName = item.replace("ISS_TRP.", "")
+            if "--enabled" not in itemName:
+                continue
+            else:
+                itemName = itemName.replace("--enabled", "")
+
+            if itemName not in l1Items:
+                l1Items[itemName] = RateEntry(itemName, "-", "L1:{0}".format(l1Prescales[itemName]))
+            else:
+                l1Items[itemName].appendKeys("L1:{0}".format(l1Prescales[itemName]))
+
+            for dataPoint in l1Rates[item]:
+                if dataPoint.value == 0:
+                    continue
+                elif dataPoint.ts < startOfKeysRange or dataPoint.ts > endOfKeysRange:
+                    continue
+                rate = dataPoint.value
+                if rate > 0 and l1Prescales[itemName] <=0:
+                    log.warning("Rate for disabled chain {0} is higher than 0! {1} timestamp {2}".format(chainName, rate, ctime(dataPoint.ts/1E6)))
+                rateUn = rate * l1Prescales[itemName]
+
+                l1Items[itemName].appendRate(rate, rateUn)
+
+        groupRates = groupRates | streamRates | recordingRates
+        for group in groupRates:
+            groupName = group.replace("ISS_TRP.", "") \
+                            .replace("grp", "RATE") \
+                            .replace("str", "STREAM") \
+                            .replace("DF.TopMIG-IS:HLT.Counters.", "HLT_recording_")     
+
+            if groupName not in groups:    
+                groups[groupName] = RateEntry(groupName, "-", "Multiple")
+
+            for dataPoint in groupRates[group]:
+                if dataPoint.value == 0:
+                    continue
+                elif dataPoint.ts < startOfKeysRange or dataPoint.ts > endOfKeysRange:
+                    continue
+                groups[groupName].appendRate(dataPoint.value, 0)
 
     # Save the results
     from RatesAnalysis.Util import getTableName
@@ -303,20 +386,27 @@ def main():
         {"Last lumiblock" : args.lbEnd},
         {'SMK' :  configMetadata[1]["SMK"]},
         {'DB' : configMetadata[2]["DB"]},
-        {'LVL1PSK' :  getKeyForLimits(configMetadata[5]["LVL1PSK"], args.lbStart, args.lbEnd)},
-        {'HLTPSK' : getKeyForLimits(configMetadata[4]["HLTPSK"], args.lbStart, args.lbEnd)}
+        {'LVL1PSK' :  l1AvailableKeys},
+        {'HLTPSK' : hltAvailableKeys}
     ]
 
     prescaledDirName = "costMonitoring_OnlineTRPRates-onlinePS-LB{0}-{1}_{2}/".format(args.lbStart, args.lbEnd, args.runNumber)
     unprescaledDirName = "costMonitoring_OnlineTRPRates-noPS-LB{0}-{1}_{2}/".format(args.lbStart, args.lbEnd, args.runNumber)
     log.info("Exporting " + HLTTable)
-    toCSV(HLTTable, prescaledDirName + "csv/", HLTChains)
-    toCSV(HLTTable, unprescaledDirName + "csv/", HLTChainsUnps)
+    hltChainsList = [hltChains[chain].getCsvEntry() for chain in hltChains]
+    hltChainsUnpsList = [hltChains[chain].getUnprescaledCsvEntry() for chain in hltChains]
+    toCSV(HLTTable, prescaledDirName + "csv/", hltChainsList)
+    toCSV(HLTTable, unprescaledDirName + "csv/", hltChainsUnpsList)
+
     log.info("Exporting " + L1Table)
-    toCSV(L1Table, prescaledDirName + "csv/", L1Items)
-    toCSV(L1Table, unprescaledDirName + "csv/", L1ItemsUnps)
+    l1ItemsList = [l1Items[item].getCsvEntry() for item in l1Items]
+    l1ItemsUnpsList = [l1Items[item].getUnprescaledCsvEntry() for item in l1Items]
+    toCSV(L1Table, prescaledDirName + "csv/", l1ItemsList)
+    toCSV(L1Table, unprescaledDirName + "csv/", l1ItemsUnpsList)
+
     log.info("Exporting " + GroupTable)
-    toCSV(GroupTable, prescaledDirName + "csv/", groups)
+    groupsList = [groups[group].getCsvEntry() for group in groups]
+    toCSV(GroupTable, prescaledDirName + "csv/", groupsList)
 
     prescaledMd = [*metadata, {"Details" : "Averaged rates with online prescales from online monitoring"}]
     unprescaledMd = [*metadata, {"Details" : "Averaged rates with prescales removed from online monitoring"}]

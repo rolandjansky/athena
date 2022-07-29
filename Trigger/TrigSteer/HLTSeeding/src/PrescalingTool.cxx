@@ -183,7 +183,7 @@ StatusCode PrescalingTool::prescaleChains( const EventContext& ctx,
                psValueSorted.emplace_back( ChainAndPrescale({ch, ps}) );
          }
          if ( psValueSorted.empty() ) { // sometimes all chains may be presscaled out/disabled
-            break;
+            continue;
          }
          std::sort(psValueSorted.begin(), psValueSorted.end(), [](const ChainAndPrescale& a, const ChainAndPrescale& b){
             return a.ps.prescale < b.ps.prescale;
