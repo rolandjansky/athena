@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 """
 SimFlags specific to the full ATLAS simulation
@@ -67,12 +67,13 @@ class LArParameterization(JobProperty):
       1 - conservative default
       2 - recomended default
       3 - the fastest
+      4 - FastCaloSim
 
     By default is set to 0.
     """
     statusOn = True
     allowedTypes = ['int']
-    allowedValues = [0,1,2,3]
+    allowedValues = [0,1,2,3,4]
     StoredValue = 0
 
 
@@ -419,4 +420,3 @@ class QuasiStableParticleRadius(JobProperty):
     statusOn = True
     allowedTypes = ['float']
     StoredValue = 30.19 # mm
-

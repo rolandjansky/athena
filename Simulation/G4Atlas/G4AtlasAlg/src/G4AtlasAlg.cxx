@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local includes
@@ -322,6 +322,7 @@ StatusCode G4AtlasAlg::execute()
   ATH_MSG_DEBUG("Calling SimulateG4Event");
 
   ATH_CHECK(m_senDetTool->BeginOfAthenaEvent());
+  ATH_CHECK(m_fastSimTool->BeginOfAthenaEvent());
 
   SG::ReadHandle<McEventCollection> inputTruthCollection(m_inputTruthCollectionKey);
   if (!inputTruthCollection.isValid()) {

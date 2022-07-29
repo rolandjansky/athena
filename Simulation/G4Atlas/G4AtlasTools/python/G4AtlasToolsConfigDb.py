@@ -49,6 +49,7 @@ addTool("G4AtlasTools.G4PhysicsRegionConfigLegacy.getSCTPhysicsRegionTool", 'SCT
 addTool("G4AtlasTools.G4PhysicsRegionConfigLegacy.getTRTPhysicsRegionTool", 'TRTPhysicsRegionTool')
 addTool("G4AtlasTools.G4PhysicsRegionConfigLegacy.getTRT_ArPhysicsRegionTool", 'TRT_ArPhysicsRegionTool')
 addTool("G4AtlasTools.G4PhysicsRegionConfigLegacy.getTRT_KrPhysicsRegionTool", 'TRT_KrPhysicsRegionTool')
+addTool("G4AtlasTools.G4PhysicsRegionConfigLegacy.getCALOPhysicsRegionTool", 'CALOPhysicsRegionTool')
 addTool("G4AtlasTools.G4PhysicsRegionConfigLegacy.getEMBPhysicsRegionTool", 'EMBPhysicsRegionTool')
 addTool("G4AtlasTools.G4PhysicsRegionConfigLegacy.getEMECPhysicsRegionTool", 'EMECPhysicsRegionTool')
 addTool("G4AtlasTools.G4PhysicsRegionConfigLegacy.getHECPhysicsRegionTool", 'HECPhysicsRegionTool')

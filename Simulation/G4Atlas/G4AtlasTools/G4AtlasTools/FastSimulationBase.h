@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4ATLASTOOLS_FASTSIMULATIONBASE_H
@@ -36,6 +36,9 @@ class FastSimulationBase : public extends<AthAlgTool, IFastSimulation> {
   /// missing. In multi-threading jobs, this method is called once per worker
   /// thread.
   StatusCode initializeFastSim() override;
+
+  /** Begin of an athena event - do anything that needs to be done at the beginning of each *athena* event. */
+  virtual StatusCode BeginOfAthenaEvent() override { return StatusCode::SUCCESS; }
 
   /** End of an athena event - do any tidying up required at the end of each *athena* event. */
   virtual StatusCode EndOfAthenaEvent() override { return StatusCode::SUCCESS; }

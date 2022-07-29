@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 from AthenaCommon.SystemOfUnits import mm, cm, m
@@ -325,6 +325,9 @@ def getATLAS_RegionCreatorList():
             elif simFlags.LArParameterization() is None or simFlags.LArParameterization() == 0:
                 regionCreatorList += ['EMBPhysicsRegionTool', 'EMECPhysicsRegionTool',
                                       'HECPhysicsRegionTool', 'FCALPhysicsRegionTool']
+            if hasattr(simFlags, 'LArParameterization') and simFlags.LArParameterization() == 4:
+                    regionCreatorList += ['CALOPhysicsRegionTool']
+    
     ## FIXME _initPR never called for FwdRegion??
     #if simFlags.ForwardDetectors.statusOn:
     #    if DetFlags.geometry.FwdRegion_on():

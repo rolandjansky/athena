@@ -19,3 +19,15 @@ def getFastCaloSimCaloExtrapolation(name="FastCaloSimCaloExtrapolation", **kwarg
 
 def getFastCaloSimGeometryHelper(name="FastCaloSimGeometryHelper", **kwargs):
     return CfgMgr.FastCaloSimGeometryHelper(name, **kwargs)
+    
+
+def getCaloCellContainerSD(name='CaloCellContainerSD', **kwargs):
+    
+    kwargs.setdefault ('NoVolumes', True)
+    kwargs.setdefault("OutputCollectionNames", ["DefaultCaloCellContainer"])
+    
+    # Add ISF_FastHitConvertTool, which will also take care 
+    # of creating mergable FastCaloSim HIT collections
+    kwargs.setdefault("FastHitConvertTool", "ISF_FastHitConvertTool")
+
+    return CfgMgr.CaloCellContainerSDTool(name, **kwargs)
