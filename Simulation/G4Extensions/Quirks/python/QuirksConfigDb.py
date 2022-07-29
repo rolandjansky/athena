@@ -1,5 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.CfgGetter import addTool
-addTool("Quirks.QuirksConfig.getQuirkPhysicsTool"         , "QuirkPhysicsTool" )
-addTool("Quirks.QuirksConfig.getDebugSteppingActionTool"  , "G4UA::DebugSteppingActionTool" )
+addTool("Quirks.QuirksConfigLegacy.getQuirkPhysicsTool"         , "QuirkPhysicsTool" )
+addTool("Quirks.QuirksConfigLegacy.getDebugSteppingActionTool"  , "G4UA::DebugSteppingActionTool" )
