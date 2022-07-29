@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "QratCscClusterFitter.h"
@@ -325,7 +325,7 @@ const DataNames& QratCscClusterFitter::dataNames() const {
         }
         return dnames;
     };
-    static DataNames dnames ATLAS_THREAD_SAFE = init();
+    static const DataNames dnames = init();
     return dnames;
 }
 
