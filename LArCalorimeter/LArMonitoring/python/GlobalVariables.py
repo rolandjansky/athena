@@ -30,7 +30,7 @@ class LArDQGlobals(object):
                    'DSPEonEoff_Bins','DSPEonEoff_Max', 'DSPTonToff_Bins','DSPTonToff_Max', 'DSPQonQoff_Bins','DSPQonQoff_Max', 'DSPThr_Bins',
                    'L1Trig_Bins','L1Trig_Min','L1Trig_Max',
                    'Evt_Bins','Evt_Min','Evt_Max','Evt_labels',
-                   'EvtRej_Bins','EvtRej_Min','EvtRej_Max','EvtRej_labels','EvtRejYield_labels','rejBits_Bins',
+                   'EvtRej_Bins','EvtRej_Min','EvtRej_Max','EvtRej_labels','rejBits_Bins',
                    'defaultStreamNames',
                    'TotalNcell',
                    'noisyFEB_Bins','noisyFEB_Max','noisyFEB_Min',
@@ -257,11 +257,10 @@ lArDQGlobals.Evt_Bins = 15
 lArDQGlobals.Evt_Min = -0.5
 lArDQGlobals.Evt_Max = 14.5
 lArDQGlobals.Evt_labels = ["","Raw data - Transparent","","Result - Physic","","","Calibration","","","Pedestals","","","","Raw data+Result"]
-lArDQGlobals.EvtRej_Bins = 7 
-lArDQGlobals.EvtRej_Min = 0.5
-lArDQGlobals.EvtRej_Max = 7.5
-lArDQGlobals.EvtRej_labels = [">=1 FEB in error",">=4 FEBs in error","LArError_DATACORRUPTED","LArError_DATACORRUPTEDVETO","LArError_NOISEBURSTVETO","Accepted","Total"]
-lArDQGlobals.EvtRejYield_labels = [">=1 FEB in error",">=4 FEBs in error","LArError_DATACORRUPTED","LArError_DATACORRUPTEDVETO","LArError_NOISEBURSTVETO","Accepted"]
+lArDQGlobals.EvtRej_Bins = 8 
+lArDQGlobals.EvtRej_Min = 0
+lArDQGlobals.EvtRej_Max = 8
+lArDQGlobals.EvtRej_labels = [">=1 FEB in error",">=4 FEBs in error","LArError_DATACORRUPTED","LArError_DATACORRUPTEDNOVETO","LArError_DATACORRUPTEDVETO","LArError_NOISEBURSTVETO","Accepted","Total"]
 
 lArDQGlobals.rejBits_Bins=8192
 

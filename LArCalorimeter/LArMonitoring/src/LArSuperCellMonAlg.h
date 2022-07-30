@@ -138,8 +138,6 @@ private:
 
   const CaloCell_ID* m_calo_id;
 
-  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
-
 
 };
 

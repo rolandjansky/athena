@@ -429,8 +429,9 @@ if __name__=='__main__':
    from LArMonitoring.LArMonConfigFlags import createLArMonConfigFlags
    createLArMonConfigFlags()
 
-   from AthenaConfiguration.TestDefaults import defaultTestFiles
-   ConfigFlags.Input.Files = defaultTestFiles.RAW
+   #from AthenaConfiguration.TestDefaults import defaultTestFiles
+   #ConfigFlags.Input.Files = defaultTestFiles.RAW
+   ConfigFlags.Input.Files = ['/eos/atlas/atlastier0/rucio/data22_13p6TeV/physics_Main/00428855/data22_13p6TeV.00428855.physics_Main.daq.RAW/data22_13p6TeV.00428855.physics_Main.daq.RAW._lb0921._SFO-13._0001.data']
 
    ConfigFlags.Output.HISTFileName = 'LArFEBMonOutput.root'
    ConfigFlags.DQ.enableLumiAccess = True

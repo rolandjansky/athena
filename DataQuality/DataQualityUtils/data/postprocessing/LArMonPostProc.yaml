@@ -51,7 +51,7 @@ Description: LAr_FEBmon_EventsRejectedLB_SetMinMax
 Input: [ 'LAr/FEBMon/(?P<fold>\S+)/EventsRejected' ]
 Output: [ 'LAr/FEBMon/{fold}/EventsRejectedYield' ]
 Function: LArMonitoring.LArMonTransforms.normToBinAndSetMinMax
-Parameters: { bin_norm : 7, maxVal : 100, minVal : 0, titleToReplace : 'Nb of events rejected (at least one error)', replaceWith: 'Data corruption yield', newYaxis : 'Yield(%)'}
+Parameters: { bin_norm : 8, maxVal : 100, minVal : 0, titleToReplace : 'Nb of events rejected (at least one error)', replaceWith: 'Data corruption yield', newYaxis : 'Yield(%)'}
 Description: LAr_FEBmon_EventsRejectedYield_Normalize
 
 ---
