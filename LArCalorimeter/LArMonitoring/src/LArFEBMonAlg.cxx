@@ -318,8 +318,8 @@ StatusCode LArFEBMonAlg::fillHistograms(const EventContext& ctx) const {
   auto evtyield = Monitored::Scalar<float>("EvtRejYield",-1);
   auto evtyieldout = Monitored::Scalar<float>("EvtRejYieldOut",-1);
   if (febInErrorTree.size()>=1 || newHighWaterMarkNFebBlocksTotal || nbOfFeb < m_nbOfFebBlocksTotal ){
-    evtrej=1; evt_yield = 100.;
-    if (febInErrorTree.size()>=4) evtrej=2;
+    evtrej=0.5; evt_yield = 100.;
+    if (febInErrorTree.size()>=4) evtrej=1.5;
     if (thisEvent->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::DATACORRUPTEDVETO)) evtyieldout=0.; // Vetoed 
     else evtyieldout=100.; // not vetoed
   } 
@@ -330,24 +330,27 @@ StatusCode LArFEBMonAlg::fillHistograms(const EventContext& ctx) const {
 
   if (thisEvent->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error || nbOfFeb != m_nbOfFebBlocksTotal || nbOfFeb < m_nFEBnominal){ // Event in error (whatever is the cause)
     if (thisEvent->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::DATACORRUPTED) || nbOfFeb != m_nbOfFebBlocksTotal){ // Event corrupted (>=1/4 FEBs in error)
-      evtrej=3;
+      evtrej=2.5;
       auto rbits = Monitored::Scalar<unsigned long>("rejBits", rejectionBits.to_ulong());
       fill(m_monGroupName, rbits);
     }
-    if (thisEvent->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::DATACORRUPTEDVETO)) evtrej=4;
-    if (thisEvent->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::NOISEBURSTVETO)) evtrej=5;
+    if (thisEvent->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::DATACORRUPTEDVETO)) evtrej=4.5; else evtrej=3.5;
     evt_yield = 100.;
     if (thisEvent->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::DATACORRUPTEDVETO)) evtyieldout=0.; // Vetoed 
     else evtyieldout=100.; // not vetoed
   } else{ // The event is NOT in error. Fill per LB TProfile
-    evtrej=6; evt_yield = 0.; evtyieldout=0.;
+    evtrej=6.5; evt_yield = 0.; evtyieldout=0.;
   }
   evtyield=evt_yield;
   auto evSize = Monitored::Scalar<float>("LArEvSize",larEventSize/sizeNorm);
   auto sweet2 = Monitored::Scalar<int>("NbOfSweet2",totNbOfSweet2);
   auto lb0 = Monitored::Scalar<int>("LB0",lumi_block); //to avoid 'NbOfEventsVSLB' being filled multiple times
   fill(m_monGroupName,evtrej,evtyieldout,evtyield,evSize, sweet2, lb0);
-  evtrej=7;
+  if (thisEvent->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::NOISEBURSTVETO)) {
+     evtrej=5.5;
+     fill(m_monGroupName,evtrej);
+  }
+  evtrej=7.5;
   fill(m_monGroupName,evtrej);
   if(environment() == Environment_t::online) {
      auto lbfake = Monitored::Scalar<int>("LBf",0);
