@@ -479,6 +479,7 @@ class AthConfigFlags(object):
         if args.filesInput:
             filesList = args.filesInput.split(",")            
             if '*' in args.filesInput: # handle wildcard
+                self.Input.Files = [] # remove generic
                 import glob
                 for path in filesList:
                     self.Input.Files += glob.glob(path)
