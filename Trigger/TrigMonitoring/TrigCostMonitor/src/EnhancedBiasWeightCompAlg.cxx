@@ -17,7 +17,6 @@ StatusCode EnhancedBiasWeightCompAlg::initialize(){
     if (!m_finalDecisionKey.empty()) {
         ATH_CHECK( m_finalDecisionKey.initialize() );
     }
-    ATH_CHECK( m_EBWeightKey.initialize() );
 
     ATH_CHECK( m_HLTPrescaleSetInputKey.initialize() );
     ATH_CHECK( m_L1PrescaleSetInputKey.initialize() );
@@ -87,7 +86,6 @@ StatusCode EnhancedBiasWeightCompAlg::execute(const EventContext& context) const
 
     // Retrieve information about EB chains that passed
     std::vector<EBChainInfo> EBChains;
-    SG::WriteHandle<xAOD::TrigCompositeContainer> outputHandle;
     if (!m_tdt.empty()){
         for (const auto& chainId : m_EBChainIds){
             std::string chainName = HLT::Identifier(chainId).name();
@@ -102,12 +100,6 @@ StatusCode EnhancedBiasWeightCompAlg::execute(const EventContext& context) const
         const TrigCompositeUtils::Decision* decisionObject = TrigCompositeUtils::getTerminusNode(finalDecisionsHandle);
         ATH_CHECK(decisionObject != nullptr);
         EBChains = getPassedEBChains(*decisionObject);
-
-        // Setup output handle, used when running the algorithm online - the chainToItem map is only filled when running online
-        // To be removed - kept due to frozen T0 policy
-        if (m_chainToItem.empty()){
-            outputHandle = TrigCompositeUtils::createAndStore(m_EBWeightKey, context);
-        }
     }
 
     ATH_MSG_DEBUG("Number of eb chains that passed int this event: " << EBChains.size());
@@ -124,33 +116,23 @@ StatusCode EnhancedBiasWeightCompAlg::execute(const EventContext& context) const
     // Calculate EB weight
     EBResult result = calculateEBWeight(EBChains);
 
-    // Save output values: EBWeight and EBUnbiased
-    if (outputHandle.isValid()){
-        // Save to xAOD
-        xAOD::TrigComposite* tc = new xAOD::TrigComposite();
-        outputHandle->push_back(tc);
-
-        tc->setDetail<float>("EBWeight", result.weight);
-        tc->setDetail<uint8_t>("EBUnbiased", result.isUnbiased);
-    } else {
-        // Save to xml file
-        // Create filename (run number necessary)
-        if ( context.evt() == 0 ){
-            std::stringstream filename;
-            filename << "EnhancedBiasWeights_" << context.eventID().run_number() << ".xml";
-            m_outputFilename = filename.str();
-            ATH_MSG_INFO("The output file name is " << m_outputFilename);
-        }
-
-        // Save to containers to be saved to xml
-        auto resultPair = std::pair<double, bool>(result.weight, result.isUnbiased);
-        auto newPair = std::find(m_ebWeights.begin(), m_ebWeights.end(), resultPair);
-        if (newPair == m_ebWeights.end()){
-            newPair = m_ebWeights.push_back(resultPair);
-            ATH_MSG_DEBUG("New weight value: " << result.weight << " with id " << (m_ebWeights.size()-1));
-        }
-        m_eventToWeight[context.eventID().event_number()] = std::distance(m_ebWeights.begin(), newPair);
+    // Save output values: EBWeight and EBUnbiased to xml file
+    // Create filename (run number necessary)
+    if ( context.evt() == 0 ){
+        std::stringstream filename;
+        filename << "EnhancedBiasWeights_" << context.eventID().run_number() << ".xml";
+        m_outputFilename = filename.str();
+        ATH_MSG_INFO("The output file name is " << m_outputFilename);
     }
+
+    // Save to containers to be saved to xml
+    auto resultPair = std::pair<double, bool>(result.weight, result.isUnbiased);
+    auto newPair = std::find(m_ebWeights.begin(), m_ebWeights.end(), resultPair);
+    if (newPair == m_ebWeights.end()){
+        newPair = m_ebWeights.push_back(resultPair);
+        ATH_MSG_DEBUG("New weight value: " << result.weight << " with id " << (m_ebWeights.size()-1));
+    }
+    m_eventToWeight[context.eventID().event_number()] = std::distance(m_ebWeights.begin(), newPair);
 
     ATH_MSG_DEBUG("EnhacedBias EBWeight: " << result.weight << " EnhacedBias isUnbiased: " << (bool) result.isUnbiased );
 
