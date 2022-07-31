@@ -72,7 +72,6 @@ class EnhancedBiasWeightCompAlg : public AthReentrantAlgorithm {
     SG::ReadHandleKey<TrigConf::HLTMenu> m_HLTMenuKey{this, "HLTTriggerMenu", "DetectorStore+HLTTriggerMenu", "HLT Menu"};
     ToolHandle<Trig::TrigDecisionTool> m_tdt{this, "TrigDecisionTool", ""};
     SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_finalDecisionKey{ this, "FinalDecisionKey", "", "Final stage of all decisions" };
-    SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_EBWeightKey {this, "EBWeight", "HLT_EBWeight", "Computed EB Weight"};
 
     SG::ReadCondHandleKey<TrigConf::HLTPrescalesSet> m_HLTPrescaleSetInputKey {this, "HLTPrescales", "HLTPrescales", "HLT prescales set"};
     SG::ReadCondHandleKey<TrigConf::L1PrescalesSet> m_L1PrescaleSetInputKey {this, "L1Prescales", "L1Prescales", "L1 prescales set"};
