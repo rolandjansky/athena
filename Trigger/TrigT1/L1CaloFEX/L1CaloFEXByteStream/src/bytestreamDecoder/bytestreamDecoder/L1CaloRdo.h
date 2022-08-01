@@ -8,9 +8,9 @@
 #include <list>
 #include <string>
 
-#ifndef OFFLINE_DECODER
+
 #include "channelMappings/L1CaloDetectorRegion.h"
-#endif
+
 
 class L1CaloRdoRodInfo;
 
@@ -29,9 +29,9 @@ public:
    int getFlag( size_t slice ) const;
    int getFlag( ) const;
    int getL1aPos( ) const;
-#ifndef OFFLINE_DECODER
+
    L1CaloDetectorRegion getRegion( ) const;
-#else
+#ifdef OFFLINE_DECODER
     void setWord0( uint32_t val, size_t slice ){ if(slice < m_word0s.size()) m_word0s[slice] = val; };
     void setWord1( uint32_t val, size_t slice ){ if(slice < m_word1s.size()) m_word1s[slice] = val; };
     uint32_t getWord0( size_t slice ) const { return (slice < m_word0s.size()) ? m_word0s[slice] : 0; };
@@ -65,9 +65,9 @@ public:
 protected:
    L1CaloRdo( int crate, int module, int eta, int phi, 
               int layer, int numSlices );
-#ifndef OFFLINE_DECODER
+
    void setRegion( const L1CaloDetectorRegion& region );
-#endif
+
 private:
    L1CaloRdo( );
    
@@ -79,9 +79,9 @@ private:
    std::vector<int> m_vals;
    std::vector<int> m_flags;
    int m_l1aPos;
-#ifndef OFFLINE_DECODER
+
    L1CaloDetectorRegion m_region;
-#else
+#ifdef OFFLINE_DECODER
    std::vector<uint32_t> m_word0s,m_word1s;
 #endif
    std::list<L1CaloRdoRodInfo>::const_iterator m_rodInfo;

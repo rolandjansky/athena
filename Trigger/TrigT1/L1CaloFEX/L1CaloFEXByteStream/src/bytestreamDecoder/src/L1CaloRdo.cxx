@@ -134,13 +134,13 @@ L1CaloRdo::getL1aPos( ) const
 {
    return m_l1aPos;
 }
-#ifndef OFFLINE_DECODER
+
 L1CaloDetectorRegion 
 L1CaloRdo::getRegion( ) const
 {
    return m_region;
 }
-#endif
+
 
 const std::list<L1CaloRdoRodInfo>::const_iterator&
 L1CaloRdo::getRodInfo( ) const
@@ -280,11 +280,11 @@ L1CaloRdo::infoSpecific( ) const
 {
 }
 
-#ifndef OFFLINE_DECODER
+
 void
 L1CaloRdo::setRegion( const L1CaloDetectorRegion& region )
 {
    m_region = region;
 }
-#endif
+
 

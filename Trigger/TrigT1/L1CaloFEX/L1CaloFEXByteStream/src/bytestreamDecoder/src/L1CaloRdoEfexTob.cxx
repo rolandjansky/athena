@@ -3,6 +3,8 @@
 */
 #include "bytestreamDecoder/L1CaloRdoEfexTob.h"
 
+#include "channelMappings/EfexCellMapping.h"
+
 #include <iomanip>
 #include <iostream>
 
@@ -29,8 +31,15 @@ L1CaloRdoEfexTob::L1CaloRdoEfexTob( int crate, int module, int eta, int phi, int
                                         TobType tobType, TobSource source, int id, int fibre, int tobSeq ) 
 : L1CaloRdoFexTob( crate, module, eta, phi, numSlices, tobType, source, id, fibre, tobSeq )
 {
-   //??CpmTowerMapping map( crate, module, eta, phi );
-   //??setRegion( map.getL1CaloDetectorRegion() );
+   int fpga = (eta-1)/4;
+   if ( fpga < 0 ) 
+      fpga = 0;
+   if ( fpga > 3 )
+      fpga = 3;
+   int localeta = eta-4*fpga;
+   EfexCellMapping::roiType roi = EfexCellMapping::Roi;
+   EfexCellMapping map( roi, crate, module, fpga, localeta, phi );
+   setRegion( map.getDetectorRegion() );
 }
 
 void

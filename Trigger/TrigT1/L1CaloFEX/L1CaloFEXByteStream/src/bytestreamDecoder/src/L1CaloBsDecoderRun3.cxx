@@ -13,20 +13,22 @@
 #include "bytestreamDecoder/L1CaloBsDecoderRun3.h"
 #include "bytestreamDecoder/L1CaloBsDecoderUtil.h"
 #include "bytestreamDecoder/L1CaloRdoEfexTob.h"
-#ifndef OFFLINE_DECODER
 #include "bytestreamDecoder/L1CaloRdoEfexTower.h"
+#include "channelMappings/EfexCellMapping.h"
+#include "infraL1Calo/EfexLatomeFibrePacker.h"
+#include "infraL1Calo/EfexTrexFibrePacker.h"
+#include "defsL1Calo/CrateDefs.h"
+#include "defsL1Calo/EfexDefs.h"
+#include "infraL1Calo/GenericCrc.h"
+#ifndef OFFLINE_DECODER
 #include "bytestreamDecoder/L1CaloRdoGfexTob.h"
 #include "bytestreamDecoder/L1CaloRdoGfexTower.h"
 #include "bytestreamDecoder/L1CaloRdoJfexTob.h"
 #include "bytestreamDecoder/L1CaloRdoJfexTower.h"
 #include "bytestreamDecoder/L1CaloRdoMuonTob.h"     // **FIXME** Different class for run 3?
-#include "channelMappings/EfexCellMapping.h"
 #include "channelMappings/GfexCellMapping.h"
 #include "channelMappings/JfexCellMapping.h"
-#include "defsL1Calo/CrateDefs.h"
-#include "defsL1Calo/EfexDefs.h"
-#include "infraL1Calo/EfexLatomeFibrePacker.h"
-#include "infraL1Calo/EfexTrexFibrePacker.h"
+#include "defsL1Calo/FexDefs.h"
 #include "infraL1Calo/GfexLatomeCentralFibrePacker.h"
 #include "infraL1Calo/GfexLatomeForwardFibrePacker.h"
 #include "infraL1Calo/GfexTrexFibrePacker.h"
@@ -47,20 +49,24 @@
 L1CaloBsDecoderRun3::L1CaloBsDecoderRun3()
 : m_verbosity(0)
 {
-#ifndef OFFLINE_DECODER
+
   // Force initialisation of mapping tables.
   EfexCellMapping dummyEfexMapping(0,0,0,0,0,0);
   if (!dummyEfexMapping.getDetectorRegion().getValidity()) {
     std::cerr << "L1CaloBsDecoderRun3::ctor: unexpected invalid eFEX mapping!?" << std::endl;
   }
+#ifndef OFFLINE_DECODER
   JfexCellMapping dummyJfexMapping(0,1,0,0);                    // Processor number 1-4
   if (!dummyJfexMapping.getDetectorRegion().getValidity()) {
     std::cerr << "L1CaloBsDecoderRun3::ctor: unexpected invalid jFEX mapping!?" << std::endl;
   }
+  GfexCellMapping dummyGfexMapping(0,0,0,0);                    // Processor number 0-2?
+  if (!dummyGfexMapping.getDetectorRegion().getValidity()) {
+    std::cerr << "L1CaloBsDecoderRun3::ctor: unexpected invalid gFEX mapping!?" << std::endl;
+  }
 #endif
 }
 
-#ifndef OFFLINE_DECODER
 /*!
  * Decode eFEX input fibre data.
  * For the EM layer we have up to 10 supercell values per tower
@@ -150,7 +156,7 @@ L1CaloBsDecoderRun3::decodeEfexData( const uint32_t* beg, const uint32_t* end,
       if ( anyErrorBit ) {
          chanErrorOR |= 0x8;   // Extra bit set if any of the three lower bits are set
       }
-      const uint64_t fpgaErrorBits = ( (const uint64_t)(fpgaTrailer2 & 0x1ffff) << 32 ) | fpgaTrailer1;
+      const uint64_t fpgaErrorBits = ( (uint64_t)(fpgaTrailer2 & 0x1ffff) << 32 ) | fpgaTrailer1;
       const uint64_t chanErrorBits = chansWithError.to_ullong();
       const uint32_t fpgaErrorOR = ( fpgaTrailer2 >> 28 ) & 0xf;
       if ( fpgaErrorBits != chanErrorBits || fpgaErrorOR != chanErrorOR ) {
@@ -172,7 +178,7 @@ L1CaloBsDecoderRun3::decodeEfexData( const uint32_t* beg, const uint32_t* end,
  * Decode the data from one eFEX input fibre (only ever one slice).
  * \param payload payload vector starting at this 8 word block
  * \param efexNumber number of this eFEX in its shelf
- * \param shelfNumber shelf number
+ * \param shelfNumber shelf number (here 0 or 1)
  * \param errorMask global error bits set for this ROD fragment
  * \param tower list of RDO to be filled
  * \param rodInfo iterator to ROD information for this block
@@ -190,11 +196,18 @@ L1CaloBsDecoderRun3::decodeEfexDataChan( const uint32_t payload[],
    // Channel numbers 0-39 are EM, 40-48 are hadronic.
    const uint32_t chanNumber = ( payload[7]       ) & 0xff;
    const uint32_t fpgaNumber = ( payload[7] >>  8 ) &  0x3;
-   const uint32_t errorBits  = ( payload[7] >> 28 ) &  0xf;
+   const uint32_t errorBits  = ( payload[7] >> 28 ) &  0x7;
+   const uint32_t disabled   = ( payload[7] >> 31 ) &  0x1;
    if ((int)chanNumber >= EfexDefs::numInputFibresPerFpga()) {
       std::cerr << "L1CaloBsDecoderRun3::decodeEfexDataChan: invalid channel " << chanNumber
                 << " (out of range 0-" << EfexDefs::numInputFibresPerFpga()-1 << ")" << std::endl;
       return 0xffffffff;
+   }
+   
+   // Some endcap channels are inactive and have the disabled bit set
+   // if the full data is being read out. Just skip these.
+   if (disabled) {
+     return 0;
    }
    
    // The EfexCellMapping returns global coordinates but the RDO objects
@@ -214,6 +227,15 @@ L1CaloBsDecoderRun3::decodeEfexDataChan( const uint32_t payload[],
    }
    const FibrePackerBase::InputDataFrameType frameType( FibrePackerBase::InputDataFrameType::Normal );
    
+   // Build up error flag for towers on this fibre.
+   // Bits  0-5 from ROD block trailer
+   // Bit     7 fibre CRC error flag
+   // Bits 8-10 from fibre trailer
+   bool rightCRC = this->checkFibreCRC( encodedData );
+   const uint32_t errorField = ( errorMask & 0x3f )
+                             | ( rightCRC ? 0 : 0x80 )
+                             | ( errorBits << 8 );
+   
    if (chanNumber < 40) {
       // Each EM fibre has 10 supercells for each of two 0.1*0.1 trigger towers.
       // The EfexLatomeFibrePacker returns the complete set of 20 supercells.
@@ -221,21 +243,31 @@ L1CaloBsDecoderRun3::decodeEfexDataChan( const uint32_t payload[],
       std::vector<FibrePackerBase::myDataWord> cells = packer.getUnpackedData( encodedData, frameType );
       
       // Create two tower RDOs, each containing half the supercells.
+      // NB all the middle layer supercells come first, then the rest
+      // for each tower: 4xM0, 4xM1, P0,4xF0,B0, P1,4xF1,B1.
+      // Hard code this to avoid too many calls to EfexCellMapping.
+      // We just call it with the first supercell word for each tower.
+      const std::vector<uint32_t> cellIndex = { 0, 1, 2, 3, 8, 9,10,11,12,13,    // Tower0: MMMMPFFFFB
+                                                4, 5, 6, 7,14,15,16,17,18,19 };  // Tower1: MMMMPFFFFB
       for ( size_t k = 0; k < 2; k++ ) {
          std::vector<uint32_t> towerCells( 10, 0 );
          uint32_t towerSumEt( 0 );
+         uint32_t wordNumber = 0;
          for (size_t i = 0; i < 10; i++) {
-            towerCells[i] = cells[i+k*10];
+            uint32_t iCell = cellIndex[i+k*10];
+            if (i == 0) {
+               wordNumber = iCell;
+            }
+            towerCells[i] = cells[iCell];
             towerSumEt += towerCells[i];
          }
+         
          // **FIXME** Fibre packer does not yet return quality bits!
          //           There should be one per middle layer supercell.
-         //           We can OR those with error bits for this block.
-         //           TEMP: for the moment we only have the block bits.
-         const uint32_t towerFlag = errorMask;
+         //           We can OR those with error bits for this fibre.
+         uint32_t towerFlag = errorField;
          
          if ( towerSumEt || towerFlag ) {
-            const uint32_t wordNumber = k * 10;  // Only need the first of 10 supercells
             EfexCellMapping mapping( shelfNumber, efexNumber, fpgaNumber, chanNumber, wordNumber );
             L1CaloDetectorRegion region = mapping.getDetectorRegion();
             EfexHardwareInfo hwInfo( mapping.getHardwareInfo() );
@@ -249,7 +281,8 @@ L1CaloBsDecoderRun3::decodeEfexDataChan( const uint32_t payload[],
                L1CaloRdoEfexTower& rdo = L1CaloBsDecoderUtil::findRdo( newOne, tower );
 
                rdo.setHardwareInfo( fpgaNumber, chanNumber, wordNumber,
-                                    hwInfo.getMpodNumber(), hwInfo.getFibreNumber() );
+                                    hwInfo.getMpodNumber(), hwInfo.getFibreNumber(),
+                                    hwInfo.getOverlap() );
                rdo.setValue( towerSumEt );
                rdo.setFlag( towerFlag );
                rdo.setSupercells( towerCells );
@@ -273,10 +306,7 @@ L1CaloBsDecoderRun3::decodeEfexDataChan( const uint32_t payload[],
       
       // Create an RDO for each tower.
       for ( size_t wordNumber = 0; wordNumber < numHadTowers; wordNumber++ ) {
-         // At least for the start of Run 3 the tower Et is still limited to 8 bits
-         // as in Runs 1 & 2. After the legacy CP/JEP system is decommissioned this
-         // may change to enable use of the full 10 bit field.
-         const uint32_t towerEt = ( towerVals[wordNumber] == 0x3fe ) ? 0 : towerVals[wordNumber] & 0xff;
+         const uint32_t towerEt = ( towerVals[wordNumber] == 0x3fe ) ? 0 : towerVals[wordNumber];
          const uint32_t invalid = ( towerVals[wordNumber] == 0x3fe ) ? 1 : 0;
          const uint32_t towerFlag = errorMask | ( invalid << 31 );
          
@@ -285,6 +315,14 @@ L1CaloBsDecoderRun3::decodeEfexDataChan( const uint32_t payload[],
             L1CaloDetectorRegion region = mapping.getDetectorRegion();
             EfexHardwareInfo hwInfo( mapping.getHardwareInfo() );
             if ( region.getValidity() && hwInfo.getValidity() ) {
+               // Need to decide if data is Tile/TREX or HEC/LATOME as TREX tower Et is still 
+               // limited to 8 bits, at least for the start of Run 3, as in Runs 1 & 2.
+               // After the legacy CP/JEP system is decommissioned this may change to enable
+               // use of the full 10 bit field.
+               if ( (region.getEtaIndex() >= -15) && (region.getEtaIndex() < 15) ) {  // Tile/TREX
+                  towerVals[wordNumber] &= 0xff;
+               }
+
                int localEta = region.getEtaIndex() - moduleEta + 1;
                int localPhi = region.getPhiIndex() - modulePhi;
 
@@ -294,7 +332,8 @@ L1CaloBsDecoderRun3::decodeEfexDataChan( const uint32_t payload[],
                L1CaloRdoEfexTower& rdo = L1CaloBsDecoderUtil::findRdo( newOne, tower );
 
                rdo.setHardwareInfo( fpgaNumber, chanNumber, wordNumber,
-                                    hwInfo.getMpodNumber(), hwInfo.getFibreNumber() );
+                                    hwInfo.getMpodNumber(), hwInfo.getFibreNumber(),
+                                    hwInfo.getOverlap() );
                rdo.setValue( towerEt );
                rdo.setFlag( towerFlag );
                if ( m_verbosity > 0 )
@@ -311,7 +350,7 @@ L1CaloBsDecoderRun3::decodeEfexDataChan( const uint32_t payload[],
    
    return errorBits;
 }
-#endif // OFFLINE
+
 /*!
  * Decode eFEX TOBs and XTOBs.
  * The RDO value encodes the cluster Et in the value field
@@ -412,6 +451,7 @@ L1CaloBsDecoderRun3::decodeEfexTobs( const uint32_t* beg, const uint32_t* end,
  * \param numSlices number of TOB slices read out in this event
  * \param errorMask global error bits set for this ROD fragment
  * \param tob list of RDO to be filled
+ * \param rodInfo iterator to ROD information for this block
  * \return whether decoding succeeded (false to abort decoding
            in which case the returned index is not valid)
  */
@@ -434,18 +474,18 @@ L1CaloBsDecoderRun3::decodeEfexTobSlice( const uint32_t payload[], size_t& index
    if ( corrective ) {
       // Corrective trailer: no data from this processor FPGA.
       // Not much we can do so just report it and carry on.
-      size_t blockSize = sliceTrailer & 0xfff;
+      size_t corrBlockSize = sliceTrailer & 0xfff;
       const uint32_t failingBCN  = (sliceTrailer >> 12) & 0xfff;
       const uint32_t fpgaNumber  = (sliceTrailer >> 24) &   0x3;
       std::cerr << "L1CaloBsDecoderRun3::decodeEfexTobs: corrective trailer from FPGA "
                 << fpgaNumber << " eFEX " << efexNumber << " shelf " << shelfNumber
                 << ", failing BCN " << failingBCN << ", input errors tau=" << tauInputErr
-                << ", em=" << emInputErr << ", trailer size " << blockSize << std::endl;
+                << ", em=" << emInputErr << ", trailer size " << corrBlockSize << std::endl;
        // corrective trailer blockSize doesn't include the trailer itself (length of one)
        // and also doesn't include padding word (which occurs if the blockSize is even
        // because the corrective trailer adds one more word and then a padding word is needed
-      blockSize += (blockSize%2 == 1) ? 1 : 2;
-      index -= blockSize;   // Ought to be 2
+      corrBlockSize += ((corrBlockSize % 2) == 1) ? 1 : 2;
+      index -= corrBlockSize;   // Ought to be 2
    }
    else {
       // October 2021: New format implemented! K.Char in lowest 8 bits.
@@ -453,7 +493,7 @@ L1CaloBsDecoderRun3::decodeEfexTobSlice( const uint32_t payload[], size_t& index
       const uint32_t numTobs     = (sliceTrailer >>  9) &   0x7;
       const uint32_t numEmXtobs  = (sliceTrailer >> 12) &  0x3f;
       const uint32_t numTauXtobs = (sliceTrailer >> 18) &  0x3f;
-      const uint32_t sliceNum    = (sliceTrailer >> 24) &   0x7;
+      const uint32_t sliceNumber = (sliceTrailer >> 24) &   0x7;
       const uint32_t safeMode    = (sliceTrailer >> 27) &   0x1;
       const uint32_t fpgaNumber  = (sliceTrailer >> 28) &   0x3;
 
@@ -462,13 +502,13 @@ L1CaloBsDecoderRun3::decodeEfexTobSlice( const uint32_t payload[], size_t& index
       // for the trailer) there should be an extra zero padding word.
       // However in safe mode all the TOBs and XTOBs are suppressed
       // and we only have the trailer and padding word.
-      size_t blockSize = (safeMode == 0)
-                       ? (1 + numTobs + 2 * (numEmXtobs + numTauXtobs))
-                       : 2;
-      blockSize += (blockSize % 2);
+      size_t tobSize = (safeMode == 0)
+                     ? (1 + numTobs + 2 * (numEmXtobs + numTauXtobs))
+                     : 2;
+      tobSize += (tobSize % 2);
 
       // Move index to start of this block.
-      index -= blockSize;
+      index -= tobSize;
 
       if ( safeMode ) {
          std::cerr << "L1CaloBsDecoderRun3::decodeEfexTobs: safe mode from FPGA "
@@ -493,7 +533,7 @@ L1CaloBsDecoderRun3::decodeEfexTobSlice( const uint32_t payload[], size_t& index
                           : L1CaloRdoFexTob::TobType::Tau;
             }
             this->decodeOneEfexTob ( &payload[sliceIndex], shelfNumber, efexNumber, fpgaNumber,
-                                     errorMask, numSlices, sliceNum, fexTobType, fexTobSource,
+                                     errorMask, numSlices, sliceNumber, fexTobType, fexTobSource,
                                      tob, rodInfo );
             // One or two words per TOB or xTOB.
             sliceIndex += (fexTobSource == L1CaloRdoFexTob::TobSource::EfexTob) ? 1 : 2;
@@ -590,9 +630,7 @@ L1CaloBsDecoderRun3::decodeJfexDataChan( const uint32_t payload[],
                                          std::list<L1CaloRdoJfexTower>& tower,
                                          std::list<L1CaloRdoRodInfo>::const_iterator rodInfo )
 {
-   // **FIXME** Use 2 for jFEX shelf number as currently generated in mappings.
-   // **FIXME** Its logical crate ID in COOL should be 34 though. Rationalise?!
-   const uint32_t shelfNumber = 2;
+   const uint32_t shelfNumber = 0x22;   // Hard code to P1 value (34)
    
    // The LATOME and TREX fibres have slightly different encoding.
    // Towards the forward regions and especially FCAL they cover
@@ -666,6 +704,7 @@ L1CaloBsDecoderRun3::decodeJfexDataChan( const uint32_t payload[],
          JfexCellMapping mapping( jfexNumber, unitNumber, mgtFibreNumber, iTower );
          L1CaloDetectorRegion region = mapping.getDetectorRegion();
          JfexHardwareInfo hwInfo( mapping.getHardwareInfo() );
+         JfexTriggerTowerInfo ttInfo( mapping.getTriggerTowerInfo() );
          
          if ( region.getValidity() && hwInfo.getValidity() ) {
             int layer = (region.getLayer() == L1CaloDetectorRegion::Electromagnetic) ? 0 : 1;
@@ -677,7 +716,8 @@ L1CaloBsDecoderRun3::decodeJfexDataChan( const uint32_t payload[],
             L1CaloRdoJfexTower& rdo = L1CaloBsDecoderUtil::findRdo( newOne, tower );
 
             rdo.setHardwareInfo( fpgaNumber, chanNumber, iTower,
-                                 hwInfo.getAvr(), hwInfo.getFibreNumber() );
+                                 hwInfo.getAvr(), hwInfo.getFibreNumber(),
+                                 ttInfo.isCore() );
             rdo.setValue( towerEt );
             rdo.setFlag( errorMask );
             
@@ -779,7 +819,7 @@ L1CaloBsDecoderRun3::decodeJfexTobs( const uint32_t* beg, const uint32_t* end,
       // Combine rod and jfex error fields.
       const uint32_t errorMask = fpgaErrors | (rodErrors << 6);
       
-      bool ret = this->decodeJfexTobSlice ( payload, fpgaIndex, jfexNumber, fpgaNumber,
+      bool ret = this->decodeJfexTobSlice ( payload, fpgaBlockSize, fpgaIndex, jfexNumber, fpgaNumber,
                                             sliceNumber, numSlices, errorMask, tob, rodInfo );
       if ( ! ret ) {
          return;
@@ -798,21 +838,27 @@ L1CaloBsDecoderRun3::decodeJfexTobs( const uint32_t* beg, const uint32_t* end,
  * \param numSlices total number of TOB slices read out in this event
  * \param errorMask global error bits set for this ROD fragment
  * \param tob list of RDO to be filled
+ * \param rodInfo iterator to ROD information for this block
  * \return whether decoding succeeded (false to abort decoding
            in which case the returned index is not valid)
  */
 bool
-L1CaloBsDecoderRun3::decodeJfexTobSlice( const uint32_t payload[], size_t& index,
+L1CaloBsDecoderRun3::decodeJfexTobSlice( const uint32_t payload[], size_t blockSize, size_t& index,
                                          const uint32_t jfexNumber, const uint32_t fpgaNumber,
                                          const uint32_t sliceNumber, const uint32_t numSlices,
                                          const uint32_t errorMask,
                                          std::list<L1CaloRdoJfexTob>& tob,
                                          std::list<L1CaloRdoRodInfo>::const_iterator rodInfo )
 {
-   if ( index < 1 ) {
+   if ( index < 2 ) {
       return false;
    }
    
+   // **FIXME** TEMP Ignore jfex00 and jfex05 due to data corruption.
+   if ( jfexNumber == 0 || jfexNumber == 5 ) {
+      return true;
+   }
+
    const uint32_t countTrailer1 = payload[index-2];
    const uint32_t countTrailer2 = payload[index-1];
    
@@ -822,15 +868,17 @@ L1CaloBsDecoderRun3::decodeJfexTobSlice( const uint32_t payload[], size_t& index
       // **FIXME** To be implemented if required.
    }
    else {
-      const uint32_t safeMode     = (countTrailer1      ) &  0x1;
-      const uint32_t numSJetTobs  = (countTrailer1 >>  1) &  0xf;
-      const uint32_t numLJetTobs  = (countTrailer1 >>  5) &  0xf;
-      const uint32_t numTauTobs   = (countTrailer1 >>  9) &  0xf;
-      const uint32_t numElecTobs  = (countTrailer1 >> 13) &  0xf;
-      const uint32_t numSJetXtobs = (countTrailer2 >>  1) & 0x3f;
-      const uint32_t numLJetXtobs = (countTrailer2 >>  7) & 0x3f;
-      const uint32_t numTauXtobs  = (countTrailer2 >> 13) & 0x3f;
-      const uint32_t numElecXtobs = (countTrailer2 >> 19) & 0x3f;
+      const uint32_t safeMode      = (countTrailer1      ) & 0x1;
+      const uint32_t numSJetTobs   = (countTrailer1 >>  1) & 0x3f;
+      const uint32_t numLJetTobs   = (countTrailer1 >>  7) & 0x3f;
+      const uint32_t numTauTobs    = (countTrailer1 >> 13) & 0x3f;
+      const uint32_t numElecTobs   = (countTrailer1 >> 19) & 0x3f;
+      const uint32_t numSumEtTobs  = (countTrailer1 >> 25) & 0x1;
+      const uint32_t numMissEtTobs = (countTrailer1 >> 26) & 0x1;
+      const uint32_t numSJetXtobs  = (countTrailer2 >>  1) & 0x3f;
+      const uint32_t numLJetXtobs  = (countTrailer2 >>  7) & 0x3f;
+      const uint32_t numTauXtobs   = (countTrailer2 >> 13) & 0x3f;
+      const uint32_t numElecXtobs  = (countTrailer2 >> 19) & 0x3f;
 
       // Work out how long this block should be. For jFEX both TOBs
       // and XTOBs are one word. Apart from the counts of small jets,
@@ -849,23 +897,34 @@ L1CaloBsDecoderRun3::decodeJfexTobSlice( const uint32_t payload[], size_t& index
          end.push_back( end.back() + numLJetTobs );
          end.push_back( end.back() + numTauTobs );
          end.push_back( end.back() + numElecTobs );
-         end.push_back( end.back() + 1 );  // SumEt
-         end.push_back( end.back() + 1 );  // MissEt
+         end.push_back( end.back() + numSumEtTobs );
+         end.push_back( end.back() + numMissEtTobs );
          end.push_back( end.back() + numSJetXtobs );
          end.push_back( end.back() + numLJetXtobs );
          end.push_back( end.back() + numTauXtobs );
          end.push_back( end.back() + numElecXtobs );
       }
       
-      size_t blockSize = end.back();    // End of TOBs/XTOBs
-      blockSize += (blockSize % 2);     // Possible padding
-      blockSize += 2;                   // Two count words
+      size_t tobSize = end.back();    // End of TOBs/XTOBs
+      tobSize += (tobSize % 2);       // Possible padding
+      tobSize += 2;                   // Two count words
+
+      if ( tobSize != blockSize ) {
+         std::cerr << "L1CaloBsDecoderRun3::decodeJfexTobSlice: TOB slice " << sliceNumber
+                   << " has block size " << blockSize << " expected TOBs+counts " << tobSize
+                   << " (jFEX " << jfexNumber << " FPGA " << fpgaNumber << ")" << std::endl;
+      }
+      if ( tobSize > index ) {
+         std::cerr << "L1CaloBsDecoderRun3::decodeJfexTobSlice: TOB size " << tobSize
+                   << " is larger than index " << index << std::endl;
+         return false;
+      }
       
       size_t numTobs   = (safeMode) ? 0 : end[6];      // End index of MissEt TOBs
       size_t totalTobs = (safeMode) ? 0 : end.back();  // End index of TOBs+XTOBs
 
       // Move index to start of this block.
-      index -= blockSize;
+      index -= tobSize;
 
       // Luxury, we can now work forwards inside the slice block!
       size_t sliceIndex = index;
@@ -888,7 +947,6 @@ L1CaloBsDecoderRun3::decodeJfexTobSlice( const uint32_t payload[], size_t& index
                       : L1CaloRdoFexTob::TobSource::JfexXtob;
          if        (iTOB < end[1]) {
             fexTobType = L1CaloRdoFexTob::TobType::SmallJet;
-            flagInfo = 0;  // None defined
          } else if (iTOB < end[2]) {
             fexTobType = L1CaloRdoFexTob::TobType::LargeJet;
          } else if (iTOB < end[3]) {
@@ -901,8 +959,6 @@ L1CaloBsDecoderRun3::decodeJfexTobSlice( const uint32_t payload[], size_t& index
             fexTobType = L1CaloRdoFexTob::TobType::SmallJet;
          } else if (iTOB < end[8]) {
             fexTobType = L1CaloRdoFexTob::TobType::LargeJet;
-            flagInfo = (tobWord      ) &  0x3ff;
-            etValue  = (tobWord >> 10) & 0x1fff;
          } else if (iTOB < end[9]) {
             fexTobType = L1CaloRdoFexTob::TobType::Tau;
          } else if (iTOB < end[10]) {
@@ -911,7 +967,7 @@ L1CaloBsDecoderRun3::decodeJfexTobSlice( const uint32_t payload[], size_t& index
             // Padding word: skip.
             continue;
          }
-         
+
          if        (fexTobType == L1CaloRdoFexTob::TobType::SmallJet) {
             flagInfo = 0;  // None defined
          } else if (fexTobType == L1CaloRdoFexTob::TobType::LargeJet) {
@@ -933,7 +989,7 @@ L1CaloBsDecoderRun3::decodeJfexTobSlice( const uint32_t payload[], size_t& index
          }
          //>>if ( sliceNumber >= numSlices ) {
          if ( sliceNumberHacked >= numSlices ) {
-            std::cerr << "L1CaloBsDecoderRun3::decodeJfexTobs: TOB slice " << sliceNumber
+            std::cerr << "L1CaloBsDecoderRun3::decodeJfexTobSlice: TOB slice " << sliceNumber
                       << " exceeds number of slices " << numSlices << " in processor trailer"
                       << std::endl;
          }
@@ -959,8 +1015,8 @@ L1CaloBsDecoderRun3::decodeJfexTobSlice( const uint32_t payload[], size_t& index
             if ( m_verbosity > 0 )
             {
                std::cout << "L1CaloBsDecoderRun3::decodeJfexTobSlice: tobType=" << fexTobType
-                         << ", tobSource=" << fexTobSource << ", slice=" << sliceNumber
-                         << ", shelf=" << shelfNumber << ", module=" << jfexNumber
+                         << ", tobSource=" << fexTobSource << ", slice=" << sliceNumberHacked
+                         << ", module=" << jfexNumber << ", fpga=" << fpgaNumber
                          << ", eta=" << tobEta << ", phi=" << modulePhi
                          << std::hex << ", Et=0x" << etValue << ", flag=0x" << flagMask
                          << std::dec << ", numSlices=" << numSlices << std::endl;
@@ -1064,10 +1120,8 @@ L1CaloBsDecoderRun3::decodeGfexDataChan( const uint32_t payload[],
                                          std::list<L1CaloRdoGfexTower>& tower,
                                          std::list<L1CaloRdoRodInfo>::const_iterator rodInfo )
 {
-   // **FIXME** Use 3 for gFEX shelf number as currently generated in mappings.
-   // **FIXME** Its logical crate ID in COOL should be 35 though. Rationalise?!
-   const uint32_t shelfNumber = 3;
-   const uint32_t gfexNumber = 0;   // **CHECK** What is used in COOL/OKS?
+   const uint32_t shelfNumber = 0x23;   // Hard code to P1 value (35)
+   const uint32_t gfexNumber = 0;       // **CHECK** What is used in COOL/OKS?
    
    // Ignore the spare fibres for the moment.
    if ( chanNumber >= 48 && chanNumber < 52 ) {
@@ -1086,80 +1140,95 @@ L1CaloBsDecoderRun3::decodeGfexDataChan( const uint32_t payload[],
    }
    const FibrePackerBase::InputDataFrameType frameType( FibrePackerBase::InputDataFrameType::Normal );
    
-   // **FIXME** Need mapping to decide when to use Latome vs TREX decoders.
-   // **FIXME** Temporarily assume the first 50 fibres are EM (central Latome)
-   // **FIXME** and second 50 are hadronic (TREX). Surely wrong!!
-   
-   // Unpack up to sixteen 0.1*0.1 trigger towers.
-   // NB central FPGAs only have eight per fibre
-   // but additionally have eight fine positions.
+   // Unpack up to sixteen gCaloTowers. NB central FPGAs only have eight
+   // Et values per EM fibre but additionally have eight fine positions.
    // For the moment we ignore the latter.
-   std::vector<FibrePackerBase::myDataWord> towers;
-   size_t numTowers = 8;
-   L1CaloDetectorRegion::LayerTypeEnum layerEnum = L1CaloDetectorRegion::Electromagnetic;
-   if ( chanNumber >= 50 ) {
-      GfexTrexFibrePacker packer;
-      towers = packer.getUnpackedData( encodedData, frameType );
-      layerEnum = L1CaloDetectorRegion::Hadronic;
-   }
-   else {
-      // Unpack sixteen 0.1*0.1 trigger towers.
-      GfexLatomeCentralFibrePacker packer;
-      towers = packer.getUnpackedData( encodedData, frameType );
-   }
+   // We need the central Latome decoder for FPGAs A&B for both EM layer
+   // and hadronic layer outside the central eight 0.2 eta bins (to 1.6).
+   // The hadronic fibres within |eta|<1.6 are TREX.
+   // However due to overlaps and potentially unused words on fibres
+   // its safer to decode in all possible ways and work out which one
+   // to use afterwards.
+   GfexTrexFibrePacker trexPacker;
+   GfexLatomeCentralFibrePacker clarPacker;
+   GfexLatomeForwardFibrePacker flarPacker;
+   std::vector<FibrePackerBase::myDataWord> trexTowers = trexPacker.getUnpackedData( encodedData, frameType );
+   std::vector<FibrePackerBase::myDataWord> clarTowers = clarPacker.getUnpackedData( encodedData, frameType );
+   std::vector<FibrePackerBase::myDataWord> flarTowers = flarPacker.getUnpackedData( encodedData, frameType );
+   size_t numTowers = GfexDefs::maxGTowersPerFibre();
+   size_t numCentral = numTowers / 2;  // 8
 
    // Create RDO per tower.
-   for ( size_t iTower = 0; iTower < numTowers && iTower < towers.size(); iTower++ ) {
-      int towerEt = towers[iTower];
+   for ( size_t iTower = 0; iTower < numTowers; iTower++ ) {
+      GfexCellMapping mapping( 0, fpgaNumber, chanNumber, iTower );
+      L1CaloDetectorRegion region = mapping.getDetectorRegion();
+      GfexHardwareInfo hwInfo( mapping.getHardwareInfo() );
+      if ( !region.getValidity() || !hwInfo.getValidity() ) {
+         continue;
+      }
+      // Currently GfexCellMapping sets local eta,phi within each FPGA.
+      // We want to convert to global values (whole module or system).
+      int globalPhi = region.getPhiIndex() * 2;
+      int globalEta = GfexDefs::localToGlobalEta(fpgaNumber,region.getEtaIndex());
+      if (globalEta < -49 || globalEta >= 49) {
+        continue;   // Invalid or not yet implemented
+      }
+      int layer = (region.getLayer() == L1CaloDetectorRegion::Electromagnetic) ? 0 : 1;
+
+      // Work out which decoding we ought to use.
+      // For the moment avoid regions of potential confusion, eg Tile/HEC
+      // overlap, anything outside |eta|>2.4, etc.
+      // **FIXME** Ideally this should definitively come from the mapping.
+      int towerEt = 0;
+      if ( layer == 1 && std::abs(globalEta) < 14 ) {
+         // TREX within Tile/HEC overlap.
+         towerEt = trexTowers[iTower];
+      }
+      else if ( layer == 1 && std::abs(globalEta) >= 16 && std::abs(globalEta) < 24 ) {
+         // HEC outside Tile/HEC overlap.
+         towerEt = flarTowers[iTower];
+      }
+      else if ( layer == 0 && std::abs(globalEta) < 14 && iTower < numCentral ) {
+         // EM layer within barrel/endcap overlap.
+         towerEt = clarTowers[iTower];
+      }
+      else if ( layer == 0 && std::abs(globalEta) >= 16 && std::abs(globalEta) < 24 && iTower < numCentral ) {
+         // EM layer outside barrel/endcap overlap.
+         towerEt = clarTowers[iTower];
+      }
+      else {
+         continue;
+      }
 
       if ( towerEt || errorMask ) {
-         // **FIXME** Create temporary mapping information. Probably WRONG!
-         int moduleFibre = chanNumber + fpgaNumber * 100;
-         int localPhi = GfexDefs::phiBinFromFibreSeqNum( moduleFibre, iTower );
-         int localEta = GfexDefs::etaBinFromFibreSeqNum( moduleFibre, iTower );
-         
-         // **FIXME** Create L1CaloDetectorRegion (normally comes from mappings).
-         const bool valid(true);        // **TEMP**
-         const double binWidth = 0.2;   // **TEMP** OK for central region
-         L1CaloDetectorRegion region( L1CaloDetectorRegion::GFEX, layerEnum, valid,
-                                      localEta, localPhi, binWidth, binWidth,
-                                      (localEta * 0.1), (localPhi * 0.1) );
-         
-         if ( region.getValidity() && localPhi >= 0 && localEta >= 0 ) {
-            int layer = (region.getLayer() == L1CaloDetectorRegion::Electromagnetic) ? 0 : 1;
 
-            L1CaloRdoGfexTower newOne( shelfNumber, gfexNumber, localEta, localPhi, layer, region );
-            newOne.setRodInfo( rodInfo );
-            L1CaloRdoGfexTower& rdo = L1CaloBsDecoderUtil::findRdo( newOne, tower );
+         L1CaloRdoGfexTower newOne( shelfNumber, gfexNumber, globalEta, globalPhi, layer, region );
+         newOne.setRodInfo( rodInfo );
+         L1CaloRdoGfexTower& rdo = L1CaloBsDecoderUtil::findRdo( newOne, tower );
 
-            // **FIXME** Invent minipod number and fibre in minipod.
-            // **FIXME** Use chanNumber ignoring spare fibres.
-            int fibreInFpga = (chanNumber > 48) ? (chanNumber - 4) : chanNumber;
-            int moduleMinipod = (fibreInFpga / 12) + (fpgaNumber * 4);
-            int fibreInMinipod = fibreInFpga % 12;
-            rdo.setHardwareInfo( fpgaNumber, chanNumber, iTower,
-                                 moduleMinipod, fibreInMinipod );
-            rdo.setValue( towerEt );
-            rdo.setFlag( errorMask );
-            
-            if ( m_verbosity > 0 )
-            {
-               std::cout << "L1CaloBsDecoderRun3::decodeGfexDataChan: "
-                         << "FPGA=" << fpgaNumber
-                         << std::hex << ", Et=0x" << towerEt << ", flag=0x" << errorMask
-                         << std::dec << std::endl;
-            }
-            //std::cout << "L1CaloBsDecoderRun3::decodeGfexDataChan: fpga=" << fpgaNumber
-            //          << ", chan=" << chanNumber << ", word=" << iTower
-            //          << ", mpod=" << moduleMinipod
-            //          << ", mpodFibre=" << fibreInMinipod
-            //          << ", regionEta=" << localEta
-            //          << ", regionPhi=" << localPhi
-            //          << ", layer=" << layer
-            //          << ", Et=" << towerEt
-            //          << ", errors=0x" << std::hex << errorMask << std::dec
-            //          << std::endl;
+         rdo.setHardwareInfo( hwInfo.getFpgaNumber(), chanNumber, iTower,
+                              GfexDefs::minipodNumFromName(hwInfo.getMpodName()),
+                              hwInfo.getMpodChannel() );
+         rdo.setValue( towerEt );
+         rdo.setFlag( errorMask );
+
+         if ( m_verbosity > 0 )
+         {
+            std::cout << "L1CaloBsDecoderRun3::decodeGfexDataChan: "
+                      << "FPGA=" << fpgaNumber
+                      << std::hex << ", Et=0x" << towerEt << ", flag=0x" << errorMask
+                      << std::dec << std::endl;
          }
+         //std::cout << "L1CaloBsDecoderRun3::decodeGfexDataChan: fpga=" << fpgaNumber
+         //          << ", chan=" << chanNumber << ", word=" << iTower
+         //          << ", mpod=" << GfexDefs::minipodNumFromName(hwInfo.getMpodName())
+         //          << ", mpodFibre=" << hwInfo.getMpodChannel()
+         //          << ", globalEta=" << globalEta
+         //          << ", globalPhi=" << globalPhi
+         //          << ", layer=" << layer
+         //          << ", Et=" << towerEt
+         //          << ", errors=0x" << std::hex << errorMask << std::dec
+         //          << std::endl;
       }
    }
    
@@ -1182,6 +1251,143 @@ L1CaloBsDecoderRun3::decodeGfexTobs( const uint32_t* beg, const uint32_t* end,
                                      std::list<L1CaloRdoRodInfo>::const_iterator rodInfo )
 {
   // **FIXME** To be implemented!
+   const uint32_t* payload( beg );
+   const size_t fragmentSize = end - beg;
+   
+   // The data block is constructed by the SWROD. It consists of up to six
+   // subblocks for Jets and MET TOBs from each of the three FPGAs.
+   // Each subblock starts with a 1 word header which identifies the block
+   // type and gives its length.
+   // Each subblock contains two sets of seven data words that are (or for
+   // MET could be) transmitted to Ph1Topo on the fibres. If multiple slices
+   // are read out, each subblock should have multiples of 14 words.
+   
+   size_t index = 0;
+   while ( index < fragmentSize ) {
+      const uint32_t headerWord = payload[index];
+      const uint32_t blockType  = (headerWord >> 28) &    0xf;
+      //const uint32_t version    = (headerWord >> 24) &    0xf;  // Currently unused (1)
+      const uint32_t headerSize = (headerWord >> 22) &    0x3;
+      const uint32_t errorFlags = (headerWord >> 12) &    0x1;
+      const uint32_t dataSize   =  headerWord        &  0xfff;
+      
+      const uint32_t blockSize  = headerSize + dataSize;
+      if ( (index + blockSize) > fragmentSize ) {
+         std::cerr << "L1CaloBsDecoderRun3::decodeGfexTobs: remaining block size "
+                   << (fragmentSize - index)
+                   << " is too small for subblock of type " << blockType
+                   << " with headerSize " << headerSize
+                   << " and dataSize " << dataSize << std::endl;
+         return;
+      }
+      index += headerSize;
+      
+      const uint32_t wordsPerSlice = 2 * FexDefs::num32BitWordsPerFibre();
+      const uint32_t numSlices = dataSize / wordsPerSlice;
+      if ( numSlices * wordsPerSlice != dataSize ) {
+         std::cerr << "L1CaloBsDecoderRun3::decodeGfexTobs: subblock type " << blockType
+                   << " with dataSize " << dataSize
+                   << " is not a multiple of " << wordsPerSlice << " words"
+                   << std::endl;
+         return;
+      }
+      
+      // Create TOB RDOs for each slice.
+      for (size_t sliceNumber = 0; sliceNumber < numSlices; sliceNumber++) {
+         bool ret = this->decodeGfexTobSlice( &payload[index], blockType, sliceNumber, numSlices,
+                                              errorFlags, tob, rodInfo );
+         if ( ! ret ) {
+            return;
+         }
+         index += wordsPerSlice;
+      }
+   }
+}
+
+/*!
+ * Decode one gFEX FPGA block of TOBs for one slice.
+ * See https://edms.cern.ch/ui/file/1492098/1/L1CaloTOBFormats_v010.pdf
+ * \param payload pointer to this slice in ROD fragment payload
+ * \param blockType code for Jet or MET TOB
+ * \param sliceNumber number of this readout slice
+ * \param numSlices total number of TOB slices read out in this event
+ * \param errorFlags global error bits set for this subblock (or ROD fragment?)
+ * \param tob list of RDO to be filled
+ * \param rodInfo iterator to ROD information for this block
+ * \return whether decoding succeeded (false to abort decoding)
+ */
+bool
+L1CaloBsDecoderRun3::decodeGfexTobSlice( const uint32_t payload[], uint32_t blockType,
+                                         const uint32_t sliceNumber, const uint32_t numSlices,
+                                         const uint32_t errorMask,
+                                         std::list<L1CaloRdoGfexTob>& tob,
+                                         std::list<L1CaloRdoRodInfo>::const_iterator rodInfo )
+{
+   // The subblock type is 0xA,B,C for jet TOBs from FPGA A,B,C
+   // and 0x1,2,3 for global (MET) TOBs.
+   bool isMet = (blockType >= 0x1 && blockType <= 0x3);
+   bool isJet = (blockType >= 0xA && blockType <= 0xC);
+   if ( !isJet && !isMet ) {
+      std::cerr << "DecoderRun3::decodeGfexTobSlice: invalid block type "
+                << blockType << std::endl;
+      return false;
+   }
+   const uint32_t fpgaNumber = (isJet) ? (blockType - 0x1) : (blockType - 0xA);
+   
+   // We expect two fibres each of 7 words.
+   size_t index = 0;
+   for ( size_t iFibre = 0; iFibre < 2; iFibre++ ) {
+      for ( size_t iWord = 0; iWord < (size_t)FexDefs::num32BitWordsPerFibre(); iWord++, index++ ) {
+         // Jet TOBs.
+         if (isJet) {
+            const uint32_t tobID     =  payload[index]        &  0x1f;
+            const uint32_t status    = (payload[index] >>  7) &   0x1;
+            const uint32_t etValue   = (payload[index] >>  8) & 0xfff;
+            const uint32_t tobEta    = (payload[index] >> 20) &  0x3f;
+            const uint32_t tobPhi    = (payload[index] >> 26) &  0x1f;
+            const uint32_t saturated = (payload[index] >> 31) &   0x1;
+            
+            L1CaloRdoFexTob::TobType fexTobType( L1CaloRdoFexTob::TobType::Invalid );
+            L1CaloRdoFexTob::TobSource fexTobSource( L1CaloRdoFexTob::TobSource::GfexTob );
+            if ( tobID >= 1 && tobID <= 4 ) {
+               fexTobType = L1CaloRdoFexTob::TobType::SmallJet;
+            }
+            else if ( tobID >= 5 && tobID <= 6 ) {
+               fexTobType = L1CaloRdoFexTob::TobType::LargeJet;
+            }
+            
+            if ( ( etValue || saturated || errorMask ) && tobID ) {
+               // Zero suppress (as gFEX always sends something).
+               // **FIXME** Not sure what to do with status or satured bits.
+               // **FIXME** For the moment set them in the error flags
+               // **FIXME** Check use of tobEta and tobPhi (is it per FPGA?).
+               const uint32_t flagMask = errorMask | (saturated << 31) | (status << 30);
+               const uint32_t shelfNumber = 0x23;   // Hard code to P1 value (35)
+               const uint32_t moduleNumber = 0;     // Hard code to P1 value (0) **FIXME** CHECK!
+               L1CaloRdoGfexTob newOne( shelfNumber, moduleNumber, tobEta, tobPhi,
+                                        numSlices, fexTobType, fexTobSource );
+               newOne.setRodInfo( rodInfo );
+               L1CaloRdoGfexTob& rdo = L1CaloBsDecoderUtil::findRdo( newOne, tob );
+               rdo.setValue( etValue, sliceNumber );
+               rdo.setFlag( flagMask, sliceNumber );
+               if ( m_verbosity > 0 )
+               {
+                  std::cout << "L1CaloBsDecoderRun3::decodeGfexTobSlice: tobType=" << fexTobType
+                            << ", tobSource=" << fexTobSource << ", slice=" << sliceNumber
+                            << ", fpga=" << fpgaNumber << ", eta=" << tobEta << ", phi=" << tobPhi
+                            << std::hex << ", Et=0x" << etValue << ", flag=0x" << flagMask
+                            << std::dec << ", numSlices=" << numSlices << std::endl;
+               }
+            }
+         }
+         
+         // MET TOBs. **FIXME** To be implemented!
+         else if (isMet) {
+         }
+      }
+   }
+   
+   return true;
 }
 
 /*!
@@ -1383,4 +1589,27 @@ L1CaloBsDecoderRun3::decodeOneEfexTob( const uint32_t word[], const uint32_t she
                    << std::dec << ", numSlices=" << numSlices << std::endl;
       }
    }
+}
+
+/*!
+ * Check the CRC in an input fibre block of words.
+ * The CRC field should be the top 9 bits in the 7 word block.
+ * This means we calculate the CRC over the remaining 215 bits.
+ * \param data vector of 7 input fibre words
+ * \return true if the CRC is valid
+ */
+bool
+L1CaloBsDecoderRun3::checkFibreCRC( std::vector<uint32_t>& data ) const
+{
+   const size_t numWords = FexDefs::num32BitWordsPerFibre();
+   if ( data.size() != numWords ) {
+      return false;
+   }
+   GenericCrc crc;
+   const size_t numPayloadBits = ( 32 * numWords ) - 9;
+   unsigned int actualCRC = ( data[numWords-1] >> 23 ) & 0x1ff;
+   data[0] &= 0xffffff00;   // Zero the K character
+   unsigned int expectCRC = crc.crc9fibre( data, numPayloadBits );
+   
+   return (actualCRC == expectCRC);
 }

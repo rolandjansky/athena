@@ -217,39 +217,38 @@ def L1TriggerByteStreamEncoderCfg(flags):
 if __name__ == '__main__':
   from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
   from AthenaCommon.Logging import logging
-  from AthenaCommon.Constants import VERBOSE,DEBUG,WARNING
+  from AthenaCommon.Constants import DEBUG,WARNING
+  import glob
   import sys
+
+  import argparse
+  parser = argparse.ArgumentParser(prog='python -m TrigT1ResultByteStream.TrigT1ResultByteStreamConfig',
+                                   description="""Bytestream decoder athena script.\n\n
+                                   Example: python -m TrigT1ResultByteStream.TrigT1ResultByteStreamConfig --filesInput "data22*" --evtMax 10 --outputs eTOBs exTOBs """)
+  parser.add_argument('--evtMax',type=int,default=-1,help="number of events")
+  parser.add_argument('--filesInput',nargs='+',help="input files",required=True)
+  parser.add_argument('--outputLevel',default="WARNING",choices={'WARNING','DEBUG','VERBOSE'})
+  parser.add_argument('--outputs',nargs='+',choices={"eTOBs","exTOBs","eTowers","jFex","jFexInput","gFex","Topo","legacy"},required=True,
+                      help="What data to decode and output.")
+  args = parser.parse_args()
+
 
   log = logging.getLogger('TrigT1ResultByteStreamConfig')
   log.setLevel(DEBUG)
 
-  algLogLevel = DEBUG
+  from AthenaCommon import Constants
+  algLogLevel = getattr(Constants,args.outputLevel)
 
-  if len(sys.argv) < 4:
-    log.error('usage: python -m TrigT1ResultByteStream.TrigT1ResultByteStreamConfig subsystem file nevents')
-    sys.exit(1)
-  supportedSubsystems = ['inputjFex','jFex','eFex','gFex', 'allFex','Topo']
-  subsystem = sys.argv[1]
-  filename = sys.argv[2]
-  events = int(sys.argv[3])
-
-  if len(sys.argv) > 4 and sys.argv[4] == 'verbose': algLogLevel = VERBOSE
-
-  if subsystem not in supportedSubsystems:
-    log.error(f'subsystem "{subsystem}" not one of supported subsystems: {supportedSubsystems}')
-    sys.exit(1)
-
-  if "data22" in filename:
+  if any(["data22" in f for f in args.filesInput]):
     flags.Trigger.triggerConfig='DB'
 
   flags.Exec.OutputLevel = WARNING
-  if(events > 0):
-    flags.Exec.MaxEvents = events
-
-  flags.Input.Files = [filename]
+  flags.Exec.MaxEvents = args.evtMax
+  flags.Input.Files = [file for x in args.filesInput for file in glob.glob(x)]
   flags.Concurrency.NumThreads = 1
   flags.Concurrency.NumConcurrentEvents = 1
   flags.Output.AODFileName = 'AOD.pool.root'
+  flags.Trigger.enableL1CaloLegacy = 'legacy' in args.outputs
   flags.lock()
 
   from AthenaConfiguration.MainServicesConfig import MainServicesCfg
@@ -262,14 +261,9 @@ if __name__ == '__main__':
   from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg,generateL1Menu
   acc.merge(L1ConfigSvcCfg(flags))
 
-  if "data22" not in filename:
+  if not any(["data22" in f for f in args.filesInput]):
     generateL1Menu(flags)
-  
-  # Produce xAOD L1 RoIs from RoIBResult, commented for now in the testing process
-  # from AnalysisTriggerAlgs.AnalysisTriggerAlgsCAConfig import RoIBResultToxAODCfg
-  # xRoIBResultAcc, xRoIBResultOutputs = RoIBResultToxAODCfg(flags)
-  # acc.merge(L1TriggerByteStreamDecoderCfg(flags))
-  # acc.merge(xRoIBResultAcc)  
+
 
   decoderTools = []
   outputEDM = []
@@ -280,16 +274,52 @@ if __name__ == '__main__':
     return [f'{edmType}#{edmName}',
             f'{auxType}#{edmName}Aux.']
 
-  outputEDM += addEDM('xAOD::JetEtRoI'         , 'LVL1JetEtRoI')
-  outputEDM += addEDM('xAOD::JetRoIContainer'  , 'LVL1JetRoIs')
-  outputEDM += addEDM('xAOD::EmTauRoIContainer', 'LVL1EmTauRoIs')
-  outputEDM += addEDM('xAOD::EnergySumRoI'     , 'LVL1EnergySumRoI')
 
-  if subsystem in ['jFex','allFex'] :
+  ########################################
+  # Legacy decoding via RoIBResult
+  ########################################
+  if 'legacy' in args.outputs:
+    # Produce xAOD L1 RoIs from RoIBResult. RoIB readout only
+    from AnalysisTriggerAlgs.AnalysisTriggerAlgsCAConfig import RoIBResultToxAODCfg
+    xRoIBResultAcc, xRoIBResultOutputs = RoIBResultToxAODCfg(flags)
+    acc.merge(xRoIBResultAcc)
+
+    roibResultTool = RoIBResultByteStreamToolCfg(name="RoIBResultBSDecoderTool", flags=flags, writeBS=False)
+    decoderTools += [roibResultTool]
+
+    outputEDM += addEDM('xAOD::JetEtRoI'         , 'LVL1JetEtRoI')
+    outputEDM += addEDM('xAOD::JetRoIContainer'  , 'LVL1JetRoIs')
+    outputEDM += addEDM('xAOD::EmTauRoIContainer', 'LVL1EmTauRoIs')
+    outputEDM += addEDM('xAOD::EnergySumRoI'     , 'LVL1EnergySumRoI')
+
+    # CPM and JEM RoIs (independent from above). Both readouts
+    from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamReadCfg
+    type_names = [
+      # ===== CPM ================================================================
+      "xAOD::CPMTowerContainer/CPMTowers",
+      "xAOD::CPMTowerAuxContainer/CPMTowersAux.",
+      "xAOD::CPMTowerContainer/CPMTowersOverlap",
+      "xAOD::CPMTowerAuxContainer/CPMTowersOverlapAux.",
+      # ===== CPMTOBROIS =========================================================
+      "xAOD::CPMTobRoIContainer/CPMTobRoIs",
+      "xAOD::CPMTobRoIAuxContainer/CPMTobRoIsAux.",
+      "xAOD::CPMTobRoIContainer/CPMTobRoIsRoIB",
+      "xAOD::CPMTobRoIAuxContainer/CPMTobRoIsRoIBAux.",
+      # ===== JEMTOBROIS =========================================================
+      "xAOD::JEMTobRoIContainer/JEMTobRoIs",
+      "xAOD::JEMTobRoIAuxContainer/JEMTobRoIsAux.",
+      "xAOD::JEMTobRoIContainer/JEMTobRoIsRoIB",
+      "xAOD::JEMTobRoIAuxContainer/JEMTobRoIsRoIBAux.",
+    ]
+    acc.merge(ByteStreamReadCfg(flags, type_names=type_names))
+
+    outputEDM += [item.replace('/','#') for item in type_names]
+
+  if 'jFex' in args.outputs:
     jFexTool = jFexRoiByteStreamToolCfg('jFexBSDecoder', flags)
     for module_id in jFexTool.ROBIDs:
         maybeMissingRobs.append(module_id)
-        
+
     decoderTools += [jFexTool]
     outputEDM += addEDM('xAOD::jFexSRJetRoIContainer', jFexTool.jJRoIContainerWriteKey.Path)
     outputEDM += addEDM('xAOD::jFexLRJetRoIContainer', jFexTool.jLJRoIContainerWriteKey.Path)
@@ -298,31 +328,38 @@ if __name__ == '__main__':
     outputEDM += addEDM('xAOD::jFexSumETRoIContainer', jFexTool.jTERoIContainerWriteKey.Path)
     outputEDM += addEDM('xAOD::jFexMETRoIContainer'  , jFexTool.jXERoIContainerWriteKey.Path)
 
-  if subsystem in ['inputjFex'] :
+  if 'jFexInput' in args.outputs:
     inputjFexTool = jFexInputByteStreamToolCfg('jFexInputBSDecoder', flags)
     for module_id in inputjFexTool.ROBIDs:
-        maybeMissingRobs.append(module_id) 
-        
+        maybeMissingRobs.append(module_id)
+
     decoderTools += [inputjFexTool]
     # example if saving/adding the xAOD container, implement in the future
     # outputEDM += addEDM('xAOD::jFexSRJetRoIContainer', jFexTool.jJRoIContainerWriteKey.Path)
 
-  if subsystem in ['eFex','allFex'] :
-    eFexTool = eFexByteStreamToolCfg('eFexBSDecoder', flags)
-    eFexTool_xTOBs = eFexByteStreamToolCfg('eFexBSDecoder_xTOBs', flags,xTOBs=True)
-    decoderTools += [eFexTool,eFexTool_xTOBs]
-
-    for module_id in eFexTool.ROBIDs:
-        maybeMissingRobs.append(module_id)
+  if any( [x in args.outputs for x in ['eTOBs','exTOBs','eTowers']] ):
+    eFexTool = eFexByteStreamToolCfg('eFexBSDecoder', flags,TOBs='eTOBs' in args.outputs,xTOBs='exTOBs' in args.outputs,decodeInputs='eTowers' in args.outputs)
+    # eFexTool_xTOBs = eFexByteStreamToolCfg('eFexBSDecoder_xTOBs', flags,xTOBs=True)
+    decoderTools += [eFexTool]
 
     # TOB containers
-    outputEDM += addEDM('xAOD::eFexEMRoIContainer', eFexTool.eEMContainerWriteKey.Path)
-    outputEDM += addEDM('xAOD::eFexTauRoIContainer', eFexTool.eTAUContainerWriteKey.Path)
+    if len(eFexTool.eEMContainerWriteKey.Path):
+      outputEDM += addEDM('xAOD::eFexEMRoIContainer', eFexTool.eEMContainerWriteKey.Path)
+    if len(eFexTool.eTAUContainerWriteKey.Path):
+      outputEDM += addEDM('xAOD::eFexTauRoIContainer', eFexTool.eTAUContainerWriteKey.Path)
     # xTOB containers
-    outputEDM += addEDM('xAOD::eFexEMRoIContainer', eFexTool_xTOBs.eEMContainerWriteKey.Path)
-    outputEDM += addEDM('xAOD::eFexTauRoIContainer', eFexTool_xTOBs.eTAUContainerWriteKey.Path)
+    if len(eFexTool.eEMContainerWriteKey.Path):
+      outputEDM += addEDM('xAOD::eFexEMRoIContainer', eFexTool.eEMxContainerWriteKey.Path)
+    if len(eFexTool.eTAUContainerWriteKey.Path):
+      outputEDM += addEDM('xAOD::eFexTauRoIContainer', eFexTool.eTAUxContainerWriteKey.Path)
+    # efexTower containers
+    if len(eFexTool.eTowerContainerWriteKey.Path):
+      outputEDM += addEDM('xAOD::eFexTowerContainer', eFexTool.eTowerContainerWriteKey.Path)
 
-  if subsystem in ['gFex','allFex'] :
+    # allow for missing ROBs for eFEX decoding:
+    maybeMissingRobs += eFexTool.ROBIDs
+
+  if 'gFex' in args.outputs:
     gFexTool = gFexByteStreamToolCfg('gFexBSDecoder', flags)
     decoderTools += [gFexTool]
     outputEDM += addEDM('xAOD::gFexJetRoIContainer',    gFexTool.gFexRhoOutputContainerWriteKey.Path)
@@ -337,19 +374,25 @@ if __name__ == '__main__':
     outputEDM += addEDM('xAOD::gFexGlobalRoIContainer', gFexTool.gScalarENoiseCutOutputContainerWriteKey.Path)
     outputEDM += addEDM('xAOD::gFexGlobalRoIContainer', gFexTool.gScalarERmsOutputContainerWriteKey.Path)
 
-  if subsystem in 'Topo':
+
+  if 'Topo' in args.outputs:
     l1topoBSTool = L1TopoPhase1ByteStreamToolCfg()
     decoderTools += [l1topoBSTool]
     outputEDM += addEDM('xAOD::L1TopoRawDataContainer', l1topoBSTool.L1TopoPhase1RAWDataWriteContainer.Path)
 
   decoderAlg = CompFactory.L1TriggerByteStreamDecoderAlg(name="L1TriggerByteStreamDecoder",
                                                          DecoderTools=decoderTools, OutputLevel=algLogLevel, MaybeMissingROBs=maybeMissingRobs)
-                                                         
+
   acc.addEventAlgo(decoderAlg, sequenceName='AthAlgSeq')
 
   from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
   log.debug('Adding the following output EDM to ItemList: %s', outputEDM)
   acc.merge(OutputStreamCfg(flags, 'AOD', ItemList=outputEDM))
+
+  # get rid of warning about propagating input attribute list ... since there is none
+  # note it's odd that the AthenaCommon.globalflags input format property doesn't get updated appropriately by flags??
+  acc.getEventAlgo("EventInfoTagBuilder").PropagateInput = (flags.Input.Format != Format.BS)
+
 
   if acc.run().isFailure():
     sys.exit(1)
