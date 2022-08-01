@@ -215,7 +215,7 @@ inline
 bool DataLinkBase::operator== (const DataLinkBase& other) const
 {
   if (m_persKey != 0 && other.m_persKey != 0)
-    return m_persKey == other.m_persKey;
+    return SG::sgkeyEqual (m_persKey, other.m_persKey);
   return (m_proxy == other.m_proxy);
 }
 
