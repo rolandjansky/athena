@@ -6,7 +6,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaCommon.SystemOfUnits import GeV,ns # noqa: F401
 from AthenaConfiguration.Enums import ProductionStep
-from Gauginos.GauginosConfigNew import GauginosPhysicsToolCfg, NeutralinoToPhotonGravitinoCfg
+from Gauginos.GauginosConfig import GauginosPhysicsToolCfg, NeutralinoToPhotonGravitinoCfg
 from G4AtlasServices.G4AtlasServicesConfigNew import PhysicsListSvcCfg
 
 # Example specialConfiguration {'GMSBSlepton': '100.0*GeV', 'GMSBGravitino': '1e-07*GeV', 'GMSBSleptonTime': '0.01*ns'}
