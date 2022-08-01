@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <math.h>
@@ -178,6 +178,7 @@ int fitVertexCascade( VKVertex * vk, int Pointing)
       if( target_trk == 0 ) return -12;
 
       long int Charge=getVertexCharge(vk);
+      if(Charge!=0) Charge=std::copysign(1,Charge);
       target_trk->Charge=Charge;
 
       double dptot[4],VrtMomCov[21];      
@@ -305,6 +306,7 @@ int fitVertexCascade( VKVertex * vk, int Pointing)
           double dparst[6]={vk->refIterV[0]+vk->iniV[0], vk->refIterV[1]+vk->iniV[1], vk->refIterV[2]+vk->iniV[2],
 	                    vk->fitMom[0], vk->fitMom[1], vk->fitMom[2] };
           vk->FVC.Charge=getVertexCharge(vk);     
+          if(vk->FVC.Charge!=0)vk->FVC.Charge=std::copysign(1,vk->FVC.Charge);
 	  vpderiv(true, vk->FVC.Charge, dparst, vk->fitCovXYZMom, vk->FVC.vrt, vk->FVC.covvrt, 
 	                      vk->FVC.cvder, vk->FVC.ywgt, vk->FVC.rv0);
        }
@@ -373,6 +375,7 @@ int fitVertexCascade( VKVertex * vk, int Pointing)
           double dparst[6]={vk->refIterV[0]+vk->iniV[0], vk->refIterV[1]+vk->iniV[1], vk->refIterV[2]+vk->iniV[2],
 	                    vk->fitMom[0], vk->fitMom[1], vk->fitMom[2] };
           vk->FVC.Charge=getVertexCharge(vk);
+          if(vk->FVC.Charge!=0)vk->FVC.Charge=std::copysign(1,vk->FVC.Charge);
 	  vpderiv(vk->passWithTrkCov, vk->FVC.Charge, dparst, vk->fitCovXYZMom, 
 	     vk->FVC.vrt, vk->FVC.covvrt, vk->FVC.cvder, vk->FVC.ywgt, vk->FVC.rv0);
        }
@@ -500,7 +503,8 @@ int fitVertexCascade( VKVertex * vk, int Pointing)
      }
 //
 
-     if(fullSTOP) break;  
+     if(fullSTOP) break; 
+     if(cnstRemnants>Chi2Full) break; //no way to fulfil constraints
 //     
      if( Iter<NFitIterationMax && Iter>2){
        if(fabs(Chi2Diff)<0.001 && cnstRemnants/minCnstRemnants<10.){   //stable cascade position before end of cycling
