@@ -1,13 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include<algorithm> /*count_if,max_element*/
 #include<cassert>
 #include<cmath>     /*ceil,floor*/
 #include<numeric>   /*accumulate*/
-#include "AthenaKernel/IAtRndmGenSvc.h"
+
+// Random Number Generation
+#include "AthenaKernel/RNGWrapper.h"
+#include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandGeneral.h"
+
 #include "UtilityFuncs.h"
 #include "ArrayBM.h"
 
@@ -19,7 +23,6 @@ ArrayBM::ArrayBM(const std::string& name,ISvcLocator* svc)
   , m_ipLength(1)
   , m_intensityPattern(new double[m_ipLength])
   , m_biRandom(nullptr)
-  , m_atRndmGenSvc("AtRanluxGenSvc", name)
   , m_largestElementInPattern(1.0)
   , m_signalPattern(nullptr)
 {
@@ -27,7 +30,6 @@ ArrayBM::ArrayBM(const std::string& name,ISvcLocator* svc)
   declareProperty("IntensityPattern", m_intensityPatternProp,
                   "An array of floats containing the beam intensity distribution as a function of time in bins of 25ns. ArrayBM normalizes the distribution and uses it as a stencil to determine the relative intensity at each beam xing in the simulated range"
                   );
-  declareProperty("RandomSvc", m_atRndmGenSvc, "The random number service that will be used.");
   declareProperty("EmptyBunchOption", m_emptyBunches=0, "Option for empty bunches.  0: normal treatment.  Positive N: first N BCIDs after filled.  Negative N: any empty BCID is allowed.");
   m_intensityPattern[0]=1.0;
 }
@@ -40,7 +42,8 @@ ArrayBM::~ArrayBM()
 
 StatusCode ArrayBM::initialize()
 {
-  ATH_CHECK(m_atRndmGenSvc.retrieve());
+  ATH_CHECK(m_randomSvc.retrieve());
+  m_rngWrapper = m_randomSvc->getEngine(this);
 
   // Need to copy to make modifications for empty bunches
   const std::vector<float>& rProp(m_intensityPatternProp.value());
@@ -130,8 +133,7 @@ StatusCode ArrayBM::initialize()
   //FIXME add a check that entry 0 is zero? In data, BCID=1 is always the first filled bunch.
   delete m_biRandom;
   //the engine is created if not there already
-  m_biRandom = new CLHEP::RandGeneral(*(m_atRndmGenSvc->GetEngine("BEAMINT")),
-                                      m_signalPattern,
+  m_biRandom = new CLHEP::RandGeneral(m_signalPattern,
                                       m_ipLength,
                                       /*IntType=*/1); //discrete distribution
   return StatusCode::SUCCESS;
@@ -139,8 +141,12 @@ StatusCode ArrayBM::initialize()
 
 void ArrayBM::selectT0()
 {
+    // Set the RNG to use for this event.
+  const EventContext& ctx = Gaudi::Hive::currentContext(); // not ideal, but seems the cleanest solution for now, as this call is once per event.
+  m_rngWrapper->setSeed( "BEAMINT", ctx );
+  CLHEP::HepRandomEngine *rndmEngine = m_rngWrapper->getEngine(ctx);
   //m_biRandom->shoot() returns in range [0,1]
-  m_t0Offset = static_cast<unsigned int>(floor((m_biRandom->shoot() * m_ipLength)+0.5));
+  m_t0Offset = static_cast<unsigned int>(floor((m_biRandom->shoot(rndmEngine) * m_ipLength)+0.5));
   assert(m_intensityPattern[m_t0Offset % m_ipLength]>0.0); //just in case
   ATH_MSG_DEBUG( "selectT0 offset for this event " << m_t0Offset );
   return;

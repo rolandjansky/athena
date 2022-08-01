@@ -1,7 +1,7 @@
 /*  -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PILEUPCOMPS_ARRAYBM
@@ -18,9 +18,10 @@
 #include "Gaudi/Property.h"
 
 #include "PileUpTools/IBeamIntensity.h"
+#include "CxxUtils/checker_macros.h"
 #include "AthenaBaseComps/AthService.h"
+#include "AthenaKernel/IAthRNGSvc.h"
 
-class IAtRndmGenSvc;
 namespace CLHEP
 {
   class RandGeneral;
@@ -60,7 +61,8 @@ private:
   /// shoot random number proportionally to m_intensityPattern
   CLHEP::RandGeneral* m_biRandom;
   /// the service managing our random seeds/sequences
-  ServiceHandle<IAtRndmGenSvc> m_atRndmGenSvc;
+  ServiceHandle<IAthRNGSvc> m_randomSvc{this, "RandomSvc", "AthRNGSvc","The random number service that will be used."};
+  ATHRNG::RNGWrapper*           m_rngWrapper ATLAS_THREAD_SAFE{};
   /// The largest value in the pattern assuming that the pattern has
   /// mean value 1.0. Multiplying by this converts values in the
   /// m_intensityPattern from having max value 1.0 to having mean

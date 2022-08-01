@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 from AthenaCommon.CfgGetter import getService, getPrivateTool
@@ -24,8 +24,6 @@ def getFixedArrayBM(name="FixedArrayBM", **kwargs):
 def getArrayBM(name="ArrayBM", **kwargs):
     from Digitization.DigitizationFlags import digitizationFlags
     kwargs.setdefault('IntensityPattern', digitizationFlags.BeamIntensityPattern.get_Value())
-    kwargs.setdefault('RandomSvc', digitizationFlags.rndmSvc() )
-    digitizationFlags.rndmSeedList.addSeed( "BEAMINT", 678, 91011 )
 
     from PileUpComps.PileUpCompsConf import ArrayBM
     return ArrayBM(name, **kwargs)
