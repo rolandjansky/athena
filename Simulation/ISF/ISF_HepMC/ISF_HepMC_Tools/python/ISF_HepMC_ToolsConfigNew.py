@@ -27,7 +27,7 @@ def ParticleSimWhiteListCfg(ConfigFlags, name="ISF_ParticleSimWhiteList", **kwar
 def ParticleSimWhiteList_ExtraParticlesCfg(ConfigFlags, name="ISF_ParticleSimWhiteList_ExtraParticles", **kwargs):
     result = ComponentAccumulator()
     whiteLists = ["G4particle_whitelist.txt"]
-    # Basically a copy of code from ExtraParticles.ExtraParticlesConfigNew for now.
+    # Basically a copy of code from ExtraParticles.ExtraParticlesConfig for now.
     from ExtraParticles import PDGHelpers
     if PDGHelpers.getPDGTABLE('PDGTABLE.MeV'):
         parser = PDGHelpers.PDGParser('PDGTABLE.MeV', '111-556,1112-9090226')
