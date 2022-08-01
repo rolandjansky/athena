@@ -153,3 +153,7 @@ atlas_add_test( AlgorithmTimer_test
 atlas_add_test( ILockableTool_test
   SOURCES test/ILockableTool_test.cxx
   LINK_LIBRARIES AthenaKernel )
+
+atlas_add_test( CondObjDeleter_test
+  SOURCES test/CondObjDeleter_test.cxx
+  LINK_LIBRARIES AthenaKernel )

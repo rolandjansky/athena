@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file CxxUtils/ConcurrentRangeMap.h
@@ -29,6 +29,67 @@ namespace CxxUtils {
 
 
 /**
+ * @brief Helper to delete payload objects for ConcurrentRangeMap.
+ *
+ * This class provides an interface that @c ConcurrentRangeMap can use
+ * to delete payload objects.  The @c discard function queues a payload
+ * object for deletion.  It should not actually be deleted until
+ * @c quiescent has been called for each active slot.  @c delfcn
+ * returns a pointer to a function that will delete the payload object
+ * immediately.  This is only used in the @c ConcurrentRangeMap destructor.
+ */
+template <class T, class CONTEXT>
+class IRangeMapPayloadDeleter
+{
+public:
+  /// Type of a function to delete a payload object immediately.
+  typedef void delete_function (const T*);
+
+
+  /**
+   * @brief Constructor.
+   * @param delfcn Function to delete a payload object immediately.
+   */
+  IRangeMapPayloadDeleter (delete_function* delfcn);
+
+
+  /// Virtual destructor.
+  virtual ~IRangeMapPayloadDeleter() = default;
+
+
+  /**
+   * @brief Queue an object for deletion.
+   * @param p The object to delete.
+   *
+   * The object should not actually be deleted until @c quiescent has been
+   * called for each active slot.
+   */
+  virtual void discard (const T* p) = 0;
+
+
+  /**
+   * @brief Mark a slot as quiescent.
+   * @param ctx Event context identifying the slot.
+   */
+  virtual void quiescent (const CONTEXT& ctx) = 0;
+
+
+  /**
+   * @brief Return a function to delete a payload object immediately.
+   */
+  delete_function* delfcn() const;
+
+
+private:
+  /// Immediate deletion function.
+  delete_function* m_delfcn;
+};
+
+
+//*****************************************************************************
+
+
+/**
  * @brief Map from range to payload object, allowing concurrent, lockless reads.
  *
  * This class implements a map of sorted `range' objects (though only
@@ -38,9 +99,8 @@ namespace CxxUtils {
  * support insertions, erasures, and iteration.
  *
  * The only thing we need to do with the contained pointers is to delete them.
- * Rather than doing that directly, we take a deletion function as an argument
- * to the constructor; this should be a void function that takes a pointer argument
- * and deletes it.  This allows one to instantiate this template with @c void as @c T,
+ * Rather than doing that directly, we take a deletion object as an argument
+ * to the constructor.  This allows one to instantiate this template with @c void as @c T,
  * to reduce the amount of generated code.  The @c emplace method takes
  * a @c unique_ptr as an argument.  We define @c payload_unique_ptr which
  * is a @c unique_ptr to @c T that does deletion by calling an arbitrary function.
@@ -101,7 +161,8 @@ namespace CxxUtils {
  *
  * In order to implement updating concurrently with reading, we need to
  * defer deletion of objects until no thread can be referencing them any more.
- * The policy for this is set by the template UPDATER<T>.  An object
+ * The policy for this for the internal implementation objcets
+ * is set by the template UPDATER<T>.  An object
  * of this type owns an object of type T.  It should provide a typedef
  * Context_t, giving a type for an event context, identifying which
  * thread/slot is currently executing.  It should implement these operations:
@@ -112,9 +173,6 @@ namespace CxxUtils {
  *     Atomically update the current object to be p.
  *     Deletion of the previous version should be deferred until
  *     no thread can be referencing it.
- *   - void discard (std::unique_ptr<T> p);
- *     Explicitly discard an object, deferring until no thread
- *     can be referencing it.
  *   - void quiescent (const Context_t& ctx);
  *     Declare that the thread described by ctx is no longer accessing
  *     the object.
@@ -122,6 +180,9 @@ namespace CxxUtils {
  *     Return a context object for the currently-executing thread.
  *
  * For an example, see AthenaKernel/RCUUpdater.h.
+ *
+ * Deletion of payload objects is managed via the @c IRangeMapPayloadDeleter
+ * object passed to the constructor.
  *
  * Implementation notes:
  *   The values we store are pairs of RANGE, const T*.
@@ -224,28 +285,21 @@ public:
    * a new version and copy the contents.  The UPDATER object is then used
    * to install the new version; old versions should be kept until they
    * are no longer referenced by any thread.
-   *
-   * This object is also used to hold on to erased payloads until it is
-   * safe to delete them.
    */
   class Impl
   {
   public:
     /**
      * @brief Constructor.
-     * @param delfcn Deletion function.
      * @param capacity Size of the data vector to allocate.
      */
-    Impl (delete_function* delfcn,
-          size_t capacity = 10);
+    Impl (size_t capacity = 10);
 
 
     /**
      * @brief Destructor.
-     *
-     * This also deletes payload objects that were passed to discard().
      */
-    ~Impl();
+    ~Impl() = default;
 
 
     /**
@@ -260,37 +314,26 @@ public:
     size_t capacity() const;
 
 
-    /***
-     * @brief Queue a payload object for deletion.
-     */
-    void discard (const T* p);
-
-
   private:
-    /// Deletion function.
-    delete_function* m_delete;
-
     /// Vector holding the map data.
     std::vector<value_type> m_data;
-
-    /// Payload objects with pending deletion requests.
-    /// They'll be deleted when this object is deleted.
-    std::vector<const T*> m_garbage;
   };
 
-  typedef UPDATER<Impl> Updater_t;
+  using Updater_t = UPDATER<Impl>;
+  using IPayloadDeleter = CxxUtils::IRangeMapPayloadDeleter<T, typename Updater_t::Context_t>;
 
 
   /**
    * @brief Constructor.
    * @param updater Object used to manage memory
    *                (see comments at the start of the class).
-   * @param delfcn Deletion function.
+   * @param payloadDeleter Object for deleting payload objects.
+   *                       This is owned via a @c shared_ptr.
    * @param capacity Initial capacity of the map.
    * @param compare Comparison object.
    */
   ConcurrentRangeMap (Updater_t&& updater,
-                      delete_function* delfcn,
+                      std::shared_ptr<IPayloadDeleter> payloadDeleter,
                       size_t capacity = 16,
                       const COMPARE& compare = COMPARE());
 
@@ -301,6 +344,18 @@ public:
    * Clean up any remaining payload objects.
    */
   ~ConcurrentRangeMap();
+
+
+  /**
+   * @brief Return a reference to the payload deleter object.
+   */
+  IPayloadDeleter& deleter();
+
+
+  /**
+   * @brief Return a reference to the payload deleter object.
+   */
+  const IPayloadDeleter& deleter() const;
 
 
   /**
@@ -469,12 +524,6 @@ public:
                     Updater_t::defaultContext());
 
 
-  /**
-   * @brief Return the deletion function for this container.
-   */
-  delete_function* delfcn() const;
-
-
 private:
   /// Type of the mutex for this container.
   typedef std::mutex mutex_t;
@@ -553,8 +602,8 @@ private:
   /// Comparison object.
   COMPARE m_compare;
 
-  /// Deletion function.
-  delete_function* m_delete;
+  /// Payload deleter object.
+  std::shared_ptr<IPayloadDeleter> m_payloadDeleter;
 
   /// Current version of the implementation class.
   Impl* m_impl;

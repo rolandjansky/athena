@@ -199,7 +199,9 @@ CondCont<T>::CondCont (Athena::IRCUSvc& rcusvc,
                        const DataObjID& id,
                        SG::DataProxy* proxy /*=nullptr*/,
                        size_t capacity /*= 16*/)
-  : Base (rcusvc, ClassID_traits<CondCont<T> >::ID(), id, proxy, delfcn, capacity)
+  : Base (rcusvc, ClassID_traits<CondCont<T> >::ID(), id, proxy,
+          std::make_shared<Athena::CondObjDeleter<T> > (rcusvc),
+          capacity)
 {
   CondCont<T>::registerBaseInit();
 }
@@ -334,7 +336,7 @@ const void* CondCont<T>::doCast (CLID clid, const void* ptr) const
  * @param CLID of the most-derived @c CondCont.
  * @param id CLID+key for this object.
  * @param proxy @c DataProxy for this object.
- * @param delfcn Deletion function for the actual payload type.
+ * @param payloadDeleter Object for deleting payload objects.
  * @param capacity Initial capacity of the container.
  */
 template <typename T>
@@ -343,9 +345,9 @@ CondCont<T>::CondCont (Athena::IRCUSvc& rcusvc,
                        CLID clid,
                        const DataObjID& id,
                        SG::DataProxy* proxy,
-                       typename CondContSet::delete_function* delfcn,
+                       std::shared_ptr<typename CondContSet::IPayloadDeleter> payloadDeleter,
                        size_t capacity)
-  : Base (rcusvc, clid, id, proxy, delfcn, capacity)
+  : Base (rcusvc, clid, id, proxy, payloadDeleter, capacity)
 {
   CondCont<T>::registerBaseInit();
 }
@@ -505,7 +507,7 @@ const T* CondContMixed<T>::find (const EventIDBase& t) const
  * @param CLID of the most-derived @c CondCont.
  * @param id CLID+key for this object.
  * @param proxy @c DataProxy for this object.
- * @param delfcn Deletion function for the actual payload type.
+ * @param payloadDeleter Object for deleting actual payload objects.
  * @param capacity Initial capacity of the container.
  */
 template <class T>
@@ -514,9 +516,9 @@ CondContMixed<T>::CondContMixed (Athena::IRCUSvc& rcusvc,
                                  CLID clid,
                                  const DataObjID& id,
                                  SG::DataProxy* proxy,
-                                 typename CondContSet::delete_function* delfcn,
+                                 std::shared_ptr<typename CondContSet::IPayloadDeleter> payloadDeleter,
                                  size_t capacity)
-  : Base (rcusvc, clid, id, proxy, delfcn, capacity)
+  : Base (rcusvc, clid, id, proxy, payloadDeleter, capacity)
 {
   CondContMixed<T>::registerBaseInit();
 }
@@ -539,8 +541,10 @@ CondContMixed<T>::CondContMixed (Athena::IRCUSvc& rcusvc,
                                  CLID clid,
                                  const DataObjID& id,
                                  SG::DataProxy* proxy,
-                                size_t capacity)
-  : CondContMixed<T> (rcusvc, clid, id, proxy, payloadDelfcn, capacity)
+                                 size_t capacity)
+  : CondContMixed<T> (rcusvc, clid, id, proxy,
+                      std::make_shared<Athena::CondObjDeleter<T> > (rcusvc),
+                      capacity)
 {
 }
 
