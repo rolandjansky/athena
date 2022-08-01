@@ -178,7 +178,7 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
   BooleanProperty m_offlMuonCutOnAuthor{this,"OfflMuonCutOnAuthor",true,"applying cut on offline muon author"};
   BooleanProperty m_offlMuonCutOnQuality{this,"OfflMuonCutOnQuality",true,"applying cut on offline muon quality"};
   BooleanProperty m_anaMuonRoI{this,"AnaMuonRoI",true,"switch to perform analysis on xAOD::LVL1MuonRoI"};
-  DoubleProperty m_trigMatchWindow{this,"TrigMatchingWindow",0.005,"Window size in R for trigger matching"};
+  DoubleProperty m_trigMatchWindow{this,"TrigMatchingWindow",0.2,"Window size in R for trigger matching"};
   DoubleProperty m_l1trigMatchWindow1{this,"L1TrigMatchingWindow1",0.15,"Window size in R for L1 trigger matching: param 1"};
   DoubleProperty m_l1trigMatchWindow2{this,"L1TrigMatchingWindow2",0.3,"Window size in R for L1 trigger matching: param 2"};
   DoubleProperty m_l1trigMatchWindow3{this,"L1TrigMatchingWindow3",-0.01,"Window size in R for L1 trigger matching: param 3"};
