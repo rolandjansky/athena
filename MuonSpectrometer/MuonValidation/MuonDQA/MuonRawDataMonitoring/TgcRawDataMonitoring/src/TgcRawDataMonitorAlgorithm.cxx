@@ -735,6 +735,9 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
   std::vector < MyMuon > mymuons;
   std::map < std::string, std::vector< ExtPos > > extpositions;
   std::vector< ExtPos > extpositions_pivot;
+  std::vector<double> deltaR_muons;
+  std::vector<double> deltaR_muons_roi;
+  std::vector<double> deltaR_muons_hlt;
   if (m_anaOfflMuon.value()) {
     SG::ReadHandle < xAOD::MuonContainer > muons(m_MuonContainerKey, ctx);
     if (!muons.isValid()) {
@@ -748,6 +751,10 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
 
       // standard quality cuts for muons
       if (muon->pt() < 1000.) continue;
+      // minimum requirements
+      if ( muon->author() > xAOD::Muon::Author::MuidSA )continue;
+      if ( muon->muonType() > xAOD::Muon::MuonType::MuonStandAlone )continue;
+      // selectable requirements
       if( dataType() != DataType_t::cosmics ){
 	if(m_useMuonSelectorTool && !m_muonSelectionTool->accept(*muon)) continue;
 	if(m_useOnlyCombinedMuons && muon->muonType()!=xAOD::Muon::MuonType::Combined) continue;
@@ -773,11 +780,14 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
 	// skip possible mismeasured muons
 	if( muon2->pt() < 1000. ) continue;
 
-	// check muon-muon isolation using the loosest-quality muons
-	if ( isolated ){
-	  double dr = xAOD::P4Helpers::deltaR(muon,muon2,false);
-	  if( dr < m_isolationWindow.value() ) isolated = false;
-	}
+	// minimum requirements on muon quality
+	if ( muon2->author() > xAOD::Muon::Author::MuidSA )continue;
+	if ( muon2->muonType() > xAOD::Muon::MuonType::MuonStandAlone )continue;
+
+	// isolation calculation
+	double dr_muons = xAOD::P4Helpers::deltaR(muon,muon2,false);
+	deltaR_muons.push_back(dr_muons);
+	if( dr_muons < m_isolationWindow.value() ) isolated = false;
 
 	// no need to check further if probeOK is already True
 	// 0) if muon-orthogonal triggers are avaialble/fired
@@ -785,13 +795,6 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
 	// 2) if TrigDecTool is not available
 	// 3) if the second muon matches the trigger requirement
 	if(probeOK)continue;
-
-	//  standard quality cuts for muons
-	if( dataType() != DataType_t::cosmics ){
-	  if(m_useMuonSelectorTool && !m_muonSelectionTool->accept(*muon2)) continue;
-	  if(m_useOnlyCombinedMuons && muon2->muonType()!=xAOD::Muon::MuonType::Combined) continue;
-	  if(m_useOnlyMuidCoStacoMuons && (muon2->author()!=xAOD::Muon::Author::MuidCo && muon2->author()!=xAOD::Muon::Author::STACO)) continue;
-	}
 
 	// loop over the single muon triggers if at least one of them matches this second muon
 	for (const auto &trigName : list_of_single_muon_triggers) {
@@ -834,6 +837,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
 	      if (hltmu == nullptr) continue; // skip if hltmu is empty
 	      if (hltmu->pt() < 1000.)continue; // skip if pT is very small
 	      double dr = xAOD::P4Helpers::deltaR(muon2,hltmu,false);
+	      deltaR_muons_hlt.push_back(dr);
 	      if( dr < m_trigMatchWindow.value() ){
 		ATH_MSG_DEBUG("Trigger matched: "<<trigName<<" dR=" << dr );
 		probeOK = true;
@@ -932,6 +936,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
       for(const auto& allBcMuonRoI : AllBCMuonRoIs){
 	const xAOD::MuonRoI* roi = allBcMuonRoI.muonRoI;
 	double dr = xAOD::P4Helpers::deltaR(*muon,roi->eta(),roi->phi(),false);
+	deltaR_muons_roi.push_back(dr);
 	if( dr < max_dr ){
 	  if(roiAndMenu.count(roi)>0)mymuon.matchedL1Items.insert( roiAndMenu[roi].begin(), roiAndMenu[roi].end() );
 	  mymuon.matchedL1ThrExclusive.insert( roi->getThrNumber() );
@@ -975,7 +980,25 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
     auto oflmuon_pt=Monitored::Collection("oflmuon_pt",*muons,[](const xAOD::Muon*m){return m->pt() / Gaudi::Units::GeV;});
     auto oflmuon_eta=Monitored::Collection("oflmuon_eta",*muons,[](const xAOD::Muon*m){return m->eta();});
     auto oflmuon_phi=Monitored::Collection("oflmuon_phi",*muons,[](const xAOD::Muon*m){return m->phi();});
-    fill(m_packageName+"_Muon",oflmuon_num,oflmuon_muonType,oflmuon_author,oflmuon_quality,oflmuon_pt,oflmuon_eta,oflmuon_phi);
+
+    auto oflmuon_probe_num=Monitored::Scalar<int>("oflmuon_probe_num",mymuons.size());
+    auto oflmuon_probe_muonType=Monitored::Collection("oflmuon_probe_muonType",mymuons,[](const MyMuon&m){return m.muon->muonType();});
+    auto oflmuon_probe_author=Monitored::Collection("oflmuon_probe_author",mymuons,[](const MyMuon&m){return m.muon->author();});
+    auto oflmuon_probe_quality=Monitored::Collection("oflmuon_probe_quality",mymuons,[](const MyMuon&m){return m.muon->quality();});
+    auto oflmuon_probe_pt=Monitored::Collection("oflmuon_probe_pt",mymuons,[](const MyMuon&m){return m.muon->pt() / Gaudi::Units::GeV;});
+    auto oflmuon_probe_eta=Monitored::Collection("oflmuon_probe_eta",mymuons,[](const MyMuon&m){return m.muon->eta();});
+    auto oflmuon_probe_phi=Monitored::Collection("oflmuon_probe_phi",mymuons,[](const MyMuon&m){return m.muon->phi();});
+
+    auto oflmuon_deltaR=Monitored::Collection("oflmuon_deltaR",deltaR_muons);
+    auto oflmuon_deltaR_roi=Monitored::Collection("oflmuon_deltaR_roi",deltaR_muons_roi);
+    auto oflmuon_deltaR_hlt=Monitored::Collection("oflmuon_deltaR_hlt",deltaR_muons_hlt);
+
+
+    fill(m_packageName+"_Muon",
+	 oflmuon_num,oflmuon_muonType,oflmuon_author,oflmuon_quality,oflmuon_pt,oflmuon_eta,oflmuon_phi,
+	 oflmuon_probe_num,oflmuon_probe_muonType,oflmuon_probe_author,oflmuon_probe_quality,oflmuon_probe_pt,oflmuon_probe_eta,oflmuon_probe_phi,
+	 oflmuon_deltaR, oflmuon_deltaR_roi, oflmuon_deltaR_hlt
+	 );
 
 
     
