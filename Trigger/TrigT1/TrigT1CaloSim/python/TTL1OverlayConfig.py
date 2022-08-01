@@ -6,7 +6,7 @@ Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-from LArDigitization.LArDigitizationConfigNew import LArOverlayTriggerDigitizationBasicCfg
+from LArDigitization.LArDigitizationConfig import LArOverlayTriggerDigitizationBasicCfg
 from TileSimAlgs.TileHitToTTL1Config import TileHitToTTL1Cfg
 
 

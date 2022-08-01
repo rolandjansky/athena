@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Main steering for the digitization jobs
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -12,7 +12,7 @@ from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
 from BCM_Digitization.BCM_DigitizationConfigNew import BCM_DigitizationCfg
 from Digitization.DigitizationParametersConfig import writeDigitizationMetadata
-from LArDigitization.LArDigitizationConfigNew import LArTriggerDigitizationCfg
+from LArDigitization.LArDigitizationConfig import LArTriggerDigitizationCfg
 from MCTruthSimAlgs.RecoTimingConfig import MergeRecoTimingObjCfg
 from MuonConfig.CSC_DigitizationConfig import CSC_DigitizationDigitToRDOCfg
 from MuonConfig.MDT_DigitizationConfig import MDT_DigitizationDigitToRDOCfg

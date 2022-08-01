@@ -145,7 +145,7 @@ def fromRunArgs(runArgs):
 
     # add LArHitFilter + AddressRemappingSvc
     if ConfigFlags.Detector.EnableLAr:
-        from LArDigitization.LArDigitizationConfigNew import LArHitFilterCfg
+        from LArDigitization.LArDigitizationConfig import LArHitFilterCfg
         cfg.merge(LArHitFilterCfg(ConfigFlags)) # TODO add output configuration here?
 
     if hasattr(runArgs, 'TruthReductionScheme'):
