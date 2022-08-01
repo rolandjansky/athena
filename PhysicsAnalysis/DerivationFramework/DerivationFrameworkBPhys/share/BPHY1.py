@@ -50,10 +50,10 @@ BPHY1JpsiFinder = Analysis__JpsiFinder(
   TrackSelectorTool           = BPHY1_VertexTools.InDetTrackSelectorTool,
   VertexPointEstimator        = BPHY1_VertexTools.VtxPointEstimator,
   useMCPCuts                  = False )
-  
+
+
 ToolSvc += BPHY1JpsiFinder
 print      (BPHY1JpsiFinder)
-
 #--------------------------------------------------------------------
 ## 3/ setup the vertex reconstruction "call" tool(s). They are part of the derivation framework.
 ##    These Augmentation tools add output vertex collection(s) into the StoreGate and add basic 

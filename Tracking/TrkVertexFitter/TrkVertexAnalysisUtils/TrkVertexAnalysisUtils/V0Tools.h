@@ -399,7 +399,7 @@ namespace Trk
   double massErrorVxCandidate(const xAOD::Vertex * vxCandidate, const std::vector<double> &masses) const;
 
   ToolHandle < Trk::IExtrapolator > m_extrapolator;
- 
+  Gaudi::Property<bool> m_disableExtrap{this, "DisableExtrapolator", false, "To prevent Extrapolator use when not needed"};
  };//end of class definitions
 
 

@@ -26,5 +26,6 @@ atlas_add_component( JpsiUpsilonTools
                      LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthLinks xAODMuon xAODTracking GaudiKernel InDetConversionFinderToolsLib TrkVKalVrtFitterLib VxVertex TrkToolInterfaces TrkV0FitterLib TrkVertexFitterInterfaces JpsiUpsilonToolsLib )
 
 # Install files from the package:
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8})
 atlas_install_joboptions( share/*.py )
 

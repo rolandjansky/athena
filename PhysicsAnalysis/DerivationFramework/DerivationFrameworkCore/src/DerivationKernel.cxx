@@ -190,6 +190,7 @@ StatusCode DerivationFramework::DerivationKernel::execute() {
         ToolHandleArray<IAugmentationTool>::iterator augmentationTool(m_augmentationTools.begin());
         ToolHandleArray<IAugmentationTool>::iterator endOfAugmentationTools(m_augmentationTools.end());
         while (augmentationTool != endOfAugmentationTools) {
+            ATH_MSG_DEBUG("Entering " << (**augmentationTool).name());
             if ( (**augmentationTool).addBranches().isFailure() ) {
                     ATH_MSG_ERROR("Augmentation failed!");
                     return StatusCode::FAILURE;
@@ -209,6 +210,7 @@ StatusCode DerivationFramework::DerivationKernel::execute() {
     ToolHandleArray<ISkimmingTool>::iterator skimmingTool(m_skimmingTools.begin());
     ToolHandleArray<ISkimmingTool>::iterator endOfSkimmingTools(m_skimmingTools.end());
     while (skimmingTool != endOfSkimmingTools) {
+        ATH_MSG_DEBUG("Entering " << (**skimmingTool).name());
         if (!((**skimmingTool).eventPassesFilter())) {
             acceptEvent=false;
             ATH_MSG_DEBUG("This event failed the " << (**skimmingTool).name() << " filter. Therefore it will not be recorded.");
@@ -231,6 +233,7 @@ StatusCode DerivationFramework::DerivationKernel::execute() {
         ToolHandleArray<IAugmentationTool>::iterator augmentationTool(m_augmentationTools.begin());
         ToolHandleArray<IAugmentationTool>::iterator endOfAugmentationTools(m_augmentationTools.end());
         while (augmentationTool != endOfAugmentationTools) {
+            ATH_MSG_DEBUG("Entering " << (**augmentationTool).name());
             if ( (**augmentationTool).addBranches().isFailure() ) {
                     ATH_MSG_ERROR("Augmentation failed!");
                     return StatusCode::FAILURE;
@@ -247,6 +250,7 @@ StatusCode DerivationFramework::DerivationKernel::execute() {
     ToolHandleArray<IThinningTool>::iterator thinningTool(m_thinningTools.begin());
     ToolHandleArray<IThinningTool>::iterator endOfThinningTools(m_thinningTools.end());
     while (thinningTool != endOfThinningTools) {
+    ATH_MSG_DEBUG("Entering " << (**thinningTool).name());
 	if ( (**thinningTool).doThinning().isFailure() ) {
 		ATH_MSG_ERROR("Thinning failed!");
                 return StatusCode::FAILURE;
