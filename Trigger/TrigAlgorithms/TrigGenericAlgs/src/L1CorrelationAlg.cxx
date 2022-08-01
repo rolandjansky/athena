@@ -259,8 +259,8 @@ StatusCode L1CorrelationAlg::execute(const EventContext& ctx) const {
     }
 
     auto trigComp = new xAOD::TrigComposite();
-    trigComp->setName("mistimemon_L1Dec");
     trigCompCont->push_back(trigComp);
+    trigComp->setName("mistimemon_L1Dec");
     trigCompL1A(*trigComp)  = l1a_type;
     trigCompOther(*trigComp) = other_type;
     trigCompBeforeAfter(*trigComp) = beforeafterflag;
