@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DecisionHandling/InputMakerBase.h"
@@ -119,7 +119,7 @@ StatusCode InputMakerBase::decisionInputToOutput(const EventContext& context, SG
 
 bool InputMakerBase::matchInCollection(const DecisionContainer* outDecisions, const Decision* toMatch, size_t& matchIndex, bool& usedROIMatchingFlag, MatchingCache& matchingCache, const EventContext& ctx) const {
   std::set<const Decision*> cache; //!< Used to accelerate the recursive typelessFindLinks.
-  std::vector<uint32_t> keys;
+  std::vector<SG::sgkey_t> keys;
   std::vector<uint32_t> clids;
   std::vector<uint16_t> indicies;
   std::vector<const Decision*> sources; // Unused
@@ -161,7 +161,7 @@ size_t InputMakerBase::matchDecision(const DecisionContainer* outDecisions, cons
 
 uint64_t InputMakerBase::getMatchingHashForDecision(const Decision* toMatch, const std::string& linkNameToMatch, const EventContext& ctx) const {
   std::set<const Decision*> cache; //!< Used to accelerate the recursive typelessFindLinks.
-  std::vector<uint32_t> keys;
+  std::vector<SG::sgkey_t> keys;
   std::vector<uint32_t> clids;
   std::vector<uint16_t> indicies;
   std::vector<const Decision*> sources; // Unused
