@@ -22,11 +22,11 @@ class L1CaloBsDecoderRun3
 {
 public:
    L1CaloBsDecoderRun3();
-#ifndef OFFLINE_DECODER
+
    void decodeEfexData( const uint32_t* beg, const uint32_t* end,
                         std::list<L1CaloRdoEfexTower>& dat,
                         std::list<L1CaloRdoRodInfo>::const_iterator rodInfo );
-#endif
+
    void decodeEfexTobs( const uint32_t* beg, const uint32_t* end,
                         std::list<L1CaloRdoEfexTob>& tob,
                         std::list<L1CaloRdoRodInfo>::const_iterator rodInfo );
@@ -61,14 +61,14 @@ public:
    void setVerbosity( bool verbosity );
 
 private:
-#ifndef OFFLINE_DECODER
+
    uint32_t decodeEfexDataChan( const uint32_t payload[],
                                 const uint32_t efexNumber,
                                 const uint32_t shelfNumber,
                                 const uint32_t errorMask,
                                 std::list<L1CaloRdoEfexTower>& dat,
                                 std::list<L1CaloRdoRodInfo>::const_iterator rodInfo );
-#endif
+
    bool decodeEfexTobSlice( const uint32_t payload[], size_t& index,
                             const uint32_t efexNumber, const uint32_t shelfNumber,
                             const uint32_t numSlices, const uint32_t errorMask,
@@ -82,7 +82,7 @@ private:
                                 std::list<L1CaloRdoJfexTower>& dat,
                                 std::list<L1CaloRdoRodInfo>::const_iterator rodInfo );
 
-   bool decodeJfexTobSlice( const uint32_t payload[], size_t& index,
+   bool decodeJfexTobSlice( const uint32_t payload[], size_t blockSize, size_t& index,
                             const uint32_t jfexNumber, const uint32_t fpgaNumber,
                             const uint32_t sliceNumber, const uint32_t numSlices,
                             const uint32_t errorMask,
@@ -95,6 +95,12 @@ private:
                                 const uint32_t errorMask,
                                 std::list<L1CaloRdoGfexTower>& dat,
                                 std::list<L1CaloRdoRodInfo>::const_iterator rodInfo );
+
+   bool decodeGfexTobSlice( const uint32_t payload[], const uint32_t blockType,
+                            const uint32_t sliceNumber, const uint32_t numSlices,
+                            const uint32_t errorMask,
+                            std::list<L1CaloRdoGfexTob>& tob,
+                            std::list<L1CaloRdoRodInfo>::const_iterator rodInfo );
 #endif
    void decodeOneEfexTob( const uint32_t word[], const uint32_t shelfNumber,
                           const uint32_t efexNumber, const uint32_t fpgaNumber,
@@ -104,6 +110,8 @@ private:
                           L1CaloRdoFexTob::TobSource tobSource,
                           std::list<L1CaloRdoEfexTob>& tob,
                           std::list<L1CaloRdoRodInfo>::const_iterator rodInfo );
+
+   bool checkFibreCRC( std::vector<uint32_t>& data ) const;
 
    int m_verbosity;
 };
