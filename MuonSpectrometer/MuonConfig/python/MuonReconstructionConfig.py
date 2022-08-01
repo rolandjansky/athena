@@ -6,7 +6,8 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 
 # Local
 from MuonConfig.MuonSegmentFindingConfig import MuonSegmentFindingCfg
-from MuonConfig.MuonTrackBuildingConfig import MuonTrackBuildingCfg, MuonStandaloneTrackParticleCnvAlgCfg
+from MuonConfig.MuonTrackBuildingConfig import MuonTrackBuildingCfg
+from xAODTrackingCnv.xAODTrackingCnvConfig import MuonStandaloneTrackParticleCnvAlgCfg
 
 
 def StandaloneMuonOutputCfg(flags):

@@ -134,64 +134,6 @@ def MuIsoViewDataVerifierCfg():
     return result
 
 
-#Not the ideal place to keep the track cnv alg configuration. Temproarily adding it here
-#until a better location can be found
-def MuonTrackCollectionCnvToolCfg(flags, name = "MuonTrackCollectionCnvTool", **kwargs):
-    TrackCollectionCnvTool = CompFactory.xAODMaker.TrackCollectionCnvTool
-
-    result = ComponentAccumulator()
-    from TrkConfig.TrkParticleCreatorConfig import MuonCombinedParticleCreatorCfg
-    kwargs.setdefault("TrackParticleCreator", result.popToolsAndMerge(MuonCombinedParticleCreatorCfg(flags)))
-
-    result.setPrivateTools(TrackCollectionCnvTool(name=name, **kwargs))
-    return result
-
-def MuonRecTrackParticleContainerCnvToolCfg(flags, name = "MuonRecTrackParticleContainerCnvTool", **kwargs):
-    RecTrackParticleCnvTool = CompFactory.xAODMaker.RecTrackParticleContainerCnvTool
-
-    result = ComponentAccumulator()
-    from TrkConfig.TrkParticleCreatorConfig import MuonCombinedParticleCreatorCfg
-    kwargs.setdefault("TrackParticleCreator", result.popToolsAndMerge(MuonCombinedParticleCreatorCfg(flags)))
-
-    result.setPrivateTools(RecTrackParticleCnvTool(name=name, **kwargs))
-    return result
-
-def MuonTrackParticleCnvCfg(flags, name = "MuonTrackParticleCnvAlg",**kwargs):
-    TrackParticleCnv = CompFactory.xAODMaker.TrackParticleCnvAlg
-    result=ComponentAccumulator()
-
-    from TrkConfig.TrkParticleCreatorConfig import MuonCombinedParticleCreatorCfg
-    particleCreator = result.popToolsAndMerge(MuonCombinedParticleCreatorCfg(flags))
-    result.addPublicTool(particleCreator) # Still public in TrackParticleCnvAlg
-    kwargs.setdefault("TrackParticleCreator", particleCreator)
-
-    acc = MuonTrackCollectionCnvToolCfg(flags)
-    kwargs.setdefault("TrackCollectionCnvTool", acc.popPrivateTools())
-    result.merge(acc)
-
-    acc = MuonRecTrackParticleContainerCnvToolCfg(flags)
-    kwargs.setdefault("RecTrackParticleContainerCnvTool", acc.popPrivateTools())
-    result.merge(acc)
-
-    acc = MuonRecTrackParticleContainerCnvToolCfg(flags)
-    kwargs.setdefault("RecTrackParticleContainerCnvTool", acc.popPrivateTools())
-    result.merge(acc)
-
-    kwargs.setdefault("TrackContainerName", "MuonSpectrometerTracks")
-    kwargs.setdefault("xAODTrackParticlesFromTracksContainerName", "MuonSpectrometerTrackParticles")
-    kwargs.setdefault("AODContainerName", "")
-    kwargs.setdefault("AODTruthContainerName", "")
-    kwargs.setdefault("xAODTruthLinkVector",  "")
-    kwargs.setdefault("ConvertTrackParticles", False)
-    kwargs.setdefault("ConvertTracks", True)
-
-    trackcnv = TrackParticleCnv(name=name, **kwargs )
-
-    result.addEventAlgo( trackcnv, primary=True )
-    return result
-
-
-
 def efMuHypoConf(flags, name="UNSPECIFIED", inputMuons="UNSPECIFIED",doSA=False):
     TrigMuonEFHypoAlg = CompFactory.TrigMuonEFHypoAlg
     efHypo = TrigMuonEFHypoAlg(name)
@@ -310,6 +252,7 @@ def _muEFSAStepSeq(flags, name='RoI'):
     recoMS.mergeReco( MooSegmentFinderAlgCfg(flags,name="TrigMooSegmentFinder_"+name,UseTGCNextBC=False, UseTGCPriorBC=False))
 
     recoMS.mergeReco(MuPatTrackBuilderCfg(flags, name="TrigMuPatTrackBuilder_"+name, MonTool = MuPatTrackBuilderMonitoring("MuPatTrackBuilderMonitoringSA_"+name)))
+    from xAODTrackingCnv.xAODTrackingCnvConfig import MuonTrackParticleCnvCfg
     recoMS.mergeReco(MuonTrackParticleCnvCfg(flags, name = "TrigMuonTrackParticleCnvAlg_"+name))
     recoMS.mergeReco(MuonCombinedMuonCandidateAlgCfg(flags, name = "TrigMuonCandidateAlg_"+name))
     recoMS.mergeReco(MuonCreatorAlgCfg(flags, name = "TrigMuonCreatorAlg_"+name, MuonContainerLocation="Muons_"+name))

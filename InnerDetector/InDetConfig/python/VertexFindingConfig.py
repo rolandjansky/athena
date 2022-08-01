@@ -79,7 +79,7 @@ def AdaptiveMultiFindingBaseCfg(flags, doGauss, **kwargs):
         if doGauss:
             kwargs["SeedFinder"] = CompFactory.Trk.TrackDensitySeedFinder()
         else:
-            from InDetConfig.TrackingCommonConfig import (
+            from TrkConfig.TrkVertexFitterUtilsConfig import (
                 TrackToVertexIPEstimatorCfg,
             )
 
@@ -96,16 +96,14 @@ def AdaptiveMultiFindingBaseCfg(flags, doGauss, **kwargs):
         )
 
     if "VertexFitterTool" not in kwargs:
-        InDetAnnealingMaker = CompFactory.Trk.DetAnnealingMaker(
-            SetOfTemperatures=[1.0]
-        )
+        from TrkConfig.TrkVertexFitterUtilsConfig import DetAnnealingMakerCfg
+        InDetAnnealingMaker = acc.popToolsAndMerge(DetAnnealingMakerCfg(flags))
         from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
-
-        InDetExtrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
+        InDetExtrapolator = acc.popToolsAndMerge(InDetExtrapolatorCfg(flags))
         InDetImpactPoint3dEstimator = CompFactory.Trk.ImpactPoint3dEstimator(
             Extrapolator=InDetExtrapolator
         )
-        from InDetConfig.TrackingCommonConfig import (
+        from TrkConfig.TrkVertexFitterUtilsConfig import (
             FullLinearizedTrackFactoryCfg,
         )
 
@@ -142,7 +140,7 @@ def IterativeFindingBaseCfg(flags, doGauss, **kwargs):
         if doGauss:
             kwargs["SeedFinder"] = CompFactory.Trk.TrackDensitySeedFinder()
         else:
-            from InDetConfig.TrackingCommonConfig import (
+            from TrkConfig.TrkVertexFitterUtilsConfig import (
                 TrackToVertexIPEstimatorCfg,
             )
 
@@ -158,7 +156,7 @@ def IterativeFindingBaseCfg(flags, doGauss, **kwargs):
             VtxInDetTrackSelectionCfg(flags)
         )
     if "LinearizedTrackFactory" not in kwargs:
-        from InDetConfig.TrackingCommonConfig import (
+        from TrkConfig.TrkVertexFitterUtilsConfig import (
             FullLinearizedTrackFactoryCfg,
         )
 
@@ -168,16 +166,15 @@ def IterativeFindingBaseCfg(flags, doGauss, **kwargs):
     if "ImpactPoint3dEstimator" not in kwargs:
         from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
 
-        InDetExtrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
+        InDetExtrapolator = acc.popToolsAndMerge(InDetExtrapolatorCfg(flags))
         kwargs[
             "ImpactPoint3dEstimator"
         ] = CompFactory.Trk.ImpactPoint3dEstimator(
             Extrapolator=InDetExtrapolator
         )
     if "VertexFitterTool" not in kwargs:
-        InDetAnnealingMaker = CompFactory.Trk.DetAnnealingMaker(
-            SetOfTemperatures=[1.0]
-        )
+        from TrkConfig.TrkVertexFitterUtilsConfig import DetAnnealingMakerCfg
+        InDetAnnealingMaker = acc.popToolsAndMerge(DetAnnealingMakerCfg(flags))
         InDetVertexSmoother = CompFactory.Trk.SequentialVertexSmoother()
         kwargs["VertexFitterTool"] = CompFactory.Trk.AdaptiveVertexFitter(
             SeedFinder=kwargs["SeedFinder"],

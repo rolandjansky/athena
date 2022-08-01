@@ -252,7 +252,7 @@ def Run1xAODConversionCfg(flags):
                                           )
     acc.addPublicTool(partCreatorTool)
 
-    from InDetConfig.TrackRecoConfig import TrackCollectionCnvToolCfg,RecTrackParticleContainerCnvToolCfg
+    from xAODTrackingCnv.xAODTrackingCnvConfig import TrackCollectionCnvToolCfg,RecTrackParticleContainerCnvToolCfg
     trackCollCnvTool = acc.popToolsAndMerge(TrackCollectionCnvToolCfg(flags,
                                                                       name="TrackCollectionCnvTool",
                                                                       TrackParticleCreator= partCreatorTool
