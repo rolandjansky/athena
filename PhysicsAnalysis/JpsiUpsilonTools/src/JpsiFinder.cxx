@@ -37,7 +37,7 @@ namespace Analysis {
         ATH_CHECK(m_iVertexFitter.retrieve());
         
         // retrieving V0 Fitter
-        ATH_CHECK(m_iV0VertexFitter.retrieve());
+        ATH_CHECK(m_iV0VertexFitter.retrieve(DisableTool{!m_useV0Fitter }));
         
         // Get the track selector tool from ToolSvc
         ATH_CHECK(m_trkSelector.retrieve());

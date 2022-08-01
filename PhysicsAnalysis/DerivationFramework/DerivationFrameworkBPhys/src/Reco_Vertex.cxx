@@ -21,9 +21,9 @@ namespace DerivationFramework {
       const std::string& n,
       const IInterface* p) : 
     AthAlgTool(t,n,p),
-    m_v0Tools("Trk::V0Tools"),
+    m_v0Tools("Trk::V0Tools", this),
     m_SearchTool(),
-    m_pvRefitter("Analysis::PrimaryVertexRefitter")
+    m_pvRefitter("Analysis::PrimaryVertexRefitter", this)
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
     

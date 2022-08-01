@@ -57,25 +57,6 @@ class BPHYVertexTools:
         ToolSvc += self.InDetHoleSearchTool
         print((self.InDetHoleSearchTool))
 
-        from InDetTrackSummaryHelperTool.InDetTrackSummaryHelperToolConf import InDet__InDetTrackSummaryHelperTool
-        self.InDetTrackSummaryHelperTool = InDet__InDetTrackSummaryHelperTool(name         = derivation+"_InDetSummaryHelper",
-                                                                     AssoTool     = self.InDetPrdAssociationTool,
-                                                                     DoSharedHits = False,
-                                                                     HoleSearch   = self.InDetHoleSearchTool,
-                                                                     usePixel      = DetFlags.haveRIO.pixel_on(),
-                                                                     useSCT        = DetFlags.haveRIO.SCT_on(),
-                                                                     useTRT        = DetFlags.haveRIO.TRT_on())
-        ToolSvc += self.InDetTrackSummaryHelperTool
-        print((self.InDetTrackSummaryHelperTool))
-
-        from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
-        self.InDetTrackSummaryTool = Trk__TrackSummaryTool(name = derivation+"_InDetTrackSummaryTool",
-                                                  InDetSummaryHelperTool = self.InDetTrackSummaryHelperTool,
-                                                  doSharedHits           = False,
-                                                  #InDetHoleSearchTool    = self.InDetHoleSearchTool
-                                                  )
-        ToolSvc += self.InDetTrackSummaryTool
-        print((self.InDetTrackSummaryTool))
 
         # =====================================================
         # THIS IS WHERE THE USER CONTROLS MAIN TRACK SELECTIONS
@@ -103,11 +84,13 @@ class BPHYVertexTools:
                                                                        useTrackQualityInfo  = True,
                                                                        fitChi2OnNdfMax      = 10000.0,
                                                                        TrtMaxEtaAcceptance  = 1.9,
-                                                                       TrackSummaryTool     = self.InDetTrackSummaryTool,
+                                                                       UseEventInfoBS       = True,
+                                                                       TrackSummaryTool     = None,
                                                                        Extrapolator         = self.InDetExtrapolator
                                                                       )
         
         ToolSvc += self.InDetTrackSelectorTool
+        print("UseEventInfoBS       = True")
         print((self.InDetTrackSelectorTool))
 
         # configure vertex fitters

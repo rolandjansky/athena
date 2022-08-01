@@ -37,11 +37,18 @@ namespace Trk
   {
 
   //get the extrapolator
-  if ( m_extrapolator.retrieve().isFailure() ) {
-    ATH_MSG_FATAL( "Failed to retrieve tool " << m_extrapolator );
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG( "Retrieved tool " << m_extrapolator );
+   ATH_MSG_DEBUG("in V0tools");
+  if(m_disableExtrap) {
+    m_extrapolator.disable();
+    ATH_MSG_INFO( "Disabled extrapolator access");
+  }
+  else{
+    if (m_extrapolator.retrieve().isFailure() ) {
+      ATH_MSG_FATAL( "Failed to retrieve tool " << m_extrapolator );
+      return StatusCode::FAILURE;
+    } else {
+      ATH_MSG_DEBUG( "Retrieved tool " << m_extrapolator );
+    }
   }
 
     ATH_MSG_DEBUG( "Initialize successful" );
