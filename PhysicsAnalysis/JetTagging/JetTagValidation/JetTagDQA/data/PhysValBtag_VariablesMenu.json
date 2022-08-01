@@ -368,34 +368,6 @@
             "forData": "true"
         },
 
-        "MV2c10_discriminant": {
-            "title": "MV2c10 score for jets",
-            "xtitle": "MV2c10",
-            "ytitle": "Jets",
-            "path": {"ART": "bTagging"},
-            "xbins": 1000,
-            "xmin": -1,
-            "xmax": 1,
-            "forEachTruthType": ["U", "B", "C", "DATA"],
-            "type": "TH1D",
-            "forData": "true"
-        },
-
-        "DL1": {
-            "_comment": "pb, pc, and pu",
-            "title": "DL1",
-            "xtitle": "DL1 px",
-            "ytitle": "Jets",
-            "path":  {"ART": "bTagging", "PHYSVAL": "tagger"},
-            "xbins": 100,
-            "xmin": 0,
-            "xmax": 1,
-            "forEach": ["pb", "pc", "pu"],
-            "forEachTruthType": ["U", "B", "C", "DATA"],
-            "type": "TH1D",
-            "forData": "true"
-        },
-
         "DL1d": {
             "_comment": "pb, pc, and pu",
             "title": "DL1d",
