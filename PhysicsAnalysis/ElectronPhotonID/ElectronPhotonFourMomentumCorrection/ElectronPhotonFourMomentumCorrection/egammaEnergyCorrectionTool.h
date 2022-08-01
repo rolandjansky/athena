@@ -85,6 +85,9 @@ namespace egEnergyCorr {
       // Atlfast 2 resolution uncertainties
       af2Up, af2Down,
 
+      // OFC for Run-3 pre-recommendations
+      OFCUp, OFCDown,
+
       // to help with loops
       LastResolutionVariation
 
@@ -181,6 +184,8 @@ namespace egEnergyCorr {
       // ... Conversion efficiency (-> vary unconverted photon calib), fake rate (-> vary converted photon calib)
       ConvEfficiencyUp, ConvEfficiencyDown, ConvFakeRateUp, ConvFakeRateDown, ConvRadiusUp, ConvRadiusDown,
 
+      // Rel22 OFC changes
+      OFCUp, OFCDown,
 
       AllUp, AllDown,
       AllCorrelatedUp, AllCorrelatedDown,
@@ -233,6 +238,7 @@ namespace egEnergyCorr {
     es2017_R21_ofc0_v1,  // Release 21 model calibration extrapolated for OFC(mu=0), coveering 2015,2016,2017 and 2018 data
     es2018_R21_v0,
     es2018_R21_v1,     // model with new E1/E2 muon calibration from full run 2 low+high mu data
+    es2022_R22_PRE, // Pre-recommnedations for release 22, Run-3
 
     UNDEFINED
 
@@ -391,6 +397,7 @@ namespace AtlasRoot {
     // to access Z smearing and uncertainty
     double dataConstantTerm(double eta) const;
     double dataConstantTermError(double eta) const;
+    double dataConstantTermOFCError(double eta) const;
 
     // functions for old model
     double dataZPeakResolution( double cl_eta ) const;
@@ -438,6 +445,7 @@ namespace AtlasRoot {
     double getLayerPedestal(double cl_eta, PATCore::ParticleType::Type ptype, int iLayer,
 			    egEnergyCorr::Scale::Variation var = egEnergyCorr::Scale::Nominal, double varSF = 1. ) const;
     double get_ZeeSyst(double eta) const;
+    double get_OFCSyst(double eta) const;
     static bool isInCrack( double cl_eta ) ;
     static double nearestEtaBEC( double cl_eta ) ;
 
@@ -481,11 +489,13 @@ namespace AtlasRoot {
     std::unique_ptr<TH1>         m_zeeFwdb;
 
     std::unique_ptr<TH1>         m_zeeSyst;
+    std::unique_ptr<TH1>         m_zeeSystOFC;
     std::unique_ptr<TH1>         m_zeePhys;
     std::unique_ptr<TH1>         m_uA2MeV_2015_first2weeks_correction;
 
     std::unique_ptr<TH1>         m_resNom;
     std::unique_ptr<TH1>         m_resSyst;
+    std::unique_ptr<TH1>         m_resSystOFC;
     std::unique_ptr<TH1>         m_peakResData;
     std::unique_ptr<TH1>         m_peakResMC;
 
