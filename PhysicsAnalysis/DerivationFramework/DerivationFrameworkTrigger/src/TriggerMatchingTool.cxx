@@ -213,7 +213,7 @@ namespace DerivationFramework {
           // index. Otherwise we have to locate the correct proxy from the element
           if (container->trackIndices())
             links.emplace_back(
-                m_offlineInputs.at(part->type()).hashedKey(),
+                m_offlineInputs.at(part->type()).key(),
                 part->index(),
                 extendedCtx.proxy());
           else
