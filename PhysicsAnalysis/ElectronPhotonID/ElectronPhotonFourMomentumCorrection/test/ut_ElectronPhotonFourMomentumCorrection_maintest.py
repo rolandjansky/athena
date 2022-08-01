@@ -7,6 +7,9 @@ import ROOT
 import math
 import random
 
+RUN2022 = 422632
+RUN2018 = 348885
+RUN2017 = 325713
 RUN2016 = 297730
 RUN2015 = 252604
 
@@ -53,9 +56,10 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
         tool.msg().setLevel(ROOT.MSG.WARNING)
         self.assertTrue(tool.setProperty("ESModel", "es2010").isSuccess())
         self.assertTrue(tool.initialize().isSuccess())
-
+        
+        tool.msg().setLevel(ROOT.MSG.INFO)
         self.assertTrue(tool.setProperty(
-            "ESModel", "es2018_R21_v0").isSuccess())
+            "ESModel", "es2022_R22_PRE").isSuccess())
         self.assertTrue(tool.initialize().isSuccess())
 
     def generator_kinematics(self, eta_range=None,
@@ -124,7 +128,7 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
         """
         tool = ROOT.CP.EgammaCalibrationAndSmearingTool("tool")
         self.assertTrue(tool.setProperty(
-            "ESModel", "es2018_R21_v0").isSuccess())
+            "ESModel", "es2022_R22_PRE").isSuccess())
         self.assertTrue(tool.setProperty["int"](
             "randomRunNumber", RUN2015).isSuccess())
         self.assertTrue(tool.setProperty['bool']("doSmearing", 0).isSuccess())
@@ -152,13 +156,13 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
         check the all up systematic is different from the nominal
         """
         tool = ROOT.CP.EgammaCalibrationAndSmearingTool("tool_2015PRE")
-        self.assertTrue(tool.setProperty("ESModel", "es2015PRE").isSuccess())
+        self.assertTrue(tool.setProperty("ESModel", "es2022_R22_PRE").isSuccess())
         self.assertTrue(tool.setProperty['bool']("doSmearing", 0).isSuccess())
         self.assertTrue(tool.setProperty(
             "decorrelationModel", "1NP_v1"). isSuccess())
         self.assertTrue(tool.setProperty["int"](
-            "randomRunNumber", RUN2015).isSuccess())
-        tool.msg().setLevel(ROOT.MSG.WARNING)
+            "randomRunNumber", RUN2022).isSuccess())
+        tool.msg().setLevel(ROOT.MSG.INFO)
         self.assertTrue(tool.initialize().isSuccess())
         ei = self.factory.create_eventinfo(True, 100000)   # simulation
         set_all_up = ROOT.CP.SystematicSet()
@@ -238,7 +242,7 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
         test if different MVAs give different results
         """
         tool1 = ROOT.CP.EgammaCalibrationAndSmearingTool("tool")
-        tool1.setProperty("ESModel", "es2018_R21_v0").ignore()
+        tool1.setProperty("ESModel", "es2022_R22_PRE").ignore()
         tool1.setProperty['bool']("doSmearing", 0).ignore()
         tool1.setProperty["int"]("randomRunNumber", RUN2015).ignore()
         tool1.msg().setLevel(ROOT.MSG.WARNING)
@@ -470,6 +474,8 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
         _test_list_syst("es2015PRE", "FULL_v1", None, None, 158)
         _test_list_syst("es2015PRE", None, "FULL_v1", "FULL_v1", 158)
         _test_list_syst("es2015PRE", None, None, None, 158)
+        _test_list_syst("es2018_R21_v0", None, None, None, 158)
+        _test_list_syst("es2022_R22_PRE", None, None, None, 162)
 
         # these works, but generate FATALS, as expected
         _test_list_syst("es2016PRE", "1NP_v1", "1NP_v1",
@@ -498,7 +504,7 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
         """ check scale correction is changing the energy """
         tool1 = ROOT.CP.EgammaCalibrationAndSmearingTool("tool")
         self.assertTrue(tool1.setProperty(
-            "ESModel", "es2018_R21_v0").isSuccess())
+            "ESModel", "es2022_R22_PRE").isSuccess())
         tool1.msg().setLevel(ROOT.MSG.WARNING)
         self.assertTrue(tool1.initialize().isSuccess())
 

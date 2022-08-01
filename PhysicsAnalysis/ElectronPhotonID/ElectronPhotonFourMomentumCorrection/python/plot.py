@@ -94,7 +94,7 @@ def plot_ATLAS(fig, x, y, label="Internal", fontsize=20):
 
     def on_draw(event):
         x_right = label.get_window_extent().transformed(fig.transFigure.inverted()).max[0]
-        fig.text(x_right, y, " " + label, fontsize=fontsize)
+        fig.text(x_right, y, label, fontsize=fontsize)
         fig.canvas.mpl_disconnect(cid)
         return False
 
