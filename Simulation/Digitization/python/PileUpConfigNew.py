@@ -1,11 +1,11 @@
 """ComponentAccumulator confguration for pileup digitization
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-from RngComps.RandomServices import dSFMT
+from RngComps.RandomServices import dSFMT, AthRNGSvcCfg
 from Digitization import PileUpEventType
 from Digitization.RunDependentConfigNew import (
     maxNevtsPerXing,
@@ -43,8 +43,7 @@ def FixedArrayBMCfg(flags, name="FixedArrayBM", **kwargs):
 def ArrayBMCfg(flags, name="ArrayBM", **kwargs):
     acc = ComponentAccumulator()
     kwargs.setdefault("IntensityPattern", flags.Digitization.PU.BeamIntensityPattern)
-    acc.merge(PileUpConfigdSFMT("BEAMINT"))
-    kwargs.setdefault("RandomSvc", acc.getService("AtDSFMTGenSvc"))
+    kwargs.setdefault("RandomSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
     acc.addService(CompFactory.ArrayBM(name, **kwargs))
     return acc
 
