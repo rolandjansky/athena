@@ -40,7 +40,7 @@ namespace JetTagDQA{
 
       void bookNJetsThatPassedWPCutsHistos();
       void initializeNJetsThatPassedWPCutsMap(std::map<std::string, int>& nJetsThatPassedWPCuts);
-      void updateNJetsThatPassedWPCutsMap(std::map<std::string, int>& nJetsThatPassedWPCuts, const double& discr_IP3D, const double& discr_IP2D, const double& discr_RNNIP, const double& discr_SV1, const double& discr_IP3DSV1, const double& discr_JetFitter, const double& discr_MV2c10, const double& discr_DL1, const double& discr_DL1d, const double& discr_DL1r);
+      void updateNJetsThatPassedWPCutsMap(std::map<std::string, int>& nJetsThatPassedWPCuts, const double& discr_IP3D, const double& discr_IP2D, const double& discr_RNNIP, const double& discr_SV1, const double& discr_IP3DSV1, const double& discr_JetFitter, const double& discr_DL1d, const double& discr_DL1r);
       void fillNJetsThatPassedWPCutsHistos(std::map<std::string, int>& nJetsThatPassedWPCuts, const xAOD::EventInfo* event);
 
       void setTaggerInfos();    
@@ -462,9 +462,6 @@ namespace JetTagDQA{
       TH1* m_SV1_pc = nullptr;
       TH1* m_SV1_pu = nullptr;
       
-      TH1* m_DL1_pb = nullptr;
-      TH1* m_DL1_pc = nullptr;
-      TH1* m_DL1_pu = nullptr;
       TH1* m_DL1d_pb = nullptr;
       TH1* m_DL1d_pc = nullptr;
       TH1* m_DL1d_pu = nullptr;
@@ -529,12 +526,9 @@ namespace JetTagDQA{
       std::map<std::string, double> m_SV1_workingPoints;
       std::map<std::string, double> m_IP3DSV1_workingPoints;
       std::map<std::string, double> m_JetFitter_workingPoints;
-      std::map<std::string, double> m_MV2c10_workingPoints;
-      std::map<std::string, double> m_DL1_workingPoints;
       std::map<std::string, double> m_DL1d_workingPoints;
       std::map<std::string, double> m_DL1r_workingPoints;
       double m_RNNIP_fc = 0.0;
-      double m_DL1_fc = 0.0;
       double m_DL1d_fc = 0.0;
       double m_DL1r_fc = 0.0;
       std::map<std::string, TH1*> m_weight_histos; 
