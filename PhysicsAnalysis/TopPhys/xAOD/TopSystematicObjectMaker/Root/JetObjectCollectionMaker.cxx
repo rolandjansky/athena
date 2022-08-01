@@ -82,7 +82,7 @@ namespace top {
 
     declareProperty("JetUpdateJvtTool", m_jetUpdateJvtTool);
 
-    declareProperty("TruthJetCollectionForHSTagging", m_truthJetCollForHS = "AntiKt4TruthJets");
+    declareProperty("TruthJetCollectionForHSTagging", m_truthJetCollForHS = "AntiKt4TruthDressedWZJets");
   }
 
   StatusCode JetObjectCollectionMaker::initialize() {
@@ -110,10 +110,6 @@ namespace top {
           top::check(m_FFJetSmearingTool.retrieve(),
                      "Failed to retrieve FFJetSmearingTool");
       }
-    }
-
-    if (m_config->getDerivationStream() == "PHYS") {
-      m_truthJetCollForHS = "AntiKt4TruthDressedWZJets";
     }
 
     ///-- Small-R JER (Pseudo-)Data Smearing Config --///
