@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file  AthenaServices/test/DelayedConditionsCleanerSvc_test.cxx
@@ -65,14 +65,24 @@ EventIDBase timestamp (int t)
 }
 
 
+class TestDeleter
+  : public CxxUtils::IRangeMapPayloadDeleter<void, EventContext>
+{
+public:
+  static void delfcn (const void*) {}
+  TestDeleter() : CxxUtils::IRangeMapPayloadDeleter<void, EventContext> (delfcn) {}
+  virtual void discard (const void*) override {}
+  virtual void quiescent (const EventContext&) override {}
+  
+};
 class CondContTest
   : public CondContBase
 {
 public:
-  static void delfcn (const void*) {}
   CondContTest (Athena::IRCUSvc& rcusvc, const DataObjID& id, int n,
                 CondContBase::KeyType keyType)
-    : CondContBase (rcusvc, KeyType::SINGLE, 123, id, nullptr, delfcn, 0),
+    : CondContBase (rcusvc, KeyType::SINGLE, 123, id, nullptr,
+                    std::make_shared<TestDeleter>(), 0),
       m_n (n)
   {
     // Do a dummy insert to set the key type.
@@ -151,7 +161,7 @@ public:
                              const EventContext& ctx = Gaudi::Hive::currentContext()) override
   {
     return insertBase (r,
-                       CondContSet::payload_unique_ptr (obj, delfcn),
+                       CondContSet::payload_unique_ptr (obj, TestDeleter::delfcn),
                        ctx);
   }
 
