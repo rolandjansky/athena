@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -638,7 +638,7 @@ namespace {
     void override_add (AthenaPoolTopLevelTPCnvBase *cnv)
     {
       for( convIdMap_t::const_iterator itr = m_convIdMap.begin();
-           itr != m_convIdMap.end(); itr++ ) {
+           itr != m_convIdMap.end(); ++itr ) {
         cnv->addExtTPConverterForReading( itr->second );
       }
     }
