@@ -932,25 +932,25 @@ def setupMenu():
         ChainProp(name='HLT_j70_j50a_j0_DJMASS1000j50dphi200x400deta_L1MJJ-500-NFF', l1SeedThresholds=['FSNOSEED']*3,stream=['VBFDelayed'],groups=PrimaryLegGroup+MultiJetGroup+LegacyTopoGroup), # previously HLT_j70_j50_0eta490_invm1000j70_dphi20_deta40_L1MJJ-500-NFF
 
         ## TLA chains
-        ChainProp(name='HLT_j20_PhysicsTLA_L1J100', l1SeedThresholds=['FSNOSEED'], stream=['TLA'], groups=PrimaryLegGroup+SingleJetGroup),
-        ChainProp(name='HLT_j20_PhysicsTLA_L1J50_DETA20-J50J', l1SeedThresholds=['FSNOSEED'], stream=['TLA'], groups=EOFTLALegGroup+SingleJetGroup+LegacyTopoGroup),
-        ChainProp(name='HLT_j20_PhysicsTLA_L1HT190-J15s5pETA21', l1SeedThresholds=['FSNOSEED'], stream=['TLA'], groups=PrimaryLegGroup+SingleJetGroup+LegacyTopoGroup),
+        ChainProp(name='HLT_j20_PhysicsTLA_L1J100', l1SeedThresholds=['FSNOSEED'], stream=['TLA'], groups=PrimaryLegGroup+SingleJetGroup, monGroups=['tlaMon:shifter']),
+        ChainProp(name='HLT_j20_PhysicsTLA_L1J50_DETA20-J50J', l1SeedThresholds=['FSNOSEED'], stream=['TLA'], groups=EOFTLALegGroup+SingleJetGroup+LegacyTopoGroup, monGroups=['tlaMon:shifter']),
+        ChainProp(name='HLT_j20_PhysicsTLA_L1HT190-J15s5pETA21', l1SeedThresholds=['FSNOSEED'], stream=['TLA'], groups=PrimaryLegGroup+SingleJetGroup+LegacyTopoGroup, monGroups=['tlaMon:shifter']),
         # TLA chains with PFlow, ATR-20395
-        ChainProp(name='HLT_j20_pf_ftf_preselj140_PhysicsTLA_L1J50',  l1SeedThresholds=['FSNOSEED'], stream=['TLA'], groups=EOFTLALegGroup+SingleJetGroup),
-        ChainProp(name='HLT_j20_pf_ftf_preselj180_PhysicsTLA_L1J100', l1SeedThresholds=['FSNOSEED'], stream=['TLA'], groups=PrimaryLegGroup+SingleJetGroup),
+        ChainProp(name='HLT_j20_pf_ftf_preselj140_PhysicsTLA_L1J50',  l1SeedThresholds=['FSNOSEED'], stream=['TLA'], groups=EOFTLALegGroup+SingleJetGroup, monGroups=['tlaMon:shifter']),
+        ChainProp(name='HLT_j20_pf_ftf_preselj180_PhysicsTLA_L1J100', l1SeedThresholds=['FSNOSEED'], stream=['TLA'], groups=PrimaryLegGroup+SingleJetGroup, monGroups=['tlaMon:shifter']),
         # TLA chains with PFlow, ATR-21594
-        ChainProp(name='HLT_j20_pf_ftf_preselcHT450_PhysicsTLA_L1HT190-J15s5pETA21', l1SeedThresholds=['FSNOSEED'], stream=['TLA'], groups=MultiJetGroup+PrimaryLegGroup+LegacyTopoGroup),
+        ChainProp(name='HLT_j20_pf_ftf_preselcHT450_PhysicsTLA_L1HT190-J15s5pETA21', l1SeedThresholds=['FSNOSEED'], stream=['TLA'], groups=MultiJetGroup+PrimaryLegGroup+LegacyTopoGroup, monGroups=['tlaMon:shifter']),
         # MultiJet TLA support for intensity ramp up
-        ChainProp(name='HLT_2j20_2j20_pf_ftf_presel2c20XX2c20b85_PhysicsTLA_L1J45p0ETA21_3J15p0ETA25', l1SeedThresholds=['FSNOSEED']*2, stream=['TLA'], groups=MultiJetGroup+SupportLegGroup),
-        ChainProp(name='HLT_j60_j45_j25_j20_pf_ftf_preselc60XXc45XXc25XXc20_PhysicsTLA_L1J45p0ETA21_3J15p0ETA25',l1SeedThresholds=['FSNOSEED']*4, stream=['TLA'], groups=MultiJetGroup+SupportLegGroup),
+        ChainProp(name='HLT_2j20_2j20_pf_ftf_presel2c20XX2c20b85_PhysicsTLA_L1J45p0ETA21_3J15p0ETA25', l1SeedThresholds=['FSNOSEED']*2, stream=['TLA'], groups=MultiJetGroup+SupportLegGroup, monGroups=['tlaMon:shifter']),
+        ChainProp(name='HLT_j60_j45_j25_j20_pf_ftf_preselc60XXc45XXc25XXc20_PhysicsTLA_L1J45p0ETA21_3J15p0ETA25',l1SeedThresholds=['FSNOSEED']*4, stream=['TLA'], groups=MultiJetGroup+SupportLegGroup, monGroups=['tlaMon:shifter']),
 
         # ATR-25512
-        ChainProp(name='HLT_j20_pf_ftf_preselj190_PhysicsTLA_L1J100', l1SeedThresholds=['FSNOSEED'], stream=['TLA'], groups=PrimaryLegGroup+SingleJetGroup),
-        ChainProp(name='HLT_j20_pf_ftf_preselj200_PhysicsTLA_L1J100', l1SeedThresholds=['FSNOSEED'], stream=['TLA'], groups=PrimaryLegGroup+SingleJetGroup),
+        ChainProp(name='HLT_j20_pf_ftf_preselj190_PhysicsTLA_L1J100', l1SeedThresholds=['FSNOSEED'], stream=['TLA'], groups=PrimaryLegGroup+SingleJetGroup, monGroups=['tlaMon:shifter']),
+        ChainProp(name='HLT_j20_pf_ftf_preselj200_PhysicsTLA_L1J100', l1SeedThresholds=['FSNOSEED'], stream=['TLA'], groups=PrimaryLegGroup+SingleJetGroup, monGroups=['tlaMon:shifter']),
         # ATR-25512 Duplicating with PhaseI items
-        ChainProp(name='HLT_j20_pf_ftf_preselj180_PhysicsTLA_L1jJ160', l1SeedThresholds=['FSNOSEED'], stream=['TLA'], groups=PrimaryPhIGroup+SingleJetGroup),
-        ChainProp(name='HLT_j20_pf_ftf_preselj190_PhysicsTLA_L1jJ160', l1SeedThresholds=['FSNOSEED'], stream=['TLA'], groups=PrimaryPhIGroup+SingleJetGroup),
-        ChainProp(name='HLT_j20_pf_ftf_preselj200_PhysicsTLA_L1jJ160', l1SeedThresholds=['FSNOSEED'], stream=['TLA'], groups=PrimaryPhIGroup+SingleJetGroup),
+        ChainProp(name='HLT_j20_pf_ftf_preselj180_PhysicsTLA_L1jJ160', l1SeedThresholds=['FSNOSEED'], stream=['TLA'], groups=PrimaryPhIGroup+SingleJetGroup, monGroups=['tlaMon:shifter']),
+        ChainProp(name='HLT_j20_pf_ftf_preselj190_PhysicsTLA_L1jJ160', l1SeedThresholds=['FSNOSEED'], stream=['TLA'], groups=PrimaryPhIGroup+SingleJetGroup, monGroups=['tlaMon:shifter']),
+        ChainProp(name='HLT_j20_pf_ftf_preselj200_PhysicsTLA_L1jJ160', l1SeedThresholds=['FSNOSEED'], stream=['TLA'], groups=PrimaryPhIGroup+SingleJetGroup, monGroups=['tlaMon:shifter']),
 
         #ATR-24411 Phase I inputs
         # Single jet support 
@@ -1085,9 +1085,9 @@ def setupMenu():
         ChainProp(name='HLT_6j45c_020jvt_pf_ftf_presel6c25_L14jJ40', l1SeedThresholds=['FSNOSEED'], stream=['VBFDelayed'], groups=PrimaryPhIGroup+MultiJetGroup),
 
         # TLA chains
-        ChainProp(name='HLT_j20_PhysicsTLA_L1jJ160', l1SeedThresholds=['FSNOSEED'], stream=['TLA'], groups=PrimaryPhIGroup+SingleJetGroup),
-        ChainProp(name='HLT_j20_PhysicsTLA_L1jJ90_DETA20-jJ90J', l1SeedThresholds=['FSNOSEED'], stream=['TLA'], groups=EOFTLAPhIGroup+SingleJetGroup+Topo3Group),
-        ChainProp(name='HLT_j20_PhysicsTLA_L1HT190-jJ40s5pETA21', l1SeedThresholds=['FSNOSEED'], stream=['TLA'], groups=PrimaryPhIGroup+SingleJetGroup+Topo3Group),
+        ChainProp(name='HLT_j20_PhysicsTLA_L1jJ160', l1SeedThresholds=['FSNOSEED'], stream=['TLA'], groups=PrimaryPhIGroup+SingleJetGroup, monGroups=['tlaMon:shifter']),
+        ChainProp(name='HLT_j20_PhysicsTLA_L1jJ90_DETA20-jJ90J', l1SeedThresholds=['FSNOSEED'], stream=['TLA'], groups=EOFTLAPhIGroup+SingleJetGroup+Topo3Group, monGroups=['tlaMon:shifter']),
+        ChainProp(name='HLT_j20_PhysicsTLA_L1HT190-jJ40s5pETA21', l1SeedThresholds=['FSNOSEED'], stream=['TLA'], groups=PrimaryPhIGroup+SingleJetGroup+Topo3Group, monGroups=['tlaMon:shifter']),
 
         ChainProp(name='HLT_j70_j50a_j0_DJMASS1000j50dphi200x400deta_L1jMJJ-500-NFF', l1SeedThresholds=['FSNOSEED']*3,stream=['VBFDelayed'],groups=PrimaryPhIGroup+MultiJetGroup+Topo3Group),
 
@@ -2283,15 +2283,15 @@ def setupMenu():
         ChainProp(name='HLT_g90_loose_xe90_cell_L1eEM26M',l1SeedThresholds=['eEM26M','FSNOSEED'],stream=[PhysicsStream], groups=PrimaryPhIGroup+EgammaMETGroup),
 
         # photon + dijets TLA (ATR-19317)
-        ChainProp(name="HLT_g35_tight_3j25_pf_ftf_PhysicsTLA_L1EM22VHI", l1SeedThresholds=['EM22VHI','FSNOSEED'], stream=['TLA'], groups=PrimaryLegGroup+EgammaJetGroup), 
+        ChainProp(name="HLT_g35_tight_3j25_pf_ftf_PhysicsTLA_L1EM22VHI", l1SeedThresholds=['EM22VHI','FSNOSEED'], stream=['TLA'], groups=PrimaryLegGroup+EgammaJetGroup, monGroups=['tlaMon:shifter']), 
         # photon + dijets TLA for intensity ramp up
-        ChainProp(name="HLT_g35_loose_3j25_pf_ftf_PhysicsTLA_L1EM22VHI", l1SeedThresholds=['EM22VHI','FSNOSEED'], stream=['TLA'], groups=SupportLegGroup+EgammaJetGroup), 
+        ChainProp(name="HLT_g35_loose_3j25_pf_ftf_PhysicsTLA_L1EM22VHI", l1SeedThresholds=['EM22VHI','FSNOSEED'], stream=['TLA'], groups=SupportLegGroup+EgammaJetGroup, monGroups=['tlaMon:shifter']),
         # photon + dijet TLA EMTopo backup
-        ChainProp(name="HLT_g35_tight_3j25_PhysicsTLA_L1EM22VHI", l1SeedThresholds=['EM22VHI','FSNOSEED'], stream=['TLA'], groups=SupportLegGroup+EgammaJetGroup),
+        ChainProp(name="HLT_g35_tight_3j25_PhysicsTLA_L1EM22VHI", l1SeedThresholds=['EM22VHI','FSNOSEED'], stream=['TLA'], groups=SupportLegGroup+EgammaJetGroup, monGroups=['tlaMon:shifter']),
         # Support full build photon + dijet TLA in PhysicsStream
-        ChainProp(name="HLT_g35_tight_3j25_pf_ftf_L1EM22VHI", l1SeedThresholds=['EM22VHI','FSNOSEED'], stream=[PhysicsStream], groups=SupportLegGroup+EgammaJetGroup), 
+        ChainProp(name="HLT_g35_tight_3j25_pf_ftf_L1EM22VHI", l1SeedThresholds=['EM22VHI','FSNOSEED'], stream=[PhysicsStream], groups=SupportLegGroup+EgammaJetGroup),
         # Backup Support Full Build EMTopo photon + dijet TLA
-        ChainProp(name="HLT_g35_tight_3j25_L1EM22VHI", l1SeedThresholds=['EM22VHI','FSNOSEED'], stream=[PhysicsStream], groups=SupportLegGroup+EgammaJetGroup), 
+        ChainProp(name="HLT_g35_tight_3j25_L1EM22VHI", l1SeedThresholds=['EM22VHI','FSNOSEED'], stream=[PhysicsStream], groups=SupportLegGroup+EgammaJetGroup),
 
                 # meson + photon (ATR-23239)
         #legacy, primary
