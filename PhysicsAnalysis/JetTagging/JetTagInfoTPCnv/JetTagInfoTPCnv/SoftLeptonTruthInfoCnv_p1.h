@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETTAGINFOTPCNV_SOFTLEPTONTRUTHINFOCNV_P1_H
@@ -28,8 +28,8 @@ namespace Analysis {
     virtual void persToTrans(const SoftLeptonTruthInfo_p1 *persObj,
 			     SoftLeptonTruthInfo *transObj,
 			     MsgStream &log);
-    virtual void transToPers(const SoftLeptonTruthInfo *persObj,
-			     SoftLeptonTruthInfo_p1 *transObj,
+    virtual void transToPers(const SoftLeptonTruthInfo *transObj,
+			     SoftLeptonTruthInfo_p1 *persObj,
 			     MsgStream &log);
 
     private:

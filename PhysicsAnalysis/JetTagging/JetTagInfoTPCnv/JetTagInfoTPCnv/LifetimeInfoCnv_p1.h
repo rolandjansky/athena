@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETTAGINFOTPCNV_LifeTimeCNV_P1_H
@@ -33,8 +33,8 @@ namespace Analysis {
       virtual void persToTrans(const LifetimeInfo_p1 *persObj,
 			       LifetimeInfo *transObj,
 			       MsgStream &log);
-      virtual void transToPers(const LifetimeInfo *persObj,
-			       LifetimeInfo_p1 *transObj,
+      virtual void transToPers(const LifetimeInfo *trans,
+			       LifetimeInfo_p1 *pers,
 			       MsgStream &log);
 
     private:

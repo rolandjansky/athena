@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETTAGINFOTPCNV_ISvxAssociationCNV_P1_H
@@ -28,8 +28,8 @@ namespace Analysis {
       virtual void persToTrans(const ISvxAssociation_p1 *persObj,
 			       ISvxAssociation *transObj,
 			       MsgStream &log);
-      virtual void transToPers(const ISvxAssociation *persObj,
-			       ISvxAssociation_p1 *transObj,
+      virtual void transToPers(const ISvxAssociation *transObj,
+			       ISvxAssociation_p1 *persObj,
 			       MsgStream &log);
 
     private:
