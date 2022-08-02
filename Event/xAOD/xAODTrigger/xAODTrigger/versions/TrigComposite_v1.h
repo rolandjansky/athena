@@ -19,6 +19,7 @@ extern "C" {
 #include "AthContainers/AuxElement.h"
 #include "AthLinks/ElementLink.h"
 #include "xAODBase/IParticleContainer.h"
+#include "CxxUtils/sgkey_t.h"
 
 #include "CxxUtils/checker_macros.h"
 
@@ -51,6 +52,8 @@ namespace xAOD {
    class TrigComposite_v1 : public SG::AuxElement {
 
    public:
+      using sgkey_t = SG::sgkey_t;
+
       /// Default constructor
       TrigComposite_v1();
 
@@ -130,19 +133,19 @@ namespace xAOD {
 
       /// Add a link without type
       void typelessSetObjectLink( const std::string& name, 
-                                  const uint32_t key, 
+                                  const sgkey_t key, 
                                   const uint32_t clid, 
                                   const uint16_t beginIndex, 
                                   const uint16_t endIndex = 0 );
 
       /// Fetches a single link without type. Note: Will not work for collections of links, use typelessGetObjectCollectionLinks
       /// @param[in] name Name of the stored link
-      /// @param[out] key Storegte key of the link-object's collection
+      /// @param[out] key Storegate key of the link-object's collection
       /// @param[out] clid Type of the object's collection
       /// @param[out] index Index within the collection of the link-object
       /// @return True if a link was found
       bool typelessGetObjectLink( const std::string& name, 
-                                  uint32_t& key,
+                                  sgkey_t& key,
                                   uint32_t& clid, 
                                   uint16_t& index) const;
 
@@ -153,7 +156,7 @@ namespace xAOD {
       /// @param[out] indexVec Index of the objects within their collections  will be pushed on to this vector
       /// @return True if at least one link was found
       bool typelessGetObjectCollectionLinks( const std::string& name, 
-                                  std::vector<uint32_t>& keyVec,
+                                  std::vector<sgkey_t>& keyVec,
                                   std::vector<uint32_t>& clidVec, 
                                   std::vector<uint16_t>& indexVec) const;
 
@@ -217,7 +220,7 @@ namespace xAOD {
       /// Raw access to the persistent link names
       const std::vector< std::string >& linkColNames() const;
       /// Raw access to the persistent link labels. 
-      const std::vector< uint32_t >& linkColKeys() const;
+      const std::vector< sgkey_t >& linkColKeys() const;
       /// Raw access to the persistent link indices. 
       const std::vector< uint16_t >& linkColIndices() const;
       /// Raw access to the persistent link CLIDs
@@ -229,7 +232,7 @@ namespace xAOD {
       bool isRemapped() const;
 
       /// Raw access to the persistent link labels. Will attempt to access remapped link data.
-      const std::vector< uint32_t >& linkColKeysRemap() const;
+      const std::vector< sgkey_t >& linkColKeysRemap() const;
       /// Raw access to the persistent link indices. Will attempt to access remapped link data.
       const std::vector< uint16_t >& linkColIndicesRemap() const;
 
@@ -278,14 +281,14 @@ namespace xAOD {
       /// Raw access to the persistent link names (non-const)
       std::vector< std::string >& linkColNamesNC();
       /// Raw access to the persistent link labels (non-const)
-      std::vector< uint32_t >& linkColKeysNC();
+      std::vector< sgkey_t >& linkColKeysNC();
       /// Raw access to the persistent link indices (non-const)
       std::vector< uint16_t >& linkColIndicesNC();
       /// Raw access to the persistent link CLIDs (non-const)
       std::vector< uint32_t >& linkColClidsNC();
 
       // Helper function, check for exact link match
-      bool hasObjectLinkExact(const std::string& name, const uint32_t key, const uint16_t index, const uint32_t clid) const;
+      bool hasObjectLinkExact(const std::string& name, const sgkey_t key, const uint16_t index, const uint32_t clid) const;
 
       /// Helper function, copy one link into this object
       void copyLinkInternal(const xAOD::TrigComposite_v1& other, const size_t index, const std::string& newName);
