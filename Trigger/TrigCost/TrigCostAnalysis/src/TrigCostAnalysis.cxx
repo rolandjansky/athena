@@ -224,7 +224,8 @@ StatusCode TrigCostAnalysis::execute() {
   std::map<std::string, std::set<size_t>> chainToAlgIdx;
   std::map<std::string, std::set<size_t>> chainToUniqAlgs; // List for unique algorithms for each chain
   std::map<std::string, std::map<int16_t, std::set<size_t>>> seqToAlgIdx; // Map of algorithms split in views
-  std::map<std::string, std::vector<TrigConf::Chain>> algToChain;
+  std::map<std::string, std::set<std::string>> algToChain;
+  m_algToChainTool->cacheSGKeys(context);
   ATH_CHECK( m_algToChainTool->getChainsForAllAlgs(context, algToChain) );
 
   // Retrieve active sequences and algorithms
@@ -236,14 +237,14 @@ StatusCode TrigCostAnalysis::execute() {
     const std::string algName = TrigConf::HLTUtils::hash2string(nameHash, "ALG");
 
     size_t i = 0;
-    for (const TrigConf::Chain& chain : algToChain[algName]){
-      chainToAlgIdx[chain.name()].insert(tc->index());
+    for (const std::string& chain : algToChain[algName]){
+      chainToAlgIdx[chain].insert(tc->index());
       ++i;
     }
 
     if (i == 1){
-      ATH_MSG_DEBUG("Algorithm " << algName << " executed uniquely for " << algToChain[algName][0].name() << " chain");
-      chainToUniqAlgs[algToChain[algName][0].name()].insert(tc->index());
+      ATH_MSG_DEBUG("Algorithm " << algName << " executed uniquely for " << *algToChain[algName].begin() << " chain");
+      chainToUniqAlgs[*algToChain[algName].begin()].insert(tc->index());
     }
 
     if (algToSeq.count(algName)){
