@@ -21,6 +21,8 @@
 #include "TrigConfxAOD/xAODConfigTool.h"
 #include "TriggerMatchingTool/MatchingTool.h"
 #include "TriggerMatchingTool/MatchFromCompositeTool.h"
+#include "TriggerMatchingTool/R3MatchingTool.h"
+#include "TriggerMatchingTool/DRScoringTool.h"
 #include "TrigTauMatching/TrigTauMatching.h"
 #include "TrigGlobalEfficiencyCorrection/TrigGlobalEfficiencyCorrectionTool.h"
 #include "TrigGlobalEfficiencyCorrection/ImportData.h"
@@ -53,7 +55,7 @@ namespace top {
     if (m_config->makeAllCPTools()) {
       if (!m_config->isTruthDxAOD()) {
         ///-- The configuration tool --///
-        const std::string trig_config_name = "TrigConf::xAODConfigTool";
+        const std::string trig_config_name = "xAODConfigTool";
         if (asg::ToolStore::contains<TrigConf::ITrigConfigTool>(trig_config_name)) {
           m_trigConfTool = asg::ToolStore::get<TrigConf::ITrigConfigTool>(trig_config_name);
         } else {
@@ -63,31 +65,52 @@ namespace top {
         }
 
         ///-- The decision tool --///
-        const std::string trig_decision_name = "Trig::TrigDecisionTool";
+        const std::string trig_decision_name = "TrigDecisionTool";
         if (asg::ToolStore::contains<Trig::TrigDecisionTool>(trig_decision_name)) {
           m_trigDecisionTool = asg::ToolStore::get<Trig::TrigDecisionTool>(trig_decision_name);
         } else {
           Trig::TrigDecisionTool* trigDecTool = new Trig::TrigDecisionTool(trig_decision_name);
           top::check(trigDecTool->setProperty("ConfigTool", m_trigConfTool), "Failed to setProperty");
           top::check(trigDecTool->setProperty("TrigDecisionKey", "xTrigDecision"), "Failed to setProperty");
+          if (m_config->isRun3()) {
+            top::check(trigDecTool->setProperty("NavigationFormat", "TrigComposite"), "Failed to setProperty"); // Read Run 3 navigation (options are "TrigComposite" for R3 or "TriggElement" for R2, R2 navigation is not kept in most DAODs) 
+            top::check(trigDecTool->setProperty("HLTSummary", "HLTNav_Summary_DAODSlimmed"), "Failed to setProperty"); // Name of R3 navigation container (if reading from AOD, then "HLTNav_Summary_AODSlimmed" instead)
+          }
           top::check(trigDecTool->initialize(), "Failed to initialize trigger decision tool");
           m_trigDecisionTool = trigDecTool;
         }
 
+        if (m_config->isRun3()) {
+          static const std::string trigger_scoring_tool_name = "Trig::DRScoringTool"; 
+          if (asg::ToolStore::contains<Trig::IMatchScoringTool>(trigger_scoring_tool_name)) {
+            m_trigScoringTool = asg::ToolStore::get<Trig::IMatchScoringTool>(trigger_scoring_tool_name);
+          } else {
+            Trig::DRScoringTool* trigScoringTool = new Trig::DRScoringTool(trigger_scoring_tool_name);
+            top::check(trigScoringTool->initialize(), "Failed to initialize trig. scoring tool");
+            m_trigScoringTool = trigScoringTool;
+          }
+        }
+
         // Trigger matching tool
-        static const std::string trig_match_name = "Trig::MatchingTool";
+        static const std::string trig_match_name = "MatchingTool";
         if (asg::ToolStore::contains<Trig::IMatchingTool>(trig_match_name)) {
           m_trigMatchTool = asg::ToolStore::get<Trig::IMatchingTool>(trig_match_name);
         } else {
-          Trig::MatchFromCompositeTool* trigMatchTool = new Trig::MatchFromCompositeTool(trig_match_name);
-          top::check(trigMatchTool->initialize(),
+          if (m_config->isRun3()) {
+            Trig::R3MatchingTool* trigMatchTool = new Trig::R3MatchingTool(trig_match_name);
+            top::check(trigMatchTool->initialize(), "Failed to initialize trig. matching tool");
+            m_trigMatchTool = trigMatchTool;
+          } else {
+            Trig::MatchFromCompositeTool* trigMatchTool = new Trig::MatchFromCompositeTool(trig_match_name);
+            top::check(trigMatchTool->initialize(),
                      "Failed to initialize trig. matching tool");
-          m_trigMatchTool = trigMatchTool;
+            m_trigMatchTool = trigMatchTool;
+          }
         }
 
         ///-- Tau matching --///
         if (m_config->useTaus()) {
-          const std::string tauMatchName = "Trig::TrigTauMatchingTool";
+          const std::string tauMatchName = "TrigTauMatchingTool";
           if (asg::ToolStore::contains<Trig::ITrigTauMatchingTool>(tauMatchName)) {
             m_trigMatchTauTool = asg::ToolStore::get<Trig::ITrigTauMatchingTool>(tauMatchName);
           } else {
