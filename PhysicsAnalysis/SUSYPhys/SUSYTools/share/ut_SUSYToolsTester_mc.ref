@@ -27,7 +27,7 @@ Package.SUSYToolsTester  INFO    xsec DB initialized
 Package.SUSYToolsTester  INFO     ABOUT TO INITIALIZE SUSYTOOLS 
 SUSYObjDef_xAOD          INFO    Initialising... 
 SUSYObjDef_xAOD          INFO    *****     *****     *****     *****
-SUSYObjDef_xAOD          INFO    Configuring from file /nfs/dust/atlas/user/mrimoldi/software/DevelopST_R22/ELEWP/build/x86_64-centos7-gcc11-opt/data/SUSYTools/SUSYTools_Default.conf
+SUSYObjDef_xAOD          INFO    Configuring from file /nfs/dust/atlas/user/mrimoldi/software/DevelopST_R22/FixTest/build/x86_64-centos7-gcc11-opt/data/SUSYTools/SUSYTools_Default.conf
 SUSYObjDef_xAOD          INFO    Config file opened
 SUSYObjDef_xAOD          INFO    readConfig(): Loaded property Jet.InputType with value 9
 SUSYObjDef_xAOD          INFO    readConfig(): Loaded property Muon.Id with value 1
@@ -264,7 +264,7 @@ PathResolver             WARNING Locating dev file dev/PileupReweighting/share/D
 Info in <CP::TPileupReweighting::AddLumiCalcFile>: Adding LumiMetaData (scale factor=0.970874)...
 Info in <CP::TPileupReweighting::AddLumiCalcFile>: Adding LumiMetaData (scale factor=1.010100)...
 Info in <CP::TPileupReweighting::AddLumiCalcFile>: Adding LumiMetaData (scale factor=0.934579)...
-DefaultWeightTool        INFO    AsgTool DefaultWeightTool @ 0xf705490
+DefaultWeightTool        INFO    AsgTool DefaultWeightTool @ 0xf8e57e0
 ToolSvc.JetCalibTool_A...INFO    Initializing ToolSvc.JetCalibTool_AntiKt4EMPFlow to calibrate AntiKt4EMPFlowjets
 ToolSvc.JetCalibTool_A...INFO    Reading global JES settings from: JES_MC16Recommendation_Consolidated_PFlow_Apr2019_Rel21.config
 ToolSvc.JetCalibTool_A...INFO    resolved in: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetCalibTools/CalibArea-00-04-82/CalibrationConfigs/JES_MC16Recommendation_Consolidated_PFlow_Apr2019_Rel21.config
@@ -680,7 +680,7 @@ ToolSvc.JetVertexTagge...INFO      Reading JVT file from:
     JetMomentTools/JVTlikelihood_20140805.root
 
 ToolSvc.JetVertexTagge...INFO                         resolved in  :
-    /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc11-opt/2022-05-14T0220/AnalysisBase/22.2.75/InstallArea/x86_64-centos7-gcc11-opt/data/JetMomentTools/JVTlikelihood_20140805.root
+    /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc11-opt/2022-08-02T0220/AnalysisBase/22.2.85/InstallArea/x86_64-centos7-gcc11-opt/data/JetMomentTools/JVTlikelihood_20140805.root
 
 
 ToolSvc.JVTEfficiencyToolINFO     Path found = /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetJvtEfficiency/Moriond2018/JvtSFFile_EMPFlowJets.root
@@ -693,6 +693,7 @@ ToolSvc.MuonCalibratio...INFO    Setup the MuonMomentum calibration tool for 201
 ToolSvc.MuonCalibratio...INFO    Setup the MuonMomentum calibration tool for 2018 & mc16e
 ToolSvc.ToolSvc.MuonCa...INFO    Initialising...
 ToolSvc.MCaST_Own_MST    INFO    Initialising...
+ToolSvc.MCaST_Own_MST    INFO    MuonSelectionTool will assume run2 geometry is used
 ToolSvc.MCaST_Own_MST    INFO    Maximum eta: 2.7
 ToolSvc.MCaST_Own_MST    INFO    Muon quality: 1
 ToolSvc.MCaST_Own_MST    INFO    Initialising tight working point histograms...
@@ -702,15 +703,19 @@ ToolSvc.MCaST_Own_MST    INFO    Successfully read tight working point histogram
 ToolSvc.MCaST_Own_MST    INFO    Successfully read tight working point histogram: tightWP_mediumPt_rhoCuts
 ToolSvc.MCaST_Own_MST    INFO    Successfully read tight working point histogram: tightWP_highPt_rhoCuts
 ToolSvc.MCaST_Own_MST    INFO    Reading bad muon veto cut functions from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonSelectorTools/180620_BMVmimicCutFunctions/BMVmimicCutFunctions.root
+ToolSvc.ToolSvc.MuonCa...INFO    Checking Initialization - Regions file: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/RegionsPhi18.dat
 ToolSvc.ToolSvc.MuonCa...INFO    Will be correcting the sagitta for data 
 ToolSvc.ToolSvc.MuonCa...INFO    Setting up the tool for sinlge histogram input for sagitta bias corrections
 ToolSvc.ToolSvc.MuonCa...INFO    Initialising...
+ToolSvc.ToolSvc.MuonCa...INFO    Checking Initialization - Regions file: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/RegionsPhi18.dat
 ToolSvc.ToolSvc.MuonCa...INFO    Will be correcting the sagitta for data 
 ToolSvc.ToolSvc.MuonCa...INFO    Setting up the tool for sinlge histogram input for sagitta bias corrections
 ToolSvc.ToolSvc.MuonCa...INFO    Initialising...
+ToolSvc.ToolSvc.MuonCa...INFO    Checking Initialization - Regions file: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/RegionsPhi18.dat
 ToolSvc.ToolSvc.MuonCa...INFO    Will be correcting the sagitta for data 
 ToolSvc.ToolSvc.MuonCa...INFO    Setting up the tool for sinlge histogram input for sagitta bias corrections
 ToolSvc.MuonSelectionT...INFO    Initialising...
+ToolSvc.MuonSelectionT...INFO    MuonSelectionTool will assume run2 geometry is used
 ToolSvc.MuonSelectionT...INFO    Maximum eta: 2.7
 ToolSvc.MuonSelectionT...INFO    Muon quality: 1
 ToolSvc.MuonSelectionT...INFO    Initialising tight working point histograms...
@@ -721,6 +726,7 @@ ToolSvc.MuonSelectionT...INFO    Successfully read tight working point histogram
 ToolSvc.MuonSelectionT...INFO    Successfully read tight working point histogram: tightWP_highPt_rhoCuts
 ToolSvc.MuonSelectionT...INFO    Reading bad muon veto cut functions from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonSelectorTools/180620_BMVmimicCutFunctions/BMVmimicCutFunctions.root
 ToolSvc.MuonSelectionT...INFO    Initialising...
+ToolSvc.MuonSelectionT...INFO    MuonSelectionTool will assume run2 geometry is used
 ToolSvc.MuonSelectionT...INFO    Maximum eta: 2.7
 ToolSvc.MuonSelectionT...INFO    Muon quality: 1
 ToolSvc.MuonSelectionT...INFO    Initialising tight working point histograms...
@@ -731,6 +737,7 @@ ToolSvc.MuonSelectionT...INFO    Successfully read tight working point histogram
 ToolSvc.MuonSelectionT...INFO    Successfully read tight working point histogram: tightWP_highPt_rhoCuts
 ToolSvc.MuonSelectionT...INFO    Reading bad muon veto cut functions from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonSelectorTools/180620_BMVmimicCutFunctions/BMVmimicCutFunctions.root
 ToolSvc.MuonSelectionH...INFO    Initialising...
+ToolSvc.MuonSelectionH...INFO    MuonSelectionTool will assume run2 geometry is used
 ToolSvc.MuonSelectionH...INFO    Maximum eta: 2.7
 ToolSvc.MuonSelectionH...INFO    Muon quality: 4
 ToolSvc.MuonSelectionH...INFO    Initialising tight working point histograms...
@@ -742,24 +749,19 @@ ToolSvc.MuonSelectionH...INFO    Successfully read tight working point histogram
 ToolSvc.MuonSelectionH...INFO    Reading bad muon veto cut functions from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonSelectorTools/180620_BMVmimicCutFunctions/BMVmimicCutFunctions.root
 ToolSvc.MuonEfficiency...INFO    Efficiency type is = RECO
 ToolSvc.MuonEfficiency...INFO    JPsi based low pt SF will start to rock below 15 GeV!
-ToolSvc.MuonEfficiency...INFO    Trying to initialize, with working point Medium, using calibration release 210222_Precision_r21
-ReadStreamerInfo, class:string, illegal uid=-2
-ReadStreamerInfo, class:string, illegal uid=-2
-ReadStreamerInfo, class:string, illegal uid=-2
-ReadStreamerInfo, class:string, illegal uid=-2
+ToolSvc.MuonEfficiency...INFO    Trying to initialize, with working point Medium, using calibration release 220725_Preliminary_r22run2
 ToolSvc.MuonEfficiency...INFO    Successfully initialized! 
 ToolSvc.MuonEfficiency...INFO    Efficiency type is = BADMUON
-ToolSvc.MuonEfficiency...INFO    Trying to initialize, with working point BadMuonVeto_HighPt, using calibration release 210222_Precision_r21
+ToolSvc.MuonEfficiency...INFO    Trying to initialize, with working point BadMuonVeto_HighPt, using calibration release 220725_Preliminary_r22run2
 ToolSvc.MuonEfficiency...INFO    Successfully initialized! 
 ToolSvc.MuonTTVAEffici...INFO    Efficiency type is = TTVA
-ToolSvc.MuonTTVAEffici...INFO    Trying to initialize, with working point TTVA, using calibration release 210222_Precision_r21
-ReadStreamerInfo, class:string, illegal uid=-2
+ToolSvc.MuonTTVAEffici...INFO    Trying to initialize, with working point TTVA, using calibration release 220725_Preliminary_r22run2
 ToolSvc.MuonTTVAEffici...INFO    Successfully initialized! 
 ToolSvc.MuonIsolationS...INFO    Efficiency type is = ISO
-ToolSvc.MuonIsolationS...INFO    Trying to initialize, with working point PflowLoose_VarRadIso, using calibration release 210222_Precision_r21
+ToolSvc.MuonIsolationS...INFO    Trying to initialize, with working point PflowLoose_VarRadIso, using calibration release 220725_Preliminary_r22run2
 ToolSvc.MuonIsolationS...INFO    Successfully initialized! 
 ToolSvc.MuonHighPtIsol...INFO    Efficiency type is = ISO
-ToolSvc.MuonHighPtIsol...INFO    Trying to initialize, with working point PflowLoose_VarRadIso, using calibration release 210222_Precision_r21
+ToolSvc.MuonHighPtIsol...INFO    Trying to initialize, with working point PflowLoose_VarRadIso, using calibration release 220725_Preliminary_r22run2
 ToolSvc.MuonHighPtIsol...INFO    Successfully initialized! 
 ToolSvc.MuonTriggerSca...INFO    MuonQuality = 'Medium'
 ToolSvc.MuonTriggerSca...INFO    Binning = 'fine'
@@ -954,6 +956,7 @@ ToolSvc.jetCalibTool_A...INFO    Initializing the jet smearing correction tool
 ToolSvc.jetCalibTool_A...INFO    Reading from JetGSCScaleMomentum and writing to JetSmearedMomentum
 ToolSvc.metSignificanc...INFO    Set up MuonCalibrationAndSmearing tools
 ToolSvc.METSigAutoConf...INFO    Initialising...
+ToolSvc.METSigAutoConf...INFO    Checking Initialization - Regions file: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/RegionsPhi18.dat
 ToolSvc.METSigAutoConf...INFO    Initialization
 GainUncertainty          INFO    opening file /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/ElectronPhotonFourMomentumCorrection/v14/gain_uncertainty_specialRun.root
 egammaLayerRecalibTool   INFO    using scale es2017_21.0_v0
@@ -1035,7 +1038,7 @@ SUSYObjDef_xAOD          INFO    Returning list of 327 systematic variations
 Info in <CP::TPileupReweighting::GetRandomRunNumber>: Initializing the subtool..
 ToolSvc.xAODConfigTool   INFO    Loaded xAOD::TriggerMenu configuration:
 ToolSvc.xAODConfigTool   INFO      SMK = 2233, L1PSK = 87, HLTPSK = 314
-ToolSvc.TrigDecisionTool INFO    Tool: updating config in slot 0 with SMK: 2233 and L1PSK: 87 and HLTPSK: 314 getForceConfigUpdate()=1 HLT Chains: 4309
+ToolSvc.TrigDecisionTool INFO    Updating config in slot 0 with SMK: 2233 and L1PSK: 87 and HLTPSK: 314 and BGSK: 4294967295 getForceConfigUpdate()=1 HLT Chains: 4309
 Package.SUSYToolsTester  INFO    == cbkname: AllExecutedEvents, description: Number of processed events before any cut, stream: StreamAOD
 Package.SUSYToolsTester  INFO       inputStream: StreamAOD, outputStreams: AllStreams
 Package.SUSYToolsTester  INFO       cycle: 3,  allEvents = 80000
@@ -1740,9 +1743,9 @@ ToolSvc.TopTagger        WARNING One (or more) tagger input variable has an out-
 Package.SUSYToolsTester  INFO    ===>>>  start processing event #, 332513418run #310000 99 events processed so far  <<<===
 Info in <SUSYToolsTester>: ===>>>  done processing event #332513418, run #310000 100 events processed so far  <<<===
 Info in <SUSYToolsTester>: Time per event:          (CPU / WALL)
-  Entire loop           - 592.600000 / 592.607429 ms
-  First event           - 830.000000 / 837.090015 ms
-  Excluding first event - 590.202020 / 590.137889 ms
+  Entire loop           - 801.300000 / 801.498630 ms
+  First event           - 1250.000000 / 1255.850077 ms
+  Excluding first event - 796.767677 / 796.909202 ms
 Package.SUSYToolsTester  INFO    -- Dummy Cutflow -- >>>> Variation  <<<<
 Package.SUSYToolsTester  INFO    Cut 0(All)-> el: 100, mu: 100
 Package.SUSYToolsTester  INFO    Cut 1(GRL+Cleaning)-> el: 100, mu: 100
