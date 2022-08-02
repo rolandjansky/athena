@@ -24,8 +24,8 @@ def TimeBurnerHypoToolGen(chainDict):
 def EndOfEventROIConfirmerAlgCfg(name):
     return CompFactory.EndOfEventROIConfirmerAlg(name)
 
-def EndOfEventPrescaleCheckAlgCfg(name, chainName):
-    return CompFactory.EndOfEventPrescaleCheckAlg(name, ChainName=chainName)
+def EndOfEventFilterAlgCfg(name, chainName):
+    return CompFactory.EndOfEventFilterAlg(name, ChainName=chainName)
 
 def TrigEventInfoRecorderAlgCfg(name):
     return CompFactory.TrigEventInfoRecorderAlg(name)
