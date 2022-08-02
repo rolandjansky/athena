@@ -6,6 +6,14 @@
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "CxxUtils/phihelper.h"
 
+#include <algorithm>
+#include <sstream>
+#include <unordered_set>
+
+namespace {
+  const std::string s_expressStreamName{"express"};
+}
+
 DecisionSummaryMakerAlg::DecisionSummaryMakerAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : AthReentrantAlgorithm(name, pSvcLocator) {}
 
@@ -13,7 +21,9 @@ StatusCode DecisionSummaryMakerAlg::initialize() {
   renounceArray( m_finalDecisionKeys );
   ATH_CHECK( m_finalDecisionKeys.initialize() );
   ATH_CHECK( m_summaryKey.initialize() );
+  ATH_CHECK( m_streamsSummaryKey.initialize() );
   ATH_CHECK( m_hltSeedingSummaryKey.initialize() );
+  ATH_CHECK( m_hltMenuKey.initialize() );
 
   for ( auto& [chain, collections]: m_lastStepForChain ) {
     for ( auto& collection: collections ) {
@@ -30,6 +40,20 @@ StatusCode DecisionSummaryMakerAlg::initialize() {
   ATH_CHECK( m_prescaler.retrieve() );
   if (!m_monTool.empty()) {
     ATH_CHECK(m_monTool.retrieve());
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+StatusCode DecisionSummaryMakerAlg::start() {
+  SG::ReadHandle<TrigConf::HLTMenu> hltMenu{m_hltMenuKey};
+  ATH_CHECK(hltMenu.isValid());
+
+  // Fill the map of Chain ID -> stream names, omitting express which is treated separately due to express prescaling
+  for (const TrigConf::Chain& chain : *hltMenu) {
+    std::vector<std::string> streams = chain.streams();
+    streams.erase(std::remove(streams.begin(),streams.end(),s_expressStreamName), streams.end());
+    m_chainToStreamsMap.insert({HLT::Identifier(chain.name()).numeric(),std::move(streams)});
   }
 
   return StatusCode::SUCCESS;
@@ -165,6 +189,35 @@ StatusCode DecisionSummaryMakerAlg::execute(const EventContext& context) const {
   decisionIDs( passExpressOutput ).insert( decisionIDs( passExpressOutput ).end(),
                                            expressIDs.begin(),
                                            expressIDs.end() ); // Save this to the output
+
+  // Fill and write out a set of passed streams
+  std::unordered_set<std::string> passStreamsSet;
+  for (const DecisionID chainID : allPassingFinalIDs) {
+    if (const auto it = m_chainToStreamsMap.find(chainID); it!=m_chainToStreamsMap.cend()) {
+      for (const std::string& streamName : it->second) {
+        passStreamsSet.insert(streamName);
+      }
+    } else {
+      ATH_MSG_ERROR("Passed chain " << HLT::Identifier(chainID).name() << " not in m_chainToStreamsMap");
+    }
+  }
+  // Add express
+  if (!expressIDs.empty()) {
+    passStreamsSet.insert(s_expressStreamName);
+  }
+  SG::WriteHandle<std::vector<std::string>> passStreams{m_streamsSummaryKey, context};
+  ATH_CHECK(passStreams.record(std::make_unique<std::vector<std::string>>(passStreamsSet.begin(),passStreamsSet.end())));
+
+  if (msgLvl(MSG::DEBUG)) {
+    std::ostringstream streamNames;
+    bool first{true};
+    for (const std::string& s : passStreamsSet) {
+      if (first) {first=false;}
+      else {streamNames << ", ";}
+      streamNames << s;
+    }
+    ATH_MSG_DEBUG("This event is accepted to " << passStreamsSet.size() << " streams: " << streamNames.str());
+  }
 
   // Set the algorithm's filter status. This controlls the running of finalisation algs which we only want to execute
   // in events which are accepted by one ore more chains.

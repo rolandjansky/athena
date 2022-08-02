@@ -192,7 +192,7 @@ def makeHLTTree(flags, newJO=False, hltMenuConfig = None):
                                if 'Calib' in cd['signatures'] \
                                and 'acceptedevts' in cd['chainParts'][0]['purpose']]
     if flags.Trigger.endOfEventProcessing.Enabled and acceptedEventChainDicts:
-        from TrigGenericAlgs.TrigGenericAlgsConfig import EndOfEventROIConfirmerAlgCfg, EndOfEventPrescaleCheckAlgCfg
+        from TrigGenericAlgs.TrigGenericAlgsConfig import EndOfEventROIConfirmerAlgCfg, EndOfEventFilterAlgCfg
         endOfEventRoIMaker = conf2toConfigurable(EndOfEventROIConfirmerAlgCfg('EndOfEventROIConfirmerAlg'))
         hltFinalizeSeq += endOfEventRoIMaker
         acceptedEventTopSeq = parOR("acceptedEventTopSeq")
@@ -203,12 +203,15 @@ def makeHLTTree(flags, newJO=False, hltMenuConfig = None):
             prescaleChain = acceptedEventChainDict['chainName']
             seqLabel = prescaleChain.replace('HLT_acceptedevts','')
             acceptedEventSeq = seqAND('acceptedEventSeq'+seqLabel)
-            endOfEventPrescaleAlg = EndOfEventPrescaleCheckAlgCfg('EndOfEventPrescaleCheckAlg'+seqLabel, chainName=prescaleChain)
-            acceptedEventSeq += conf2toConfigurable(endOfEventPrescaleAlg)
+            endOfEventFilterAlg = EndOfEventFilterAlgCfg('EndOfEventFilterAlg'+seqLabel, chainName=prescaleChain)
+            acceptedEventSeq += conf2toConfigurable(endOfEventFilterAlg)
             # Now add chain-specific end-of-event sequences executed conditionally on the prescale
 
             # The LAr Noise Burst end-of-event sequence
             if 'larnoiseburst' in acceptedEventChainDict['chainParts'][0]['purpose']:
+                # Add stream filter to EndOfEventFilterAlg (only consider events accepted to the Main stream)
+                endOfEventFilterAlg.StreamFilter = ['Main']
+
                 from TriggerMenuMT.HLT.CalibCosmicMon.CalibChainConfiguration import getLArNoiseBurstRecoSequence
                 recoSeq = getLArNoiseBurstRecoSequence()
                 acceptedEventSeq += conf2toConfigurable(recoSeq)
