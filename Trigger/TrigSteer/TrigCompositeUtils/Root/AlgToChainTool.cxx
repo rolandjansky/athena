@@ -48,6 +48,8 @@ StatusCode TrigCompositeUtils::AlgToChainTool::start() {
         }
     }
 
+    m_cachedEventID = 0; // Revet the cache identifier
+
     return StatusCode::SUCCESS;
 }
 
@@ -62,29 +64,15 @@ StatusCode TrigCompositeUtils::AlgToChainTool::getAllChains(std::vector<TrigConf
 }
 
 
-std::set<std::string> TrigCompositeUtils::AlgToChainTool::getChainsNamesForAlg(const std::string& algorithmName) const {
-    std::set<std::string> result;
-
-    std::vector<TrigConf::Chain> chainsSet = getChainsForAlg(algorithmName);
-    for (const TrigConf::Chain& chain : chainsSet) {
-        result.insert(chain.name());
-    }
-
-    return result;
-}
-
-
-std::vector<TrigConf::Chain> TrigCompositeUtils::AlgToChainTool::getChainsForAlg(const std::string& algorithmName) const {
-    std::vector<TrigConf::Chain> result;
+std::vector<std::string> TrigCompositeUtils::AlgToChainTool::getChainsForAlg(const std::string& algorithmName) const {
+    std::vector<std::string> result;
 
     try {
         for ( const std::string& sequencer : m_algToSequencersMap.at(algorithmName) ) {
             try {
-                result.insert(
-                    result.end(),
-                    m_sequencerToChainMap.at(sequencer).begin(), 
-                    m_sequencerToChainMap.at(sequencer).end()
-                );
+                for (const TrigConf::Chain& chain : m_sequencerToChainMap.at(sequencer)){
+                    result.push_back(chain.name());
+                }
             }
             catch ( const std::out_of_range & ex ) {
                 ATH_MSG_DEBUG ( "Sequence " << sequencer << " is not part of the menu!" );             
@@ -99,46 +87,49 @@ std::vector<TrigConf::Chain> TrigCompositeUtils::AlgToChainTool::getChainsForAlg
 
 
 std::set<std::string> TrigCompositeUtils::AlgToChainTool::getActiveChainsForAlg(const std::string& algorithmName, const EventContext& context) const {
-    std::set<std::string> result;
 
-    std::set<TrigCompositeUtils::DecisionID> allActiveChainsID = retrieveActiveChains(context);
-
-    // Convert DecisionID to names
     std::set<std::string> allActiveChains;
-    for ( const TrigCompositeUtils::DecisionID& id : allActiveChainsID ) {
-        allActiveChains.insert( HLT::Identifier(id).name() );
+    try {
+        for ( const std::string& sequenceName : m_algToSequencersMap.at(algorithmName) ) {
+
+            std::string filterName = createCollectionName(sequenceName);
+            std::set<TrigCompositeUtils::DecisionID> activeChainsInSequence = retrieveActiveChains(context, filterName);
+
+            for ( const TrigCompositeUtils::DecisionID& id : activeChainsInSequence ) {
+                allActiveChains.insert( HLT::Identifier(id).name() );
+            }
+        }
+
+    } catch ( const std::out_of_range & ex ) {
+        ATH_MSG_DEBUG ( "Algorithm " << algorithmName << " is not part of the menu!" );
     }
 
-    std::set<std::string> allAlgChains = getChainsNamesForAlg(algorithmName);
-
-    // Save the chains that are used by selected algorithm and active
-    std::set_intersection(allAlgChains.begin(), allAlgChains.end(),
-        allActiveChains.begin(), allActiveChains.end(),
-        std::inserter(result, result.begin()));
-
-    return result;
+    return allActiveChains;
 }
 
 
-StatusCode TrigCompositeUtils::AlgToChainTool::getAllActiveSequences( const EventContext& context, std::map<std::string, std::string>& algToSeq) const {
+StatusCode TrigCompositeUtils::AlgToChainTool::getAllActiveSequences( const EventContext& context, std::map<std::string, std::string>& algToSeq) {
 
-    // Retrieve EventStore and keys
+    // Retrieve EventStore and keys if not cached
     IProxyDict* storeProxy = Atlas::getExtendedEventContext(context).proxy();
     SmartIF<SGImplSvc> eventStore (storeProxy);
-
-    std::vector<std::string> keys;
-    eventStore->keys(static_cast<CLID>( ClassID_traits<TrigCompositeUtils::DecisionContainer>::ID() ), keys);
+    if (m_cachedEventID != context.eventID().event_number()){
+        ATH_MSG_INFO("Caching the event store keys for event " << context.eventID().event_number());
+        eventStore->keys(static_cast<CLID>( ClassID_traits<TrigCompositeUtils::DecisionContainer>::ID() ), m_cachedEventStoreKeys);
+        m_cachedEventID = context.eventID().event_number();
+    }
 
     SG::ReadHandle<TrigConf::HLTMenu>  hltMenuHandle = SG::makeHandle( m_HLTMenuKey, context );
     ATH_CHECK( hltMenuHandle.isValid() );
     for (const auto& sequence : hltMenuHandle->sequencers()) {
-        std::string filterName = "HLTNav_F" + sequence.first;
+        std::string filterName = createCollectionName(sequence.first);
 
-        auto foundKey = std::find_if(keys.begin(), keys.end(), [&](const std::string& key) {
-            return key.find(filterName) == 0;
+        // Optimize
+        auto foundKey = std::find_if(m_cachedEventStoreKeys.begin(), m_cachedEventStoreKeys.end(), [&](const std::string& key) {
+            return boost::starts_with(key, filterName);
         });
 
-        if (foundKey != keys.end() ){
+        if (foundKey != m_cachedEventStoreKeys.end() ){
             // Check if sequence passed - if at least one DecisionObject was produced
             for ( const TrigCompositeUtils::Decision* d : *getDecisionFromStore(eventStore, *foundKey) ) {
                 if (!d->decisions().empty()){
@@ -155,29 +146,53 @@ StatusCode TrigCompositeUtils::AlgToChainTool::getAllActiveSequences( const Even
     return StatusCode::SUCCESS;
 }
 
-std::set<TrigCompositeUtils::DecisionID> TrigCompositeUtils::AlgToChainTool::retrieveActiveChains(const EventContext& context, const std::string& collectionName) const {
-    std::set<TrigCompositeUtils::DecisionID> activeChainsID;
+void TrigCompositeUtils::AlgToChainTool::cacheSGKeys(const EventContext& context) {
+    if (m_cachedEventID != context.eventID().event_number()){
+        ATH_MSG_INFO("Caching the event store keys for event " << context.eventID().event_number());
+        m_cachedEventStoreKeys = readSGKeys(context);
+        m_cachedEventID = context.eventID().event_number();
+    }
+}
 
-    // Retrieve EventStore and keys
+std::vector<std::string> TrigCompositeUtils::AlgToChainTool::readSGKeys(const EventContext& context) const {
+    std::vector<std::string> keys;
     IProxyDict* storeProxy = Atlas::getExtendedEventContext(context).proxy();
     SmartIF<SGImplSvc> eventStore (storeProxy);
-
-    std::vector<std::string> keys;
     eventStore->keys(static_cast<CLID>( ClassID_traits<TrigCompositeUtils::DecisionContainer>::ID() ), keys);
+    return keys;
+}
+
+std::set<TrigCompositeUtils::DecisionID> TrigCompositeUtils::AlgToChainTool::retrieveActiveChains(const EventContext& context, const std::string& collectionName) const {
+    
+    if (m_cachedEventID == context.eventID().event_number()) {
+        return retrieveActiveChainsForKeys(context, collectionName, m_cachedEventStoreKeys);
+    } else {
+        const std::vector<std::string> keys = readSGKeys(context);
+        return retrieveActiveChainsForKeys(context, collectionName, keys);
+    }
+}
+
+
+std::set<TrigCompositeUtils::DecisionID> TrigCompositeUtils::AlgToChainTool::retrieveActiveChainsForKeys(const EventContext& context, const std::string& collectionName, const std::vector<std::string>& keys) const {
+    std::set<TrigCompositeUtils::DecisionID> activeChainsID;
+
+    // Retrieve EventStore and keys if not cached
+    IProxyDict* storeProxy = Atlas::getExtendedEventContext(context).proxy();
+    SmartIF<SGImplSvc> eventStore (storeProxy);
 
     // Retrieve active chains name hashes
     for ( const std::string& key : keys ) {
 
         // Look for given collection
-        if ( !collectionName.empty() && (!boost::starts_with (key, collectionName)) ){
+        if ( !collectionName.empty() && (!boost::starts_with(key, collectionName)) ){
             continue;
         }
 
         // Get data from any nav collection
-        if( collectionName.empty() && (!boost::starts_with (key, "HLTNav") || key == "HLTNav_Summary") ) {
+        if( collectionName.empty() && (!boost::starts_with(key, "HLTNav") || key == "HLTNav_Summary") ) {
             continue;
         }
-        
+
         for ( const TrigCompositeUtils::Decision* d : *getDecisionFromStore(eventStore, key) ) {
             TrigCompositeUtils::DecisionIDContainer chainsID;
             TrigCompositeUtils::decisionIDs( d, chainsID );
@@ -193,51 +208,31 @@ std::set<TrigCompositeUtils::DecisionID> TrigCompositeUtils::AlgToChainTool::ret
 }
 
 
- StatusCode TrigCompositeUtils::AlgToChainTool::getChainsForAllAlgs(const EventContext& context, std::map<std::string, std::vector<TrigConf::Chain>>& algToChain) const {
-
-    SG::ReadHandle<TrigConf::HLTMenu> hltMenuHandle = SG::makeHandle(m_HLTMenuKey, context);
-    ATH_CHECK(hltMenuHandle.isValid());
-    std::map<std::string, std::vector<std::string>> sequencers = hltMenuHandle->sequencers();
+StatusCode TrigCompositeUtils::AlgToChainTool::getChainsForAllAlgs(const EventContext& context, std::map<std::string, std::set<std::string>>& algToChain) const {
 
     // Look for chains which were active for any of the algorithms of the sequence
-    // Name of collection for given sequencer consist sequence's filter's name
     std::map<std::string, std::set<TrigCompositeUtils::DecisionID>> seqToActiveChains;
     for (const auto& sequence : m_sequencerToChainMap) {
         // Look for associated filters names with the sequence
-        const std::vector<std::string>& algorithms = sequencers.at(sequence.first);
-        for ( const std::string& algorithm : algorithms ) {
-            if (algorithm.find("FStep") == std::string::npos) continue;
-
-            std::string filterName = "HLTNav_" + algorithm.substr(algorithm.find('/') + 1) + "__";
-            // For example RoRSeqFilter/FStep18_Step13_1FSLRTTrigger -> HLTNav_FStep18_Step13_1FSLRTger
-            if (filterName.find("Trig") != std::string::npos){
-                filterName.replace(filterName.find("Trig"), 4, "");
-            }
-            seqToActiveChains[sequence.first] = retrieveActiveChains(context, filterName);
-
-        }
+        std::string filterName = createCollectionName(sequence.first);
+        seqToActiveChains[sequence.first] = retrieveActiveChains(context, filterName);
     }
 
     for (const auto& algSeqPair : m_algToSequencersMap){
-        std::set<TrigCompositeUtils::DecisionID> activeChains;
-        for (const std::string& seq : algSeqPair.second){
+        std::set<std::string> activeChains;
+        for (const std::string& sequenceName : algSeqPair.second){
             // Save all active chains per sequences that algorithm was executed
-            activeChains.insert(seqToActiveChains[seq].begin(), seqToActiveChains[seq].end());
+            for (TrigCompositeUtils::DecisionID chainId : seqToActiveChains.at(sequenceName)){
+                activeChains.insert(HLT::Identifier(chainId).name());
+            }
         }
-        std::vector<TrigConf::Chain> chainsPerAlg = getChainsForAlg(algSeqPair.first);
 
-        // Remove not active chains
-        chainsPerAlg.erase(
-            std::remove_if(chainsPerAlg.begin(), chainsPerAlg.end(),
-                [&](const TrigConf::Chain& c) { return activeChains.find(c.namehash()) == activeChains.end(); }),
-            chainsPerAlg.end()
-        );
-
-        algToChain[algSeqPair.first] = chainsPerAlg;
+        algToChain[algSeqPair.first] = activeChains;
     }
 
     return StatusCode::SUCCESS;
 }
+
 
 
 StatusCode TrigCompositeUtils::AlgToChainTool::getChainInfo(const EventContext& context, TrigCompositeUtils::DecisionID decId, ChainInfo& info) const {
@@ -290,6 +285,17 @@ SG::ReadHandle<TrigCompositeUtils::DecisionContainer> TrigCompositeUtils::AlgToC
     }
 
     return dc;
+}
+
+
+std::string TrigCompositeUtils::AlgToChainTool::createCollectionName(const std::string& sequenceName) const{
+    std::string filterName = "HLTNav_F" + sequenceName + "__";
+
+    if (filterName.find("Trig") != std::string::npos){
+        filterName.replace(filterName.find("Trig"), 4, "");
+    }
+
+    return filterName;
 }
 
 #endif // XAOD_STANDALONE
