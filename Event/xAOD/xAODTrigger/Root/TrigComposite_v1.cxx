@@ -260,10 +260,10 @@ namespace xAOD {
    }
 
 
-   bool TrigComposite_v1::hasObjectLinkExact(const std::string& name, const uint32_t key, const uint16_t index, const uint32_t clid) const {
+   bool TrigComposite_v1::hasObjectLinkExact(const std::string& name, const sgkey_t key, const uint16_t index, const uint32_t clid) const {
       for (size_t i = 0; i < this->linkColNames().size(); ++i) {
          if (this->linkColNames().at(i) != name) continue;
-         if (this->linkColKeys().at(i) != key) continue;
+         if (!SG::sgkeyEqual (this->linkColKeys().at(i), key)) continue;
          if (this->linkColIndices().at(i) != index) continue;
          if (this->linkColClids().at(i) != clid) continue;
          return true;
@@ -289,8 +289,8 @@ namespace xAOD {
    AUXSTORE_OBJECT_GETTER( TrigComposite_v1, std::vector< uint32_t >,
                            linkColClids )
 
-   const std::vector< uint32_t >& TrigComposite_v1::linkColKeys() const {
-      static const Accessor< std::vector< uint32_t > > acc_builtin( "linkColKeys" );
+   const std::vector< SG::sgkey_t >& TrigComposite_v1::linkColKeys() const {
+      static const Accessor< std::vector< sgkey_t > > acc_builtin( "linkColKeys" );
       return acc_builtin( *this );
    }
 
@@ -299,8 +299,8 @@ namespace xAOD {
       return acc_builtin( *this );
    }
 
-   const std::vector< uint32_t >& TrigComposite_v1::linkColKeysRemap() const {
-      static const Accessor< std::vector< uint32_t > > acc( "remap_linkColKeys" );
+   const std::vector< SG::sgkey_t >& TrigComposite_v1::linkColKeysRemap() const {
+      static const Accessor< std::vector< sgkey_t > > acc( "remap_linkColKeys" );
       return acc( *this );
    }
 
@@ -317,9 +317,9 @@ namespace xAOD {
       return acc( *this );
    }
 
-   std::vector< uint32_t >& TrigComposite_v1::linkColKeysNC() {
+   std::vector< SG::sgkey_t >& TrigComposite_v1::linkColKeysNC() {
 
-      static const Accessor< std::vector< uint32_t > > acc( "linkColKeys" );
+      static const Accessor< std::vector< sgkey_t > > acc( "linkColKeys" );
       return acc( *this );
    }
 
@@ -335,7 +335,7 @@ namespace xAOD {
       return acc( *this );
    }
 
-   void TrigComposite_v1::typelessSetObjectLink( const std::string& name, const uint32_t key, const uint32_t clid, const uint16_t beginIndex, const uint16_t endIndex ) {
+   void TrigComposite_v1::typelessSetObjectLink( const std::string& name, const sgkey_t key, const uint32_t clid, const uint16_t beginIndex, const uint16_t endIndex ) {
 
      // Loop over collections
      if ( endIndex - beginIndex > 1 ) { // Adding a *collection* of links
@@ -404,7 +404,7 @@ namespace xAOD {
      }
    }
 
-   bool TrigComposite_v1::typelessGetObjectLink( const std::string& name, uint32_t& key, uint32_t& clid, uint16_t& index) const {
+   bool TrigComposite_v1::typelessGetObjectLink( const std::string& name, sgkey_t& key, uint32_t& clid, uint16_t& index) const {
       std::vector<std::string>::const_iterator it = std::find(linkColNames().begin(), linkColNames().end(), name);
       if (it == linkColNames().end()) {
          return false;
@@ -424,7 +424,7 @@ namespace xAOD {
 
 
    bool TrigComposite_v1::typelessGetObjectCollectionLinks( const std::string& name, 
-     std::vector<uint32_t>& keyVec, std::vector<uint32_t>& clidVec, std::vector<uint16_t>& indexVec ) const
+     std::vector<sgkey_t>& keyVec, std::vector<uint32_t>& clidVec, std::vector<uint16_t>& indexVec ) const
    {
       bool found = false;
       const std::string mangledName = name + s_collectionSuffix;
@@ -448,7 +448,7 @@ namespace xAOD {
 
 
    bool TrigComposite_v1::isRemapped() const {
-      static const Accessor< std::vector< uint32_t > > key_remap( "remap_linkColKeys" );
+      static const Accessor< std::vector< sgkey_t > > key_remap( "remap_linkColKeys" );
       static const Accessor< std::vector< uint16_t > > index_remap( "remap_linkColIndices" );
       size_t nDecorations = 0;
       if (key_remap.isAvailable( *this )) ++nDecorations;
@@ -457,7 +457,7 @@ namespace xAOD {
         throw std::runtime_error("TrigComposite_v1::isRemapped Only one of the 'remap_linkColKeys' and 'remap_linkColIndices' "
           "decorations were found on this object. This should never happen, a remapped element link must have both of these collections.");
       }
-      return static_cast<bool>(nDecorations); //0=Fasle, 2=True
+      return static_cast<bool>(nDecorations); //0=False, 2=True
    }
 
 

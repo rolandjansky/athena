@@ -37,10 +37,12 @@
 #include "TrigCompositeUtils/IPartCombItr.h"
 #include "TrigCompositeUtils/Combinations.h"
 #include "TrigConfHLTData/HLTChain.h"
+#include "CxxUtils/sgkey_t.h"
 
 #define TRIGCOMPUTILS_ENABLE_EARLY_EXIT 1
 
 namespace TrigCompositeUtils {
+  using sgkey_t = SG::sgkey_t;
 
   // cppcheck-suppress unknownMacro
   ANA_MSG_HEADER (msgRejected)
@@ -496,7 +498,7 @@ namespace TrigCompositeUtils {
    */
   bool typelessFindLink(const Decision* start, 
     const std::string& linkName,
-    uint32_t& key,
+    sgkey_t& key,
     uint32_t& clid,
     uint16_t& index,
     const Decision*& source,
@@ -508,7 +510,7 @@ namespace TrigCompositeUtils {
    */
   bool typelessFindLink(const NavGraph& subGraph, 
     const std::string& linkName,
-    uint32_t& key,
+    sgkey_t& key,
     uint32_t& clid,
     uint16_t& index,
     const Decision*& source,
@@ -531,7 +533,7 @@ namespace TrigCompositeUtils {
    */
   bool typelessFindLinks(const Decision* start, 
     const std::string& linkName,
-    std::vector<uint32_t>& keyVec,
+    std::vector<sgkey_t>& keyVec,
     std::vector<uint32_t>& clidVec,
     std::vector<uint16_t>& indexVec,
     std::vector<const Decision*>& sourceVec,
@@ -543,7 +545,7 @@ namespace TrigCompositeUtils {
    */
   bool typelessFindLinks(const NavGraphNode* start, 
     const std::string& linkName,
-    std::vector<uint32_t>& key,
+    std::vector<sgkey_t>& key,
     std::vector<uint32_t>& clid,
     std::vector<uint16_t>& index,
     std::vector<const Decision*>& sourceVec,
@@ -556,7 +558,7 @@ namespace TrigCompositeUtils {
    */
   bool typelessFindLinksCommonLinkCollection(const Decision* start,
     const std::string& linkName,
-    std::vector<uint32_t>& keyVec, 
+    std::vector<sgkey_t>& keyVec, 
     std::vector<uint32_t>& clidVec,
     std::vector<uint16_t>& indexVec, 
     std::vector<const Decision*>& sourceVec);

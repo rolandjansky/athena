@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TrigCompositeAuxContainer_v1.h 631318 2014-11-26 18:32:04Z krasznaa $
@@ -17,6 +17,7 @@ extern "C" {
 
 // Local include(s):
 #include "xAODTrigger/versions/ByteStreamAuxContainer_v1.h"
+#include "CxxUtils/sgkey_t.h"
 
 namespace xAOD {
 
@@ -35,6 +36,8 @@ namespace xAOD {
    class TrigCompositeAuxContainer_v1 : public ByteStreamAuxContainer_v1 {
 
    public:
+      using sgkey_t = SG::sgkey_t;
+
       /// Default constuctor
       TrigCompositeAuxContainer_v1();
 
@@ -42,7 +45,7 @@ namespace xAOD {
       std::vector< std::string > name;
 
       std::vector< std::vector< std::string > > linkColNames;
-      std::vector< std::vector< uint32_t > >    linkColKeys;
+      std::vector< std::vector< sgkey_t > >    linkColKeys;
       std::vector< std::vector< uint16_t > >    linkColIndices;
       std::vector< std::vector< uint32_t > >    linkColClids;
 
