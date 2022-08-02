@@ -42,6 +42,7 @@ def LLP1KernelCfg(ConfigFlags, name='LLP1Kernel', **kwargs):
 
     # Max Cell sum decoration tool
     from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg
+    from AthenaConfiguration.Enums import LHCPeriod
     acc.merge(LArOnOffIdMappingCfg(ConfigFlags))
 
     from DerivationFrameworkCalo.DerivationFrameworkCaloConfig import MaxCellDecoratorCfg
@@ -54,11 +55,17 @@ def LLP1KernelCfg(ConfigFlags, name='LLP1Kernel', **kwargs):
     acc.addPublicTool(LLP1MaxCellDecoratorTool)
 
 
-    LLP1LRTMaxCellDecoratorTool = acc.popToolsAndMerge(MaxCellDecoratorCfg(
-        ConfigFlags,
-        name = "LLP1LRTMaxCellDecoratorTool",
-        SGKey_electrons = "LRTElectrons",
-        SGKey_egammaClusters   = "egammaClusters"))
+    if ConfigFlags.GeoModel.Run == LHCPeriod.Run3:
+        LLP1LRTMaxCellDecoratorTool = acc.popToolsAndMerge(MaxCellDecoratorCfg(
+            ConfigFlags,
+            name = "LLP1LRTMaxCellDecoratorTool",
+            SGKey_electrons = "LRTElectrons"))
+    else:
+        LLP1LRTMaxCellDecoratorTool = acc.popToolsAndMerge(MaxCellDecoratorCfg(
+            ConfigFlags,
+            name = "LLP1LRTMaxCellDecoratorTool",
+            SGKey_electrons = "LRTElectrons",
+            SGKey_egammaClusters   = "egammaClusters"))
     acc.addPublicTool(LLP1LRTMaxCellDecoratorTool)
 
     augmentationTools = [ LLP1MaxCellDecoratorTool,
