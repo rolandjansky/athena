@@ -150,6 +150,18 @@ TrigDec::TrigDecisionMakerMT::execute(const EventContext &context) const
     boost::to_block_range(passRawBitset, passRaw.begin());
     boost::to_block_range(prescaledBitset, prescaled.begin());
 
+    // OFFLINE FIX TO P1 OPERATIONAL ISSUE 28th-31st July 2022
+    // [ATR-26036] These runs had an incomplete fix applied leading to incorrect prescale bits, prior runs in Run 3 had no presacled bits.
+    // Incorrect prescale bits will cause incorrect results from the Trig Decision Tool. Hence these need to be zeroed out (no prescale bits is better than wrong prescale bits)
+    static const std::set<unsigned> buggyPrescaleBitRuns = {429603, 429606, 429612, 429658, 429697, 429716};
+    const bool isBuggyPrescaleBitsRun = (std::find(buggyPrescaleBitRuns.begin(), buggyPrescaleBitRuns.end(), context.eventID().run_number()) != buggyPrescaleBitRuns.end());
+    if (isBuggyPrescaleBitsRun) {
+      ATH_MSG_DEBUG("T0 Trigger fix for 429603-429716 is deleting incorrect isPrescaled trigger bits decoded from the bytestream.");
+      for (size_t i = 0; i < prescaled.size(); ++i) {
+        prescaled.at(i) = 0;
+      }
+    }
+
     if (passRaw.size() != prescaled.size()) {
       ATH_MSG_ERROR("Trigger bitsets are not all the same size! passRaw:" 
         << passRaw.size() << " prescaled:" << prescaled.size() );
