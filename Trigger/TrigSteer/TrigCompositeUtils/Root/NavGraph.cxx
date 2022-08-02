@@ -1,9 +1,10 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "TrigCompositeUtils/NavGraph.h"
+#include "CxxUtils/sgkey_t.h"
 
 namespace TrigCompositeUtils {
 
@@ -174,7 +175,8 @@ namespace TrigCompositeUtils {
 
     ss << "|-> " << nodeEL.dataID() << " #" << nodeEL.index() << " Name(" << node->name() << ") Passing(" << node->decisions().size() << ")";
     if (node->hasObjectLink("feaure")) {
-      uint32_t key, clid;
+      SG::sgkey_t key;
+      uint32_t clid;
       uint16_t index;
       node->typelessGetObjectLink("feature", key, clid, index);
       ss << " feature(" << key << ")";
