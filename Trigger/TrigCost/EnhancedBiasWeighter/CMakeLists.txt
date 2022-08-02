@@ -25,3 +25,7 @@ atlas_add_dictionary( EnhancedBiasWeighterDict
                       EnhancedBiasWeighter/EnhancedBiasWeighterDict.h
                       EnhancedBiasWeighter/selection.xml
                       LINK_LIBRARIES EnhancedBiasWeighterLib )
+
+
+# Install files from the package:
+atlas_install_scripts( share/ExtractEBRunDetails.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
