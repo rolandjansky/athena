@@ -9,6 +9,8 @@
 // building the SCT geometry.
 // This is the entry to the StripGeoModelXml package.
 //
+
+#include <CxxUtils/checker_macros.h>
 #include <InDetGeoModelUtils/GeoModelXmlTool.h>
 #include <InDetGeoModelUtils/WaferTree.h>
 #include <ReadoutGeometryBase/SiCommonItems.h>
@@ -32,7 +34,7 @@ public:
   virtual ~StripDetectorTool() = default;
   virtual StatusCode create() override final;
   virtual StatusCode clear() override final;
-  virtual StatusCode registerCallback() override final;
+  virtual StatusCode registerCallback ATLAS_NOT_THREAD_SAFE () override final;
   virtual StatusCode align(IOVSVC_CALLBACK_ARGS_P(I,keys)) override final;
 
 private:

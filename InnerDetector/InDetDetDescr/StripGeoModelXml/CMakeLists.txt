@@ -11,7 +11,7 @@ atlas_add_component( StripGeoModelXml
                      src/*.cxx
                      src/components/*.cxx
                      PRIVATE_INCLUDE_DIRS ${XERCESC_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
-                     PRIVATE_LINK_LIBRARIES ${XERCESC_LIBRARIES} ${GEOMODEL_LIBRARIES}
+                     PRIVATE_LINK_LIBRARIES ${XERCESC_LIBRARIES} ${GEOMODEL_LIBRARIES} CxxUtils
                      GaudiKernel DetDescrConditions InDetGeoModelUtils InDetSimEvent SCT_ReadoutGeometry )
 
 # Install files from the package:

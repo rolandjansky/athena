@@ -101,7 +101,7 @@ StatusCode StripDetectorTool::clear()
 }
 
 
-StatusCode StripDetectorTool::registerCallback()
+StatusCode StripDetectorTool::registerCallback ATLAS_NOT_THREAD_SAFE ()
 {
   //
   //  Register call-back for software alignment
