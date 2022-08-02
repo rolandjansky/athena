@@ -16,6 +16,8 @@ StatusCode OverviewMonitorAlgorithm::initialize() {
   
   ATH_CHECK(m_cpmErrorLocation.initialize());
   ATH_CHECK(m_cpmMismatchLocation.initialize());
+  ATH_CHECK(m_ppmSimBSMismatchLocation.initialize());
+
 
   return AthMonitorAlgorithm::initialize();
 }
@@ -133,6 +135,29 @@ StatusCode OverviewMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
       } // crates
     }
   }
+
+
+  // PPM Mismatch data
+  { 
+    const auto* errTES = SG::get(m_ppmSimBSMismatchLocation, ctx);
+    if (!errTES || errTES->size() != size_t(ppmCrates)) {
+      ATH_MSG_INFO("No PPM SimBS mismatch vector of expected size");
+    } else {
+      for (int crate = 0; crate < ppmCrates; ++crate) {
+	const int err = (*errTES)[crate];
+	if (err == 0)
+	  continue;
+	if (((err >> LUTMismatch) & 0x1)){
+	  globalOverviewX=Simulation;
+	  globalOverviewY=crate;
+	  fill(m_packageName,globalOverviewX,globalOverviewY);
+	  err_per_LB+=1;
+	}
+      }
+    }
+  }
+
+
 
   // errors per lumiblock and events processed
   auto lb = GetEventInfo(ctx)->lumiBlock();
