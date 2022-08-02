@@ -85,6 +85,9 @@ def fromRunArgs(runArgs):
     from PerfMonComps.PerfMonCompsConfig import PerfMonMTSvcCfg
     cfg.merge(PerfMonMTSvcCfg(ConfigFlags))
 
+    # Set EventPrintoutInterval to 100 events
+    cfg.getService(cfg.getAppProps()["EventLoop"]).EventPrintoutInterval = 100
+
     # Post-include
     processPostInclude(runArgs, ConfigFlags, cfg)
 
