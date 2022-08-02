@@ -387,13 +387,6 @@ const ISF::ISFParticleVector* ISF::PunchThroughTool::computePunchThroughParticle
   m_initPs = &isfp;
 
   ATH_MSG_VERBOSE("[ punchthrough ] position of the input particle: r"<<m_initPs->position().perp()<<" z= "<<m_initPs->position().z() );
-  //if not on ID surface - don't simulate
-
-  if ( m_geoIDSvc->inside(m_initPs->position(),AtlasDetDescr::fAtlasID) != 1 || m_geoIDSvc->inside(m_initPs->position(),AtlasDetDescr::fAtlasCalo) != 1)
-    {
-      ATH_MSG_DEBUG("[ GeoIDSvc ] input particle position is not on reference surface -> no punch-through simulation");
-      return 0;
-    }
 
   //check if it points to the calorimeter - if not, don't simulate
 
