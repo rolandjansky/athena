@@ -5,9 +5,7 @@
 #include "src/TrigCostSvc.h"
 #include "src/TrigCostSupervisorAlg.h"
 #include "TrigCostMonitor/TrigCostAuditor.h"
-#include "TrigCostMonitor/EnhancedBiasWeightCompAlg.h"
 
 DECLARE_COMPONENT( TrigCostSvc )
 DECLARE_COMPONENT( TrigCostAuditor )
-DECLARE_COMPONENT( EnhancedBiasWeightCompAlg )
 DECLARE_COMPONENT( TrigCostSupervisorAlg )
