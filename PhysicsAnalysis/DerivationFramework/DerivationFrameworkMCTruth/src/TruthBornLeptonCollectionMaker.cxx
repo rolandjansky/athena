@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -58,34 +58,35 @@ StatusCode DerivationFramework::TruthBornLeptonCollectionMaker::initialize()
 StatusCode DerivationFramework::TruthBornLeptonCollectionMaker::addBranches() const
 {
   // Set up for some metadata handling
-  static int is_sherpa = -1;
-  if (is_sherpa<0 && m_metaStore->contains<xAOD::TruthMetaDataContainer>("TruthMetaData")){
-    // Note that I'd like to get this out of metadata in general, but it seems that the
-    // metadata isn't fully available in initialize, and since this is a const function
-    // I can only do the retrieve every event, rather than lazy-initializing, since this
-    // metadata ought not change during a run
-    const DataHandle<xAOD::TruthMetaDataContainer> truthMetaData(nullptr);
-    // Shamelessly stolen from the file meta data tool
-    ATH_CHECK( m_metaStore->retrieve(truthMetaData) );
-  
-    if (!truthMetaData->empty()){
-      // Let's just be super sure...
-      const std::string gens = truthMetaData->at(0)->generators();
-      is_sherpa = (gens.find("sherpa")==std::string::npos &&
-                   gens.find("Sherpa")==std::string::npos &&
-                   gens.find("SHERPA")==std::string::npos)?0:1;
-    } // Seems to be the only sure way...
-    else {
-      ATH_MSG_WARNING("Found xAODTruthMetaDataContainer empty! Configuring to be NOT Sherpa.");
+  static const bool is_sherpa = [this]() {
+    bool is_sherpa = false;
+    if (m_metaStore->contains<xAOD::TruthMetaDataContainer>("TruthMetaData")){
+      // Note that I'd like to get this out of metadata in general, but it seems that the
+      // metadata isn't fully available in initialize, and since this is a const function
+      // I can only do the retrieve every event, rather than lazy-initializing, since this
+      // metadata ought not change during a run
+      const xAOD::TruthMetaDataContainer* truthMetaData(nullptr);
+      // Shamelessly stolen from the file meta data tool
+
+      if (m_metaStore->retrieve(truthMetaData).isSuccess() && !truthMetaData->empty()){
+        // Let's just be super sure...
+        const std::string gens = truthMetaData->at(0)->generators();
+        is_sherpa = (gens.find("sherpa")==std::string::npos &&
+                     gens.find("Sherpa")==std::string::npos &&
+                     gens.find("SHERPA")==std::string::npos) ? false : true;
+      } // Seems to be the only sure way...
+      else {
+        ATH_MSG_WARNING("Found xAODTruthMetaDataContainer empty! Configuring to be NOT Sherpa.");
+      }
+      ATH_MSG_INFO("From metadata configured: Sherpa? " << is_sherpa);
+    } {
+      ATH_MSG_WARNING("Could not find metadata container in storegate; assuming NOT Sherpa");
     }
-    ATH_MSG_INFO("From metadata configured: Sherpa? " << is_sherpa);
-  } else if (is_sherpa<0){
-    ATH_MSG_WARNING("Could not find metadata container in storegate; assuming NOT Sherpa");
-    is_sherpa=0;
-  }
+    return is_sherpa;
+  }();
 
   // Retrieve truth collections
-  const DataHandle<xAOD::TruthParticleContainer> importedTruthParticles(nullptr);
+  const xAOD::TruthParticleContainer* importedTruthParticles(nullptr);
   if (evtStore()->retrieve(importedTruthParticles,m_particlesKey).isFailure()) {
     ATH_MSG_ERROR("No TruthParticle collection with name " << m_particlesKey << " found in StoreGate!");
     return StatusCode::FAILURE;

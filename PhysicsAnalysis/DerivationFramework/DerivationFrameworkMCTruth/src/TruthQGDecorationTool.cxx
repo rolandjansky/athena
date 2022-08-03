@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -33,7 +33,7 @@ DerivationFramework::TruthQGDecorationTool::~TruthQGDecorationTool() {
 StatusCode DerivationFramework::TruthQGDecorationTool::addBranches() const
 {
   // Retrieve the truth collections
-  const DataHandle<xAOD::JetContainer> inputJets(nullptr);
+  const xAOD::JetContainer* inputJets(nullptr);
   CHECK(evtStore()->retrieve(inputJets, m_jetsKey));
 
   SG::AuxElement::Decorator<int> output_decorator(m_decOutput);

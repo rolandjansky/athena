@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -31,14 +31,12 @@ DerivationFramework::TruthNavigationDecorator::~TruthNavigationDecorator() {
 StatusCode DerivationFramework::TruthNavigationDecorator::addBranches() const
 {
   // Retrieve the truth collections
-  const DataHandle<xAOD::TruthEventContainer> truthEvents(nullptr);
+  const xAOD::TruthEventContainer* truthEvents(nullptr);
   CHECK(evtStore()->retrieve(truthEvents, "TruthEvents"));
 
   // Retrieve all the individual particle collections
-  // Either use DataHandles or reserve the memory; these are just pointers, so the reserve is not such a big deal?
-  std::vector< DataHandle<xAOD::TruthParticleContainer> > inputParticles;
+  std::vector<const xAOD::TruthParticleContainer*> inputParticles(m_inputKeys.size());
   for (size_t k=0;k<m_inputKeys.size();++k){
-    inputParticles.emplace_back(nullptr);
     CHECK(evtStore()->retrieve(inputParticles[k],m_inputKeys[k]));
   }
 

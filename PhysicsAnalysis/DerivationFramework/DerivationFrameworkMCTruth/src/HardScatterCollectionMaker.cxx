@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -70,39 +70,39 @@ StatusCode DerivationFramework::HardScatterCollectionMaker::initialize()
 StatusCode DerivationFramework::HardScatterCollectionMaker::addBranches() const
 {
     // Set up for some metadata handling
-    static int is_pure_pythia8 = -1;
-    if (is_pure_pythia8<0 && m_metaStore->contains<xAOD::TruthMetaDataContainer>("TruthMetaData")){
-        // Note that I'd like to get this out of metadata in general, but it seems that the
-        // metadata isn't fully available in initialize, and since this is a const function
-        // I can only do the retrieve every event, rather than lazy-initializing, since this
-        // metadata ought not change during a run
-        const DataHandle<xAOD::TruthMetaDataContainer> truthMetaData(nullptr);
-        // Shamelessly stolen from the file meta data tool
-        ATH_CHECK( m_metaStore->retrieve(truthMetaData) );
-
-        if (!truthMetaData->empty()){
-            // Let's just be super sure...
-            const std::string gens = boost::algorithm::to_lower_copy(truthMetaData->at(0)->generators());
-            // Check if it has Pythia8 in it
-            is_pure_pythia8 = (gens.find("pythia8")==std::string::npos)?0:1;
-            // Check if it has something *else* in it
-            std::string remainder = boost::algorithm::erase_all_copy(gens,"pythia8");
-            boost::algorithm::erase_all(remainder,"evtgen");
-            boost::algorithm::erase_all(remainder,"+");
-            if (!remainder.empty()){
-                ATH_MSG_INFO("Ideentified sample as not pure-Pythia8. Gen info was " << gens);
-                is_pure_pythia8=0;
-            } else if (is_pure_pythia8){
-                ATH_MSG_INFO("Identified sample as pure-Pythia8. Reconfiguring accordingly. Gen info was " << gens);
+    static const bool is_pure_pythia8 = [this]() {
+        bool is_pure_pythia8 = false;
+        if (m_metaStore->contains<xAOD::TruthMetaDataContainer>("TruthMetaData")){
+            // Note that I'd like to get this out of metadata in general, but it seems that the
+            // metadata isn't fully available in initialize, and since this is a const function
+            // I can only do the retrieve every event, rather than lazy-initializing, since this
+            // metadata ought not change during a run
+            const xAOD::TruthMetaDataContainer* truthMetaData(nullptr);
+            // Shamelessly stolen from the file meta data tool
+            if (m_metaStore->retrieve(truthMetaData).isSuccess() && !truthMetaData->empty()){
+                // Let's just be super sure...
+                const std::string gens = boost::algorithm::to_lower_copy(truthMetaData->at(0)->generators());
+                // Check if it has Pythia8 in it
+                is_pure_pythia8 = (gens.find("pythia8")==std::string::npos) ? false : true;
+                // Check if it has something *else* in it
+                std::string remainder = boost::algorithm::erase_all_copy(gens,"pythia8");
+                boost::algorithm::erase_all(remainder,"evtgen");
+                boost::algorithm::erase_all(remainder,"+");
+                if (!remainder.empty()){
+                    ATH_MSG_INFO("Ideentified sample as not pure-Pythia8. Gen info was " << gens);
+                    is_pure_pythia8=false;
+                } else if (is_pure_pythia8){
+                    ATH_MSG_INFO("Identified sample as pure-Pythia8. Reconfiguring accordingly. Gen info was " << gens);
+                }
+            } // Seems to be the only sure way...
+            else {
+                ATH_MSG_WARNING("Found xAODTruthMetaDataContainer empty! Configuring to be NOT pure Pythia8.");
             }
-        } // Seems to be the only sure way...
-        else {
-            ATH_MSG_WARNING("Found xAODTruthMetaDataContainer empty! Configuring to be NOT pure Pythia8.");
+        } else {
+            ATH_MSG_WARNING("Could not find metadata container in storegate; assuming NOT pure Pythia8");
         }
-    } else if (is_pure_pythia8<0){
-        ATH_MSG_WARNING("Could not find metadata container in storegate; assuming NOT pure Pythia8");
-        is_pure_pythia8=0;
-    }
+        return is_pure_pythia8;
+    }();
 
     // Retrieve truth collections
     const xAOD::TruthEventContainer* importedTruthEvents(nullptr);
@@ -118,11 +118,10 @@ StatusCode DerivationFramework::HardScatterCollectionMaker::addBranches() const
     // Check that it has a hard scatter process defined
     const xAOD::TruthVertex* my_tv = importedTruthEvents->at(0)->signalProcessVertex();
     if (my_tv==nullptr){
-        static bool warn_once=false;
-        if (!warn_once){
+        [[maybe_unused]] static const bool warn_once = [this]() {
             ATH_MSG_WARNING("TruthEvent collection with name " << m_eventsKey << " has a null signal process vertex!");
-            warn_once=true;
-        }
+            return true;
+        }();
         size_t i_vtx=0;
         // Sometimes we're unlucky and the first vertex is null!
         while (!my_tv && i_vtx<importedTruthEvents->at(0)->nTruthVertices()){
