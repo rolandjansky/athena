@@ -294,6 +294,9 @@ void ConfAnalysis::initialiseInternal() {
   mres.push_back( rnpix_lb_rec  = new Resplot( "npix_lb_rec", 250, 0, 2500,  22, -0.5, 21.5 ) );
   mres.push_back( rnsct_lb_rec  = new Resplot( "nsct_lb_rec", 250, 0, 2500,  22, -0.5, 21.5 ) );
 
+  mres.push_back(  rnpix_d0_rec = new Resplot( "npix_d0_rec", 39, d0bins,  22, -0.5, 21.5 ) );
+  mres.push_back(  rnsct_d0_rec = new Resplot( "nsct_d0_rec", 39, d0bins,  22, -0.5, 21.5 ) );
+  mres.push_back(  rntrt_d0_rec = new Resplot( "ntrt_d0_rec", 39, d0bins,  22, -0.5, 21.5 ) );
 
   //  int Nptbins = 7;
   //  double _ptlims[8] = { 0, 500, 1000, 1500, 2000, 5000, 8000, 12000 };
@@ -1684,6 +1687,9 @@ void ConfAnalysis::execute( const std::vector<TIDA::Track*>& reftracks,
       rnpixh_pt_rec->Fill( std::fabs(pTt), npixhr*0.5 );
       rnscth_pt_rec->Fill( std::fabs(pTt), nscthr*1.0 );
 
+      rnpix_d0_rec->Fill( a0t, npixr*1.0 );
+      rnsct_d0_rec->Fill( a0t, nsctr*1.0 );
+      rntrt_d0_rec->Fill( a0t, nstrawr*1.0 );
 
       eff_vs_ntracks->Fill( Nvtxtracks );
       eff_vs_ntracks2->Fill( Nvtxtracks );
