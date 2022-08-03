@@ -5,6 +5,7 @@ Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from PyJobTransforms.trfArgClasses import argFactory, argList, argPOOLFile
 from PyJobTransforms.trfExe import reductionFrameworkExecutor
+import PyJobTransforms.trfArgClasses as trfArgClasses
 
 def addDerivationArguments(parser):
     """Add common derivation command-line parser arguments."""
@@ -33,6 +34,11 @@ def addDerivationArguments(parser):
                         type=argFactory(argPOOLFile, io='output'),
                         help='Output D2AOD filename stub, D2AOD_X will be prepended to it',
                         group='Derivation') 
+    parser.add_argument('--passThrough', 
+                        type=trfArgClasses.argFactory(trfArgClasses.argSubstepBool, defaultSubstep = 'Derivation', runarg=True),
+                        metavar='BOOL',
+                        help='Disable all skimming and write every event',
+                        group='Derivation')
 
 def addDerivationSubstep(executor_set):
     # We use the existing DF executor which inherits from the athenaExecutor.

@@ -7,6 +7,7 @@ from DerivationFrameworkConfiguration import DerivationConfigList
 from PyJobTransforms.TransformUtils import processPreExec, processPreInclude, processPostExec, processPostInclude
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 #def defaultDerivationFlags(configFlags):
 #   """Fill default derivation flags"""
@@ -80,6 +81,13 @@ def fromRunArgs(runArgs):
         logDerivation.error('Derivation job started, but with no output formats specified - aborting')
         raise ValueError('No derived formats specified')
 
+
+    # Pass-through mode (ignore skimming and accept all events)
+    if hasattr(runArgs, 'passThrough'):    
+        logDerivation.info('Pass-through mode was requested. All events will be written to the output.')        
+        for algo in cfg.getEventAlgos():
+            if isinstance(algo, CompFactory.DerivationFramework.DerivationKernel): 
+                algo.SkimmingTools = []    
 
     # PerfMonSD 
     from PerfMonComps.PerfMonCompsConfig import PerfMonMTSvcCfg
