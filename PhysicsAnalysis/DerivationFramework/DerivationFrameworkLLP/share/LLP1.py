@@ -8,6 +8,7 @@
 # It requires the reductionConf flag LLP1 in Reco_tf.py   
 #====================================================================
 from AthenaCommon import Logging
+from AthenaConfiguration.Enums import LHCPeriod
 nanolog = Logging.logging.getLogger('LLP1')
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import buildFileName
@@ -69,7 +70,6 @@ SeqLLP1 += CfgMgr.DerivationFramework__CommonAugmentation("InDetWithLRTLRTMerge"
 #====================================================================
 # Run the LRT Electron merger
 #====================================================================
-
 from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__ElectronMergerTool
 ToolSvc += DerivationFramework__ElectronMergerTool(name         = "LRTAndStandardElectronMergerTool",
                                            InCollectionsLocation= ["Electrons","LRTElectrons"],
@@ -77,7 +77,6 @@ ToolSvc += DerivationFramework__ElectronMergerTool(name         = "LRTAndStandar
                                            CreateViewCollection = True)
 
 SeqLLP1 += CfgMgr.ElectronMergerAlgorithm(name="LRTAndStdElectronMergerAlgo",ElectronMergerTool=ToolSvc.LRTAndStandardElectronMergerTool)
-
 
 #====================================================================
 # Run VSI
@@ -295,10 +294,16 @@ LLP1_MaxCellDecoratorTool = DerivationFramework__MaxCellDecorator( name = "LLP1_
 ToolSvc += LLP1_MaxCellDecoratorTool
 augmentationTools.append(LLP1_MaxCellDecoratorTool)
 
-LLP1_LRTMaxCellDecoratorTool = DerivationFramework__MaxCellDecorator( name = "LLP1_LRTMaxCellDecoratorTool",
+if ConfigFlags.GeoModel.Run == LHCPeriod.Run3:
+    LLP1_LRTMaxCellDecoratorTool = DerivationFramework__MaxCellDecorator( name = "LLP1_LRTMaxCellDecoratorTool",
+                                                                      SGKey_electrons = "LRTElectrons",
+                                                                      )
+else:
+    LLP1_LRTMaxCellDecoratorTool = DerivationFramework__MaxCellDecorator( name = "LLP1_LRTMaxCellDecoratorTool",
                                                                       SGKey_electrons = "LRTElectrons",
                                                                       SGKey_egammaClusters = "egammaClusters",
                                                                       )
+
 ToolSvc += LLP1_LRTMaxCellDecoratorTool
 augmentationTools.append(LLP1_LRTMaxCellDecoratorTool)
 
