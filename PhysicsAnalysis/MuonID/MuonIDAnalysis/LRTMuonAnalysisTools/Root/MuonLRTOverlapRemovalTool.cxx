@@ -131,7 +131,7 @@ namespace CP {
   void MuonLRTOverlapRemovalTool::checkOverlapAndDecor(const xAOD::Muon* promptMuon,
                                                        const xAOD::Muon* lrtMuon) const{
 
-    static SG::AuxElement::Decorator<int> MuonLRTOverlapDecision("MuonLRTOverlapDecision"); //0 if no overlap, 1 if overlaps and rejected, 2 if overlaps and retained    
+    static const SG::AuxElement::Decorator<int> MuonLRTOverlapDecision("MuonLRTOverlapDecision"); //0 if no overlap, 1 if overlaps and rejected, 2 if overlaps and retained
         
     if (!hasOverlap(promptMuon, lrtMuon)){
       MuonLRTOverlapDecision(*promptMuon) = 0;
