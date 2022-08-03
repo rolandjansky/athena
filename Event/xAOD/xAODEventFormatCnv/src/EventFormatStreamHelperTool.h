@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-/* Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration */
+/* Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration */
 #ifndef XAODEVENTFORMATCNV_EVENTFORMATSTREAMHELPERTOOL
 #define XAODEVENTFORMATCNV_EVENTFORMATSTREAMHELPERTOOL
 
@@ -14,6 +14,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaKernel/IAthenaOutputTool.h"
 #include "AthenaKernel/IMetaDataSvc.h"
+#include "CxxUtils/checker_macros.h"
 
 namespace xAODMaker {
 /// Tool creating and maintaining @c xAOD::EventFormat at the end-of-events
@@ -27,6 +28,8 @@ namespace xAODMaker {
 ///
 class EventFormatStreamHelperTool : public extends< AthAlgTool, IAthenaOutputTool > {
  public:
+  using sgkey_t = SG::sgkey_t;
+
   // Inherit the base class's constructor(s).
   using extends::extends;
 
@@ -107,10 +110,10 @@ class EventFormatStreamHelperTool : public extends< AthAlgTool, IAthenaOutputToo
 
       @returns the hash corresponding to the primaryClassID
    */
-  unsigned int lookUpHash(
+  sgkey_t lookUpHash(
     CLID primaryClassID,
     const std::set< CLID >& classIDs,
-    const std::vector< unsigned int >& hashes) const;
+    const std::vector< sgkey_t >& hashes) const;
 
   /// CLIDs about which warnings have already been printed
   std::set< CLID > m_warnedCLIDs;

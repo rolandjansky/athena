@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: EventFormatElement.cxx 586453 2014-03-06 10:24:33Z krasznaa $
@@ -20,7 +20,7 @@ namespace xAOD {
    EventFormatElement::EventFormatElement( const std::string& branchName,
                                            const std::string& className,
                                            const std::string& parentName,
-                                           uint32_t hash )
+                                           sgkey_t hash )
       : m_branchName( branchName ), m_className( className ),
         m_parentName( parentName ), m_hash( hash ) {
 
@@ -45,7 +45,7 @@ namespace xAOD {
    }
 
    /// @returns A hashed version of the branch's name
-   uint32_t EventFormatElement::hash() const {
+   EventFormatElement::sgkey_t EventFormatElement::hash() const {
 
       return m_hash;
    }
