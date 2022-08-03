@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCSC_CNVTOOLS_CSCRDOCONTRAWEVENTTOOL_H
 #define MUONCSC_CNVTOOLS_CSCRDOCONTRAWEVENTTOOL_H
 
-#include <string>
+
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "ByteStreamCnvSvc/ByteStreamCnvSvc.h"
@@ -15,6 +15,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "MuonCSC_CnvTools/ICSC_RDOtoByteStreamTool.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include <string>
 
 class CSCcablingSvc;
 
@@ -49,12 +50,12 @@ namespace Muon {
 
         ServiceHandle<ByteStreamCnvSvc> m_byteStreamCnvSvc{this, "ByteStreamCnvSvc", "ByteStreamCnvSvc"};
 
-        uint16_t m_rodVersion;
+        uint16_t m_rodVersion{};
 
-        CSCcablingSvc* m_cabling;
+        CSCcablingSvc* m_cabling{};
 
-        bool m_isCosmic;
-        bool m_isOldCosmic;
+        bool m_isCosmic{};
+        bool m_isOldCosmic{};
     };
 }  // namespace Muon
 

@@ -1,15 +1,15 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CscRdoContByteStreamTool.h"
 
-#include <map>
+
 
 #include "AthenaKernel/CLASS_DEF.h"
 #include "CscROD_Encoder.h"
 #include "MuonRDO/CscRawDataContainer.h"
-
+#include <map>
 // contructor
 Muon::CscRdoContByteStreamTool::CscRdoContByteStreamTool(const std::string& type, const std::string& name, const IInterface* parent) :
     base_class(type, name, parent) {
