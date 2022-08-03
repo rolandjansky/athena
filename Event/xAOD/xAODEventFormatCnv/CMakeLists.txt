@@ -10,7 +10,7 @@ find_package( xAODUtilities )
 atlas_add_component( xAODEventFormatCnv
   src/*.h src/*.cxx src/components/*.cxx
   LINK_LIBRARIES
-    GaudiKernel AthenaKernel AthenaBaseComps StoreGateLib xAODEventFormat )
+    GaudiKernel AthenaKernel AthenaBaseComps StoreGateLib xAODEventFormat CxxUtils )
 
 # Set up the test code of the package.
 atlas_add_library( xAODEventFormatCnvTestLib
