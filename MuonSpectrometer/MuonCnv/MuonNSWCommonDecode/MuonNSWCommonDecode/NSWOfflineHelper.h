@@ -19,8 +19,7 @@ namespace Muon
       class NSWOfflineHelper
       {
        public:
-        NSWOfflineHelper (Muon::nsw::NSWResourceId *res_id, uint16_t vmm_number, uint16_t vmm_channel_number)
-          : m_elinkId (res_id), m_vmm (vmm_number), m_chan (vmm_channel_number) {};
+        NSWOfflineHelper (Muon::nsw::NSWResourceId *res_id, uint16_t vmm_number, uint16_t vmm_channel_number);
 
         virtual ~NSWOfflineHelper () {};
 
@@ -67,6 +66,19 @@ namespace Muon
     }
   }
 }
+
+
+inline Muon::nsw::helper::NSWOfflineHelper::NSWOfflineHelper(Muon::nsw::NSWResourceId *res_id, uint16_t vmm_number, uint16_t vmm_channel_number)
+: m_elinkId (res_id)
+, m_vmm (vmm_number)
+, m_chan (vmm_channel_number) 
+{
+  // For sTGC, remap the vmm id read from the ROB fragment (the id captured by the ROC).
+  // Assign the id this vmm has for config., since sTGCMapper reflects the config. mapping. 
+  constexpr uint8_t vmmRemap[8] = { 2, 3, 0, 1, 5, 4, 6, 7 };
+  if (res_id->detId() == eformat::MUON_STGC_ENDCAP_A_SIDE || res_id->detId() == eformat::MUON_STGC_ENDCAP_C_SIDE)
+    m_vmm = vmmRemap[m_vmm];
+};
 
 #endif // _MUON_NSW_OFFLINE_HELPER_H_
 

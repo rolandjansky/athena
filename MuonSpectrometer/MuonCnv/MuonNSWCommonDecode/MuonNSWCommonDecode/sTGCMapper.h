@@ -20,19 +20,18 @@ namespace Muon
       sTGCMapper() {};
       virtual ~sTGCMapper () {};
 
-      uint16_t channel_number (uint8_t channel_type, uint8_t sector_type, uint8_t quadruplet, uint8_t layer, uint16_t vmm, uint16_t vmm_chan) const;
+      uint16_t channel_number (uint8_t channel_type, uint8_t sector_type, uint8_t radius, uint8_t layer, uint16_t vmm, uint16_t vmm_chan) const;
 
-      static uint16_t private_id (uint8_t channel_type, uint8_t sector_type, uint8_t quadruplet, uint8_t layer);
+      static uint16_t private_id (uint8_t channel_type, uint8_t sector_type, uint8_t radius, uint8_t layer);
     };
   
     static const std::map <uint16_t, std::vector<std::vector<uint8_t>>> s_stgc_channel_map =
     {
       // channel range: {vmm0, vmm0_channel, vmm1, vmm1_channel}
-      // as a function of channel_type, sector_type, quadruplet, layer
+      // as a function of channel_type, sector_type [1=large 0=small], radius [0->2], layer [0->7]
 
       // This mapping reflects the spreadsheet sTGC_AB_Mapping_WithPadTDSChannels.xlsx,
-      // where VMM IDs are the ones set for configuration. The VMM IDs captured from 
-      // the sROC need to be mapped to the VMM IDs below (done in the source file).
+      // where vmm ids are the ones set for configuration.
        
       //**** PADS
       {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 0, 0, 0),  { {2, 39, 1, 36} }}, // QS1C
@@ -190,10 +189,10 @@ namespace Muon
 
 
 //=====================================================================
-inline uint16_t Muon::nsw::sTGCMapper::private_id (uint8_t channel_type, uint8_t sector_type, uint8_t quadruplet, uint8_t layer)
+inline uint16_t Muon::nsw::sTGCMapper::private_id (uint8_t channel_type, uint8_t sector_type, uint8_t radius, uint8_t layer)
 {
   // an internal unique ID for every VMM channel
-  return (channel_type & 0xf) << 12 | (sector_type & 0xf) << 8 | (quadruplet & 0xf) << 4 | (layer & 0xf);
+  return (channel_type & 0xf) << 12 | (sector_type & 0xf) << 8 | (radius & 0xf) << 4 | (layer & 0xf);
 }
 
 #endif // _MUON_NSW_STGC_MAPPER_H_
