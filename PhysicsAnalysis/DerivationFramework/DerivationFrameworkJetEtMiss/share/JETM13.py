@@ -6,14 +6,12 @@
 from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob, buildFileName
 from DerivationFrameworkJetEtMiss.JetCommon import OutputJets, addJetOutputs
 from DerivationFrameworkJetEtMiss.METCommon import addMETOutputs
+from DerivationFrameworkPhys import PhysCommon
 
 if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth import MCTruthCommon
-  MCTruthCommon.addStandardTruthContents()
   MCTruthCommon.addBosonsAndDownstreamParticles(generations=4,rejectHadronChildren=True)
   MCTruthCommon.addTopQuarkAndDownstreamParticles(generations=4,rejectHadronChildren=True)
-
-from DerivationFrameworkPhys import PhysCommon
 
 #====================================================================
 # SET UP STREAM

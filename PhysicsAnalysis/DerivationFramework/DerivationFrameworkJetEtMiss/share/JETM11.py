@@ -5,6 +5,7 @@
 from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob, buildFileName
 from DerivationFrameworkJetEtMiss import TriggerLists
 from DerivationFrameworkJetEtMiss.METTriggerDerivationContent import METTriggerDerivationContentManager
+from DerivationFrameworkPhys import PhysCommon
 
 #======================================================================================================================
 # SET UP STREAM
@@ -21,7 +22,7 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFram
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
 singleElTriggers = TriggerLists.single_el_Trig()
 singleMuTriggers = TriggerLists.single_mu_Trig()
-cutExpression = "(count(Electrons.DFCommonElectronsLHLoose && Electrons.pt > (24 * GeV) && abs(Electrons.eta) < 2.47) + count(Muons.DFCommonMuonsPreselection && Muons.pt > (24*GeV) && abs(Muons.eta) < 2.47) ) >= 1"
+cutExpression = "(count(Electrons.DFCommonElectronsLHLoose && Electrons.pt > (24 * GeV) && abs(Electrons.eta) < 2.47) + count(Muons.DFCommonMuonPassPreselection && Muons.pt > (24*GeV) && abs(Muons.eta) < 2.47) ) >= 1"
 JETM11StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(
     name       = "JETM11StringSkimmingTool",
     expression = cutExpression)
