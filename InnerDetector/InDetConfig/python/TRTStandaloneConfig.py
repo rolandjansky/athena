@@ -34,8 +34,8 @@ def InDetTrtTrackScoringToolCfg(flags, name ='InDetTRT_StandaloneScoringTool', e
     return acc
 
 def TRT_SegmentToTrackToolCfg(flags, name ='InDetTRT_SegmentToTrackTool', extension = "", **kwargs):
-    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-    acc = MagneticFieldSvcCfg(flags)
+    from MagFieldServices.MagFieldServicesConfig import AtlasFieldCacheCondAlgCfg
+    acc = AtlasFieldCacheCondAlgCfg(flags)
 
     #
     # set up TRT_SegmentToTrackTool

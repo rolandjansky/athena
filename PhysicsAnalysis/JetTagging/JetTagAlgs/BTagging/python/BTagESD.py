@@ -102,8 +102,8 @@ def PrepareStandAloneBTagCfg(inputFlags):
     result.merge(acc)
 
     # get standard config for magnetic field - map and cache
-    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-    result.merge(MagneticFieldSvcCfg( inputFlags ))
+    from MagFieldServices.MagFieldServicesConfig import AtlasFieldCacheCondAlgCfg
+    result.merge(AtlasFieldCacheCondAlgCfg( inputFlags ))
 
     #load folders needed for Run2 ID alignment
     from IOVDbSvc.IOVDbSvcConfig import addFolders

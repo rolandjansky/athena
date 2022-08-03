@@ -229,6 +229,9 @@ namespace NSWL1 {
 
         //int pad_hit_number = 0;
         std::vector<PadHits> pad_hits;
+        uint16_t BC0 = 0, BCP1 = 1, BCP2 = 2, BCP3 = 3, BCP4 = 4, BCM1 = ~BCP1, BCM2 = ~BCP2, BCM3 = ~BCP3;
+        std::vector<uint16_t> bcWindow={BC0, BCP1, BCP2, BCP3, BCP4, BCM1, BCM2, BCM3};
+
         for(; it!=it_e; ++it) {
             const sTgcDigitCollection* coll = *it;
             ATH_MSG_DEBUG( "processing collection with size " << coll->size() );
@@ -237,9 +240,7 @@ namespace NSWL1 {
                 if(digit) { 
                     if(is_pad_digit(digit)) {
                         Identifier Id = digit->identify();
-                        // Test bcTag to make sure it's within +/- 1 BC, ref. 0xFFFF
-                        uint16_t BCP1 = 1, BC0 = 0, BCM1 = ~BCP1;
-                        if(digit->bcTag()==BCM1 || digit->bcTag()==BC0 || digit->bcTag()==BCP1) {
+                        if (std::find(bcWindow.begin(), bcWindow.end(), digit->bcTag()) != bcWindow.end()){
                             print_digit(digit);
                             //PadOfflineData* pad = new PadOfflineData(Id, digit->time(), digit->bcTag(), m_sTgcIdHelper);
                             //S.I

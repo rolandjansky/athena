@@ -3,7 +3,10 @@
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     
-def MagneticFieldSvcCfg(flags, **kwargs):
+def AtlasFieldCacheCondAlgCfg(flags, **kwargs):
+    '''
+    Configure the CondAlgsfor the ATLAS magnetic field.
+    '''
     result=ComponentAccumulator()
     
     # initialise required conditions DB folders
@@ -73,7 +76,7 @@ if __name__=="__main__":
 
     cfg=ComponentAccumulator()
 
-    acc  = MagneticFieldSvcCfg(ConfigFlags)
+    acc  = AtlasFieldCacheCondAlgCfg(ConfigFlags)
     log.verbose(acc)
     cfg.merge(acc)
 

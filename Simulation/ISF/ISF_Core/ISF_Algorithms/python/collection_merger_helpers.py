@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaCommon.CfgGetter import getAlgorithm
 from G4AtlasApps.SimFlags import simFlags
 from ISF_Config.ISF_jobProperties import ISF_Flags
@@ -21,7 +21,7 @@ def generate_mergeable_collection_name(bare_collection_name,
         CollectionMerger algorithm to add the mergeable collection to.
     """
     hardscatterSG = "OriginalEvent_SG+"
-    if simFlags.ISFRun() and ISF_Flags.HITSMergingRequired.get_Value().get(region,True):
+    if (simFlags.ISFRun() or (hasattr( simFlags, 'LArParameterization') and simFlags.LArParameterization() == 4)) and ISF_Flags.HITSMergingRequired.get_Value().get(region,True):
         mergeable_collection = '{bare}{suffix}'.format(
             bare=bare_collection_name,
             suffix=mergeable_collection_suffix

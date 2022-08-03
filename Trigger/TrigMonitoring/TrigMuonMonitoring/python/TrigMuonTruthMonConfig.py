@@ -6,7 +6,9 @@ def TrigMuonTruthMonConfig(helper):
  
     GroupName = 'TruthMon'
 
-    monAlg = helper.addAlgorithm(CompFactory.TrigMuonTruthMon,'TrigMuonTruthMon')
+    from MuonSelectorTools.MuonSelectorToolsConfig import MuonSelectionToolCfg
+    monAlg = helper.addAlgorithm(CompFactory.TrigMuonTruthMon,'TrigMuonTruthMon',
+                                 MuonSelectionTool = helper.result().popToolsAndMerge(MuonSelectionToolCfg(helper.inputFlags, MuQuality=1)))
 
     ### monitorig groups
     from TrigConfigSvc.TriggerConfigAccess import getHLTMonitoringAccess

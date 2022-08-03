@@ -12,6 +12,7 @@
 
 #include "xAODTruth/TruthVertexContainer.h"
 
+#include <stdexcept>
 
 /// NB: This was 47 for Run 2, but wit the addition of the IBL it should be 32 
 ///     It was kept at 47 for all Run 2 and mogration to MT, but for Run 3 we 
@@ -1103,7 +1104,9 @@ bool TrigTrackSelector::selectTrack( const xAOD::TrackParticle* track, void* ) {
       /// protect against spurious qOverP = 0 BUT !!!
       /// this should NEVER happen !!! so shouldn't really have this failing silently, but 
       /// not allowed to put in std::cerr output
-      if ( measPer->qOverP()==0 ) return false;
+      /// leave the original code in as this is mostly for a test
+      // if ( measPer->qOverP()==0 ) return false;
+      if ( measPer->qOverP()==0 ) throw std::runtime_error( "probable corrupted track - this should never happen" );
       double  p    = 1/measPer->qOverP();
   
       // AAARCH!!!!! the TrackParticle pT is NOT SIGNED!!!! ( I ask you! ) 

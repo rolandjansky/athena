@@ -72,17 +72,7 @@ class TriggerConfigGetter(Configured):
             svcMgr += TrigConf__xAODConfigSvc('xAODConfigSvc',
                                               UseInFileMetadata = False)
 
-        elif ConfigFlags.Trigger.EDMVersion >= 3:
-            from TrigEDMConfig.TriggerEDMRun3 import recordable
-            from AthenaConfiguration.ComponentFactory import CompFactory
-            from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
-
-            enhancedBiasWeightCompAlg = CompFactory.EnhancedBiasWeightCompAlg()
-            enhancedBiasWeightCompAlg.EBWeight = recordable("HLT_EBWeight")
-            from TrigDecisionTool.TrigDecisionToolConfig import getRun3NavigationContainerFromInput
-            enhancedBiasWeightCompAlg.FinalDecisionKey = getRun3NavigationContainerFromInput(ConfigFlags)
-            topAlgs += conf2toConfigurable( enhancedBiasWeightCompAlg )
-        else:
+        elif ConfigFlags.Trigger.EDMVersion < 1:
             raise RuntimeError("Invalid EDMVersion=%s " % ConfigFlags.Trigger.EDMVersion)
 
 

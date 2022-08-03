@@ -138,7 +138,7 @@ if not simFlags.ISFRun:
     createSimulationParametersMetadata()
     from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
     if not athenaCommonFlags.PoolHitsOutput.statusOn:
-        printfunc ('AtlasSimSkeleton._do_metadata :: no output HITS file, so no metadata writing required.')
+        print ('AtlasSimSkeleton._do_metadata :: no output HITS file, so no metadata writing required.')
     else:
         from AthenaServices.AthenaServicesConf import AthenaOutputStream
         stream1_SimMetaData = AthenaOutputStream("StreamHITS_SimMetaData")
@@ -331,7 +331,7 @@ if not simFlags.ISFRun:
         if athenaCommonFlags.SkipEvents.statusOn and athenaCommonFlags.SkipEvents()!=0:
             msg = "SimSkeleton._do_readevgen :: athenaCommonFlags.SkipEvents set in a job without an active "
             msg += "athenaCommonFlags.PoolEvgenInput flag: ignoring event skip request"
-            printfunc (msg)
+            print (msg)
 
     ## SimSkeleton._do_persistency
     from G4AtlasApps.SimFlags import simFlags

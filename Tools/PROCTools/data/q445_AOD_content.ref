@@ -487,8 +487,6 @@ HLTNav_R2ToR3Summary
 HLTNav_R2ToR3SummaryAux.
 HLTNav_Summary_AODSlimmed
 HLTNav_Summary_AODSlimmedAux.
-HLTNav_Summary_OnlineSlimmed
-HLTNav_Summary_OnlineSlimmedAux.
 HLT_AFPProtonContainer
 HLT_AFPProtonContainerAux.
 HLT_AFPSiHitsClusterContainer
@@ -1127,8 +1125,6 @@ HLT_DisTrkCandAuxDyn.disTrkCand_z0
 HLT_DisTrkCandAuxDyn.disTrkCand_z0_wrtVtx
 HLT_DrellYan
 HLT_DrellYanAux.
-HLT_EBWeight
-HLT_EBWeightAux.
 HLT_EMRoIs
 HLT_FSLRT_TrackCount
 HLT_FSLRT_TrackCountAux.

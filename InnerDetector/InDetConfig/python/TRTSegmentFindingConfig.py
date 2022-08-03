@@ -85,8 +85,8 @@ def TRT_TrackSegmentsMakerCondAlg_ATLxkCfg(flags, name = 'InDetTRT_SeedsMakerCon
     return acc
 
 def TRT_TrackSegmentsFinderCfg(flags, name = 'InDetTRT_TrackSegmentsFinder', extension = '', BarrelSegments = None, InputCollections =None, **kwargs):
-    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-    acc = MagneticFieldSvcCfg(flags)
+    from MagFieldServices.MagFieldServicesConfig import AtlasFieldCacheCondAlgCfg
+    acc = AtlasFieldCacheCondAlgCfg(flags)
 
     # ---------------------------------------------------------------
     #

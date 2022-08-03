@@ -1,10 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.CfgGetter import addTool
-addTool("Charginos.CharginosConfig.getCharginosPhysicsTool"         , "CharginosPhysicsTool" )
-addTool("Charginos.CharginosConfig.getCharginoPlusToPiPlusNeutralino", "CharginoPlusToPiPlusNeutralino")
-addTool("Charginos.CharginosConfig.getCharginoMinusToPiMinusNeutralino", "CharginoMinusToPiMinusNeutralino")
-addTool("Charginos.CharginosConfig.getCharginoPlusToEPlusNeutralino", "CharginoPlusToEPlusNeutralino")
-addTool("Charginos.CharginosConfig.getCharginoMinusToEMinusNeutralino", "CharginoMinusToEMinusNeutralino")
-addTool("Charginos.CharginosConfig.getCharginoPlusToMuPlusNeutralino", "CharginoPlusToMuPlusNeutralino")
-addTool("Charginos.CharginosConfig.getCharginoMinusToMuMinusNeutralino", "CharginoMinusToMuMinusNeutralino")
+addTool("Charginos.CharginosConfigLegacy.getCharginosPhysicsTool"         , "CharginosPhysicsTool" )
+addTool("Charginos.CharginosConfigLegacy.getCharginoPlusToPiPlusNeutralino", "CharginoPlusToPiPlusNeutralino")
+addTool("Charginos.CharginosConfigLegacy.getCharginoMinusToPiMinusNeutralino", "CharginoMinusToPiMinusNeutralino")
+addTool("Charginos.CharginosConfigLegacy.getCharginoPlusToEPlusNeutralino", "CharginoPlusToEPlusNeutralino")
+addTool("Charginos.CharginosConfigLegacy.getCharginoMinusToEMinusNeutralino", "CharginoMinusToEMinusNeutralino")
+addTool("Charginos.CharginosConfigLegacy.getCharginoPlusToMuPlusNeutralino", "CharginoPlusToMuPlusNeutralino")
+addTool("Charginos.CharginosConfigLegacy.getCharginoMinusToMuMinusNeutralino", "CharginoMinusToMuMinusNeutralino")

@@ -101,7 +101,7 @@ def adaptiveMultiVertexFinderCfg(flags, signature):
     from AthenaConfiguration.ComponentFactory import CompFactory
 
     from InDetConfig.InDetTrackSelectionToolConfig import TrigVtxInDetTrackSelectionCfg
-    from InDetConfig.TrackingCommonConfig import TrackToVertexIPEstimatorCfg
+    from TrkConfig.TrkVertexFitterUtilsConfig import TrackToVertexIPEstimatorCfg
     from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
 
@@ -122,11 +122,8 @@ def adaptiveMultiVertexFinderCfg(flags, signature):
                 )
     acc.addPublicTool(impact_point3d_estimator)
 
-    annealing_maker = CompFactory.Trk.DetAnnealingMaker(
-                    f"InDetTrigAnnealingMaker{signature}",
-                    SetOfTemperatures=[1.0],
-                )
-    acc.addPublicTool(annealing_maker)
+    from TrkConfig.TrkVertexFitterUtilsConfig import DetAnnealingMakerCfg
+    annealing_maker = acc.popToolsAndMerge(DetAnnealingMakerCfg(flags))
 
     acc.setPrivateTools(
         CompFactory.InDet.InDetAdaptiveMultiPriVxFinderTool(

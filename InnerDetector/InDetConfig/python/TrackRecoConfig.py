@@ -14,35 +14,6 @@ def TrackToVertexCfg(flags, name="AtlasTrackToVertexTool", **kwargs):
     result.setPrivateTools(CompFactory.Reco.TrackToVertex(name, **kwargs))
     return result
 
-def RecTrackParticleContainerCnvToolCfg(flags, name="RecTrackParticleContainerCnvTool", **kwargs):
-    result = ComponentAccumulator()
-
-    if "TrackParticleCreator" not in kwargs:
-        from TrkConfig.TrkParticleCreatorConfig import TrackParticleCreatorToolCfg
-        TrackParticleCreator = result.popToolsAndMerge(TrackParticleCreatorToolCfg(flags))
-        result.addPublicTool(TrackParticleCreator)
-        kwargs.setdefault("TrackParticleCreator", TrackParticleCreator)
-
-    result.setPrivateTools(CompFactory.xAODMaker.RecTrackParticleContainerCnvTool(name, **kwargs))
-    return result
-
-def TrackCollectionCnvToolCfg(flags, name="TrackCollectionCnvTool", **kwargs):
-    if flags.Detector.GeometryITk:
-        name = name.replace("InDet", "ITk")
-        from InDetConfig.ITkTrackRecoConfig import ITkTrackCollectionCnvToolCfg
-        return ITkTrackCollectionCnvToolCfg(flags, name, **kwargs)
-
-    result = ComponentAccumulator()
-
-    if "TrackParticleCreator" not in kwargs:
-        from TrkConfig.TrkParticleCreatorConfig import TrackParticleCreatorToolCfg
-        TrackParticleCreator = result.popToolsAndMerge(TrackParticleCreatorToolCfg(flags))
-        result.addPublicTool(TrackParticleCreator)
-        kwargs.setdefault("TrackParticleCreator", TrackParticleCreator)
-
-    result.setPrivateTools(CompFactory.xAODMaker.TrackCollectionCnvTool(name, **kwargs))
-    return result
-
 def TrackCollectionMergerAlgCfg(flags, name="InDetTrackCollectionMerger",
                                 InputCombinedTracks=None,
                                 OutputCombinedTracks="",
@@ -73,60 +44,6 @@ def TrackCollectionMergerAlgCfg(flags, name="InDetTrackCollectionMerger",
     kwargs.setdefault("SummaryTool", TrackSummaryTool)
 
     result.addEventAlgo(CompFactory.Trk.TrackCollectionMerger(name, **kwargs))
-    return result
-
-def TrackParticleCnvAlgCfg(flags, name="TrackParticleCnvAlg", TrackContainerName="CombinedInDetTracks", OutputTrackParticleContainer="InDetTrackParticles", **kwargs):
-    if flags.Detector.GeometryITk:
-        name = name.replace("InDet", "ITk")
-        from InDetConfig.ITkTrackRecoConfig import ITkTrackParticleCnvAlgCfg
-        return ITkTrackParticleCnvAlgCfg(flags, name, TrackContainerName, OutputTrackParticleContainer, **kwargs)
-
-    result = ComponentAccumulator()
-    kwargs.setdefault("ConvertTracks", True)
-    kwargs.setdefault("ConvertTrackParticles", False)
-    kwargs.setdefault("TrackContainerName", TrackContainerName)
-    kwargs.setdefault("xAODContainerName", OutputTrackParticleContainer)
-    kwargs.setdefault("xAODTrackParticlesFromTracksContainerName", OutputTrackParticleContainer)
-
-    if "TrackParticleCreator" not in kwargs:
-        from TrkConfig.TrkParticleCreatorConfig import TrackParticleCreatorToolCfg
-        kwargs["TrackParticleCreator"] = result.popToolsAndMerge(TrackParticleCreatorToolCfg(flags))
-    if "TrackCollectionCnvTool" not in kwargs:
-        TrackParticleCreator = kwargs["TrackParticleCreator"]
-        result.addPublicTool(TrackParticleCreator)
-        kwargs["TrackCollectionCnvTool"] = result.popToolsAndMerge(TrackCollectionCnvToolCfg(
-            flags,
-            TrackParticleCreator = TrackParticleCreator,
-        ))
-
-    if flags.InDet.doTruth:
-        kwargs.setdefault("TrackTruthContainerName", f"{TrackContainerName}TruthCollection")
-        kwargs.setdefault("AddTruthLink", True)
-
-        if "MCTruthClassifier" not in kwargs:
-            from MCTruthClassifier.MCTruthClassifierConfig import MCTruthClassifierCfg
-            kwargs["MCTruthClassifier"] = result.popToolsAndMerge(
-                MCTruthClassifierCfg(flags))
-
-    else:
-        kwargs.setdefault("AddTruthLink", False)
-    result.addEventAlgo(CompFactory.xAODMaker.TrackParticleCnvAlg(name, **kwargs))
-    return result
-
-def TrackParticleCnvAlgPIDCheckCfg(flags, name, TrackContainerName, OutputTrackParticleContainer, **kwargs):
-    result = ComponentAccumulator()
-    if "TrackParticleCreator" not in kwargs:
-        from TrkConfig.TrkParticleCreatorConfig import TrackParticleCreatorToolPIDCheckCfg
-        kwargs["TrackParticleCreator"] = result.popToolsAndMerge(TrackParticleCreatorToolPIDCheckCfg(flags))
-    result.merge(TrackParticleCnvAlgCfg(flags, name, TrackContainerName, OutputTrackParticleContainer, **kwargs))
-    return result
-
-def TrackParticleCnvAlgNoPIDCfg(flags, name, TrackContainerName, OutputTrackParticleContainer, **kwargs):
-    result = ComponentAccumulator()
-    if "TrackParticleCreator" not in kwargs:
-        from TrkConfig.TrkParticleCreatorConfig import TrackParticleCreatorToolNoPIDCfg
-        kwargs["TrackParticleCreator"] = result.popToolsAndMerge(TrackParticleCreatorToolNoPIDCfg(flags))
-    result.merge(TrackParticleCnvAlgCfg(flags, name, TrackContainerName, OutputTrackParticleContainer, **kwargs))
     return result
 
 # Configuration not supported, to be recommissioned if needed
@@ -257,6 +174,9 @@ def InDetTrackRecoCfg(flags):
 
     from InDetConfig.TrackingSiPatternConfig import TrackingSiPatternCfg
     from InDetConfig.TrackTruthConfig import InDetTrackTruthCfg
+    from InDetConfig.TRTStandaloneConfig import TRTStandaloneCfg
+    from InDetConfig.TRTExtensionConfig import NewTrackingTRTExtensionCfg
+    from xAODTrackingCnv.xAODTrackingCnvConfig import TrackParticleCnvAlgPIDCheckCfg
 
     # ------------------------------------------------------------
     #
@@ -303,7 +223,6 @@ def InDetTrackRecoCfg(flags):
                                           InputCollections = [],
                                           BarrelSegments = "TRTSegmentsTRT"))
 
-        from InDetConfig.TRTStandaloneConfig import TRTStandaloneCfg
         result.merge(TRTStandaloneCfg(flagsTRT,
                                       extension = "_TRT",
                                       InputCollections = [],
@@ -328,7 +247,6 @@ def InDetTrackRecoCfg(flags):
         extension = current_flags.InDet.Tracking.ActivePass.extension
 
         if flags.InDet.Tracking.doTRTStandalone and extension=="TRTStandalone":
-            from InDetConfig.TRTStandaloneConfig import TRTStandaloneCfg
             result.merge(TRTStandaloneCfg(current_flags,
                                           extension = "",
                                           InputCollections = InputCombinedInDetTracks,
@@ -369,7 +287,6 @@ def InDetTrackRecoCfg(flags):
                 ExtendedTracks = "ExtendedLargeD0Tracks"
             ExtendedTracksMap = "ExtendedTracksMap" + extension
 
-            from InDetConfig.TRTExtensionConfig import NewTrackingTRTExtensionCfg
             result.merge(NewTrackingTRTExtensionCfg(current_flags,
                                                     SiTrackCollection = ResolvedTracks,
                                                     ExtendedTrackCollection = ExtendedTracks,
@@ -405,7 +322,7 @@ def InDetTrackRecoCfg(flags):
             result.merge(TrackParticleCnvAlgPIDCheckCfg(current_flags,
                                                         name = extension + "TrackParticleCnvAlg",
                                                         TrackContainerName = TrackContainer,
-                                                        OutputTrackParticleContainer = "InDetLargeD0TrackParticles" if "LargeD0" in extension
+                                                        xAODTrackParticlesFromTracksContainerName = "InDetLargeD0TrackParticles" if "LargeD0" in extension
                                                         else "InDet" + extension + "TrackParticles")) # Need specific handling for R3LargeD0 not to break downstream configs
 
         else:
@@ -445,7 +362,7 @@ def InDetTrackRecoCfg(flags):
                 result.merge(TrackParticleCnvAlgPIDCheckCfg(current_flags,
                                                            name = "PseudoTrackParticleCnvAlg",
                                                            TrackContainerName = "InDetPseudoTracks",
-                                                           OutputTrackParticleContainer = "InDetPseudoTrackParticles"))
+                                                           xAODTrackParticlesFromTracksContainerName = "InDetPseudoTrackParticles"))
 
             isPrimaryPass = False
 
@@ -461,13 +378,15 @@ def InDetTrackRecoCfg(flags):
         from InDetConfig.TrackTruthConfig import InDetTrackTruthCfg
         result.merge(InDetTrackTruthCfg(flags))
 
+    from xAODTrackingCnv.xAODTrackingCnvConfig import TrackParticleCnvAlgCfg
     result.merge(TrackParticleCnvAlgCfg(flags))
 
     if flags.InDet.Tracking.doStoreTrackSeeds:
+        from xAODTrackingCnv.xAODTrackingCnvConfig import TrackParticleCnvAlgNoPIDCfg
         result.merge(TrackParticleCnvAlgNoPIDCfg(flags,
                                                  name = "SiSPSeedSegmentsCnvAlg",
                                                  TrackContainerName = "SiSPSeedSegments",
-                                                 OutputTrackParticleContainer = "SiSPSeedSegmentsTrackParticles"))
+                                                 xAODTrackParticlesFromTracksContainerName = "SiSPSeedSegmentsTrackParticles"))
 
     if flags.InDet.PriVertex.doVertexFinding:
         from InDetConfig.VertexFindingConfig import primaryVertexFindingCfg

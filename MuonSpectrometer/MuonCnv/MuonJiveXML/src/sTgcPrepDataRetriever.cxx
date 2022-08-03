@@ -94,6 +94,10 @@ namespace JiveXML {
 
         } else { // wire
            const MuonGM::MuonChannelDesign* design = element->getDesign(id);
+           if(!design) {
+              ATH_MSG_WARNING("No wire design for hit " << id);
+              continue;
+           }
 
            // recalculate length and globalPos for wires, because design->channelLength(channel) doesn't look sensible
            double fulllength = design->xSize - design->deadO - design->deadI;

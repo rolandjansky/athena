@@ -43,8 +43,8 @@ globalflags.Luminosity.set_Off()
 # --- set SimLayout (synchronised to globalflags)
 from G4AtlasApps.SimFlags import simFlags
 if globalflags.DetDescrVersion() not in simFlags.SimLayout.get_Value():
-    printfunc ("ERROR globalFlags.DetDescrVersion and simFlags.SimLayout do not match!")
-    printfunc ("Please correct your job options.")
+    print ("ERROR globalFlags.DetDescrVersion and simFlags.SimLayout do not match!")
+    print ("Please correct your job options.")
     # TODO: theApp.exit(1)?
     import sys
     sys.exit(1)
@@ -119,7 +119,7 @@ elif jobproperties.Beam.beamType.get_Value() == 'cosmics':
 # non of the above
 
 elif not athenaCommonFlags.PoolEvgenInput.statusOn:
-    printfunc ("ISF Input Configuration: PoolEvgenInput off, likely running with a particle gun preInclude")
+    print ("ISF Input Configuration: PoolEvgenInput off, likely running with a particle gun preInclude")
 # non of the above -> input via ISF_Flags
 else :
     if ISF_Flags.OverrideInputFiles():
@@ -231,4 +231,4 @@ if ISF_Flags.RunValgrind() :
     ServiceMgr += valgrindSvc
 
 # useful for debugging:
-printfunc (topSeq)
+print (topSeq)

@@ -10,8 +10,8 @@ def DQTDetSynchMonAlgConfig(flags):
     acc = helper.result()
     # RPC currently crashes, switch off
     acc.getEventAlgo('DQTDetSynchMonAlg').doRPC = False
-    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-    acc.merge(MagneticFieldSvcCfg(flags))
+    from MagFieldServices.MagFieldServicesConfig import AtlasFieldCacheCondAlgCfg
+    acc.merge(AtlasFieldCacheCondAlgCfg(flags))
     from TileConditions.TileCablingSvcConfig import TileCablingSvcCfg
     acc.merge(TileCablingSvcCfg(flags))
     return acc

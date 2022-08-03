@@ -11,8 +11,7 @@ def PrimaryVertexRefittingToolCfg(ConfigFlags, **kwargs):
 
     acc = ComponentAccumulator() 
 
-    from InDetConfig.TrackingCommonConfig import TrackToVertexIPEstimatorCfg
-    #from JetTagTools.BTagTrackToVertexIPEstimatorConfig import BTagTrackToVertexIPEstimatorCfg
+    from TrkConfig.TrkVertexFitterUtilsConfig import TrackToVertexIPEstimatorCfg
     trkToIP = acc.popToolsAndMerge( TrackToVertexIPEstimatorCfg(ConfigFlags,**kwargs) )
     kwargs.setdefault( "TrackToVertexIPEstimator", trkToIP )
     acc.setPrivateTools( CompFactory.Analysis.PrimaryVertexRefitter( **kwargs) ) 

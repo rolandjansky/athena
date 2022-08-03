@@ -6,18 +6,6 @@ from AthenaConfiguration.Enums import Format
 
 from InDetConfig.TrackRecoConfig import FTAG_AUXDATA
 
-def ITkTrackCollectionCnvToolCfg(flags, name="ITkTrackCollectionCnvTool", **kwargs):
-    result = ComponentAccumulator()
-
-    if "TrackParticleCreator" not in kwargs:
-        from TrkConfig.TrkParticleCreatorConfig import ITkTrackParticleCreatorToolCfg
-        ITkTrackParticleCreator = result.getPrimaryAndMerge(ITkTrackParticleCreatorToolCfg(flags))
-        result.addPublicTool(ITkTrackParticleCreator)
-        kwargs.setdefault("TrackParticleCreator", ITkTrackParticleCreator)
-
-    result.setPrivateTools(CompFactory.xAODMaker.TrackCollectionCnvTool(name, **kwargs))
-    return result
-
 def ITkTrackCollectionMergerAlgCfg(flags, name="ITkTrackCollectionMerger",
                                    InputCombinedTracks=None,
                                    OutputCombinedTracks="CombinedITkTracks",
@@ -41,40 +29,6 @@ def ITkTrackCollectionMergerAlgCfg(flags, name="ITkTrackCollectionMerger",
     kwargs.setdefault("SummaryTool", TrackSummaryTool)
 
     result.addEventAlgo(CompFactory.Trk.TrackCollectionMerger(name, **kwargs))
-    return result
-
-def ITkTrackParticleCnvAlgCfg(flags, name="ITkTrackParticleCnvAlg", TrackContainerName="CombinedITkTracks", OutputTrackParticleContainer="InDetTrackParticles", **kwargs):
-    result = ComponentAccumulator()
-    kwargs.setdefault("ConvertTracks", True)
-    kwargs.setdefault("ConvertTrackParticles", False)
-    kwargs.setdefault("TrackContainerName", TrackContainerName)
-    kwargs.setdefault("xAODContainerName", OutputTrackParticleContainer)
-    kwargs.setdefault("xAODTrackParticlesFromTracksContainerName", OutputTrackParticleContainer)
-
-    if "TrackParticleCreator" not in kwargs:
-        from TrkConfig.TrkParticleCreatorConfig import ITkTrackParticleCreatorToolCfg
-        kwargs["TrackParticleCreator"] = result.popToolsAndMerge(ITkTrackParticleCreatorToolCfg(flags))
-    if "TrackCollectionCnvTool" not in kwargs:
-        TrackParticleCreator = kwargs["TrackParticleCreator"]
-        result.addPublicTool(TrackParticleCreator)
-        kwargs["TrackCollectionCnvTool"] = result.popToolsAndMerge(ITkTrackCollectionCnvToolCfg(
-            flags,
-            TrackParticleCreator=TrackParticleCreator,
-        ))
-
-    if flags.ITk.Tracking.doTruth:
-        kwargs.setdefault("TrackTruthContainerName", f"{TrackContainerName}TruthCollection")
-        kwargs.setdefault("AddTruthLink", True)
-
-        if "MCTruthClassifier" not in kwargs:
-            from MCTruthClassifier.MCTruthClassifierConfig import MCTruthClassifierCfg
-            kwargs["MCTruthClassifier"] = result.popToolsAndMerge(
-                MCTruthClassifierCfg(flags))
-
-    else:
-        kwargs.setdefault("AddTruthLink", False)
-
-    result.addEventAlgo(CompFactory.xAODMaker.TrackParticleCnvAlg(name, **kwargs))
     return result
 
 def CombinedTrackingPassFlagSets(flags):
@@ -125,13 +79,16 @@ def ITkTrackRecoCfg(flags):
     InputExtendedITkTracks = [] # Includes also tracks which end in standalone TrackParticle collections
     ClusterSplitProbContainer = ""
 
+    from InDetConfig.ITkTrackingSiPatternConfig import ITkTrackingSiPatternCfg
+    from InDetConfig.ITkTrackTruthConfig import ITkTrackTruthCfg
+    from xAODTrackingCnv.xAODTrackingCnvConfig import ITkTrackParticleCnvAlgCfg
+
     for current_flags in flags_set:
 
         extension = current_flags.ITk.Tracking.ActivePass.extension
         TrackContainer = "Resolved" + extension + "Tracks"
         SiSPSeededTracks = "SiSPSeeded" + extension + "Tracks"
 
-        from InDetConfig.ITkTrackingSiPatternConfig import ITkTrackingSiPatternCfg
         result.merge(ITkTrackingSiPatternCfg(current_flags,
                                              InputCollections = InputExtendedITkTracks,
                                              ResolvedTrackCollectionKey = TrackContainer,
@@ -140,7 +97,6 @@ def ITkTrackRecoCfg(flags):
 
         if current_flags.ITk.Tracking.ActivePass.storeSeparateContainer:
             if flags.ITk.Tracking.doTruth:
-                from InDetConfig.ITkTrackTruthConfig import ITkTrackTruthCfg
                 result.merge(ITkTrackTruthCfg(current_flags,
                                               Tracks = TrackContainer,
                                               DetailedTruth = TrackContainer+"DetailedTruth",
@@ -149,7 +105,7 @@ def ITkTrackRecoCfg(flags):
             result.merge(ITkTrackParticleCnvAlgCfg(current_flags,
                                                    name = extension + "TrackParticleCnvAlg",
                                                    TrackContainerName = TrackContainer,
-                                                   OutputTrackParticleContainer = "InDet" + extension + "TrackParticles")) # Need specific handling for R3LargeD0 not to break downstream configs
+                                                   xAODTrackParticlesFromTracksContainerName = "InDet" + extension + "TrackParticles")) # Need specific handling for R3LargeD0 not to break downstream configs
         else:
             ClusterSplitProbContainer = "ITkAmbiguityProcessorSplitProb" + extension
             InputCombinedITkTracks += [TrackContainer]
@@ -162,7 +118,6 @@ def ITkTrackRecoCfg(flags):
                                                 CombinedITkClusterSplitProbContainer = ITkClusterSplitProbabilityContainerName(flags)))
 
     if flags.ITk.Tracking.doTruth:
-        from InDetConfig.ITkTrackTruthConfig import ITkTrackTruthCfg
         result.merge(ITkTrackTruthCfg(flags))
 
     result.merge(ITkTrackParticleCnvAlgCfg(flags))

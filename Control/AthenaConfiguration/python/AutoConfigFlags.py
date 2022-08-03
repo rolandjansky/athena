@@ -170,22 +170,22 @@ def getSpecialConfigurationMetadata(inputFiles, secondaryInputFiles):
     passed by the evgen stage
     """
     specialConfigDict = dict()
-    legacyPreIncludeToCAPostInclude = { 'SimulationJobOptions/preInclude.AMSB.py' : 'Charginos.CharginosConfigNew.AMSB_Cfg',
-                                        'SimulationJobOptions/preInclude.Monopole.py' :  'Monopole.MonopoleConfigNew.MonopoleCfg',
-                                        'SimulationJobOptions/preInclude.Quirks.py' : 'Quirks.QuirksConfigNew.QuirksCfg',
-                                        'SimulationJobOptions/preInclude.SleptonsLLP.py' : 'Sleptons.SleptonsConfigNew.SleptonsLLPCfg',
-                                        'SimulationJobOptions/preInclude.GMSB.py' : 'Sleptons.SleptonsConfigNew.GMSB_Cfg',
-                                        'SimulationJobOptions/preInclude.Qball.py' : 'Monopole.MonopoleConfigNew.QballCfg',
+    legacyPreIncludeToCAPostInclude = { 'SimulationJobOptions/preInclude.AMSB.py' : 'Charginos.CharginosConfig.AMSB_Cfg',
+                                        'SimulationJobOptions/preInclude.Monopole.py' :  'Monopole.MonopoleConfig.MonopoleCfg',
+                                        'SimulationJobOptions/preInclude.Quirks.py' : 'Quirks.QuirksConfig.QuirksCfg',
+                                        'SimulationJobOptions/preInclude.SleptonsLLP.py' : 'Sleptons.SleptonsConfig.SleptonsLLPCfg',
+                                        'SimulationJobOptions/preInclude.GMSB.py' : 'Sleptons.SleptonsConfig.GMSB_Cfg',
+                                        'SimulationJobOptions/preInclude.Qball.py' : 'Monopole.MonopoleConfig.QballCfg',
                                         'SimulationJobOptions/preInclude.RHadronsPythia8.py' : None, # FIXME
-                                        'SimulationJobOptions/preInclude.fcp.py' : 'Monopole.MonopoleConfigNew.fcpCfg' }
+                                        'SimulationJobOptions/preInclude.fcp.py' : 'Monopole.MonopoleConfig.fcpCfg' }
     legacyPreIncludeToCAPreInclude = { 'SimulationJobOptions/preInclude.AMSB.py' : None,
-                                       'SimulationJobOptions/preInclude.Monopole.py' :  'Monopole.MonopoleConfigNew.MonopolePreInclude',
+                                       'SimulationJobOptions/preInclude.Monopole.py' :  'Monopole.MonopoleConfig.MonopolePreInclude',
                                        'SimulationJobOptions/preInclude.Quirks.py' : None,
                                        'SimulationJobOptions/preInclude.SleptonsLLP.py' : None,
                                        'SimulationJobOptions/preInclude.GMSB.py' : None,
-                                       'SimulationJobOptions/preInclude.Qball.py' : 'Monopole.MonopoleConfigNew.QballPreInclude',
+                                       'SimulationJobOptions/preInclude.Qball.py' : 'Monopole.MonopoleConfig.QballPreInclude',
                                        'SimulationJobOptions/preInclude.RHadronsPythia8.py' : None, # FIXME
-                                       'SimulationJobOptions/preInclude.fcp.py' : 'Monopole.MonopoleConfigNew.fcpPreInclude' }
+                                       'SimulationJobOptions/preInclude.fcp.py' : 'Monopole.MonopoleConfig.fcpPreInclude' }
     specialConfigString = ''
     from AthenaConfiguration.AutoConfigFlags import GetFileMD
     if len(inputFiles)>0:

@@ -190,7 +190,23 @@
   <x title="# TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
   <y title="Entries"/>
 </h>
+<h id="nTRTHitsXe" type="TH1F" title="TRT Hits">
+  <x title="# TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+  <y title="Entries"/>
+</h>
+<h id="nTRTHitsAr" type="TH1F" title="TRT Hits">
+  <x title="# TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+  <y title="Entries"/>
+</h>
 <h id="nTRTHits_vs_eta" type="TProfile" title="TRT Hits vs Eta">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="# TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+</h>
+<h id="nTRTHitsXe_vs_eta" type="TProfile" title="TRT Hits vs Eta">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="# TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+</h>
+<h id="nTRTHitsAr_vs_eta" type="TProfile" title="TRT Hits vs Eta">
   <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
   <y title="# TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
 </h>
@@ -202,12 +218,54 @@
   <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
   <y title="# TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
 </h>
+<h id="nTRTHitsXe_vs_mu_central" type="TProfile" title="TRT Hits vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
+  <y title="# TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+</h>
+<h id="nTRTHitsXe_vs_mu_ECsideA" type="TProfile" title="TRT Hits vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
+  <y title="# TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+</h>
+<h id="nTRTHitsXe_vs_mu_ECsideC" type="TProfile" title="TRT Hits vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
+  <y title="# TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+</h>
+<h id="nTRTHitsAr_vs_mu_central" type="TProfile" title="TRT Hits vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
+  <y title="# TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+</h>
+<h id="nTRTHitsAr_vs_mu_ECsideA" type="TProfile" title="TRT Hits vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
+  <y title="# TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+</h>
+<h id="nTRTHitsAr_vs_mu_ECsideC" type="TProfile" title="TRT Hits vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
+  <y title="# TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+</h>
+
+
 
 <h id="nTRTHighThresholdHits" type="TH1F" title="High Threshold TRT Hits">
   <x title="# High Tr TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
   <y title="Entries"/>
 </h>
+<h id="nTRTHighThresholdHitsXe" type="TH1F" title="High Threshold TRT Hits">
+  <x title="# High Tr TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+  <y title="Entries"/>
+</h>
+<h id="nTRTHighThresholdHitsAr" type="TH1F" title="High Threshold TRT Hits">
+  <x title="# High Tr TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+  <y title="Entries"/>
+</h>
 <h id="nTRTHighThresholdHits_vs_eta" type="TProfile" title="High Threshold TRT Hits vs Eta">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="# High Tr TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+</h>
+<h id="nTRTHighThresholdHitsXe_vs_eta" type="TProfile" title="High Threshold TRT Hits vs Eta">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="# High Tr TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+</h>
+<h id="nTRTHighThresholdHitsAr_vs_eta" type="TProfile" title="High Threshold TRT Hits vs Eta">
   <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
   <y title="# High Tr TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
 </h>
@@ -216,6 +274,30 @@
   <y title="# High Tr TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
 </h>
 <h id="nTRTHighThresholdHits_vs_mu" type="TProfile" title="High Threshold TRT Hits vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
+  <y title="# High Tr TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+</h>
+<h id="nTRTHighThresholdHitsXe_vs_mu_central" type="TProfile" title="High Threshold TRT Hits vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
+  <y title="# High Tr TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+</h>
+<h id="nTRTHighThresholdHitsXe_vs_mu_ECsideA" type="TProfile" title="High Threshold TRT Hits vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
+  <y title="# High Tr TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+</h>
+<h id="nTRTHighThresholdHitsXe_vs_mu_ECsideC" type="TProfile" title="High Threshold TRT Hits vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
+  <y title="# High Tr TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+</h>
+<h id="nTRTHighThresholdHitsAr_vs_mu_central" type="TProfile" title="High Threshold TRT Hits vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
+  <y title="# High Tr TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+</h>
+<h id="nTRTHighThresholdHitsAr_vs_mu_ECsideA" type="TProfile" title="High Threshold TRT Hits vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
+  <y title="# High Tr TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+</h>
+<h id="nTRTHighThresholdHitsAr_vs_mu_ECsideC" type="TProfile" title="High Threshold TRT Hits vs Mu">
   <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
   <y title="# High Tr TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
 </h>

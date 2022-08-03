@@ -8,7 +8,9 @@ def MuonTriggerCountConfig(helper):
 
     GroupName = 'TriggerCount'
 
-    monAlg = helper.addAlgorithm(CompFactory.MuonTriggerCount,'MuonTriggerCount')
+    from MuonSelectorTools.MuonSelectorToolsConfig import MuonSelectionToolCfg
+    monAlg = helper.addAlgorithm(CompFactory.MuonTriggerCount,'MuonTriggerCount',
+                                 MuonSelectionTool = helper.result().popToolsAndMerge(MuonSelectionToolCfg(helper.inputFlags, MuQuality=1)))
 
     ### monitorig groups
     from TrigConfigSvc.TriggerConfigAccess import getHLTMonitoringAccess
@@ -27,4 +29,4 @@ def MuonTriggerCountConfig(helper):
 
     histGroup.defineHistogram('TriggerCount;Monitoring_Chain',
                               title='Monitoring Chain Count;;Events',
-                              type='TH1I',path='', xlabels=list(monAlg.MonitoredChains))
+                              type='TH1I',path='', xlabels=list(monAlg.MonitoredChains).sort())

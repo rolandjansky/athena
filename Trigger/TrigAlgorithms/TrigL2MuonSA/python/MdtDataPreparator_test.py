@@ -40,8 +40,8 @@ def testCfg (configFlags):
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
     result.merge (MuonGeoModelCfg(configFlags, forceDisableAlignment=True))
 
-    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-    result.merge (MagneticFieldSvcCfg(configFlags, UseDCS = False))
+    from MagFieldServices.MagFieldServicesConfig import AtlasFieldCacheCondAlgCfg
+    result.merge (AtlasFieldCacheCondAlgCfg(configFlags, UseDCS = False))
 
     TrigL2MuonSA__MdtDataPreparator=CompFactory.TrigL2MuonSA.MdtDataPreparator
     result.addPublicTool (TrigL2MuonSA__MdtDataPreparator ('TrigL2MuonSA::MdtDataPreparator', OutputLevel = 1)) # noqa: ATL900

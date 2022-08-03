@@ -237,6 +237,10 @@ private:
   Resplot* rnsct_d0 = 0; // new
   Resplot* rntrt_d0 = 0; // new
 
+  Resplot* rnpix_d0_rec = 0; // new
+  Resplot* rnsct_d0_rec = 0; // new
+  Resplot* rntrt_d0_rec = 0; // new
+
   Resplot* rnpixh_pt = 0;
   Resplot* rnscth_pt = 0;
 

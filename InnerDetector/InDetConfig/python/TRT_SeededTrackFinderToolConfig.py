@@ -5,8 +5,8 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType
 
 def TRT_SeededTrackFinder_ATLCfg(flags, name='InDetTRT_SeededTrackMaker', InputCollections=[], **kwargs):
-    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-    acc = MagneticFieldSvcCfg(flags)
+    from MagFieldServices.MagFieldServicesConfig import AtlasFieldCacheCondAlgCfg
+    acc = AtlasFieldCacheCondAlgCfg(flags)
 
     #
     # --- TRT seeded back tracking tool

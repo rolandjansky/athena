@@ -134,30 +134,6 @@ var_name_list = [
 'JetFitter_u_50_matched_pt ',
 'JetFitter_u_70_matched_pt ',
 'JetFitter_u_80_matched_pt ',
-'MV2c10_b_matched_weight ',
-'MV2c10_b_matched_weight_trackCuts ',
-'MV2c10_c_matched_weight ',
-'MV2c10_c_matched_weight_trackCuts ',
-'MV2c10_tau_matched_weight ',
-'MV2c10_tau_matched_weight_trackCuts ',
-'MV2c10_u_matched_weight ',
-'MV2c10_u_matched_weight_trackCuts ',
-'MV2c10mu_b_matched_weight ',
-'MV2c10mu_b_matched_weight_trackCuts ',
-'MV2c10mu_c_matched_weight ',
-'MV2c10mu_c_matched_weight_trackCuts ',
-'MV2c10mu_tau_matched_weight ',
-'MV2c10mu_tau_matched_weight_trackCuts ',
-'MV2c10mu_u_matched_weight ',
-'MV2c10mu_u_matched_weight_trackCuts ',
-'MV2c10rnn_b_matched_weight ',
-'MV2c10rnn_b_matched_weight_trackCuts ',
-'MV2c10rnn_c_matched_weight ',
-'MV2c10rnn_c_matched_weight_trackCuts ',
-'MV2c10rnn_tau_matched_weight ',
-'MV2c10rnn_tau_matched_weight_trackCuts ',
-'MV2c10rnn_u_matched_weight ',
-'MV2c10rnn_u_matched_weight_trackCuts ',
 'truthLabel ',
 'TruthBpt ',
 'TruthLpt ',
@@ -194,7 +170,7 @@ var_name_list = [
 def get_name_associations(list):
 
   taggers = ["_IP3D_", "_SV1_", "_JetFitter_"]
-  old_taggers = ["_IP2D_", "_IP3DSV1_", "_MV2c10_", "_MV2c10mu_", "_MV2c10rnn_"]
+  old_taggers = ["_IP2D_", "_IP3DSV1_"]
   oneToOne_associations = {
     '_truthLabel ': '_jet_truthLabel ',
     '_IP3Dpb ': '_tagger_IP3D_pb ',

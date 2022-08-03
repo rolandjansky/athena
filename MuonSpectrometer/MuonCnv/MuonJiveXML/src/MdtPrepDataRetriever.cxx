@@ -17,7 +17,7 @@ namespace JiveXML {
 
     declareInterface<IDataRetriever>(this);
 
-    declareProperty("AdcCut", m_adcCut = 50, " Some ADC threshold cut");
+    declareProperty("AdcCut", m_adcCut = 90, " Some ADC threshold cut");
     declareProperty("ObeyMasked", m_obeyMasked = true, " Use info about masked channels"); 
   }
 

@@ -122,10 +122,6 @@ def pebInfoWriterTool(flags, name, eventBuildType):
         tool = StaticPEBInfoWriterToolCfg(name)
         tool.addROBs(LATOMESourceIDs) # add full-scan LATOME data
         tool.addSubDets([SubDetector.TDAQ_CTP]) # add full CTP data to the output
-    elif 'RPCPEBSecondaryReadout' == eventBuildType:
-        tool = StaticPEBInfoWriterToolCfg(name)
-        tool.addROBs([0x610080, 0x620080])
-        tool.addSubDets([SubDetector.TDAQ_CTP]) # add full CTP data to the output
     elif 'SCTPEB' == eventBuildType:
         tool = StaticPEBInfoWriterToolCfg(name)
         tool.addSubDets([SubDetector.SCT_BARREL_A_SIDE,

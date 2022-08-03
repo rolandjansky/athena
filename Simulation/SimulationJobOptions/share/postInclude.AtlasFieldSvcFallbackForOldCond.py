@@ -3,5 +3,4 @@ atlasFieldSvc = ServiceMgr.AtlasFieldSvc
 try:
     atlasFieldSvc.UseMapsFromCOOL=False
 except:
-    printfunc ("WARNING postInclude.AtlasFieldSvcFallbackForOldCond.py will have no effect!")
-#printfunc (atlasFieldSvc)
+    print ("WARNING postInclude.AtlasFieldSvcFallbackForOldCond.py will have no effect!")

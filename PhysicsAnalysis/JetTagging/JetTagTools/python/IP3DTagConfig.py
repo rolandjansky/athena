@@ -2,7 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from JetTagTools.BTagTrackToVertexIPEstimatorConfig import BTagTrackToVertexIPEstimatorCfg
+from TrkConfig.TrkVertexFitterUtilsConfig import AtlasTrackToVertexIPEstimatorCfg
 from JetTagTools.SVForIPToolConfig import SVForIPToolCfg
 from JetTagTools.IPDetailedTrackGradeFactoryConfig import IPDetailedTrackGradeFactoryCfg
 from JetTagTools.IPTrackSelectorConfig import IPTrackSelectorCfg
@@ -33,7 +33,7 @@ def IP3DTagCfg( flags, name = 'IP3DTag', PrimaryVertexCollectionName="", scheme 
     options['trackAssociationName'] = 'BTagTrackToJetAssociator'
 
     if useBTagFlagsDefaults:
-        trackToVertexIPEstimator = acc.popToolsAndMerge(BTagTrackToVertexIPEstimatorCfg(flags, 'TrkToVxIPEstimator'))
+        trackToVertexIPEstimator = acc.popToolsAndMerge(AtlasTrackToVertexIPEstimatorCfg(flags, 'TrkToVxIPEstimator'))
         svForIPTool = acc.popToolsAndMerge(SVForIPToolCfg('SVForIPTool'))
         trackGradeFactory = acc.popToolsAndMerge(IPDetailedTrackGradeFactoryCfg(flags, 'IP3DDetailedTrackGradeFactory'))
         trackSelectorTool = acc.popToolsAndMerge(IPTrackSelectorCfg(flags, 'IP3DTrackSelector'))

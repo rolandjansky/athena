@@ -261,8 +261,30 @@ else:
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
 
-from AthenaCommon.CfgGetter import getAlgorithm
-topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
+from ISF_Config.ISF_jobProperties import ISF_Flags
+
+# Flag to check if we should run FastCaloSim within Geant4
+doFastCaloSim = (hasattr( simFlags, 'LArParameterization') and simFlags.LArParameterization() == 4)
+
+if doFastCaloSim and ISF_Flags.HITSMergingRequired.anyOn():
+    # Get the ISF collection merger algorithm to merge FastCaloSim and G4 hit container 
+    collection_merger_alg = getAlgorithm('ISF_CollectionMerger')
+
+# Add the main G4Atlas algorithm to the sequence
+topSeq += getAlgorithm("G4AtlasAlg", tryDefaultConfigurable=True)
+
+if doFastCaloSim and nThreads > 0:
+    # Extra inputs to the G4AtlasAlg required to run FastCaloSim in MT
+    topSeq.G4AtlasAlg.ExtraInputs =[('CaloDetDescrManager',   'ConditionStore+CaloDetDescrManager'), 
+                                    ('LArfSamplSym',          'ConditionStore+LArfSamplSym'),
+                                    ('TileSamplingFraction',  'ConditionStore+TileSamplingFraction')]
+
+    # Provide dummy hit container to make sure that in MT hit containers are registered as output containers (instead of input containers)
+    topSeq.G4AtlasAlg.ExtraOutputs = [('LArHitContainer','StoreGateSvc+LArHitEMB_G4')]
+
+if doFastCaloSim and ISF_Flags.HITSMergingRequired.anyOn():
+    # Add the collection merger algorithm for FastCaloSim in G4 to the sequence
+    topSeq += collection_merger_alg
 
 ## Add AMITag MetaData to TagInfoMgr
 from PyUtils import AMITagHelper
@@ -280,7 +302,6 @@ if nThreads > 0:
     from AthenaCommon.AlgSequence import AthSequencer
     outSeq = AthSequencer("AthOutSeq")
     outSeq.StreamHITS.AcceptAlgs = [] # doesn't work in MT yet
-
 ## Post-include
 if hasattr(runArgs, "postInclude"):
     for fragment in runArgs.postInclude:

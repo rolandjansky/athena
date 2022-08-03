@@ -565,10 +565,10 @@ def MuidCaloEnergyToolParamCfg(flags, name='MuidCaloEnergyToolParam', **kwargs):
 
 
 def MuidTrackIsolationCfg(flags, name='MuidTrackIsolation', **kwargs):
-     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+     from MagFieldServices.MagFieldServicesConfig import AtlasFieldCacheCondAlgCfg
      kwargs.setdefault("InDetTracksLocation", "CombinedInDetTracks")
      # RungeKuttaIntersector requires the magnetic field conditions
-     result = MagneticFieldSvcCfg(flags)
+     result = AtlasFieldCacheCondAlgCfg(flags)
      tool = CompFactory.Rec.MuidTrackIsolation(name, **kwargs)
      result.setPrivateTools(tool)
      return result

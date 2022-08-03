@@ -18,10 +18,13 @@ atlas_add_library( EnhancedBiasWeighterLib
                    PRIVATE_LINK_LIBRARIES ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} PathResolver )
 
 atlas_add_component( EnhancedBiasWeighter
-                     src/components/*.cxx
-                     LINK_LIBRARIES EnhancedBiasWeighterLib )
+                     src/*.cxx
+                     LINK_LIBRARIES EnhancedBiasWeighterLib TrigCompositeUtilsLib TrigDecisionToolLib)
 
 atlas_add_dictionary( EnhancedBiasWeighterDict
                       EnhancedBiasWeighter/EnhancedBiasWeighterDict.h
                       EnhancedBiasWeighter/selection.xml
-                      LINK_LIBRARIES EnhancedBiasWeighterLib )
+                      LINK_LIBRARIES EnhancedBiasWeighterLib ) 
+
+# Install files from the package:
+atlas_install_scripts( share/RunEBWeightsComputation.py share/ExtractEBRunDetails.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

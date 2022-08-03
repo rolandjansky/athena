@@ -8,7 +8,9 @@ def EFMuonMonConfig(helper):
 
     GroupName = 'EFMuon'
 
-    monAlg = helper.addAlgorithm(CompFactory.EFMuonMon,'EFMuonMon')
+    from MuonSelectorTools.MuonSelectorToolsConfig import MuonSelectionToolCfg
+    monAlg = helper.addAlgorithm(CompFactory.EFMuonMon,'EFMuonMon',
+                                 MuonSelectionTool = helper.result().popToolsAndMerge(MuonSelectionToolCfg(helper.inputFlags, MuQuality=1)))
 
     ### monitorig groups
     from TrigConfigSvc.TriggerConfigAccess import getHLTMonitoringAccess

@@ -376,12 +376,21 @@ def TrigBjetMonConfig(inputFlags):
 
             HistName = 'ed0_' + chain[2:]
             if chain[0:1] == "E" :
-                BjetMonGroup.defineHistogram(HistName, title='Distribution of sig(d0);sig(d0);Events',
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of d0 uncertainty;sigma(d0);Events',
                                              path='Expert/'+chain[2:],xbins=200,xmin=0.,xmax=1.0)
 
             if chain[0:1] == "S" :
-                BjetMonGroup.defineHistogram(HistName, title='Distribution of sig(d0);sig(d0);Events',
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of d0 uncertainty;sigma(d0);Events',
                                              path='Shifter/'+chain[2:],xbins=200,xmin=0.,xmax=1.0)
+
+            HistName = 'sd0_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of d0 significance;significance(d0);Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=0.,xmax=20.0)
+
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of d0 significance;significance(d0);Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=0.,xmax=20.0)
 
             HistName = 'z0_' + chain[2:]
             if chain[0:1] == "E" :
@@ -394,11 +403,11 @@ def TrigBjetMonConfig(inputFlags):
 
             HistName = 'ez0_' + chain[2:]
             if chain[0:1] == "E" :
-                BjetMonGroup.defineHistogram(HistName, title='Distribution of sig(z0);sig(z0);Events',
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of z0 uncertainty;sigma(z0);Events',
                                              path='Expert/'+chain[2:],xbins=200,xmin=0.,xmax=5.0)
 
             if chain[0:1] == "S" :
-                BjetMonGroup.defineHistogram(HistName, title='Distribution of sig(z0);sig(z0);Events',
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of z0 uncertainty;sigma(z0);Events',
                                              path='Shifter/'+chain[2:],xbins=200,xmin=0.,xmax=5.0)
 
          # jet histograms

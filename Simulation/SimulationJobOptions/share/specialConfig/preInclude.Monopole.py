@@ -58,8 +58,6 @@ assert "GCHARGE" in simdict
 load_files_for_monopole_scenario(simdict["MASS"], simdict["GCHARGE"])
 
 if doG4SimConfig:
-    from G4AtlasApps import AtlasG4Eng
-    AtlasG4Eng.G4Eng.log.info("Unlocking simFlags.EquationOfMotion to reset the value for Monopole simulation.")
     from G4AtlasApps.SimFlags import simFlags
     # FIXME ideally would include this file early enough, so that the unlocking is not required
     #simFlags.EquationOfMotion.unlock()

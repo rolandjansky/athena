@@ -32,6 +32,8 @@ private:
   StringProperty m_ppmMismatchLocation{this,"PPMMismatchLocation","L1CaloPPMMismatchVector","PPM Mismatch Error Vector"};
   SG::ReadHandleKey<ErrorVector> m_cpmMismatchLocation{this,"CPMMismatchLocation","L1CaloCPMMismatchVector","CPM Mismatch Error Vector"};
   StringProperty m_jemMismatchLocation{this,"JEMMismatchLocation","L1CaloJEMMismatchVector","JEM Mismatch Error Vector"};
+  SG::ReadHandleKey<ErrorVector> m_ppmSimBSMismatchLocation{this, "PPMSimBSMismatchLocation", "L1CaloPPMSimBSMismatchVector", "PPMSimBS Mismatch Vector"};
+
 
   // Enums for global summary plot
 
