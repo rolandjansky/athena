@@ -9,20 +9,25 @@
 #ifndef MUONTRACKINGGEOMETRY_MUONSTATIONTYPEBUILDER_H
 #define MUONTRACKINGGEOMETRY_MUONSTATIONTYPEBUILDER_H
 // Amg
-#include "GeoPrimitives/CLHEPtoEigenConverter.h"
-#include "GeoPrimitives/GeoPrimitives.h"
+#include "GeoPrimitives/GeoPrimitives.h" //Amg stuff
 // Trk
-#include "TrkDetDescrGeoModelCnv/GeoMaterialConverter.h"
-#include "TrkDetDescrInterfaces/ITrackingVolumeArrayCreator.h"
-#include "TrkDetDescrUtils/SharedObject.h"
-#include "TrkGeometry/Material.h"
-#include "TrkGeometry/MaterialProperties.h"
-#include "TrkGeometry/TrackingVolume.h"
+#include "TrkDetDescrInterfaces/ITrackingVolumeArrayCreator.h" //in tool handle template
+#include "TrkDetDescrUtils/SharedObject.h" //see the typedef for LayTr
+#include "TrkGeometry/TrackingVolume.h" //also for LayerArray typedef
+
 // Gaudi
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GeoModelKernel/GeoMaterial.h"
-#include "GeoModelKernel/GeoVPhysVol.h"
+#include "AthenaBaseComps/AthAlgTool.h" //base class
+#include "GaudiKernel/ToolHandle.h" //member
+
+//stl
+#include <utility>  //for std::pair
+#include <memory>   //std::unique_ptr
+#include <vector>
+#include <string>
+
+class GeoVPhysVol;
+class GeoShape;
+class Identifier;
 
 namespace Trk {
     class Volume;
@@ -31,6 +36,9 @@ namespace Trk {
     class TrapezoidVolumeBounds;
     class DoubleTrapezoidVolumeBounds;
     class PlaneLayer;
+    class Material;
+    class GeoMaterialConverter;
+    class MaterialProperties;
 }  // namespace Trk
 
 namespace MuonGM {

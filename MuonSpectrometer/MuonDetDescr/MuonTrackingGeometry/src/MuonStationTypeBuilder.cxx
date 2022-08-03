@@ -21,6 +21,11 @@
 #include "TrkDetDescrUtils/GeometryStatics.h"
 #include "TrkDetDescrUtils/NavBinnedArray1D.h"
 #include "TrkDetDescrUtils/SharedObject.h"
+#include "TrkDetDescrGeoModelCnv/GeoMaterialConverter.h"
+
+
+#include "TrkGeometry/Material.h"
+#include "TrkGeometry/MaterialProperties.h"
 #include "TrkGeometry/CylinderLayer.h"
 #include "TrkGeometry/DetachedTrackingVolume.h"
 #include "TrkGeometry/DiscLayer.h"
@@ -30,13 +35,15 @@
 #include "TrkGeometry/PlaneLayer.h"
 #include "TrkGeometry/SubtractedPlaneLayer.h"
 #include "TrkGeometry/TrackingGeometry.h"
-#include "TrkGeometry/TrackingVolume.h"
 #include "TrkGeometrySurfaces/SubtractedPlaneSurface.h"
+
+
 #include "TrkSurfaces/DiamondBounds.h"
 #include "TrkSurfaces/DiscBounds.h"
 #include "TrkSurfaces/RectangleBounds.h"
 #include "TrkSurfaces/RotatedTrapezoidBounds.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
+
 #include "TrkVolumes/BoundarySurface.h"
 #include "TrkVolumes/CombinedVolumeBounds.h"
 #include "TrkVolumes/CuboidVolumeBounds.h"
@@ -47,9 +54,9 @@
 #include "TrkVolumes/TrapezoidVolumeBounds.h"
 #include "TrkVolumes/VolumeExcluder.h"
 
-// STD
-#include <map>
 
+
+#include "GeoModelKernel/GeoVPhysVol.h"
 #include "GeoModelKernel/GeoBox.h"
 #include "GeoModelKernel/GeoShape.h"
 #include "GeoModelKernel/GeoShapeShift.h"
@@ -60,6 +67,10 @@
 #include "GeoModelKernel/GeoTube.h"
 #include "GeoModelKernel/GeoTubs.h"
 #include "GeoModelUtilities/GeoVisitVolumes.h"
+
+// stl
+#include <map>
+#include <cmath> //for std::abs
 
 static const InterfaceID IID_IMuonStationTypeBuilder("MuonStationTypeBuilder", 1, 0);
 
@@ -752,6 +763,7 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processMdtBox(Trk::Volu
     double thickness = 0.;
     Trk::OverlapDescriptor* od = nullptr;
     const Trk::CuboidVolumeBounds* volBounds = dynamic_cast<const Trk::CuboidVolumeBounds*>(&(vol->volumeBounds()));
+    float minX=0.0;
     if (volBounds) {
         double yv = volBounds->halflengthY();
         double zv = volBounds->halflengthZ();
@@ -772,13 +784,14 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processMdtBox(Trk::Volu
             layer->setLayerType(x_active[iloop]);
             layers.push_back(layer);
        }
+       // fix lower and upper bound of step vector to volume boundary
+       minX = transf->translation()[0] - volBounds->halflengthX();
     }
     // create the BinnedArray
     std::vector<Trk::SharedObject<Trk::Layer>> layerOrder;
     std::vector<float> binSteps;
     // check if additional (navigation) layers needed
-    // fix lower and upper bound of step vector to volume boundary
-    float minX = transf->translation()[0] - volBounds->halflengthX();
+    
     binSteps.push_back(minX);
     if (!layers.empty()) {
         currX = minX;
@@ -792,8 +805,7 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processMdtBox(Trk::Volu
         }
         binSteps.push_back(transf->translation()[0] + volBounds->halflengthX());
     }
-    // Trk::BinUtility* binUtility = new Trk::BinUtility1DX( minX, new
-    // std::vector<double>(binSteps));
+    
     Trk::BinUtility* binUtility = new Trk::BinUtility(binSteps, Trk::BinningOption::open, Trk::BinningValue::binX);
 
     Trk::LayerArray* mdtLayerArray = nullptr;
