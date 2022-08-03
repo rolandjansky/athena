@@ -90,7 +90,7 @@ void EvtBGLFF::getscalarff(EvtId parent, EvtId,
 // B.Grinstein, A.Kobach, Phys. Lett. B 771(2017)359-364
 
 void EvtBGLFF::getvectorff(EvtId parent, EvtId, double t, double mass, double* a1f,
-                           double* a2f, double* vf, double* a0f)
+                           double* a2f, double* vf, double* /*a0f unused */)
 
 {
 
@@ -141,7 +141,6 @@ void EvtBGLFF::getvectorff(EvtId parent, EvtId, double t, double mass, double* a
   *a1f = (w + 1.) / 2. * rstar * ha1;
   *a2f = (r2 / rstar) * ha1;
   *vf  = (r1 / rstar) * ha1;
-  *a0f = *a0f;
 
   return;
 }
