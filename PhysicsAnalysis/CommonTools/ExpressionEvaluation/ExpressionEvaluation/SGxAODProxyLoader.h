@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -66,16 +66,16 @@ namespace ExpressionParsing {
          ~IParentHelper() {}
          /** This method needs to be implement to declare the given data handle.
           */
-         virtual StatusCode declare(SG::VarHandleKey &handle) const = 0;
+         virtual StatusCode declare(SG::VarHandleKey &handle) = 0;
       };
 
-     /** Template of am auxiliary class to declare the new handles in the parent AthAlgTool, AthAlgorithm etc.
+     /** Template of an auxiliary class to declare the new handles in the parent AthAlgTool, AthAlgorithm etc.
       */
       template <class T>
       class ParentHelper : public IParentHelper {
       public:
          ParentHelper(T *parent) : m_parent(parent) {}
-         virtual StatusCode declare(SG::VarHandleKey &handle) const override {
+         virtual StatusCode declare(SG::VarHandleKey &handle) override {
             m_parent->declare(handle);
             handle.setOwner(m_parent);
             return handle.initialize();
@@ -205,7 +205,7 @@ namespace ExpressionParsing {
       * The map structure is constructed before the event loop. The content of its leaves is completed
       * during the event loop.
       */
-      mutable std::unordered_map<std::string, CxxUtils::CachedUniquePtrT<IAccessor> > m_accessor;
+      std::unordered_map<std::string, CxxUtils::CachedUniquePtrT<IAccessor> > m_accessor;
 
       /** Special accessor to handle empty vectors
        * Accessor are constructed at time of first evaluation. This fails for empty containers because

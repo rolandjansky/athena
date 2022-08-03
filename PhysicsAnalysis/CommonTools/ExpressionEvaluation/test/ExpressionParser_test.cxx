@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -155,7 +155,7 @@ void decorateMuons(EventContext &ctx,
 class DummyParent : public ExpressionParsing::SGxAODProxyLoader::IParentHelper
 {
 public:
-   virtual StatusCode declare(SG::VarHandleKey &handle) const override {
+   virtual StatusCode declare(SG::VarHandleKey &handle) override {
       return handle.initialize();
    }
 
