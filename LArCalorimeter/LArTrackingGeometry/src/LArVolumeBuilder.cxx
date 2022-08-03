@@ -493,17 +493,16 @@ LAr::LArVolumeBuilder::trackingVolumes(const CaloDetDescrManager& caloDDM) const
     
     // and the shapes
     const GeoShape*    lArBarrelPresamplerPosShape  = lArBarrelPresamplerPosLogVol->getShape();
-    //const GeoShape*    lArBarrelPresamplerNegShape  = lArBarrelPresamplerNegLogVol->getShape();
     
     // dynamic cast to 'Tubs' shape
     const GeoTubs* lArBarrelPresamplerPosTubs = dynamic_cast<const GeoTubs*>(lArBarrelPresamplerPosShape);
     lArBarrelPresamplerPosBounds = new Trk::CylinderVolumeBounds(lArBarrelPresamplerPosTubs->getRMin(),
 								 lArBarrelPresamplerPosTubs->getRMax(),
 								 0.5*lArBarrelHalflength);
-    //const GeoTubs* lArBarrelPresamplerNegTubs = dynamic_cast<const GeoTubs*>(lArBarrelPresamplerNegShape);
-    lArBarrelPresamplerNegBounds = lArBarrelPresamplerPosBounds->clone();
+    
      
     if (lArBarrelPresamplerPosBounds){
+      lArBarrelPresamplerNegBounds = lArBarrelPresamplerPosBounds->clone();
       ATH_MSG_VERBOSE( " -> Positive Barrel Presampler Bounds: " 
 		       << *lArBarrelPresamplerPosBounds );
     }
