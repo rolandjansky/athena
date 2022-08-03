@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -8,6 +8,7 @@
 //
 ///////////////////////////////////////////////////////////////////
 
+#include "AthContainers/ConstDataVector.h"
 #include "DerivationFrameworkTau/TauPVTrkSelectionTool.h"
 #include "xAODTracking/Vertex.h"
 #include "TauAnalysisTools/ITauTruthTrackMatchingTool.h"
@@ -56,7 +57,7 @@ namespace DerivationFramework {
       return StatusCode::FAILURE;
     }
 
-    xAOD::TrackParticleContainer*       tauPVTracks(0);
+    const xAOD::TrackParticleContainer*       tauPVTracks(0);
 
     CHECK(select(tauPVTracks));
     ATH_MSG_DEBUG ("number of tau tracks for PV refit " << tauPVTracks->size());
@@ -67,9 +68,10 @@ namespace DerivationFramework {
     return StatusCode::SUCCESS;
   }  
 
-  StatusCode TauPVTrkSelectionTool::select(xAOD::TrackParticleContainer*& tauPVTracks) const
+  StatusCode TauPVTrkSelectionTool::select(const xAOD::TrackParticleContainer*& tauPVTracks) const
   {
-    tauPVTracks = new xAOD::TrackParticleContainer(SG::VIEW_ELEMENTS);
+    auto tracks = new ConstDataVector<xAOD::TrackParticleContainer>(SG::VIEW_ELEMENTS);
+    tauPVTracks = tracks->asDataVector();
 
     // Get tau collection from StoreGate
     const xAOD::TauJetContainer* tau_cont = evtStore()->retrieve< const xAOD::TauJetContainer >( m_tauContainerName );
@@ -94,16 +96,16 @@ namespace DerivationFramework {
         if (m_useTruth) {
           // identify tracks matched to tau decay products (hadrons only)
           if (!m_T3MT->classifyTrack(*tauTrk)) continue;
-          if (tauTrk->auxdecor<char>("IsHadronicTrack")) tauPVTracks->push_back(const_cast<xAOD::TrackParticle*>(tauTrk_trk));
+          if (tauTrk->auxdecor<char>("IsHadronicTrack")) tracks->push_back(tauTrk_trk);
         } else {
           // use all tau tracks
           //TauTracks.push_back(const_cast<xAOD::TrackParticle*>(tauTrk));
           float dR = pTau->p4().DeltaR(tauTrk->p4());
-          if (good_tau && pass_selection && dR < m_maxDeltaR) tauPVTracks->push_back(const_cast<xAOD::TrackParticle*>(tauTrk_trk));
+          if (good_tau && pass_selection && dR < m_maxDeltaR) tracks->push_back(tauTrk_trk);
         }
       }
     }
-    ATH_MSG_DEBUG ("tauPVTracks size " << tauPVTracks->size());
+    ATH_MSG_DEBUG ("tauPVTracks size " << tracks->size());
 
     return StatusCode::SUCCESS; 
   }
