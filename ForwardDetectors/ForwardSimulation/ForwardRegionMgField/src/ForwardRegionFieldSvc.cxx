@@ -12,6 +12,7 @@
 
 #include "PathResolver/PathResolver.h"
 
+//comments kept as a reference
 // static ForwardRegionMgField q1("Q1",ForwardRegionField::Q1);
 // static ForwardRegionMgField q2("Q2",ForwardRegionField::Q2);
 // static ForwardRegionMgField q3("Q3",ForwardRegionField::Q3);
@@ -133,7 +134,7 @@ void MagField::ForwardRegionFieldSvc::getField(const double *xyz, double *bxyz, 
 /** if deriv[9] is given, field derivatives are returned in kT/mm */
 void MagField::ForwardRegionFieldSvc::getFieldZR(const double*, double*, double*) const
 {
-  throw; //FIXME not supported yet.
+  throw std::logic_error("MagField::ForwardRegionFieldSvc::getFieldZR should not be called"); //FIXME not supported yet.
 }
 
 G4ThreeVector MagField::ForwardRegionFieldSvc::FieldValue(G4ThreeVector Point) const

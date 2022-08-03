@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #define ZDCNLCalibration_cxx
@@ -48,8 +48,9 @@ void ZDCNLCalibration::FillLumiBlockEvtMap()
   }
 }
 
-void ZDCNLCalibration::AddCalibration(size_t side, std::string tag, const CalibData& calib)
+void ZDCNLCalibration::AddCalibration(size_t side, const std::string & tag, const CalibData& calib)
 {
+  //cppcheck-suppress mismatchingContainers
   std::map<std::string, CalibData>::iterator iter = m_calibrations.at(side).find(tag);
   if (iter != m_calibrations[side].end()) (*iter).second = calib;//*iter = std::pair<std::string, CalibData>(tag, calib);
   else {
@@ -57,7 +58,7 @@ void ZDCNLCalibration::AddCalibration(size_t side, std::string tag, const CalibD
   }
 }
 
-CalibData ZDCNLCalibration::GetCalibration(size_t side, std::string tag)
+CalibData ZDCNLCalibration::GetCalibration(size_t side, const std::string & tag)
 {
   CalibData null;
 

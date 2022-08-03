@@ -31,7 +31,7 @@ void SetT0Values(double LGt0Array[2][4], double HGt0Array[2][4])
 
 } 
 
-void LoadCalibrations(ZDCTreeAnalysis* ana, std::string filename, int runNumber, bool eCalib = true, bool t0Calib = true)
+void LoadCalibrations(ZDCTreeAnalysis* ana, const std::string & filename, int runNumber, bool eCalib = true, bool t0Calib = true)
 {
   TFile* file = TFile::Open(filename.c_str());
   if (!file->IsOpen()) {
