@@ -19,4 +19,7 @@
   <class name="IAsgPhotonEfficiencyCorrectionTool" /> 
   <class name="IElectronPhotonShowerShapeFudgeTool" /> 
 
+  <class name="IElectronLRTMergerTool" />
+  <class name="IElectronLRTOverlapRemovalTool" />
+
 <lcgdict>

@@ -7,5 +7,6 @@
    <class name="CP::ElectronEfficiencyCorrectionAlg" />
    <class name="CP::PhotonEfficiencyCorrectionAlg" />
    <class name="CP::PhotonShowerShapeFudgeAlg" />
+   <class name="CP::ElectronLRTMergingAlg" />
    
 </lcgdict>
