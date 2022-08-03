@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -90,10 +90,10 @@ namespace DerivationFramework {
     unsigned int ipv = 0, ipv2 = 0;
     // loop over PV container and refit
     for (auto pv: *pv_cont ) {
-      const xAOD::Vertex* pv_ref = m_pvrefitter->refitVertex(pv,tps);
+      xAOD::Vertex* pv_ref = m_pvrefitter->refitVertex(pv,tps);
       if (pv_ref) {
         if (pv_ref->nTrackParticles() < pv->nTrackParticles()) {
-          TauRefittedPrimaryVertices->push_back(const_cast<xAOD::Vertex*>(pv_ref));
+          TauRefittedPrimaryVertices->push_back(pv_ref);
           pv_index.push_back(ipv);
         } else {
           delete pv_ref;
@@ -107,9 +107,9 @@ namespace DerivationFramework {
     // loop over PV container and set links
     for (auto pv: *pv_cont ) {
       ElementLink<xAOD::VertexContainer> pvLink;
-      static SG::AuxElement::Decorator< ElementLink<xAOD::VertexContainer> > mDecor_pvLink(m_reflinkName);
+      static const SG::AuxElement::Decorator< ElementLink<xAOD::VertexContainer> > mDecor_pvLink(m_reflinkName);
       ElementLink<xAOD::VertexContainer> ref_pvLink;
-      static SG::AuxElement::Decorator< ElementLink<xAOD::VertexContainer> > mDecor_ref_pvLink(m_linkName);
+      static const SG::AuxElement::Decorator< ElementLink<xAOD::VertexContainer> > mDecor_ref_pvLink(m_linkName);
       if (TauRefittedPrimaryVertices->size() == 0) mDecor_pvLink(*pv) = pvLink;
       unsigned int irpv = 0;
       for (auto rpv: *TauRefittedPrimaryVertices ) {
