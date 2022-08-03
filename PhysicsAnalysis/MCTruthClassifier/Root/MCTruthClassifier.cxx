@@ -90,8 +90,8 @@ MCTruthClassifier::initialize()
   if (!m_truthLinkVecReadHandleKey.key().empty()) {
     ATH_CHECK(m_truthLinkVecReadHandleKey.initialize());
   }
-  ATH_CHECK(m_truthParticleContainerKey.initialize());
 #endif
+  ATH_CHECK(m_truthParticleContainerKey.initialize());
 
 #if !defined(XAOD_ANALYSIS) && !defined(GENERATIONBASE) /*Tools making sense only for the Athena only environment*/
   if (!m_caloExtensionTool.empty()) {
