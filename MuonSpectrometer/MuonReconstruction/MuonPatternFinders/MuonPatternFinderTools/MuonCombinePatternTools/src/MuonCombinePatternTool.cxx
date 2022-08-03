@@ -4,7 +4,7 @@
 
 #include "MuonCombinePatternTools/MuonCombinePatternTool.h"
 
-#include <iterator>
+
 
 #include "CxxUtils/sincos.h"
 #include "MuonHoughPatternEvent/MuonHoughPattern.h"
@@ -12,7 +12,11 @@
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "TrkParameters/TrackParameters.h"
-#include "TrkSurfaces/Surface.h"  // should not be included
+#include "TrkSurfaces/Surface.h"  
+#include <cmath> //std::abs, M_PI etc
+#include <memory> //std::unique_ptr
+#include <iterator>
+
 namespace{
 double rotatePhi(double phi, double rotationFraction) {
     // check whether we rotate to a large value than pi, if so add additional
@@ -1908,19 +1912,15 @@ void MuonCombinePatternTool::addCandidate(
 void MuonCombinePatternTool::cleanCandidates(std::vector<std::pair<const Muon::MuonPrdPattern*, const Muon::MuonPrdPattern*>>& candidates) {
     std::vector<std::pair<const Muon::MuonPrdPattern*, const Muon::MuonPrdPattern*>>::iterator it1;
     std::vector<std::pair<const Muon::MuonPrdPattern*, const Muon::MuonPrdPattern*>>::iterator it2;
-
+    using SetOfPrd_t = std::set<const Trk::PrepRawData*, Muon::IdentifierPrdLess>;
     // map between set of prd's (eta and phi) and candidates , stored for speed
-    std::map<
-        std::pair<const Muon::MuonPrdPattern*, const Muon::MuonPrdPattern*>,
-        std::pair<std::set<const Trk::PrepRawData*, Muon::IdentifierPrdLess>, std::set<const Trk::PrepRawData*, Muon::IdentifierPrdLess>>>
-        hitsMap;
+    std::map<std::pair<const Muon::MuonPrdPattern*, const Muon::MuonPrdPattern*>, std::pair<SetOfPrd_t, SetOfPrd_t>> hitsMap;
 
     // fill map
-
     for (it1 = candidates.begin(); it1 != candidates.end(); ++it1) {
-        std::set<const Trk::PrepRawData*, Muon::IdentifierPrdLess> etahits;
+        SetOfPrd_t etahits;
         for (unsigned int hitnr = 0; hitnr < (*it1).first->numberOfContainedPrds(); hitnr++) { etahits.insert((*it1).first->prd(hitnr)); }
-        std::set<const Trk::PrepRawData*, Muon::IdentifierPrdLess> phihits;
+        SetOfPrd_t phihits;
         if ((*it1).second) {  // phi pattern might be 0!
             for (unsigned int hitnr = 0; hitnr < (*it1).second->numberOfContainedPrds(); hitnr++) {
                 phihits.insert((*it1).second->prd(hitnr));
@@ -1928,21 +1928,18 @@ void MuonCombinePatternTool::cleanCandidates(std::vector<std::pair<const Muon::M
         }
         hitsMap.insert(std::make_pair((*it1), std::make_pair(etahits, phihits)));
     }
-
     for (it1 = candidates.begin(); it1 != candidates.end(); ++it1) {
-        std::pair<std::set<const Trk::PrepRawData*, Muon::IdentifierPrdLess>, std::set<const Trk::PrepRawData*, Muon::IdentifierPrdLess>>&
-            hits1 = hitsMap[(*it1)];
+        std::pair<SetOfPrd_t, SetOfPrd_t>& hits1 = hitsMap[(*it1)];
         it2 = it1 + 1;
         while (it2 != candidates.end()) {
-            std::pair<std::set<const Trk::PrepRawData*, Muon::IdentifierPrdLess>,
-                      std::set<const Trk::PrepRawData*, Muon::IdentifierPrdLess>>& hits2 = hitsMap[(*it2)];
-
+            std::pair<SetOfPrd_t, SetOfPrd_t>& hits2 = hitsMap[(*it2)];
             if (subset((hits2), (hits1))) {         // 2 subset of 1, remove 2 // in case of
                                                     // equality best (earliest) is kept
                 it2 = candidates.erase(it2);        // it2 points to next item, it1 not invalidated!
             } else if (subset((hits1), (hits2))) {  // 1 subset of 2, remove 1
                 it1 = candidates.erase(it1);        // it1 points to next item, it2 invalidated!
                 it2 = it1 + 1;
+                //cppcheck-suppress selfAssignment
                 hits1 = hitsMap[(*it1)];  // redefine hits1
             } else {
                 ++it2;
