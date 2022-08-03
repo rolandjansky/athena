@@ -340,6 +340,7 @@ int usage(const std::string& name, int status) {
   s << "         --vr        value\tuse value as the reference vertex selector - overrides value in the config file,\n";
   s << "     -n, --nofit          \ttest do not fit resplots, \n";
   s << "         --rms            \ttest force new rms95 errors, \n";
+  s << "     -e, --entries   value\ttest only run over value entries, \n";
   //  s << "    -a, --all     \tadd all grids (default)\n";
   s << "     -h, --help           \tthis help\n";
   //  s << "\nSee " << PACKAGE_URL << " for more details\n"; 
@@ -431,10 +432,15 @@ int main(int argc, char** argv)
   std::string vertexSelection     = "";
   std::string vertexSelection_rec = "";
 
+  unsigned Nentries = 0;
 
   for ( int i=1 ; i<argc ; i++ ) { 
     if ( std::string(argv[i])=="-h" || std::string(argv[i])=="--help" ) {
       return usage(argv[0], 0);
+    } 
+    else if ( std::string(argv[i])=="-e" || std::string(argv[i])=="--entries" ) {
+      if ( ++i>=argc ) return usage(argv[0], -1);
+      Nentries = std::atoi(argv[i]);
     } 
     else if ( std::string(argv[i])=="-o" || std::string(argv[i])=="-f" || std::string(argv[i])=="--file" ) { 
       if ( ++i>=argc ) return usage(argv[0], -1);
@@ -1438,19 +1444,13 @@ int main(int argc, char** argv)
 
 
 
-  unsigned _Nentries = 0;
 
-  if ( inputdata.isTagDefined("Nentries") ) { 
-    _Nentries = unsigned(inputdata.GetValue("Nentries"));
+  if ( Nentries==0 && inputdata.isTagDefined("Nentries") ) { 
+    Nentries = unsigned(inputdata.GetValue("Nentries"));
   }
-
-
-
-  unsigned Nentries = 0; //data->GetEntries();
 
   unsigned event_counter = 0;
     
-
   typedef std::pair<int,double> zpair; 
   std::vector<zpair>  refz;
   std::vector<zpair>  testz;
@@ -1501,28 +1501,6 @@ int main(int argc, char** argv)
 
     data->SetBranchAddress("TIDA::Event",&track_ev);
 
-    /// TChain *data = new TChain("tree");
-    /// data->AddFile(filenames[ifile].c_str());
-    //  }
-
-    //    std::cout << "added " << addedfiles << " files" << std::endl;
-
-    //  if (addedfiles == 0) {
-    //  std::cout << "Cannot read any files, exiting" << std::endl;
-    //  return (-1);
-    // }
-
-
-
-    /// so we can specify the number of entries 
-    /// we like, rather than run on all of them
-    
-    //  unsigned Nentries = data->GetEntries();
-    //  if ( inputdata.isTagDefined("Nentries") ) { 
-    //   unsigned _Nentries = unsigned(inputdata.GetValue("Nentries"));
-    //    if ( _Nentries<Nentries ) Nentries = _Nentries;
-    //  }
-    
     
     maxtime = track_ev->time_stamp();
     mintime = track_ev->time_stamp();
@@ -1531,23 +1509,11 @@ int main(int argc, char** argv)
     
     bool skip = true;
   
-    /// so we can specify the number of entries 
+     /// so we can specify the number of entries 
     /// we like, rather than run on all of them
     for (unsigned int i=0; skip && run && i<cNentries ; i++ ) {
 
-      //      if ( _Nentries<Nentries ) { 
-      //        run = false;
-      //        break;
-      //     }
-      //    Nentries++;
-
-     data->GetEntry(i);
-
-     //    if (i==0) {
-     //      std::cout << "TrkNtuple generated with: " << *releaseMetaData << std::endl;//Only necessary for first event
-     //    }
-     
-     //    if ( r!=h->run_number() ) std::cout <<* h << std::endl;
+    data->GetEntry(i);
 
     r         = track_ev->run_number();
     ev        = track_ev->event_number();
@@ -1578,14 +1544,13 @@ int main(int argc, char** argv)
     if ( mintime>ts ) mintime = ts;
     if ( maxtime<ts ) maxtime = ts;
 
-    if ( _Nentries>0 && event_counter>_Nentries ) { 
+    if ( Nentries>0 && event_counter>Nentries ) { 
       run = false;
       std::cout << "breaking out " << run << std::endl;
       break;
     }
 
     event_counter++;
-    Nentries++;
 
     //    if ( !elist.find(event) ) continue;
 

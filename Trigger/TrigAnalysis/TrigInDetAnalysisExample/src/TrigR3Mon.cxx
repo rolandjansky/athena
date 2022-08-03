@@ -160,12 +160,13 @@ StatusCode TrigR3Mon::initialize() {
 
   ATH_CHECK(bookHistograms());
 
-  /// pointless setup of ReadHandleKey because the monitoring appears to
+  /// pointless setup of ReadHandleKeys because the monitoring appears to
   /// (uneccessarily) be being controlled by the scheduler
-  /// We fetch the tracks is a helper class so don't want to mess with 
-  /// this ReadHandleKey - it is only here to placate the scheduler
+  /// We fetch the tracks and vertices in a helper class so don't want to mess 
+  /// with this ReadHandleKey - it is only here to placate the scheduler
 
   ATH_CHECK (m_trackdummykey.initialize());
+  ATH_CHECK (m_vtxdummykey.initialize());
 
   ATH_MSG_DEBUG( " -----  exit init() ----- " );
 
