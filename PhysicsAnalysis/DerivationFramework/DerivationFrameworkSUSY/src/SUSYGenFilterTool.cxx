@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DerivationFrameworkSUSY/SUSYGenFilterTool.h"
@@ -20,8 +20,8 @@ namespace DerivationFramework {
     return false;
   }
 
-  static SG::AuxElement::Decorator<float> dec_genFiltHT("GenFiltHT");
-  static SG::AuxElement::Decorator<float> dec_genFiltMET("GenFiltMET");
+  static const SG::AuxElement::Decorator<float> dec_genFiltHT("GenFiltHT");
+  static const SG::AuxElement::Decorator<float> dec_genFiltMET("GenFiltMET");
 
   SUSYGenFilterTool::SUSYGenFilterTool(const std::string& t, const std::string& n, const IInterface* p):
     AthAlgTool(t,n,p),
