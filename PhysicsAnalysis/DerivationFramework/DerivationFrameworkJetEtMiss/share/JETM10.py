@@ -4,6 +4,7 @@
 #====================================================================
 from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob, buildFileName
 from DerivationFrameworkJetEtMiss.METTriggerDerivationContent import METTriggerDerivationContentManager
+from DerivationFrameworkPhys import PhysCommon
 
 #======================================================================================================================
 # SKIMMING TOOL
@@ -12,7 +13,6 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFram
 JETM10SkimmingTool = DerivationFramework__TriggerSkimmingTool(  name                   = "JETM10SkimmingTool",
                                                                 TriggerListOR          = ["HLT_noalg_L1XE.*"] )
 ToolSvc += JETM10SkimmingTool
-
 
 #======================================================================================================================
 # SET UP STREAM

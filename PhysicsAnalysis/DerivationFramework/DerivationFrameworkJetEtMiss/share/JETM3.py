@@ -5,12 +5,7 @@
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob, buildFileName
 from DerivationFrameworkJetEtMiss.JetCommon import OutputJets, addJetOutputs, addDAODJets
-from JetRecConfig.StandardSmallRJets import AntiKt4EMPFlowLowPt, AntiKt4EMTopoLowPt
-
-if DerivationFrameworkIsMonteCarlo:
-  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
-  addStandardTruthContents()
-
+from JetRecConfig.StandardSmallRJets import AntiKt4EMPFlowLowPt, AntiKt4EMTopoLowPt, AntiKt4EMPFlow
 from DerivationFrameworkPhys import PhysCommon
 
 #====================================================================
@@ -30,26 +25,45 @@ JETM3SkimmingTools = []
 orstr  = ' || '
 andstr = ' && '
 
-elofflinesel = 'count((Electrons.pt > 20*GeV) && (Electrons.DFCommonElectronsLHMedium)) >= 2'
-muofflinesel = 'count((Muons.pt > 20*GeV) && (Muons.DFCommonMuonPassPreselection)) >= 2'
-
-electronSelection = '(' + elofflinesel + ')'
-muonSelection = '(' + muofflinesel + ')'
-
-if not DerivationFrameworkIsMonteCarlo:
-  eltrigsel = orstr.join(electronTriggers)
-  mutrigsel = orstr.join(muonTriggers)
-
-  electronSelection += ' && (' + eltrigsel + ')'
-  muonSelection += ' && (' + mutrigsel + ')'
-
-expression = '( (' + electronSelection + ') || (' + muonSelection + ') )'
+elofflinesel = '(count((Electrons.pt > 20*GeV) && (Electrons.DFCommonElectronsLHMedium)) >= 2)'
+muofflinesel = '(count((Muons.pt > 20*GeV) && (Muons.DFCommonMuonPassPreselection)) >= 2)'
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-JETM3SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "JETM3SkimmingTool1",
-                                                                 expression = expression)
-ToolSvc += JETM3SkimmingTool
-JETM3SkimmingTools += [JETM3SkimmingTool]
+JETM3OfflineSkimmingTool_ele = DerivationFramework__xAODStringSkimmingTool( name = "JETM3OfflineSkimmingTool_ele",
+                                                                            expression = elofflinesel)
+JETM3OfflineSkimmingTool_mu = DerivationFramework__xAODStringSkimmingTool( name = "JETM3OfflineSkimmingTool_mu",
+                                                                           expression = muofflinesel)
+
+ToolSvc += JETM3OfflineSkimmingTool_ele
+ToolSvc += JETM3OfflineSkimmingTool_mu
+
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationAND
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
+
+if not DerivationFrameworkIsMonteCarlo:
+  from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
+  JETM3TriggerSkimmingTool_ele = DerivationFramework__TriggerSkimmingTool(   name = "JETM3TriggerSkimmingTool_ele", TriggerListOR = electronTriggers)
+  ToolSvc += JETM3TriggerSkimmingTool_ele
+  JETM3TriggerSkimmingTool_mu = DerivationFramework__TriggerSkimmingTool(   name = "JETM3TriggerSkimmingTool_mu", TriggerListOR = muonTriggers)
+  ToolSvc += JETM3TriggerSkimmingTool_mu
+
+  # Combine trigger and offline selection
+  JETM3SkimmingTool_ele = DerivationFramework__FilterCombinationAND(name="JETM3SkimmingTool_ele", FilterList=[JETM3OfflineSkimmingTool_ele, JETM3TriggerSkimmingTool_ele] )
+  JETM3SkimmingTool_mu = DerivationFramework__FilterCombinationAND(name="JETM3SkimmingTool_mu", FilterList=[JETM3OfflineSkimmingTool_mu, JETM3TriggerSkimmingTool_mu] )
+  ToolSvc += JETM3SkimmingTool_ele
+  ToolSvc += JETM3SkimmingTool_mu
+
+  # Combine electron and muon channel
+  JETM3SkimmingTool = DerivationFramework__FilterCombinationOR(name="JETM3SkimmingTool", FilterList=[JETM3SkimmingTool_ele, JETM3SkimmingTool_mu])
+  ToolSvc += JETM3SkimmingTool
+
+  JETM3SkimmingTools += [JETM3SkimmingTool]
+
+else:
+  JETM3SkimmingTool = DerivationFramework__FilterCombinationOR(name="JETM3SkimmingTool", FilterList=[JETM3OfflineSkimmingTool_ele, JETM3OfflineSkimmingTool_mu])
+  ToolSvc += JETM3SkimmingTool
+
+  JETM3SkimmingTools += [JETM3SkimmingTool]
 
 #====================================================================
 # SET UP STREAM
@@ -210,6 +224,7 @@ JETM3SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
                                     "CHSGChargedParticleFlowObjects", "CHSGNeutralParticleFlowObjects",
                                     "MuonTruthParticles", "egammaTruthParticles",
                                     "TruthParticles", "TruthEvents", "TruthVertices",
+                                    "InTimeAntiKt4TruthJets", "OutOfTimeAntiKt4TruthJets",
                                     "MuonSegments",
                                     "LVL1JetRoIs",
                                     "Kt4EMTopoOriginEventShape","Kt4EMPFlowEventShape","Kt4EMPFlowPUSBEventShape","Kt4EMPFlowNeutEventShape",

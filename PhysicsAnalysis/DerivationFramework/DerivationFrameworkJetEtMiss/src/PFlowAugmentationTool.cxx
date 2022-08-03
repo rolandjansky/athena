@@ -21,7 +21,6 @@ namespace DerivationFramework {
     m_weightPFOTool("CP::WeightPFOTool/WeightPFOTool")
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
-    declareProperty("Z0SinThetaCut", m_z0sinthcut = 2.0);
     declareProperty("WeightPFOTool", m_weightPFOTool );
   }
 
@@ -30,7 +29,6 @@ namespace DerivationFramework {
 
     ATH_CHECK(m_vertexContainer_key.initialize());
     ATH_CHECK(m_pfoContainer_key.initialize());
-    ATH_CHECK(m_PVmatchedKey.initialize());
     ATH_CHECK(m_corrP4_ptKey.initialize());
     ATH_CHECK(m_z0Key.initialize());
     ATH_CHECK(m_vzKey.initialize());
@@ -85,7 +83,6 @@ namespace DerivationFramework {
       }
     }
 
-    SG::WriteDecorHandle<xAOD::FlowElementContainer,char> dec_PVmatched(m_PVmatchedKey);
     SG::WriteDecorHandle<xAOD::FlowElementContainer,float> dec_corrP4_pt(m_corrP4_ptKey);
     SG::WriteDecorHandle<xAOD::FlowElementContainer,float> dec_z0(m_z0Key);
     SG::WriteDecorHandle<xAOD::FlowElementContainer,float> dec_vz(m_vzKey);
@@ -118,17 +115,6 @@ namespace DerivationFramework {
       dec_d0(*cpfo) = ptrk->d0();
       dec_theta(*cpfo) = ptrk->theta();
 
-      bool matchedToPrimaryVertex = false;
-      //vtz.z() provides z of that vertex w.r.t the center of the beamspot (z = 0). Thus we correct the track z0 to be w.r.t z = 0
-      float z0 = ptrk->z0() + ptrk->vz();
-      if (pv) {
-        z0 = z0 - pv->z();
-        float theta = ptrk->theta();
-        if ( fabs(z0*sin(theta)) < m_z0sinthcut ) {
-          matchedToPrimaryVertex = true;
-        }
-      }// if pv available
-
       //find the weights from the tool
       float weight = 1.0;
       const static SG::AuxElement::ConstAccessor<int> accIsInDE("IsInDenseEnvironment");
@@ -137,7 +123,6 @@ namespace DerivationFramework {
       }
 
       // decorate the computed variables	
-      dec_PVmatched(*cpfo) = matchedToPrimaryVertex;
       dec_corrP4_pt(*cpfo) = weight*cpfo->pt();
       dec_envWeight(*cpfo) = weight;
     }

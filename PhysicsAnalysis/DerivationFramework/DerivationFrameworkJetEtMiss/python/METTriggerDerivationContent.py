@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 
@@ -33,7 +33,7 @@ class METTriggerDerivationContentManager(object):
         self.track_sel = track_sel
         self.all_vars = [] if all_vars is None else all_vars
         # Create the tools
-        if any(x in self.all_vars for x in ("JetETMissNeutralParticleFlowObjects", "JetETMissChargedParticleFlowObjects") ):
+        if any(x in self.all_vars for x in ("GlobalNeutralParticleFlowObjects", "GlobalChargedParticleFlowObjects") ):
             applyPFOAugmentation()
         self._make_slimming_tools(stream, jet_algorithms)
         self._make_augmentation_tools(stream)
@@ -46,8 +46,10 @@ class METTriggerDerivationContentManager(object):
                 all_vars = [
                     "HLT_xAOD__MuonContainer_MuonEFInfo",
                     "CaloCalTopoClusters",
-                    "JetETMissChargedParticleFlowObjects",
-                    "JetETMissNeutralParticleFlowObjects",
+                    "GlobalChargedParticleFlowObjects",
+                    "GlobalNeutralParticleFlowObjects",
+                    "CHSGChargedParticleFlowObjects",
+                    "CHSGNeutralParticleFlowObjects",
                     "Kt4EMPFlowEventShape"])
 
     @classmethod
@@ -68,7 +70,7 @@ class METTriggerDerivationContentManager(object):
 
     def _mk_common_tool(self, cls, name, **kwargs):
         """ Create a common tool, if it isn't already in the ToolSvc """
-        global ToolSvc
+        from AthenaCommon.AppMgr import ToolSvc
         # Resolve the full name
         if not name.startswith(self.common_prefix):
             name = self.common_prefix + name
@@ -83,12 +85,13 @@ class METTriggerDerivationContentManager(object):
         smart_collections = ["Electrons", "Muons", "Photons", "TauJets", "PrimaryVertices", "InDetTrackParticles"]
         smart_collections += ["{0}Jets".format(a) for a in jet_algorithms]
         smart_collections += ["MET_Baseline_{0}".format(a) for a in jet_algorithms]
-        if "AntiKt4EMTopo" in jet_algorithms:
-            smart_collections += [
-                    "BTagging_AntiKt4EMTopo"]
         if "AntiKt4EMPFlow" in jet_algorithms:
             smart_collections += [
                     "BTagging_AntiKt4EMPFlow"]
+        self.slimming_helper.AppendToDictionary = {'GlobalChargedParticleFlowObjects':'xAOD::FlowElementContainer','GlobalChargedParticleFlowObjectsAux':'xAOD::FlowElementAuxContainer',
+                                                   'GlobalNeutralParticleFlowObjects':'xAOD::FlowElementContainer', 'GlobalNeutralParticleFlowObjectsAux':'xAOD::FlowElementAuxContainer',
+                                                   'CHSGChargedParticleFlowObjects':'xAOD::FlowElementContainer','CHSGChargedParticleFlowObjectsAux':'xAOD::ShallowAuxContainer',
+                                                   'CHSGNeutralParticleFlowObjects':'xAOD::FlowElementContainer','CHSGNeutralParticleFlowObjectsAux':'xAOD::ShallowAuxContainer'}
         self.slimming_helper.SmartCollections = smart_collections
         self.slimming_helper.ExtraVariables = [
                 "{0}Jets.Timing".format(a) for a in jet_algorithms]
@@ -116,8 +119,7 @@ class METTriggerDerivationContentManager(object):
                     DecorationName = self.common_prefix + self.track_sel)
             tool.TrackSelectionTool.CutLevel = self.track_sel
             self.augmentation_tools.append(tool)
-            self.slimming_helper.ExtraVariables.append(
-                    "InDetTrackParticles." + tool.DecorationName)
+            self.slimming_helper.ExtraVariables.append("InDetTrackParticles." + str(tool.DecorationName))
         tva_tool = self._mk_common_tool(
                 CfgMgr.DerivationFramework__TVAAugmentationTool,
                 "NominalTVAAugmentationTool",
@@ -164,7 +166,9 @@ class METTriggerDerivationContentManager(object):
                     stream_name + "TauTPThinningTool",
                     StreamName             = stream_name,
                     TauKey                 = "TauJets",
-                    InDetTrackParticlesKey = "InDetTrackParticles")
+                    InDetTrackParticlesKey = "InDetTrackParticles",
+                    DoTauTracksThinning    = True,
+                    TauTracksKey           = "TauTracks")
                 ]
-        global ToolSvc
+        from AthenaCommon.AppMgr import ToolSvc
         ToolSvc += self.thinning_tools

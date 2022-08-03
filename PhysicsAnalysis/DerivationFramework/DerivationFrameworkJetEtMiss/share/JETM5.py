@@ -18,10 +18,6 @@ JETM5Stream.AcceptAlgs(["JETM5Kernel"])
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
 
-if DerivationFrameworkIsMonteCarlo:
-  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
-  addStandardTruthContents()
-
 #====================================================================
 # ADD PFLOW AUG INFORMATION 
 #====================================================================
@@ -31,11 +27,16 @@ applyPFOAugmentation(DerivationFrameworkJob)
 #====================================================================
 # SKIMMING TOOL 
 #====================================================================
-expression = '( (EventInfo.eventTypeBitmask==1) || HLT_noalg_zb_L1ZB )'
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-JETM5SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "JETM5SkimmingTool1",
-                                                                    expression = expression)
-ToolSvc += JETM5SkimmingTool
+
+skimmingTools = []
+
+if not DerivationFrameworkIsMonteCarlo:
+  expression = '( HLT_noalg_zb_L1ZB )'
+  from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+  JETM5SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "JETM5SkimmingTool1",
+                                                                   expression = expression)
+  ToolSvc += JETM5SkimmingTool
+  skimmingTools.append(JETM5SkimmingTool)
 
 #====================================================================
 # THINNING TOOLS 
@@ -67,15 +68,6 @@ JETM5PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(nam
                                                                              InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM5PhotonTPThinningTool
 thinningTools.append(JETM5PhotonTPThinningTool)
-
-# # TrackParticles associated with taus
-# from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
-# JETM5TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name            = "JETM5TauTPThinningTool",
-#                                                                         StreamName      = streamName,
-#                                                                         TauKey          = "TauJets",
-#                                                                         InDetTrackParticlesKey  = "InDetTrackParticles")
-# ToolSvc += JETM5TauTPThinningTool
-# thinningTools.append(JETM5TauTPThinningTool)
 
 # Truth particle thinning
 doTruthThinning = True
@@ -114,11 +106,8 @@ DerivationFrameworkJob += jetm5Seq
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 jetm5Seq += CfgMgr.DerivationFramework__DerivationKernel(	name = "JETM5Kernel",
-                                                                SkimmingTools = [JETM5SkimmingTool],
+                                                                SkimmingTools = skimmingTools,
                                                                 ThinningTools = thinningTools)
-
-# PFlow fJvt#
-getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=jetm5Seq, algname='JetForwardPFlowJvtToolAlgNew',outLabel="fJvtWithPV",includePV=True)
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
@@ -138,15 +127,12 @@ JETM5SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
                                     "TruthParticles", "TruthEvents", "TruthVertices",
                                     "MuonSegments",
                                     "Kt4EMTopoOriginEventShape","Kt4EMPFlowEventShape",
+                                    "GlobalNeutralParticleFlowObjects", "GlobalChargedParticleFlowObjects"
                                     ]
-
-JETM5SlimmingHelper.ExtraVariables = ["JetETMissNeutralParticleFlowObjects.m.mEM.pfo_TrackLinks.eflowRec_ISOLATION.pfo_ClusterLinks.eflowRec_TIMING.eflowRec_AVG_LAR_Q.eflowRec_EM_PROBABILITY.eflowRec_CENTER_LAMBDA.centerMag.pt.ptEM.phi.eta",
-                                      "JetETMissChargedParticleFlowObjects.pt.eta.phi.m.eflowRec_tracksExpectedEnergyDeposit.pfo_vertex.charge.eflowRec_isInDenseEnvironment.pfo_TrackLinks.DFCommonPFlow_z0.DFCommonPFlow_vz.DFCommonPFlow_d0.DFCommonPFlow_theta.DFCommonPFlow_envWeight",]
-
 
 # Add QG tagger variables
 JETM5SlimmingHelper.ExtraVariables  += ["AntiKt4EMTopoJets.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1",
-                                        "AntiKt4EMPFlowJets.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1.DFCommonJets_fJvtWithPV"]
+                                        "AntiKt4EMPFlowJets.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1"]
 
 for truthc in [
     "TruthMuons",

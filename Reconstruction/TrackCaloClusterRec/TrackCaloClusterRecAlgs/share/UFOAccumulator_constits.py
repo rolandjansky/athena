@@ -49,8 +49,8 @@ def UFOConfig(inputFlags, **kwargs):
     UFO_CA.addService(StoreGateSvc("DetectorStore"))
     from TrackCaloClusterRecTools.TrackCaloClusterConfig import runUFOReconstruction
     from JetRecConfig.StandardJetConstits import stdConstitDic as cst
-    constituents=cst.EMPFlowCSSK
-    inputFEcontainer="CSSKParticleFlowObjects"
+    constituents=cst.GPFlowCSSK
+    inputFEcontainer="CSSKGParticleFlowObjects"
     
     UFO_reco=runUFOReconstruction(configFlags=inputFlags,constits=constituents,inputFEcontainerkey=inputFEcontainer)
     UFO_CA.merge(UFO_reco)
