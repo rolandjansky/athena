@@ -1,10 +1,18 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ForwardTracker/Beamline.h"
+#include "ForwardTracker/Point.h"
+#include "ForwardTracker/IParticle.h"
+#include <cmath>      //fabs
+#include <iostream>   //<<, ostream
+#include <iomanip>    //setw
+#include <sstream>    //stringstream
+#include <ios>        //std::fixed
+#include <algorithm>  //std::find_if
+#include <stdexcept>  //std::runtime_error
 
-#include <iostream>
 
 namespace ForwardTracker {
   
@@ -12,7 +20,7 @@ namespace ForwardTracker {
   
   IBeamElement::Iter_t findBeamLineEnd(IBeamElement::Container_t& container) {
   
-    IBeamElement::Iter_t ei = find_if(container.begin(), container.end(), isEndMarker);
+    IBeamElement::Iter_t ei = std::find_if(container.begin(), container.end(), isEndMarker);
     
     if (ei != container.end()) ++ei;
     else throw std::runtime_error("Could not find the end of the beamline.");
@@ -65,7 +73,7 @@ namespace ForwardTracker {
     
     IBeamElement::ConstIter_t nextElement = std::lower_bound(m_elements.begin(), m_elements.end(), particle.z(), zPosNextElement());
 
-    std::find_if(nextElement, m_elements.end(), ParticleTracker(particle));
+    [[maybe_unused]]const auto & firstOutOfAperture = std::find_if(nextElement, m_elements.end(), ParticleTracker(particle));
   }
   
   class Stringer {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FORWARDTRACKER_IBEAMELEMENT_H
@@ -9,8 +9,10 @@
 
 #include "boost/shared_ptr.hpp"
 
+#include <string>
 #include <vector>
 #include <list>
+#include <iosfwd>
 
 namespace ForwardTracker {
 

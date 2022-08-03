@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////
@@ -15,18 +15,21 @@
 #include <TROOT.h>
 #include <TTree.h>
 #include <TFile.h>
-#include <TH1.h>
+
 
 #include <array>
 #include <map>
 #include <algorithm>
 #include <iostream>
 #include <vector>
+#include <string>
 
 #include <TVectorD.h>
 #include <TMatrixD.h>
 #include <TDecompLU.h>
 
+class TH1;
+class TH1D;
 
 struct CalibData 
 {
@@ -55,12 +58,10 @@ class ZDCNLCalibration
   TTree*  m_tree;
 
   size_t m_maxNLPower;
-  //  float  m_HEDeweight;
   bool m_useGRL;
   int m_debugLevel;
 
-  // size_t m_numWeights;
-  // size_t m_numFitParams;
+  
 
   const float m_SNEnergy;
   const std::vector<float> m_HEFraction;
@@ -73,21 +74,10 @@ class ZDCNLCalibration
   UInt_t          passBits;
   
   Float_t         zdc_ZdcAmp[2];
-  //   Float_t         zdc_ZdcEnergy[2];
-  //   Float_t         zdc_ZdcTime[2];
-  //   Short_t         zdc_ZdcStatus[2];
-  //   Float_t         zdc_ZdcTrigEff[2];
+ 
   UInt_t          zdc_ZdcModuleMask;
   Float_t         zdc_ZdcModuleAmp[2][4];
-  // Float_t         zdc_ZdcModuleTime[2][4];
-  // Float_t         zdc_ZdcModuleFitAmp[2][4];
-  // Float_t         zdc_ZdcModuleFitT0[2][4];
-  // UInt_t          zdc_ZdcModuleStatus[2][4];
-  // Float_t         zdc_ZdcModuleChisq[2][4];
-  // Float_t         zdc_ZdcModuleCalibAmp[2][4];
-  // Float_t         zdc_ZdcModuleCalibTime[2][4];
-  // Float_t         zdc_ZdcModuleBkgdMaxFraction[2][4];
-  // Float_t         zdc_ZdcModuleAmpError[2][4];
+ 
   Bool_t          L1_ZDC_A;
   Bool_t          L1_ZDC_C;
   Bool_t          L1_ZDC_AND;
@@ -102,21 +92,10 @@ class ZDCNLCalibration
   TBranch        *b_passBits;   //!
   
   TBranch        *b_zdc_ZdcAmp;   //!
-  //   TBranch        *b_zdc_ZdcEnergy;   //!
-  //   TBranch        *b_zdc_ZdcTime;   //!
-  //  TBranch        *b_zdc_ZdcStatus;   //!
-  // TBranch        *b_zdc_ZdcTrigEff;   //!
+  
   TBranch        *b_zdc_ZdcModuleMask;   //!
   TBranch        *b_zdc_ZdcModuleAmp;   //!
-  // TBranch        *b_zdc_ZdcModuleTime;   //!
-  // TBranch        *b_zdc_ZdcModuleFitAmp;   //!
-  // TBranch        *b_zdc_ZdcModuleFitT0;   //!
-  // TBranch        *b_zdc_ZdcModuleStatus;   //!
-  // TBranch        *b_zdc_ZdcModuleChisq;   //!
-  // TBranch        *b_zdc_ZdcModuleCalibAmp;   //!
-  // TBranch        *b_zdc_ZdcModuleCalibTime;   //!
-  // TBranch        *b_zdc_ZdcModuleBkgdMaxFraction;   //!
-  // TBranch        *b_zdc_ZdcModuleAmpError;   //!
+
   TBranch        *b_L1_ZDC_A;   //!
   TBranch        *b_L1_ZDC_C;   //!
   TBranch        *b_L1_ZDC_AND;   //!
@@ -139,7 +118,7 @@ public:
   TTree* m_testTree{};
 
 
-  ZDCNLCalibration(std::string file, int maxNLPower = 3, bool useGRL = true, int debugLevel = 0);
+  ZDCNLCalibration(const std::string & file, int maxNLPower = 3, bool useGRL = true, int debugLevel = 0);
   virtual ~ZDCNLCalibration() {}
 
   std::array<float, 4> FindSNPeaks(size_t LBLow, size_t LBHigh, size_t side);
@@ -173,8 +152,8 @@ private:
 			    const std::vector<std::vector<double> >& sums1DVec, const std::vector<double>& sumsHE,
 			    const std::vector<std::vector<double> >& sums2DVec, const std::vector<double>& sumsHE2D);
  
-  void AddCalibration(size_t side, std::string tag, const CalibData& calib);
-  CalibData GetCalibration(size_t side, std::string tag);
+  void AddCalibration(size_t side, const std::string & tag, const CalibData& calib);
+  CalibData GetCalibration(size_t side, const std::string & tag);
 
   //  Add the four amplitudes from a given event to the set of sums used in the NL weight fitting
   //    we need to make all combinations of amplitude products and for all combinations of powers
@@ -227,10 +206,9 @@ private:
 #endif
 
 #ifdef ZDCNLCalibration_cxx
-ZDCNLCalibration::ZDCNLCalibration(std::string file, int maxNLPower,  bool useGRL, int debugLevel) : 
-  m_TFile(0), m_tree(0), m_maxNLPower(maxNLPower), //m_HEDeweight(heDeweight),
+ZDCNLCalibration::ZDCNLCalibration(const std::string & file, int maxNLPower,  bool useGRL, int debugLevel) : 
+  m_TFile(0), m_tree(0), m_maxNLPower(maxNLPower), 
   m_useGRL(useGRL), m_debugLevel(debugLevel),
-  //  m_numWeights(m_maxNLPower*4), m_numFitParams(m_maxNLPower *4),
   m_SNEnergy(2510), m_HEFraction({0.31, 0.27, 0.21, 0.21}),
   m_haveTest(false)
 {
