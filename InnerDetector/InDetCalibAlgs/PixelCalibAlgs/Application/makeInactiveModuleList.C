@@ -267,8 +267,8 @@ void checkInactiveModule(bool isIBL, TFile* hitMapFile, int &npush_back, std::ve
 	  vLB_end.push_back(LB_end);
 	  npush_back++;
 	}
-      }//if(lbdep[moduleID]->GetBinContent(LB + 1) < 1.)
-    } //for (int LB = 1; LB < 2000; LB++)
+      }
+    }
     if(flag_start == 1){
       vsmodule.push_back(moduleID);
       vLB_start.push_back(LB_start);
@@ -427,18 +427,18 @@ void checkInactiveFEs(bool isIBL, TFile* hitMapFile, int &npush_backFE,
 	if(k<=18){
           if(l<=164){
             if(((!disk1A or !disk2A or !disk3A) and (M1_find==11 or M2_find==11 or M3_find==11)) or  ((!disk1C or !disk2C or !disk3C) and (M4_find==11 or M5_find==11 or M6_find==11))){
-              FE7=FE7+hitMaps[moduleID]->GetBinContent(k,l);
+              if(hitMaps[moduleID]->GetBinContent(k,l)!=0){FE7++;}
             }
             else{
-              FE8=FE8+hitMaps[moduleID]->GetBinContent(k,l);
+              if(hitMaps[moduleID]->GetBinContent(k,l)!=0){FE8++;}
             }
           }
           else if(l>=165){
             if(((!disk1A or !disk2A or !disk3A) and (M1_find==11 or M2_find==11 or M3_find==11)) or  ((!disk1C or !disk2C or !disk3C) and (M4_find==11 or M5_find==11 or M6_find==11))){
-              FE8=FE8+hitMaps[moduleID]->GetBinContent(k,l);
+              if(hitMaps[moduleID]->GetBinContent(k,l)!=0){FE8++;}
             }
             else{
-              FE7=FE7+hitMaps[moduleID]->GetBinContent(k,l);
+              if(hitMaps[moduleID]->GetBinContent(k,l)!=0){FE7++;}
             }
           }
           else{
@@ -448,18 +448,18 @@ void checkInactiveFEs(bool isIBL, TFile* hitMapFile, int &npush_backFE,
         if(k>=19 and k<=36){
           if(l<=164){
             if(((!disk1A or !disk2A or !disk3A) and (M1_find==11 or M2_find==11 or M3_find==11)) or  ((!disk1C or !disk2C or !disk3C) and (M4_find==11 or M5_find==11 or M6_find==11))){
-              FE6=FE6+hitMaps[moduleID]->GetBinContent(k,l);
+              if(hitMaps[moduleID]->GetBinContent(k,l)!=0){FE6++;}
             }
             else{
-              FE9=FE9+hitMaps[moduleID]->GetBinContent(k,l);
+              if(hitMaps[moduleID]->GetBinContent(k,l)!=0){FE9++;}
             }
           }
           else if(l>=165){
             if(((!disk1A or !disk2A or !disk3A) and (M1_find==11 or M2_find==11 or M3_find==11)) or  ((!disk1C or !disk2C or !disk3C) and (M4_find==11 or M5_find==11 or M6_find==11))){
-              FE9=FE9+hitMaps[moduleID]->GetBinContent(k,l);
+              if(hitMaps[moduleID]->GetBinContent(k,l)!=0){FE9++;}
             }
             else{
-              FE6=FE6+hitMaps[moduleID]->GetBinContent(k,l);
+              if(hitMaps[moduleID]->GetBinContent(k,l)!=0){FE6++;}
             }
           }
           else{
@@ -469,18 +469,18 @@ void checkInactiveFEs(bool isIBL, TFile* hitMapFile, int &npush_backFE,
         if(k>=37 and k<=54){
           if(l<=164){
             if(((!disk1A or !disk2A or !disk3A) and (M1_find==11 or M2_find==11 or M3_find==11)) or  ((!disk1C or !disk2C or !disk3C) and (M4_find==11 or M5_find==11 or M6_find==11))){
-              FE5=FE5+hitMaps[moduleID]->GetBinContent(k,l);
+              if(hitMaps[moduleID]->GetBinContent(k,l)!=0){FE5++;}
             }
             else{
-              FE10=FE10+hitMaps[moduleID]->GetBinContent(k,l);
+              if(hitMaps[moduleID]->GetBinContent(k,l)!=0){FE10++;}
             }
           }
           else if(l>=165){
             if(((!disk1A or !disk2A or !disk3A) and (M1_find==11 or M2_find==11 or M3_find==11)) or  ((!disk1C or !disk2C or !disk3C) and (M4_find==11 or M5_find==11 or M6_find==11))){
-              FE10=FE10+hitMaps[moduleID]->GetBinContent(k,l);
+              if(hitMaps[moduleID]->GetBinContent(k,l)!=0){FE10++;}
             }
             else{
-              FE5=FE5+hitMaps[moduleID]->GetBinContent(k,l);
+              if(hitMaps[moduleID]->GetBinContent(k,l)!=0){FE5++;}
             }
           }
           else{
@@ -490,18 +490,18 @@ void checkInactiveFEs(bool isIBL, TFile* hitMapFile, int &npush_backFE,
         if(k>=55 and k<=72){
           if(l<=164){
             if(((!disk1A or !disk2A or !disk3A) and (M1_find==11 or M2_find==11 or M3_find==11)) or  ((!disk1C or !disk2C or !disk3C) and (M4_find==11 or M5_find==11 or M6_find==11))){
-              FE4=FE4+hitMaps[moduleID]->GetBinContent(k,l);
+              if(hitMaps[moduleID]->GetBinContent(k,l)!=0){FE4++;}
             }
             else{
-              FE11=FE11+hitMaps[moduleID]->GetBinContent(k,l);
+              if(hitMaps[moduleID]->GetBinContent(k,l)!=0){FE11++;}
             }
           }
           else if(l>=165){
             if(((!disk1A or !disk2A or !disk3A) and (M1_find==11 or M2_find==11 or M3_find==11)) or  ((!disk1C or !disk2C or !disk3C) and (M4_find==11 or M5_find==11 or M6_find==11))){
-              FE11=FE11+hitMaps[moduleID]->GetBinContent(k,l);
+              if(hitMaps[moduleID]->GetBinContent(k,l)!=0){FE11++;}
             }
             else{
-              FE4=FE4+hitMaps[moduleID]->GetBinContent(k,l);
+              if(hitMaps[moduleID]->GetBinContent(k,l)!=0){FE4++;}
             }
           }
           else{
@@ -511,18 +511,18 @@ void checkInactiveFEs(bool isIBL, TFile* hitMapFile, int &npush_backFE,
         if(k>=73 and k<=90){
           if(l<=164){
             if(((!disk1A or !disk2A or !disk3A) and (M1_find==11 or M2_find==11 or M3_find==11)) or  ((!disk1C or !disk2C or !disk3C) and (M4_find==11 or M5_find==11 or M6_find==11))){
-              FE3=FE3+hitMaps[moduleID]->GetBinContent(k,l);
+              if(hitMaps[moduleID]->GetBinContent(k,l)!=0){FE3++;}
             }
             else{
-              FE12=FE12+hitMaps[moduleID]->GetBinContent(k,l);
+              if(hitMaps[moduleID]->GetBinContent(k,l)!=0){FE12++;}
             }
           }
           else if(l>=165){
             if(((!disk1A or !disk2A or !disk3A) and (M1_find==11 or M2_find==11 or M3_find==11)) or  ((!disk1C or !disk2C or !disk3C) and (M4_find==11 or M5_find==11 or M6_find==11))){
-              FE12=FE12+hitMaps[moduleID]->GetBinContent(k,l);
+              if(hitMaps[moduleID]->GetBinContent(k,l)!=0){FE12++;}
             }
             else{
-              FE3=FE3+hitMaps[moduleID]->GetBinContent(k,l);
+              if(hitMaps[moduleID]->GetBinContent(k,l)!=0){FE3++;}
             }
           }
           else{
@@ -532,18 +532,18 @@ void checkInactiveFEs(bool isIBL, TFile* hitMapFile, int &npush_backFE,
         if(k>=91 and k<=108){
           if(l<=164){
             if(((!disk1A or !disk2A or !disk3A) and (M1_find==11 or M2_find==11 or M3_find==11)) or  ((!disk1C or !disk2C or !disk3C) and (M4_find==11 or M5_find==11 or M6_find==11))){
-              FE2=FE2+hitMaps[moduleID]->GetBinContent(k,l);
+              if(hitMaps[moduleID]->GetBinContent(k,l)!=0){FE2++;}
             }
             else{
-              FE13=FE13+hitMaps[moduleID]->GetBinContent(k,l);
+              if(hitMaps[moduleID]->GetBinContent(k,l)!=0){FE13++;}
             }
           }
           else if(l>=165){
             if(((!disk1A or !disk2A or !disk3A) and (M1_find==11 or M2_find==11 or M3_find==11)) or  ((!disk1C or !disk2C or !disk3C) and (M4_find==11 or M5_find==11 or M6_find==11))){
-              FE13=FE13+hitMaps[moduleID]->GetBinContent(k,l);
+              if(hitMaps[moduleID]->GetBinContent(k,l)!=0){FE13++;}
             }
             else{
-              FE2=FE2+hitMaps[moduleID]->GetBinContent(k,l);
+              if(hitMaps[moduleID]->GetBinContent(k,l)!=0){FE2++;}
             }
           }
           else{
@@ -553,18 +553,18 @@ void checkInactiveFEs(bool isIBL, TFile* hitMapFile, int &npush_backFE,
         if(k>=109 and k<=126){
           if(l<=164){
             if(((!disk1A or !disk2A or !disk3A) and (M1_find==11 or M2_find==11 or M3_find==11)) or  ((!disk1C or !disk2C or !disk3C) and (M4_find==11 or M5_find==11 or M6_find==11))){
-              FE1=FE1+hitMaps[moduleID]->GetBinContent(k,l);
+              if(hitMaps[moduleID]->GetBinContent(k,l)!=0){FE1++;}
             }
             else{
-              FE14=FE14+hitMaps[moduleID]->GetBinContent(k,l);
+              if(hitMaps[moduleID]->GetBinContent(k,l)!=0){FE14++;}
             }
           }
           else if(l>=165){
             if(((!disk1A or !disk2A or !disk3A) and (M1_find==11 or M2_find==11 or M3_find==11)) or  ((!disk1C or !disk2C or !disk3C) and (M4_find==11 or M5_find==11 or M6_find==11))){
-              FE14=FE14+hitMaps[moduleID]->GetBinContent(k,l);
+              if(hitMaps[moduleID]->GetBinContent(k,l)!=0){FE14++;}
             }
             else{
-              FE1=FE1+hitMaps[moduleID]->GetBinContent(k,l);
+              if(hitMaps[moduleID]->GetBinContent(k,l)!=0){FE1++;}
             }
           }
           else{
@@ -574,18 +574,18 @@ void checkInactiveFEs(bool isIBL, TFile* hitMapFile, int &npush_backFE,
         if(k>=127){
           if(l<=164){
             if(((!disk1A or !disk2A or !disk3A) and (M1_find==11 or M2_find==11 or M3_find==11)) or  ((!disk1C or !disk2C or !disk3C) and (M4_find==11 or M5_find==11 or M6_find==11))){
-              FE0=FE0+hitMaps[moduleID]->GetBinContent(k,l);
+              if(hitMaps[moduleID]->GetBinContent(k,l)!=0){FE0++;}
             }
             else{
-              FE15=FE15+hitMaps[moduleID]->GetBinContent(k,l);
+              if(hitMaps[moduleID]->GetBinContent(k,l)!=0){FE15++;}
             }
           }
           else if(l>=165){
             if(((!disk1A or !disk2A or !disk3A) and (M1_find==11 or M2_find==11 or M3_find==11)) or  ((!disk1C or !disk2C or !disk3C) and (M4_find==11 or M5_find==11 or M6_find==11))){
-              FE15=FE15+hitMaps[moduleID]->GetBinContent(k,l);
+              if(hitMaps[moduleID]->GetBinContent(k,l)!=0){FE15++;}
             }
             else{
-              FE0=FE0+hitMaps[moduleID]->GetBinContent(k,l);
+              if(hitMaps[moduleID]->GetBinContent(k,l)!=0){FE0++;}
             }
           }
           else{
@@ -623,70 +623,134 @@ void checkInactiveFEs(bool isIBL, TFile* hitMapFile, int &npush_backFE,
     //---------------------------------------
     int average_hit=0;
     if(denom!=0){ 
-     average_hit =(FE0+FE1+FE2+FE3+FE4+FE5+FE6+FE7+FE8+FE9+FE10+FE11+FE12+FE13+FE14+FE15)/16;
+     average_hit =(FE0+FE1+FE2+FE3+FE4+FE5+FE6+FE7+FE8+FE9+FE10+FE11+FE12+FE13+FE14+FE15)/denom;
     }
-    if(FE0<=0.0*average_hit){//value multiplied with average_hit is threshold
+    if(FE0<=0.9*average_hit and disk1A!=0 and disk2A!=0 and disk3A!=0 and disk1C!=0 and disk2C!=0 and disk3C!=0){//value multiplied with average_hit is threshold
       sum=sum+std::pow(2,0);//calculating number to know which FEs in the module shall be masked
       sum_FE++;
     }
-    if(FE1<=0.0*average_hit){
-      sum=sum+std::pow(2,1);
+    else if(FE0<=0.9*average_hit and (!disk1A or !disk2A or !disk3A or !disk1C or !disk2C or !disk3C)){//value multiplied with average_hit is threshold
+      sum=sum+std::pow(2,0);//calculating number to know which FEs in the module shall be masked
       sum_FE++;
     }
-    if(FE2<=0.0*average_hit){
-      sum=sum+std::pow(2,2);
+    if(FE1<=0.9*average_hit and disk1A!=0 and disk2A!=0 and disk3A!=0 and disk1C!=0 and disk2C!=0 and disk3C!=0){//value multiplied with average_hit is threshold
+      sum=sum+std::pow(2,1);//calculating number to know which FEs in the module shall be masked
       sum_FE++;
     }
-    if(FE3<=0.0*average_hit){
-      sum=sum+std::pow(2,3);
+    else if(FE1<=0.9*average_hit and (!disk1A or !disk2A or !disk3A or !disk1C or !disk2C or !disk3C)){//value multiplied with average_hit is threshold
+      sum=sum+std::pow(2,1);//calculating number to know which FEs in the module shall be masked
       sum_FE++;
     }
-    if(FE4<=0.0*average_hit){
-      sum=sum+std::pow(2,4);
+    if(FE2<=0.9*average_hit and disk1A!=0 and disk2A!=0 and disk3A!=0 and disk1C!=0 and disk2C!=0 and disk3C!=0){//value multiplied with average_hit is threshold
+      sum=sum+std::pow(2,2);//calculating number to know which FEs in the module shall be masked
       sum_FE++;
     }
-    if(FE5<=0.0*average_hit){
-      sum=sum+std::pow(2,5);
+    else if(FE2<=0.9*average_hit and (!disk1A or !disk2A or !disk3A or !disk1C or !disk2C or !disk3C)){//value multiplied with average_hit is threshold
+      sum=sum+std::pow(2,2);//calculating number to know which FEs in the module shall be masked
       sum_FE++;
     }
-    if(FE6<=0.0*average_hit){
-      sum=sum+std::pow(2,6);
+    if(FE3<=0.9*average_hit and disk1A!=0 and disk2A!=0 and disk3A!=0 and disk1C!=0 and disk2C!=0 and disk3C!=0){//value multiplied with average_hit is threshold
+      sum=sum+std::pow(2,3);//calculating number to know which FEs in the module shall be masked
       sum_FE++;
     }
-    if(FE7<=0.0*average_hit){
-      sum=sum+std::pow(2,7);
+    else if(FE3<=0.9*average_hit and (!disk1A or !disk2A or !disk3A or !disk1C or !disk2C or !disk3C)){//value multiplied with average_hit is threshold
+      sum=sum+std::pow(2,3);//calculating number to know which FEs in the module shall be masked
       sum_FE++;
     }
-    if(FE8<=0.0*average_hit){
-      sum=sum+std::pow(2,8);
+    if(FE4<=0.9*average_hit and disk1A!=0 and disk2A!=0 and disk3A!=0 and disk1C!=0 and disk2C!=0 and disk3C!=0){//value multiplied with average_hit is threshold
+      sum=sum+std::pow(2,4);//calculating number to know which FEs in the module shall be masked
       sum_FE++;
     }
-    if(FE9<=0.0*average_hit){
-      sum=sum+std::pow(2,9);
+    else if(FE4<=0.9*average_hit and (!disk1A or !disk2A or !disk3A or !disk1C or !disk2C or !disk3C)){//value multiplied with average_hit is threshold
+      sum=sum+std::pow(2,4);//calculating number to know which FEs in the module shall be masked
       sum_FE++;
     }
-    if(FE10<=0.0*average_hit){
-      sum=sum+std::pow(2,10);
+    if(FE5<=0.9*average_hit and disk1A!=0 and disk2A!=0 and disk3A!=0 and disk1C!=0 and disk2C!=0 and disk3C!=0){//value multiplied with average_hit is threshold
+      sum=sum+std::pow(2,5);//calculating number to know which FEs in the module shall be masked
       sum_FE++;
     }
-    if(FE11<=0.0*average_hit){
-      sum=sum+std::pow(2,11);
+    else if(FE5<=0.9*average_hit and (!disk1A or !disk2A or !disk3A or !disk1C or !disk2C or !disk3C)){//value multiplied with average_hit is threshold
+      sum=sum+std::pow(2,5);//calculating number to know which FEs in the module shall be masked
       sum_FE++;
     }
-    if(FE12<=0.0*average_hit){
-      sum=sum+std::pow(2,12);
+    if(FE6<=0.9*average_hit and disk1A!=0 and disk2A!=0 and disk3A!=0 and disk1C!=0 and disk2C!=0 and disk3C!=0){//value multiplied with average_hit is threshold
+      sum=sum+std::pow(2,6);//calculating number to know which FEs in the module shall be masked
       sum_FE++;
     }
-    if(FE13<=0.0*average_hit){
-      sum=sum+std::pow(2,13);
+    else if(FE6<=0.9*average_hit and (!disk1A or !disk2A or !disk3A or !disk1C or !disk2C or !disk3C)){//value multiplied with average_hit is threshold
+      sum=sum+std::pow(2,6);//calculating number to know which FEs in the module shall be masked
       sum_FE++;
     }
-    if(FE14<=0.0*average_hit){
-      sum=sum+std::pow(2,14);
+    if(FE7<=0.9*average_hit and disk1A!=0 and disk2A!=0 and disk3A!=0 and disk1C!=0 and disk2C!=0 and disk3C!=0){//value multiplied with average_hit is threshold
+      sum=sum+std::pow(2,7);//calculating number to know which FEs in the module shall be masked
       sum_FE++;
     }
-    if(FE15<=0.0*average_hit){
-      sum=sum+std::pow(2,15);
+    else if(FE7<=0.9*average_hit and (!disk1A or !disk2A or !disk3A or !disk1C or !disk2C or !disk3C)){//value multiplied with average_hit is threshold
+      sum=sum+std::pow(2,7);//calculating number to know which FEs in the module shall be masked
+      sum_FE++;
+    }
+    if(FE8<=0.9*average_hit and disk1A!=0 and disk2A!=0 and disk3A!=0 and disk1C!=0 and disk2C!=0 and disk3C!=0){//value multiplied with average_hit is threshold
+      sum=sum+std::pow(2,8);//calculating number to know which FEs in the module shall be masked
+      sum_FE++;
+    }
+    else if(FE8<=0.9*average_hit and (!disk1A or !disk2A or !disk3A or !disk1C or !disk2C or !disk3C)){//value multiplied with average_hit is threshold
+      sum=sum+std::pow(2,8);//calculating number to know which FEs in the module shall be masked
+      sum_FE++;
+    }
+    if(FE9<=0.9*average_hit and disk1A!=0 and disk2A!=0 and disk3A!=0 and disk1C!=0 and disk2C!=0 and disk3C!=0){//value multiplied with average_hit is threshold
+      sum=sum+std::pow(2,9);//calculating number to know which FEs in the module shall be masked
+      sum_FE++;
+    }
+    else if(FE9<=0.9*average_hit and (!disk1A or !disk2A or !disk3A or !disk1C or !disk2C or !disk3C)){//value multiplied with average_hit is threshold
+      sum=sum+std::pow(2,9);//calculating number to know which FEs in the module shall be masked
+      sum_FE++;
+    }
+    if(FE10<=0.9*average_hit and disk1A!=0 and disk2A!=0 and disk3A!=0 and disk1C!=0 and disk2C!=0 and disk3C!=0){//value multiplied with average_hit is threshold
+      sum=sum+std::pow(2,10);//calculating number to know which FEs in the module shall be masked
+      sum_FE++;
+    }
+    else if(FE10<=0.9*average_hit and (!disk1A or !disk2A or !disk3A or !disk1C or !disk2C or !disk3C)){//value multiplied with average_hit is threshold
+      sum=sum+std::pow(2,10);//calculating number to know which FEs in the module shall be masked
+      sum_FE++;
+    }
+    if(FE11<=0.9*average_hit and disk1A!=0 and disk2A!=0 and disk3A!=0 and disk1C!=0 and disk2C!=0 and disk3C!=0){//value multiplied with average_hit is threshold
+      sum=sum+std::pow(2,11);//calculating number to know which FEs in the module shall be masked
+      sum_FE++;
+    }
+    else if(FE11<=0.9*average_hit and (!disk1A or !disk2A or !disk3A or !disk1C or !disk2C or !disk3C)){//value multiplied with average_hit is threshold
+      sum=sum+std::pow(2,11);//calculating number to know which FEs in the module shall be masked
+      sum_FE++;
+    }
+    if(FE12<=0.9*average_hit and disk1A!=0 and disk2A!=0 and disk3A!=0 and disk1C!=0 and disk2C!=0 and disk3C!=0){//value multiplied with average_hit is threshold
+      sum=sum+std::pow(2,12);//calculating number to know which FEs in the module shall be masked
+      sum_FE++;
+    }
+    else if(FE12<=0.9*average_hit and (!disk1A or !disk2A or !disk3A or !disk1C or !disk2C or !disk3C)){//value multiplied with average_hit is threshold
+      sum=sum+std::pow(2,12);//calculating number to know which FEs in the module shall be masked
+      sum_FE++;
+    }
+    if(FE13<=0.9*average_hit and disk1A!=0 and disk2A!=0 and disk3A!=0 and disk1C!=0 and disk2C!=0 and disk3C!=0){//value multiplied with average_hit is threshold
+      sum=sum+std::pow(2,13);//calculating number to know which FEs in the module shall be masked
+      sum_FE++;
+    }
+    else if(FE13<=0.9*average_hit and (!disk1A or !disk2A or !disk3A or !disk1C or !disk2C or !disk3C)){//value multiplied with average_hit is threshold
+      sum=sum+std::pow(2,13);//calculating number to know which FEs in the module shall be masked
+      sum_FE++;
+    }
+    if(FE14<=0.9*average_hit and disk1A!=0 and disk2A!=0 and disk3A!=0 and disk1C!=0 and disk2C!=0 and disk3C!=0){//value multiplied with average_hit is threshold
+      sum=sum+std::pow(2,14);//calculating number to know which FEs in the module shall be masked
+      sum_FE++;
+    }
+    else if(FE14<=0.9*average_hit and (!disk1A or !disk2A or !disk3A or !disk1C or !disk2C or !disk3C)){//value multiplied with average_hit is threshold
+      sum=sum+std::pow(2,14);//calculating number to know which FEs in the module shall be masked
+      sum_FE++;
+    }
+    if(FE15<=0.9*average_hit and disk1A!=0 and disk2A!=0 and disk3A!=0 and disk1C!=0 and disk2C!=0 and disk3C!=0){//value multiplied with average_hit is threshold
+      sum=sum+std::pow(2,15);//calculating number to know which FEs in the module shall be masked
+      sum_FE++;
+    }
+    else if(FE15<=0.9*average_hit and (!disk1A or !disk2A or !disk3A or !disk1C or !disk2C or !disk3C)){//value multiplied with average_hit is threshold
+      sum=sum+std::pow(2,15);//calculating number to know which FEs in the module shall be masked
       sum_FE++;
     }
     if (sum!=0){
@@ -764,7 +828,7 @@ void setPixelMapping(bool isIBL){
 	  tmp_position[1] = tmp_hashid;
 	  channelMapping.push_back(std::make_pair(tmp_module_name, tmp_position));
 	}
-	if(str.find("PixMapOverlayWr") != std::string::npos) flag_start = 1;
+	if(str.find("PixMapOverlay") != std::string::npos) flag_start = 1;
      }// while(getline(ifs3, str))
      std::cout<<channelMapping.size()<<std::endl;
     }
@@ -811,10 +875,11 @@ std::vector<int> getPositionFromDCSID (std::string module_name){
     module_name.erase(14,2);
   }
   for(unsigned int ii = 0; ii < pixelMapping.size(); ii++) {
-    if (pixelMapping[ii].first == module_name)
+  
+    if (pixelMapping[ii].first == module_name){
       return pixelMapping[ii].second;
+    }
   }
-  std::cout << "[getPositionFromDCSID] Not found!" << std::endl;
   return pixelMapping[0].second;
 }
 
