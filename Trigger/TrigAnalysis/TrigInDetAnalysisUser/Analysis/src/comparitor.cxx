@@ -1843,6 +1843,7 @@ int main(int argc, char** argv) {
 	      
 	  if ( !noreftmp && hreft==0 ) { 
 	    std::cerr << "missing ref histogram: " << (refchain[j]+" / "+histo.name()) << " " << htest << "(ref)" << std::endl; 
+
 	    noreftmp = true;
 	    Plotter::setplotref(!noreftmp);
 	    noreflabel="reference not found";
@@ -1926,8 +1927,12 @@ int main(int argc, char** argv) {
 	  std::cout << " \tget " << (chains[j]+"/"+reghist)    << "\thtest " << htest << std::endl;
 	  std::cout << " \tget " << (refchain[j]+"/"+reghist)  << "\thref  " << href << std::endl;
 
-	  if ( htest==0 || ( !noreftmp && href==0 ) ) continue;
+	  if ( htest==0 ) continue;
 
+	  if ( !noreftmp && href==0 ) { 
+	    noreftmp = true;
+	    Plotter::setplotref(!noreftmp);
+	  }
 
 	  if ( fulldbg ) std::cout << __LINE__ << std::endl;
 	
