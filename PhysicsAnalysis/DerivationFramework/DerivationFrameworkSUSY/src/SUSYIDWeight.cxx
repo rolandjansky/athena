@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DerivationFrameworkSUSY/SUSYIDWeight.h"
@@ -7,7 +7,7 @@
 
 //namespace DerivationFramework {
   
-  static SG::AuxElement::Accessor<int> acc_procID("SUSY_procID");
+  static const SG::AuxElement::Accessor<int> acc_procID("SUSY_procID");
   
   SUSYIDWeight::SUSYIDWeight( const std::string& name )
     : WeightToolBase( name ),

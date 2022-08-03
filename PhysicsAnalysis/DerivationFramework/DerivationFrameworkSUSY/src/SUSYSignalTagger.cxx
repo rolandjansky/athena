@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DerivationFrameworkSUSY/SUSYSignalTagger.h"
@@ -8,9 +8,9 @@
 
 namespace DerivationFramework {
 
-  static SG::AuxElement::Decorator<int> dec_procID("SUSY_procID");
-  static SG::AuxElement::Decorator<int> dec_pdgId1("SUSY_pid1");
-  static SG::AuxElement::Decorator<int> dec_pdgId2("SUSY_pid2");
+  static const SG::AuxElement::Decorator<int> dec_procID("SUSY_procID");
+  static const SG::AuxElement::Decorator<int> dec_pdgId1("SUSY_pid1");
+  static const SG::AuxElement::Decorator<int> dec_pdgId2("SUSY_pid2");
     
   SUSYSignalTagger::SUSYSignalTagger(const std::string& t, const std::string& n, const IInterface* p):
     AthAlgTool(t,n,p)
