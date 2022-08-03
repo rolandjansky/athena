@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name.
 atlas_subdir( xAODEventFormat )
@@ -7,7 +7,7 @@ atlas_subdir( xAODEventFormat )
 atlas_add_library( xAODEventFormat
    xAODEventFormat/*.h xAODEventFormat/versions/*.h Root/*.cxx
    PUBLIC_HEADERS xAODEventFormat
-   LINK_LIBRARIES xAODCore )
+   LINK_LIBRARIES xAODCore CxxUtils )
 
 atlas_add_dictionary( xAODEventFormatDict
    xAODEventFormat/xAODEventFormatDict.h
