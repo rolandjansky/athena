@@ -11,6 +11,9 @@
 
 #include "PATInterfaces/SystematicRegistry.h"
 
+// For Trigger decision conditions
+#include "TrigDecisionInterface/Conditions.h"
+
 #ifndef XAOD_STANDALONE
 #include "GaudiKernel/ITHistSvc.h"
 #endif
@@ -106,7 +109,7 @@ bool PileupReweightingTool::passTriggerBeforePrescale(const TString& trigger) co
   //Note that the trigger *must* be a rerun trigger if this result is to be valid ... could check this in the trigconf is absolutely necessary
   //but for now we just assume it's a rerun
   //if it's not rerun, all we will get back here is the TAP result
-  return m_tdt->isPassed( trigger.Data() , 37 /*physics|allowRessurectedDecision*/ ); //FIXME: need Trigger people to move Condition.h to interface package!
+  return m_tdt->isPassed( trigger.Data() , TrigDefs::Physics | TrigDefs::allowResurrectedDecision ); // Definitions in TrigDecisionInterface/Conditions.h
 }
 
 bool PileupReweightingTool::isAffectedBySystematic( const CP::SystematicVariation& systematic ) const {
@@ -429,8 +432,6 @@ int PileupReweightingTool::fill( const xAOD::EventInfo& eventInfo, Double_t x, D
          if(!m_emptyHistogram) { SetUniformBinning(100,0,100.); } //use a default binning
       } else {
          switch(eventInfo.runNumber()) {
-            //case 180164: case 183003: case 186169: case 189751:  m_usePeriodConfig="MC12c";/*m_tool->*/UsePeriodConfig("MC12c");break;
-            //case 195847: case 195848: m_usePeriodConfig="MC12ab";/*m_tool->*/UsePeriodConfig("MC12ab");break;
             case 212272: UsePeriodConfig("MC14_8TeV");break;
             case 222222: UsePeriodConfig("MC14_13TeV");break;
             case 222510: case 222525: case 222526: case 284500: UsePeriodConfig("MC15"); break;
