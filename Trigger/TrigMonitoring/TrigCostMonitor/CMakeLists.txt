@@ -23,8 +23,6 @@ atlas_add_component( TrigCostMonitor
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
-atlas_install_scripts( share/RunEBWeightsComputation.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
-
 # Test(s) in the packageL
 atlas_add_test( AlgorithmIdentifier_test
      SOURCES test/AlgorithmIdentifier_test.cxx
