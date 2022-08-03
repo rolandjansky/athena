@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # @author: Sebastien Binet <binet@cern.ch>
 # @date:   March 2007
@@ -1059,7 +1059,8 @@ class Counter(object):
 def merge_pool_files(input_files, output_file,
                      nevts=-1,
                      msg=None,
-                     logfile=None):
+                     logfile=None,
+                     dump_jobo=None):
     """take a bunch of input pool files and produce a single one.
     autoconfiguration (through RecExCommon) is (attempted to be) performed.
     """
@@ -1112,7 +1113,7 @@ def merge_pool_files(input_files, output_file,
     """
     
     import AthenaCommon.ChapPy as api
-    app = api.AthenaApp()
+    app = api.AthenaApp(dump_jobo = dump_jobo)
 
     import textwrap
     app << textwrap.dedent("""\
