@@ -5,6 +5,7 @@
 #ifndef BCMPRIMEGEOMODELXML_BCMPRIMEDETECTORTOOL_H
 #define BCMPRIMEGEOMODELXML_BCMPRIMEDETECTORTOOL_H
 
+#include <CxxUtils/checker_macros.h>
 #include <InDetGeoModelUtils/GeoModelXmlTool.h>
 
 namespace InDetDD
@@ -27,7 +28,7 @@ public:
   virtual ~BCMPrimeDetectorTool() = default;
   virtual StatusCode create() override final;
   virtual StatusCode clear() override final;
-  virtual StatusCode registerCallback() override final;
+  virtual StatusCode registerCallback ATLAS_NOT_THREAD_SAFE () override final;
   virtual StatusCode align(IOVSVC_CALLBACK_ARGS_P(I,keys)) override final;
 
 private:

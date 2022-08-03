@@ -80,7 +80,7 @@ StatusCode BCMPrimeDetectorTool::clear()
 }
 
 
-StatusCode BCMPrimeDetectorTool::registerCallback()
+StatusCode BCMPrimeDetectorTool::registerCallback ATLAS_NOT_THREAD_SAFE ()
 {
   //
   //  Register call-back for software alignment
