@@ -20,6 +20,7 @@
 #include "TrigConfInterfaces/ITrigConfigTool.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TriggerMatchingTool/IMatchingTool.h"
+#include "TriggerMatchingTool/IMatchScoringTool.h"
 #include "TrigTauMatching/ITrigTauMatching.h"
 #include "TriggerAnalysisInterfaces/ITrigGlobalEfficiencyCorrectionTool.h"
 // Need to have these tools held in the class
@@ -42,6 +43,7 @@ namespace top {
     ToolHandle<TrigConf::ITrigConfigTool> m_trigConfTool;
     ToolHandle<Trig::TrigDecisionTool> m_trigDecisionTool;
     ToolHandle<Trig::IMatchingTool> m_trigMatchTool;
+    ToolHandle<Trig::IMatchScoringTool> m_trigScoringTool;
     ToolHandle<Trig::ITrigTauMatchingTool> m_trigMatchTauTool;
     ToolHandle<ITrigGlobalEfficiencyCorrectionTool> m_globalTriggerEffTool;
     ToolHandle<ITrigGlobalEfficiencyCorrectionTool> m_globalTriggerEffToolLoose;

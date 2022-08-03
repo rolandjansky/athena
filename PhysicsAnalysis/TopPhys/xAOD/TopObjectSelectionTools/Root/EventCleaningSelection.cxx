@@ -27,10 +27,10 @@ namespace top {
 
     m_grlTool("GoodRunsListSelectionTool"),
 
-    m_trigConfTool("TrigConf::xAODConfigTool"),
-    m_trigDecisionTool("Trig::TrigDecisionTool"),
-    m_trigMatchTool("Trig::MatchingTool"),
-    m_trigMatchTauTool("Trig::TrigTauMatchingTool"),
+    m_trigConfTool("xAODConfigTool"),
+    m_trigDecisionTool("TrigDecisionTool"),
+    m_trigMatchTool("MatchingTool"),
+    m_trigMatchTauTool("TrigTauMatchingTool"),
     m_globalTriggerSF("TrigGlobalEfficiencyCorrectionTool::TrigGlobal"),
     m_globalTriggerSFLoose("TrigGlobalEfficiencyCorrectionTool::TrigGlobalLoose"),
 
