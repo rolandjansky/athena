@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -15,5 +15,6 @@
 #include <EgammaAnalysisAlgorithms/ElectronEfficiencyCorrectionAlg.h>
 #include <EgammaAnalysisAlgorithms/PhotonEfficiencyCorrectionAlg.h>
 #include <EgammaAnalysisAlgorithms/PhotonShowerShapeFudgeAlg.h>
+#include <EgammaAnalysisAlgorithms/ElectronLRTMergingAlg.h>
 
 #endif

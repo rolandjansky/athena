@@ -70,13 +70,15 @@ SeqLLP1 += CfgMgr.DerivationFramework__CommonAugmentation("InDetWithLRTLRTMerge"
 #====================================================================
 # Run the LRT Electron merger
 #====================================================================
-from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__ElectronMergerTool
-ToolSvc += DerivationFramework__ElectronMergerTool(name         = "LRTAndStandardElectronMergerTool",
-                                           InCollectionsLocation= ["Electrons","LRTElectrons"],
-                                           OutputCollectionName = "StdWithLRTElectrons",
-                                           CreateViewCollection = True)
 
-SeqLLP1 += CfgMgr.ElectronMergerAlgorithm(name="LRTAndStdElectronMergerAlgo",ElectronMergerTool=ToolSvc.LRTAndStandardElectronMergerTool)
+# Name of a temporary merged electron collection - not written to the DAOD
+MergedElectronContainer = "StdWithLRTElectrons"
+
+SeqLLP1 += CfgMgr.CP__ElectronLRTMergingAlg(name="LLP1_ElectronLRTMergingAlg", 
+                                            PromptElectronLocation  = "Electrons",
+                                            LRTElectronLocation     = "LRTElectrons",
+                                            OutputCollectionName    = MergedElectronContainer,
+                                            CreateViewCollection    = True)
 
 #====================================================================
 # Run VSI
@@ -465,7 +467,7 @@ lrt_tm_helper = TriggerMatchingHelper(
     PhysCommonTrigger.trigger_names_notau,
     name="LRTDFTriggerMatchingTool",
     OutputContainerPrefix="LRTTrigMatch_",
-    InputElectrons="StdWithLRTElectrons",
+    InputElectrons=MergedElectronContainer,
     InputMuons="MuonsLRT", # TODO Important, change to transient collection name after !53881 is merged
     add_to_df_job=True
 )
