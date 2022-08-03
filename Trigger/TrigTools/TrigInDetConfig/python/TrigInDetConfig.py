@@ -107,8 +107,8 @@ def magFieldCfgCfg(flags):
   acc = ComponentAccumulator()
 
   acc.merge(geoModelCfg(flags))
-  from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-  acc.merge( MagneticFieldSvcCfg(flags) )
+  from MagFieldServices.MagFieldServicesConfig import AtlasFieldCacheCondAlgCfg
+  acc.merge( AtlasFieldCacheCondAlgCfg(flags) )
 
   return acc
 
@@ -397,19 +397,16 @@ def _tracksPostAmbi(flags):
 def TRTExtensionToolCfg(flags):
   acc = ComponentAccumulator()
 
-  detElementCond = CompFactory.InDet.TRT_DetElementsRoadCondAlg_xk(f"{prefix}TRT_DetElementsRoadCondAlg_xk")
-  acc.addCondAlgo(detElementCond)
-
   from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg
   patternPropagator = acc.popToolsAndMerge(RungeKuttaPropagatorCfg(flags, name="InDetTrigPatternPropagator"))
-  roadMaker = CompFactory.InDet.TRT_DetElementsRoadMaker_xk( name   = f'{prefix}TRTRoadMaker{flags.InDet.Tracking.ActivePass.name}',
-                                                             MagneticFieldMode     = 'MapSolenoid',
-                                                             PropagatorTool        =  patternPropagator )
-  acc.addPublicTool( roadMaker )
+  acc.addPublicTool(patternPropagator)
 
   from TrkConfig.TrkMeasurementUpdatorConfig import KalmanUpdator_xkCfg
   updator = acc.popToolsAndMerge(KalmanUpdator_xkCfg(flags, name="InDetTrigPatternUpdator"))
   acc.addPublicTool(updator)
+
+  from InDetConfig.TRT_DetElementsRoadToolConfig import TRT_DetElementsRoadMaker_xkCfg
+  roadMaker = acc.popToolsAndMerge(TRT_DetElementsRoadMaker_xkCfg(flags))
 
   from InDetConfig.InDetTrackSelectorToolConfig import InDetTrigTRTDriftCircleCutToolCfg
   driftCircleCutTool = acc.popToolsAndMerge(InDetTrigTRTDriftCircleCutToolCfg(flags))
@@ -446,21 +443,22 @@ def TRTExtensionProcessorCfg(flags):
 
   from TrkConfig.TrkTrackSummaryToolConfig import InDetTrigTrackSummaryToolCfg
   from TrkConfig.TrkGlobalChi2FitterConfig import InDetTrigGlobalChi2FitterCfg
+  TrackFitter = acc.popToolsAndMerge(InDetTrigGlobalChi2FitterCfg(flags))
+  acc.addPublicTool(TrackFitter)
+
+  from InDetConfig.InDetTrackScoringToolsConfig import InDetTrigAmbiScoringToolCfg
+  ScoringTool = acc.popToolsAndMerge(InDetTrigAmbiScoringToolCfg(flags))
+  acc.addPublicTool(ScoringTool)
 
   extensionProcessor = CompFactory.InDet.InDetExtensionProcessor (name         = f"{prefix}ExtensionProcessor_{flags.InDet.Tracking.ActivePass.name}",
                                                             TrackName          = _tracksPostAmbi(flags),
-                                                            #Cosmics           = InDetFlags.doCosmics(),
                                                             ExtensionMap       = 'ExtendedTrackMap',
                                                             NewTrackName       = flags.InDet.Tracking.ActivePass.trkTracks_IDTrig,
-                                                            TrackFitter        = acc.getPrimaryAndMerge(InDetTrigGlobalChi2FitterCfg(flags)),
+                                                            TrackFitter        = TrackFitter,
                                                             TrackSummaryTool   = acc.popToolsAndMerge(InDetTrigTrackSummaryToolCfg(flags)),
-                                                            ScoringTool        = acc.getPrimaryAndMerge(ambiguityScoringToolCfg(flags)),
+                                                            ScoringTool        = ScoringTool,
                                                             suppressHoleSearch = False,
-                                                            RefitPrds = not (flags.InDet.Tracking.ActivePass.refitROT or flags.InDet.Tracking.ActivePass.trtExtensionType == 'DAF') )
-                                                            # Check these option after DAF is implemented
-                                                            # tryBremFit         = InDetFlags.doBremRecovery(),
-                                                            # caloSeededBrem     = InDetFlags.doCaloSeededBrem(),
-                                                            # pTminBrem          = NewTrackingCuts.minPTBrem() ) )
+                                                            RefitPrds = not flags.InDet.Tracking.ActivePass.refitROT )
 
   #TODO trigger uses only one type of extension, optional tools can be removed in future
 
@@ -484,28 +482,6 @@ def TRTExtrensionBuilderCfg(flags):
 #  'InDet::InDetExtensionProcessor/InDetTrigMTExtensionProcessor_electronLRT', 
 
 
-  return acc
-
-def ambiguityScoringToolCfg(flags):
-  acc = ComponentAccumulator()
-  from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg #TODO using offline, consider porting
-  from TrkConfig.TrkTrackSummaryToolConfig import InDetTrigTrackSummaryToolCfg
-  from InDetConfig.InDetTrackSelectorToolConfig import InDetTrigTRTDriftCircleCutToolCfg
-
-  tool = CompFactory.InDet.InDetAmbiScoringTool(name = f"{prefix}_AmbiguityScoringTool_{flags.InDet.Tracking.ActivePass.name}",
-                                                SummaryTool = acc.popToolsAndMerge(InDetTrigTrackSummaryToolCfg(flags)),
-                                                Extrapolator = acc.popToolsAndMerge(InDetExtrapolatorCfg(flags, name="InDetTrigExtrapolator")),
-                                                DriftCircleCutTool = acc.popToolsAndMerge(InDetTrigTRTDriftCircleCutToolCfg(flags)),
-                                                useAmbigFcn = True,
-                                                useTRT_AmbigFcn = False,
-                                                maxZImp = flags.InDet.Tracking.ActivePass.maxZImpact,
-                                                maxEta = flags.InDet.Tracking.ActivePass.maxEta,
-                                                usePixel = flags.InDet.Tracking.ActivePass.usePixel,
-                                                useSCT = flags.InDet.Tracking.ActivePass.useSCT,
-                                                doEmCaloSeed =  False #TODO understand and set appropriately, however current setting is probably a correct one
-  )
-  
-  acc.addPublicTool(tool, primary=True)
   return acc
 
 def ambiguitySolverAlgCfg(flags):

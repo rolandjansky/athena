@@ -12,8 +12,8 @@ def NITimedExtrapolatorCfg(flags, name="ISF_NITimedExtrapolator", **kwargs):
     mlog.debug("Start configuration")
 
     # Configure MagneticField (resolve AtlasFieldCacheCondObj dependancy)
-    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-    result.merge(MagneticFieldSvcCfg(flags))
+    from MagFieldServices.MagFieldServicesConfig import AtlasFieldCacheCondAlgCfg
+    result.merge(AtlasFieldCacheCondAlgCfg(flags))
     # add LAr calibration (resolve LAr dependancies)
     from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDbCfg
     result.merge(LArElecCalibDbCfg(flags, ["fSampl"]))

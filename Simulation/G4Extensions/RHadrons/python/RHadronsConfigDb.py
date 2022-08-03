@@ -1,6 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.CfgGetter import addTool
 
-addTool("RHadrons.RHadronsConfig.getSG_StepNtupleTool", "G4UA::SG_StepNtupleTool")
-addTool("RHadrons.RHadronsConfig.getRHadronsPhysicsTool", "RHadronsPhysicsTool")
+addTool("RHadrons.RHadronsConfigLegacy.getSG_StepNtupleTool", "G4UA::SG_StepNtupleTool")
+addTool("RHadrons.RHadronsConfigLegacy.getRHadronsPhysicsTool", "RHadronsPhysicsTool")

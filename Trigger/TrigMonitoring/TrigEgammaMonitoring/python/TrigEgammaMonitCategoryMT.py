@@ -36,10 +36,12 @@ monitoringTP_electron = [
     'HLT_e28_lhtight_ivarloose_L1EM22VHI'
         ]
 
-monitoring_tags = [
-    'HLT_e26_lhtight_ivarloose_L1EM22VHI',
-    'HLT_e26_dnntight_ivarloose_L1EM22VHI'
-]
+monitoring_tags = []
+
+# monitoring_tags = [
+#     'HLT_e26_lhtight_ivarloose_L1EM22VHI',
+#     'HLT_e26_dnntight_ivarloose_L1EM22VHI'
+# ]
 
 validation_photon = [
         'HLT_g20_tight_icaloloose_L1EM15VHI',

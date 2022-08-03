@@ -8,7 +8,7 @@ from AthenaConfiguration.Enums import ProductionStep
 from Digitization.PileUpMergeSvcConfigNew import PileUpMergeSvcCfg, PileUpXingFolderCfg
 from Digitization.PileUpToolsConfig import PileUpToolsCfg
 from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
-from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+from MagFieldServices.MagFieldServicesConfig import AtlasFieldCacheCondAlgCfg
 from MuonConfig.MuonByteStreamCnvTestConfig import MM_DigitToRDOCfg
 from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
@@ -41,7 +41,7 @@ def MM_DigitizationToolCfg(flags, name="MM_DigitizationTool", **kwargs):
     result = ComponentAccumulator()
     kwargs.setdefault("CalibrationTool", result.popToolsAndMerge(NSWCalibToolCfg(flags)))
     kwargs.setdefault("SmearingTool", result.popToolsAndMerge(MMCalibSmearingToolCfg(flags)))
-    result.merge(MagneticFieldSvcCfg(flags))
+    result.merge(AtlasFieldCacheCondAlgCfg(flags))
     if flags.Digitization.PileUp:
         intervals = []
         if flags.Digitization.DoXingByXingPileUp:
@@ -71,7 +71,7 @@ def MM_DigitizationToolCfg(flags, name="MM_DigitizationTool", **kwargs):
 
 def MM_OverlayDigitizationToolCfg(flags, name="MM_OverlayDigitizationTool", **kwargs):
     """Return ComponentAccumulator with MM_DigitizationTool configured for Overlay"""
-    acc = MagneticFieldSvcCfg(flags)
+    acc = AtlasFieldCacheCondAlgCfg(flags)
     kwargs.setdefault("CheckSimHits", True)
     kwargs.setdefault("OnlyUseContainerName", False)
     if 'MMSimHitCollection#MicromegasSensitiveDetector' in flags.Input.SecondaryTypedCollections:

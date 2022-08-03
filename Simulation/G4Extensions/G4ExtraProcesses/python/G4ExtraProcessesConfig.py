@@ -1,9 +1,10 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from AthenaCommon import CfgMgr
-from G4AtlasApps.SimFlags import SimFlags
+from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
-
-def getG4EMProcessesPhysicsTool(name="G4EMProcessesPhysicsTool", **kwargs):
-    kwargs.setdefault("ParticleList", SimFlags.G4EMProcessesParticleList.get_Value())
-    return CfgMgr.G4EMProcessesPhysicsTool(name, **kwargs)
+def G4EMProcessesPhysicsToolCfg(flags, name="G4EMProcessesPhysicsTool", **kwargs):
+    result = ComponentAccumulator()
+    kwargs.setdefault("ParticleList", [5132]) # In future this should be made configurable
+    result.setPrivateTools(CompFactory.G4EMProcessesPhysicsTool(name, **kwargs))
+    return result

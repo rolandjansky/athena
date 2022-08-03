@@ -104,7 +104,7 @@ def ValidationEntryLayerFilterCfg(flags, name="ISF_ValidationEntryLayerFilter", 
 
 
 def CosmicEventFilterToolCfg(flags, name="ISF_CosmicEventFilter", **kwargs):
-    from G4CosmicFilter.G4CosmicFilterConfigNew import configCosmicFilterVolumeNames
+    from G4CosmicFilter.G4CosmicFilterConfig import configCosmicFilterVolumeNames
     acc = ComponentAccumulator()
     volumeNames = configCosmicFilterVolumeNames(flags)
     kwargs.setdefault("UseAndFilter", len(volumeNames)<3 )

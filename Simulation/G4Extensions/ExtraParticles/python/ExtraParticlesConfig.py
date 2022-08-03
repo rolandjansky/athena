@@ -1,17 +1,16 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from AthenaCommon import CfgMgr
-from ExtraParticles.PDGHelpers import getPDGTABLE, PDGParser
+from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from ExtraParticles import PDGHelpers
 
-from G4AtlasApps.SimFlags import simFlags
-
-
-def getExtraParticlesPhysicsTool(name="ExtraParticlesPhysicsTool", **kwargs):
-    if getPDGTABLE(simFlags.ExtraParticlesPDGTABLE.get_Value()):
-        parser = PDGParser(simFlags.ExtraParticlesPDGTABLE.get_Value(),
-                           simFlags.ExtraParticlesRanges.get_Value())
+def ExtraParticlesPhysicsToolCfg(flags, name="ExtraParticlesPhysicsTool", **kwargs):
+    result = ComponentAccumulator()
+    if PDGHelpers.getPDGTABLE('PDGTABLE.MeV'): # FIXME This should be a ConfigFlag
+        parser = PDGHelpers.PDGParser('PDGTABLE.MeV', #flags.ExtraParticlesPDGTABLE,
+                                      '111-556,1112-9090226') #flags.ExtraParticlesRanges) # FIXME need to add these as flags?
+        kwargs.setdefault("ExtraParticlesConfig", parser.createList())
     else:
-        print("ERROR Failed to find PDGTABLE.MEV file.")
-    kwargs.setdefault("ExtraParticlesConfig", parser.createList())
-
-    return CfgMgr.ExtraParticlesPhysicsTool(name, **kwargs)
+        print ('ERROR Failed to find PDGTABLE.MeV file') # FIXME raise exception here
+    result.setPrivateTools(CompFactory.ExtraParticlesPhysicsTool(name, **kwargs))
+    return result

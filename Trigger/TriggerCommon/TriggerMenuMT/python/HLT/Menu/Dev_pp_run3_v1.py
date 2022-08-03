@@ -116,20 +116,20 @@ def setupMenu():
 
         #Photon Ringer Chains ATR-24384
 
-        ChainProp(name='HLT_g20_loose_ringer_L1EM15VHI', groups=DevGroup+SinglePhotonGroup),
-        ChainProp(name='HLT_g20_medium_ringer_L1EM15VHI', groups=DevGroup+SinglePhotonGroup),
-        ChainProp(name='HLT_g20_tight_ringer_L1EM15VHI', groups=DevGroup+SinglePhotonGroup),
-        ChainProp(name='HLT_g120_loose_ringer_L1EM22VHI', groups=DevGroup+SinglePhotonGroup),
+        ChainProp(name='HLT_g20_loose_ringer_L1EM15VHI', groups=DevGroup+SinglePhotonGroup,monGroups=['egammaMon:shifter']),
+        ChainProp(name='HLT_g20_medium_ringer_L1EM15VHI', groups=DevGroup+SinglePhotonGroup,monGroups=['egammaMon:shifter']),
+        ChainProp(name='HLT_g20_tight_ringer_L1EM15VHI', groups=DevGroup+SinglePhotonGroup,monGroups=['egammaMon:shifter']),
+        ChainProp(name='HLT_g120_loose_ringer_L1EM22VHI', groups=DevGroup+SinglePhotonGroup,monGroups=['egammaMon:shifter']),
 
         # For ringer validation
-        ChainProp(name='HLT_g20_loose_L1EM15VHI',  groups=DevGroup+SinglePhotonGroup),
-        ChainProp(name='HLT_g20_medium_L1EM15VHI', groups=DevGroup+SinglePhotonGroup),
+        ChainProp(name='HLT_g20_loose_L1EM15VHI',  groups=DevGroup+SinglePhotonGroup,monGroups=['egammaMon:shifter']),
+        ChainProp(name='HLT_g20_medium_L1EM15VHI', groups=DevGroup+SinglePhotonGroup,monGroups=['egammaMon:shifter']),
 
         # For eFEX validation
-        ChainProp(name='HLT_e26_lhtight_L1EM22VHI', groups=DevGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e26_lhtight_L1EM22VHI', groups=DevGroup+SingleElectronGroup,monGroups=['egammaMon:t0_tp']),
         ChainProp(name='HLT_e26_lhtight_ivarloose_L1EM22VH', groups=DevGroup+SingleElectronGroup),
         ChainProp(name='HLT_e26_lhtight_ivarloose_nogsf_L1EM22VH', groups=DevGroup+SingleElectronGroup),
-        ChainProp(name='HLT_e26_lhtight_ivarloose_L1eEM26', groups=DevGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e26_lhtight_ivarloose_L1eEM26', groups=DevGroup+SingleElectronGroup,monGroups=['egammaMon:t0_tp']),
     ]
 
     chains['MET'] += [
@@ -522,17 +522,19 @@ def setupMenu():
         ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVA_L1eTAU30",   groups=SupportPhIGroup+SingleTauGroup, monGroups=['tauMon:t0']),
 
         # LRT tau dev ATR-23787
+        ChainProp(name="HLT_tau25_looseRNN_trackLRT_L1TAU12IM", groups=DevGroup+['PS:NoHLTRepro']),
         ChainProp(name="HLT_tau25_mediumRNN_trackLRT_L1TAU12IM", groups=DevGroup+['PS:NoHLTRepro']),
-        ChainProp(name="HLT_tau25_idperf_looseRNN_trackLRT_L1TAU12IM", groups=DevGroup+['PS:NoHLTRepro']),
-        ChainProp(name="HLT_tau25_idperf_mediumRNN_trackLRT_L1TAU12IM", groups=DevGroup+['PS:NoHLTRepro']),
-        ChainProp(name="HLT_tau25_idperf_tightRNN_trackLRT_L1TAU12IM", groups=DevGroup+['PS:NoHLTRepro']),
-        ChainProp(name="HLT_tau25_idperf_mediumRNN_tracktwoLLP_L1TAU12IM", groups=DevGroup+['PS:NoHLTRepro']),
+        ChainProp(name="HLT_tau25_tightRNN_trackLRT_L1TAU12IM", groups=DevGroup+['PS:NoHLTRepro']),
         ChainProp(name="HLT_tau25_mediumRNN_trackLRT_L1cTAU20M", groups=DevGroup+['PS:NoHLTRepro']),
-        ChainProp(name="HLT_tau25_idperf_mediumRNN_trackLRT_L1cTAU20M", groups=DevGroup+['PS:NoHLTRepro']),
-        ChainProp(name="HLT_tau25_idperf_mediumRNN_tracktwoLLP_L1cTAU20M", groups=DevGroup+['PS:NoHLTRepro']),
         ChainProp(name="HLT_tau25_mediumRNN_trackLRT_L1eTAU20", groups=DevGroup+['PS:NoHLTRepro']),
-        ChainProp(name="HLT_tau25_idperf_mediumRNN_trackLRT_L1eTAU20", groups=DevGroup+['PS:NoHLTRepro']),
-        ChainProp(name="HLT_tau25_idperf_mediumRNN_tracktwoLLP_L1eTAU20", groups=DevGroup+['PS:NoHLTRepro']),
+        ChainProp(name="HLT_tau80_mediumRNN_trackLRT_L1TAU60", groups=DevGroup+['PS:NoHLTRepro']),
+        ChainProp(name="HLT_tau80_mediumRNN_trackLRT_L1eTAU80", groups=DevGroup+['PS:NoHLTRepro']),
+        ChainProp(name="HLT_tau160_mediumRNN_trackLRT_L1TAU100", groups=DevGroup+['PS:NoHLTRepro']),
+        ChainProp(name="HLT_tau160_mediumRNN_trackLRT_L1eTAU140", groups=DevGroup+['PS:NoHLTRepro']),
+        ChainProp(name="HLT_tau25_idperf_trackLRT_L1TAU12IM", groups=DevGroup+['PS:NoHLTRepro']),
+        ChainProp(name="HLT_tau25_idperf_tracktwoLLP_L1TAU12IM", groups=DevGroup+['PS:NoHLTRepro']),
+        ChainProp(name="HLT_tau80_idperf_trackLRT_L1TAU60", groups=DevGroup+['PS:NoHLTRepro']),
+        ChainProp(name="HLT_tau160_idperf_trackLRT_L1TAU100", groups=DevGroup+['PS:NoHLTRepro']),
     ]
 
     chains['Bphysics'] += [

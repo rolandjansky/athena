@@ -129,8 +129,8 @@ def MdtBytestreamDecodeCfg(flags, name="MdtRawDataProvider"):
     acc.merge( MDTCablingConfigCfg(flags) )
 
     # need the MagFieldSvc since MdtRdoToMdtPrepData.MdtRdoToMdtPrepDataTool.MdtCalibrationTool wants to retrieve it
-    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-    acc.merge( MagneticFieldSvcCfg(flags) )
+    from MagFieldServices.MagFieldServicesConfig import AtlasFieldCacheCondAlgCfg
+    acc.merge( AtlasFieldCacheCondAlgCfg(flags) )
 
     # Make sure muon geometry is configured
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg

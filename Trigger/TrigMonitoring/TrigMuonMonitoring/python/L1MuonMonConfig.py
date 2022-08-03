@@ -4,8 +4,9 @@
 def L1MuonMonConfig(helper):
     
     from AthenaConfiguration.ComponentFactory import CompFactory
-    monAlg = helper.addAlgorithm(CompFactory.L1MuonMon,'L1MuonMonAlg')
-
+    from MuonSelectorTools.MuonSelectorToolsConfig import MuonSelectionToolCfg
+    monAlg = helper.addAlgorithm(CompFactory.L1MuonMon,'L1MuonMonAlg',
+                                 MuonSelectionTool = helper.result().popToolsAndMerge(MuonSelectionToolCfg(helper.inputFlags, MuQuality=1)))
 
     histGroup = helper.addGroup(monAlg, 'L1MuonMon', 'HLT/MuonMon/')
 

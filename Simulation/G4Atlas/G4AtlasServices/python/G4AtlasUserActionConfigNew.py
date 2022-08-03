@@ -6,7 +6,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType, LHCPeriod
 from CaloG4Sim.CaloG4SimConfigNew import CalibrationDefaultProcessingToolCfg
 from SimulationConfig.SimEnums import CalibrationRun, CavernBackground, SimulationFlavour
-from G4CosmicFilter.G4CosmicFilterConfigNew import CosmicFilterToolCfg
+from G4CosmicFilter.G4CosmicFilterConfig import CosmicFilterToolCfg
 from G4UserActions.G4UserActionsConfigNew import (
     AthenaStackingActionToolCfg, AthenaTrackingActionToolCfg,
     G4SimTimerToolCfg, G4TrackCounterToolCfg, HitWrapperToolCfg,

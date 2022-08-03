@@ -4,7 +4,7 @@
 """
 from SiPropertiesTool.PixelSiPropertiesConfig import PixelSiPropertiesCfg
 from AthenaConfiguration.ComponentFactory import CompFactory
-from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+from MagFieldServices.MagFieldServicesConfig import AtlasFieldCacheCondAlgCfg
 from PixelConditionsAlgorithms.PixelConditionsConfig import (
     PixelDCSCondHVAlgCfg, PixelDCSCondTempAlgCfg
 )
@@ -21,7 +21,7 @@ def PixelLorentzAngleToolCfg(flags, name="PixelLorentzAngleTool", **kwargs):
     return acc
 
 def PixelLorentzAngleCondAlgCfg(flags, name="PixelSiLorentzAngleCondAlg", **kwargs):
-    acc  = MagneticFieldSvcCfg(flags)
+    acc  = AtlasFieldCacheCondAlgCfg(flags)
     acc.merge(PixelReadoutGeometryCfg(flags)) # To produce PixelDetectorElementCollection
     acc.merge(PixelDCSCondHVAlgCfg(flags))
     acc.merge(PixelDCSCondTempAlgCfg(flags))

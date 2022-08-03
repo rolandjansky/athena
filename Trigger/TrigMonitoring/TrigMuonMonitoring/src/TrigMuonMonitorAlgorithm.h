@@ -8,6 +8,7 @@
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
 #include "xAODMuon/MuonContainer.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 #include "MuonMatchingTool.h"
 
 
@@ -126,6 +127,7 @@ class TrigMuonMonitorAlgorithm : public AthMonitorAlgorithm {
 
   // ToolHandle
   ToolHandle<MuonMatchingTool> m_matchTool {this, "MuonMatchingTool", "MuonMatchingTool", "Tool for matching offline and online objects"};
+  ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool{this,"MuonSelectionTool","CP::MuonSelectionTool/MuonSelectionTool","MuonSelectionTool"};
 
   // ReadHandles
   SG::ReadHandleKey<xAOD::MuonContainer> m_MuonContainerKey {this, "MuonContainerName", "Muons", "Offline muon container"};

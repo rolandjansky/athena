@@ -4,10 +4,13 @@
 # for track parameters propagation through magnetic field.
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-
+from MagFieldServices.MagFieldServicesConfig import AtlasFieldCacheCondAlgCfg
 
 def RungeKuttaPropagatorCfg(flags, name='AtlasRungeKuttaPropagator', **kwargs):
     result = ComponentAccumulator()
+    acc = AtlasFieldCacheCondAlgCfg(flags)
+    result.merge(acc)
+
     kwargs.setdefault("IncludeBgradients", False) # Just so this doesn't seem unconfigured. Real fix is to use default name. 
     tool = CompFactory.Trk.RungeKuttaPropagator(name, **kwargs)
     result.setPrivateTools(tool)

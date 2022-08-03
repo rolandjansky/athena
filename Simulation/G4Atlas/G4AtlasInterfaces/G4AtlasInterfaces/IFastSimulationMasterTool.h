@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4ATLASINTERFACES_IFASTSIMULATIONMASTERTOOL_H
@@ -25,6 +25,9 @@ class IFastSimulationMasterTool : virtual public IAlgTool {
    Not done in the athena-level initialize() function, as this may
    need to happen once per thread in a multi-threaded environment. */
   virtual StatusCode initializeFastSims() = 0;
+
+  /** Begin of athena event method. Gets called once at the beginning of every Athena event */
+  virtual StatusCode BeginOfAthenaEvent() = 0;
 
   /** End of athena event method.  This should get called once per athena event by the
    framework, somewhere.  Eventually it may be done via a Gaudi function.  This ensures

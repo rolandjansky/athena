@@ -2,7 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from JetTagTools.BTagTrackToVertexIPEstimatorConfig import BTagTrackToVertexIPEstimatorCfg
+from TrkConfig.TrkVertexFitterUtilsConfig import AtlasTrackToVertexIPEstimatorCfg
 from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
 
 
@@ -16,7 +16,7 @@ def BTagTrackAugmenterAlgCfg(ConfigFlags, TrackCollection = 'InDetTrackParticles
     options['TrackContainer'] = TrackCollection
     options['PrimaryVertexContainer'] = PrimaryVertexCollectionName
     if 'TrackToVertexIPEstimator' not in  options :
-        options.setdefault('TrackToVertexIPEstimator',acc.popToolsAndMerge(BTagTrackToVertexIPEstimatorCfg(ConfigFlags, 'TrkToVxIPEstimator') ))
+        options.setdefault('TrackToVertexIPEstimator',acc.popToolsAndMerge(AtlasTrackToVertexIPEstimatorCfg(ConfigFlags, 'TrkToVxIPEstimator') ))
     if 'Extrapolator' not in options :
         options.setdefault('Extrapolator', acc.popToolsAndMerge(AtlasExtrapolatorCfg(ConfigFlags)))
 

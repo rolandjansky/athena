@@ -117,9 +117,10 @@ def getTrigEgammaKeys(name='', ion=False):
     _d = {
         # Dictionary that maps a string to a configuration setting for electron and photon chains
         ''         : TrigEgammaKeysBase(ion),
+        '_noGSF'   : TrigEgammaKeysBase(ion),
         '_LRT'     : TrigEgammaKeys_LRT(ion),
         '_GSF'     : TrigEgammaKeys_GSF(ion),
-        '_LRTGSF' : TrigEgammaKeys_LRTGSF(ion),
+        '_LRTGSF'  : TrigEgammaKeys_LRTGSF(ion),
         }
 
     if name in _d.keys():

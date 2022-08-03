@@ -45,7 +45,7 @@ simFlags.EventFilter.set_On()
 simFlags.EventFilter.get_Value()['BeamEffectTransformation'] = True
 
 def verbose_beameffecttransformation():
-    printfunc ("verbose BeamEffectTransformation")
+    print ("verbose BeamEffectTransformation")
     from G4AtlasApps import AtlasG4Eng
     AtlasG4Eng.G4Eng.menu_EventFilter().getFilter('BeamEffectTransformation').SetVerboseLevel(99)
 

@@ -2,6 +2,7 @@
 # art-description: Generation test Ph+Py8 ttbar incl. with ECM=13.6TeV
 # art-include: master/AthGeneration
 # art-include: master--HepMC3/Athena
+# art-include: 22.0/Athena
 # art-type: build
 # art-output: *.root
 # art-output: log.generate

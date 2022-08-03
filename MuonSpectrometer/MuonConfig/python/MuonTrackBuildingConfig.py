@@ -71,7 +71,7 @@ def MooTrackBuilderCfg(flags, name="MooTrackBuilderTemplate", prefix="", **kwarg
     Muon__MooTrackBuilder=CompFactory.Muon.MooTrackBuilder
     from MuonConfig.MuonRIO_OnTrackCreatorToolConfig import MdtDriftCircleOnTrackCreatorCfg, TriggerChamberClusterOnTrackCreatorCfg
     from MuonConfig.MuonRecToolsConfig import MuonTrackToSegmentToolCfg, MuonTrackExtrapolationToolCfg
-    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+    from MagFieldServices.MagFieldServicesConfig import AtlasFieldCacheCondAlgCfg
     
     # Based on this: https://gitlab.cern.ch/atlas/athena/blob/release/22.0.3/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MooreTools.py#L221
     # ignoring all the name_prefix stuff for the moment, since I'm not sure it's necessary any more.
@@ -107,7 +107,7 @@ def MooTrackBuilderCfg(flags, name="MooTrackBuilderTemplate", prefix="", **kwarg
     kwargs.setdefault("ChamberHoleRecoveryTool",  
                      result.popToolsAndMerge(MuonChamberHoleRecoveryToolCfg(flags))) 
 
-    result.merge(MagneticFieldSvcCfg(flags) )
+    result.merge(AtlasFieldCacheCondAlgCfg(flags) )
     
     kwargs.setdefault("TrackToSegmentTool",  result.popToolsAndMerge(MuonTrackToSegmentToolCfg(flags)))        
     kwargs.setdefault("Printer", result.popToolsAndMerge(MuonEDMPrinterToolCfg(flags)))
@@ -450,32 +450,6 @@ def MuonTrackSelectorCfg(flags, name = "MuonTrackSelectorTool", **kwargs):
 
     theTool = CompFactory.Muon.MuonTrackSelectorTool(name, **kwargs)
     result.setPrivateTools(theTool)
-    return result
-
-def MuonStandaloneTrackParticleCnvAlgCfg(flags, name = "MuonStandaloneTrackParticleCnvAlg", **kwargs):
-    from InDetConfig.TrackRecoConfig import TrackCollectionCnvToolCfg, TrackParticleCnvAlgCfg, RecTrackParticleContainerCnvToolCfg
-    from TrkConfig.TrkParticleCreatorConfig import MuonParticleCreatorToolCfg
-
-    result = ComponentAccumulator()
-
-    muon_particle_creator_tool = result.popToolsAndMerge(MuonParticleCreatorToolCfg(flags))
-    result.addPublicTool(muon_particle_creator_tool)
-    track_collection_cnv_tool = result.getPrimaryAndMerge(TrackCollectionCnvToolCfg(flags, name = "MuonTrackCollectionCnvTool", TrackParticleCreator = muon_particle_creator_tool))
-    kwargs.setdefault("TrackParticleCreator",  muon_particle_creator_tool)
-    kwargs.setdefault("RecTrackParticleContainerCnvTool", result.getPrimaryAndMerge(RecTrackParticleContainerCnvToolCfg(flags,
-                                                                                                                        name = "MuonRecTrackParticleContainerCnvTool", 
-                                                                                                                        TrackParticleCreator = muon_particle_creator_tool)))
-    kwargs.setdefault("TrackCollectionCnvTool", track_collection_cnv_tool)
-    kwargs.setdefault("TrackContainerName", "MuonSpectrometerTracks")
-    kwargs.setdefault("xAODTrackParticlesFromTracksContainerName", "MuonSpectrometerTrackParticles")
-    kwargs.setdefault("AODContainerName", "")
-    kwargs.setdefault("AODTruthContainerName", "")
-    kwargs.setdefault("xAODTruthLinkVector",  "")
-    kwargs.setdefault("ConvertTrackParticles", False)
-    kwargs.setdefault("ConvertTracks", True)
-    kwargs.setdefault("AddTruthLink", False)
-
-    result.merge( TrackParticleCnvAlgCfg(flags, name,**kwargs) )
     return result
 
 def EMEO_MuPatTrackBuilderCfg(flags):

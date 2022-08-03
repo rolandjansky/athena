@@ -102,8 +102,8 @@ if __name__=="__main__":
     modelConfig=GeoModelCfg(ConfigFlags)
     cfg.merge(modelConfig)
 
-    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-    cfg.merge(MagneticFieldSvcCfg(ConfigFlags))
+    from MagFieldServices.MagFieldServicesConfig import AtlasFieldCacheCondAlgCfg
+    cfg.merge(AtlasFieldCacheCondAlgCfg(ConfigFlags))
 
     #Configure topocluster algorithmsm, and associated conditions
     from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg

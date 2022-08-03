@@ -2,7 +2,6 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType
-import InDetConfig.TrackingCommonConfig as TC
 
 #///////////////////////////////////////////////////////////////////////////////////////////////
 def TRT_TrackExtensionAlgCfg(flags, name = 'InDetTRT_ExtensionPhase', SiTrackCollection=None, ExtendedTracksMap="ExtendedTracksMap", **kwargs):
@@ -21,43 +20,37 @@ def TRT_TrackExtensionAlgCfg(flags, name = 'InDetTRT_ExtensionPhase', SiTrackCol
 def InDetExtensionProcessorCfg(flags, SiTrackCollection=None, ExtendedTrackCollection = None, ExtendedTracksMap = None, **kwargs):
     acc = ComponentAccumulator()
 
-    fitter_args = {}
-    if flags.InDet.Tracking.holeSearchInGX2Fit:
-        fitter_args.setdefault("DoHoleSearch", True)
-        from InDetConfig.InDetBoundaryCheckToolConfig import InDetBoundaryCheckToolCfg
-        InDetBoundaryCheckTool = acc.popToolsAndMerge(InDetBoundaryCheckToolCfg(flags))
-        fitter_args.setdefault("BoundaryCheckTool", InDetBoundaryCheckTool)
+    if "TrackFitter" not in kwargs:
+        if flags.InDet.Tracking.ActivePass.extension != "LowPt":
+            from TrkConfig.CommonTrackFitterConfig import InDetTrackFitterHoleSearchCfg
+            InDetExtensionFitter = acc.popToolsAndMerge(InDetTrackFitterHoleSearchCfg(flags, 'InDetTrackFitter_TRTExtension'+flags.InDet.Tracking.ActivePass.extension))
+        else:
+            from TrkConfig.CommonTrackFitterConfig import InDetTrackFitterLowPtHoleSearchCfg
+            InDetExtensionFitter = acc.popToolsAndMerge(InDetTrackFitterLowPtHoleSearchCfg(flags, 'InDetTrackFitter_TRTExtension'+flags.InDet.Tracking.ActivePass.extension))
+        acc.addPublicTool(InDetExtensionFitter)
+        kwargs.setdefault("TrackFitter", InDetExtensionFitter)
 
-    if flags.InDet.Tracking.ActivePass.extension != "LowPt":
-        from TrkConfig.CommonTrackFitterConfig import InDetTrackFitterCfg
-        InDetExtensionFitter = acc.popToolsAndMerge(InDetTrackFitterCfg(flags, 'InDetTrackFitter_TRTExtension'+flags.InDet.Tracking.ActivePass.extension, **fitter_args))
-        acc.addPublicTool(InDetExtensionFitter)
-    else:
-        from TrkConfig.CommonTrackFitterConfig import InDetTrackFitterLowPtCfg
-        InDetExtensionFitter = acc.popToolsAndMerge(InDetTrackFitterLowPtCfg(flags, 'InDetTrackFitter_TRTExtension'+flags.InDet.Tracking.ActivePass.extension, **fitter_args))
-        acc.addPublicTool(InDetExtensionFitter)
 
     #
     # --- load scoring for extension
     #
-    if flags.Beam.Type is BeamType.Cosmics:
-        InDetExtenScoringTool = acc.popToolsAndMerge(TC.InDetCosmicExtenScoringToolCfg(flags))
+    if "ScoringTool" not in kwargs:
+        if flags.Beam.Type is BeamType.Cosmics:
+            from InDetConfig.InDetTrackScoringToolsConfig import InDetCosmicExtenScoringToolCfg
+            InDetExtenScoringTool = acc.popToolsAndMerge(InDetCosmicExtenScoringToolCfg(flags))
+        else:
+            from InDetConfig.InDetTrackScoringToolsConfig import InDetExtenScoringToolCfg
+            InDetExtenScoringTool = acc.popToolsAndMerge(InDetExtenScoringToolCfg(flags))
         acc.addPublicTool(InDetExtenScoringTool)
-    else:
-        InDetExtenScoringTool = acc.popToolsAndMerge(TC.InDetExtenScoringToolCfg(flags))
-        acc.addPublicTool(InDetExtenScoringTool)
-    #
-    # --- get configured track extension processor
-    #
-    from TrkConfig.TrkTrackSummaryToolConfig import InDetTrackSummaryToolCfg
-    InDetTrackSummaryTool = acc.popToolsAndMerge(InDetTrackSummaryToolCfg(flags))
+        kwargs.setdefault("ScoringTool", InDetExtenScoringTool)
+
+    if "TrackSummaryTool" not in kwargs:
+        from TrkConfig.TrkTrackSummaryToolConfig import InDetTrackSummaryToolCfg
+        kwargs.setdefault("TrackSummaryTool", acc.popToolsAndMerge(InDetTrackSummaryToolCfg(flags)))
 
     kwargs.setdefault("TrackName", SiTrackCollection)
     kwargs.setdefault("ExtensionMap", ExtendedTracksMap)
     kwargs.setdefault("NewTrackName", ExtendedTrackCollection)
-    kwargs.setdefault("TrackFitter", InDetExtensionFitter)
-    kwargs.setdefault("TrackSummaryTool", InDetTrackSummaryTool)
-    kwargs.setdefault("ScoringTool", InDetExtenScoringTool)
     kwargs.setdefault("suppressHoleSearch", False)
     kwargs.setdefault("tryBremFit", flags.InDet.Tracking.doBremRecovery)
     kwargs.setdefault("caloSeededBrem", flags.InDet.Tracking.doCaloSeededBrem and flags.Detector.EnableCalo)

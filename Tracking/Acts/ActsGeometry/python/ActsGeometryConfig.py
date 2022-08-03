@@ -140,11 +140,11 @@ def ActsAlignmentCondAlgCfg(configFlags, name = "ActsAlignmentCondAlg", **kwargs
   
   return result
 
-from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+from MagFieldServices.MagFieldServicesConfig import AtlasFieldCacheCondAlgCfg
 def ActsExtrapolationToolCfg(configFlags, name="ActsExtrapolationTool", **kwargs) :
   result=ComponentAccumulator()
   
-  acc  = MagneticFieldSvcCfg(configFlags)
+  acc  = AtlasFieldCacheCondAlgCfg(configFlags)
   result.merge(acc)
   
   acc = ActsTrackingGeometryToolCfg(configFlags) 

@@ -1,5 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.CfgGetter import addTool
-addTool("PhantomCalorimeter.PhantomCalorimeterConfig.getPhantomBarrelSD"         , "PhantomBarrelSD" )
-addTool("PhantomCalorimeter.PhantomCalorimeterConfig.getPhantomBarrelTool"       , "PhantomBarrel" )
+addTool("PhantomCalorimeter.PhantomCalorimeterConfigLegacy.getPhantomBarrelSD"         , "PhantomBarrelSD" )
+addTool("PhantomCalorimeter.PhantomCalorimeterConfigLegacy.getPhantomBarrelTool"       , "PhantomBarrel" )

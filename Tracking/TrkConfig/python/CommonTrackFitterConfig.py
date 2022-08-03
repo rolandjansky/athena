@@ -17,10 +17,22 @@ def InDetTrackFitterCfg(flags, name='InDetTrackFitter', **kwargs) :
             TrackFitterType.GaussianSumFilter       : GaussianSumFitterCfg
     }[flags.InDet.Tracking.trackFitterType](flags, name, **kwargs)
 
+def InDetTrackFitterHoleSearchCfg(flags, name='InDetTrackFitterHoleSearch', **kwargs) :
+    acc = ComponentAccumulator()
+
+    if "BoundaryCheckTool" not in kwargs:
+        from InDetConfig.InDetBoundaryCheckToolConfig import InDetBoundaryCheckToolCfg
+        kwargs.setdefault("BoundaryCheckTool", acc.popToolsAndMerge(InDetBoundaryCheckToolCfg(flags)))
+
+    kwargs.setdefault("DoHoleSearch", True)
+
+    acc.setPrivateTools(acc.popToolsAndMerge(InDetTrackFitterCfg(flags, name, **kwargs)))
+    return acc
+
 def InDetTrackFitterAmbiCfg(flags, name='InDetTrackFitterAmbi', **kwargs) :
     acc = ComponentAccumulator()
 
-    InDetTrackFitter = acc.popToolsAndMerge(InDetTrackFitterCfg(flags, name, **kwargs))
+    InDetTrackFitter = acc.popToolsAndMerge(InDetTrackFitterHoleSearchCfg(flags, name, **kwargs))
     ClusterSplitProbabilityName = "InDetAmbiguityProcessorSplitProb" + flags.InDet.Tracking.ActivePass.extension
 
     if flags.InDet.Tracking.trackFitterType==TrackFitterType.DistributedKalmanFilter:
@@ -65,6 +77,18 @@ def InDetTrackFitterLowPtCfg(flags, name='InDetTrackFitter', **kwargs) :
         from TrkConfig.TrkGlobalChi2FitterConfig import InDetGlobalChi2FitterLowPtCfg
         InDetGlobalChi2FitterLowPt = acc.popToolsAndMerge(InDetGlobalChi2FitterLowPtCfg(flags, name, **kwargs))
         acc.setPrivateTools(InDetGlobalChi2FitterLowPt)
+    return acc
+
+def InDetTrackFitterLowPtHoleSearchCfg(flags, name='InDetTrackFitterHoleSearch', **kwargs) :
+    acc = ComponentAccumulator()
+
+    if "BoundaryCheckTool" not in kwargs:
+        from InDetConfig.InDetBoundaryCheckToolConfig import InDetBoundaryCheckToolCfg
+        kwargs.setdefault("BoundaryCheckTool", acc.popToolsAndMerge(InDetBoundaryCheckToolCfg(flags)))
+
+    kwargs.setdefault("DoHoleSearch", True)
+
+    acc.setPrivateTools(acc.popToolsAndMerge(InDetTrackFitterLowPtCfg(flags, name, **kwargs)))
     return acc
 
 def InDetTrackFitterLowPtAmbiCfg(flags, name='InDetTrackFitterAmbi', **kwargs) :
@@ -112,6 +136,12 @@ def ITkTrackFitterCfg(flags, name='ITkTrackFitter', **kwargs) :
 def ITkTrackFitterAmbiCfg(flags, name='ITkTrackFitterAmbi', **kwargs) :
     acc = ComponentAccumulator()
 
+    if "BoundaryCheckTool" not in kwargs:
+        from InDetConfig.InDetBoundaryCheckToolConfig import ITkBoundaryCheckToolCfg
+        kwargs.setdefault("BoundaryCheckTool", acc.popToolsAndMerge(ITkBoundaryCheckToolCfg(flags)))
+
+    kwargs.setdefault("DoHoleSearch", True)
+
     ITkTrackFitter = acc.popToolsAndMerge(ITkTrackFitterCfg(flags, name, **kwargs))
     ClusterSplitProbabilityName = "ITkAmbiguityProcessorSplitProb" + flags.ITk.Tracking.ActivePass.extension
 
@@ -123,7 +153,7 @@ def ITkTrackFitterAmbiCfg(flags, name='ITkTrackFitterAmbi', **kwargs) :
         ITkTrackFitter.RotCreatorTool.ToolPixelCluster.ClusterSplitProbabilityName = ClusterSplitProbabilityName
         ITkTrackFitter.BroadRotCreatorTool.ToolPixelCluster.ClusterSplitProbabilityName = ClusterSplitProbabilityName
 
-    elif flags.InDet.Tracking.trackFitterType==TrackFitterType.GaussianSumFilter:
+    elif flags.ITk.Tracking.trackFitterType==TrackFitterType.GaussianSumFilter:
         ITkTrackFitter.ToolForROTCreation.ToolPixelCluster.ClusterSplitProbabilityName = ClusterSplitProbabilityName
 
     acc.setPrivateTools(ITkTrackFitter)

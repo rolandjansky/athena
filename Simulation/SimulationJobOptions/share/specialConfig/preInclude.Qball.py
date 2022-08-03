@@ -62,8 +62,6 @@ assert "CHARGE" in simdict
 load_files_for_qball_scenario(simdict["MASS"], simdict["CHARGE"])
 
 if doG4SimConfig:
-    from G4AtlasApps import AtlasG4Eng
-    AtlasG4Eng.G4Eng.log.info("Unlocking simFlags.EquationOfMotion to reset the value for Monopole simulation.")
     from G4AtlasApps.SimFlags import simFlags
     simFlags.PhysicsOptions += ["MonopolePhysicsTool"]
     # add monopole-specific configuration for looper killer

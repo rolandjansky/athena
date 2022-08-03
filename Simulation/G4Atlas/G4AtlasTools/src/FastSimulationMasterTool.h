@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4ATLASSERVICES_FASTSIMULATIONMASTERTOOL_H
@@ -21,7 +21,8 @@ class FastSimulationMasterTool : public extends<AthAlgTool , IFastSimulationMast
 
   // Base class methods
   StatusCode initializeFastSims() override final; ///!< Base class method to initialize all the fast simulation models
-  StatusCode EndOfAthenaEvent() override final; ///!< Base class method that calls EventOfAthenaEvent for all fast simulation models.
+  StatusCode BeginOfAthenaEvent() override final; ///!< Base class method that calls BeginOfAthenaEvent for all fast simulation models.
+  StatusCode EndOfAthenaEvent() override final; ///!< Base class method that calls EndOfAthenaEvent for all fast simulation models.
 
  private:
   ToolHandleArray<IFastSimulation> m_FastSimList{this, "FastSimulations", {}, "Tool handle array of fast simulation tools"}; ///!< Private array of tool handles pointing to all fast simulations

@@ -30,7 +30,7 @@ def precisionElectronSequence(ConfigFlags, ion=False, variant=''):
 
     # Configure the reconstruction algorithm sequence
     from TriggerMenuMT.HLT.Electron.PrecisionElectronRecoSequences import precisionElectronRecoSequence
-    (electronPrecisionRec, sequenceOut, sequenceOut_dummy) = precisionElectronRecoSequence(InViewRoIs, ion, variant)
+    (electronPrecisionRec, sequenceOut, sequenceOut_dummy) = precisionElectronRecoSequence(InViewRoIs, ion, doGSF=False, doLRT = 'LRT' in variant)
 
     # Suffix to distinguish probe leg sequences
     electronPrecisionInViewAlgs = parOR(tag(ion) + "InViewAlgs" + variant, [electronPrecisionRec])

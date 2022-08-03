@@ -311,8 +311,6 @@ HLTHIEventShape_iter_egamma
 HLTHIEventShape_iter_egammaAux.
 HLTNav_Summary_AODSlimmed
 HLTNav_Summary_AODSlimmedAux.
-HLTNav_Summary_OnlineSlimmed
-HLTNav_Summary_OnlineSlimmedAux.
 HLT_AFPProtonContainer
 HLT_AFPProtonContainerAux.
 HLT_AFPSiHitsClusterContainer
@@ -439,8 +437,6 @@ HLT_DisTrkCand
 HLT_DisTrkCandAux.
 HLT_DrellYan
 HLT_DrellYanAux.
-HLT_EBWeight
-HLT_EBWeightAux.
 HLT_EMRoIs
 HLT_FSLRT_TrackCount
 HLT_FSLRT_TrackCountAux.

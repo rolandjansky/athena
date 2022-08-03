@@ -18,8 +18,8 @@ if hasattr(simFlags, 'ApplyNRR') and \
     simFlags.ApplyNRR = True
     simFlags.NRRThreshold = threshold
     simFlags.NRRWeight = weight
-    printfunc ("Turning on NeutronRussianRoulette with threshold %s MeV and weight %s." % (
+    print ("Turning on NeutronRussianRoulette with threshold %s MeV and weight %s." % (
       simFlags.NRRThreshold.get_Value(),
       simFlags.NRRWeight.get_Value()))
 else:
-  printfunc ("WARNING: attribute NRRThreshold or NRRWeight not found in simFlags.")
+  print ("WARNING: attribute NRRThreshold or NRRWeight not found in simFlags.")

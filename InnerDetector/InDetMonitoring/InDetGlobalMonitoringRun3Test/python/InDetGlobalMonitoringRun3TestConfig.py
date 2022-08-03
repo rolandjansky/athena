@@ -43,7 +43,7 @@ def InDetGlobalMonitoringRun3TestConfig(flags):
             InDetTrackSelectionTool_TightPrimary_TrackTools_Cfg(flags, name='LooseTrackSelectionTool',
                                                                 minPt = 1000))
 
-        from InDetConfig.TrackingCommonConfig import TrackToVertexIPEstimatorCfg
+        from TrkConfig.TrkVertexFitterUtilsConfig import TrackToVertexIPEstimatorCfg
         TrackToVertexIPEstimator = acc.popToolsAndMerge(
             TrackToVertexIPEstimatorCfg(flags, name='TrackToVertexIPEstimator'))
 

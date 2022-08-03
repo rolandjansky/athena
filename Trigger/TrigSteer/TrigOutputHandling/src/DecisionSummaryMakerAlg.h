@@ -5,11 +5,15 @@
 #define TRIGOUTPUTHANDLING_DECISIONSUMMARYMAKERALG_H
 
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
+#include "TrigConfData/HLTMenu.h"
 #include "TrigCostMonitor/ITrigCostSvc.h"
 #include "HLTSeeding/IPrescalingTool.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "AthenaMonitoringKernel/Monitored.h"
+
 #include <string>
+#include <vector>
+#include <unordered_map>
 
 
 /**
@@ -23,6 +27,7 @@ public:
   virtual ~DecisionSummaryMakerAlg() override = default;
 
   virtual StatusCode initialize() override;
+  virtual StatusCode start() override;
   virtual StatusCode execute(const EventContext& context) const override;
   virtual StatusCode finalize() override;
 
@@ -36,6 +41,9 @@ private:
   SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_finalDecisionKeys{ this, "FinalDecisionKeys", {},
       "Final stage of all decisions" };
 
+  SG::WriteHandleKey<std::vector<std::string>> m_streamsSummaryKey{ this, "StreamsSummaryKey", "HLTStreamsSummary",
+      "Set of streams accepted in the event"};
+
   SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_costWriteHandleKey { this, "CostWriteHandleKey", "HLT_TrigCostContainer",
     "TrigComposite collections summarising the HLT execution" };
 
@@ -44,6 +52,9 @@ private:
 
   SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_hltSeedingSummaryKey { this, "HLTSeedingSummaryKey", "HLTSeedingSummary",
     "Chains status after L1 and prescaling" };
+
+  SG::ReadHandleKey<TrigConf::HLTMenu> m_hltMenuKey{this, "HLTMenuKey", "DetectorStore+HLTTriggerMenu",
+    "HLT Menu"};
 
   ServiceHandle<ITrigCostSvc> m_trigCostSvcHandle { this, "TrigCostSvc", "TrigCostSvc",
     "The trigger cost service" };
@@ -69,6 +80,8 @@ private:
 
   std::map<std::string, TrigCompositeUtils::DecisionIDContainer> m_collectionFilter;
 
+  /// Chain to streams map filled from the HLT Menu JSON
+  std::unordered_map<TrigCompositeUtils::DecisionID, std::vector<std::string>> m_chainToStreamsMap;
 };
 
 #endif // TRIGOUTPUTHANDLING_DECISIONSUMMARYMAKERALG_H

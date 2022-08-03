@@ -91,6 +91,9 @@ class TrigInDetReco(ExecStep):
                 chains += "'HLT_mu24_idperf_L1MU14FCH',"
                 chains += "'HLT_mu26_ivarperf_L1MU14FCH',"
                 flags += 'doMuonSlice=True;'
+            if (i=='muon-tnp') :
+                chains += "'HLT_mu14_mu14_idperf_50invmAB130_L12MU8F',"
+                flags += 'doMuonSlice=True;'
             if (i=='L2electronLRT') :
                 chains += "'HLT_e20_idperf_loose_lrtloose_L1EM15VH',"
                 chains += "'HLT_e30_idperf_loose_lrtloose_L1EM22VHI',"
@@ -114,8 +117,10 @@ class TrigInDetReco(ExecStep):
                 flags += 'doTauSlice=True;'
             if (i=='tauLRT') :
                 chains +=  "'HLT_tau25_idperf_tracktwoMVA_L1TAU12IM',"
-                chains +=  "'HLT_tau25_idperf_tracktwoMVABDT_L1TAU12IM',"
-                chains +=  "'HLT_tau25_idperf_mediumRNN_trackLRT_L1TAU12IM',"
+                chains +=  "'HLT_tau25_idperf_tracktwoLLP_L1TAU12IM',"
+                chains +=  "'HLT_tau25_idperf_trackLRT_L1TAU12IM',"
+                chains +=  "'HLT_tau80_idperf_trackLRT_L1TAU60',"
+                chains +=  "'HLT_tau160_idperf_trackLRT_L1TAU100',"
                 flags += 'doTauSlice=True;'
             if (i=='bjet') :
 #               chains += "'HLT_j80_pf_ftf_preselj20b95_L1J20',"

@@ -96,8 +96,8 @@ def InDetTrackSelectorToolCfg(flags):
     result = ComponentAccumulator()
     _name = sPrefix + 'InDetTrackSelectorTool'
 
-    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-    result.merge(MagneticFieldSvcCfg(flags))
+    from MagFieldServices.MagFieldServicesConfig import AtlasFieldCacheCondAlgCfg
+    result.merge(AtlasFieldCacheCondAlgCfg(flags))
 
     from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
     result.merge(BeamSpotCondAlgCfg(flags))
@@ -155,38 +155,6 @@ def getParticleCache(flags):
     return ParticleCache
 
 ########################################################################
-# TauFullLinearizedTrackFactory
-def TauFullLinearizedTrackFactoryCfg(flags):
-    result = ComponentAccumulator()
-    _name = sPrefix + 'TauFullLinearizedTrackFactory'
-
-    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-    result.merge(MagneticFieldSvcCfg(flags))
-
-    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
-    Trk__FullLinearizedTrackFactory = CompFactory.Trk.FullLinearizedTrackFactory
-    TauFullLinearizedTrackFactory = Trk__FullLinearizedTrackFactory(name = _name,
-                                                                    Extrapolator = result.popToolsAndMerge(AtlasExtrapolatorCfg(flags)) )
-
-    result.setPrivateTools(TauFullLinearizedTrackFactory)
-    return result
-
-########################################################################
-# TauTrackToVertexIPEstimator
-def TauTrackToVertexIPEstimatorCfg(flags):
-    result = ComponentAccumulator()
-    _name = sPrefix + 'TauTrackToVertexIPEstimator'
-
-    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
-    Trk__TrackToVertexIPEstimator = CompFactory.Trk.TrackToVertexIPEstimator
-    TauTrackToVertexIPEstimator = Trk__TrackToVertexIPEstimator(name = _name,
-                                                                Extrapolator = result.popToolsAndMerge(AtlasExtrapolatorCfg(flags)),
-                                                                LinearizedTrackFactory=result.popToolsAndMerge(TauFullLinearizedTrackFactoryCfg(flags)) )
-
-    result.setPrivateTools(TauTrackToVertexIPEstimator)
-    return result
-
-########################################################################
 # Tau-Track Association
 def TauTrackFinderCfg(flags):
     result = ComponentAccumulator()
@@ -197,6 +165,7 @@ def TauTrackFinderCfg(flags):
     result.merge(BeamSpotCondAlgCfg(flags))
 
     from TrackToCalo.TrackToCaloConfig import ParticleCaloExtensionToolCfg
+    from TrkConfig.TrkVertexFitterUtilsConfig import AtlasTrackToVertexIPEstimatorCfg
 
     TauTrackFinder = CompFactory.getComp("TauTrackFinder")
     TauTrackFinder = TauTrackFinder(name = _name,
@@ -212,7 +181,7 @@ def TauTrackFinderCfg(flags):
                                     Key_jetContainer = (flags.Tau.SeedJetCollection if flags.Tau.useGhostTracks else ""),
                                     Key_trackPartInputContainer = flags.Tau.TrackCollection,
                                     Key_LargeD0TrackInputContainer = (flags.Tau.LargeD0TrackContainer if flags.Tau.associateLRT else ""),
-                                    TrackToVertexIPEstimator = result.popToolsAndMerge(TauTrackToVertexIPEstimatorCfg(flags)) )
+                                    TrackToVertexIPEstimator = result.popToolsAndMerge(AtlasTrackToVertexIPEstimatorCfg(flags)) )
                                     #maxDeltaZ0wrtLeadTrk = 2, #in mm
                                     #removeTracksOutsideZ0wrtLeadTrk = True
     
@@ -738,28 +707,21 @@ def SequentialVertexSmootherCfg(flags):
     result.setPrivateTools(TauSequentialVertexSmoother)
     return result
 
-def DetAnnealingMakerCfg(flags):
-    result = ComponentAccumulator()
-
-    Trk__DetAnnealingMaker = CompFactory.Trk.DetAnnealingMaker
-    TauDetAnnealingMaker = Trk__DetAnnealingMaker(name = sPrefix+'TauDetAnnealingMaker', SetOfTemperatures = [ 64, 32, 16, 8, 4, 2, 1 ] )
-
-    result.setPrivateTools(TauDetAnnealingMaker)
-    return result
-
 ########################################################################
 # TauAdaptiveVertexFitter
 def TauAdaptiveVertexFitterCfg(flags):
     result = ComponentAccumulator()
     _name = sPrefix + 'TauAdaptiveVertexFitter'
 
+    from TrkConfig.TrkVertexFitterUtilsConfig import TauDetAnnealingMakerCfg, AtlasFullLinearizedTrackFactoryCfg
+
     Trk__AdaptiveVertexFitter = CompFactory.Trk.AdaptiveVertexFitter
     TauAdaptiveVertexFitter = Trk__AdaptiveVertexFitter(name = _name,
                                                         SeedFinder=result.popToolsAndMerge(CrossDistancesSeedFinderCfg(flags)),
                                                         ImpactPoint3dEstimator=result.popToolsAndMerge(ImpactPoint3dEstimatorCfg(flags)),
                                                         VertexSmoother=result.popToolsAndMerge(SequentialVertexSmootherCfg(flags)),
-                                                        AnnealingMaker=result.popToolsAndMerge(DetAnnealingMakerCfg(flags)),
-                                                        LinearizedTrackFactory=result.popToolsAndMerge(TauFullLinearizedTrackFactoryCfg(flags)) )
+                                                        AnnealingMaker=result.popToolsAndMerge(TauDetAnnealingMakerCfg(flags)),
+                                                        LinearizedTrackFactory=result.popToolsAndMerge(AtlasFullLinearizedTrackFactoryCfg(flags)) )
 
     result.setPrivateTools(TauAdaptiveVertexFitter)
     return result

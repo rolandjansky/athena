@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Base class
@@ -43,8 +43,17 @@ StatusCode FastSimulationMasterTool::initializeFastSims(){
   return StatusCode::SUCCESS;
 }
 
+
+StatusCode FastSimulationMasterTool::BeginOfAthenaEvent(){
+  // Method that gets called at the beginning of every *athena* event
+  for (auto& ifs : m_FastSimList){
+    CHECK(ifs->BeginOfAthenaEvent());
+  }
+  return StatusCode::SUCCESS;
+}
+
 StatusCode FastSimulationMasterTool::EndOfAthenaEvent(){
-  // Call gather for all sensitive detectors
+  // Method that gets called at the end of every *athena* event
   for (auto& ifs : m_FastSimList){
     CHECK(ifs->EndOfAthenaEvent());
   }

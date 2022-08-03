@@ -3,9 +3,10 @@
 # art-type: build
 # art-include: master/AthGeneration
 # art-include: master--HepMC3/Athena
+# art-include: 22.0/Athena
 # art-output: *.yoda.gz
 # art-output: log.generate
-
+ 
 ## Any arguments are considered overrides, and will be added at the end
 export TRF_ECHO=True;
 source setupRivet
