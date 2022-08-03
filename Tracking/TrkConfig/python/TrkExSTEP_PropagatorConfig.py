@@ -11,12 +11,15 @@
 # of a particle going through a dense block of material.
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-
+from MagFieldServices.MagFieldServicesConfig import AtlasFieldCacheCondAlgCfg
 
 def AtlasSTEP_PropagatorCfg(flags,
                             name='AtlasSTEP_Propagator',
                             **kwargs):
     result = ComponentAccumulator()
+    acc = AtlasFieldCacheCondAlgCfg(flags)
+    result.merge(acc)
+
     kwargs.setdefault("MaterialEffects", True) # Default value, set to allow non-default name for compatibility with legacy config
     result.setPrivateTools(CompFactory.Trk.STEP_Propagator(name, **kwargs))
     return result
@@ -33,6 +36,9 @@ def fatrasSTEP_PropagatorCfg(flags,
                              name="ISF_FatrasSTEP_Propagator",
                              **kwargs):
     result = ComponentAccumulator()
+    acc = AtlasFieldCacheCondAlgCfg(flags)
+    result.merge(acc)
+
     kwargs.setdefault("MomentumCutOff", flags.Sim.Fatras.MomCutOffSec)
     kwargs.setdefault("SimulationMode", True)
 

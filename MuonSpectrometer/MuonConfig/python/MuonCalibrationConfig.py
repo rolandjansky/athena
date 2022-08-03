@@ -8,7 +8,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.Enums import BeamType, LHCPeriod
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
-from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+from MagFieldServices.MagFieldServicesConfig import AtlasFieldCacheCondAlgCfg
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger('MuonCalibConfig')
@@ -84,7 +84,7 @@ def MdtCalibrationToolCfg(flags, **kwargs):
     kwargs.setdefault("DoWireSagCorrection", flags.Muon.Calib.correctMdtRtWireSag)
     kwargs.setdefault("DoTofCorrection", flags.Beam.Type is BeamType.Collisions) # No TOF correction if not collisions
     
-    acc = MagneticFieldSvcCfg(flags)
+    acc = AtlasFieldCacheCondAlgCfg(flags)
     result.merge(acc)
 
     MdtCalibrationTool = CompFactory.MdtCalibrationTool

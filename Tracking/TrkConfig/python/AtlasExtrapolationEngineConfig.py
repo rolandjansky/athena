@@ -6,7 +6,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+from MagFieldServices.MagFieldServicesConfig import AtlasFieldCacheCondAlgCfg
 from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
 
 # import the ExtrapolationEngine configurable
@@ -15,7 +15,7 @@ ExEngine=CompFactory.Trk.ExtrapolationEngine
 def AtlasExtrapolationEngineCfg( flags, name = 'Extrapolation', nameprefix='Atlas' ):
     result=ComponentAccumulator()
 
-    acc  = MagneticFieldSvcCfg(flags)
+    acc  = AtlasFieldCacheCondAlgCfg(flags)
     result.merge(acc)
 
     # get the correct TrackingGeometry setup

@@ -13,9 +13,9 @@ def RpcMonitoringConfig(inputFlags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     result = ComponentAccumulator()
 
-    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+    from MagFieldServices.MagFieldServicesConfig import AtlasFieldCacheCondAlgCfg
     from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
-    result.merge(MagneticFieldSvcCfg(inputFlags))
+    result.merge(AtlasFieldCacheCondAlgCfg(inputFlags))
     result.merge(AtlasGeometryCfg(inputFlags))
     
     from AthenaMonitoring import AthMonitorCfgHelper
@@ -358,9 +358,9 @@ if __name__=="__main__":
     acc.OutputLevel = INFO
     cfg.merge(acc)
 
-    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+    from MagFieldServices.MagFieldServicesConfig import AtlasFieldCacheCondAlgCfg
     from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
-    cfg.merge(MagneticFieldSvcCfg(ConfigFlags))
+    cfg.merge(AtlasFieldCacheCondAlgCfg(ConfigFlags))
     cfg.merge(AtlasGeometryCfg(ConfigFlags))
 
     if ConfigFlags.DQ.Steering.Muon.doTrackMon:

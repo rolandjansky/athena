@@ -3,7 +3,7 @@
 Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentFactory import CompFactory
-from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+from MagFieldServices.MagFieldServicesConfig import AtlasFieldCacheCondAlgCfg
 from SCT_ConditionsTools.ITkStripConditionsToolsConfig import ITkStripSiliconConditionsCfg
 from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
 
@@ -21,7 +21,7 @@ def ITkStripLorentzAngleCondAlgCfg(flags, name="ITkStripSiLorentzAngleCondAlg",
                                    forceUseGeoModel=False, **kwargs):
     # Condition algorithm
     # construct with field services
-    acc = MagneticFieldSvcCfg(flags)
+    acc = AtlasFieldCacheCondAlgCfg(flags)
     # For SCT_ID and SCT_DetectorElementCollection used
     # in SCTSiLorentzAngleCondAlg and SiLorentzAngleTool
     acc.merge(ITkStripReadoutGeometryCfg(flags))

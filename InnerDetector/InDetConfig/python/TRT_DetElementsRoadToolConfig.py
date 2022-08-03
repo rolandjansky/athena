@@ -10,8 +10,8 @@ def TRT_DetElementsRoadCondAlgCfg(flags, name="TRT_DetElementsRoadCondAlg_xk", *
     return acc
 
 def TRT_DetElementsRoadMaker_xkCfg(flags, name='InDetTRT_RoadMaker', **kwargs):
-    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-    acc = MagneticFieldSvcCfg(flags)
+    from MagFieldServices.MagFieldServicesConfig import AtlasFieldCacheCondAlgCfg
+    acc = AtlasFieldCacheCondAlgCfg(flags)
     acc.merge(TRT_DetElementsRoadCondAlgCfg(flags)) # To produce the input TRT_DetElementsRoadData_xk CondHandle
     
     kwargs.setdefault("RoadWidth", 20.)

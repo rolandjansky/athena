@@ -107,8 +107,8 @@ def magFieldCfgCfg(flags):
   acc = ComponentAccumulator()
 
   acc.merge(geoModelCfg(flags))
-  from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-  acc.merge( MagneticFieldSvcCfg(flags) )
+  from MagFieldServices.MagFieldServicesConfig import AtlasFieldCacheCondAlgCfg
+  acc.merge( AtlasFieldCacheCondAlgCfg(flags) )
 
   return acc
 

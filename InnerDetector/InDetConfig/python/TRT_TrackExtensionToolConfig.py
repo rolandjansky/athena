@@ -46,8 +46,8 @@ def TRT_TrackExtensionToolPhaseCfg(flags, name='TRT_TrackExtensionToolPhase', **
     return acc
 
 def TRT_TrackExtensionTool_xkCfg(flags, name='TRT_TrackExtensionTool_xk', **kwargs):
-    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-    acc = MagneticFieldSvcCfg(flags)
+    from MagFieldServices.MagFieldServicesConfig import AtlasFieldCacheCondAlgCfg
+    acc = AtlasFieldCacheCondAlgCfg(flags)
 
     if 'PropagatorTool' not in kwargs:
         from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg

@@ -4,8 +4,8 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 def FullLinearizedTrackFactoryCfg(flags, name='FullLinearizedTrkFactory', **kwargs):
-    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-    acc = MagneticFieldSvcCfg(flags) # To produce AtlasFieldCacheCondObj
+    from MagFieldServices.MagFieldServicesConfig import AtlasFieldCacheCondAlgCfg
+    acc = AtlasFieldCacheCondAlgCfg(flags) # To produce AtlasFieldCacheCondObj
 
     if 'Extrapolator' not in kwargs:
         from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
@@ -15,8 +15,8 @@ def FullLinearizedTrackFactoryCfg(flags, name='FullLinearizedTrkFactory', **kwar
     return acc
 
 def AtlasFullLinearizedTrackFactoryCfg(flags, name='AtlasFullLinearizedTrkFactory', **kwargs):
-    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-    acc = MagneticFieldSvcCfg(flags) # To produce AtlasFieldCacheCondObj
+    from MagFieldServices.MagFieldServicesConfig import AtlasFieldCacheCondAlgCfg
+    acc = AtlasFieldCacheCondAlgCfg(flags) # To produce AtlasFieldCacheCondObj
 
     if 'Extrapolator' not in kwargs:
         from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg

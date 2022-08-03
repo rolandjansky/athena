@@ -41,8 +41,8 @@ def testCfg (configFlags):
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
     result.merge (MuonGeoModelCfg(configFlags, forceDisableAlignment=True))
 
-    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-    result.merge (MagneticFieldSvcCfg(configFlags, UseDCS = False))
+    from MagFieldServices.MagFieldServicesConfig import AtlasFieldCacheCondAlgCfg
+    result.merge (AtlasFieldCacheCondAlgCfg(configFlags, UseDCS = False))
 
     Muon__MdtRdoToPrepDataTool = CompFactory.Muon.MdtRdoToPrepDataTool
     result.addPublicTool (Muon__MdtRdoToPrepDataTool ('Muon__MdtRdoToPrepDataTool', OutputLevel = 1))

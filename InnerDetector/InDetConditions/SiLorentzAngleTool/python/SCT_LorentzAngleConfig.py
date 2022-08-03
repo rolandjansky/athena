@@ -3,7 +3,7 @@
 Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentFactory import CompFactory
-from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+from MagFieldServices.MagFieldServicesConfig import AtlasFieldCacheCondAlgCfg
 from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_SiliconConditionsCfg
 from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
 
@@ -20,7 +20,7 @@ def SCT_LorentzAngleCondAlgCfg(flags, name="SCTSiLorentzAngleCondAlg",
                                forceUseGeoModel=False, **kwargs):
     # Condition algorithm
     # construct with field services
-    acc = MagneticFieldSvcCfg(flags)
+    acc = AtlasFieldCacheCondAlgCfg(flags)
     # For SCT_ID and SCT_DetectorElementCollection used
     # in SCTSiLorentzAngleCondAlg and SiLorentzAngleTool
     acc.merge(SCT_ReadoutGeometryCfg(flags))
