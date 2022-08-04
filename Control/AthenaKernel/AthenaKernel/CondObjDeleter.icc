@@ -1,0 +1,64 @@
+/*
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
+ */
+/**
+ * @file AthenaKernel/CondObjDeleter.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Jun, 2022
+ * @brief Deletion object for conditions payloads.
+ */
+
+
+namespace Athena {
+
+
+/**
+ * @brief Constructor.
+ * @param rcusvc Service with which to register.
+ */
+template <class T>
+CondObjDeleter<T>::CondObjDeleter (Athena::IRCUSvc& rcusvc)
+  : CxxUtils::IRangeMapPayloadDeleter<void, EventContext> (delPayload),
+    m_obj (rcusvc, Athena::IRCUObject::NoObject)
+{
+}
+
+
+/**
+ * @brief Queue an object for deletion.
+ * @param p The object to delete.
+ *
+ * The object should not actually be deleted until @c quiescent has been
+ * called for each active slot.
+ */
+template <class T>
+void CondObjDeleter<T>::discard (const void* p)
+{
+  const T* pp = static_cast<const T*> (p);
+  m_obj.discard (std::unique_ptr<const T> (pp));
+}
+
+
+/**
+ * @brief Mark a slot as quiescent.
+ * @param ctx Event context identifying the slot.
+ */
+template <class T>
+void CondObjDeleter<T>::quiescent (const EventContext& ctx)
+{
+  m_obj.quiescent (ctx);
+}
+
+
+/**
+ * @brief Function to delete a payload object immediately.
+ */
+template <class T>
+void CondObjDeleter<T>::delPayload (const void* p)
+{
+  delete static_cast<const T*>(p);
+}
+
+
+} // namespace Athena
+

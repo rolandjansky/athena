@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file  CxxUtils/test/ConcurrentRangeMap_test.cxx
@@ -159,47 +159,29 @@ void delfcn (const Payload* p)
 
 
 template <class T>
-class TestUpdater
+class TestDeleter
 {
 public:
-  using Context_t = ::Context_t;
+  TestDeleter() = default;
 
-  TestUpdater()
-    : m_p (nullptr),
-      m_inGrace (0)
+  ~TestDeleter()
   {
+    for (const T* p : m_garbage) delete p;
   }
 
-  TestUpdater (TestUpdater&& other)
-    : m_p (static_cast<T*> (other.m_p)),
-      m_inGrace (0)
-  {
-  }
-
-  TestUpdater& operator= (const TestUpdater&) = delete; // coverity
-
-  ~TestUpdater()
-  {
-    delete m_p;
-    for (T* p : m_garbage) delete p;
-  }
-
-  void update (std::unique_ptr<T> p, int slot = 0)
-  {
-    std::lock_guard<std::mutex> g (m_mutex);
-    if (m_p) m_garbage.push_back (m_p);
-    m_p = p.release();
-    m_inGrace = (~(1<<slot)) & ((1<<nslots)-1);
-  }
-
-  void discard (std::unique_ptr<T> p)
+  void discard (std::unique_ptr<const T> p)
   {
     std::lock_guard<std::mutex> g (m_mutex);
     m_garbage.push_back (p.release());
     m_inGrace = ((1<<nslots)-1);
   }
 
-  const T& get() const { return *m_p; }
+  void discard (const T* p)
+  {
+    std::lock_guard<std::mutex> g (m_mutex);
+    m_garbage.push_back (p);
+    m_inGrace = ((1<<nslots)-1);
+  }
 
   void quiescent (int slot)
   {
@@ -208,25 +190,85 @@ public:
     if ((m_inGrace & mask) == 0) return;
     m_inGrace &= ~mask;
     if (!m_inGrace) {
-      for (T* p : m_garbage) delete p;
+      for (const T* p : m_garbage) delete p;
       m_garbage.clear();
     }
   }
+
+
+protected:
+  std::mutex m_mutex;
+  std::vector<const T*> m_garbage;
+  unsigned int m_inGrace = false;
+};
+
+
+template <class T>
+class TestUpdater
+  : public TestDeleter<T>
+{
+public:
+  using Context_t = ::Context_t;
+
+  TestUpdater()
+    : m_p (nullptr)
+  {
+  }
+
+  TestUpdater (TestUpdater&& other)
+    : m_p (static_cast<T*> (other.m_p))
+  {
+  }
+
+  TestUpdater& operator= (const TestUpdater&) = delete; // coverity
+
+  ~TestUpdater()
+  {
+    delete m_p;
+  }
+
+  void update (std::unique_ptr<T> p, int slot = 0)
+  {
+    std::lock_guard<std::mutex> g (this->m_mutex);
+    if (m_p) this->m_garbage.push_back (m_p);
+    m_p = p.release();
+    this->m_inGrace = (~(1<<slot)) & ((1<<nslots)-1);
+  }
+
+  const T& get() const { return *m_p; }
 
   static int defaultContext() { return 0; }
 
 
 private:
-  std::mutex m_mutex;
   std::atomic<T*> m_p;
-  std::vector<T*> m_garbage;
-  unsigned int m_inGrace;
 };
 
 
 typedef CxxUtils::ConcurrentRangeMap<Range, Time, Payload, RangeCompare,
                                      TestUpdater>
   TestMap;
+
+
+struct PayloadDeleter
+  : public TestMap::IPayloadDeleter
+{
+  PayloadDeleter()
+    : TestMap::IPayloadDeleter (::delfcn)
+  {
+  }
+  virtual void discard (const Payload* p) override
+  {
+    m_deleter.discard (p);
+  }
+
+  virtual void quiescent (const int& slot) override
+  {
+    m_deleter.quiescent (slot);
+  }
+
+  TestDeleter<Payload> m_deleter;
+};
 
 
 std::string str (const TestMap& m)
@@ -244,7 +286,7 @@ void test1a()
   std::cout << "test1a\n";
   Payload::Hist phist;
   {
-    TestMap map (TestMap::Updater_t(), delfcn, 3);
+    TestMap map (TestMap::Updater_t(), std::make_shared<PayloadDeleter>(), 3);
 
     assert (map.size() == 0);
     assert (map.empty());
@@ -699,6 +741,13 @@ void test1a()
     assert (r.size() == 2);
     assert (r.begin()->first.m_extra == 1);
     assert ((r.begin()+1)->first.m_extra == 2);
+
+    assert (map.size() == 2);
+    assert (phist.size() == 12);
+    for (int i=0; i < nslots; i++) {
+      map.quiescent (i);
+    }
+    assert (phist.size() == 2);
   }
 
   assert (phist.empty());
@@ -711,7 +760,7 @@ void test1b()
   std::cout << "test1b\n";
 
   Payload::Hist phist;
-  TestMap map (TestMap::Updater_t(), delfcn, 100);
+  TestMap map (TestMap::Updater_t(), std::make_shared<PayloadDeleter>(), 100);
   assert (map.emplace (Range (10, 20), std::make_unique<Payload> (100, &phist)) ==
           TestMap::EmplaceResult::SUCCESS);
   assert (map.emplace (Range (25, 30), std::make_unique<Payload> (200, &phist)) ==
@@ -767,7 +816,7 @@ void test1c()
   std::cout << "test1c\n";
   Payload::Hist phist;
 
-  TestMap map (TestMap::Updater_t(), delfcn, 3);
+  TestMap map (TestMap::Updater_t(), std::make_shared<PayloadDeleter>(), 3);
   assert (map.emplace (Range (10, 40), std::make_unique<Payload> (100, &phist)) ==
           TestMap::EmplaceResult::SUCCESS);
   assert (str(map) == "10..40->100 ");
@@ -1006,7 +1055,7 @@ void test2_Reader::operator()()
 
 void test2_iter()
 {
-  TestMap map (TestMap::Updater_t(), delfcn, 20);
+  TestMap map (TestMap::Updater_t(), std::make_shared<PayloadDeleter>(), 20);
 
   const int nthread = 4;
   std::thread threads[nthread];

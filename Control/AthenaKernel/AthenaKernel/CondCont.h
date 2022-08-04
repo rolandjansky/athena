@@ -71,6 +71,7 @@
 #include "AthenaKernel/BaseInfo.h"
 #include "AthenaKernel/RCUUpdater.h"
 #include "AthenaKernel/IConditionsCleanerSvc.h"
+#include "AthenaKernel/CondObjDeleter.h"
 #include "CxxUtils/ConcurrentRangeMap.h"
 #include "CxxUtils/checker_macros.h"
 
@@ -516,7 +517,7 @@ protected:
    * @param CLID of the most-derived @c CondCont.
    * @param id CLID+key for this object.
    * @param proxy @c DataProxy for this object.
-   * @param delfcn Deletion function for the actual payload type.
+   * @param payloadDeleter Object for deleting payload objects.
    * @param capacity Initial capacity of the container.
    */
   CondContBase (Athena::IRCUSvc& rcusvc,
@@ -524,7 +525,7 @@ protected:
                 CLID clid,
                 const DataObjID& id,
                 SG::DataProxy* proxy,
-                CondContSet::delete_function* delfcn,
+                std::shared_ptr<CondContSet::IPayloadDeleter> payloadDeleter,
                 size_t capacity);
                 
 
@@ -786,14 +787,14 @@ protected:
    * @param CLID of the most-derived @c CondCont.
    * @param id CLID+key for this object.
    * @param proxy @c DataProxy for this object.
-   * @param delfcn Deletion function for the actual payload type.
+   * @param payloadDeleter Object for deleting payload objects.
    * @param capacity Initial capacity of the container.
    */
   CondContSingleBase (Athena::IRCUSvc& rcusvc,
                       CLID clid,
                       const DataObjID& id,
                       SG::DataProxy* proxy,
-                      CondContSet::delete_function* delfcn,
+                      std::shared_ptr<CondContSet::IPayloadDeleter> payloadDeleter,
                       size_t capacity);
 };
 
@@ -968,14 +969,14 @@ protected:
    * @param CLID of the most-derived @c CondCont.
    * @param id CLID+key for this object.
    * @param proxy @c DataProxy for this object.
-   * @param delfcn Deletion function for the actual payload type.
+   * @param payloadDeleter Object for deleting payload objects.
    * @param capacity Initial capacity of the container.
    */
   CondCont (Athena::IRCUSvc& rcusvc,
             CLID clid,
             const DataObjID& id,
             SG::DataProxy* proxy,
-            typename CondContSet::delete_function* delfcn,
+            std::shared_ptr<typename CondContSet::IPayloadDeleter> payloadDeleter,
             size_t capacity);
 
 
@@ -1010,13 +1011,6 @@ public:
   /// Helper to ensure that the inheritance information for this class
   /// gets initialized.
   static void registerBaseInit();
-
-
-private:
-  /// Deletion function to pass to @c ConcurrentRangeMap.
-  static void delfcn (const void* p) {
-    delete reinterpret_cast<const T*>(p);
-  }
 };
 
 
@@ -1125,14 +1119,14 @@ protected:
    * @param CLID of the most-derived @c CondCont.
    * @param id CLID+key for this object.
    * @param proxy @c DataProxy for this object.
-   * @param payloadDelfcn Deletion function for the actual payload type.
+   * @param payloadDeleter Object for deleting actual payload objects.
    * @param capacity Initial capacity of the container.
    */
   CondContMixedBase (Athena::IRCUSvc& rcusvc,
                      CLID clid,
                      const DataObjID& id,
                      SG::DataProxy* proxy,
-                     CondContSet::delete_function* payloadDelfcn,
+                     std::shared_ptr<CondContSet::IPayloadDeleter> payloadDeleter,
                      size_t capacity);
 
 
@@ -1174,17 +1168,12 @@ protected:
 
 
 private:
-  /// Deletion function to pass to @c ConcurrentRangeMap.
-  static void delfcn (const void* p) {
-    delete reinterpret_cast<const CondContSet*>(p);
-  }
-
   /// Need to remember the RCU svc here in order to pass it to the
   /// TS maps.
   Athena::IRCUSvc& m_rcusvc;
 
-  /// Function to delete payload objects.
-  delete_function* m_payloadDelfcn;
+  /// Deletion object for actual payload objects.
+  std::shared_ptr<CondContSet::IPayloadDeleter> m_payloadDeleter;
 
   /// Mutex for insertions.
   std::mutex m_mutex;
@@ -1325,14 +1314,14 @@ protected:
    * @param CLID of the most-derived @c CondCont.
    * @param id CLID+key for this object.
    * @param proxy @c DataProxy for this object.
-   * @param delfcn Deletion function for the actual payload type.
+   * @param payloadDeleter Object for deleting actual payload objects.
    * @param capacity Initial capacity of the container.
    */
   CondContMixed (Athena::IRCUSvc& rcusvc,
                  CLID clid,
                  const DataObjID& id,
                  SG::DataProxy* proxy,
-                 typename CondContSet::delete_function* delfcn,
+                 std::shared_ptr<typename CondContSet::IPayloadDeleter> payloadDeleter,
                  size_t capacity);
 
 
@@ -1382,13 +1371,6 @@ public:
   /// Helper to ensure that the inheritance information for this class
   /// gets initialized.
   static void registerBaseInit();
-
-
-private:
-  /// Deletion function for payload objects.
-  static void payloadDelfcn (const void* p) {
-    delete reinterpret_cast<const T*>(p);
-  }
 };
 
 
@@ -1438,9 +1420,10 @@ private:
   protected:                                                             \
     CondCont (Athena::IRCUSvc& rcusvc, CLID clid, const DataObjID& id,   \
               SG::DataProxy* proxy,                                      \
-              typename CondContSet::delete_function* delfcn,             \
+              std::shared_ptr<typename CondContSet::IPayloadDeleter> payloadDeleter, \
               size_t capacity = 16)                                      \
-      : CondContMixed<T> (rcusvc, clid, id, proxy, delfcn, capacity) {}  \
+      : CondContMixed<T> (rcusvc, clid, id, proxy,                       \
+                          payloadDeleter, capacity) {}                   \
   };                                                                     \
   CLASS_DEF( CondCont<T>, CLID_, 1)                                      \
   SG_BASES(CondCont<T>, CondContMixed<T>);                               \
