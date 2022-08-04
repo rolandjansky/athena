@@ -68,7 +68,7 @@ def SetupMuonStandaloneCA(args,ConfigFlags):
     cfg.merge(PoolReadCfg(ConfigFlags))
 
     if ConfigFlags.Input.isMC:
-        from xAODTruthCnv.xAODTruthCnvConfigNew import GEN_AOD2xAODCfg
+        from xAODTruthCnv.xAODTruthCnvConfig import GEN_AOD2xAODCfg
         cfg.merge(GEN_AOD2xAODCfg(ConfigFlags))
 
     return cfg

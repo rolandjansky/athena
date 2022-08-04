@@ -214,7 +214,7 @@ if __name__ == "__main__":
     top_acc.merge(PoolReadCfg(ConfigFlags))
 
     if ConfigFlags.Input.isMC:
-        from xAODTruthCnv.xAODTruthCnvConfigNew import GEN_AOD2xAODCfg
+        from xAODTruthCnv.xAODTruthCnvConfig import GEN_AOD2xAODCfg
         top_acc.merge(GEN_AOD2xAODCfg(ConfigFlags))
 
     top_acc.merge(ITkTrackRecoCfg(ConfigFlags))

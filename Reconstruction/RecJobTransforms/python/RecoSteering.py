@@ -40,7 +40,7 @@ def RecoSteering(flags):
     # AOD2xAOD Truth conversion
     acc.flagPerfmonDomain('Truth')
     if flags.Input.isMC:
-        from xAODTruthCnv.xAODTruthCnvConfigNew import GEN_AOD2xAODCfg
+        from xAODTruthCnv.xAODTruthCnvConfig import GEN_AOD2xAODCfg
         acc.merge(GEN_AOD2xAODCfg(flags))
         log.info("---------- Configured AODtoxAOD Truth Conversion")
 

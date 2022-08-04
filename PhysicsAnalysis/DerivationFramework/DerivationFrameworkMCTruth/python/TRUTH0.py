@@ -16,7 +16,7 @@ def TRUTH0Cfg(ConfigFlags):
  
     # Decide what kind of input HepMC container we are dealing with
     # and schedule the xAOD converter appropriately
-    from xAODTruthCnv.xAODTruthCnvConfigNew import GEN_EVNT2xAODCfg
+    from xAODTruthCnv.xAODTruthCnvConfig import GEN_EVNT2xAODCfg
     if "McEventCollection#GEN_EVENT" in ConfigFlags.Input.TypedCollections:
         acc.merge(GEN_EVNT2xAODCfg(ConfigFlags,name="GEN_EVNT2xAOD",AODContainerName="GEN_EVENT"))
     elif "McEventCollection#TruthEvent" in ConfigFlags.Input.TypedCollections:

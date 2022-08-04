@@ -2,4 +2,4 @@
 
 from AthenaCommon.CfgGetter import addAlgorithm
 
-addAlgorithm("xAODTruthCnv.xAODTruthCnvConfig.getGEN_AOD2xAOD", "GEN_AOD2xAOD")
+addAlgorithm("xAODTruthCnv.xAODTruthCnvConfigLegacy.getGEN_AOD2xAOD", "GEN_AOD2xAOD")

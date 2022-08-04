@@ -18,7 +18,7 @@ def egUpstreamSystemCfg(flags,
     acc = ComponentAccumulator()
     # AOD2xAOD Truth conversion
     if flags.Input.isMC:
-        from xAODTruthCnv.xAODTruthCnvConfigNew import GEN_AOD2xAODCfg
+        from xAODTruthCnv.xAODTruthCnvConfig import GEN_AOD2xAODCfg
         acc.merge(GEN_AOD2xAODCfg(flags))
 
     # calorimeter
