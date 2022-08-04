@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file  DataModelAthenaPool/test/NavigableCnv_p1_test.cxx
@@ -41,10 +41,12 @@ typedef Navigable<MyVI> NI;
 typedef Navigable<MyVI, int> NIpar;
 
 
-void test1()
+void test1 (SGTest::TestStore& store)
 {
   std::cout << "test1\n";
   MsgStream log (0, "test");
+  SG::sgkey_t sgkey = store.stringToKey ("key", ClassID_traits<MyVI>::ID());
+
   NavigableCnv_p1<NI> cnv;
   NI ni1;
   ni1.insertElement (ElementLink<MyVI> ("key", 10));
@@ -52,7 +54,7 @@ void test1()
   NavigableCnv_p1<NI>::PersNavigable_t p1;
   cnv.transToPers (ni1, p1, log);
   assert (p1.m_links.m_links.size() == 1);
-  assert (p1.m_links.m_links[0].m_SGKeyHash == 152280269);
+  assert (p1.m_links.m_links[0].m_SGKeyHash == sgkey);
   assert (p1.m_links.m_elementRefs.size() == 2);
   assert (p1.m_links.m_elementRefs[0].m_elementIndex == 10);
   assert (p1.m_links.m_elementRefs[0].m_nameIndex == 0);
@@ -81,7 +83,7 @@ void test1()
                      &dec);
   cnv.transToPers (ni1, p1, &cache, log);
   assert (p1.m_links.m_links.size() == 1);
-  assert (p1.m_links.m_links[0].m_SGKeyHash == 152280269);
+  assert (p1.m_links.m_links[0].m_SGKeyHash == sgkey);
   assert (p1.m_links.m_elementRefs.size() == 2);
   assert (p1.m_links.m_elementRefs[0].m_elementIndex == static_cast<uint32_t>(SG::ThinningDecisionBase::RemovedIdx));
   assert (p1.m_links.m_elementRefs[0].m_nameIndex == static_cast<uint32_t>(SG::ThinningDecisionBase::RemovedIdx));
@@ -90,10 +92,12 @@ void test1()
 }
 
 
-void test2()
+void test2 (SGTest::TestStore& store)
 {
   std::cout << "test2\n";
   MsgStream log (0, "test");
+  SG::sgkey_t sgkey = store.stringToKey ("key", ClassID_traits<MyVI>::ID());
+
   NavigableCnv_p1<NIpar> cnv;
   NIpar ni1;
   ni1.insertElement (ElementLink<MyVI> ("key", 10), 101);
@@ -101,7 +105,7 @@ void test2()
   NavigableCnv_p1<NIpar>::PersNavigable_t p1;
   cnv.transToPers (ni1, p1, log);
   assert (p1.m_links.m_links.size() == 1);
-  assert (p1.m_links.m_links[0].m_SGKeyHash == 152280269);
+  assert (p1.m_links.m_links[0].m_SGKeyHash == sgkey);
   assert (p1.m_links.m_elementRefs.size() == 2);
   assert (p1.m_links.m_elementRefs[0].m_elementIndex == 10);
   assert (p1.m_links.m_elementRefs[0].m_nameIndex == 0);
@@ -135,7 +139,7 @@ void test2()
                      &dec);
   cnv.transToPers (ni1, p1, &cache, log);
   assert (p1.m_links.m_links.size() == 1);
-  assert (p1.m_links.m_links[0].m_SGKeyHash == 152280269);
+  assert (p1.m_links.m_links[0].m_SGKeyHash == sgkey);
   assert (p1.m_links.m_elementRefs.size() == 2);
   assert (p1.m_links.m_elementRefs[0].m_elementIndex == static_cast<uint32_t>(SG::ThinningDecisionBase::RemovedIdx));
   assert (p1.m_links.m_elementRefs[0].m_nameIndex == static_cast<uint32_t>(SG::ThinningDecisionBase::RemovedIdx));
@@ -151,7 +155,7 @@ int main()
 {
   std::cout << "DataModelAthenaPool/NavigableCnv_p1_test\n";
   std::unique_ptr<SGTest::TestStore> testStore = SGTest::getTestStore();
-  test1();
-  test2();
+  test1 (*testStore);
+  test2 (*testStore);
   return 0;
 }

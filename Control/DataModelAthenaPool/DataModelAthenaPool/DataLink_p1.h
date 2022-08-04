@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DATAMODELATHENAPOOL_DATALINK_P1_H
@@ -14,6 +14,8 @@
 #include <vector>
 #include <stdint.h>
 
+#include "CxxUtils/sgkey_t.h"
+
 /** @class DataLink_p1
  *  @brief Persistent representation of DataLink
     contains the StoreGate key of the container object to which the link is pointing 
@@ -24,7 +26,7 @@ public:
   DataLink_p1() : m_SGKeyHash(0) {}
 
   std::string	m_link;
-  uint32_t     m_SGKeyHash;     // replaces m_contName
+  SG::sgkey_t   m_SGKeyHash;     // replaces m_contName
 };
 
 

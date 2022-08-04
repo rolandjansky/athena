@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file ElementLinkCnv_p2.icc
@@ -199,7 +199,7 @@ transToPers (State& state,
   else {
     // Save container name index and element link index
     pers.m_contIndex     = getNameIndex(state, tmp.dataID());
-    pers.m_elementIndex  = tmp.index();
+    pers.m_elementIndex  = SG::sgkeyShort (tmp.index());
   }
 #ifdef  ELLINK_DEBUG
   msg << MSG::DEBUG << "ElementLinkCnv_p2::transToPer(): KEY= "

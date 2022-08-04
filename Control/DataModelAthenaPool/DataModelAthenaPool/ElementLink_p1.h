@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DATAMODELATHENAPOOL_ELEMENTLINK_P1_H
@@ -13,6 +13,8 @@
 #include <string>
 #include <inttypes.h>
 
+#include "CxxUtils/sgkey_t.h"
+
 /** @class ElementLink_p1<INDEX>
  *  @brief Persistent representation of ElementLink - constains StoreGate key (name) of the container it is pointing to, and an index to the container element. The C++ type of index can be integer for sequences or a "key" type for sets (like std::map). (std::string is supported, define more types if necessary)
  **/
@@ -25,7 +27,7 @@ public:
 
   std::string	m_contName;
   INDEXTYPE	m_elementIndex;
-  uint32_t      m_SGKeyHash;     // replaces m_contName
+  SG::sgkey_t   m_SGKeyHash;     // replaces m_contName
 };
 
 

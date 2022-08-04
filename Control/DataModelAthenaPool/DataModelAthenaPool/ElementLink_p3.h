@@ -13,6 +13,8 @@
 #include <string>
 #include <inttypes.h>
 
+#include "CxxUtils/sgkey_t.h"
+
 /** @class ElementLink_p3<INDEX>
  *  @brief Persistent representation of ElementLink - constains a hash of the StoreGate key (name) of the container it is pointing to, and an index to the container element. The C++ type of index can be integer for sequences or a "key" type for sets (like std::map). (std::string is supported, define more types if necessary)
  **/
@@ -24,7 +26,7 @@ public:
   ElementLink_p3() = default;
   
   INDEXTYPE m_elementIndex{};
-  uint32_t  m_SGKeyHash{0};
+  SG::sgkey_t  m_SGKeyHash{0};
 };
 
 

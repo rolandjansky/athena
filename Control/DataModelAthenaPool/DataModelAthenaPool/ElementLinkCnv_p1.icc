@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file ElementLinkCnv_p1.icc
@@ -64,11 +64,11 @@ transToPers(const Link_t& trans, PersLink_t& pers,
       else {
         Link_t tmp = trans;
         tmp.toPersistent();
-        pers.m_SGKeyHash       = tmp.key(); 
+        pers.m_SGKeyHash       = tmp.key();
         pers.m_elementIndex    = persIdx;
       }
 #ifdef  ELLINK_DEBUG
-      msg << MSG::INFO << "ElementLinkCnv_p3::transToPer(): SG Container="
+      msg << MSG::INFO << "ElementLinkCnv_p1::transToPers(): SG Container="
           << ", Key Hash=" << pers.m_SGKeyHash
           << ", IDX=" << pers.m_elementIndex << endmsg;
 #endif
@@ -80,10 +80,10 @@ transToPers(const Link_t& trans, PersLink_t& pers,
   Link_t tmp = trans;
   tmp.toPersistent();
   // pers.m_contName      = tmp.dataID();
-  pers.m_SGKeyHash        = tmp.key(); 
+  pers.m_SGKeyHash        = tmp.key();
   pers.m_elementIndex     = tmp.index();
 #ifdef  ELLINK_DEBUG
-  msg << MSG::INFO << "ElementLinkCnv_p1::transToPer(): SG Container="
+  msg << MSG::INFO << "ElementLinkCnv_p1::transToPers(): SG Container="
       <<  pers->m_contName << ", Key Hash=" << pers->m_SGKeyHash
       << ", IDX=" << pers->m_elementIndex << endmsg;
 #endif

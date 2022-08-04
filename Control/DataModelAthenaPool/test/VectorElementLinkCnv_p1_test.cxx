@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file  DataModelAthenaPool/test/VectorElementLinkCnv_p1_test.cxx
@@ -39,7 +39,7 @@ typedef ElementLink<MyVI> ELI;
 typedef std::vector<ELI> ELVI;
 
 
-void test1()
+void test1 (SGTest::TestStore& store)
 {
   std::cout << "test1\n";
   MsgStream log (0, "test");
@@ -53,17 +53,21 @@ void test1()
   VectorElementLinkCnv_p1<ELVI>::Pers_t p1;
   cnv.transToPers (elv1, p1, log);
 
+  SG::sgkey_t sgkey1 = store.stringToKey ("key1", ClassID_traits<MyVI>::ID());
+  SG::sgkey_t sgkey2 = store.stringToKey ("key2", ClassID_traits<MyVI>::ID());
+  SG::sgkey_t sgkey3 = store.stringToKey ("key3", ClassID_traits<MyVI>::ID());
+
   assert (p1.size() == 5);
   assert (p1[0].m_elementIndex == 10);
   assert (p1[1].m_elementIndex == 20);
   assert (p1[2].m_elementIndex == 30);
   assert (p1[3].m_elementIndex == 40);
   assert (p1[4].m_elementIndex == 50);
-  assert (p1[0].m_SGKeyHash == 61740278);
-  assert (p1[1].m_SGKeyHash == 793080788);
-  assert (p1[2].m_SGKeyHash == 61740278);
-  assert (p1[3].m_SGKeyHash == 887336650);
-  assert (p1[4].m_SGKeyHash == 793080788);
+  assert (p1[0].m_SGKeyHash == sgkey1);
+  assert (p1[1].m_SGKeyHash == sgkey2);
+  assert (p1[2].m_SGKeyHash == sgkey1);
+  assert (p1[3].m_SGKeyHash == sgkey3);
+  assert (p1[4].m_SGKeyHash == sgkey2);
 
   ELVI elv2;
   cnv.persToTrans (p1, elv2, log);
@@ -92,10 +96,10 @@ void test1()
   assert (p1[3].m_elementIndex == 40);
   assert (p1[4].m_elementIndex == 50);
   assert (p1[0].m_SGKeyHash == 0);
-  assert (p1[1].m_SGKeyHash == 793080788);
-  assert (p1[2].m_SGKeyHash == 61740278);
-  assert (p1[3].m_SGKeyHash == 887336650);
-  assert (p1[4].m_SGKeyHash == 793080788);
+  assert (p1[1].m_SGKeyHash == sgkey2);
+  assert (p1[2].m_SGKeyHash == sgkey1);
+  assert (p1[3].m_SGKeyHash == sgkey3);
+  assert (p1[4].m_SGKeyHash == sgkey2);
 }
 
 
@@ -103,6 +107,6 @@ int main()
 {
   std::cout << "DataModelAthenaPool/VectorElementLinkCnv_p1_test\n";
   std::unique_ptr<SGTest::TestStore> testStore = SGTest::getTestStore();
-  test1();
+  test1 (*testStore);
   return 0;
 }

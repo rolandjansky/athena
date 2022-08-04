@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file  DataModelAthenaPool/test/ElementLinkVectorCnv_p1_test.cxx
@@ -39,7 +39,7 @@ typedef ElementLinkVector<MyVI> ELVI;
 typedef ElementLink<MyVI> ELI;
 
 
-void test1()
+void test1 (SGTest::TestStore& store)
 {
   std::cout << "test1\n";
   MsgStream log (0, "test");
@@ -53,10 +53,14 @@ void test1()
   ElementLinkVectorCnv_p1<ELVI>::PersLinkVect_t p1;
   cnv.transToPers (elv1, p1, log);
 
+  SG::sgkey_t sgkey1 = store.stringToKey ("key1", ClassID_traits<MyVI>::ID());
+  SG::sgkey_t sgkey2 = store.stringToKey ("key2", ClassID_traits<MyVI>::ID());
+  SG::sgkey_t sgkey3 = store.stringToKey ("key3", ClassID_traits<MyVI>::ID());
+
   assert (p1.m_links.size() == 3);
-  assert (p1.m_links[0].m_SGKeyHash == 61740278);
-  assert (p1.m_links[1].m_SGKeyHash == 793080788);
-  assert (p1.m_links[2].m_SGKeyHash == 887336650);
+  assert (p1.m_links[0].m_SGKeyHash == sgkey1);
+  assert (p1.m_links[1].m_SGKeyHash == sgkey2);
+  assert (p1.m_links[2].m_SGKeyHash == sgkey3);
   assert (p1.m_elementRefs.size() == 5);
   assert (p1.m_elementRefs[0].m_elementIndex == 10);
   assert (p1.m_elementRefs[1].m_elementIndex == 20);
@@ -89,9 +93,9 @@ void test1()
                      &dec);
 
   cnv.transToPers (elv1, p1, &cache, log);
-  assert (p1.m_links[0].m_SGKeyHash == 61740278);
-  assert (p1.m_links[1].m_SGKeyHash == 793080788);
-  assert (p1.m_links[2].m_SGKeyHash == 887336650);
+  assert (p1.m_links[0].m_SGKeyHash == sgkey1);
+  assert (p1.m_links[1].m_SGKeyHash == sgkey2);
+  assert (p1.m_links[2].m_SGKeyHash == sgkey3);
   assert (p1.m_elementRefs.size() == 5);
   assert (p1.m_elementRefs[0].m_elementIndex == static_cast<uint32_t>(SG::ThinningDecisionBase::RemovedIdx));
   assert (p1.m_elementRefs[1].m_elementIndex == 20);
@@ -110,6 +114,6 @@ int main()
 {
   std::cout << "DataModelAthenaPool/ElementLinkVectorCnv_p1_test\n";
   std::unique_ptr<SGTest::TestStore> testStore = SGTest::getTestStore();
-  test1();
+  test1 (*testStore);
   return 0;
 }
