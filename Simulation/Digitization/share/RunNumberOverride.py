@@ -34,7 +34,7 @@ if digitizationFlags.dataRunNumber.get_Value():
         getService("EvtIdModifierSvc")
     else:
         digilog.warning('RunNumberOverride.py :: Will override the settings of the EvtIdModifierSvc that was previously set up!')
-    from RunDependentSimComps.RunDependentConfig import buildListOfModifiers
+    from RunDependentSimComps.RunDependentConfigLegacy import buildListOfModifiers
     # to prevent the same modifiers being added twice by mistake
     newModifiers = buildListOfModifiers()
     if ServiceMgr.EvtIdModifierSvc.Modifiers != newModifiers:
