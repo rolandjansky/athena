@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration */
+/* Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration */
 
 // Local include(s).
 #include "EventFormatStreamHelperTool.h"
@@ -113,7 +113,7 @@ StatusCode
 
         // Update the metadata object
         try {
-          const unsigned int hash =
+          const sgkey_t hash =
               lookUpHash(classID, elem.getClassIDs(), elem.getHashes());
 
           // Make sure that nobody else is modifying @c m_ef or @c m_spool
@@ -139,11 +139,11 @@ StatusCode
       return StatusCode::SUCCESS;
     }
 
-unsigned int
+EventFormatStreamHelperTool::sgkey_t
     EventFormatStreamHelperTool::lookUpHash(
       CLID primaryClassID,
       const std::set<CLID>& classIDs,
-      const std::vector<unsigned int>& hashes) const {
+      const std::vector<sgkey_t>& hashes) const {
         // two collections of different size would cause undefined behaviour
         if (classIDs.size() != hashes.size())
           throw(std::runtime_error("CLID and hash sets not equal in size"));

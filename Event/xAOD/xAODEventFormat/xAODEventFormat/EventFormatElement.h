@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: EventFormatElement.h 568357 2013-11-01 16:21:30Z krasznaa $
@@ -16,6 +16,8 @@ extern "C" {
 // STL include(s):
 #include <string>
 #include <iosfwd>
+
+#include "CxxUtils/sgkey_t.h"
 
 namespace xAOD {
 
@@ -37,11 +39,13 @@ namespace xAOD {
    class EventFormatElement {
 
    public:
+      using sgkey_t = SG::sgkey_t;
+
       /// Constructor with all members specified
       EventFormatElement( const std::string& branchName = "",
                           const std::string& className = "",
                           const std::string& parentName = "",
-                          uint32_t hash = 0 );
+                          sgkey_t hash = 0 );
 
       /// Get the branch/key name
       const std::string& branchName() const;
@@ -50,7 +54,7 @@ namespace xAOD {
       /// Get the name of the parent auxiliary object
       const std::string& parentName() const;
       /// Get the hash belonging to this branch/key
-      uint32_t hash() const;
+      sgkey_t hash() const;
 
    private:
       /// The branch/key name
@@ -60,7 +64,7 @@ namespace xAOD {
       /// The name of the parent auxiliary object
       std::string m_parentName;
       /// The hash belonging to this branch/key
-      uint32_t m_hash;
+      sgkey_t m_hash;
 
    }; // class EventFormatElement_v1
 
