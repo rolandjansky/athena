@@ -353,6 +353,21 @@
             "forData": "true"
         },
 
+        "DIPS": {
+            "_comment": "pb, pc, and pu",
+            "title": "DIPS",
+            "xtitle": "DIPS px",
+            "ytitle": "Jets",
+            "path":  {"ART": "bTagging", "PHYSVAL": "tagger"},
+            "xbins": 100,
+            "xmin": 0,
+            "xmax": 1,
+            "forEach": ["pb", "pc", "pu"],
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
         "SV1": {
             "_comment": "pb, pc, and pu",
             "title": "SV1",
@@ -368,10 +383,25 @@
             "forData": "true"
         },
 
-        "DL1d": {
+        "DL1dv00": {
             "_comment": "pb, pc, and pu",
-            "title": "DL1d",
-            "xtitle": "DL1d px",
+            "title": "DL1dv00",
+            "xtitle": "DL1dv00 px",
+            "ytitle": "Jets",
+            "path":  {"ART": "bTagging", "PHYSVAL": "tagger"},
+            "xbins": 100,
+            "xmin": 0,
+            "xmax": 1,
+            "forEach": ["pb", "pc", "pu"],
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "DL1dv01": {
+            "_comment": "pb, pc, and pu",
+            "title": "DL1dv01",
+            "xtitle": "DL1dv01 px",
             "ytitle": "Jets",
             "path":  {"ART": "bTagging", "PHYSVAL": "tagger"},
             "xbins": 100,
@@ -387,6 +417,21 @@
             "_comment": "pb, pc, and pu",
             "title": "DL1r",
             "xtitle": "DL1r px",
+            "ytitle": "Jets",
+            "path":  {"ART": "bTagging", "PHYSVAL": "tagger"},
+            "xbins": 100,
+            "xmin": 0,
+            "xmax": 1,
+            "forEach": ["pb", "pc", "pu"],
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
+        "GN1": {
+            "_comment": "pb, pc, and pu",
+            "title": "GN1",
+            "xtitle": "GN1 px",
             "ytitle": "Jets",
             "path":  {"ART": "bTagging", "PHYSVAL": "tagger"},
             "xbins": 100,

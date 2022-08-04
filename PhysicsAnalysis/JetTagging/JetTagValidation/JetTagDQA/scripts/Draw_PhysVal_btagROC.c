@@ -10,7 +10,7 @@
 // Variables to edit:
 //
 // -List of taggers:
-//  const vector<TString> taggers = {"IP2D","IP3D","SV1","IP3DSV1","JetFitter","DL1d","DL1r"};
+//  const vector<TString> taggers = {"IP2D","IP3D","SV1","JetFitter","DL1dv00","DL1dv01","DL1r","GN1"};
 //
 // -Output directories for plots
 //  const TString HistoDir = "ROC/";
@@ -72,12 +72,11 @@ const float EffMax=1.;
 
 //Some global variables for plotting:
 // taggers with 'old_taggers' in their name are assumed to be in the folder called 'old_taggers' in the merged root file
-const vector<TString> taggers = {"IP2D","IP3D","RNNIP","SV1","IP3DSV1","JetFitter","DL1d","DL1r"};
+const vector<TString> taggers = {"IP2D","IP3D","RNNIP","DIPS","SV1","JetFitter","DL1dv00","DL1dv01","DL1r","GN1"};
 //const vector<TString> taggers = {"IP2D"};
 //const vector<TString> taggers = {"IP3D"};
 //const vector<TString> taggers = {"RNNIP"};
 //const vector<TString> taggers = {"SV1"};
-//const vector<TString> taggers = {"IP3DSV1"};
 //const vector<TString> taggers = {"DL1r"};
 
 const float CWidth=800;
@@ -127,22 +126,26 @@ void fill_WP_values(){
   if(high_detail_level){
     WP_values.insert(make_pair<TString, vector<TString>>("IP3D", {"50", "70", "80"}));
     WP_values.insert(make_pair<TString, vector<TString>>("RNNIP", {"50", "70", "80"}));
+    WP_values.insert(make_pair<TString, vector<TString>>("DIPS", {"50", "70", "80"}));
     WP_values.insert(make_pair<TString, vector<TString>>("SV1", {"40", "50", "60"}));
     WP_values.insert(make_pair<TString, vector<TString>>("JetFitter", {"50", "70", "80"}));
-    WP_values.insert(make_pair<TString, vector<TString>>("DL1d", {"60", "70", "77", "85"}));
+    WP_values.insert(make_pair<TString, vector<TString>>("DL1dv00", {"60", "70", "77", "85"}));
+    WP_values.insert(make_pair<TString, vector<TString>>("DL1dv01", {"60", "70", "77", "85"}));
     WP_values.insert(make_pair<TString, vector<TString>>("DL1r", {"60", "70", "77", "85"}));
     WP_values.insert(make_pair<TString, vector<TString>>("IP2D", {"50", "70", "80"}));
-    WP_values.insert(make_pair<TString, vector<TString>>("IP3DSV1", {"50", "70", "80"}));
+    WP_values.insert(make_pair<TString, vector<TString>>("GN1", {"60", "70", "77", "85"}));
   }
   else{
     WP_values.insert(make_pair<TString, vector<TString>>("IP3D", {"70"}));
     WP_values.insert(make_pair<TString, vector<TString>>("RNNIP", {"70"}));
+    WP_values.insert(make_pair<TString, vector<TString>>("DIPS", {"70"}));
     WP_values.insert(make_pair<TString, vector<TString>>("SV1", {"60"}));
     WP_values.insert(make_pair<TString, vector<TString>>("JetFitter", {"70"}));
-    WP_values.insert(make_pair<TString, vector<TString>>("DL1d", {"70"}));
+    WP_values.insert(make_pair<TString, vector<TString>>("DL1dv00", {"70"}));
+    WP_values.insert(make_pair<TString, vector<TString>>("DL1dv01", {"70"}));
     WP_values.insert(make_pair<TString, vector<TString>>("DL1r", {"70"}));
     WP_values.insert(make_pair<TString, vector<TString>>("IP2D", {"70"}));
-    WP_values.insert(make_pair<TString, vector<TString>>("IP3DSV1", {"70"}));
+    WP_values.insert(make_pair<TString, vector<TString>>("GN1", {"70"}));
   }
 }
 
@@ -578,7 +581,7 @@ void plotGraphs(vector<TString> InputFileNames, TString MC, TString sample, vect
     for (int i=0;i<taggers.size();i++) {
 
     TString folder1,folder2;
-    if ((taggers[i].View().find("IP2D") < 1) or (taggers[i].View().find("IP3DSV1") < 1)) {folder1 = "old_taggers/_"+taggers[i]; folder2="old_taggers_"+taggers[i];}
+    if (taggers[i].View().find("IP2D") < 1) {folder1 = "old_taggers/_"+taggers[i]; folder2="old_taggers_"+taggers[i];}
     else {folder1 = "tagger_"+taggers[i]+"/other"; folder2="tagger_"+taggers[i];}
     //cout <<"-folder1 ="<<folder1<<" -folder2 ="<<folder2<<endl;
     TString hname_b= "BTag/AntiKt4EMTopoJets/"+folder1+"/BTag_AntiKt4EMTopoJets_"+folder2+"_b_matched_weight";
@@ -901,7 +904,7 @@ void plotGraphsEffVsVar(TString var_name, vector<TString> InputFileNames, TStrin
       // get the right histos
 
       TString folder1,folder2;
-      if ((taggers[i].View().find("IP2D") < 1) or (taggers[i].View().find("IP3DSV1") < 1)) {folder1 = "old_taggers/_"+taggers[i]; folder2="old_taggers_"+taggers[i];}
+      if (taggers[i].View().find("IP2D") < 1) {folder1 = "old_taggers/_"+taggers[i]; folder2="old_taggers_"+taggers[i];}
       else {folder1 = "tagger_"+taggers[i]+ "/_" + var_name; folder2="tagger_"+taggers[i];}
       //cout <<"-folder1 ="<<folder1<<" -folder2 ="<<folder2<<endl;
  
