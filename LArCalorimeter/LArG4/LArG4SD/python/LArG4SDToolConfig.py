@@ -67,10 +67,7 @@ def LArActiveSensitiveDetectorToolCfg(ConfigFlags, name="LArActiveSensitiveDetec
     kwargs.setdefault("FCAL3CalibCalculator",
                       result.getPrimaryAndMerge(FCAL3CalibCalculatorCfg(ConfigFlags)).name)
 
-    from LArG4MiniFCAL.LArG4MiniFCALConfigNew import MiniFCALActiveCalibrationCalculatorCfg
-    kwargs.setdefault("MiniFCALActiveCalibrationCalculator",
-                      result.getPrimaryAndMerge (MiniFCALActiveCalibrationCalculatorCfg(ConfigFlags)).name)
-
+   
     result.setPrivateTools( CompFactory.LArG4.ActiveSDTool(name, **kwargs))
     return result
 
@@ -424,9 +421,7 @@ def LArInactiveSensitiveDetectorToolCfg(ConfigFlags, name="LArInactiveSensitiveD
     kwargs.setdefault("FCAL2CalibCalculator", result.getPrimaryAndMerge(FCAL2CalibCalculatorCfg(ConfigFlags)).name)
     kwargs.setdefault("FCAL3CalibCalculator", result.getPrimaryAndMerge(FCAL3CalibCalculatorCfg(ConfigFlags)).name)
 
-    from LArG4MiniFCAL.LArG4MiniFCALConfigNew import MiniFCALInactiveCalibrationCalculatorCfg
-    kwargs.setdefault("MiniFCALInactiveCalibrationCalculator", result.getPrimaryAndMerge(MiniFCALInactiveCalibrationCalculatorCfg(ConfigFlags)).name)
-
+   
     result.setPrivateTools( CompFactory.LArG4.InactiveSDTool(name, **kwargs) )
     return result
 
