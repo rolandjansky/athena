@@ -9,8 +9,6 @@ from SimuJobTransforms.CommonSimulationSteering import CommonSimulationCfg, spec
 def defaultSimulationFlags(ConfigFlags, detectors):
     """Fill default simulation flags"""
     # TODO: how to autoconfigure those
-    from AthenaConfiguration.Enums import ProductionStep
-    ConfigFlags.Common.ProductionStep = ProductionStep.Simulation
     # Writing out CalibrationHits only makes sense if we are running FullG4 simulation without frozen showers
     from SimulationConfig.SimEnums import CalibrationRun, LArParameterization
     if ConfigFlags.Sim.LArParameterization is not LArParameterization.NoFrozenShowers:
@@ -42,6 +40,10 @@ def fromRunArgs(runArgs):
     from AthenaConfiguration.Enums import BeamType
     from SimulationConfig.SimEnums import CalibrationRun, CavernBackground, SimulationFlavour
     commonRunArgsToFlags(runArgs, ConfigFlags)
+
+    # Set ProductionStep
+    from AthenaConfiguration.Enums import ProductionStep
+    ConfigFlags.Common.ProductionStep = ProductionStep.Simulation
 
     # Generate detector list
     from SimuJobTransforms.SimulationHelpers import getDetectorsFromRunArgs
