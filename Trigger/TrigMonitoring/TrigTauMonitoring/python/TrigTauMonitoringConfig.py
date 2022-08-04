@@ -519,7 +519,6 @@ class TrigTauMonAlgBuilder:
     monGroup.defineHistogram('hEFEt,hEFEta', type='TH2F',  title='Et vs Eta; E_{T} [GeV]; #eta',
                                xbins=50,xmin=etmin,xmax=etmax,ybins=26,ymin=-2.6,ymax=2.6,opt='kAlwaysCreate')
    
-    monGroup.defineHistogram('hEFEtRaw', title='EF Et Raw;Uncalibrated E_{T}[GeV];Nevents',xbins=50,xmin=0,xmax=100,opt='kAlwaysCreate')
     monGroup.defineHistogram('hEFnWideTrack', title='EF number of wide tracks;number of tracks;Nevents',xbins=10,xmin=0,xmax=10,opt='kAlwaysCreate')
 
     monGroup.defineHistogram('hRNNScore', title='EF RNN score; RNN score;Nevents',xbins=20,xmin=0,xmax=1,opt='kAlwaysCreate')
