@@ -49,7 +49,7 @@ if DetFlags.pixel_on():
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
 
         if (globalflags.DataSource()=='geant4'):
-            from PixelDigitization.PixelDigitizationConfig import PixelConfigCondAlg_MC
+            from PixelDigitization.PixelDigitizationConfigLegacy import PixelConfigCondAlg_MC
             condSeq += PixelConfigCondAlg_MC()
 
         elif (globalflags.DataSource=='data'):
@@ -75,7 +75,7 @@ if DetFlags.pixel_on():
 
             # Data overlay: hard-scatter MC digitization + pileup data configuration
             if (globalflags.isOverlay()):
-                from PixelDigitization.PixelDigitizationConfig import PixelConfigCondAlg_MC
+                from PixelDigitization.PixelDigitizationConfigLegacy import PixelConfigCondAlg_MC
                 alg = PixelConfigCondAlg_MC()
                 alg.CablingMapFileName=IdMappingDat
             else: 
