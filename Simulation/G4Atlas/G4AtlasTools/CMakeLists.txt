@@ -50,8 +50,8 @@ atlas_add_test( G4FieldConfig_test
                 SCRIPT test/G4FieldConfig_test.py
                 POST_EXEC_SCRIPT nopost.sh )
 
-atlas_add_test( G4AtlasToolsConfigNew_test
-                SCRIPT test/G4AtlasToolsConfigNew_test.py
+atlas_add_test( G4AtlasToolsConfig_test
+                SCRIPT test/G4AtlasToolsConfig_test.py
                 POST_EXEC_SCRIPT nopost.sh )
 
 # Install files from the package:

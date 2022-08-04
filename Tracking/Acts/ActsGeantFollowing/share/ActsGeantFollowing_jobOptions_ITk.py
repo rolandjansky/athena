@@ -162,7 +162,7 @@ def ActsGeantFollowerCfg(configFlags, name="ActsGeantFollowerTool", **kwargs):
     ActsGeantFollowerAction = result.popToolsAndMerge(actionAcc)
     
     #Retrieving the default action list
-    from G4AtlasServices.G4AtlasUserActionConfigNew import getDefaultActions
+    from G4AtlasServices.G4AtlasUserActionConfig import getDefaultActions
     defaultActions = result.popToolsAndMerge(getDefaultActions(configFlags))
 
     #Adding LengthIntegrator to defaults
@@ -208,7 +208,7 @@ svcName = "ActsGeantFollowerTool"
 acc.merge(ActsGeantFollowerCfg(ConfigFlags,svcName,**kwargs))
 kwargs.update(UserActionSvc=svcName)
 
-from G4AtlasAlg.G4AtlasAlgConfigNew import G4AtlasAlgCfg
+from G4AtlasAlg.G4AtlasAlgConfig import G4AtlasAlgCfg
 acc.merge(G4AtlasAlgCfg(ConfigFlags, "ITkG4AtlasAlg", **kwargs))
 
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg

@@ -3,7 +3,7 @@
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from G4AtlasTests.G4AtlasTestsConfigNew import (
+from G4AtlasTests.G4AtlasTestsConfig import (
     SiHitsTestToolCfg, TrtHitsTestToolCfg, LArHitsTestToolCfg,
     TileHitsTestToolCfg, CaloCalibrationHitsTestToolCfg, MDTHitsTestToolCfg,
     RPCHitsTestToolCfg, CSCHitsTestToolCfg, TGCHitsTestToolCfg,

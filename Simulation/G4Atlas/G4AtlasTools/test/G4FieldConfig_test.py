@@ -28,7 +28,7 @@ if __name__ == '__main__':
   cfg = MainServicesCfg(ConfigFlags)
 
 
-  from G4AtlasTools.G4FieldConfigNew import ATLASFieldManagerToolCfg, TightMuonsATLASFieldManagerToolCfg, Q1FwdFieldManagerToolCfg
+  from G4AtlasTools.G4FieldConfig import ATLASFieldManagerToolCfg, TightMuonsATLASFieldManagerToolCfg, Q1FwdFieldManagerToolCfg
   #add the algorithm
   acc1 = ATLASFieldManagerToolCfg(ConfigFlags)
   acc2 = TightMuonsATLASFieldManagerToolCfg(ConfigFlags)

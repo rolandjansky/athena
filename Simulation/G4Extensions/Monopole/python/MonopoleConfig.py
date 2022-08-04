@@ -5,7 +5,7 @@ import os
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.Enums import ProductionStep
-from G4AtlasServices.G4AtlasServicesConfigNew import PhysicsListSvcCfg
+from G4AtlasServices.G4AtlasServicesConfig import PhysicsListSvcCfg
 from ExtraParticles.PDGHelpers import getPDGTABLE
 
 

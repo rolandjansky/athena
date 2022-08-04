@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Run tests on G4AtlasAlgConfigNew
+"""Run tests on G4AtlasAlgConfig
 
 Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
@@ -66,7 +66,7 @@ if __name__ == '__main__':
     cfg.merge(BeamEffectsAlgCfg(ConfigFlags))
 
     #add the G4AtlasAlg
-    from G4AtlasAlg.G4AtlasAlgConfigNew import G4AtlasAlgCfg
+    from G4AtlasAlg.G4AtlasAlgConfig import G4AtlasAlgCfg
     cfg.merge(G4AtlasAlgCfg(ConfigFlags))
 
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg

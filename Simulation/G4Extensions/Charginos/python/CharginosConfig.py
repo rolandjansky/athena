@@ -7,7 +7,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaCommon.SystemOfUnits import MeV, ns, GeV # noqa: F401
 from AthenaConfiguration.Enums import ProductionStep
 from ExtraParticles.PDGHelpers import getPDGTABLE
-from G4AtlasServices.G4AtlasServicesConfigNew import PhysicsListSvcCfg
+from G4AtlasServices.G4AtlasServicesConfig import PhysicsListSvcCfg
 
 
 @AccumulatorCache

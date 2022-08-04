@@ -5,14 +5,14 @@ Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from RngComps.RandomServices import AthRNGSvcCfg
-from G4AtlasServices.G4AtlasServicesConfigNew import (
+from G4AtlasServices.G4AtlasServicesConfig import (
     DetectorGeometrySvcCfg, PhysicsListSvcCfg
 )
-from G4AtlasServices.G4AtlasUserActionConfigNew import (
+from G4AtlasServices.G4AtlasUserActionConfig import (
     ISFUserActionSvcCfg, ISFFullUserActionSvcCfg,
     ISFPassBackUserActionSvcCfg, ISF_AFIIUserActionSvcCfg,
 )
-from G4AtlasTools.G4AtlasToolsConfigNew import (
+from G4AtlasTools.G4AtlasToolsConfig import (
     SensitiveDetectorMasterToolCfg, FastSimulationMasterToolCfg
 )
 from ISF_Services.ISF_ServicesConfigNew import (

@@ -108,7 +108,7 @@ def CommonSimulationCfg(ConfigFlags, log):
     else:
         AcceptAlgNames = ['G4AtlasAlg']
         #add the G4AtlasAlg
-        from G4AtlasAlg.G4AtlasAlgConfigNew import G4AtlasAlgCfg
+        from G4AtlasAlg.G4AtlasAlgConfig import G4AtlasAlgCfg
         cfg.merge(G4AtlasAlgCfg(ConfigFlags))
 
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg

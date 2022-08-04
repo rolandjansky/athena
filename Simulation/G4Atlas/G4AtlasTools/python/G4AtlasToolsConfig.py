@@ -58,7 +58,7 @@ def FwdSensitiveDetectorListCfg(ConfigFlags):
     result = ComponentAccumulator()
     tools = []
     if ConfigFlags.Detector.EnableForward:
-        print ('G4AtlasToolsConfigNew.FwdSensitiveDetectorListCfg ERROR Forward Detector SD configuration has not been migrated to CA yet!')
+        print ('G4AtlasToolsConfig.FwdSensitiveDetectorListCfg ERROR Forward Detector SD configuration has not been migrated to CA yet!')
     if ConfigFlags.Detector.EnableLucid:
         tools += [ 'LUCID_SensitiveDetector' ]
     if ConfigFlags.Detector.EnableForward:

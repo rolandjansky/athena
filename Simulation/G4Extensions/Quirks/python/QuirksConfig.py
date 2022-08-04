@@ -4,7 +4,7 @@ from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.Enums import ProductionStep
-from G4AtlasServices.G4AtlasServicesConfigNew import PhysicsListSvcCfg
+from G4AtlasServices.G4AtlasServicesConfig import PhysicsListSvcCfg
 
 
 @AccumulatorCache

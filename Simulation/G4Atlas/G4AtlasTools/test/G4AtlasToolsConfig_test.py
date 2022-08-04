@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Run tests on G4AtlasToolsConfigNew
+"""Run tests on G4AtlasToolsConfig
 
 Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
@@ -43,7 +43,7 @@ if __name__ == '__main__':
   cfg = MainServicesCfg(ConfigFlags)
 
 
-  from G4AtlasTools.G4AtlasToolsConfigNew import SensitiveDetectorMasterToolCfg
+  from G4AtlasTools.G4AtlasToolsConfig import SensitiveDetectorMasterToolCfg
   acc  = SensitiveDetectorMasterToolCfg(ConfigFlags)
   tool = cfg.popToolsAndMerge(acc)
   cfg.setPrivateTools(tool)
