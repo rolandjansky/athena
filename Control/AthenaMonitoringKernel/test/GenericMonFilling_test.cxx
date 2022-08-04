@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -609,13 +609,14 @@ bool timerFilling( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSv
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
   //! [timerFilling]
-  // There should be one entry in the histogram with roughly 10ms
+  // There should be one entry in the histogram with roughly 10ms.
+  // But since user code can be blocked arbitrarily long we only check lower bound.
   VALUE( getHist( histSvc, "/EXPERT/TestGroup/TIME_t1" )->GetEntries() ) EXPECTED( 1 );
   VALUE( getHist( histSvc, "/EXPERT/TestGroup/TIME_t2" )->GetEntries() ) EXPECTED( 1 );
   double t1_value = getHist( histSvc, "/EXPERT/TestGroup/TIME_t1" )->GetMean();
   double t2_value = getHist( histSvc, "/EXPERT/TestGroup/TIME_t2" )->GetMean();
-  assert( 8000 < t1_value && t1_value < 12000 );
-  assert( 8 < t2_value && t2_value < 12 );
+  assert( 8000 < t1_value );
+  assert( 8 < t2_value );
 
   // Test scoped timer
   auto t3 = Monitored::Timer<std::chrono::milliseconds>( "TIME_t3" );
@@ -632,8 +633,6 @@ bool timerFilling( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSv
   }
   VALUE( getHist( histSvc, "/EXPERT/TestGroup/TIME_t3" )->GetEntries() ) EXPECTED( 1 );
   double t3_value = getHist( histSvc, "/EXPERT/TestGroup/TIME_t3" )->GetMean();
-  // This is not robust --- user code could be blocked for arbitrarily long.
-  //assert( 8 < t3_value && t3_value < 12 );
   assert( 8 < t3_value );
 
   return true;
