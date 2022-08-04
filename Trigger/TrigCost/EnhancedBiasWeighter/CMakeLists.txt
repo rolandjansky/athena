@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name: 
 atlas_subdir( EnhancedBiasWeighter )
@@ -14,17 +14,17 @@ atlas_add_library( EnhancedBiasWeighterLib
                    PUBLIC_HEADERS EnhancedBiasWeighter
                    INCLUDE_DIRS ${COOL_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${COOL_LIBRARIES} AsgTools DerivationFrameworkInterfaces GaudiKernel TrigAnalysisInterfaces xAODEventInfo LumiBlockData
+                   LINK_LIBRARIES ${COOL_LIBRARIES} AsgTools DerivationFrameworkInterfaces GaudiKernel TrigAnalysisInterfaces xAODEventInfo LumiBlockData TrigCompositeUtilsLib TrigDecisionToolLib
                    PRIVATE_LINK_LIBRARIES ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} PathResolver )
 
 atlas_add_component( EnhancedBiasWeighter
-                     src/*.cxx
-                     LINK_LIBRARIES EnhancedBiasWeighterLib TrigCompositeUtilsLib TrigDecisionToolLib)
+                     src/components/*.cxx
+                     LINK_LIBRARIES EnhancedBiasWeighterLib )
 
 atlas_add_dictionary( EnhancedBiasWeighterDict
                       EnhancedBiasWeighter/EnhancedBiasWeighterDict.h
                       EnhancedBiasWeighter/selection.xml
-                      LINK_LIBRARIES EnhancedBiasWeighterLib ) 
+                      LINK_LIBRARIES EnhancedBiasWeighterLib )
 
 # Install files from the package:
 atlas_install_scripts( share/RunEBWeightsComputation.py share/ExtractEBRunDetails.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
