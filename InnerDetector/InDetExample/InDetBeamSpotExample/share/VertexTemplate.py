@@ -140,6 +140,8 @@ BunchCrossingCondAlgDefault()
 ServiceMgr += CfgMgr.THistSvc()
 ServiceMgr.THistSvc.Output+=[ "INDETBEAMSPOTFINDER DATAFILE='%s' OPT='RECREATE'" % jobConfig['histfile'] ]
 
+ServiceMgr.MessageSvc.defaultLimit = 50
+
 # Standard beam spot monitoring
 if jobConfig['doMonitoring']:
     include("InDetBeamSpotExample/MonitoringFragment.py")
