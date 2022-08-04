@@ -1,6 +1,6 @@
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -257,7 +257,7 @@ StatusCode HLTEDMCreator::fixLinks() const {
         uint16_t const collectionIndex = remappedIndexes.at(elementLinkIndex); //Note: This is the existing before-remap index
 
         // Check for remapping in a merge
-        uint32_t newKey = 0;
+        SG::sgkey_t newKey = 0;
         size_t newIndex = 0;
         bool isRemapped = evtStore()->tryELRemap( collectionKey, collectionIndex, newKey, newIndex);
         if ( isRemapped ) {
