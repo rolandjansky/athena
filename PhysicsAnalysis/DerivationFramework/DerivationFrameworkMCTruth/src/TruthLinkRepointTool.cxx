@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -40,14 +40,14 @@ DerivationFramework::TruthLinkRepointTool::~TruthLinkRepointTool() {
 StatusCode DerivationFramework::TruthLinkRepointTool::addBranches() const
 {
   // Retrieve the truth collections
-  const std::vector<DataHandle<xAOD::TruthParticleContainer> > target(m_targetKeys.size(),nullptr);
+  std::vector<const xAOD::TruthParticleContainer*> target(m_targetKeys.size(),nullptr);
   for (size_t i=0;i<m_targetKeys.size();++i) ATH_CHECK(evtStore()->retrieve(target[i], m_targetKeys[i]));
 
   SG::AuxElement::Decorator< ElementLink<xAOD::TruthParticleContainer> > output_decorator(m_decOutput);
 
   // Handle separate cases: Photons, Electrons, Muons, Jets
   if (std::string::npos!=m_recoKey.find("Electron")){
-    const DataHandle<xAOD::ElectronContainer> inputCont(nullptr);
+    const xAOD::ElectronContainer* inputCont(nullptr);
     ATH_CHECK(evtStore()->retrieve(inputCont, m_recoKey));
     for (const auto *input : *inputCont){
       const xAOD::TruthParticle* truthPart = xAOD::TruthHelpers::getTruthParticle(*input); 
@@ -66,7 +66,7 @@ StatusCode DerivationFramework::TruthLinkRepointTool::addBranches() const
       }
     } // Loop over input particles
   } else if (std::string::npos!=m_recoKey.find("Photon")){
-    const DataHandle<xAOD::PhotonContainer> inputCont(nullptr);
+    const xAOD::PhotonContainer* inputCont(nullptr);
     ATH_CHECK(evtStore()->retrieve(inputCont, m_recoKey));
     for (const auto *input : *inputCont){
       const xAOD::TruthParticle* truthPart = xAOD::TruthHelpers::getTruthParticle(*input);
@@ -85,7 +85,7 @@ StatusCode DerivationFramework::TruthLinkRepointTool::addBranches() const
       }
     } // Loop over input particles
   } else if (std::string::npos!=m_recoKey.find("Muon")){
-    const DataHandle<xAOD::MuonContainer> inputCont(nullptr);
+    const xAOD::MuonContainer* inputCont(nullptr);
     ATH_CHECK(evtStore()->retrieve(inputCont, m_recoKey));
     for (const auto *input : *inputCont){
       const xAOD::TruthParticle* truthPart = xAOD::TruthHelpers::getTruthParticle(*input);
@@ -109,7 +109,7 @@ StatusCode DerivationFramework::TruthLinkRepointTool::addBranches() const
 }
 
 // Find a match by barcode in a different container
-int DerivationFramework::TruthLinkRepointTool::find_match(const xAOD::TruthParticle* p, const DataHandle<xAOD::TruthParticleContainer> & c) 
+int DerivationFramework::TruthLinkRepointTool::find_match(const xAOD::TruthParticle* p, const xAOD::TruthParticleContainer* c)
 {
   // See if it's already gone
   if (!p) return -1;

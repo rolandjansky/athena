@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -71,7 +71,7 @@ StatusCode DerivationFramework::TruthMetaDataWriter::addBranches() const
     // If this fails, we are running on a datatype with no EventInfo.  Such data types should
     //  definitely not be mixing MC samples, so this should be safe (will fall back to 0 above)
     if (evtStore()->contains<xAOD::EventInfo>("EventInfo")){
-      const DataHandle<xAOD::EventInfo> eventInfo = nullptr;
+      const xAOD::EventInfo* eventInfo = nullptr;
       CHECK( evtStore()->retrieve(eventInfo, "EventInfo") );
       mcChannelNumber = eventInfo->mcChannelNumber();
     }

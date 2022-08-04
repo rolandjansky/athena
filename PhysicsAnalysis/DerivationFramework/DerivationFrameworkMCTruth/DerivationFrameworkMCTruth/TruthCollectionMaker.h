@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DERIVATIONFRAMEWORK_TRUTHCOLLECTIONMAKER_H
@@ -28,7 +28,7 @@ namespace DerivationFramework {
       virtual StatusCode addBranches() const;
 
     private:
-      mutable unsigned int m_ntotpart, m_npasspart;
+      mutable std::atomic<unsigned int> m_ntotpart, m_npasspart;
       std::string m_particlesKey;
       std::string m_collectionName; 
       std::string m_partString;
