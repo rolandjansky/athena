@@ -70,19 +70,11 @@ namespace SG {
   {
     typedef IStringPool::sgkey_t sgkey_t;
 
-    // Hash function for the key.
-    // Just cast the low bits to a size_t.
-    struct keyhash
-    {
-      std::size_t operator() (sgkey_t key) const
-      { return static_cast<std::size_t> (key); }
-    };
-
     struct remap_t {
       sgkey_t target;
       off_t index_offset;
     };
-    typedef std::unordered_map<sgkey_t, remap_t, keyhash> remap_map_t;
+    typedef SGKeyMap<remap_t> remap_map_t;
     remap_map_t m_remaps;
   };
 
