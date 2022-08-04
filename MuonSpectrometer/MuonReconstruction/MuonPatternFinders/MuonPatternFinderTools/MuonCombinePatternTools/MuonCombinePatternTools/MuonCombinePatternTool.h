@@ -1,17 +1,21 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEPATTERNTOOLS_MUONCOMBINEPATTERNTOOL_H
 #define MUONCOMBINEPATTERNTOOLS_MUONCOMBINEPATTERNTOOL_H
 
-#include <cmath>
 
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "MuonHoughPatternEvent/MuonHoughMathUtils.h"
-#include "MuonIdHelpers/IMuonIdHelperSvc.h"
-#include "MuonRecToolInterfaces/IMuonCombinePatternTool.h"
+#include "AthenaBaseComps/AthAlgTool.h" //base class
+#include "GaudiKernel/ServiceHandle.h"  //member
+#include "MuonHoughPatternEvent/MuonHoughMathUtils.h" //member
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"  //template parameter
+#include "MuonRecToolInterfaces/IMuonCombinePatternTool.h" //base class
+
+#include <map> //std::map and std::pair
+#include <set>
+#include <vector>
+
 
 class MuonCombinePatternTool : public AthAlgTool, virtual public Muon::IMuonCombinePatternTool {
 private:
