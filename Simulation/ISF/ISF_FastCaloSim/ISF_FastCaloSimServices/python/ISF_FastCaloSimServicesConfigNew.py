@@ -8,7 +8,7 @@ from RngComps.RandomServices import AthRNGSvcCfg
 from ISF_Services.ISF_ServicesConfigNew import TruthServiceCfg
 
 ###################################################################################################
-# Moved from AdditionalConfig
+# Moved from AdditionalConfigLegacy.py
 
 from ISF_FastCaloSimParametrization.ISF_FastCaloSimParametrizationConfigNew import FastCaloSimCaloExtrapolationCfg
 from FastCaloSim.FastCaloSimFactoryNew import (NITimedExtrapolatorCfg,
