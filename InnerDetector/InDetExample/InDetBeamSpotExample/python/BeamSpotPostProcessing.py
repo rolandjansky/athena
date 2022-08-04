@@ -333,8 +333,10 @@ class UploadBeamSpot(PostProcessingStep):
         
         # Check that we haven't uploaded yet
         if beamspottag in cooltags.split():
-            raise PostProcessingError('ERROR: Beam spot already uploaded to COOL - if this is intentional, please upload manually.',
-                                      self.executedSteps,TaskManager.StatusCodes['POSTPROCFAILED'])
+            self.log('WARNING: Beam spot already uploaded to COOL:  %s - continue anyway' % beamspottag)
+            # This command is kept for possible future use: raise PostProcessingError('ERROR: Beam spot already uploaded to COOL - if this is intentional, please upload manually.',
+            # self.executedSteps,TaskManager.StatusCodes['POSTPROCFAILED'])
+            
         # Check that this is the express stream
         if self.dsName.split('.')[-1] != 'express_express' and self.dsName.split('.')[-1] != 'calibration_BeamSpot':
             print (self.dsName.split('.')[-1] )
