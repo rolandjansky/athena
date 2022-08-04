@@ -22,7 +22,7 @@ if DetFlags.detdescr.pixel_on() and not 'PixelCabling' in dir():
 
     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
     if (globalflags.DataSource()=='geant4'):
-      from PixelDigitization.PixelDigitizationConfig import PixelConfigCondAlg_MC, IdMapping
+      from PixelDigitization.PixelDigitizationConfigLegacy import PixelConfigCondAlg_MC, IdMapping
       condSeq += PixelConfigCondAlg_MC()
       IdMappingDat=IdMapping()
     elif (globalflags.DataSource=='data'):
@@ -48,7 +48,7 @@ if DetFlags.detdescr.pixel_on() and not 'PixelCabling' in dir():
 
       # Data overlay: hard-scatter MC digitization + pileup data configuration
       if (globalflags.isOverlay()):
-        from PixelDigitization.PixelDigitizationConfig import PixelConfigCondAlg_MC, IdMapping
+        from PixelDigitization.PixelDigitizationConfigLegacy import PixelConfigCondAlg_MC, IdMapping
         alg = PixelConfigCondAlg_MC()
         alg.CablingMapFileName=IdMappingDat
       else: 
