@@ -1,5 +1,6 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.Enums import Format
 
 def InDetRecPreProcessingSiliconCfg(flags, **kwargs):
     acc = ComponentAccumulator()
@@ -22,7 +23,9 @@ def InDetRecPreProcessingSiliconCfg(flags, **kwargs):
     #
     # -- Pixel Clusterization
     #
-    if flags.Detector.EnablePixel:
+    if flags.Detector.EnablePixel and (   flags.Input.Format is Format.BS
+                                       or 'PixelRDOs' in flags.Input.Collections):
+
         #
         # --- PixelClusterization algorithm
         #
@@ -34,7 +37,9 @@ def InDetRecPreProcessingSiliconCfg(flags, **kwargs):
     #
     # --- SCT Clusterization
     #
-    if flags.Detector.EnableSCT:
+    if flags.Detector.EnableSCT and (   flags.Input.Format is Format.BS
+                                     or 'SCT_RDOs' in flags.Input.Collections):
+
         #
         # --- SCT_Clusterization algorithm
         #
@@ -54,7 +59,10 @@ def InDetRecPreProcessingSiliconCfg(flags, **kwargs):
     # this truth must only be done if you do PRD and SpacePointformation
     # If you only do the latter (== running on ESD) then the needed input (simdata)
     # is not in ESD but the resulting truth (clustertruth) is already there ...
-    if flags.InDet.doTruth:
+    if (flags.InDet.doTruth
+        and (not flags.Detector.EnableSCT   or 'SCT_SDO_Map'  in flags.Input.Collections)
+        and (not flags.Detector.EnablePixel or 'PixelSDO_Map' in flags.Input.Collections)) :
+
         from InDetConfig.InDetTruthAlgsConfig import InDetPRD_MultiTruthMakerSiCfg
         acc.merge(InDetPRD_MultiTruthMakerSiCfg(flags))
         if flags.InDet.doSplitReco:
