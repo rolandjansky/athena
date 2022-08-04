@@ -41,15 +41,6 @@ namespace {
   std::string ip3(FlavorTagDiscriminants::FlipTagConfig f) {
     return "IP3D" + negString(f);
   }
-  std::string rnn(FlavorTagDiscriminants::FlipTagConfig f) {
-    using namespace FlavorTagDiscriminants;
-    switch(f) {
-    case FlipTagConfig::STANDARD: return "rnnip";
-    case FlipTagConfig::FLIP_SIGN: // intentional fall-through
-    case FlipTagConfig::NEGATIVE_IP_ONLY: return "rnnipflip";
-    default: throw std::logic_error("undefined flip config");
-    }
-  }
   std::string jf(FlavorTagDiscriminants::FlipTagConfig f) {
     return "JetFitter" + flipString(f);
   }
@@ -116,8 +107,6 @@ BTagJetAugmenter::BTagJetAugmenter(std::string associator, FlavorTagDiscriminant
   m_min_trk_flightDirRelEta(jfSvNew(f) + "_minimumAllJetTrackRelativeEta"),
   m_max_trk_flightDirRelEta(jfSvNew(f) + "_maximumAllJetTrackRelativeEta"),
   m_avg_trk_flightDirRelEta(jfSvNew(f) + "_averageAllJetTrackRelativeEta"),
-  m_rnnip_pbIsValid(rnn(f) + "_pbIsValid"),
-  m_rnnip_isDefaults(rnn(f) + "_isDefaults"),
   m_flipConfig(f)
 {
 }
@@ -160,8 +149,7 @@ std::set<std::string> BTagJetAugmenter::getDecoratorKeys() const {
         m_DMeson_isDefaults.auxid(),
         m_min_trk_flightDirRelEta.auxid(),
         m_max_trk_flightDirRelEta.auxid(),
-        m_avg_trk_flightDirRelEta.auxid(),
-        m_rnnip_isDefaults.auxid()}) {
+        m_avg_trk_flightDirRelEta.auxid()}) {
     keys.insert(type_registry.getName(auxid));
   }
   return keys;
@@ -446,8 +434,6 @@ void BTagJetAugmenter::augment(const xAOD::BTagging &btag) const {
     m_max_trk_flightDirRelEta(btag) = NAN;
     m_avg_trk_flightDirRelEta(btag) = NAN;
   }
-
-  m_rnnip_isDefaults(btag) = 0;
 
 }
 
