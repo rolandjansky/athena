@@ -36,7 +36,7 @@ private:
   double getDmesonMass(int secondaryVtx_track_number, float secondaryVtx_charge, std::vector<TLorentzVector> secondaryVtx_4momentum_vector, std::vector<float> secondaryVtx_charge_vector, const float track_mass, const float track_kaon) const;
 
   float safelog_prob(float p_up, float p_down) const;
-  
+
 
   typedef SG::AuxElement AE;
 
@@ -100,10 +100,7 @@ private:
   AE::Decorator<float> m_max_trk_flightDirRelEta;
   AE::Decorator<float> m_avg_trk_flightDirRelEta;
 
-  AE::ConstAccessor<char> m_rnnip_pbIsValid;
-  AE::Decorator<char> m_rnnip_isDefaults;
-  
-  FlipTagConfig m_flipConfig;  
+  FlipTagConfig m_flipConfig;
 
 };
 
