@@ -94,26 +94,6 @@ var_name_list = [
 'SV1_u_40_matched_pt ',
 'SV1_u_50_matched_pt ',
 'SV1_u_60_matched_pt ',
-'IP3DSV1_b_matched_weight ',
-'IP3DSV1_b_matched_weight_trackCuts ',
-'IP3DSV1_b_50_matched_pt ',
-'IP3DSV1_b_70_matched_pt ',
-'IP3DSV1_b_80_matched_pt ',
-'IP3DSV1_c_matched_weight ',
-'IP3DSV1_c_matched_weight_trackCuts ',
-'IP3DSV1_c_50_matched_pt ',
-'IP3DSV1_c_70_matched_pt ',
-'IP3DSV1_c_80_matched_pt ',
-'IP3DSV1_tau_matched_weight ',
-'IP3DSV1_tau_matched_weight_trackCuts ',
-'IP3DSV1_tau_50_matched_pt ',
-'IP3DSV1_tau_70_matched_pt ',
-'IP3DSV1_tau_80_matched_pt ',
-'IP3DSV1_u_matched_weight ',
-'IP3DSV1_u_matched_weight_trackCuts ',
-'IP3DSV1_u_50_matched_pt ',
-'IP3DSV1_u_70_matched_pt ',
-'IP3DSV1_u_80_matched_pt ',
 'JetFitter_b_matched_weight ',
 'JetFitter_b_matched_weight_trackCuts ',
 'JetFitter_b_50_matched_pt ',
@@ -170,7 +150,7 @@ var_name_list = [
 def get_name_associations(list):
 
   taggers = ["_IP3D_", "_SV1_", "_JetFitter_"]
-  old_taggers = ["_IP2D_", "_IP3DSV1_"]
+  old_taggers = ["_IP2D_"]
   oneToOne_associations = {
     '_truthLabel ': '_jet_truthLabel ',
     '_IP3Dpb ': '_tagger_IP3D_pb ',

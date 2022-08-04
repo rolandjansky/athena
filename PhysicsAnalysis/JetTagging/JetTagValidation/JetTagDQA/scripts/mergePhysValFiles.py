@@ -20,13 +20,15 @@ categories = ['jet',
               'SV',
               'tagger_IP3D',
               'tagger_RNNIP',
+              'tagger_DIPS',
               'tagger_SV1',
               'tagger_JetFitter',
-              'tagger_DL1d',
+              'tagger_DL1dv00',
+              'tagger_DL1dv01',
               'tagger_DL1r',
+              'tagger_GN1',
               'old_taggers',
               #'tagger_IP2D',
-              #'tagger_IP3DSV1',
              ]
 
 # name of the folder into which plots in no other category are sorted
@@ -42,7 +44,7 @@ sub_categories_type_1 = [ '_incl',
                    '_muon',
                  ]
 
-categories_with_subcategories_type_2 = ['tagger_IP3D', 'tagger_RNNIP', 'tagger_SV1', 'tagger_JetFitter', 'tagger_DL1d', 'tagger_DL1r']
+categories_with_subcategories_type_2 = ['tagger_IP3D', 'tagger_RNNIP', 'tagger_DIPS', 'tagger_SV1', 'tagger_JetFitter', 'tagger_DL1dv00', 'tagger_DL1dv01', 'tagger_DL1r', 'tagger_GN1']
 
 sub_categories_type_2 = [ '_pt_ttbar',
                    '_pt_Zprime',
@@ -52,7 +54,6 @@ sub_categories_type_2 = [ '_pt_ttbar',
 categories_with_subcategories_type_3 = ['old_taggers']
 
 sub_categories_type_3 = [ '_IP2D',
-                   '_IP3DSV1',
                  ]
 
 categories_with_subcategories_type_4 = ['jet']

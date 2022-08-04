@@ -608,6 +608,10 @@ namespace JetTagDQA{
     m_RNNIP_pc = bookHistogram("RNNIP_pc", "RNNIP_pc", m_sParticleType);
     m_RNNIP_pu = bookHistogram("RNNIP_pu", "RNNIP_pu", m_sParticleType);
 
+    m_DIPS_pb = bookHistogram("DIPS_pb", "DIPS_pb", m_sParticleType);
+    m_DIPS_pc = bookHistogram("DIPS_pc", "DIPS_pc", m_sParticleType);
+    m_DIPS_pu = bookHistogram("DIPS_pu", "DIPS_pu", m_sParticleType);
+
     m_SV1_pb = bookHistogram("SV1_pb", "SV1_pb", m_sParticleType);
     m_SV1_pc = bookHistogram("SV1_pc", "SV1_pc", m_sParticleType);
     m_SV1_pu = bookHistogram("SV1_pu", "SV1_pu", m_sParticleType);
@@ -631,12 +635,19 @@ namespace JetTagDQA{
     m_nGTinSV1_l = bookHistogram("SV1_nGoodTracks_l", "SV1_nGoodTracks", m_sParticleType, "l-jets -");
     m_nGTinSV1_muon = bookHistogram("SV1_nGoodTracks_muon", "SV1_nGoodTracks", m_sParticleType, "jets with muon -");
 
-    m_DL1d_pb = bookHistogram("DL1d_pb", "DL1d_pb", m_sParticleType);
-    m_DL1d_pc = bookHistogram("DL1d_pc", "DL1d_pc", m_sParticleType);
-    m_DL1d_pu = bookHistogram("DL1d_pu", "DL1d_pu", m_sParticleType);
+    m_DL1dv00_pb = bookHistogram("DL1dv00_pb", "DL1dv00_pb", m_sParticleType);
+    m_DL1dv00_pc = bookHistogram("DL1dv00_pc", "DL1dv00_pc", m_sParticleType);
+    m_DL1dv00_pu = bookHistogram("DL1dv00_pu", "DL1dv00_pu", m_sParticleType);
+    m_DL1dv01_pb = bookHistogram("DL1dv01_pb", "DL1dv01_pb", m_sParticleType);
+    m_DL1dv01_pc = bookHistogram("DL1dv01_pc", "DL1dv01_pc", m_sParticleType);
+    m_DL1dv01_pu = bookHistogram("DL1dv01_pu", "DL1dv01_pu", m_sParticleType);
     m_DL1r_pb = bookHistogram("DL1r_pb", "DL1r_pb", m_sParticleType);
     m_DL1r_pc = bookHistogram("DL1r_pc", "DL1r_pc", m_sParticleType);
     m_DL1r_pu = bookHistogram("DL1r_pu", "DL1r_pu", m_sParticleType);
+
+    m_GN1_pb = bookHistogram("GN1_pb", "GN1_pb", m_sParticleType);
+    m_GN1_pc = bookHistogram("GN1_pc", "GN1_pc", m_sParticleType);
+    m_GN1_pu = bookHistogram("GN1_pu", "GN1_pu", m_sParticleType);
 
     m_IP3D_gradeOfTracks_incl = bookHistogram("IP3D_gradeOfTracks_incl", "IP3D_gradeOfTracks", m_sParticleType);
     m_IP2D_gradeOfTracks_incl = bookHistogram("IP2D_gradeOfTracks_incl", "IP2D_gradeOfTracks", m_sParticleType);
@@ -1258,17 +1269,51 @@ namespace JetTagDQA{
 
     // pb, pu, pc 
     double RNNIP_pb, RNNIP_pu, RNNIP_pc;
-    try{ RNNIP_pb = btag->auxdata<float>("rnnip_pb"); }
-    catch(std::exception& exception){ RNNIP_pb = -1; }
-    try{ RNNIP_pu = btag->auxdata<float>("rnnip_pu"); }
-    catch(std::exception& exception){ RNNIP_pu = -1; }
-    try{ RNNIP_pc = btag->auxdata<float>("rnnip_pc"); }
-    catch(std::exception& exception){ RNNIP_pc = -1; }
+    if (btag->isAvailable<float>("rnnip_pb")){
+        RNNIP_pb = btag->auxdata<float>("rnnip_pb");
+    } else {
+	RNNIP_pb = -1;
+    }
+    if (btag->isAvailable<float>("rnnip_pu")){
+        RNNIP_pu = btag->auxdata<float>("rnnip_pu");
+    } else {
+	RNNIP_pu = -1;
+    }
+    if (btag->isAvailable<float>("rnnip_pc")){
+        RNNIP_pc = btag->auxdata<float>("rnnip_pc");
+    } else {
+	RNNIP_pc = -1;
+    }
     m_RNNIP_pb->Fill(RNNIP_pb, event->beamSpotWeight());
     m_RNNIP_pu->Fill(RNNIP_pu, event->beamSpotWeight());
     m_RNNIP_pc->Fill(RNNIP_pc, event->beamSpotWeight());
 
     double weight_RNNIP = log( RNNIP_pb / ( RNNIP_pc * m_RNNIP_fc + RNNIP_pu * (1-m_RNNIP_fc) ) );
+
+    //// DIPS variables
+
+    // pb, pu, pc 
+    double DIPS_pb, DIPS_pu, DIPS_pc;
+    if (btag->isAvailable<float>("dipsLoose20220314v2_pb")){
+        DIPS_pb = btag->auxdata<float>("dipsLoose20220314v2_pb");
+    } else {
+	DIPS_pb = -1;
+    }
+    if (btag->isAvailable<float>("dipsLoose20220314v2_pu")){
+        DIPS_pu = btag->auxdata<float>("dipsLoose20220314v2_pu");
+    } else {
+	DIPS_pu = -1;
+    }
+    if (btag->isAvailable<float>("dipsLoose20220314v2_pc")){
+        DIPS_pc = btag->auxdata<float>("dipsLoose20220314v2_pc");
+    } else {
+	DIPS_pc = -1;
+    }
+    m_DIPS_pb->Fill(DIPS_pb, event->beamSpotWeight());
+    m_DIPS_pu->Fill(DIPS_pu, event->beamSpotWeight());
+    m_DIPS_pc->Fill(DIPS_pc, event->beamSpotWeight());
+
+    double weight_DIPS = log( DIPS_pb / ( DIPS_pc * m_DIPS_fc + DIPS_pu * (1-m_DIPS_fc) ) );
 
     //// SV1 variables
 
@@ -1290,33 +1335,95 @@ namespace JetTagDQA{
 
     //// high level tagger variables
     // get the DL1x vars
-    double DL1d_pb, DL1d_pu, DL1d_pc;
-    try{ DL1d_pb = btag->auxdata<float>("DL1dv00_pb"); }
-    catch(std::exception& exception){ DL1d_pb = -1; }
-    try{ DL1d_pu = btag->auxdata<float>("DL1dv00_pu"); }
-    catch(std::exception& exception){ DL1d_pu = -1; }
-    try{ DL1d_pc = btag->auxdata<float>("DL1dv00_pc"); }
-    catch(std::exception& exception){ DL1d_pc = -1; }
-    m_DL1d_pb->Fill(DL1d_pb, event->beamSpotWeight());
-    m_DL1d_pu->Fill(DL1d_pu, event->beamSpotWeight());
-    m_DL1d_pc->Fill(DL1d_pc, event->beamSpotWeight());
+    double DL1dv00_pb, DL1dv00_pu, DL1dv00_pc;
+    if (btag->isAvailable<float>("DL1dv00_pb")){
+        DL1dv00_pb = btag->auxdata<float>("DL1dv00_pb");
+    } else {
+	DL1dv00_pb = -1;
+    }
+    if (btag->isAvailable<float>("DL1dv00_pu")){
+        DL1dv00_pu = btag->auxdata<float>("DL1dv00_pu");
+    } else {
+	DL1dv00_pu = -1;
+    }
+    if (btag->isAvailable<float>("DL1dv00_pc")){
+        DL1dv00_pc = btag->auxdata<float>("DL1dv00_pc");
+    } else {
+	DL1dv00_pc = -1;
+    }
+    m_DL1dv00_pb->Fill(DL1dv00_pb, event->beamSpotWeight());
+    m_DL1dv00_pu->Fill(DL1dv00_pu, event->beamSpotWeight());
+    m_DL1dv00_pc->Fill(DL1dv00_pc, event->beamSpotWeight());
+
+    double DL1dv01_pb, DL1dv01_pu, DL1dv01_pc;
+    if (btag->isAvailable<float>("DL1dv01_pb")){
+        DL1dv01_pb = btag->auxdata<float>("DL1dv01_pb");
+    } else {
+	DL1dv01_pb = -1;
+    }
+    if (btag->isAvailable<float>("DL1dv01_pu")){
+        DL1dv01_pu = btag->auxdata<float>("DL1dv01_pu");
+    } else {
+	DL1dv01_pu = -1;
+    }
+    if (btag->isAvailable<float>("DL1dv01_pc")){
+        DL1dv01_pc = btag->auxdata<float>("DL1dv01_pc");
+    } else {
+	DL1dv01_pc = -1;
+    }
+    m_DL1dv01_pb->Fill(DL1dv01_pb, event->beamSpotWeight());
+    m_DL1dv01_pu->Fill(DL1dv01_pu, event->beamSpotWeight());
+    m_DL1dv01_pc->Fill(DL1dv01_pc, event->beamSpotWeight());
 
     double DL1r_pb, DL1r_pu, DL1r_pc;
-    try{ DL1r_pb = btag->auxdata<float>("DL1r_pb"); }
-    catch(std::exception& exception){ DL1r_pb = -1; }
-    try{ DL1r_pu = btag->auxdata<float>("DL1r_pu"); }
-    catch(std::exception& exception){ DL1r_pu = -1; }
-    try{ DL1r_pc = btag->auxdata<float>("DL1r_pc"); }
-    catch(std::exception& exception){ DL1r_pc = -1; }
+    if (btag->isAvailable<float>("DL1r_pb")){
+        DL1r_pb = btag->auxdata<float>("DL1r_pb");
+    } else {
+	DL1r_pb = -1;
+    }
+    if (btag->isAvailable<float>("DL1r_pu")){
+        DL1r_pu = btag->auxdata<float>("DL1r_pu");
+    } else {
+	DL1r_pu = -1;
+    }
+    if (btag->isAvailable<float>("DL1r_pc")){
+        DL1r_pc = btag->auxdata<float>("DL1r_pc");
+    } else {
+	DL1r_pc = -1;
+    }
     m_DL1r_pb->Fill(DL1r_pb, event->beamSpotWeight());
     m_DL1r_pu->Fill(DL1r_pu, event->beamSpotWeight());
     m_DL1r_pc->Fill(DL1r_pc, event->beamSpotWeight());
 
+    // get the GN1 vars
+    double GN1_pb, GN1_pu, GN1_pc;
+    if (btag->isAvailable<float>("GN120220509_pb")){
+        GN1_pb = btag->auxdata<float>("GN120220509_pb");
+    } else {
+	GN1_pb = -1;
+    }
+    if (btag->isAvailable<float>("GN120220509_pu")){
+        GN1_pu = btag->auxdata<float>("GN120220509_pu");
+    } else {
+	GN1_pu = -1;
+    }
+    if (btag->isAvailable<float>("GN120220509_pc")){
+        GN1_pc = btag->auxdata<float>("GN120220509_pc");
+    } else {
+	GN1_pc = -1;
+    }
+    m_GN1_pb->Fill(GN1_pb, event->beamSpotWeight());
+    m_GN1_pu->Fill(GN1_pu, event->beamSpotWeight());
+    m_GN1_pc->Fill(GN1_pc, event->beamSpotWeight());
+
     // calculate the DL1 discriminant value
-    double weight_DL1d = log( DL1d_pb / ( DL1d_pc * m_DL1d_fc + DL1d_pu * (1-m_DL1d_fc) ) );
+    double weight_DL1dv00 = log( DL1dv00_pb / ( DL1dv00_pc * m_DL1dv00_fc + DL1dv00_pu * (1-m_DL1dv00_fc) ) );
+    double weight_DL1dv01 = log( DL1dv01_pb / ( DL1dv01_pc * m_DL1dv01_fc + DL1dv01_pu * (1-m_DL1dv01_fc) ) );
     double weight_DL1r = log( DL1r_pb / ( DL1r_pc * m_DL1r_fc + DL1r_pu * (1-m_DL1r_fc) ) );
-    
-    updateNJetsThatPassedWPCutsMap(nJetsThatPassedWPCuts, btag->IP3D_loglikelihoodratio(), btag->IP2D_loglikelihoodratio(), weight_RNNIP, btag->SV1_loglikelihoodratio(), btag->SV1plusIP3D_discriminant(), btag->JetFitter_loglikelihoodratio(), weight_DL1d, weight_DL1r);
+    // calculate the GN1 discriminant value
+    double weight_GN1 = log( GN1_pb / ( GN1_pc * m_GN1_fc + GN1_pu * (1-m_GN1_fc) ) );
+   
+    updateNJetsThatPassedWPCutsMap(nJetsThatPassedWPCuts, btag->IP3D_loglikelihoodratio(), btag->IP2D_loglikelihoodratio(), weight_RNNIP, weight_DIPS, btag->SV1_loglikelihoodratio(), btag->JetFitter_loglikelihoodratio(), weight_DL1dv00, weight_DL1dv01, weight_DL1r, weight_GN1);
 
     // fill the histograms with the tagger discriminants
     for(std::map<std::string, TH1*>::const_iterator hist_iter=m_weight_histos.begin(); hist_iter!=m_weight_histos.end(); ++hist_iter){
@@ -1334,13 +1441,13 @@ namespace JetTagDQA{
         bool pass_nTracksCut_RNNIP = nIP3DTracks > 0;
         BTaggingValidationPlots::fillDiscriminantHistograms("RNNIP_", weight_RNNIP, m_RNNIP_workingPoints, truth_label, hist_iter, label_iter, pass_nTracksCut_RNNIP, jet->pt(), jet_Lxy, onZprime, event);
 
+        // DIPS
+        bool pass_nTracksCut_DIPS = nIP3DTracks > 0;
+        BTaggingValidationPlots::fillDiscriminantHistograms("DIPS_", weight_DIPS, m_DIPS_workingPoints, truth_label, hist_iter, label_iter, pass_nTracksCut_DIPS, jet->pt(), jet_Lxy, onZprime, event);
+
         // SV1
         bool pass_nTracksCut_SV1 = nGTinSV1 > 0;
         BTaggingValidationPlots::fillDiscriminantHistograms("SV1_", btag->SV1_loglikelihoodratio(), m_SV1_workingPoints, truth_label, hist_iter, label_iter, pass_nTracksCut_SV1, jet->pt(), jet_Lxy, onZprime, event);
-
-        // IP3DSV1
-        bool pass_nTracksCut_IP3DSV1 = nGTinSV1 > 0 && nIP3DTracks > 0;
-        BTaggingValidationPlots::fillDiscriminantHistograms("IP3DSV1_", btag->SV1plusIP3D_discriminant(), m_IP3DSV1_workingPoints, truth_label, hist_iter, label_iter, pass_nTracksCut_IP3DSV1, jet->pt(), jet_Lxy, onZprime, event);
 
         // JetFitter
         bool pass_nTracksCut_JetFitter = nGTinSV1 > 0 && nIP3DTracks > 0;
@@ -1348,8 +1455,13 @@ namespace JetTagDQA{
 
         // DL1 taggers
         bool pass_nTracksCut_DL1 = nGTinSV1 > 0 && nIP3DTracks > 0;
-        BTaggingValidationPlots::fillDiscriminantHistograms("DL1d_", weight_DL1d, m_DL1d_workingPoints, truth_label, hist_iter, label_iter, pass_nTracksCut_DL1, jet->pt(), jet_Lxy, onZprime, event);
+        BTaggingValidationPlots::fillDiscriminantHistograms("DL1dv00_", weight_DL1dv00, m_DL1dv00_workingPoints, truth_label, hist_iter, label_iter, pass_nTracksCut_DL1, jet->pt(), jet_Lxy, onZprime, event);
+        BTaggingValidationPlots::fillDiscriminantHistograms("DL1dv01_", weight_DL1dv01, m_DL1dv01_workingPoints, truth_label, hist_iter, label_iter, pass_nTracksCut_DL1, jet->pt(), jet_Lxy, onZprime, event);
         BTaggingValidationPlots::fillDiscriminantHistograms("DL1r_", weight_DL1r, m_DL1r_workingPoints, truth_label, hist_iter, label_iter, pass_nTracksCut_DL1, jet->pt(), jet_Lxy, onZprime, event);
+
+        // GN1 taggers
+        bool pass_nTracksCut_GN1 = true;
+        BTaggingValidationPlots::fillDiscriminantHistograms("GN1_", weight_GN1, m_GN1_workingPoints, truth_label, hist_iter, label_iter, pass_nTracksCut_GN1, jet->pt(), jet_Lxy, onZprime, event);
       }
     }
   }
@@ -1369,11 +1481,13 @@ namespace JetTagDQA{
       if(*tag_iter == "IP3D") workingPoints = m_IP3D_workingPoints;
       else if(*tag_iter == "IP2D") workingPoints = m_IP2D_workingPoints;
       else if(*tag_iter == "RNNIP") workingPoints = m_RNNIP_workingPoints;
+      else if(*tag_iter == "DIPS") workingPoints = m_DIPS_workingPoints;
       else if(*tag_iter == "SV1") workingPoints = m_SV1_workingPoints;
-      else if(*tag_iter == "IP3DSV1") workingPoints = m_IP3DSV1_workingPoints;
       else if(*tag_iter == "JetFitter") workingPoints = m_JetFitter_workingPoints;
-      else if(*tag_iter == "DL1d") workingPoints = m_DL1d_workingPoints;
+      else if(*tag_iter == "DL1dv00") workingPoints = m_DL1dv00_workingPoints;
+      else if(*tag_iter == "DL1dv01") workingPoints = m_DL1dv01_workingPoints;
       else if(*tag_iter == "DL1r") workingPoints = m_DL1r_workingPoints;
+      else if(*tag_iter == "GN1") workingPoints = m_GN1_workingPoints;
       // loop over the working points
       for(std::map<std::string, double>::const_iterator working_points_iter = workingPoints.begin(); working_points_iter != workingPoints.end(); ++working_points_iter){
         std::string name = "nJetsThatPassedWPCuts_" + *tag_iter + "_" + working_points_iter->first; 
@@ -1393,11 +1507,13 @@ namespace JetTagDQA{
       if(*tag_iter == "IP3D") workingPoints = m_IP3D_workingPoints;
       else if(*tag_iter == "IP2D") workingPoints = m_IP2D_workingPoints;
       else if(*tag_iter == "RNNIP") workingPoints = m_RNNIP_workingPoints;
+      else if(*tag_iter == "DIPS") workingPoints = m_DIPS_workingPoints;
       else if(*tag_iter == "SV1") workingPoints = m_SV1_workingPoints;
-      else if(*tag_iter == "IP3DSV1") workingPoints = m_IP3DSV1_workingPoints;
       else if(*tag_iter == "JetFitter") workingPoints = m_JetFitter_workingPoints;
-      else if(*tag_iter == "DL1d") workingPoints = m_DL1d_workingPoints;
+      else if(*tag_iter == "DL1dv00") workingPoints = m_DL1dv00_workingPoints;
+      else if(*tag_iter == "DL1dv01") workingPoints = m_DL1dv01_workingPoints;
       else if(*tag_iter == "DL1r") workingPoints = m_DL1r_workingPoints;
+      else if(*tag_iter == "GN1") workingPoints = m_GN1_workingPoints;
       // loop over the working points
       for(std::map<std::string, double>::const_iterator working_points_iter = workingPoints.begin(); working_points_iter != workingPoints.end(); ++working_points_iter){
         std::string name = "nJetsThatPassedWPCuts_" + *tag_iter + "_" + working_points_iter->first; 
@@ -1407,7 +1523,7 @@ namespace JetTagDQA{
     }
   }
 
-  void BTaggingValidationPlots::updateNJetsThatPassedWPCutsMap(std::map<std::string, int>& nJetsThatPassedWPCuts, const double& discr_IP3D, const double& discr_IP2D, const double& discr_RNNIP, const double& discr_SV1, const double& discr_IP3DSV1, const double& discr_JetFitter, const double& discr_DL1d, const double& discr_DL1r){
+  void BTaggingValidationPlots::updateNJetsThatPassedWPCutsMap(std::map<std::string, int>& nJetsThatPassedWPCuts, const double& discr_IP3D, const double& discr_IP2D, const double& discr_RNNIP, const double& discr_DIPS, const double& discr_SV1, const double& discr_JetFitter, const double& discr_DL1dv00, const double& discr_DL1dv01, const double& discr_DL1r, const double& discr_GN1){
     // loop over the taggers
     for(std::vector<std::string>::const_iterator tag_iter = m_taggers.begin(); tag_iter != m_taggers.end(); ++tag_iter){
       // get the right working points and discriminant values
@@ -1416,11 +1532,13 @@ namespace JetTagDQA{
       if(*tag_iter == "IP3D"){ workingPoints = m_IP3D_workingPoints; discriminant_value = discr_IP3D; }
       else if(*tag_iter == "IP2D"){ workingPoints = m_IP2D_workingPoints; discriminant_value = discr_IP2D; }
       else if(*tag_iter == "RNNIP"){ workingPoints = m_RNNIP_workingPoints; discriminant_value = discr_RNNIP; }
+      else if(*tag_iter == "DIPS"){ workingPoints = m_DIPS_workingPoints; discriminant_value = discr_DIPS; }
       else if(*tag_iter == "SV1"){ workingPoints = m_SV1_workingPoints; discriminant_value = discr_SV1; }
-      else if(*tag_iter == "IP3DSV1"){ workingPoints = m_IP3DSV1_workingPoints; discriminant_value = discr_IP3DSV1; }
       else if(*tag_iter == "JetFitter"){ workingPoints = m_JetFitter_workingPoints; discriminant_value = discr_JetFitter; }
-      else if(*tag_iter == "DL1d"){ workingPoints = m_DL1d_workingPoints; discriminant_value = discr_DL1d; }
+      else if(*tag_iter == "DL1dv00"){ workingPoints = m_DL1dv00_workingPoints; discriminant_value = discr_DL1dv00; }
+      else if(*tag_iter == "DL1dv01"){ workingPoints = m_DL1dv01_workingPoints; discriminant_value = discr_DL1dv01; }
       else if(*tag_iter == "DL1r"){ workingPoints = m_DL1r_workingPoints; discriminant_value = discr_DL1r; }
+      else if(*tag_iter == "GN1"){ workingPoints = m_GN1_workingPoints; discriminant_value = discr_GN1; }
       // loop over the working points
       for(std::map<std::string, double>::const_iterator working_points_iter = workingPoints.begin(); working_points_iter != workingPoints.end(); ++working_points_iter){
         std::string name = "nJetsThatPassedWPCuts_" + *tag_iter + "_" + working_points_iter->first; 
@@ -1440,11 +1558,13 @@ namespace JetTagDQA{
       if(*tag_iter == "IP3D") workingPoints = m_IP3D_workingPoints;
       else if(*tag_iter == "IP2D") workingPoints = m_IP2D_workingPoints;
       else if(*tag_iter == "RNNIP") workingPoints = m_RNNIP_workingPoints;
+      else if(*tag_iter == "DIPS") workingPoints = m_DIPS_workingPoints;
       else if(*tag_iter == "SV1") workingPoints = m_SV1_workingPoints;
-      else if(*tag_iter == "IP3DSV1") workingPoints = m_IP3DSV1_workingPoints;
       else if(*tag_iter == "JetFitter") workingPoints = m_JetFitter_workingPoints;
-      else if(*tag_iter == "DL1d") workingPoints = m_DL1d_workingPoints;
+      else if(*tag_iter == "DL1dv00") workingPoints = m_DL1dv00_workingPoints;
+      else if(*tag_iter == "DL1dv01") workingPoints = m_DL1dv01_workingPoints;
       else if(*tag_iter == "DL1r") workingPoints = m_DL1r_workingPoints;
+      else if(*tag_iter == "GN1") workingPoints = m_GN1_workingPoints;
       // loop over the working points
       for(std::map<std::string, double>::const_iterator working_points_iter = workingPoints.begin(); working_points_iter != workingPoints.end(); ++working_points_iter){
         std::string name = "nJetsThatPassedWPCuts_" + *tag_iter + "_" + working_points_iter->first; 
@@ -1462,11 +1582,13 @@ namespace JetTagDQA{
     m_taggers.push_back("IP3D");
     m_taggers.push_back("IP2D");
     m_taggers.push_back("RNNIP");
+    m_taggers.push_back("DIPS");
     m_taggers.push_back("SV1");
-    m_taggers.push_back("IP3DSV1");
     m_taggers.push_back("JetFitter");
-    m_taggers.push_back("DL1d");
+    m_taggers.push_back("DL1dv00");
+    m_taggers.push_back("DL1dv01");
     m_taggers.push_back("DL1r");
+    m_taggers.push_back("GN1");
 
     // list of all truth labels
     m_truthLabels.insert(std::make_pair("b", 5));
@@ -1497,27 +1619,22 @@ namespace JetTagDQA{
     m_RNNIP_workingPoints.insert(std::make_pair("77", 1.4370)); 
     m_RNNIP_workingPoints.insert(std::make_pair("85", -0.0568)); 
     }
-    //// these are the alternative WP values for a fc value of 0.07
-    //// m_RNNIP_fc = 0.07;
-    //// m_RNNIP_workingPoints.insert(std::make_pair("70", 2.3126)); 
-    //// if(m_detailLevel > 10){
-    ////   m_RNNIP_workingPoints.insert(std::make_pair("60", 3.4148)); 
-    ////   m_RNNIP_workingPoints.insert(std::make_pair("77", 1.3644)); 
-    ////   m_RNNIP_workingPoints.insert(std::make_pair("85", -0.0502)); 
-    //// }
     
+    // DIPS (privately determined)
+    // TODO: cuts values copied from RNNIP, needs to be updated in future
+    m_DIPS_fc = 0.005;
+    m_DIPS_workingPoints.insert(std::make_pair("70", 2.4996)); 
+    if(m_detailLevel > 10){
+    m_DIPS_workingPoints.insert(std::make_pair("60", 3.8350)); 
+    m_DIPS_workingPoints.insert(std::make_pair("77", 1.4370)); 
+    m_DIPS_workingPoints.insert(std::make_pair("85", -0.0568)); 
+    }
+
     // SV1 (rel 16 Mc10 Dec 10)
     m_SV1_workingPoints.insert(std::make_pair("60", 1.6));
     if(m_detailLevel > 10){
     m_SV1_workingPoints.insert(std::make_pair("40", 5.5));
     m_SV1_workingPoints.insert(std::make_pair("50", 3.9));
-    }
-
-    // IP3DSV1 (rel 17 Mc11b Dec. 11)
-    m_IP3DSV1_workingPoints.insert(std::make_pair("70", 1.85));
-    if(m_detailLevel > 10){
-      m_IP3DSV1_workingPoints.insert(std::make_pair("50", 7.6));
-    m_IP3DSV1_workingPoints.insert(std::make_pair("80", -0.7));    
     }
 
     // JetFitter (self determined)
@@ -1528,12 +1645,21 @@ namespace JetTagDQA{
     }
       
     // DL1d   (WP cuts determined in Nov 2021)
-    m_DL1d_fc = 0.018;
-    m_DL1d_workingPoints.insert(std::make_pair("70", 3.494));
+    m_DL1dv00_fc = 0.018;
+    m_DL1dv00_workingPoints.insert(std::make_pair("70", 3.494));
     if(m_detailLevel > 10){
-      m_DL1d_workingPoints.insert(std::make_pair("60", 4.884));
-      m_DL1d_workingPoints.insert(std::make_pair("77", 2.443));
-      m_DL1d_workingPoints.insert(std::make_pair("85", 0.930));
+      m_DL1dv00_workingPoints.insert(std::make_pair("60", 4.884));
+      m_DL1dv00_workingPoints.insert(std::make_pair("77", 2.443));
+      m_DL1dv00_workingPoints.insert(std::make_pair("85", 0.930));
+    }
+
+    // DL1d   (WP cuts determined in Nov 2021)
+    m_DL1dv01_fc = 0.018;
+    m_DL1dv01_workingPoints.insert(std::make_pair("70", 3.493));
+    if(m_detailLevel > 10){
+      m_DL1dv01_workingPoints.insert(std::make_pair("60", 4.854));
+      m_DL1dv01_workingPoints.insert(std::make_pair("77", 2.456));
+      m_DL1dv01_workingPoints.insert(std::make_pair("85", 0.948));
     }
 
     // DL1r   (PFlow 2019_03)
@@ -1543,6 +1669,15 @@ namespace JetTagDQA{
       m_DL1r_workingPoints.insert(std::make_pair("60", 4.565));
       m_DL1r_workingPoints.insert(std::make_pair("77", 2.195));
       m_DL1r_workingPoints.insert(std::make_pair("85", 0.665));
+    }
+
+    // GN1   (WP cuts determined in May 2022)
+    m_GN1_fc = 0.018;
+    m_GN1_workingPoints.insert(std::make_pair("70", 3.642));
+    if(m_detailLevel > 10){
+      m_GN1_workingPoints.insert(std::make_pair("60", 5.135));
+      m_GN1_workingPoints.insert(std::make_pair("77", 2.602));
+      m_GN1_workingPoints.insert(std::make_pair("85", 1.253));
     }
   }
   
@@ -1558,7 +1693,7 @@ namespace JetTagDQA{
         std::string histo_name_matched = *tag_iter+"_"+label_iter->first+"_matched_weight";
         std::string var_name_matched = "llr";
         if((*tag_iter).find("MV") < 1) var_name_matched += "_MV";
-        else if(*tag_iter == "IP2D" || *tag_iter == "IP3DSV1") var_name_matched += "_old_taggers";
+        else if(*tag_iter == "IP2D") var_name_matched += "_old_taggers";
         TH1* histo_matched = bookHistogram(histo_name_matched, var_name_matched, m_sParticleType, label_iter->first + "-jets" + ", " + *tag_iter);    
         m_weight_histos.insert(std::make_pair(histo_name_matched, histo_matched));
 
@@ -1566,7 +1701,7 @@ namespace JetTagDQA{
         std::string histo_name_trackCuts = *tag_iter+"_"+label_iter->first+"_matched_weight_trackCuts";
         std::string var_name_trackCuts = "llr_nTracksCut";
         if((*tag_iter).find("MV") < 1) var_name_trackCuts += "_MV";
-        else if(*tag_iter == "IP2D" || *tag_iter == "IP3DSV1") var_name_trackCuts += "_old_taggers";
+        else if(*tag_iter == "IP2D") var_name_trackCuts += "_old_taggers";
         TH1* histo_trackCuts = bookHistogram(histo_name_trackCuts, var_name_trackCuts, m_sParticleType, label_iter->first + "-jets" + ", " + *tag_iter);    
         m_weight_histos.insert(std::make_pair(histo_name_trackCuts, histo_trackCuts));
         
@@ -1584,25 +1719,34 @@ namespace JetTagDQA{
         else if(*tag_iter == "RNNIP"){
           bookDiscriminantVsPTAndLxyHistograms("RNNIP", m_RNNIP_workingPoints, false, label_iter, m_sParticleType);
         }
+        // DIPS
+        else if(*tag_iter == "DIPS"){
+          bookDiscriminantVsPTAndLxyHistograms("DIPS", m_DIPS_workingPoints, false, label_iter, m_sParticleType);
+        }
         // SV1
         else if(*tag_iter == "SV1"){
           bookDiscriminantVsPTAndLxyHistograms("SV1", m_SV1_workingPoints, false, label_iter, m_sParticleType);
         }
-        // IP3DSV1
-        else if(*tag_iter == "IP3DSV1"){
-          bookDiscriminantVsPTAndLxyHistograms("IP3DSV1", m_IP3DSV1_workingPoints, true, label_iter, m_sParticleType);
-        } 
         // JetFitter
         else if(*tag_iter == "JetFitter"){
           bookDiscriminantVsPTAndLxyHistograms("JetFitter", m_JetFitter_workingPoints, false, label_iter, m_sParticleType);
         }
-        //Dl1d
-        else if(*tag_iter == "DL1d"){
-          bookDiscriminantVsPTAndLxyHistograms("DL1d", m_DL1d_workingPoints, false, label_iter, m_sParticleType);
+        //Dl1dv00
+        else if(*tag_iter == "DL1dv00"){
+          bookDiscriminantVsPTAndLxyHistograms("DL1dv00", m_DL1dv00_workingPoints, false, label_iter, m_sParticleType);
+        }
+        //Dl1dv01
+        else if(*tag_iter == "DL1dv01"){
+          bookDiscriminantVsPTAndLxyHistograms("DL1dv01", m_DL1dv01_workingPoints, false, label_iter, m_sParticleType);
         }
         //Dl1r
         else if(*tag_iter == "DL1r"){
           bookDiscriminantVsPTAndLxyHistograms("DL1r", m_DL1r_workingPoints, false, label_iter, m_sParticleType);
+        }
+
+        //Dl1dv00
+        else if(*tag_iter == "GN1"){
+          bookDiscriminantVsPTAndLxyHistograms("GN1", m_GN1_workingPoints, false, label_iter, m_sParticleType);
         }
 
       }
