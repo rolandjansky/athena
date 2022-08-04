@@ -7,18 +7,15 @@
 
 #include <cstdint>
 
-#include "TrigT1RPChardware/MatrixReadOutStructure.h"
-
-#include "MuonRDO/RpcPadContainer.h"
-#include "MuonRDO/RpcPad.h"
+#include "ByteStreamData/RawEvent.h"
 #include "MuonRDO/RpcCoinMatrix.h"
 #include "MuonRDO/RpcFiredChannel.h"
-
-#include "ByteStreamData/RawEvent.h"
-
+#include "MuonRDO/RpcPad.h"
+#include "MuonRDO/RpcPadContainer.h"
 #include "RPC_Hid2RESrcID.h"
+#include "TrigT1RPChardware/MatrixReadOutStructure.h"
 
-/** This class provides conversion from BS to ROD format. 
+/** This class provides conversion from BS to ROD format.
    * @author H. Ma
    * @version  0-0-1 , Oct 7, 2002
 
@@ -30,52 +27,42 @@
    * Conversion from RpcFiredChannel, CoinMatrix, Pad to ROD format
    */
 
-class RpcROD_Encoder
-{
+class RpcROD_Encoder {
+public:
+    /** constructor
+     */
+    RpcROD_Encoder();
 
-public: 
+    /** destructor
+     */
+    ~RpcROD_Encoder();
 
-	/** constructor 
-	*/
-	RpcROD_Encoder(); 
+    /** initialize the map
+     */
+    void set(const RPC_Hid2RESrcID* hid2re);
 
+    /** add Rpc pads to the current list
+     */
+    void add(const RpcPad* rc);
 
-	/** destructor 
-	*/
-	~RpcROD_Encoder(); 
+    /** clear the current pad list
+     */
+    void clear();
 
-	/** initialize the map 
-	*/
-	void set(const RPC_Hid2RESrcID* hid2re) ;
+    /** convert all pad in the current list to
+      a vector of 32bit words
+    */
 
-	/** add Rpc pads to the current list 
-	*/ 
-        void add(const RpcPad* rc); 
-
-	/** clear the current pad list
-	*/ 
-        void clear(); 
-
-	/** convert all pad in the current list to 
-	  a vector of 32bit words
-	*/ 
-
-        void fillROD(std::vector<uint32_t>& v) ;
+    void fillROD(std::vector<uint32_t>& v);
 
 private:
-	void packFragments(const std::vector<uint16_t>& v16, 
-			   std::vector<uint32_t>& v,
-			   int n) const;
+    void packFragments(const std::vector<uint16_t>& v16, std::vector<uint32_t>& v, int n) const;
 
-	uint32_t set32bits(const unsigned short int * v16, 
-			   const unsigned short int * pos,
-			   const unsigned short int n) const;
+    uint32_t set32bits(const unsigned short int* v16, const unsigned short int* pos, const unsigned short int n) const;
 
-private: 
-
-	const RPC_Hid2RESrcID* m_hid2re; 
-	std::vector<const RpcPad*> m_vRpcPad;  
-
-} ; 
+private:
+    const RPC_Hid2RESrcID* m_hid2re;
+    std::vector<const RpcPad*> m_vRpcPad;
+};
 
 #endif

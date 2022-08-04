@@ -3,13 +3,13 @@
 */
 
 /***************************************************************************
- Tool for RDO to BS conversion 
+ Tool for RDO to BS conversion
  -----------------------------------------
  ***************************************************************************/
 
 #ifndef MUONRPC_CNVTOOLS_IRPC_RDOTOBYTESTREAMTOOL_H
-# define MUONRPC_CNVTOOLS_IRPC_RDOTOBYTESTREAMTOOL_H
+#define MUONRPC_CNVTOOLS_IRPC_RDOTOBYTESTREAMTOOL_H
 
 #include "MuonCnvToolInterfaces/IRPC_RDOtoByteStreamTool.h"
 
-#endif // MUONRPC_CNVTOOLS_IRPC_RDOTOBYTESTREAMTOOL_H
+#endif  // MUONRPC_CNVTOOLS_IRPC_RDOTOBYTESTREAMTOOL_H
