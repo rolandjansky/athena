@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Run tests on ISF_MainConfigNew
 
-This test inherits from Simulation/G4Atlas/G4AtlasAlg/test/G4AtlasAlgConfigNew_Test.py
+This test inherits from Simulation/G4Atlas/G4AtlasAlg/test/G4AtlasAlgConfig_Test.py
 
 Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """

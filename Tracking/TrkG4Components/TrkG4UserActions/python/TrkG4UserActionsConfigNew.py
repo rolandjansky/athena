@@ -24,7 +24,7 @@ def MaterialStepRecorderUserActionSvcCfg(configFlags, name="G4UA::MaterialStepRe
   MaterialStepRecorderAction = result.popToolsAndMerge(actionAcc)
   
   #Retrieving the default action list
-  from G4AtlasServices.G4AtlasUserActionConfigNew import getDefaultActions
+  from G4AtlasServices.G4AtlasUserActionConfig import getDefaultActions
   defaultActions = result.popToolsAndMerge(getDefaultActions(configFlags))
     
   #Adding LengthIntegrator to defaults

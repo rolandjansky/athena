@@ -29,7 +29,7 @@ if __name__ == '__main__':
   cfg = MainServicesCfg(ConfigFlags)
 
   #import the following tool configs
-  from G4AtlasTools.G4PhysicsRegionConfigNew import *
+  from G4AtlasTools.G4PhysicsRegionConfig import *
   #add the tools
   cfg.addPublicTool(BeampipeFwdCutPhysicsRegionToolCfg(ConfigFlags))
   cfg.addPublicTool(FWDBeamLinePhysicsRegionToolCfg(ConfigFlags))

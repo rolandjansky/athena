@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Run tests on G4AtlasServicesConfigNew
+"""Run tests on G4AtlasServicesConfig
 
 Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
@@ -38,7 +38,7 @@ if __name__ == '__main__':
   cfg = MainServicesCfg(ConfigFlags)
 
 
-  from G4AtlasServices.G4AtlasServicesConfigNew import DetectorGeometrySvcCfg
+  from G4AtlasServices.G4AtlasServicesConfig import DetectorGeometrySvcCfg
   #add the algorithm
   acc = DetectorGeometrySvcCfg(ConfigFlags)
   cfg.merge(acc)

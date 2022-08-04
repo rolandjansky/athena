@@ -8,7 +8,7 @@
 # art-output: myHITSnew.pool.root
 
 # ComponentAccumulator
-G4AtlasAlgConfigNew_Test.py
+G4AtlasAlgConfig_Test.py
 rc=$?
 echo "art-result: $rc CAsim"
 

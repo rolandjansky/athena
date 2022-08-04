@@ -27,7 +27,7 @@ def TightMuonsATLASFieldManagerToolCfg(ConfigFlags, name='TightMuonsATLASFieldMa
     result.setPrivateTools(GlobalFieldManagerTool(name, **kwargs))
     return result
 
-#not used in G4AtlasServicesConfigNew?
+#not used in G4AtlasServicesConfig?
 def ClassicFieldManagerToolCfg(ConfigFlags, name='ClassicFieldManager', **kwargs):
     kwargs.setdefault("IntegratorStepper", "ClassicalRK4")
     return ATLASFieldManagerToolCfg(ConfigFlags, name, **kwargs)
@@ -89,7 +89,7 @@ def MuonFieldManagerToolCfg(ConfigFlags, name='MuonFieldManager', **kwargs):
     kwargs.setdefault('MinimumEpsilonStep', 0.000001)
     return BasicDetectorFieldManagerToolCfg(ConfigFlags, name, **kwargs)
 
-#not used in G4AtlasServicesConfigNew?
+#not used in G4AtlasServicesConfig?
 def BasicFwdFieldManagerToolCfg(ConfigFlags, name='FwdFieldManagerTool', **kwargs):
     #kwargs.setdefault('DeltaChord',         0.00000002)
     kwargs.setdefault('DeltaIntersection',  1e-9)
