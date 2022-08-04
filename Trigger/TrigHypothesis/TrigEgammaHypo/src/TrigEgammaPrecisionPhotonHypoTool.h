@@ -34,8 +34,9 @@ class TrigEgammaPrecisionPhotonHypoTool : public extends<AthAlgTool, ITrigEgamma
     Gaudi::Property< std::vector<float> > m_eTthr { this, "ETthr", {}, "ET Threshold" };
     Gaudi::Property< float >              m_detacluster { this, "dETACLUSTERthr", 0. , "" };
     Gaudi::Property< float >              m_dphicluster { this, "dPHICLUSTERthr", 0. , "" };
-    Gaudi::Property< float >              m_RelEtConeCut { this, "RelEtConeCut", 999. , "Calo isolation cut on etcone20" };
-    Gaudi::Property< float >              m_RelTopoEtConeCut { this, "RelTopoEtConeCut", 999. , "Calo isolation cut in Topoetcone20" };
+    Gaudi::Property< std::vector<float> > m_RelEtConeCut { this, "RelEtConeCut", {999., 999., 999.} , "Calo isolation cut on etcone20" };
+    Gaudi::Property< std::vector<float> > m_RelTopoEtConeCut { this, "RelTopoEtConeCut", {999., 999., 999.}, "Calo isolation cut in [TopoEtcone20/pt, TopoEtcone30/pt, TopoEtcone40/pt]" };
+    Gaudi::Property< std::vector<float> > m_CutOffset { this, "Offset", {0., 0., 0.} , "Calo isolation offset cut in [(Topo)Etcone20/pt, (Topo)Etcone30/pt, (Topo)Etcone40/pt]" };
     Gaudi::Property< std::string >        m_pidName {this, "PidName", "", "Pid name"}; 
     
     /* monitoring */

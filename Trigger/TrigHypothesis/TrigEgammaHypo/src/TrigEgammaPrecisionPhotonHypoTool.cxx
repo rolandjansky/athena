@@ -76,10 +76,24 @@ bool TrigEgammaPrecisionPhotonHypoTool::decide( const ITrigEgammaPrecisionPhoton
   auto mon_topoetcone20    = Monitored::Scalar("topoetcone20",   -99.);
   auto mon_reletcone20     = Monitored::Scalar("reletcone20",   -99.);
   auto mon_reltopoetcone20 = Monitored::Scalar("reltopoetcone20",   -99.);
+
+  auto mon_etcone30        = Monitored::Scalar("etcone30",   -99.);
+  auto mon_topoetcone30    = Monitored::Scalar("topoetcone30",   -99.);
+  auto mon_reletcone30     = Monitored::Scalar("reletcone30",   -99.);
+  auto mon_reltopoetcone30 = Monitored::Scalar("reltopoetcone30",   -99.);
+
+  auto mon_etcone40        = Monitored::Scalar("etcone40",   -99.);
+  auto mon_topoetcone40    = Monitored::Scalar("topoetcone40",   -99.);
+  auto mon_reletcone40     = Monitored::Scalar("reletcone40",   -99.);
+  auto mon_reltopoetcone40 = Monitored::Scalar("reltopoetcone40",   -99.);
+
   auto PassedCuts          = Monitored::Scalar<int>( "CutCounter", -1 );  
   auto monitorIt           = Monitored::Group( m_monTool, mon_ET, mon_dEta, mon_dPhi, 
                                         mon_etaBin, mon_Eta, mon_Phi, mon_mu, 
-                                        mon_etcone20, mon_topoetcone20, mon_reletcone20, mon_reltopoetcone20, PassedCuts );
+                                        mon_etcone20, mon_topoetcone20, mon_reletcone20, mon_reltopoetcone20, 
+                                        mon_etcone30, mon_topoetcone30, mon_reletcone30, mon_reltopoetcone30, 
+                                        mon_etcone40, mon_topoetcone40, mon_reletcone40, mon_reltopoetcone40, 
+										PassedCuts );
 
   // when leaving scope it will ship data to monTool
   PassedCuts = PassedCuts + 1; //got called (data in place)
@@ -177,8 +191,11 @@ bool TrigEgammaPrecisionPhotonHypoTool::decide( const ITrigEgammaPrecisionPhoton
 
   float Rhad1(0), Rhad(0), Reta(0), Rphi(0), e277(0), weta2c(0), //emax2(0), 
         Eratio(0), DeltaE(0), f1(0), weta1c(0), wtot(0), fracm(0);
-  float ptcone20(999), ptcone30(999), ptcone40(999), etcone20(999), etcone30(999), 
-        etcone40(999), topoetcone20(999), topoetcone30(999), topoetcone40(999), reletcone20(999), reltopoetcone20(999);
+  float ptcone20(999), ptcone30(999), ptcone40(999), 
+		etcone20(999), etcone30(999), etcone40(999), 
+		topoetcone20(999), topoetcone30(999), topoetcone40(999), 
+		reletcone20(999), reletcone30(999), reletcone40(999), 
+		reltopoetcone20(999), reltopoetcone30(999), reltopoetcone40(999);
 
     
   // variables based on HCAL
@@ -264,31 +281,76 @@ bool TrigEgammaPrecisionPhotonHypoTool::decide( const ITrigEgammaPrecisionPhoton
   reletcone20 = etcone20/input.photon->caloCluster()->et();
   ATH_MSG_DEBUG("reletcone20 = " <<reletcone20  );
   mon_reletcone20 = reletcone20;
-  ATH_MSG_DEBUG("m_RelEtConeCut = " << m_RelEtConeCut );
 
   mon_topoetcone20 = topoetcone20;
   reltopoetcone20 = topoetcone20/input.photon->caloCluster()->et();
   ATH_MSG_DEBUG("reltopoetcone20 = " <<reltopoetcone20  );
   mon_reltopoetcone20 = reltopoetcone20;
-  ATH_MSG_DEBUG("m_RelTopoEtConeCut = " << m_RelTopoEtConeCut );
 
-  // Check if need to apply isolation
-  // First check logic. if cut is very negative, then no isolation cut is defined
-  // Applies to both reletcone20 and reltopoetcone20
-  if (m_RelEtConeCut > 900){
-      ATH_MSG_DEBUG(" not applying etcone20/et isolation.");
+  mon_etcone30 = etcone30;
+  reletcone30 = etcone30/input.photon->caloCluster()->et();
+  ATH_MSG_DEBUG("reletcone30 = " <<reletcone30  );
+  mon_reletcone30 = reletcone30;
+
+  mon_topoetcone30 = topoetcone30;
+  reltopoetcone30 = topoetcone30/input.photon->caloCluster()->et();
+  ATH_MSG_DEBUG("reltopoetcone30 = " <<reltopoetcone30  );
+  mon_reltopoetcone30 = reltopoetcone30;
+
+  mon_etcone40 = etcone40;
+  reletcone40 = etcone40/input.photon->caloCluster()->et();
+  ATH_MSG_DEBUG("reletcone40 = " <<reletcone40  );
+  mon_reletcone40 = reletcone40;
+
+  mon_topoetcone40 = topoetcone40;
+  reltopoetcone40 = topoetcone40/input.photon->caloCluster()->et();
+  ATH_MSG_DEBUG("reltopoetcone40 = " <<reltopoetcone40  );
+  mon_reltopoetcone40 = reltopoetcone40;
+
+  // Place here all etcone variables to apply the cuts within the loop on cone sizes
+  std::vector<float> reltopoetcone;
+  reltopoetcone.push_back(reltopoetcone20);
+  reltopoetcone.push_back(reltopoetcone30);
+  reltopoetcone.push_back(reltopoetcone40);
+
+  std::vector<float> reletcone;
+  reletcone.push_back(etcone20);
+  reletcone.push_back(etcone30);
+  reletcone.push_back(etcone40);
+
+
+  bool pass_reletcone = false;
+  bool pass_reltopoetcone = false;
+
+  // Loop over three indices 0,1 and 2, each referring to cones 20 30 and 40 and checking whether it passes or not
+  for (unsigned int conesize=0; conesize<3; conesize++){
+	  ATH_MSG_DEBUG("m_RelEtConeCut[" << conesize << "] = " << m_RelEtConeCut[conesize] );
+	  ATH_MSG_DEBUG("m_RelTopoEtConeCut[" << conesize << "] = " << m_RelTopoEtConeCut[conesize] );
+	  ATH_MSG_DEBUG("m_CutOffset[" << conesize << "] = " << m_CutOffset[conesize] );
+
+      // Check if need to apply isolation
+      // First check logic. if cut is very big, then no isolation cut is defined
+      // Applies to both reletcone[20,30,40] and reltopoetcone[20,30,40]
+	  if (m_RelEtConeCut[conesize] > 900){ // I guess we want to deprecate this?
+		  ATH_MSG_DEBUG(" not applying etcone[" << conesize << "] isolation.");
+	  }
+	  if (m_RelTopoEtConeCut[conesize] > 900){ // I guess we want to deprecate this?
+		  ATH_MSG_DEBUG(" not applying topoetcone[" << conesize << "] isolation.");
+	  }
+	  bool pass_this_reletcone     = ( m_RelEtConeCut[conesize] > 900 || reletcone[conesize] < m_RelEtConeCut[conesize] + m_CutOffset[conesize] );
+	  bool pass_this_reltopoetcone = ( m_RelTopoEtConeCut[conesize] > 900 || reltopoetcone[conesize] < m_RelTopoEtConeCut[conesize] + m_CutOffset[conesize] );
+
+	  ATH_MSG_DEBUG(" pass_reletcone[" << conesize << "] =  "  << pass_this_reletcone );
+	  ATH_MSG_DEBUG(" pass_reltopoetcone[" << conesize << "] =  "  << pass_this_reltopoetcone );
+
+	  pass_reletcone     = pass_reletcone     || pass_this_reletcone     ; 
+	  pass_reltopoetcone = pass_reltopoetcone || pass_this_reltopoetcone ; 
   }
-  if (m_RelTopoEtConeCut > 900){
-      ATH_MSG_DEBUG(" not applying topoetcone20/et isolation.");
-  }
-  // Then, It will pass if reletcone20 is less than cut:
-  bool pass_reletcone20 = (m_RelEtConeCut > 900 || reletcone20 < m_RelEtConeCut);
-  bool pass_reltopoetcone20 = (m_RelTopoEtConeCut > 900 || reltopoetcone20 < m_RelTopoEtConeCut);
-  ATH_MSG_DEBUG(" pass_reletcone20 =  "  << pass_reletcone20 );
-  ATH_MSG_DEBUG(" pass_reltopoetcone20 =  "  << pass_reltopoetcone20 );
-  pass = pass_reletcone20 && pass_reltopoetcone20;
   // Reach this point successfully  
-  ATH_MSG_DEBUG( "pass = " << pass );
+  pass = pass_reletcone && pass_reltopoetcone;
+  ATH_MSG_DEBUG( "pass_reletcone     = " << pass_reletcone );
+  ATH_MSG_DEBUG( "pass_reltopoetcone = " << pass_reltopoetcone );
+  ATH_MSG_DEBUG( "pass               = " << pass );
 
   return pass;
  
