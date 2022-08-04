@@ -31,12 +31,36 @@ class TrigEgammaPrecisionPhotonHypoToolConfig:
                            'loose'    , 
                            ]
 
+  #Below are the configuration of the calorimeter isolation selections
+  # The dictionary key is the working point (icaloloose, icalo medium and icalotight
+  # the value is an array of three components where first component refers to a cut related to topoetcone20/pt, the second to topoetcone30/pt and third to topoetcone40/pt
+  # __caloIsolationCut is the cut on the variable topoetcone[x]/pt
+  # __caloEtconeCut is the cut on etcone[x]/pt Not used. But kept for backward compatibility
+  # __caloIsolationOffset is the offset applied to that cut
+  # so the selection is:
+  # 
+  
   __caloIsolationCut = {
-                          None          : None,
-                          'icaloloose'  : 0.1,
-                          'icalomedium' : 0.075,
-                          'icalotight'  : 0.
+                          None          : [None, None, None],
+                          'icaloloose'  : [0.1  , 999., 999. ],
+                          'icalomedium' : [0.075, 999., 999. ],
+                          'icalotight'  : [999. , 999., 0.03 ]
                         }
+
+  __caloEtconeCut = {
+                          None          : [None, None, None],
+                          'icaloloose'  : [999., 999., 999.],
+                          'icalomedium' : [999., 999., 999.],
+                          'icalotight'  : [999., 999., 999.]
+                        }
+
+  __caloIsolationOffset = {
+                          None          : [None, None, None],
+                          'icaloloose' : [0.,0.,0.],
+                          'icalomedium': [0.,0.,0],
+                          'icalotight' : [0.,0.,2.45*GeV]
+                          }
+
 
   def __init__(self, name, monGroups, cpart, tool=None):
 
@@ -94,6 +118,8 @@ class TrigEgammaPrecisionPhotonHypoToolConfig:
   #
   def isoCut(self):
     self.tool().RelTopoEtConeCut = self.__caloIsolationCut[self.isoInfo()]
+    self.tool().RelEtConeCut = self.__caloEtconeCut[self.isoInfo()]
+    self.tool().Offset = self.__caloIsolationOffset[self.isoInfo()]
     self.nominal()
  
 
