@@ -236,7 +236,6 @@
 + LArCalorimeter/LArG4/LArG4FCAL
 + LArCalorimeter/LArG4/LArG4FastSimulation
 + LArCalorimeter/LArG4/LArG4HEC
-+ LArCalorimeter/LArG4/LArG4MiniFCAL
 + LArCalorimeter/LArG4/LArG4RunControl
 + LArCalorimeter/LArG4/LArG4SD
 + LArCalorimeter/LArG4/LArG4ShowerLib

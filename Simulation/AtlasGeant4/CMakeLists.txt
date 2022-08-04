@@ -75,7 +75,6 @@ set( AtlasGeant4Component_TARGET_OBJECTS
     LArG4FCAL
     LArG4FastSimulation
     LArG4HEC
-    LArG4MiniFCAL
     LArG4SD
     MagFieldUtils
     MuonG4SD

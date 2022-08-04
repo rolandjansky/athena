@@ -43,7 +43,6 @@ def getHITSStreamItemList():
                          "LArHitContainer#LArHitEMEC",
                          "LArHitContainer#LArHitHEC",
                          "LArHitContainer#LArHitFCAL",
-                         "LArHitContainer#LArHitMiniFCAL",
                          "TileHitVector#TileHitVec",
                          "TileHitVector#MBTSHits",
                          #"SimpleScintillatorHitCollection#*",
