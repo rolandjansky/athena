@@ -133,18 +133,25 @@ StatusCode eFexByteStreamTool::convertFromBS(const std::vector<const ROBF*>& vro
 
         if ( (rob->rob_source_id() >> 16) == eformat::TDAQ_CALO_FEAT_EXTRACT_DAQ && !m_eTowerWriteKey.empty() ) {
             // decoding raw input data
-            // In this code, if ECAL is 0 suppressed the tower will have just one count in it: the HCAL energy
-            // if HCAL is suppressed it will have just 10 counts in it: the ECAL supercell energies
-            // if both suppressed it will have 0 counts
-            // otherwise it will have 11 counts in it.
+            // tower et counts should be in order: PS, L1, L2, L3, Had
+            // towers with all et counts 0 will still be zero-suppressed
             efexTowers.clear();
             decoder.decodeEfexData(data.begin(), data.end(), efexTowers, lastRod );
             for(auto& t : efexTowers) {
                 if (t.getLayer() != 0) continue; // do hadronic in next loop
                 towerMap[std::make_tuple(t.getCrate(),t.getModule(),t.getFpgaNumber(),t.getRegion().getEtaIndex(),t.getRegion().getPhiIndex())] = eTowers->size();
                 eTowers->push_back( std::make_unique<xAOD::eFexTower>() );
-                eTowers->back()->initialize(t.getRegion().getEtaIndex()*0.1,t.getRegion().getPhiIndex()*0.1,
-                        std::vector<uint16_t>(t.getSupercells().begin(),t.getSupercells().end()),
+                // in bytestream cell orders are L2,PS,L1,L3 so reorder to usual PS,L1,L2,L3 order
+                std::vector<uint16_t> counts(11,0); // defaults hadronic to 0
+                counts[0] = t.getSupercells().at(4);
+                for(size_t idx = 0;idx<4;idx++) {
+                    counts[idx+1] = t.getSupercells().at(idx+5); // L1
+                    counts[idx+5] = t.getSupercells().at(idx); // L2
+                }
+                counts[9] = t.getSupercells().at(9);
+
+                eTowers->back()->initialize(t.getRegion().getEtaIndex()*0.1,2.*ROOT::Math::Pi()*(t.getRegion().getPhiIndex() - 64*(t.getRegion().getPhiIndex()>=32))/64,
+                                        counts,
                                         t.getModule() + t.getCrate()*12,
                                         t.getFpgaNumber(),
                                         t.getFlag(),0 /* hadronic status flag */);
@@ -159,18 +166,14 @@ StatusCode eFexByteStreamTool::convertFromBS(const std::vector<const ROBF*>& vro
                     // possible that ecal tower was zero-suppressed but hcal has energy, so create such a tower
                     towerMap[std::make_tuple(t.getCrate(),t.getModule(),t.getFpgaNumber(),t.getRegion().getEtaIndex(),t.getRegion().getPhiIndex())] = eTowers->size();
                     eTowers->push_back( std::make_unique<xAOD::eFexTower>() );
-                    eTowers->back()->initialize(t.getRegion().getEtaIndex()*0.1,t.getRegion().getPhiIndex()*0.1,
-                                                std::vector<uint16_t>(0,0) /* tower will only have one et count if ECAL is suppressed */,
+                    eTowers->back()->initialize(t.getRegion().getEtaIndex()*0.1,2.*ROOT::Math::Pi()*(t.getRegion().getPhiIndex() - 64*(t.getRegion().getPhiIndex()>=32))/64,
+                                                std::vector<uint16_t>(11,0),
                                                 t.getModule() + t.getCrate()*12,t.getFpgaNumber(),0,t.getFlag());
                 }
                 auto tower = eTowers->at(idx);
                 tower->setHad_status(t.getFlag());
                 auto et_count = tower->et_count();
-                if(et_count.size()!=10 && !et_count.empty()) {
-                    ATH_MSG_WARNING("eTower " << t.getCrate() << "." << t.getModule() << "." << t.getFpgaNumber() <<
-                    " " << t.getRegion().getEtaIndex() << " " << t.getRegion().getPhiIndex() << " has unexpectedly " << et_count.size() << " et counts");
-                }
-                et_count.push_back(t.getValue());
+                et_count.at(10) = t.getValue();
                 tower->setEt_count(et_count);
             }
 
