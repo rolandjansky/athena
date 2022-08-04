@@ -67,7 +67,11 @@ namespace MuonGM {
         MsgStream log(Athena::getMessageSvc(), "sTgcReadoutElement");
         if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "sTGCname: " << sTGCname << endmsg;
         sTGCDetectorDescription* sTGC = sTGC_helper.Get_sTGCDetectorType(sTGCname);
-        if (sTGC && log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found sTGC detector: " << sTGCname << " " << sTGC << endmsg;
+        if (not sTGC){
+          log <<  MSG::FATAL << "sTGC helper could not be retrieved in sTgcReadoutElement constructor "<<endmsg;
+          return;
+        }
+        if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found sTGC detector: " << sTGCname << " " << sTGC << endmsg;
         static const int nLayers = 4;
         for (int layer = 0; layer < nLayers; layer++) {
             double length  = sTGC->Length();   // Distance between parallel sides of the trapezoid
