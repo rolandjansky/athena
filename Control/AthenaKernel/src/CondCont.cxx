@@ -392,7 +392,7 @@ size_t CondContBase::maxSize() const
  * @param CLID of the most-derived @c CondCont.
  * @param id CLID+key for this object.
  * @param proxy @c DataProxy for this object.
- * @param delfcn Deletion function for the actual payload type.
+ * @param payloadDeleter Object for deleting payload objects.
  * @param capacity Initial capacity of the container.
  */
 CondContBase::CondContBase (Athena::IRCUSvc& rcusvc,
@@ -400,13 +400,13 @@ CondContBase::CondContBase (Athena::IRCUSvc& rcusvc,
                             CLID clid,
                             const DataObjID& id,
                             SG::DataProxy* proxy,
-                            CondContSet::delete_function* delfcn,
+                            std::shared_ptr<CondContSet::IPayloadDeleter> payloadDeleter,
                             size_t capacity)
   : m_keyType (keyType),
     m_clid (clid),
     m_id (id),
     m_proxy (proxy),
-    m_condSet (Updater_t (rcusvc, delfcn), delfcn, capacity),
+    m_condSet (Updater_t (rcusvc), payloadDeleter, capacity),
     m_cleanerSvc (s_cleanerSvcName, "CondContBase")
 {
   if (!m_cleanerSvc.retrieve().isSuccess()) {
@@ -735,7 +735,7 @@ void CondContBase::insertError (CLID usedCLID) const
  */
 CondContBase::delete_function* CondContBase::delfcn() const
 {
-  return m_condSet.delfcn();
+  return m_condSet.deleter().delfcn();
 }
 
 
@@ -867,16 +867,17 @@ CondContSingleBase::extendLastRange (const EventIDRange& newRange,
  * @param CLID of the most-derived @c CondCont.
  * @param id CLID+key for this object.
  * @param proxy @c DataProxy for this object.
- * @param delfcn Deletion function for the actual payload type.
+ * @param payloadDeleter Object for deleting payload objects.
  * @param capacity Initial capacity of the container.
  */
 CondContSingleBase::CondContSingleBase (Athena::IRCUSvc& rcusvc,
                                         CLID clid,
                                         const DataObjID& id,
                                         SG::DataProxy* proxy,
-                                        CondContSet::delete_function* delfcn,
+                                        std::shared_ptr<CondContSet::IPayloadDeleter> payloadDeleter,
                                         size_t capacity)
-  : CondContBase (rcusvc, KeyType::SINGLE, clid, id, proxy, delfcn, capacity)
+  : CondContBase (rcusvc, KeyType::SINGLE, clid, id, proxy,
+                  payloadDeleter, capacity)
 {
 }
 
@@ -890,18 +891,20 @@ CondContSingleBase::CondContSingleBase (Athena::IRCUSvc& rcusvc,
  * @param CLID of the most-derived @c CondCont.
  * @param id CLID+key for this object.
  * @param proxy @c DataProxy for this object.
- * @param payloadDelfcn Deletion function for the actual payload type.
+ * @param payloadDeleter Object for deleting actual payload objects.
  * @param capacity Initial capacity of the container.
  */
 CondContMixedBase::CondContMixedBase (Athena::IRCUSvc& rcusvc,
                                       CLID clid,
                                       const DataObjID& id,
                                       SG::DataProxy* proxy,
-                                      CondContSet::delete_function* payloadDelfcn,
+                                      std::shared_ptr<CondContSet::IPayloadDeleter> payloadDeleter,
                                       size_t capacity)
-  : CondContBase (rcusvc, KeyType::MIXED, clid, id, proxy, delfcn, capacity),
+  : CondContBase (rcusvc, KeyType::MIXED, clid, id, proxy,
+                  std::make_shared<Athena::CondObjDeleter<CondContSet> > (rcusvc),
+                  capacity),
     m_rcusvc (rcusvc),
-    m_payloadDelfcn (payloadDelfcn)
+    m_payloadDeleter (payloadDeleter)
 {
 }
 
@@ -1136,7 +1139,7 @@ CondContMixedBase::insertMixed (const EventIDRange& r,
   }
   else {
     auto newmap = std::make_unique<CondContSet>
-      (Updater_t (m_rcusvc, m_payloadDelfcn), m_payloadDelfcn, 16);
+      (Updater_t (m_rcusvc), m_payloadDeleter, 16);
     tsmap = newmap.get();
     sc = insertBase (r, std::move (newmap), ctx);
     if (sc.isFailure()) {
@@ -1232,5 +1235,5 @@ CondContMixedBase::findMixed (const EventIDBase& t,
  */
 CondContBase::delete_function* CondContMixedBase::payloadDelfcn() const
 {
-  return m_payloadDelfcn;
+  return m_payloadDeleter->delfcn();
 }

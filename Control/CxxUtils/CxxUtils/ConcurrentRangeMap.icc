@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file CxxUtils/ConcurrentRangeMap.icc
@@ -12,35 +12,45 @@
 namespace CxxUtils {
 
 
+/**
+ * @brief Constructor.
+ * @param delfcn Function to delete a payload object immediately.
+ */
+template <class T, class CONTEXT>
+IRangeMapPayloadDeleter<T, CONTEXT>::IRangeMapPayloadDeleter
+  (delete_function* delfcn)
+    : m_delfcn (delfcn)
+{
+}
+
+
+/**
+ * @brief Return a function to delete a payload object immediately.
+ */
+template <class T, class CONTEXT>
+inline
+typename IRangeMapPayloadDeleter<T, CONTEXT>::delete_function*
+IRangeMapPayloadDeleter<T, CONTEXT>::delfcn() const
+{
+  return m_delfcn;
+}
+
+
+//*****************************************************************************
+
+
 #define T_CONCURRENTRANGEMAP template <class RANGE, class KEY, class T, class COMPARE, template <class> class UPDATER>
 #define CONCURRENTRANGEMAP ConcurrentRangeMap<RANGE, KEY, T, COMPARE, UPDATER>
 
 
 /**
  * @brief Constructor.
- * @param delfcn Deletion function.
  * @param capacity Size of the data vector to allocate.
  */
 T_CONCURRENTRANGEMAP
-CONCURRENTRANGEMAP::Impl::Impl (delete_function* delfcn,
-                                size_t capacity /*= 10*/)
-  : m_delete (delfcn),
-    m_data (capacity)
+CONCURRENTRANGEMAP::Impl::Impl (size_t capacity /*= 10*/)
+  : m_data (capacity)
 {
-}
-
-
-/**
- * @brief Destructor.
- *
- * This also deletes payload objects that were passed to discard().
- */
-T_CONCURRENTRANGEMAP
-CONCURRENTRANGEMAP::Impl::~Impl()
-{
-  for (const T* p : m_garbage) {
-    m_delete (p);
-  }
 }
 
 
@@ -66,38 +76,28 @@ CONCURRENTRANGEMAP::Impl::capacity() const
 }
 
 
-/***
- * @brief Queue a payload object for deletion.
- */
-T_CONCURRENTRANGEMAP
-void
-CONCURRENTRANGEMAP::Impl::discard (const T* p)
-{
-  m_garbage.push_back (p);
-}
-
-
 /**
  * @brief Constructor.
  * @param updater Object used to manage memory
  *                (see comments at the start of the class).
- * @param delfcn Deletion function.
+ * @param payloadDeleter Object for deleting payload objects.
+ *                       This is owned via a @c shared_ptr.
  * @param capacity Initial capacity of the map.
  * @param compare Comparison object.
  */
 T_CONCURRENTRANGEMAP
 CONCURRENTRANGEMAP::ConcurrentRangeMap (Updater_t&& updater,
-                                        delete_function* delfcn,
+                                        std::shared_ptr<IPayloadDeleter> payloadDeleter,
                                         size_t capacity /*= 16*/,
                                         const COMPARE& compare /*= COMPARE()*/)
 
   : m_updater (std::move (updater)),
     m_compare (compare),
-    m_delete (delfcn),
+    m_payloadDeleter (payloadDeleter),
     m_nInserts (0),
     m_maxSize (0)
 {
-  auto impl = std::make_unique<Impl> (m_delete, capacity);
+  auto impl = std::make_unique<Impl> (capacity);
   value_type* data = impl->data();
   installImpl (std::move (impl),
                data, data,
@@ -115,11 +115,35 @@ CONCURRENTRANGEMAP::~ConcurrentRangeMap()
 {
   value_type* last = m_last;
   if (last) {
+    delete_function* delfcn = m_payloadDeleter->delfcn();
     for (value_type* p = m_begin; p <= m_last; ++p) {
-      m_delete (p->second);
+      delfcn (p->second);
     }
       
   }
+}
+
+
+/**
+ * @brief Return a reference to the payload deleter object.
+ */
+T_CONCURRENTRANGEMAP
+inline
+typename CONCURRENTRANGEMAP::IPayloadDeleter& CONCURRENTRANGEMAP::deleter()
+{
+  return *m_payloadDeleter;
+}
+
+
+/**
+ * @brief Return a reference to the payload deleter object.
+ */
+T_CONCURRENTRANGEMAP
+inline
+const typename CONCURRENTRANGEMAP::IPayloadDeleter&
+CONCURRENTRANGEMAP::deleter() const
+{
+  return *m_payloadDeleter;
 }
 
 
@@ -255,7 +279,7 @@ CONCURRENTRANGEMAP::emplace (const RANGE& range,
   EmplaceResult ret = EmplaceResult::SUCCESS;
 
   // Allocate the new object.
-  auto new_impl = std::make_unique<Impl> (m_delete, new_capacity);
+  auto new_impl = std::make_unique<Impl> (new_capacity);
   value_type* new_begin = new_impl->data();
   value_type* new_end = new_begin;
 
@@ -371,8 +395,10 @@ CONCURRENTRANGEMAP::erase (const key_query_type& key,
 
   // Is the first element the one we're deleting?
   if (begin == last || m_compare (key, (begin+1)->first)) {
-    // Yes --- queue the payload for deletion.
-    m_impl->discard (begin->second);
+    // Yes --- remember the payload for deletion.
+    // (Don't actually queue it for deletion until the pointers have
+    // been updated.)
+    mapped_type todel = begin->second;
     ++begin;
 
     // Make the update visible to other threads.
@@ -382,12 +408,13 @@ CONCURRENTRANGEMAP::erase (const key_query_type& key,
       m_last = nullptr;
     }
     m_begin = begin;
+    m_payloadDeleter->discard (todel);
     return;
   }
 
   // Need to make a new implementation object and copy data.
   size_t capacity = m_impl->capacity();
-  auto new_impl = std::make_unique<Impl> (m_delete, capacity);
+  auto new_impl = std::make_unique<Impl> (capacity);
   value_type* new_begin = new_impl->data();
   value_type* new_end = new_begin;
 
@@ -395,7 +422,7 @@ CONCURRENTRANGEMAP::erase (const key_query_type& key,
   while (begin < end-1 && !m_compare (key, (begin+1)->first)) {
     *new_end++ = *begin++;
   }
-  m_impl->discard (begin->second);
+  mapped_type todel = begin->second;
   ++begin;
   while (begin < end) {
     *new_end++ = *begin++;
@@ -403,6 +430,7 @@ CONCURRENTRANGEMAP::erase (const key_query_type& key,
 
   // Install the new implementation.
   installImpl (std::move (new_impl), new_begin, new_end, ctx);
+  m_payloadDeleter->discard (todel);
 }
 
 
@@ -468,7 +496,7 @@ CONCURRENTRANGEMAP::updateRanges (std::function<void (RANGE&)> rangeUpdater,
 
   // Make a new implementation object and copy data.
   size_t capacity = m_impl->capacity();
-  auto new_impl = std::make_unique<Impl> (m_delete, capacity);
+  auto new_impl = std::make_unique<Impl> (capacity);
   value_type* new_begin = new_impl->data();
   value_type* new_end = new_begin;
   value_type* begin = m_begin;
@@ -506,7 +534,7 @@ CONCURRENTRANGEMAP::extendImpl (lock_t& /*lock*/,
 
   // Make a new implementation object and copy data.
   size_t capacity = m_impl->capacity();
-  auto new_impl = std::make_unique<Impl> (m_delete, capacity);
+  auto new_impl = std::make_unique<Impl> (capacity);
   value_type* new_begin = new_impl->data();
   value_type* new_end = new_begin;
   value_type* begin = m_begin;
@@ -555,12 +583,6 @@ CONCURRENTRANGEMAP::trim (const std::vector<key_query_type>& keys)
   
   value_type* pos = m_begin;
 
-  // If we remove objects, stick them in a dummy Impl object, and then
-  // discard that.  FIXME: It's a bit funny to have to allocate an object
-  // in order to delete stuff.  Maybe RCUObject could be taught to manage
-  // objects of multiple types?
-  std::unique_ptr<Impl> garbage;
-
   // Compare with last rather than end=last+1; we don't want to consider
   // the last elt.
   while (pos < last) {
@@ -572,23 +594,15 @@ CONCURRENTRANGEMAP::trim (const std::vector<key_query_type>& keys)
 
     // We're deleting the object now.
 
-    if (!garbage) {
-      // Allocate a dummy impl object if we haven't done so yet.
-      garbage = std::make_unique<Impl> (m_delete, 0);
-    }
-
-    // Add it to the garbage list.
-    garbage->discard (pos->second);
+    // Discard it.
+    m_payloadDeleter->discard (pos->second);
     ++ndel;
     ++pos;
   }
 
-  // If we've deleted any object, then update the begin pointer and
-  // queue the dummy impl object for destruction.
+  // If we've deleted any object, then update the begin pointer.
   if (ndel > 0) {
-    // Important: m_begin must be updated _before_ the discard() call.
     m_begin = pos;
-    m_updater.discard (std::move (garbage));
   }
 
   return ndel;
@@ -680,18 +694,7 @@ void
 CONCURRENTRANGEMAP::quiescent (const typename Updater_t::Context_t& ctx /*= Updater_t::defaultContext()*/)
 {
   m_updater.quiescent (ctx);
-}
-
-
-/**
- * @brief Return the deletion function for this container.
- */
-T_CONCURRENTRANGEMAP
-inline
-typename CONCURRENTRANGEMAP::delete_function*
-CONCURRENTRANGEMAP::delfcn() const
-{
-  return m_delete;
+  m_payloadDeleter->quiescent (ctx);
 }
 
 
