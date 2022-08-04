@@ -16,7 +16,7 @@ if hasattr(runArgs, 'truthStrategy'):
     simFlags.TruthStrategy = runArgs.truthStrategy
 
 try:
-    from BarcodeServices.BarcodeServicesConfig import barcodeOffsetForTruthStrategy
+    from BarcodeServices.BarcodeServicesConfigLegacy import barcodeOffsetForTruthStrategy
     simFlags.SimBarcodeOffset  = barcodeOffsetForTruthStrategy(str(simFlags.TruthStrategy.get_Value()))
 except RuntimeError:
     Offset200kStrings = ['MC12', 'MC15a', 'MC16']

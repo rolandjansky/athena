@@ -100,7 +100,7 @@ except:
 if 'truthStrategy' in dir():
     simFlags.TruthStrategy    = truthStrategy
     try:
-        from BarcodeServices.BarcodeServicesConfig import barcodeOffsetForTruthStrategy
+        from BarcodeServices.BarcodeServicesConfigLegacy import barcodeOffsetForTruthStrategy
         simFlags.SimBarcodeOffset  = barcodeOffsetForTruthStrategy(truthStrategy)
     except RuntimeError:
         if 'MC12' in truthStrategy or 'MC15a' in truthStrategy:

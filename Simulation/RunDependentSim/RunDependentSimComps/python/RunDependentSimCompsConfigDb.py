@@ -2,6 +2,6 @@
 
 from AthenaCommon.CfgGetter import addService
 
-addService("RunDependentSimComps.RunDependentConfig.getLumiProfileSvc"       , "LumiProfileSvc")
-addService("RunDependentSimComps.RunDependentConfig.getNoProfileSvc"         , "NoProfileSvc")
-addService("RunDependentSimComps.RunDependentConfig.getEvtIdModifierSvc"     , "EvtIdModifierSvc")
+addService("RunDependentSimComps.RunDependentConfigLegacy.getLumiProfileSvc"       , "LumiProfileSvc")
+addService("RunDependentSimComps.RunDependentConfigLegacy.getNoProfileSvc"         , "NoProfileSvc")
+addService("RunDependentSimComps.RunDependentConfigLegacy.getEvtIdModifierSvc"     , "EvtIdModifierSvc")
