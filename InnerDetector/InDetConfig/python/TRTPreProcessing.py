@@ -138,25 +138,29 @@ def TRT_DriftCircleToolCfg(flags, name = "InDetTRT_DriftCircleTool", **kwargs):
 def TRTPreProcessingCfg(flags, **kwargs):
     acc = ComponentAccumulator()
 
-    #
-    # --- TRT_RIO_Maker Algorithm
-    #
-    from InDetConfig.InDetPrepRawDataFormationConfig import InDetTRT_RIO_MakerCfg
-    acc.merge(InDetTRT_RIO_MakerCfg(flags))
-    if flags.InDet.doSplitReco:
-        from InDetConfig.InDetPrepRawDataFormationConfig import InDetTRT_RIO_MakerPUCfg
-        acc.merge(InDetTRT_RIO_MakerPUCfg(flags))
+    from AthenaConfiguration.Enums import Format
+    if flags.Input.Format is Format.BS or 'TRT_RDOs' in flags.Input.Collections:
 
-    #
-    #    Include alg to save the local occupancy inside xAOD::EventInfo
-    #
-    if flags.InDet.doTRTGlobalOccupancy:
-        from InDetConfig.TRT_ElectronPidToolsConfig import TRTOccupancyIncludeCfg
-        acc.merge(TRTOccupancyIncludeCfg(flags))
+        #
+        # --- TRT_RIO_Maker Algorithm
+        #
+        from InDetConfig.InDetPrepRawDataFormationConfig import InDetTRT_RIO_MakerCfg
+        acc.merge(InDetTRT_RIO_MakerCfg(flags))
+        if flags.InDet.doSplitReco:
+            from InDetConfig.InDetPrepRawDataFormationConfig import InDetTRT_RIO_MakerPUCfg
+            acc.merge(InDetTRT_RIO_MakerPUCfg(flags))
+
+        #
+        #    Include alg to save the local occupancy inside xAOD::EventInfo
+        #
+        if flags.InDet.doTRTGlobalOccupancy:
+            from InDetConfig.TRT_ElectronPidToolsConfig import TRTOccupancyIncludeCfg
+            acc.merge(TRTOccupancyIncludeCfg(flags))
+
     #
     # --- we need to do truth association if requested (not for uncalibrated hits in cosmics)
     #
-    if flags.InDet.doTruth and flags.Beam.Type is not BeamType.Cosmics:
+    if flags.InDet.doTruth and flags.Beam.Type is not BeamType.Cosmics and 'PRD_MultiTruthTRT' not in flags.Input.Collections:
         from InDetConfig.InDetTruthAlgsConfig import InDetPRD_MultiTruthMakerTRTCfg
         acc.merge(InDetPRD_MultiTruthMakerTRTCfg(flags))
         if flags.InDet.doSplitReco :
