@@ -2819,6 +2819,12 @@ HLT_4j20_0eta290_boffperf_pf_ftf_L1HT190-J15s5pETA21:
     0: 4
     1: 29
     2: 29
+HLT_4j20c_L14J15p0ETA25:
+  eventCount: 11
+  stepCounts:
+    0: 11
+  stepFeatures:
+    0: 75
 HLT_4j25_PhysicsTLA_L1J45p0ETA21_3J15p0ETA25:
   eventCount: 13
   stepCounts:

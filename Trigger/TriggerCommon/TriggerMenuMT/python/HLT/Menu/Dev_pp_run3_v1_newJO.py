@@ -82,8 +82,8 @@ def setupMenu():
         ChainProp(name='HLT_xe30_pfsum_cssk_L1XE30', l1SeedThresholds=['FSNOSEED'], groups=SingleMETGroup),
         ChainProp(name='HLT_xe30_pfsum_vssk_L1XE30', l1SeedThresholds=['FSNOSEED'], groups=SingleMETGroup),
         ChainProp(name='HLT_xe30_pfopufit_L1XE30', l1SeedThresholds=['FSNOSEED'], groups=SingleMETGroup),
-        ChainProp(name='HLT_xe30_mhtpufit_em_subjesgscIS_L1XE30', l1SeedThresholds=['FSNOSEED'], groups=SingleMETGroup),
-        ChainProp(name='HLT_xe30_mhtpufit_pf_subjesgscIS_L1XE30', l1SeedThresholds=['FSNOSEED'], groups=SingleMETGroup),
+        ChainProp(name='HLT_xe30_mhtpufit_em_L1XE30', l1SeedThresholds=['FSNOSEED'], groups=SingleMETGroup),
+        ChainProp(name='HLT_xe30_mhtpufit_pf_L1XE30', l1SeedThresholds=['FSNOSEED'], groups=SingleMETGroup),
         ChainProp(name='HLT_xe30_cell_L1XE30', l1SeedThresholds=['FSNOSEED'], groups=SingleMETGroup),
     ]
 

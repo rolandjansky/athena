@@ -190,6 +190,7 @@ def setupMenu():
         ChainProp(name='HLT_j20_JetPEBPhysicsTLA_L1HT190-J15s5pETA21', l1SeedThresholds=['FSNOSEED'], stream=['TLAJetPEB'], groups=DevGroup+MultiJetGroup+LegacyTopoGroup),
 
         #
+        ChainProp(name='HLT_4j20c_L14J15p0ETA25', l1SeedThresholds=['FSNOSEED'],     groups=MultiJetGroup+DevGroup), #ATR-26012
         ChainProp(name='HLT_6j25c_L14J15', l1SeedThresholds=['FSNOSEED'],            groups=MultiJetGroup+DevGroup),
         ChainProp(name='HLT_6j25c_ftf_L14J15', l1SeedThresholds=['FSNOSEED'],        groups=MultiJetGroup+DevGroup),
         ChainProp(name='HLT_6j25c_010jvt_ftf_L14J15', l1SeedThresholds=['FSNOSEED'], groups=MultiJetGroup+DevGroup),
@@ -620,11 +621,7 @@ def setupMenu():
         # Maintain consistency with old naming conventions for validation
         ChainProp(name='HLT_e26_lhtight_ivarloose_mu22noL1_j20_0eta290_020jvt_pf_ftf_boffperf_L1EM22VHI', l1SeedThresholds=['EM22VHI','FSNOSEED','FSNOSEED'], stream=[PhysicsStream,'express'], groups=DevGroup+EgammaBjetGroup, monGroups=['bJetMon:shifter']),
 
-        #ATR-23732 Displaced Jet Trigger
-        #j180 versions
-        ChainProp(name='HLT_j180_2dispjet50_3d2p_L1J100', groups=SingleJetGroup, l1SeedThresholds=['FSNOSEED']*2),
-        ChainProp(name='HLT_j180_dispjet50_3d2p_dispjet50_1p_L1J100', groups=SingleJetGroup, l1SeedThresholds=['FSNOSEED']*3),
-        ChainProp(name='HLT_j180_dispjet140_x3d1p_L1J100', groups=SingleJetGroup, l1SeedThresholds=['FSNOSEED']*2),
+
     ]
 
     chains['Beamspot'] += [
