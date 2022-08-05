@@ -14,7 +14,8 @@
 
 // Trigger includes
 #include "TrigT1ResultByteStream/IL1TriggerByteStreamTool.h"
-
+#include "xAODTrigL1Calo/jFexTowerContainer.h"
+#include "xAODTrigL1Calo/jFexTowerAuxContainer.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -51,16 +52,16 @@ class jFexInputByteStreamTool : public extends<AthAlgTool, IL1TriggerByteStreamT
         // ROBIDs property required by the interface
         Gaudi::Property<std::vector<uint32_t>> m_robIds {this, "ROBIDs", {}, "List of ROB IDs required for conversion to/from xAOD RoI"};
 
-        // Write handle keys for the L1Calo EDMs for BS->xAOD mode of operation
-        //SG::WriteHandleKey< xAOD::jFexSRJetRoIContainer> m_jJWriteKey   {this,"jJRoIContainerWriteKey"  ,"L1_jFexSRJetRoI","Write jFexEDM SRjet container"};
+         //Write handle keys for the L1Calo EDMs for BS->xAOD mode of operation
+        SG::WriteHandleKey< xAOD::jFexTowerContainer> m_jTowersWriteKey   {this,"jTowersWriteKey"  ,"L1_jTowers","Write jFexEDM Trigger Tower container"};
         
         // Read handle keys for the L1Calo EDMs for xAOD->BS mode of operation
-        //SG::ReadHandleKey< xAOD::jFexSRJetRoIContainer> m_jJReadKey   {this,"jJRoIContainerReadKey"  ,"L1_jFexSRJetRoI","Read jFexEDM SRjet container"};
+        SG::ReadHandleKey < xAOD::jFexTowerContainer> m_jTowersReadKey    {this,"jTowersReadKey"   ,"L1_jTowers","Read jFexEDM Trigger Tower container"};
 
         std::array<uint32_t,3> jFEXtoRODTrailer  (uint32_t, uint32_t) const;
-        void BulkStreamTrailer (uint32_t , uint32_t ) const;
-        std::array<uint16_t,3>  Dataformat1 (uint32_t ) const;
-        std::array<uint16_t,4>  Dataformat2 (uint32_t ) const;
+        std::array<uint16_t,2> BulkStreamTrailer (uint32_t, uint32_t) const;
+        std::array<uint16_t,3> Dataformat1 (uint32_t ) const;
+        std::array<uint16_t,4> Dataformat2 (uint32_t ) const;
         //bool m_verbose = 1;
         
 };
