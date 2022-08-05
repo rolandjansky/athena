@@ -220,13 +220,19 @@ if __name__ == '__main__':
   parser.add_argument("-m","--module",action="store", dest="module", help="Input modules wants to be simulated.",default="", required=False)
   parser.add_argument("-l","--logLevel",action="store", dest="log", help="Log level.",default="warning", required=False)
   parser.add_argument("-n","--nevent", type=int, action="store", dest="nevent", help="Maximum number of events will be executed.",default=0, required=False)
+  parser.add_argument("-s","--skipEvents", type=int, action="store", dest="skipEvents", help="How many events will be skipped.",default=0, required=False)
   
   args = parser.parse_args()
 
-  supportedSubsystems = ['Muons','jFex','eFex','gFex']
+  supportedSubsystems = ['Muons','jFex','eFex','gFex','Topo']
   args_subsystem = args.module.split(',')
   subsystem = list( set(args_subsystem) & set(supportedSubsystems) )
   filename = args.inputs
+
+  if len(subsystem)==0:
+      log.warning(f'subsystem not given or the given subsystem not supported with one of the: {supportedSubsystems}')
+
+
   
   if args.log == 'warning': algLogLevel = WARNING
   if args.log == 'debug': algLogLevel = DEBUG
@@ -241,7 +247,7 @@ if __name__ == '__main__':
   flags.Input.Files = args.inputs
   flags.Concurrency.NumThreads = 1
   flags.Concurrency.NumConcurrentEvents = 1
-  flags.Exec.SkipEvents = 90
+  flags.Exec.SkipEvents = args.skipEvents
   flags.Output.AODFileName = 'AOD.pool.root'
   flags.GeoModel.AtlasVersion = 'ATLAS-R3S-2021-01-00-02'
   flags.IOVDb.GlobalTag = 'CONDBR2-BLKPA-2018-13'
@@ -318,7 +324,7 @@ if __name__ == '__main__':
       outputEDM += addEDM('xAOD::eFexEMRoIContainer', eFexTool.eEMContainerWriteKey.Path)
       outputEDM += addEDM('xAOD::eFexTauRoIContainer', eFexTool.eTAUContainerWriteKey.Path)
 
-  if len(subsystem) > 0:
+  if 'Topo' in subsystem:
       from L1TopoByteStream.L1TopoByteStreamConfig import L1TopoPhase1ByteStreamToolCfg
       l1topoBSTool = L1TopoPhase1ByteStreamToolCfg("L1TopoBSDecoderTool",flags)
       decoderTools += [l1topoBSTool]
