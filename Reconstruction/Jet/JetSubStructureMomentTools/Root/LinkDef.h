@@ -15,7 +15,6 @@
 #include "JetSubStructureMomentTools/NSubjettinessTool.h"
 #include "JetSubStructureMomentTools/SubjetFinderTool.h"
 #include "JetSubStructureMomentTools/VolatilityTool.h"
-#include "JetSubStructureMomentTools/BosonTagTool.h"
 #include "JetSubStructureMomentTools/EnergyCorrelatorTool.h"
 #include "JetSubStructureMomentTools/EnergyCorrelatorGeneralizedTool.h"
 #include "JetSubStructureMomentTools/JetSubStructureMomentToolsBase.h"
@@ -39,7 +38,6 @@
 
 #pragma link C++ class AngularityTool+;
 #pragma link C++ class BoostedXbbTagTool+;
-#pragma link C++ class BosonTagTool+;
 #pragma link C++ class CenterOfMassShapesTool+;
 #pragma link C++ class DipolarityTool+;
 #pragma link C++ class EnergyCorrelatorRatiosTool+;

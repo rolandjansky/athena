@@ -48,7 +48,6 @@
 #include "BoostedJetTaggers/JSSWTopTaggerDNN.h"
 #include "ParticleJetTools/JetTruthLabelingTool.h"
 #include "JetAnalysisInterfaces/IJetJvtEfficiency.h"
-#include "JetSubStructureUtils/BosonTag.h"
 
 class IJetCalibrationTool;
 class IJERTool;
