@@ -23,21 +23,21 @@ class LArDigitGetter (Configured) :
             # if using new scheme for pileup
             from Digitization.DigitizationFlags import digitizationFlags
             if digitizationFlags.doXingByXingPileUp():
-                # Defined in LArDigitizationConfig.py
+                # Defined in LArDigitizationConfigLegacy.py
                 job.PileUpToolsAlg.PileUpTools += [ CfgGetter.getPrivateTool("LArPileUpTool", checkType=True) ]
                 job.PileUpToolsAlg.PileUpTools["LArPileUpTool"].DoDigiTruthReconstruction = digitizationFlags.doDigiTruth()
             else:
-                # Defined in LArDigitizationConfig.py
+                # Defined in LArDigitizationConfigLegacy.py
                 job += CfgGetter.getAlgorithm("digitmaker1", tryDefaultConfigurable=True)
                 job += CfgGetter.getAlgorithm("LArHitEMapToDigitAlg")
                 job.digitmaker1.LArPileUpTool.DoDigiTruthReconstruction = digitizationFlags.doDigiTruth()
                 # if pileup or overlay
                 from AthenaCommon.DetFlags import DetFlags
-                from LArDigitization.LArDigitizationConfig import isOverlay
+                from LArDigitization.LArDigitizationConfigLegacy import isOverlay
                 from OverlayCommonAlgs.OverlayFlags import overlayFlags
                 if DetFlags.pileup.LAr_on() or (isOverlay() and not overlayFlags.isOverlayMT()):
                     from AthenaCommon.AppMgr import ServiceMgr
-                    # Defined in LArDigitizationConfig.py
+                    # Defined in LArDigitizationConfigLegacy.py
                     ServiceMgr.PileUpMergeSvc.Intervals += [ CfgGetter.getPrivateTool("LArRangeEM", checkType=True) ]
                     ServiceMgr.PileUpMergeSvc.Intervals += [ CfgGetter.getPrivateTool("LArRangeHEC", checkType=True) ]
                     ServiceMgr.PileUpMergeSvc.Intervals += [ CfgGetter.getPrivateTool("LArRangeFCAL", checkType=True) ]

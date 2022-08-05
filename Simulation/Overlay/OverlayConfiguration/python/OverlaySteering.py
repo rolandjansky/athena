@@ -17,7 +17,7 @@ from InDetOverlay.PixelOverlayConfig import PixelOverlayCfg
 from InDetOverlay.SCTOverlayConfig import SCTOverlayCfg
 from InDetOverlay.TRTOverlayConfig import TRTOverlayCfg
 from HGTD_Overlay.HGTD_OverlayConfig import HGTD_OverlayCfg
-from LArDigitization.LArDigitizationConfigNew import LArOverlayCfg, LArSuperCellOverlayCfg
+from LArDigitization.LArDigitizationConfig import LArOverlayCfg, LArSuperCellOverlayCfg
 from MuonConfig.CSC_OverlayConfig import CSC_OverlayCfg
 from MuonConfig.MDT_OverlayConfig import MDT_OverlayCfg
 from MuonConfig.MM_OverlayConfig import MM_OverlayCfg

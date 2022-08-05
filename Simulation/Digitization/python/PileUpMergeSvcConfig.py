@@ -42,7 +42,7 @@ def getPileUpMergeSvc(name="PileUpMergeSvc", **kwargs):
             else:
                 IntervalsList += [ CfgGetter.getPrivateTool("TRTRange",       checkType=True) ]
         ## Calo Digitization
-        from LArDigitization.LArDigitizationConfig import isOverlay
+        from LArDigitization.LArDigitizationConfigLegacy import isOverlay
         if DetFlags.pileup.LAr_on() or isOverlay():
             IntervalsList += [ CfgGetter.getPrivateTool("LArRangeEM",     checkType=True) ]
             IntervalsList += [ CfgGetter.getPrivateTool("LArRangeHEC",    checkType=True) ]
