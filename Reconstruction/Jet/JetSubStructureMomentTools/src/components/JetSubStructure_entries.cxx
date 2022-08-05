@@ -22,7 +22,6 @@
 #include "JetSubStructureMomentTools/SubjetMakerTool.h"
 #include "JetSubStructureMomentTools/SubjetFinderTool.h"
 #include "JetSubStructureMomentTools/SubjetRecorderTool.h"
-#include "JetSubStructureMomentTools/BosonTagTool.h"
 #include "JetSubStructureMomentTools/Validator.h"
 #include "JetSubStructureMomentTools/QwTool.h"
 #include "JetSubStructureMomentTools/BoostedXbbTagTool.h"
@@ -50,7 +49,6 @@ DECLARE_COMPONENT( SoftDropObservablesTool )
 DECLARE_COMPONENT( SubjetMakerTool )
 DECLARE_COMPONENT( SubjetFinderTool )
 DECLARE_COMPONENT( SubjetRecorderTool )
-DECLARE_COMPONENT( BosonTagTool )
 DECLARE_COMPONENT( Validator )
 DECLARE_COMPONENT( QwTool )
 DECLARE_COMPONENT( BoostedXbbTagTool )
