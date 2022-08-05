@@ -292,19 +292,20 @@ void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::str
     if (title == "PT" || title == "ET" || title == "HT" || title == "INVM" || title == "MT") { xTitle = title+" [100 MeV]"; } 
   }
  
-  int xmin_new,xmax_new;
+  int xmin_new,xmax_new,binx_new=binx;
   if ( xmin > 0.0)
     { xmin_new=0.0; }
   else
     { xmin_new=1.5*xmin; }
-  // if minimum mass requirement less than twice of bin length,
-  // adjust to range by changing maximum mass with the 10 time of bin length.
-  // This is necessary when range is too wide and minimum cut unvisible.
-  // Later will be changed with more automated way.
-  if ( 2*(xmax-xmin)/binx > xmin && xmin > 0.0 )
-    { xmax_new=10*(xmax-xmin)/binx; }
-  else
-    { xmax_new=1.5*xmax; }
+
+  // if the maximum inv. mass cut defined by the menu over 4000 MeV,
+  // set x-axis range maximum to 4000 MeV. This is only for legacy triggers,
+  // phase1 does not exceed this limit- asonay 08/2022
+  if (xmax > 4000 && m_isLegacyTopo) {
+    xmax_new = 4000;
+    binx_new = 200;
+  }
+  else {xmax_new = 1.5*xmax;}
   
   // if angular kinematics, use fixed range
   int eta_max = 50;
@@ -329,7 +330,7 @@ void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::str
     xmax_new=dr_max;
   }
 
-  TH1 *h = new TH1F(newName.c_str(), newTitle.c_str(), binx, xmin_new, xmax_new);
+  TH1 *h = new TH1F(newName.c_str(), newTitle.c_str(), binx_new, xmin_new, xmax_new);
   h->GetXaxis()->SetTitle(xTitle.c_str());
   m_impl->registerHist(h);
 }
@@ -381,33 +382,35 @@ void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::str
     if (yName == "PT" || yName == "ET" || yName == "HT" || yName == "INVM" || yName == "MT") { yTitle = yName+" [100 MeV]"; } 
   }
 
-  int xmin_new,xmax_new;
+  int xmin_new,xmax_new,binx_new=binx;
   if ( xmin > 0.0)
     { xmin_new=0.0; }
   else
     { xmin_new=1.5*xmin; }
-  // if minimum x requirement less than twice of bin length,
-  // adjust to range by changing maximum mass with the 10 time of bin length.
-  // This is necessary when range is too wide and minimum cut unvisible.
-  // Later will be changed with more automated way.
-  if ( 2*(xmax-xmin)/binx > xmin && xmin > 0.0 )
-    { xmax_new=10*(xmax-xmin)/binx; }
-  else
-    { xmax_new=1.5*xmax; }
+  
+  // if the maximum inv. mass cut defined by the menu over 4000 MeV,
+  // set x-axis range maximum to 4000 MeV. This is only for legacy triggers,
+  // phase1 does not exceed this limit- asonay 08/2022
+  if (xmax > 4000 && m_isLegacyTopo) {
+    xmax_new = 4000;
+    binx_new = 200;
+  }
+  else {xmax_new = 1.5*xmax;}
 
-  int ymin_new,ymax_new;
+  int ymin_new,ymax_new,biny_new=biny;
   if ( ymin > 0.0)
     { ymin_new=0.0; }
   else
     { ymin_new=1.5*ymin; }
-  // if minimum y requirement less than twice of bin length,
-  // adjust to range by changing maximum mass with the 10 time of bin length.
-  // This is necessary when range is too wide and minimum cut unvisible.
-  // Later will be changed with more automated way.
-  if ( 2*(ymax-ymin)/biny > ymin && ymin > 0.0 )
-    { ymax_new=10*(ymax-ymin)/biny; }
-  else
-    { ymax_new=1.5*ymax; }
+  
+  // if the maximum inv. mass cut defined by the menu over 4000 MeV,
+  // set y-axis range maximum to 4000 MeV. This is only for legacy triggers,
+  // phase1 does not exceed this limit- asonay 08/2022
+  if (ymax > 4000 && m_isLegacyTopo) {
+    ymax_new = 4000;
+    biny_new = 200;
+  }
+  else {ymax_new = 1.5*ymax;}
 
   
   // if angular kinematics, use fixed range
@@ -445,7 +448,7 @@ void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::str
     ymax_new=dr_max;
   }
 
-  TH2 *h = new TH2F(newName.c_str(), newTitle.c_str(), binx, xmin_new, xmax_new, biny, ymin_new, ymax_new);
+  TH2 *h = new TH2F(newName.c_str(), newTitle.c_str(), binx_new, xmin_new, xmax_new, biny_new, ymin_new, ymax_new);
   h->GetXaxis()->SetTitle(xTitle.c_str());
   h->GetYaxis()->SetTitle(yTitle.c_str());
   m_impl->registerHist(h);
