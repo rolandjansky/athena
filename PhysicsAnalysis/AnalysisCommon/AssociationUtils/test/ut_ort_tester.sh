@@ -8,4 +8,4 @@ fi
 set -e
 set -u
 
-OverlapRemovalTester -i $ASG_TEST_FILE_MC -n 50
+OverlapRemovalTester -i $ASG_TEST_FILE_MC_OLD -n 50

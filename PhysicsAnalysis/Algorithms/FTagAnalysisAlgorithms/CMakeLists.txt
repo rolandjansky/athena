@@ -40,10 +40,10 @@ if( XAOD_STANDALONE )
       SCRIPT FTagAnalysisAlgorithmsTest_eljob.py --data-type data --unit-test
       PROPERTIES TIMEOUT 600 )
    atlas_add_test( testJobFullSim
-      SCRIPT FTagAnalysisAlgorithmsTest_eljob.py --data-type mc --unit-test
+      SCRIPT FTagAnalysisAlgorithmsTest_eljob.py --data-type mc --unit-test --old-file
       PROPERTIES TIMEOUT 600 )
    atlas_add_test( testJobFastSim
-      SCRIPT FTagAnalysisAlgorithmsTest_eljob.py --data-type afii --unit-test
+      SCRIPT FTagAnalysisAlgorithmsTest_eljob.py --data-type afii --unit-test --old-file
       PROPERTIES TIMEOUT 600 )
 elseif( NOT "${CMAKE_PROJECT_NAME}" STREQUAL "AthDerivation" )
    atlas_add_test( testJobData
@@ -52,10 +52,10 @@ elseif( NOT "${CMAKE_PROJECT_NAME}" STREQUAL "AthDerivation" )
       PROPERTIES TIMEOUT 600 )
    atlas_add_test( testJobFullSim
       SCRIPT athena.py
-      FTagAnalysisAlgorithms/FTagAnalysisAlgorithmsTest_jobOptions.py - --data-type mc
+      FTagAnalysisAlgorithms/FTagAnalysisAlgorithmsTest_jobOptions.py - --data-type mc --old-file
       PROPERTIES TIMEOUT 600 )
    atlas_add_test( testJobFastSim
       SCRIPT athena.py
-      FTagAnalysisAlgorithms/FTagAnalysisAlgorithmsTest_jobOptions.py - --data-type afii
+      FTagAnalysisAlgorithms/FTagAnalysisAlgorithmsTest_jobOptions.py - --data-type afii --old-file
       PROPERTIES TIMEOUT 600 )
 endif()

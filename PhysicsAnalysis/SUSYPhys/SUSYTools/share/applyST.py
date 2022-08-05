@@ -18,7 +18,7 @@ xAODFileName = "DAOD_AST.topaod_jul20.pool.root"
 
 # Input dataset
 # SZ - MIND that if you change this, you should also change accordingly the hard-coded "dataSource = 1" in line 73
-svcMgr.EventSelector.InputCollections= [os.environ['ASG_TEST_FILE_MC']]
+svcMgr.EventSelector.InputCollections= [os.environ['ASG_TEST_FILE_MC_OLD']]
 
 
 from glob import glob
@@ -69,7 +69,7 @@ else:
 
 # SZ - UNFORTUNATELY METADATA IS BROKEN IN R21 :-(
 # UUNCOMMENT BELOW TO HARD-CODE 'dataSource' TO FULLSIM MC
-# SINCE ANYWAY WE'RE RUNNING OVER 'ASG_TEST_FILE_MC'
+# SINCE ANYWAY WE'RE RUNNING OVER 'ASG_TEST_FILE_MC_OLD'
 #dataSource = 1
 
 ###############

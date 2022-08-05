@@ -37,10 +37,10 @@ int main( int argc, char* argv[] )
   IAppMgrUI* app = POOL::Init(); //important to do this first!
 
   // Open the input file:
-  TString fileName = "$ASG_TEST_FILE_MC";
+  TString fileName = "$ASG_TEST_FILE_MC_OLD";
   if( argc < 2 )
   {
-    ANA_MSG_WARNING( "No file name received, using $ASG_TEST_FILE_MC" );
+    ANA_MSG_WARNING( "No file name received, using $ASG_TEST_FILE_MC_OLD" );
   }
   else
   {

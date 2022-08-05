@@ -106,7 +106,7 @@ if( XAOD_STANDALONE )
    atlas_install_python_modules(util/*.py)
    #Tests
    atlas_add_test(ut_RunOnASGAOD
-	          SCRIPT EgEfficiencyCorr_testEgEfficiencyCorr  $ASG_TEST_FILE_MC 40)
+	          SCRIPT EgEfficiencyCorr_testEgEfficiencyCorr  $ASG_TEST_FILE_MC_OLD 40)
  
 endif()
 

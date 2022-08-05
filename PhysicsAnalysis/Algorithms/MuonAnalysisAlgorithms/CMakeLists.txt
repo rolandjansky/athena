@@ -55,15 +55,15 @@ if( XAOD_STANDALONE )
 else()
    atlas_add_test( testJobData
       SCRIPT athena.py
-      MuonAnalysisAlgorithms/MuonAnalysisAlgorithmsTest_jobOptions.py --evtMax=500 - --data-type data
+      MuonAnalysisAlgorithms/MuonAnalysisAlgorithmsTest_jobOptions.py --evtMax=500 - --data-type data --old-file
       PROPERTIES TIMEOUT 600 )
    atlas_add_test( testJobFullSim
       SCRIPT athena.py
-      MuonAnalysisAlgorithms/MuonAnalysisAlgorithmsTest_jobOptions.py --evtMax=500 - --data-type mc
+      MuonAnalysisAlgorithms/MuonAnalysisAlgorithmsTest_jobOptions.py --evtMax=500 - --data-type mc --old-file
       PROPERTIES TIMEOUT 600 )
    atlas_add_test( testJobFastSim
       SCRIPT athena.py
-      MuonAnalysisAlgorithms/MuonAnalysisAlgorithmsTest_jobOptions.py --evtMax=500 - --data-type afii
+      MuonAnalysisAlgorithms/MuonAnalysisAlgorithmsTest_jobOptions.py --evtMax=500 - --data-type afii --old-file
       PROPERTIES TIMEOUT 600 )
 endif()
 
@@ -80,14 +80,14 @@ if( XAOD_STANDALONE )
 else()
    atlas_add_test( testJobDataConfig
       SCRIPT athena.py
-      MuonAnalysisAlgorithms/MuonAnalysisAlgorithmsConfigTest_jobOptions.py --evtMax=500 - --data-type data
+      MuonAnalysisAlgorithms/MuonAnalysisAlgorithmsConfigTest_jobOptions.py --evtMax=500 - --data-type data --old-file
       PROPERTIES TIMEOUT 600 )
    atlas_add_test( testJobFullSimConfig
       SCRIPT athena.py
-      MuonAnalysisAlgorithms/MuonAnalysisAlgorithmsConfigTest_jobOptions.py --evtMax=500 - --data-type mc
+      MuonAnalysisAlgorithms/MuonAnalysisAlgorithmsConfigTest_jobOptions.py --evtMax=500 - --data-type mc --old-file
       PROPERTIES TIMEOUT 600 )
    atlas_add_test( testJobFastSimConfig
       SCRIPT athena.py
-      MuonAnalysisAlgorithms/MuonAnalysisAlgorithmsConfigTest_jobOptions.py --evtMax=500 - --data-type afii
+      MuonAnalysisAlgorithms/MuonAnalysisAlgorithmsConfigTest_jobOptions.py --evtMax=500 - --data-type afii --old-file
       PROPERTIES TIMEOUT 600 )
 endif()

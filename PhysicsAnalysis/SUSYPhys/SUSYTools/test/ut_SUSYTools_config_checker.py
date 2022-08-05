@@ -13,7 +13,7 @@ import subprocess
 class TestSUSYTools(unittest.TestCase):
 
     #Files and commands
-#    theSample = os.environ['ASG_TEST_FILE_MC']
+#    theSample = os.environ['ASG_TEST_FILE_MC_OLD']
 
     PRW_files = []
     PRW_ilcs  = []

@@ -12,6 +12,9 @@ parser = optparse.OptionParser()
 parser.add_option( '-d', '--data-type', dest = 'data_type',
                    action = 'store', type = 'string', default = 'mc',
                    help = 'Type of data to run over. Valid options are mc, afii' )
+parser.add_option( '--old-file', dest = 'old_file',
+                   action = 'store_true', default = False,
+                   help = 'Use the old ASG test file.')
 parser.add_option( '-s', '--submission-dir', dest = 'submission_dir',
                    action = 'store', type = 'string', default = 'submitDir',
                    help = 'Submission directory for EventLoop' )
@@ -29,9 +32,14 @@ ROOT.xAOD.LoadDictionaries().ignore()
 # configure per-sample right now
 
 dataType = options.data_type
+useOldFile = options.old_file
 
-inputfile = {"mc":   'ASG_TEST_FILE_MC',
-             "afii": 'ASG_TEST_FILE_MC_AFII'}
+if not useOldFile :
+    inputfile = {"mc":   'ASG_TEST_FILE_MC',
+                 "afii": 'ASG_TEST_FILE_MC_AFII'}
+else :
+    inputfile = {"mc":   'ASG_TEST_FILE_MC_OLD',
+                 "afii": 'ASG_TEST_FILE_MC_AFII_OLD'}
 
 if dataType not in ["mc", "afii"] :
     raise ValueError ("invalid data type: " + dataType)

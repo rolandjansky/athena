@@ -48,7 +48,7 @@ int main() {
    SIMPLE_CHECK( xAOD::Init() );
 
    // Open the input file:
-   std::unique_ptr< TFile > ifile( TFile::Open( "$ASG_TEST_FILE_DATA",
+   std::unique_ptr< TFile > ifile( TFile::Open( "$ASG_TEST_FILE_DATA_OLD",
                                                 "READ" ) );
    if( ! ifile.get() ) {
       Error( APP_NAME, XAOD_MESSAGE( "Couldn't open file: %s" ),

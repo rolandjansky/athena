@@ -49,7 +49,7 @@ int main() {
    RETURN_CHECK( APP_NAME, xAOD::Init() );
 
    // Open the input file.
-   std::unique_ptr< TFile > ifile( TFile::Open( "$ASG_TEST_FILE_DATA",
+   std::unique_ptr< TFile > ifile( TFile::Open( "$ASG_TEST_FILE_DATA_OLD",
                                                 "READ" ) );
    if( ! ifile ) {
       ::Error( APP_NAME, XAOD_MESSAGE( "File %s couldn't be opened..." ),
