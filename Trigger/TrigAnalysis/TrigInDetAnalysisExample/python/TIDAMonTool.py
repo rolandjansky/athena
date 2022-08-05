@@ -328,6 +328,9 @@ def defineHisto( montool, name, **args ) :
         if "type" in args and args["type"] == "TProfile" : 
                 name = name + "," + name + "_weight;" + name
 
+        # make sure that the histogram is created, even it is is never filled
+        args['opt'] = 'kAlwaysCreate'
+
         montool.defineHistogram( name, **args )
 
 
