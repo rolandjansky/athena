@@ -14,27 +14,20 @@ class RpcCablingCondData;
 
 namespace Muon {
 
-/** This class provides conversion from RDO data to RPC RDO
-   */
+    /** This class provides conversion from RDO data to RPC RDO
+     */
 
-class IRPC_RDO_Decoder : virtual public IAlgTool {
+    class IRPC_RDO_Decoder : virtual public IAlgTool {
+    public:
+        DeclareInterfaceID(IRPC_RDO_Decoder, 1, 0);
 
-public:
-  DeclareInterfaceID( IRPC_RDO_Decoder, 1, 0 );
-  
+        virtual std::vector<RpcDigit*>* getDigit(const RpcFiredChannel* fChan, uint16_t& sectorID, uint16_t& padId, uint16_t& cmaId,
+                                                 const RpcCablingCondData* rpcCab) const = 0;
 
-  virtual std::vector<RpcDigit*>* getDigit(const RpcFiredChannel* fChan,
-				   uint16_t& sectorID, uint16_t& padId,
-				   uint16_t& cmaId, const RpcCablingCondData* rpcCab) const = 0;
+        virtual std::vector<Identifier>* getOfflineData(const RpcFiredChannel* fChan, uint16_t& sectorID, uint16_t& padId, uint16_t& cmaId,
+                                                        double& time, const RpcCablingCondData* rpcCab) const = 0;
+    };
 
-
-  virtual std::vector<Identifier>* getOfflineData(const RpcFiredChannel* fChan,
-					  uint16_t& sectorID, uint16_t& padId,
-					  uint16_t& cmaId, double& time, const RpcCablingCondData* rpcCab) const = 0;
-
-
-}; 
-
-}
+}  // namespace Muon
 
 #endif
