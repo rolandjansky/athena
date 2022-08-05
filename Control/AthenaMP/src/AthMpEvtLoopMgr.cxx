@@ -55,6 +55,7 @@ AthMpEvtLoopMgr::AthMpEvtLoopMgr(const std::string& name
   , m_nPollingInterval(100) // 0.1 second
   , m_nMemSamplingInterval(0) // no sampling by default
   , m_nEventsBeforeFork(0)
+  , m_eventPrintoutInterval(1)
   , m_masterPid(getpid())
 {
   declareProperty("NWorkers",m_nWorkers);
@@ -67,6 +68,7 @@ AthMpEvtLoopMgr::AthMpEvtLoopMgr(const std::string& name
   declareProperty("PollingInterval",m_nPollingInterval);
   declareProperty("MemSamplingInterval",m_nMemSamplingInterval);
   declareProperty("EventsBeforeFork",m_nEventsBeforeFork);
+  declareProperty("EventPrintoutInterval",m_eventPrintoutInterval);
 }
 
 AthMpEvtLoopMgr::~AthMpEvtLoopMgr()
@@ -111,6 +113,17 @@ StatusCode AthMpEvtLoopMgr::initialize()
   }
 
   ATH_CHECK(m_evtProcessor.retrieve());
+  if(!m_isPileup) {
+    IProperty* propertyServer = dynamic_cast<IProperty*>(m_evtProcessor.get());
+    if(propertyServer) {
+      if(propertyServer->setProperty("EventPrintoutInterval",m_eventPrintoutInterval).isFailure()) {
+        ATH_MSG_WARNING("Could not set AthenaEventLoopMgr EventPrintoutInterval to " << m_eventPrintoutInterval);
+      }
+    }
+    else {
+      ATH_MSG_WARNING("Could not cast AthenaEventLoopMgr to IProperty");
+    }
+  }
   ATH_CHECK(m_tools.retrieve());
 
   return StatusCode::SUCCESS;
