@@ -47,7 +47,7 @@ PHYSVAL_FTAG1_FTAG2_mc_AppendToDictionary = {
 
 PHYSVAL_FTAG1_FTAG2_ExtraVariables = ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.Tau1_wta.Tau2_wta.Tau3_wta.D2.GhostBHadronsFinalCount",
         "Electrons.TruthLink",
-        "Muons.TruthLink",
+        "Muons.TruthLink","Muons.segmentDeltaPhi","Muons.segmentDeltaEta","Muons.ParamEnergyLoss","Muons.ParamEnergyLossSigmaPlus","Muons.ParamEnergyLossSigmaMinus","Muons.MeasEnergyLoss","Muons.MeasEnergyLossSigma",
         "Photons.TruthLink",
         "AntiKt2PV0TrackJets.pt.eta.phi.m",
         "AntiKt4EMTopoJets.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_eta.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1.PartonTruthLabelID.GhostBHadronsFinalPt.GhostBHadronsFinalCount.GhostCHadronsFinalCount.GhostCHadronsFinalPt",
