@@ -20,7 +20,8 @@ def fixprecision(x, precision=15):
         return _formatFloat (float(sm[:precision]) * 2**exponent)
 
 def jsonfixup(instr, fuzzyarray=False):
-    instr = instr.Data()
+    if not isinstance(instr, str):
+        instr = instr.Data()
     j=json.loads(instr)
     # the following are very subject to floating point numeric effects
     # are doubles, keep 15 decimal digits of precision
@@ -112,7 +113,14 @@ def dumpdir(d):
             if args.tree_entries and k.GetClassName() == 'TTree':
                 lhash = fuzzytreehash(k)
             elif args.hash:
-                lhash = zlib.adler32(jsonfixup(ROOT.getjson(k), args.fuzzy_histbins).encode())
+                if k.GetClassName() != 'TEfficiency':
+                    fixedjson = jsonfixup(ROOT.getjson(k), args.fuzzy_histbins)
+                else:
+                    j0 = json.loads(ROOT.getjson(k).Data())
+                    for subh in ('fPassedHistogram', 'fTotalHistogram'):
+                        j0[subh] = json.loads(jsonfixup(json.dumps(j0[subh])))
+                    fixedjson = json.dumps(j0, sort_keys=True)
+                lhash = zlib.adler32(fixedjson.encode())
                 if lhash < 0:
                     lhash += 2**32
             else:
