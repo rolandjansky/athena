@@ -85,6 +85,19 @@ FTAG2Akt4PFlowJetTPThinningTool = DerivationFramework__JetTrackParticleThinning(
 ToolSvc += FTAG2Akt4PFlowJetTPThinningTool
 thinningTools.append(FTAG2Akt4PFlowJetTPThinningTool)
 
+
+# Include inner detector tracks associated with muons
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
+FTAG2MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "FTAG2MuonTPThinningTool",
+        StreamName              = FTAG2Stream.Name,
+        MuonKey                 = "Muons",
+        InDetTrackParticlesKey  = "InDetTrackParticles")
+
+ToolSvc += FTAG2MuonTPThinningTool
+thinningTools.append(FTAG2MuonTPThinningTool)
+
+
+
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #====================================================================
