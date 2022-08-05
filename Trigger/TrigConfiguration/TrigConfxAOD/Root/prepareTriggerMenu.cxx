@@ -327,7 +327,7 @@ namespace TrigConf {
             float ps = -1.0;
             if (loadedL1ps.isInitialized()) {
                const L1PrescalesSet::L1Prescale& loadedPrescale = loadedL1ps.prescale( loadedItem.name() );
-               ps = static_cast< float >( loadedPrescale.prescale );
+               ps = loadedPrescale.enabled ? static_cast< float >( loadedPrescale.prescale ) : -1.0;
             }
             ctpConfig.prescaleSet().setPrescale( loadedItem.ctpId(), ps );
             
@@ -374,12 +374,6 @@ namespace TrigConf {
                outputTEs = ToVectorVector<std::string>(loadedChain, "signature.outputTEs");
             }
 
-            if( msg.level() <= MSG::VERBOSE ) {
-               msg << MSG::VERBOSE << "chain " << loadedChain.name()
-                   << " has counter " << loadedChain.counter()
-                   << " and " << counters.size() << " signatures (runs 1,2 only)" << endmsg;
-            }
-
             for( size_t sig = 0; sig < counters.size(); ++sig ) {
                std::vector< HLTTriggerElement* > outTEs;
                outTEs.reserve(outputTEs[ sig ].size());
@@ -411,13 +405,21 @@ namespace TrigConf {
                chain->addGroup(group);
             }
 
+            float ps = -1.0;
             if (loadedHltps.isInitialized()) {
                const HLTPrescalesSet::HLTPrescale& loadedPrescale = loadedHltps.prescale( loadedChain.name() );
-               chain->set_prescale( loadedPrescale.prescale );
-            } else {
-               chain->set_prescale( 0 );
+               ps = loadedPrescale.enabled ? static_cast< float >( loadedPrescale.prescale ) : -1.0;
             }
+            chain->set_prescale( ps );
  
+            if( msg.level() <= MSG::VERBOSE ) {
+               msg << MSG::VERBOSE << "chain " << loadedChain.name()
+                   << " has counter " << loadedChain.counter()
+                   << ", HLT prescale " << ps
+                   << ", groups " << loadedChain.groups().size() << ", legs " << loadedChain.legMultiplicities().size()
+                   << ", and " << counters.size() << " signatures (runs 1,2 only) " << endmsg;
+            }
+
             // Add it to the list of chains:
             if( ! chainList.addHLTChain( chain ) ) {
                msg << MSG::FATAL << "prepareTriggerMenu(...): "
