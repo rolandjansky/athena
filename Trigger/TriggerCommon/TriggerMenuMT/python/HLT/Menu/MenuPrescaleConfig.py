@@ -119,23 +119,6 @@ class PrescaleClass(object):
     HLTPrescales_HLTRepro_prescale = {
         'HLT_cosmic_id_L1MU3V_EMPTY':          10,
         'HLT_cosmic_id_L1MU8VF_EMPTY':         10,
-        'HLT_mb_sp_L1RD0_FILLED':              10,
-        'HLT_mb_sptrk_L1RD0_FILLED':           10,
-        'HLT_mb_sptrk_L1MBTS_1':               10,
-        'HLT_mb_sptrk_L1MBTS_2':               10,
-        'HLT_mb_sptrk_L1MBTS_2_UNPAIRED_ISO':  10,
-        'HLT_mb_sptrk_L1MBTS_2_EMPTY':         10,
-        'HLT_mb_sptrk_pt2_L1RD0_FILLED':       10,
-        'HLT_mb_sptrk_pt2_L1MBTS_2':           10,
-        'HLT_mb_sptrk_pt2_L1AFP_A_OR_C':       10,
-        'HLT_mb_sptrk_pt4_L1MBTS_1':           10,
-        'HLT_mb_sptrk_pt6_L1MBTS_1':           10,
-        'HLT_mb_sptrk_pt8_L1MBTS_1':           10,
-        'HLT_mb_sp900_trk60_hmt_L1MBTS_1_1':   10,
-        'HLT_mb_sp500_trk40_hmt_L1RD0_FILLED': 10,
-        'HLT_mb_sp500_trk40_hmt_L1MBTS_2':     10,
-        'HLT_mb_sp800_trk60_hmt_L1RD0_FILLED': 10,
-        'HLT_mb_sp800_trk60_hmt_L1MBTS_2':     10,
     }
 
     chain_list=[]

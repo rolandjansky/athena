@@ -1092,6 +1092,8 @@ HLT_4j20_020jvt_boffperf_pf_ftf_L1J45p0ETA21_3J15p0ETA25:
   eventCount: 0
 HLT_4j20_0eta290_boffperf_pf_ftf_L1HT190-J15s5pETA21:
   eventCount: 0
+HLT_4j20c_L14J15p0ETA25:
+  eventCount: 0
 HLT_4j25_PhysicsTLA_L1J45p0ETA21_3J15p0ETA25:
   eventCount: 0
 HLT_4j35_0eta290_020jvt_bdl1d77_pf_ftf_presel4j25b95_L14J15p0ETA25:
