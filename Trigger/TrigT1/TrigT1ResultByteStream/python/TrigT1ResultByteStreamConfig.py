@@ -217,7 +217,6 @@ def L1TriggerByteStreamEncoderCfg(flags):
 if __name__ == '__main__':
   from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
   from AthenaCommon.Logging import logging
-  from AthenaCommon.Constants import DEBUG,WARNING
   import glob
   import sys
 
@@ -227,14 +226,14 @@ if __name__ == '__main__':
                                    Example: python -m TrigT1ResultByteStream.TrigT1ResultByteStreamConfig --filesInput "data22*" --evtMax 10 --outputs eTOBs exTOBs """)
   parser.add_argument('--evtMax',type=int,default=-1,help="number of events")
   parser.add_argument('--filesInput',nargs='+',help="input files",required=True)
-  parser.add_argument('--outputLevel',default="WARNING",choices={'WARNING','DEBUG','VERBOSE'})
-  parser.add_argument('--outputs',nargs='+',choices={"eTOBs","exTOBs","eTowers","jFex","jFexInput","gFex","Topo","legacy"},required=True,
+  parser.add_argument('--outputLevel',default="WARNING",choices={ 'INFO','WARNING','DEBUG','VERBOSE'})
+  parser.add_argument('--outputs',nargs='+',choices={"eTOBs","exTOBs","eTowers","jTOBs","jTowers","gFex","Topo","legacy"},required=True,
                       help="What data to decode and output.")
   args = parser.parse_args()
 
 
   log = logging.getLogger('TrigT1ResultByteStreamConfig')
-  log.setLevel(DEBUG)
+  log.setLevel(logging.DEBUG)
 
   from AthenaCommon import Constants
   algLogLevel = getattr(Constants,args.outputLevel)
@@ -242,12 +241,17 @@ if __name__ == '__main__':
   if any(["data22" in f for f in args.filesInput]):
     flags.Trigger.triggerConfig='DB'
 
-  flags.Exec.OutputLevel = WARNING
+  flags.Exec.OutputLevel = algLogLevel
   flags.Exec.MaxEvents = args.evtMax
   flags.Input.Files = [file for x in args.filesInput for file in glob.glob(x)]
   flags.Concurrency.NumThreads = 1
   flags.Concurrency.NumConcurrentEvents = 1
-  flags.Output.AODFileName = 'AOD.pool.root'
+  
+  if any(["data22" in f for f in args.filesInput]):
+    flags.Output.AODFileName = "AOD."+(args.filesInput[0].split("/")[-1]).split('_SFO')[0]+"pool.root"
+  else:
+    flags.Output.AODFileName = 'AOD.pool.root'  
+
   flags.Trigger.enableL1CaloLegacy = 'legacy' in args.outputs
   flags.lock()
 
@@ -315,7 +319,10 @@ if __name__ == '__main__':
 
     outputEDM += [item.replace('/','#') for item in type_names]
 
-  if 'jFex' in args.outputs:
+  ########################################
+  # jFEX ROIs
+  ########################################
+  if 'jTOBs' in args.outputs:
     jFexTool = jFexRoiByteStreamToolCfg('jFexBSDecoder', flags)
     for module_id in jFexTool.ROBIDs:
         maybeMissingRobs.append(module_id)
@@ -327,16 +334,22 @@ if __name__ == '__main__':
     outputEDM += addEDM('xAOD::jFexFwdElRoIContainer', jFexTool.jEMRoIContainerWriteKey.Path)
     outputEDM += addEDM('xAOD::jFexSumETRoIContainer', jFexTool.jTERoIContainerWriteKey.Path)
     outputEDM += addEDM('xAOD::jFexMETRoIContainer'  , jFexTool.jXERoIContainerWriteKey.Path)
-
-  if 'jFexInput' in args.outputs:
+    
+  ########################################
+  # jFEX input Data
+  ########################################
+  if 'jTowers' in args.outputs:
     inputjFexTool = jFexInputByteStreamToolCfg('jFexInputBSDecoder', flags)
     for module_id in inputjFexTool.ROBIDs:
         maybeMissingRobs.append(module_id)
 
     decoderTools += [inputjFexTool]
-    # example if saving/adding the xAOD container, implement in the future
-    # outputEDM += addEDM('xAOD::jFexSRJetRoIContainer', jFexTool.jJRoIContainerWriteKey.Path)
-
+    # saving/adding the jTower xAOD container
+    outputEDM += addEDM('xAOD::jFexTowerContainer', inputjFexTool.jTowersWriteKey.Path)
+    
+  ########################################
+  # eFEX ROIs and Input data
+  ########################################
   if any( [x in args.outputs for x in ['eTOBs','exTOBs','eTowers']] ):
     eFexTool = eFexByteStreamToolCfg('eFexBSDecoder', flags,TOBs='eTOBs' in args.outputs,xTOBs='exTOBs' in args.outputs,decodeInputs='eTowers' in args.outputs)
     # eFexTool_xTOBs = eFexByteStreamToolCfg('eFexBSDecoder_xTOBs', flags,xTOBs=True)
@@ -359,6 +372,9 @@ if __name__ == '__main__':
     # allow for missing ROBs for eFEX decoding:
     maybeMissingRobs += eFexTool.ROBIDs
 
+  ########################################
+  # gFEX ROIs
+  ########################################
   if 'gFex' in args.outputs:
     gFexTool = gFexByteStreamToolCfg('gFexBSDecoder', flags)
     decoderTools += [gFexTool]
@@ -374,7 +390,9 @@ if __name__ == '__main__':
     outputEDM += addEDM('xAOD::gFexGlobalRoIContainer', gFexTool.gScalarENoiseCutOutputContainerWriteKey.Path)
     outputEDM += addEDM('xAOD::gFexGlobalRoIContainer', gFexTool.gScalarERmsOutputContainerWriteKey.Path)
 
-
+  ########################################
+  # Topop ROIs  
+  ########################################
   if 'Topo' in args.outputs:
     l1topoBSTool = L1TopoPhase1ByteStreamToolCfg()
     decoderTools += [l1topoBSTool]

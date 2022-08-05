@@ -140,21 +140,21 @@ def gFexByteStreamToolCfg(name, flags, writeBS=False):
   return tool
 
 
-def jFexInputByteStreamToolCfg(name, flags, writeBS=False, xTOBs=False):
+def jFexInputByteStreamToolCfg(name, flags, writeBS=False):
   tool = CompFactory.jFexInputByteStreamTool(name)
   jfex_roi_moduleids = [0x2000,0x2010,0x2020,0x2030,0x2040,0x2050]
   tool.ROBIDs = [int(SourceIdentifier(SubDetector.TDAQ_CALO_FEAT_EXTRACT_DAQ, moduleid)) for moduleid in jfex_roi_moduleids]  
   
   #will be needed in the future for jTower container, still not coded
-  # if writeBS:
+  if writeBS:
     # write BS == read xAOD
-    # tool.jJRoIContainerReadKey   = "L1_jFexSRJetxRoI" if xTOBs else "L1_jFexSRJetRoI"
+    tool.jTowersReadKey   = "L1_jTowers" 
 
-    # tool.jJRoIContainerWriteKey  =""
-  # else:
+    tool.jTowersWriteKey  =""
+  else:
     # read BS == write xAOD
-    # tool.jJRoIContainerReadKey   =""
+    tool.jTowersReadKey   =""
 
-    # tool.jJRoIContainerWriteKey  = "L1_jFexSRJetxRoI" if xTOBs else "L1_jFexSRJetRoI"
+    tool.jTowersWriteKey  = "L1_jTowers"
     
   return tool
