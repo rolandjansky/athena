@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CSCCALIBDATA_CSCCALIBRESULTCOLLECTION_H
@@ -32,7 +32,7 @@ class CscCalibResultCollection : public DataVector<CscCalibResult>
             { };
 
         /** Creates an empty container ready for filling. */
-        CscCalibResultCollection(std::string parName) 
+        CscCalibResultCollection(const std::string& parName) 
             : DataVector<CscCalibResult>(),m_parName(parName)
             { };
 

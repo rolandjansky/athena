@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CSCCALIBDATA_CSCCALIBREPORTCONTAINER_H
@@ -34,7 +34,7 @@ class CscCalibReportContainer : public DataVector<CscCalibReportBase>
             { };
 
         /** Creates an empty container ready for filling. */
-        CscCalibReportContainer(std::string calibType) 
+        CscCalibReportContainer(const std::string& calibType) 
             : DataVector<CscCalibReportBase>(),m_calibType(calibType)
             { };
 
