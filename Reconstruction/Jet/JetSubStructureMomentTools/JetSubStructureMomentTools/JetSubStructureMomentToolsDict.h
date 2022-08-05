@@ -18,7 +18,6 @@
 #include "JetSubStructureMomentTools/NSubjettinessTool.h"
 #include "JetSubStructureMomentTools/SubjetFinderTool.h"
 #include "JetSubStructureMomentTools/VolatilityTool.h"
-#include "JetSubStructureMomentTools/BosonTagTool.h"
 #include "JetSubStructureMomentTools/EnergyCorrelatorTool.h"
 #include "JetSubStructureMomentTools/EnergyCorrelatorGeneralizedTool.h"
 #include "JetSubStructureMomentTools/JetSubStructureMomentToolsBase.h"
