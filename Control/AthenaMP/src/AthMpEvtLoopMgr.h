@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAMP_ATHMPEVTLOOPMGR_H
@@ -49,6 +49,7 @@ class AthMpEvtLoopMgr
   int                            m_nPollingInterval;      // in milliseconds
   int                            m_nMemSamplingInterval;  // in seconds
   int                            m_nEventsBeforeFork;
+  unsigned int                   m_eventPrintoutInterval;
   pid_t                          m_masterPid;
 
   // vectors for collecting memory samples
