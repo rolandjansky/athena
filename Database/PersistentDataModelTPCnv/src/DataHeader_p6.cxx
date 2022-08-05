@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PersistentDataModelTPCnv/DataHeader_p6.h"
@@ -65,7 +65,7 @@ unsigned int DataHeaderForm_p6::getDbTech(unsigned int index) const {
 unsigned int DataHeaderForm_p6::insertObj(const ObjRecord& rec,
         const std::set<std::string>& aliases, bool doAliasFiltering,
 	const std::set<unsigned int>& symLinks,
-	const std::vector<unsigned int>& hashes)
+	const std::vector<sgkey_t>& hashes)
 {
    unsigned int index = 0U;
    for (std::vector<ObjRecord>::const_iterator iter = m_objRecords.begin(), last = m_objRecords.end();
@@ -127,7 +127,8 @@ std::set<unsigned int> DataHeaderForm_p6::getObjSymLinks(unsigned int index) con
    return(std::set<unsigned int>(m_objSymLinks[index].begin(), m_objSymLinks[index].end()));
 }
 
-std::vector<unsigned int> DataHeaderForm_p6::getObjHashes(unsigned int index) const {
+std::vector<DataHeaderForm_p6::sgkey_t>
+DataHeaderForm_p6::getObjHashes(unsigned int index) const {
    return(m_objHashes[index]);
 }
 

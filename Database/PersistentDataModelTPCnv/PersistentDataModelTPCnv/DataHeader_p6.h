@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PERSISTENTDATAMODELTPCNV_DATAHEADER_P6_H
@@ -12,6 +12,7 @@
  **/
 
 #include "PersistentDataModel/Guid.h"
+#include "CxxUtils/sgkey_t.h"
 
 #include <vector>
 #include <set>
@@ -27,6 +28,8 @@ class  DataHeaderForm_p6 {
 friend class DataHeaderCnv_p6;
 
 public:
+  using sgkey_t = SG::sgkey_t;
+
   struct DbRecord {
     Guid fid; unsigned tech;
     DbRecord() {}
@@ -58,7 +61,7 @@ public: // Constructor and Destructor
    unsigned int insertObj(const ObjRecord& rec,
            const std::set<std::string>& alias = std::set<std::string>(),  bool doAliasFiletering = true,
            const std::set<unsigned int>& symLinks = std::set<unsigned int>(),
-           const std::vector<unsigned int>& hashes = std::vector<unsigned int>());
+           const std::vector<sgkey_t>& hashes = std::vector<sgkey_t>());
    std::size_t sizeObj() const;
    std::string getObjContainer(unsigned int index) const;
    std::string getObjKey(unsigned int index) const;
@@ -67,7 +70,7 @@ public: // Constructor and Destructor
    long long getObjOid1(unsigned int index) const { return m_objRecords[index].oid1; }
    std::set<std::string>        getObjAlias(unsigned int index) const;
    std::set<unsigned int>       getObjSymLinks(unsigned int index) const;
-   std::vector<unsigned int>    getObjHashes(unsigned int index) const;
+   std::vector<sgkey_t>         getObjHashes(unsigned int index) const;
    std::string          calculateMdx();
    bool                 wasModified() const;
    void                 clearModified();
@@ -80,7 +83,7 @@ private:
    std::vector<ObjRecord> m_objRecords;
    std::vector<std::vector<std::string> > m_objAlias;
    std::vector<std::vector<unsigned int> > m_objSymLinks;
-   std::vector<std::vector<unsigned int> > m_objHashes;
+   std::vector<std::vector<sgkey_t> > m_objHashes;
 
    /// In case we need ot handle encoding changes later
    unsigned             m_version { 600 };

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PERSISTENTDATAMODEL_DATAHEADER_H
@@ -13,6 +13,7 @@
 #include "GaudiKernel/ClassID.h"
 
 #include "PersistentDataModel/Token.h"
+#include "CxxUtils/sgkey_t.h"
 
 #include <string>
 #include <set>
@@ -34,6 +35,8 @@ class IStringPool;
  **/
 class DataHeaderElement {
 public: // Constructor and Destructor
+   using sgkey_t = SG::sgkey_t;
+
    /// Default Constructor
    DataHeaderElement();
    /// Copy Constructor
@@ -75,7 +78,7 @@ public: // Non-static members
    long getStorageType() const;
    /// @return the list of hash codes.
    ///         In 1-1 correspondence with the CLID set.
-   const std::vector<unsigned int>& getHashes() const;
+   const std::vector<sgkey_t>& getHashes() const;
    /// @return a pointer to the TransientAddress of the DataObject.
    SG::TransientAddress* getAddress(unsigned long contextId = 0) const;
    /// @return a pointer to the TransientAddress of the DataObject, with new transient key.
@@ -112,7 +115,7 @@ private:
    const Token* m_token;
    bool m_ownToken;
    /// hash table for ElementLink host container keys.
-   std::vector<unsigned int> m_hashes;
+   std::vector<sgkey_t> m_hashes;
 };
 
 /** @class DataHeader

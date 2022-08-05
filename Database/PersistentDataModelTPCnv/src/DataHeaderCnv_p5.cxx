@@ -10,6 +10,7 @@
 
 #include "PersistentDataModel/DataHeader.h"
 #include "PersistentDataModelTPCnv/DataHeaderCnv_p5.h"
+#include "CxxUtils/sgkey_t.h"
 #include "boost/algorithm/string.hpp"
 
 DataHeaderElementCnv_p5::DataHeaderElementCnv_p5() {}
@@ -203,9 +204,9 @@ void DataHeaderElementCnv_p5::transToPers(const DataHeaderElement& trans,
 		   last = trans.m_clids.end(); iter != last; ++iter) {
       form.insertParam(*iter, entry);
    }
-   for (std::vector<unsigned int>::const_iterator iter = trans.m_hashes.begin(),
+   for (std::vector<SG::sgkey_t>::const_iterator iter = trans.m_hashes.begin(),
 		   last = trans.m_hashes.end(); iter != last; ++iter) {
-      form.insertParam(*iter, entry);
+     form.insertParam(SG::sgkeyShort (*iter), entry);
    }
 }
 //______________________________________________________________________________

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file DataHeader.cxx
@@ -140,7 +140,8 @@ long DataHeaderElement::getStorageType() const {
    return(POOL_StorageType);
 }
 //_____________________________________________________________________________
-const std::vector<unsigned int>& DataHeaderElement::getHashes() const {
+const std::vector<DataHeaderElement::sgkey_t>&
+DataHeaderElement::getHashes() const {
    return(m_hashes);
 }
 //______________________________________________________________________________
