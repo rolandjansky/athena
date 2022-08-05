@@ -400,7 +400,7 @@ namespace VKalVrtAthena {
 
       std::unique_ptr<Trk::IVKalState> state = m_fitSvc->makeState();
       auto pgraph = std::make_unique<Trk::PGraph>();
-
+      int iterationLimit(2000);
       // Main iteration
       while(true) {
 
@@ -408,7 +408,10 @@ namespace VKalVrtAthena {
         pgraph->pgraphm_( weit.data(), nEdges, nTracks, solution.data(), &solutionSize, nth);
 
         ATH_MSG_VERBOSE(" > " << __FUNCTION__ << ": Trk::pgraphm_() output: solutionSize = " << solutionSize );
-
+        if (0 == iterationLimit--){
+          ATH_MSG_WARNING("Iteration limit (2000) reached in VrtSecInclusive::findNtrackVertices, solution size = "<<solutionSize);
+          break;
+        }
         if(solutionSize <= 0)  break;      // No more solutions ==> Exit
         if(solutionSize == 1)  continue;   // i.e. single node  ==> Not a good solution
 
