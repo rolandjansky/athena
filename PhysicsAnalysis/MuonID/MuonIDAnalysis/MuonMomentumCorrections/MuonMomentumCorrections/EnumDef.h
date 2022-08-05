@@ -30,7 +30,7 @@ namespace MCP {
     enum class MST_Categories{Undefined, Zero, One, Two, Three, Four};
         
     // Data22 is not supported yet
-    static constexpr std::array<MCP::DataYear, 3> dataYearList{MCP::DataYear::Data16, MCP::DataYear::Data17, MCP::DataYear::Data18};
+    static constexpr std::array<MCP::DataYear, 4> dataYearList{MCP::DataYear::Data16, MCP::DataYear::Data17, MCP::DataYear::Data18, MCP::DataYear::Data22};
 
     // Need this defined as a simple enum to not change any interface class
     namespace DetectorType { enum { MS = 1, ID = 2, CB = 3 };}

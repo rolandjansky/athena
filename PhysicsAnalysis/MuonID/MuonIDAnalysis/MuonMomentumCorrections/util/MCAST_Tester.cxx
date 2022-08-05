@@ -142,31 +142,19 @@ int main(int argc, char* argv[]) {
     // setup the tool handle as per the
     // recommendation by ASG - https://twiki.cern.ch/twiki/bin/view/AtlasProtected/AthAnalysisBase#How_to_use_AnaToolHandle
     ////////////////////////////////////////////////////
-    //::: create the tool handle
+
+    // bool is run3 geo
+    bool isRun3Geo = false;
+    if(fileName.find("mc21") != std::string::npos) isRun3Geo = true;
+    if(fileName.find("data22") != std::string::npos) isRun3Geo = true;
+
     asg::StandaloneToolHandle<CP::IMuonCalibrationAndSmearingTool> corrTool;  //!
-    corrTool.setTypeAndName("CP::MuonCalibrationAndSmearingTool/MCT");
-    //::: set the properties
-    if (fileName.find("data18") != std::string::npos) corrTool.setProperty("Year", "Data18").ignore();
-    if (fileName.find("data17") != std::string::npos) corrTool.setProperty("Year", "Data17").ignore();
-    if (fileName.find("data16") != std::string::npos) corrTool.setProperty("Year", "Data16").ignore();
-    if (fileName.find("data15") != std::string::npos) corrTool.setProperty("Year", "Data16").ignore();
-
-    if (fileName.find("r13145") != std::string::npos) corrTool.setProperty("Year", "Data18").ignore();
-    if (fileName.find("r13144") != std::string::npos) corrTool.setProperty("Year", "Data17").ignore();
-    if (fileName.find("r13167") != std::string::npos) corrTool.setProperty("Year", "Data16").ignore();
-    corrTool.setProperty("systematicCorrelationScheme", "Corr_Scale").ignore();
-    corrTool.setProperty("SagittaCorr", true).ignore();
-    corrTool.setProperty("doSagittaMCDistortion", false).ignore();
-    corrTool.setProperty("doDirectCBCalib", false).ignore();
+    corrTool.setProperty("calibMode", 1).ignore();
+    corrTool.setProperty("IsRun3Geo", isRun3Geo).ignore();
     // corrTool.setProperty("doExtraSmearing", true).ignore();
-    // corrTool.setProperty("do2StationsHighPt", true).ignore();
+    // corrTool.setProperty("do2StationsHighPt", false).ignore();
 
-    asg::StandaloneToolHandle<CP::IMuonCalibrationAndSmearingTool> newcorrTool;  //!
-    newcorrTool.setProperty("calibMode", 1).ignore();
-    // newcorrTool.setProperty("doExtraSmearing", true).ignore();
-    // newcorrTool.setProperty("do2StationsHighPt", false).ignore();
-
-    newcorrTool.setTypeAndName("CP::MuonCalibTool/NewMCT");
+    corrTool.setTypeAndName("CP::MuonCalibTool/NewMCT");
 
 
 
@@ -174,9 +162,8 @@ int main(int argc, char* argv[]) {
     if (nEvents >= 0 || Ievent >= 0) isDebug = true;
 
     if (isDebug) corrTool.setProperty("OutputLevel", MSG::VERBOSE).ignore();
-    if (isDebug) newcorrTool.setProperty("OutputLevel", MSG::VERBOSE).ignore();
     //::: retrieve the tool
-    StatusCode sc = newcorrTool.retrieve();
+    StatusCode sc = corrTool.retrieve();
     if (sc.isFailure()) {
         Error(APP_NAME, "Cannot retrieve MuonCorrectionTool");
         return 1;
@@ -200,6 +187,7 @@ int main(int argc, char* argv[]) {
     selTool.setTypeAndName("CP::MuonSelectionTool/MuonSelectionTool");
 
     //::: set the properties
+    selTool.setProperty("IsRun3Geo", isRun3Geo).ignore();
     selTool.setProperty("MaxEta", 2.5).ignore();
     selTool.setProperty("MuQuality", (int)xAOD::Muon::Loose).ignore();  // corresponds to 0=Tight, 1=Medium, 2=Loose, 3=VeryLoose, 4=HighPt, 5=LowPtEfficiency
 
@@ -300,9 +288,6 @@ int main(int argc, char* argv[]) {
             if (corrTool->applySystematicVariation(*sysListItr) != StatusCode::SUCCESS) {
                 Error(APP_NAME, "Cannot configure muon calibration tool for systematic");
             }
-            if (newcorrTool->applySystematicVariation(*sysListItr) != StatusCode::SUCCESS) {
-                Error(APP_NAME, "Cannot configure muon calibration tool for systematic");
-            }
 
             //::: Loop over muon container
             for (auto muon : *muonsCorr) {
@@ -358,7 +343,7 @@ int main(int argc, char* argv[]) {
 
                 // either use the correctedCopy call or correct the muon object itself
                 if (useCorrectedCopy) {
-                    //::: Create a calibrated muon:
+                    // ::: Create a calibrated muon:
                     xAOD::Muon* mu = 0;
                     if (!corrTool->correctedCopy(*muon, mu)) {
                         Error(APP_NAME, "Cannot really apply calibration nor smearing");
@@ -368,30 +353,12 @@ int main(int argc, char* argv[]) {
                     CorrPtID = mu->auxdata<float>("InnerDetectorPt");
                     CorrPtMS = mu->auxdata<float>("MuonSpectrometerPt");
 
-
-                    xAOD::Muon* muNew = 0;
-                    if (!newcorrTool->correctedCopy(*muon, muNew)) {
-                        Error(APP_NAME, "Cannot really apply calibration nor smearing");
-                        continue;
-                    }
-                    double NewCorrPtCB = muNew->pt();
-                    double NewCorrPtID = muNew->auxdata<float>("InnerDetectorPt");
-                    double NewCorrPtMS = muNew->auxdata<float>("MuonSpectrometerPt");
-
-                    if (isDebug)
-                    {
-                        Info(APP_NAME, "Old Calibrated muon: eta = %g, phi = %g, pt(CB) = %g, pt(ID) = %g, pt(MS) = %g", mu->eta(), mu->phi(), mu->pt() / 1e3, mu->auxdata<float>("InnerDetectorPt") / 1e3, mu->auxdata<float>("MuonSpectrometerPt") / 1e3);
-                        Info(APP_NAME, "new Calibrated muon: eta = %g, phi = %g, pt(CB) = %g, pt(ID) = %g, pt(MS) = %g", muNew->eta(), muNew->phi(), muNew->pt() / 1e3, muNew->auxdata<float>("InnerDetectorPt") / 1e3, muNew->auxdata<float>("MuonSpectrometerPt") / 1e3);
-                    }
-                    if(std::abs(NewCorrPtCB-CorrPtCB) > 0.5) Warning(APP_NAME, "CB pt not matching: old = %g, new = %g, event=%lli, eta = %g, phi = %g, for %s", CorrPtCB, NewCorrPtCB, eventNum, mu->eta(), mu->phi(),  sysListItr->name().c_str());
-                    if(std::abs(NewCorrPtID-CorrPtID) > 0.5) Warning(APP_NAME, "ID pt not matching: old = %g, new = %g, event=%lli, eta = %g, phi = %g, for %s", CorrPtID, NewCorrPtID, eventNum, mu->eta(), mu->phi(),  sysListItr->name().c_str());
-                    if(std::abs(NewCorrPtMS-CorrPtMS) > 0.5) Warning(APP_NAME, "MS pt not matching: old = %g, new = %g, event=%lli, eta = %g, phi = %g, for %s", CorrPtMS, NewCorrPtMS, eventNum, mu->eta(), mu->phi(),  sysListItr->name().c_str());
-
                     
                     sysTreeMap[*sysListItr]->Fill();
                     //::: Delete the calibrated muon:
                     delete mu;
-                } else {
+                } 
+                else {
                     if (!corrTool->applyCorrection(*muon)) {
                         Error(APP_NAME, "Cannot really apply calibration nor smearing");
                         continue;
