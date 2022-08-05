@@ -26,7 +26,8 @@ namespace CP {
         // Create a proper constructor for Athena
         ASG_TOOL_CLASS3(MuonCalibTool, CP::IMuonCalibrationAndSmearingTool, CP::ISystematicsTool,
                         CP::IReentrantSystematicsTool)
-
+                        
+    public:
         enum CalibMode {
             noOption = -1,  // <--- default
             correctData_CB = 0,
@@ -35,7 +36,6 @@ namespace CP {
             userDefined = 99,
         };
 
-    public:
         // Interface methods that must be defined
         // Interface - Apply the correction on a modifyable object
         virtual CorrectionCode applyCorrection(xAOD::Muon& mu) const override;
@@ -70,8 +70,10 @@ namespace CP {
         // Event info
         SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this, "EventInfoContName", "EventInfo", "event info key"};
 
+        Gaudi::Property<bool> m_isRun3{this, "IsRun3Geo", false, "Needed for MuonSelectionTool"}; 
+
         // Properties of the tool
-        Gaudi::Property<std::string> m_release{this, "release", "Recs2022_03_20",     "Release"};
+        Gaudi::Property<std::string> m_release{this, "release", "Recs2022_06_15_Rel22PreRecs",     "Release"};
         // Systematics scheme 
         Gaudi::Property<std::string> m_sysScheme{this, "systematicScheme", "Corr_Scale",     "Systematic scheme to be configured"};
 
