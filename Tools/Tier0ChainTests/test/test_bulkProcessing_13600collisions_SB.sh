@@ -6,18 +6,19 @@
 # art-include: 22.0/Athena
 # art-athena-mt: 8
 
-# Not doing diff-root comparison for DAOD_IDTIDE at the moment (because 0 events are selected). To enable comparison for DAOD_IDTIDE, rename the output to DAOD_IDTIDE.pool.root
+# Not doing diff-root comparison for DAOD_IDTIDE nor DESDM_MCP for the moment. To enable comparisons, change the extensions of the corresponding output files to .pool.root
 
 Reco_tf.py  \
---AMI f1245  \
---inputBSFile="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/TCT_Run3/data22_900GeV.00424070.express_express.merge.RAW._lb0100._SFO-ALL._0001.1" \
+--AMI f1258  \
+--inputBSFile="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/TCT_Run3/data22_13p6TeV.00429782.physics_Main.daq.RAW._lb0562._SFO-11._0001.data" \
 --outputAODFile="AOD.pool.root" \
 --outputESDFile="ESD.pool.root" \
 --outputHISTFile="HIST.root" \
 --outputDAOD_IDTIDEFile="DAOD_IDTIDE.root" \
 --outputDRAW_ZMUMUFile="myDRAW_ZMUMU.data" \
+--outputDESDM_MCPFile="myDESDM_MCP.root" \
+--outputDRAW_EGZFile="myDRAW_EGZ.data" \
 --imf False
-
 
 
 rc1=$?
