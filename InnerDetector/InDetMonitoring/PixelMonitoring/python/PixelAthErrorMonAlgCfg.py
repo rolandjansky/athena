@@ -23,6 +23,7 @@ def PixelAthErrorMonAlgCfg(helper, alg, **kwargs):
          alg     -- algorithm Configurable object returned from addAlgorithm
          kwargs  -- jo agruments
     '''
+    doOnline    = kwargs.get('doOnline',  False)
     doLumiBlock = kwargs.get('doLumiBlock', False)
     path        = '/Pixel/Errors/'
     pathExpert  = '/Pixel/ErrorsExpert/'
@@ -47,17 +48,18 @@ def PixelAthErrorMonAlgCfg(helper, alg, **kwargs):
     ylabels        = [[i[1] for i in ErrCatRODModLabels]]*len(layers)
     defineMapVsLumiLayers(helper, alg, histoGroupName, title, path, ';lumi block', ';error type', ybins=errtbinsy, ymins=errbminsy, binsizes=errbbsizy, ylabels=ylabels, type='TProfile2D')
 
-    for i, cat in enumerate(ErrCatRODModLabels):
-        if i==4: #other histograms are covered by ErrCatLabels below
-            break
-        histoGroupName = cat[0]
-        title          = "Total "+cat[1]
-        define2DProfHist(helper, alg, histoGroupName, title, path, type='TH2F')
+    if not doOnline:
+        for i, cat in enumerate(ErrCatRODModLabels):
+            if i==4: #other histograms are covered by ErrCatLabels below
+                break
+            histoGroupName = cat[0]
+            title          = "Total "+cat[1]
+            define2DProfHist(helper, alg, histoGroupName, title, path, type='TH2F')
 
-    for cat in ErrCatLabels:
-        histoGroupName = cat[0]
-        title          = "Total "+cat[1]
-        define2DProfHist(helper, alg, histoGroupName, title, path, type='TH2F')
+        for cat in ErrCatLabels:
+            histoGroupName = cat[0]
+            title          = "Total "+cat[1]
+            define2DProfHist(helper, alg, histoGroupName, title, path, type='TH2F')
 
     yaxistext      = ';# errors/module/event'
     for i, cat in enumerate(ErrCatRODModLabelsNorm):
@@ -101,9 +103,15 @@ def PixelAthErrorMonAlgCfg(helper, alg, **kwargs):
         if any(st in state[0] for st in matches):
             histoGroupName = state[0]+"FEMap"
             define2DProfPerFEHist(helper, alg, histoGroupName, title, pathExpert, type='TH2F', doWeight=True)
+            if doOnline:
+                title += ' reset every 15 LBs'
+                define2DProfPerFEHist(helper, alg, histoGroupName, title, pathExpert, type='TH2F', doWeight=True, opt='kLBNHistoryDepth=15', histname=state[0]+"FEMapMon")
         else:
             histoGroupName = state[0]+"Map"
             define2DProfHist(helper, alg, histoGroupName, title, pathExpert, type='TH2F', doWeight=True)
+            if doOnline:
+                title += ' reset every 15 LBs'
+                define2DProfHist(helper, alg, histoGroupName, title, pathExpert, type='TH2F', doWeight=True, opt='kLBNHistoryDepth=15', histname=state[0]+"MapMon")
         histoGroupName = state[0]+"PerLumi"
         title          = 'Average '+state[1]+" Errors per module per event"
         yaxistext      = ';# errors/module/event'
