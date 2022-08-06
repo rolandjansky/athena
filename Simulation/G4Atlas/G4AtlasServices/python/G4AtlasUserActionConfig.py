@@ -4,7 +4,7 @@ from AthenaCommon.SystemOfUnits import MeV
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType, LHCPeriod
-from CaloG4Sim.CaloG4SimConfigNew import CalibrationDefaultProcessingToolCfg
+from CaloG4Sim.CaloG4SimConfig import CalibrationDefaultProcessingToolCfg
 from SimulationConfig.SimEnums import CalibrationRun, CavernBackground, SimulationFlavour
 from G4CosmicFilter.G4CosmicFilterConfig import CosmicFilterToolCfg
 from G4UserActions.G4UserActionsConfigNew import (

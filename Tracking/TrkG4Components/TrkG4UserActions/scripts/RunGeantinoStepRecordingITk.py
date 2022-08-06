@@ -108,7 +108,7 @@ beamcond.tiltY=0.0
 kwargs = {}
 
 svcName = "G4UA::MaterialStepRecorderUserActionSvc"
-from TrkG4UserActions.TrkG4UserActionsConfigNew import MaterialStepRecorderUserActionSvcCfg
+from TrkG4UserActions.TrkG4UserActionsConfig import MaterialStepRecorderUserActionSvcCfg
 acc.merge(MaterialStepRecorderUserActionSvcCfg(ConfigFlags,svcName,**kwargs))
 kwargs.update(UserActionSvc=svcName)
 
