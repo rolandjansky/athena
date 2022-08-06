@@ -106,7 +106,12 @@ def BeamEffectsAlgCfg(flags, name="BeamEffectsAlg", **kwargs):
         kwargs.setdefault("InputMcEventCollection", "OriginalEvent_SG+GEN_EVENT")
     else:
         kwargs.setdefault("InputMcEventCollection", "GEN_EVENT")
-    kwargs.setdefault("OutputMcEventCollection", "BeamTruthEvent")
+
+
+    if flags.Sim.DoFullChain and flags.Common.isOverlay:
+        kwargs.setdefault('OutputMcEventCollection', 'Sig_TruthEvent')
+    else:
+        kwargs.setdefault('OutputMcEventCollection', 'BeamTruthEvent')
 
     # Set (todo) the appropriate manipulator tools
     manipulators = []
