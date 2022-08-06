@@ -20,11 +20,14 @@ extern "C" {
 
 // Local include(s):
 #include "xAODCore/AuxContainerBase.h"
+#include "xAODCore/BaseContainer.h"
+
 #include "xAODCore/AuxInfoBase.h"
 #include "xAODCore/ShallowAuxContainer.h"
 #include "xAODCore/ShallowAuxInfo.h"
 #include "xAODCore/tools/TDVCollectionProxy.h"
 #include "xAODCore/tools/PrintHelpers.h"
+#include "xAODCore/tools/DictHelpers.h"
 
 namespace {
    struct GCCXML_DUMMY_INSTANTIATION_XAODCORE {
@@ -42,7 +45,10 @@ namespace {
       std::vector< std::vector<char> > root8;
       std::vector< uint32_t > root9;
       std::vector< std::vector< uint32_t > > root10;
+
+
+
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, BaseContainer );
    };
 } // private namespace
-
 #endif // XAODCORE_XAODCOREDICT_H

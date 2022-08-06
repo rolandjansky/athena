@@ -8,7 +8,9 @@ atlas_add_poolcnv_library( xAODCoreAthenaPoolPoolCnv
    src/*.cxx
    FILES xAODCore/AuxInfoBase.h xAODCore/AuxContainerBase.h
    xAODCore/ShallowAuxContainer.h xAODCore/ShallowAuxInfo.h
+   xAODCore/BaseContainer.h
    TYPES_WITH_NAMESPACE xAOD::AuxInfoBase xAOD::AuxContainerBase
    xAOD::ShallowAuxContainer xAOD::ShallowAuxInfo
+   xAOD::BaseContainer
    CNV_PFX xAOD
    LINK_LIBRARIES AthContainers AthenaKernel AthenaPoolCnvSvcLib xAODCore )

@@ -32,6 +32,12 @@ atlas_add_dictionary( xAODCoreDict
    xAODCore/selection.xml
    LINK_LIBRARIES xAODCore )
 
+atlas_add_dictionary( xAODCoreDict2
+   xAODCore/xAODCoreDict2.h
+   xAODCore/selection2.xml
+   LINK_LIBRARIES xAODCore )
+
+
 set( _stlDictXml "xAODCore/selectionSTL.xml" )
 if( APPLE )
    set( _stlDictXml "xAODCore/selectionSTLmacOS.xml" )
@@ -79,11 +85,17 @@ atlas_add_test( ut_xaodcore_shallowcopy_test
    SOURCES test/ut_xaodcore_shallowcopy.cxx
    LINK_LIBRARIES AthContainers AthLinks xAODCore )
 
+atlas_add_test( ut_xaodcore_basecontainer_test
+   SOURCES test/ut_xaodcore_basecontainer.cxx
+   LINK_LIBRARIES AthContainers xAODCore )
+
 atlas_add_test( auxbase_threading_test
    SOURCES test/auxbase_threading_test.cxx
    LINK_LIBRARIES xAODCore )
 
-# Declare the "include tests".
+
+
+   # Declare the "include tests".
 foreach( header AddDVProxy AuxContainerBase AuxSelection AuxCompression BaseInfo
       ClassID_traits ShallowAuxContainer ShallowAuxInfo ShallowCopy
       tools_AuxPersInfo tools_AuxPersVector tools_IOStats tools_PerfStats
