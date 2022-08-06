@@ -100,7 +100,7 @@ def BCMOverlayCfg(flags):
         acc.merge(BCMDataOverlayExtraCfg(flags))
 
     # Add BCM overlay digitization algorithm
-    from BCM_Digitization.BCM_DigitizationConfigNew import BCM_OverlayDigitizationBasicCfg
+    from BCM_Digitization.BCM_DigitizationConfig import BCM_OverlayDigitizationBasicCfg
     acc.merge(BCM_OverlayDigitizationBasicCfg(flags))
     # Add BCM overlay algorithm
     acc.merge(BCMOverlayAlgCfg(flags))

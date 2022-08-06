@@ -118,7 +118,7 @@ def TRTOverlayCfg(flags):
         acc.merge(TRTDataOverlayExtraCfg(flags))
 
     # Add TRT overlay digitization algorithm
-    from TRT_Digitization.TRT_DigitizationConfigNew import TRT_OverlayDigitizationBasicCfg
+    from TRT_Digitization.TRT_DigitizationConfig import TRT_OverlayDigitizationBasicCfg
     acc.merge(TRT_OverlayDigitizationBasicCfg(flags))
     #if track overlay, only run digitization on the HS input
     if not flags.Overlay.doTrackOverlay:

@@ -96,7 +96,7 @@ def SCTOverlayCfg(flags):
         acc.merge(SCTDataOverlayExtraCfg(flags))
 
     # Add SCT overlay digitization algorithm
-    from SCT_Digitization.SCT_DigitizationConfigNew import SCT_OverlayDigitizationBasicCfg
+    from SCT_Digitization.SCT_DigitizationConfig import SCT_OverlayDigitizationBasicCfg
     acc.merge(SCT_OverlayDigitizationBasicCfg(flags))
     #if track overlay, don't run the standard overlay
     if not flags.Overlay.doTrackOverlay:

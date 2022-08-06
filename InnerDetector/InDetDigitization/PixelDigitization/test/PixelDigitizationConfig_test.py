@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Run tests on SCT_DigitizationConfigNew.py
+"""Run tests on SCT_DigitizationConfig.py
 
 Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
@@ -10,7 +10,7 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaConfiguration.TestDefaults import defaultTestFiles
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-from PixelDigitization.PixelDigitizationConfigNew import PixelDigitizationHSCfg
+from PixelDigitization.PixelDigitizationConfig import PixelDigitizationHSCfg
 
 # Set up logging and new style config
 log.setLevel(DEBUG)
