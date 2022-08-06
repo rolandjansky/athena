@@ -134,12 +134,14 @@ StatusCode TrigNavSlimmingMTAlg::execute(const EventContext& ctx) const {
   SG::ReadHandle<DecisionContainer> primaryInputHandle = SG::ReadHandle(m_primaryInputCollection, ctx);
   ATH_CHECK(primaryInputHandle.isValid());
 
-  const Decision* terminusNode = TrigCompositeUtils::getTerminusNode(primaryInputHandle);
+  const Decision* terminusNode = TrigCompositeUtils::getTerminusNode(*primaryInputHandle);
   if (!terminusNode) {
     ATH_MSG_ERROR("Unable to locate the HLTPassRaw from the primary input navigation collection, size:" << primaryInputHandle->size());
     return StatusCode::FAILURE;
   }
 
+  const Decision* expressTerminusNode = TrigCompositeUtils::getExpressTerminusNode(*primaryInputHandle);
+  
   // Stage 1. Build a transient representation of the navigation graph.
   TrigTimeStamp stage1;
   NavGraph transientNavGraph;
@@ -219,6 +221,11 @@ StatusCode TrigNavSlimmingMTAlg::execute(const EventContext& ctx) const {
   // Do the terminus node first - such that it ends up at index 0 of the outputNavigation (fast to locate in the future)
   Decision* terminusNodeOut = nullptr;
   ATH_CHECK(inputToOutput(terminusNode, terminusNodeOut, cache, outputContainers, chainIDs, ctx));
+  if (expressTerminusNode) {
+    // Do the express terminus node second - such that it ends up at index 1 of the outputNavigation (fast to locate in the future)
+    Decision* expressTerminusNodeOut = nullptr;
+    ATH_CHECK(inputToOutput(expressTerminusNode, expressTerminusNodeOut, cache, outputContainers, chainIDs, ctx));
+  }
   // Don't have to walk the graph here, just iterate through the set of (thinned) nodes.
   // We won't end up with two terminus nodes because of this (it checks that the node hasn't already been processed)
   const std::vector<NavGraphNode*> allNodes = transientNavGraph.allNodes();
