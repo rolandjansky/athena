@@ -4,47 +4,37 @@
 
 #include "MuonIdHelpers/MuonIdHelper.h"
 
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/IMessageSvc.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 const std::string MuonIdHelper::BAD_NAME = "UNKNOWN";
 
-MuonIdHelper::MuonIdHelper(const std::string& logName):
-    AtlasDetectorID(),
-    m_logName{logName}{
-    if (m_logName.empty()) m_logName = "MuonIdHelper";
-    
-    ISvcLocator* svcLocator = Gaudi::svcLocator();
-    StatusCode sc = svcLocator->service("MessageSvc", m_msgSvc);
-    if (sc.isFailure()) std::cout << "Fail to locate Message Service" << std::endl;
+MuonIdHelper::MuonIdHelper(const std::string& logName) : AtlasDetectorID(), AthMessaging(logName.empty() ? "MuonIdHelper" : logName) {
+    m_msgSvc = Athena::getMessageSvc();
 }
 
 int MuonIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
     // Check whether this helper should be reinitialized
-    MsgStream log(m_msgSvc, m_logName);
     if (!reinitialize(dict_mgr)) {
-        if (m_msgSvc) log << MSG::INFO << "Request to reinitialize not satisfied - tags have not changed" << endmsg;
-        return (0);
+        ATH_MSG_INFO("Request to reinitialize not satisfied - tags have not changed");
+        return 0;
     } else {
-        if (m_msgSvc) log << MSG::DEBUG << "(Re)initialize" << endmsg;
+        ATH_MSG_DEBUG("(Re)initialize");
     }
 
     // init base object
-    if (AtlasDetectorID::initialize_from_dictionary(dict_mgr)) return (1);
+    if (AtlasDetectorID::initialize_from_dictionary(dict_mgr)) return 1;
 
     // Register version of the MuonSpectrometer dictionary
-    if (register_dict_tag(dict_mgr, "MuonSpectrometer")) return (1);
+    if (register_dict_tag(dict_mgr, "MuonSpectrometer")) return 1;
 
     m_dict = dict_mgr.find_dictionary("MuonSpectrometer");
     if (!m_dict) {
-        if (m_msgSvc) { log << MSG::ERROR << " initialize_from_dict - cannot access MuonSpectrometer dictionary " << endmsg; }
+        ATH_MSG_ERROR(" initialize_from_dict - cannot access MuonSpectrometer dictionary ");
         return 1;
     }
 
     // Initialize some of the field indices
-    if (initLevelsFromDict()) return (1);
+    if (initLevelsFromDict()) return 1;
 
     //
     // Build multirange for the valid set of identifiers
@@ -54,11 +44,8 @@ int MuonIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
     int muonField = -1;
     const IdDictDictionary* atlasDict = dict_mgr.find_dictionary("ATLAS");
     if (atlasDict->get_label_value("subdet", "MuonSpectrometer", muonField)) {
-        if (m_msgSvc) {
-            log << MSG::ERROR << "Could not get value for label 'MuonSpectrometer' of field 'subdet' in dictionary " << atlasDict->m_name
-                << endmsg;
-        }
-        return (1);
+        ATH_MSG_ERROR("Could not get value for label 'MuonSpectrometer' of field 'subdet' in dictionary ");
+        return 1;
     }
 
     // Build MultiRange down to "technology" for all (muon) regions
@@ -66,13 +53,13 @@ int MuonIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
     region_id.add(muonField);
     Range prefix;
     MultiRange muon_range = m_dict->build_multirange(region_id, prefix, "technology");
-    if (muon_range.size() > 0) {
-        if (m_msgSvc) {
-            log << MSG::INFO << "MultiRange built successfully to Technology "
-                << "MultiRange size is " << muon_range.size() << endmsg;
-        }
+    if (muon_range.size()) {
+        ATH_MSG_INFO("MultiRange built successfully to Technology "
+                     << "MultiRange size is " << muon_range.size());
+
     } else {
-        if (m_msgSvc) { log << MSG::ERROR << "Muon MultiRange is empty" << endmsg; }
+        ATH_MSG_ERROR("Muon MultiRange is empty");
+        return 1;
     }
 
     return 0;
@@ -125,10 +112,7 @@ int MuonIdHelper::get_module_hash(const Identifier& id, IdentifierHash& hash_id)
             }
         }
     }
-    if (m_msgSvc) {
-        MsgStream log(m_msgSvc, m_logName);
-        log << MSG::WARNING << "MuonIdHelper::get_module_hash(): Could not determine hash for identifier " << id.get_compact() << endmsg;
-    }
+    ATH_MSG_WARNING("MuonIdHelper::get_module_hash(): Could not determine hash for identifier " << id.get_compact());
     return 1;
 }
 
@@ -147,11 +131,7 @@ int MuonIdHelper::get_detectorElement_hash(const Identifier& id, IdentifierHash&
             }
         }
     }
-    if (m_msgSvc) {
-        MsgStream log(m_msgSvc, m_logName);
-        log << MSG::WARNING << "MuonIdHelper::get_detectorElement_hash(): Could not determine hash for identifier " << id.get_compact()
-            << endmsg;
-    }
+    ATH_MSG_WARNING("MuonIdHelper::get_detectorElement_hash(): Could not determine hash for identifier " << id.get_compact());
     return 1;
 }
 
@@ -253,21 +233,14 @@ int MuonIdHelper::get_hash_calc(const Identifier& compact_id, IdentifierHash& ha
             }
         }
     }
-    if (m_msgSvc) {
-        MsgStream log(m_msgSvc, m_logName);
-        log << MSG::WARNING << "MuonIdHelper::get_hash_calc(): Could not determine hash for identifier " << compact_id.get_compact()
-            << endmsg;
-    }
+    ATH_MSG_WARNING("MuonIdHelper::get_hash_calc(): Could not determine hash for identifier " << compact_id.get_compact());
     return 1;
 }
 
 int MuonIdHelper::initLevelsFromDict() {
     if (!m_dict) {
-        if (m_msgSvc) {
-            MsgStream log(m_msgSvc, m_logName);
-            log << MSG::ERROR << " initLevelsFromDict - dictionary NOT initialized " << endmsg;
-        }
-        return (1);
+        ATH_MSG_ERROR(" initLevelsFromDict - dictionary NOT initialized ");
+        return 1;
     }
 
     // Find out which identifier field corresponds to each level. Use
@@ -282,12 +255,10 @@ int MuonIdHelper::initLevelsFromDict() {
     // Save index to stations for unpacking
     ExpandedIdentifier id(muon_exp());
     if (m_dict->find_region(id, m_station_region_index)) {
-        if (m_msgSvc) {
-            MsgStream log(m_msgSvc, m_logName);
-            log << MSG::ERROR << "initLevelsFromDict - unable to find a muon station index: id, reg"
-                << " " << (std::string)id << " " << m_station_region_index << endmsg;
-        }
-        return (1);
+        ATH_MSG_ERROR("initLevelsFromDict - unable to find a muon station index: id, reg"
+                      << " " << std::string(id) << " " << m_station_region_index);
+
+        return 1;
     }
 
     // Find a Muon region
@@ -295,11 +266,8 @@ int MuonIdHelper::initLevelsFromDict() {
     if (field) {
         m_MUON_INDEX = field->m_index;
     } else {
-        if (m_msgSvc) {
-            MsgStream log(m_msgSvc, m_logName);
-            log << MSG::ERROR << "initLevelsFromDict - unable to find 'subdet' field " << endmsg;
-        }
-        return (1);
+        ATH_MSG_ERROR("initLevelsFromDict - unable to find 'subdet' field ");
+        return 1;
     }
     field = m_dict->find_field("stationName");
     if (field) {
@@ -329,31 +297,22 @@ int MuonIdHelper::initLevelsFromDict() {
         }
 
     } else {
-        if (m_msgSvc) {
-            MsgStream log(m_msgSvc, m_logName);
-            log << MSG::ERROR << "initLevelsFromDict - unable to find 'stationName' field " << endmsg;
-        }
-        return (1);
+        ATH_MSG_ERROR("initLevelsFromDict - unable to find 'stationName' field ");
+        return 1;
     }
     field = m_dict->find_field("stationEta");
     if (field) {
         m_ETA_INDEX = field->m_index;
     } else {
-        if (m_msgSvc) {
-            MsgStream log(m_msgSvc, m_logName);
-            log << MSG::ERROR << "initLevelsFromDict - unable to find 'stationEta' field " << endmsg;
-        }
-        return (1);
+        ATH_MSG_ERROR("initLevelsFromDict - unable to find 'stationEta' field ");
+        return 1;
     }
     field = m_dict->find_field("stationPhi");
     if (field) {
         m_PHI_INDEX = field->m_index;
     } else {
-        if (m_msgSvc) {
-            MsgStream log(m_msgSvc, m_logName);
-            log << MSG::ERROR << "initLevelsFromDict - unable to find 'stationPhi' field " << endmsg;
-        }
-        return (1);
+        ATH_MSG_ERROR("initLevelsFromDict - unable to find 'stationPhi' field ");
+        return 1;
     }
     field = m_dict->find_field("technology");
     if (field) {
@@ -365,16 +324,13 @@ int MuonIdHelper::initLevelsFromDict() {
                 int index = (int)field->get_label_value(name);
                 m_technologyIndexMax = std::max(m_technologyIndexMax, index);
                 m_technologyNameToIdxMap[name] = index;
-                m_technologyIdxToNameMap[index] = name;               
+                m_technologyIdxToNameMap[index] = name;
             }
         }
 
     } else {
-        if (m_msgSvc) {
-            MsgStream log(m_msgSvc, m_logName);
-            log << MSG::ERROR << "initLevelsFromDict - unable to find 'technology' field " << endmsg;
-        }
-        return (1);
+        ATH_MSG_ERROR("initLevelsFromDict - unable to find 'technology' field ");
+        return 1;
     }
     m_MODULE_INDEX = m_TECHNOLOGY_INDEX;
 
@@ -385,7 +341,7 @@ int MuonIdHelper::initLevelsFromDict() {
 
     // m_stationNameField = m_dict->find_field ("stationName"); // Philipp
     // m_technologyField  = m_dict->find_field ("technology"); // Philipp
-    return (0);
+    return 0;
 }
 
 int MuonIdHelper::init_hashes(void) {
@@ -394,11 +350,9 @@ int MuonIdHelper::init_hashes(void) {
     // the moment, we implement a hash for modules
     //
 
-    MsgStream log(m_msgSvc, m_logName);
-
     // module hash
     m_module_hash_max = m_full_module_range.cardinality();
-    if (m_msgSvc) { log << MSG::INFO << "The element hash max is " << (int)m_module_hash_max << endmsg; }
+    ATH_MSG_INFO("The element hash max is " << m_module_hash_max);
     m_module_vec.resize(m_module_hash_max);
     IdContext context = module_context();
     unsigned int nids = 0;
@@ -411,21 +365,18 @@ int MuonIdHelper::init_hashes(void) {
             Identifier id;
             get_id((*first), id);
             if (!(ids.insert(id)).second) {
-                if (m_msgSvc) {
-                    log << MSG::ERROR << "init_hashes "
-                        << " Error: duplicated id for module id. nid " << (int)nids << " compact id " << id << " id " << endmsg;
-                }
-                return (1);
+                ATH_MSG_ERROR("init_hashes "
+                              << " Error: duplicated id for module id. nid " << (int)nids << " compact id " << id << " id ");
+                return 1;
             }
             nids++;
         }
     }
     if (ids.size() != m_module_hash_max) {
-        if (m_msgSvc) {
-            log << MSG::ERROR << "init_hashes "
-                << " Error: set size NOT EQUAL to element hash max. size " << ids.size() << " hash max " << m_module_hash_max << endmsg;
-        }
-        return (1);
+        ATH_MSG_ERROR("init_hashes "
+                      << " Error: set size NOT EQUAL to element hash max. size " << ids.size() << " hash max " << m_module_hash_max);
+
+        return 1;
     }
 
     nids = 0;
@@ -437,7 +388,7 @@ int MuonIdHelper::init_hashes(void) {
     }
     // sort the vector of identifiers to be able to use std::lower_bound to find hashes
     std::sort(m_module_vec.begin(), m_module_vec.end());
-    return (0);
+    return 0;
 }
 
 int MuonIdHelper::init_detectorElement_hashes(void) {
@@ -446,11 +397,9 @@ int MuonIdHelper::init_detectorElement_hashes(void) {
     // the moment, we implement a hash for readout channels
     //
 
-    MsgStream log(m_msgSvc, m_logName);
-
     // detector element hash
     m_detectorElement_hash_max = m_full_detectorElement_range.cardinality();
-    if (m_msgSvc) { log << MSG::INFO << "The detector element hash max is " << (int)m_detectorElement_hash_max << endmsg; }
+    ATH_MSG_INFO("The detector element hash max is " << m_detectorElement_hash_max);
     m_detectorElement_vec.resize(m_detectorElement_hash_max);
     IdContext context = detectorElement_context();
     unsigned int nids = 0;
@@ -463,21 +412,18 @@ int MuonIdHelper::init_detectorElement_hashes(void) {
             Identifier id;
             get_id((*first), id);
             if (!(ids.insert(id)).second) {
-                if (m_msgSvc) {
-                    log << MSG::ERROR << "init_detectorElement_hashes "
-                        << " Error: duplicated id for channel id. nid " << (int)nids << " compact id " << id << " id " << endmsg;
-                }
-                return (1);
+                ATH_MSG_ERROR("init_detectorElement_hashes "
+                              << " Error: duplicated id for channel id. nid " << nids << " compact id " << id << " id ");
+
+                return 1;
             }
             nids++;
         }
     }
     if (ids.size() != m_detectorElement_hash_max) {
-        if (m_msgSvc) {
-            log << MSG::ERROR << "init_hashes "
-                << " Error: set size NOT EQUAL to hash max. size " << ids.size() << " hash max " << m_detectorElement_hash_max << endmsg;
-        }
-        return (1);
+        ATH_MSG_ERROR("init_hashes "
+                      << " Error: set size NOT EQUAL to hash max. size " << ids.size() << " hash max " << m_detectorElement_hash_max);
+        return 1;
     }
 
     nids = 0;
@@ -489,7 +435,7 @@ int MuonIdHelper::init_detectorElement_hashes(void) {
     }
     // sort the vector of identifiers to be able to use std::lower_bound to find hashes
     std::sort(m_detectorElement_vec.begin(), m_detectorElement_vec.end());
-    return (0);
+    return 0;
 }
 
 int MuonIdHelper::init_channel_hashes(void) {
@@ -498,11 +444,9 @@ int MuonIdHelper::init_channel_hashes(void) {
     // the moment, we implement a hash for readout channels
     //
 
-    MsgStream log(m_msgSvc, m_logName);
-
     // readout channel hash
     m_channel_hash_max = m_full_channel_range.cardinality();
-    if (m_msgSvc) { log << MSG::INFO << "The channel hash max is " << (int)m_channel_hash_max << endmsg; }
+    ATH_MSG_INFO("The channel hash max is " << m_channel_hash_max);
     m_channel_vec.resize(m_channel_hash_max);
     IdContext context = channel_context();
     unsigned int nids = 0;
@@ -516,66 +460,63 @@ int MuonIdHelper::init_channel_hashes(void) {
             get_id((*first), id);
 
             if (!(ids.insert(id)).second) {
-                if (m_msgSvc) {
-                    log << MSG::ERROR << "init_channel_hashes "
-                        << " Error: duplicated id for channel id. nid " << (int)nids << " compact id " << id << " id " << endmsg;
-                }
-                return (1);
+                ATH_MSG_ERROR("init_channel_hashes "
+                              << " Error: duplicated id for channel id. nid " << nids << " compact id " << id << " id ");
+                return 1;
             }
             m_channel_vec[nids] = id;
             nids++;
         }
     }
     if (ids.size() != m_channel_hash_max) {
-        if (m_msgSvc) {
-            log << MSG::ERROR << "init_hashes "
-                << " Error: set size NOT EQUAL to hash max. size " << ids.size() << " hash max " << m_channel_hash_max << endmsg;
-        }
-        return (1);
+        ATH_MSG_ERROR("init_hashes "
+                      << " Error: set size NOT EQUAL to hash max. size " << ids.size() << " hash max " << m_channel_hash_max);
+
+        return 1;
     }
     // sort the vector of identifiers to be able to use std::lower_bound to find hashes
     std::sort(m_channel_vec.begin(), m_channel_vec.end());
-    return (0);
+    return 0;
 }
 
 int MuonIdHelper::get_prev_in_phi(const IdentifierHash& id, IdentifierHash& prev) const {
     unsigned short index = id;
     if (index < m_prev_phi_module_vec.size()) {
-        if (m_prev_phi_module_vec[index] == NOT_VALID_HASH) return (1);
+        if (m_prev_phi_module_vec[index] == NOT_VALID_HASH) return 1;
         prev = m_prev_phi_module_vec[index];
-        return (0);
+        return 0;
     }
-    return (1);
+    return 1;
 }
 
 int MuonIdHelper::get_next_in_phi(const IdentifierHash& id, IdentifierHash& next) const {
     unsigned short index = id;
     if (index < m_next_phi_module_vec.size()) {
-        if (m_next_phi_module_vec[index] == NOT_VALID_HASH) return (1);
+        if (m_next_phi_module_vec[index] == NOT_VALID_HASH) return 1;
         next = m_next_phi_module_vec[index];
-        return (0);
+        return 0;
     }
-    return (1);
+    return 1;
 }
 
 int MuonIdHelper::get_prev_in_eta(const IdentifierHash& id, IdentifierHash& prev) const {
     unsigned short index = id;
     if (index < m_prev_eta_module_vec.size()) {
-        if (m_prev_eta_module_vec[index] == NOT_VALID_HASH) return (1);
+        if (m_prev_eta_module_vec[index] == NOT_VALID_HASH) return 1;
         prev = m_prev_eta_module_vec[index];
-        return (0);
+        return 0;
     }
-    return (1);
+    return 1;
 }
 
 int MuonIdHelper::get_next_in_eta(const IdentifierHash& id, IdentifierHash& next) const {
     unsigned short index = id;
     if (index < m_next_eta_module_vec.size()) {
-        if (m_next_eta_module_vec[index] == NOT_VALID_HASH) return (1);
+        if (m_next_eta_module_vec[index] == NOT_VALID_HASH) return 1;
         next = m_next_eta_module_vec[index];
-        return (0);
+        return 0;
     }
-    return (1);
+    return 1;
 }
 
 int MuonIdHelper::init_neighbors(void) {
@@ -584,10 +525,7 @@ int MuonIdHelper::init_neighbors(void) {
     // module neighbors.
     //
 
-    MsgStream log(m_msgSvc, m_logName);
-
-    if (m_msgSvc) { log << MSG::VERBOSE << "MuonIdHelper::init_neighbors " << endmsg; }
-
+    ATH_MSG_VERBOSE("MuonIdHelper::init_neighbors ");
     m_prev_phi_module_vec.resize(m_module_hash_max, NOT_VALID_HASH);
     m_next_phi_module_vec.resize(m_module_hash_max, NOT_VALID_HASH);
     m_prev_eta_module_vec.resize(m_module_hash_max, NOT_VALID_HASH);
@@ -618,18 +556,13 @@ int MuonIdHelper::init_neighbors(void) {
             if (!get_compact_id(id, compact_id, &wcontext)) {
                 // forward to compact -> hash
                 if (get_hash(compact_id, hash_id, &wcontext)) {
-                    if (m_msgSvc) {
-                        log << MSG::WARNING << " MuonIdHelper::init_neighbors - unable to get hash, exp/compact ";
-                        //		    id.show();
-                        log << " " << std::hex << compact_id << std::dec << endmsg;
-                    }
-                    return (1);
+                    ATH_MSG_ERROR(" MuonIdHelper::init_neighbors - unable to get hash, exp/compact "
+                                  << " " << std::hex << compact_id << std::dec << endmsg);
+                    return 1;
                 }
             } else {
-                if (m_msgSvc) { log << MSG::WARNING << " MuonIdHelper::init_neighbors - unable to get compact, exp/compact " << endmsg; }
-                //		id.show();
-
-                return (1);
+                ATH_MSG_ERROR(" MuonIdHelper::init_neighbors - unable to get compact, exp/compact ");
+                return 1;
             }
 
             // index for the subsequent arrays
@@ -646,18 +579,13 @@ int MuonIdHelper::init_neighbors(void) {
                 if (!get_compact_id(expId, compact_id, &wcontext)) {
                     // forward to compact -> hash
                     if (get_hash(compact_id, hash_id, &wcontext)) {
-                        if (m_msgSvc) {
-                            log << MSG::WARNING << " MuonIdHelper::init_neighbors - unable to get previous phi hash, exp/compact ";
-                            //			id.show();
-                            log << " " << std::hex << compact_id << std::dec << endmsg;
-                        }
-                        return (1);
+                        ATH_MSG_ERROR(" MuonIdHelper::init_neighbors - unable to get previous phi hash, exp/compact "
+                                      << " " << std::hex << compact_id << std::dec);
+                        return 1;
                     }
                 } else {
-                    if (m_msgSvc) {
-                        log << MSG::WARNING << " MuonIdHelper::init_neighbors - unable to get previous phi compact, exp/compact " << endmsg;
-                    }
-                    return (1);
+                    ATH_MSG_ERROR(" MuonIdHelper::init_neighbors - unable to get previous phi compact, exp/compact ");
+                    return 1;
                 }
                 m_prev_phi_module_vec[index] = hash_id;
             }
@@ -669,20 +597,13 @@ int MuonIdHelper::init_neighbors(void) {
                 if (!get_compact_id(expId, compact_id, &wcontext)) {
                     // forward to compact -> hash
                     if (get_hash(compact_id, hash_id, &wcontext)) {
-                        if (m_msgSvc) {
-                            log << MSG::WARNING << " MuonIdHelper::init_neighbors - unable to get next phi hash, exp/compact ";
-                            //		id.show();
-                            log << " " << std::hex << compact_id << std::dec << endmsg;
-                        }
-                        return (1);
+                        ATH_MSG_ERROR(" MuonIdHelper::init_neighbors - unable to get next phi hash, exp/compact "
+                                      << " " << std::hex << compact_id << std::dec);
+                        return 1;
                     }
                 } else {
-                    if (m_msgSvc) {
-                        log << MSG::WARNING << " MuonIdHelper::init_neighbors - unable to get next phi compact, exp/compact " << endmsg;
-                    }
-                    //		    id.show();
-                    //		    std::cout << std::endl;
-                    return (1);
+                    ATH_MSG_ERROR(" MuonIdHelper::init_neighbors - unable to get next phi compact, exp/compact ");
+                    return 1;
                 }
                 m_next_phi_module_vec[index] = hash_id;
             }
@@ -694,17 +615,13 @@ int MuonIdHelper::init_neighbors(void) {
                 if (!get_compact_id(expId, compact_id, &wcontext)) {
                     // forward to compact -> hash
                     if (get_hash(compact_id, hash_id, &wcontext)) {
-                        if (m_msgSvc) {
-                            log << MSG::WARNING << " MuonIdHelper::init_neighbors - unable to get previous eta hash, exp/compact ";
-                            log << " " << std::hex << compact_id << std::dec << endmsg;
-                        }
-                        return (1);
+                        ATH_MSG_ERROR(" MuonIdHelper::init_neighbors - unable to get previous eta hash, exp/compact "
+                                      << " " << std::hex << compact_id << std::dec);
+                        return 1;
                     }
                 } else {
-                    if (m_msgSvc) {
-                        log << MSG::WARNING << " MuonIdHelper::init_neighbors - unable to get previous eta compact, exp/compact " << endmsg;
-                    }
-                    return (1);
+                    ATH_MSG_ERROR(" MuonIdHelper::init_neighbors - unable to get previous eta compact, exp/compact ");
+                    return 1;
                 }
                 m_prev_eta_module_vec[index] = hash_id;
             }
@@ -716,30 +633,23 @@ int MuonIdHelper::init_neighbors(void) {
                 if (!get_compact_id(expId, compact_id, &wcontext)) {
                     // forward to compact -> hash
                     if (get_hash(compact_id, hash_id, &wcontext)) {
-                        if (m_msgSvc) {
-                            log << MSG::WARNING << " MuonIdHelper::init_neighbors - unable to get next eta hash, exp/compact ";
-                            // id.show();
-                            log << " " << std::hex << compact_id << std::dec << endmsg;
-                        }
-                        return (1);
+                        ATH_MSG_ERROR(" MuonIdHelper::init_neighbors - unable to get next eta hash, exp/compact "
+                                      << " " << std::hex << compact_id << std::dec);
+                        return 1;
                     }
                 } else {
-                    if (m_msgSvc) {
-                        log << MSG::WARNING << " MuonIdHelper::init_neighbors - unable to get next eta compact, exp/compact " << endmsg;
-                    }
-                    return (1);
+                    ATH_MSG_ERROR(" MuonIdHelper::init_neighbors - unable to get next eta compact, exp/compact ");
+                    return 1;
                 }
                 m_next_eta_module_vec[index] = hash_id;
             }
         }
     }
-    // std::cout << "Finish init_neighors() ..." << std::endl;
-    return (0);
+    ATH_MSG_VERBOSE("Finish init_neighors() ...");
+    return 0;
 }
 
 void MuonIdHelper::test_module_packing(void) const {
-    MsgStream log(m_msgSvc, m_logName);
-
     if (m_dict) {
         int nids = 0;
         IdContext context = module_context();
@@ -749,28 +659,24 @@ void MuonIdHelper::test_module_packing(void) const {
             Identifier compact = (*first);
             ExpandedIdentifier id;
             if (get_expanded_id(compact, id, &context)) {
-                if (m_msgSvc) { log << MSG::ERROR << "test_module_packing: Unable to get expanded id. Compact id " << compact << endmsg; }
+                ATH_MSG_ERROR("test_module_packing: Unable to get expanded id. Compact id " << compact);
                 continue;
             }
             Identifier new_compact;
             if (get_compact_id(id, new_compact, &context)) {
-                if (m_msgSvc) {
-                    log << MSG::ERROR << "test_module_packing: Unable to get compact id. Expanded id " << (std::string)(id) << endmsg;
-                }
+                ATH_MSG_ERROR("test_module_packing: Unable to get compact id. Expanded id " << std::string(id));
                 continue;
             }
             if (compact != new_compact) {
-                if (m_msgSvc) {
-                    log << MSG::ERROR << "test_module_packing: new and old compacts not equal "
-                        << "New/old/expanded ids " << new_compact << " " << compact << " " << (std::string)(id) << endmsg;
-                }
+                ATH_MSG_ERROR("test_module_packing: new and old compacts not equal "
+                              << "New/old/expanded ids " << new_compact << " " << compact << " " << std::string(id));
                 continue;
             }
         }
 
-        if (m_msgSvc) { log << MSG::INFO << "test_module_packing: Successful tested " << nids << " ids. " << endmsg; }
+        ATH_MSG_INFO("test_module_packing: Successful tested " << nids << " ids. ");
     } else {
-        if (m_msgSvc) { log << MSG::INFO << "Unable to test module is packing - no dictionary has been defined. " << endmsg; }
+        ATH_MSG_ERROR("Unable to test module is packing - no dictionary has been defined. ");
     }
 }
 
@@ -778,26 +684,17 @@ void MuonIdHelper::test_id(const Identifier& id, const IdContext& context) const
     Identifier compact = id;
     ExpandedIdentifier new_id;
     if (get_expanded_id(compact, new_id, &context)) {
-        if (m_msgSvc) {
-            MsgStream log(m_msgSvc, m_logName);
-            log << MSG::ERROR << "Unable to get expanded id. Compact id " << compact << endmsg;
-        }
+        ATH_MSG_ERROR("Unable to get expanded id. Compact id " << compact);
         return;
     }
     Identifier new_compact;
     if (get_compact_id(new_id, new_compact, &context)) {
-        if (m_msgSvc) {
-            MsgStream log(m_msgSvc, m_logName);
-            log << MSG::ERROR << "Unable to get compact id. Expanded id " << show_to_string(id) << endmsg;
-        }
+        ATH_MSG_ERROR("Unable to get compact id. Expanded id " << show_to_string(id));
         return;
     }
     if (compact != new_compact) {
-        if (m_msgSvc) {
-            MsgStream log(m_msgSvc, m_logName);
-            log << MSG::ERROR << "new and old compacts not equal. New/old/expanded ids " << new_compact << " " << compact << " "
-                << show_to_string(id) << endmsg;
-        }
+        ATH_MSG_ERROR("new and old compacts not equal. New/old/expanded ids " << new_compact << " " << compact << " "
+                                                                              << show_to_string(id));
         return;
     }
 }
@@ -808,10 +705,7 @@ void MuonIdHelper::addStationID(Identifier& id, int stationName, int stationEta,
     ExpandedIdentifier exp_id;
     IdContext muon_context(exp_id, 0, m_MUON_INDEX);
     if (get_expanded_id(id, exp_id, &muon_context)) {
-        if (m_msgSvc) {
-            MsgStream log(m_msgSvc, m_logName);
-            log << MSG::ERROR << " MUON_ID result is NOT ok. MUON id " << show_to_string(id) << " Fields not appended " << endmsg;
-        }
+        ATH_MSG_ERROR(" MUON_ID result is NOT ok. MUON id " << show_to_string(id) << " Fields not appended ");
     } else {
         exp_id << stationName << stationEta << stationPhi << technology;
         get_id(exp_id, id);  // Fill output
@@ -826,11 +720,7 @@ int MuonIdHelper::stationRegion(const Identifier& id) const {
     if ('M' == name[1] || '2' == name[1]) return 2;
     if ('O' == name[1] || '3' == name[1]) return 3;
     if (name == "CSS" || name == "CSL") return 0;
-    if (m_msgSvc) {
-        MsgStream log(m_msgSvc, m_logName);
-        log << MSG::ERROR << " MuonId::stationRegion / id = " << show_to_string(id) << " stationnamestring = " << name << endmsg;
-    }
-    std::abort();
+    ATH_MSG_ERROR(" MuonId::stationRegion / id = " << show_to_string(id) << " stationnamestring = " << name);
     return -1;
 }
 
@@ -881,16 +771,12 @@ MuonIdHelper::const_id_iterator MuonIdHelper::channel_begin(void) const { return
 MuonIdHelper::const_id_iterator MuonIdHelper::channel_end(void) const { return (m_channel_vec.end()); }
 /*******************************************************************************/
 // Check common station fields
-bool MuonIdHelper::validStation(int stationName, int technology) const {   
-    return validStation(stationName) && validTechnology(technology);
+bool MuonIdHelper::validStation(int stationName, int technology) const { return validStation(stationName) && validTechnology(technology); }
+bool MuonIdHelper::validStation(int stationName) const { return stationName >= 0 && m_stationInTech.count(stationName); }
+bool MuonIdHelper::validTechnology(int technology) const {
+    return technology >= 0 && m_technologyIdxToNameMap.find(technology) != m_technologyIdxToNameMap.end();
 }
-bool MuonIdHelper::validStation(int stationName) const{
-    return stationName >= 0 && m_stationInTech.count(stationName);
-}
-bool MuonIdHelper::validTechnology(int technology) const{
-    return technology >= 0 && m_technologyIdxToNameMap.find(technology) != m_technologyIdxToNameMap.end();    
-}
-    
+
 /*******************************************************************************/
 void MuonIdHelper::addStationID(ExpandedIdentifier& id, int stationName, int stationEta, int stationPhi, int technology) const {
     id << stationName << stationEta << stationPhi << technology;
@@ -968,7 +854,7 @@ int MuonIdHelper::stationNameIndex(const std::string& name) const {
 /*******************************************************************************/
 int MuonIdHelper::technologyIndex(const std::string& name) const {
     std::map<std::string, int>::const_iterator itr = m_technologyNameToIdxMap.find(name);
-    if (itr != m_technologyNameToIdxMap.end()) return itr ->second;
+    if (itr != m_technologyNameToIdxMap.end()) return itr->second;
     return -1;
 }
 /*******************************************************************************/
@@ -981,7 +867,7 @@ const std::string& MuonIdHelper::stationNameString(const int& index) const {
 /*******************************************************************************/
 const std::string& MuonIdHelper::technologyString(const int& index) const {
     assert(index >= 0 && index <= technologyNameIndexMax());
-    std::map<int, std::string>::const_iterator itr =  m_technologyIdxToNameMap.find(index);
+    std::map<int, std::string>::const_iterator itr = m_technologyIdxToNameMap.find(index);
     if (itr != m_technologyIdxToNameMap.end()) return itr->second;
     return BAD_NAME;
 }

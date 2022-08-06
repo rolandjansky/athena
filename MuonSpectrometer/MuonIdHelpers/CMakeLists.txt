@@ -29,10 +29,5 @@ if( NOT XAOD_STANDALONE )
       MuonIdHelpers/MuonIdHelpersDict.h
       MuonIdHelpers/selection.xml
       LINK_LIBRARIES MuonIdHelpersLib MuonStationIndexLib )
-
-   atlas_add_test( muon_id_test
-                SOURCES
-                test/muon_id_test.cxx
-                LINK_LIBRARIES Identifier IdDictParser GaudiKernel MuonIdHelpersLib MuonStationIndexLib
-                LOG_IGNORE_PATTERN "init_detectorElement_hashes.*0x" )
+   
 endif()

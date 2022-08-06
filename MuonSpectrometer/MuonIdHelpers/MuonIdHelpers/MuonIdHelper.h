@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DETECTORDESCRIPTION_MUONIDHELPER_H
@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 
+#include "AthenaBaseComps/AthMessaging.h"
 #include "AthenaKernel/CLASS_DEF.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "IdDict/IdDictDefs.h"
@@ -77,7 +78,7 @@ class IdDictDictionary;
 // CERN, Feb. 2013
 // ******************************************************************************
 
-class MuonIdHelper : public AtlasDetectorID {
+class MuonIdHelper : public AtlasDetectorID, public AthMessaging {
 public:
     // Constructor
 
@@ -253,10 +254,9 @@ protected:
     /// stations can be cached during initialization stage. For eacb stationName found in the
     /// dict, this method is called and the corresponding index is added to the stationToTech set
     virtual bool isStNameInTech(const std::string& stationName) const = 0;
-    
+
     std::set<int> m_stationInTech{};
-    
-    
+
     size_type m_station_region_index{0};
     size_type m_MUON_INDEX{0};
     size_t m_GROUP_INDEX{6500};
@@ -303,7 +303,6 @@ protected:
     bool validStation(int stationName, int technology) const;
     bool validStation(int stationName) const;
     bool validTechnology(int technology) const;
-    
 
     // Append station ID fields
 
@@ -322,7 +321,7 @@ private:
     std::map<std::string, int> m_stationNameToIdxMap;
     /// Mapping int -> string
     std::map<int, std::string> m_stationIdxToNameMap;
-    
+
     int m_stationIndexMax{-INT_MAX};
     /// Mapping string -> int
     std::map<std::string, int> m_technologyNameToIdxMap;
@@ -340,7 +339,6 @@ private:
     enum MuonIndices { StationNameIndex = 1, StationEtaIndex = 2, StationPhiIndex = 3, TechnologyIndex = 4 };
 
 protected:
-    std::string m_logName{};
     bool m_init{false};
 };
 

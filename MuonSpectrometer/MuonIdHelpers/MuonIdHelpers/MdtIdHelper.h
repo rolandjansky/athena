@@ -60,14 +60,13 @@
 
 class MdtIdHelper : public MuonIdHelper {
 public:
-    
     ///  The maxNTubesPerLayer represents the absolute maximum of tubes which
     ///  are built into a single multilayer in any MDT chamber plus some safety margin
     ///  Thus far the BIS78 chambers comprise the largest number of tubes in a single layer
     ///    - cf. https://gitlab.cern.ch/atlas-mpp-mdt/BIS78Info/-/blob/master/sMDT_ATLAS_param_v1.4.pdf
-    ///  Define the number once here to be used at any place throughout the athena code base 
+    ///  Define the number once here to be used at any place throughout the athena code base
     static constexpr int maxNTubesPerLayer = 120;
-    
+
     // Constructor
     MdtIdHelper();
 
@@ -88,17 +87,18 @@ public:
 
     Identifier elementID(int stationName, int stationEta, int stationPhi) const;
     Identifier elementID(int stationName, int stationEta, int stationPhi, bool& isValid) const;
-    
+
     Identifier elementID(const std::string& stationNameStr, int stationEta, int stationPhi) const;
     Identifier elementID(const std::string& stationNameStr, int stationEta, int stationPhi, bool& isValid) const;
-    
+
     Identifier elementID(const Identifier& channelID) const;
 
     Identifier channelID(int stationName, int stationEta, int stationPhi, int multilayer, int tubeLayer, int tube) const;
     Identifier channelID(int stationName, int stationEta, int stationPhi, int multilayer, int tubeLayer, int tube, bool& isValid) const;
 
     Identifier channelID(const std::string& stationNameStr, int stationEta, int stationPhi, int multilayer, int tubeLayer, int tube) const;
-    Identifier channelID(const std::string& stationNameStr, int stationEta, int stationPhi, int multilayer, int tubeLayer, int tube, bool& isValid) const;
+    Identifier channelID(const std::string& stationNameStr, int stationEta, int stationPhi, int multilayer, int tubeLayer, int tube,
+                         bool& isValid) const;
 
     Identifier channelID(const Identifier& id, int multilayer, int tubeLayer, int tube) const;
     Identifier channelID(const Identifier& id, int multilayer, int tubeLayer, int tube, bool& isValid) const;
@@ -182,7 +182,7 @@ private:
     // Utility method
 
     int mdtTechnology() const;
-   
+
     // Level indices
 
     enum MdtIndices { MultilayerIndex = 5, TubeLayerIndex = 6, TubeIndex = 7 };

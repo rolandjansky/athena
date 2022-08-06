@@ -86,13 +86,14 @@ public:
 
     Identifier elementID(const std::string& stationNameStr, int stationEta, int stationPhi) const;
     Identifier elementID(const std::string& stationNameStr, int stationEta, int stationPhi, bool& isValid) const;
-    
+
     Identifier elementID(const Identifier& channelID) const;
-    
-    Identifier channelID(int stationName, int stationEta, int stationPhi, int chamberLayer, int wireLayer, int measuresPhi, int strip) const;    
+
+    Identifier channelID(int stationName, int stationEta, int stationPhi, int chamberLayer, int wireLayer, int measuresPhi,
+                         int strip) const;
     Identifier channelID(int stationName, int stationEta, int stationPhi, int chamberLayer, int wireLayer, int measuresPhi, int strip,
                          bool& isValid) const;
-    
+
     Identifier channelID(const std::string& stationNameStr, int stationEta, int stationPhi, int chamberLayer, int wireLayer,
                          int measuresPhi, int strip) const;
     Identifier channelID(const std::string& stationNameStr, int stationEta, int stationPhi, int chamberLayer, int wireLayer,
@@ -100,7 +101,6 @@ public:
 
     Identifier channelID(const Identifier& id, int chamberLayer, int wireLayer, int measurePhi, int strip) const;
     Identifier channelID(const Identifier& id, int chamberLayer, int wireLayer, int measurePhi, int strip, bool& isValid) const;
-
 
     Identifier parentID(const Identifier& id) const;
 
@@ -206,7 +206,7 @@ private:
         StripMax = 216  // up to AMDB P
     };
     int m_hashOffset[2][2]{};
-  
+
     unsigned int m_stripMaxPhi{UINT_MAX};  // maximum number of strips for layer which measuresPhi
     unsigned int m_stripMaxEta{UINT_MAX};  // maximum number of strips for layer which does not measure phi
     bool m_hasChamLay1{false};

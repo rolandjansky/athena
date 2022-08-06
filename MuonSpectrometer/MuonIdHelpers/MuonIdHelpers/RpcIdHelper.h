@@ -16,7 +16,7 @@ class MsgStream;
 // -----------
 // This factory class constructs RPC identifiers and ranges and provides access
 // to the levels.  ATLAS note ATL-MUON-2002-??? (https://cds.cern.ch/record/681542?ln=de)
-// provides a complete description of the hierarchical identifier scheme.  
+// provides a complete description of the hierarchical identifier scheme.
 // RpcIdHelper provides an interface to the following fields of the identifier.
 //
 // Field           Range               Notes
@@ -66,59 +66,53 @@ public:
 
     Identifier elementID(int stationName, int stationEta, int stationPhi, int doubletR) const;
     Identifier elementID(int stationName, int stationEta, int stationPhi, int doubletR, bool& isValid) const;
-    
 
     Identifier elementID(const std::string& stationNameStr, int stationEta, int stationPhi, int doubletR) const;
     Identifier elementID(const std::string& stationNameStr, int stationEta, int stationPhi, int doubletR, bool& isValid) const;
-    
 
     Identifier elementID(const Identifier& elementID, int doubletR) const;
     Identifier elementID(const Identifier& elementID, int doubletR, bool& isValid) const;
-    
+
     Identifier elementID(const Identifier& channelID) const;
 
     Identifier channelID(int stationName, int stationEta, int stationPhi, int doubletR, int doubletZ, int doubletPhi, int gasGap,
                          int measuresPhi, int strip) const;
     Identifier channelID(int stationName, int stationEta, int stationPhi, int doubletR, int doubletZ, int doubletPhi, int gasGap,
                          int measuresPhi, int strip, bool& isValid) const;
-                         
-    
+
     Identifier channelID(const std::string& stationNameStr, int stationEta, int stationPhi, int doubletR, int doubletZ, int doubletPhi,
                          int gasGap, int measuresPhi, int strip) const;
     Identifier channelID(const std::string& stationNameStr, int stationEta, int stationPhi, int doubletR, int doubletZ, int doubletPhi,
                          int gasGap, int measuresPhi, int strip, bool& isValid) const;
-   
+
     Identifier channelID(const Identifier& id, int doubletZ, int doubletPhi, int gasGap, int measuresPhi, int strip) const;
-     Identifier channelID(const Identifier& id, int doubletZ, int doubletPhi, int gasGap, int measuresPhi, int strip, bool& isValid) const;
+    Identifier channelID(const Identifier& id, int doubletZ, int doubletPhi, int gasGap, int measuresPhi, int strip, bool& isValid) const;
 
     Identifier parentID(const Identifier& id) const;
     Identifier doubletZID(const Identifier& id) const;
 
     Identifier padID(const Identifier& elementID, int doubletZ, int doubletPhi) const;
     Identifier padID(const Identifier& elementID, int doubletZ, int doubletPhi, bool& isValid) const;
-    
+
     Identifier padID(int stationName, int stationEta, int stationPhi, int doubletR, int doubletZ, int doubletPhi) const;
     Identifier padID(int stationName, int stationEta, int stationPhi, int doubletR, int doubletZ, int doubletPhi, bool& isValid) const;
 
     Identifier panelID(const Identifier& padID, int gasGap, int measuresPhi) const;
     Identifier panelID(const Identifier& padID, int gasGap, int measuresPhi, bool& isValid) const;
 
-
     Identifier panelID(const Identifier& channelID) const;
     Identifier panelID(int stationName, int stationEta, int stationPhi, int doubletR, int doubletZ, int doubletPhi, int gasGap,
                        int measuresPhi) const;
-  Identifier panelID(int stationName, int stationEta, int stationPhi, int doubletR, int doubletZ, int doubletPhi, int gasGap,
+    Identifier panelID(int stationName, int stationEta, int stationPhi, int doubletR, int doubletZ, int doubletPhi, int gasGap,
                        int measuresPhi, bool& isValid) const;
-
 
     Identifier gapID(const Identifier& padID, int gasGap) const;
     Identifier gapID(const Identifier& padID, int gasGap, bool& isValid) const;
-    
+
     Identifier gapID(const Identifier& panelID) const;
     Identifier gapID(int stationName, int stationEta, int stationPhi, int doubletR, int doubletZ, int doubletPhi, int gasGap) const;
     Identifier gapID(int stationName, int stationEta, int stationPhi, int doubletR, int doubletZ, int doubletPhi, int gasGap,
                      bool& isValid) const;
-
 
     // for an Identifier id, get the list of the daughter detector channel ids
     void idChannels(const Identifier& id, std::vector<Identifier>& vect) const;
@@ -130,7 +124,7 @@ public:
     int doubletR(const Identifier& id) const;
     int doubletZ(const Identifier& id) const;
     int doubletPhi(const Identifier& id) const;
-    
+
     int gasGap(const Identifier& id) const override;
     bool measuresPhi(const Identifier& id) const override;
     int strip(const Identifier& id) const;
@@ -181,7 +175,7 @@ public:
 
 private:
     bool isStNameInTech(const std::string& stationName) const override;
- 
+
     virtual int init_detectorElement_hashes() override;
     int init_id_to_hashes();
     int zIndex(const Identifier& id) const;
@@ -205,9 +199,9 @@ private:
 
     // Private validation of levels
 
-    bool validElement(const Identifier& id, int stationName, int stationEta, int stationPhi, int doubletR, bool noPrint = false) const;
+    bool validElement(const Identifier& id, int stationName, int stationEta, int stationPhi, int doubletR) const;
     bool validChannel(const Identifier& id, int stationName, int stationEta, int stationPhi, int doubletR, int doubletZ, int doubletPhi,
-                      int gasGap, int measuresPhi, int strip, bool noPrint = false) const;
+                      int gasGap, int measuresPhi, int strip) const;
     bool validPad(const Identifier& id, int stationName, int stationEta, int stationPhi, int doubletR, int doubletZ, int doubletPhi) const;
 
     // Utility methods
