@@ -15,7 +15,7 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger('CostAnalysisPostProcessing')
 
 
-def exploreTree(inputFile, dumpSummary=False, underflowThreshold=0.1, overflowThreshold=0.1):
+def exploreTree(inputFile, dumpSummary=False, underflowThreshold=0.1, overflowThreshold=0.1, maxRanges=5):
     ''' @brief Explore ROOT Tree to find tables with histograms to be saved in csv
 
     Per each found directory TableConstructor object is created.
@@ -37,7 +37,12 @@ def exploreTree(inputFile, dumpSummary=False, underflowThreshold=0.1, overflowTh
     '''
 
     processingWarnings = []
+    rangeCounter = 0
     for timeRange in inputFile.GetListOfKeys():
+        if maxRanges > 0 and rangeCounter >= maxRanges:
+            log.info("{0} ranges were processed - exiting the postprocessing".format(rangeCounter))
+            break
+
         walltime = getWalltime(inputFile, timeRange.GetName())
         rangeObj = timeRange.ReadObj()
         if not rangeObj.IsA().InheritsFrom(ROOT.TDirectory.Class()): continue
@@ -73,6 +78,9 @@ def exploreTree(inputFile, dumpSummary=False, underflowThreshold=0.1, overflowTh
             except (NameError, ImportError):
                 log.warning("Class {0} not defined - directory {1} will not be processed"
                             .format(table.GetName()+"_TableConstructor", table.GetName()))
+
+        rangeCounter += 1
+        log.debug("Range {0} was processed".format(timeRange.GetName()))
 
     # add smmary of most overflown histograms
     summary = createOverflowSummary(processingWarnings)

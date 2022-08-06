@@ -29,7 +29,8 @@ def saveMetadata(inputFile, argsMetadata={}, processingWarnings=[]):
     metadata.append({'Details' : argsMetadata["userDetails"]})
     metadata.append({'JIRA' : argsMetadata["jira"]})
     metadata.append({'AMITag' : argsMetadata["amiTag"]})
-    metadata.append({'ProcessedRanges' : str(metatree.ProcessedRanges)})
+    if "ProcessedRanges" in metadata:
+        metadata.append({'ProcessedRanges' : str(metatree.ProcessedRanges)})
 
     if argsMetadata["amiTag"]:
         metadata += readHLTConfigKeysFromAMI(argsMetadata["amiTag"])
