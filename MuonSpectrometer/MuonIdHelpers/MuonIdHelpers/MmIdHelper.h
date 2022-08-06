@@ -71,19 +71,19 @@ public:
     // Identifier builders
     Identifier elementID(int stationName, int stationEta, int stationPhi) const;
     Identifier elementID(int stationName, int stationEta, int stationPhi, bool& isValid) const;
-    
+
     Identifier elementID(const std::string& stationNameStr, int stationEta, int stationPhi) const;
     Identifier elementID(const std::string& stationNameStr, int stationEta, int stationPhi, bool& isValid) const;
-    
+
     Identifier elementID(const Identifier& channelID) const;
 
     Identifier channelID(int stationName, int stationEta, int stationPhi, int multilayer, int gasGap, int channel) const;
     Identifier channelID(int stationName, int stationEta, int stationPhi, int multilayer, int gasGap, int channel, bool& isValid) const;
-                         
+
     Identifier channelID(const std::string& stationNameStr, int stationEta, int stationPhi, int multilayer, int gasGap, int channel) const;
     Identifier channelID(const std::string& stationNameStr, int stationEta, int stationPhi, int multilayer, int gasGap, int channel,
                          bool& isValid) const;
-                         
+
     Identifier channelID(const Identifier& id, int multilayer, int gasGap, int channel) const;
     Identifier channelID(const Identifier& id, int multilayer, int gasGap, int channel, bool& isValid) const;
 

@@ -318,17 +318,19 @@ Muon::MuonStationBuilderCond::buildDetachedTrackingVolumes(const EventContext& c
                         if (iType != 0) {
                             Identifier id(iType);
                             Identifier nid(0);
+                            bool is_valid{false};
                             if (m_idHelperSvc->issTgc(id)) {
                                 nid = m_idHelperSvc->stgcIdHelper().channelID(
                                     m_idHelperSvc->stgcIdHelper().stationName(id), m_idHelperSvc->stgcIdHelper().stationEta(id),
                                     m_idHelperSvc->stgcIdHelper().stationPhi(id) + it, m_idHelperSvc->stgcIdHelper().multilayer(id),
-                                    m_idHelperSvc->stgcIdHelper().gasGap(id), 1, 1);
+                                    m_idHelperSvc->stgcIdHelper().gasGap(id), 1, 1, is_valid);
                             } else if (m_idHelperSvc->isMM(id)) {
                                 nid = m_idHelperSvc->mmIdHelper().channelID(
                                     m_idHelperSvc->mmIdHelper().stationName(id), m_idHelperSvc->mmIdHelper().stationEta(id),
                                     m_idHelperSvc->mmIdHelper().stationPhi(id) + it, m_idHelperSvc->mmIdHelper().multilayer(id),
-                                    m_idHelperSvc->mmIdHelper().gasGap(id), 1);
+                                    m_idHelperSvc->mmIdHelper().gasGap(id), 1, is_valid);
                             }
+                            if (!is_valid) continue;
 
                             unsigned int nType = nid.get_identifier32().get_compact();
                             const_cast< Trk::Layer*>((*lays)[il])->setLayerType(nType);
@@ -348,17 +350,19 @@ Muon::MuonStationBuilderCond::buildDetachedTrackingVolumes(const EventContext& c
                         if (iType != 0) {
                             Identifier id(iType);
                             Identifier nid(0);
+                            bool is_valid{false};
                             if (m_idHelperSvc->issTgc(id)) {
                                 nid = m_idHelperSvc->stgcIdHelper().channelID(
                                     m_idHelperSvc->stgcIdHelper().stationName(id), -m_idHelperSvc->stgcIdHelper().stationEta(id),
                                     m_idHelperSvc->stgcIdHelper().stationPhi(id), m_idHelperSvc->stgcIdHelper().multilayer(id),
-                                    m_idHelperSvc->stgcIdHelper().gasGap(id), 1, 1);
+                                    m_idHelperSvc->stgcIdHelper().gasGap(id), 1, 1, is_valid);
                             } else if (m_idHelperSvc->isMM(id)) {
                                 nid = m_idHelperSvc->mmIdHelper().channelID(
                                     m_idHelperSvc->mmIdHelper().stationName(id), -m_idHelperSvc->mmIdHelper().stationEta(id),
                                     m_idHelperSvc->mmIdHelper().stationPhi(id), m_idHelperSvc->mmIdHelper().multilayer(id),
-                                    m_idHelperSvc->mmIdHelper().gasGap(id), 1);
+                                    m_idHelperSvc->mmIdHelper().gasGap(id), 1, is_valid);
                             }
+                            if (!is_valid) continue;
 
                             unsigned int nType = nid.get_identifier32().get_compact();
                             const_cast< Trk::Layer*>((*lays)[il])->setLayerType(nType);
@@ -378,17 +382,19 @@ Muon::MuonStationBuilderCond::buildDetachedTrackingVolumes(const EventContext& c
                             if (iType != 0) {
                                 Identifier id(iType);
                                 Identifier nid(0);
+                                bool is_valid{false};
                                 if (m_idHelperSvc->issTgc(id)) {
                                     nid = m_idHelperSvc->stgcIdHelper().channelID(
                                         m_idHelperSvc->stgcIdHelper().stationName(id), m_idHelperSvc->stgcIdHelper().stationEta(id),
                                         m_idHelperSvc->stgcIdHelper().stationPhi(id) + it, m_idHelperSvc->stgcIdHelper().multilayer(id),
-                                        m_idHelperSvc->stgcIdHelper().gasGap(id), 1, 1);
+                                        m_idHelperSvc->stgcIdHelper().gasGap(id), 1, 1, is_valid);
                                 } else if (m_idHelperSvc->isMM(id)) {
                                     nid = m_idHelperSvc->mmIdHelper().channelID(
                                         m_idHelperSvc->mmIdHelper().stationName(id), m_idHelperSvc->mmIdHelper().stationEta(id),
                                         m_idHelperSvc->mmIdHelper().stationPhi(id) + it, m_idHelperSvc->mmIdHelper().multilayer(id),
-                                        m_idHelperSvc->mmIdHelper().gasGap(id), 1);
+                                        m_idHelperSvc->mmIdHelper().gasGap(id), 1, is_valid);
                                 }
+                                if (!is_valid) continue;
 
                                 unsigned int nType = nid.get_identifier32().get_compact();
                                 const_cast< Trk::Layer*>((*lays)[il])->setLayerType(nType);
@@ -415,17 +421,19 @@ Muon::MuonStationBuilderCond::buildDetachedTrackingVolumes(const EventContext& c
                         if (iType != 0) {
                             Identifier id(iType);
                             Identifier nid(0);
+                            bool is_valid {false};
                             if (m_idHelperSvc->issTgc(id)) {
                                 nid = m_idHelperSvc->stgcIdHelper().channelID(
                                     m_idHelperSvc->stgcIdHelper().stationName(id), m_idHelperSvc->stgcIdHelper().stationEta(id),
                                     m_idHelperSvc->stgcIdHelper().stationPhi(id) + it, m_idHelperSvc->stgcIdHelper().multilayer(id),
-                                    m_idHelperSvc->stgcIdHelper().gasGap(id), 1, 1);
+                                    m_idHelperSvc->stgcIdHelper().gasGap(id), 1, 1, is_valid);
                             } else if (m_idHelperSvc->isMM(id)) {
                                 nid = m_idHelperSvc->mmIdHelper().channelID(
                                     m_idHelperSvc->mmIdHelper().stationName(id), m_idHelperSvc->mmIdHelper().stationEta(id),
                                     m_idHelperSvc->mmIdHelper().stationPhi(id) + it, m_idHelperSvc->mmIdHelper().multilayer(id),
-                                    m_idHelperSvc->mmIdHelper().gasGap(id), 1);
+                                    m_idHelperSvc->mmIdHelper().gasGap(id), 1, is_valid);
                             }
+                            if (!is_valid) continue;
 
                             unsigned int nType = nid.get_identifier32().get_compact();
                             const_cast<Trk::Layer*>((*lays)[il])->setLayerType(nType);
@@ -448,17 +456,19 @@ Muon::MuonStationBuilderCond::buildDetachedTrackingVolumes(const EventContext& c
                         if (iType != 0) {
                             Identifier id(iType);
                             Identifier nid(0);
+                            bool is_valid{false};
                             if (m_idHelperSvc->issTgc(id)) {
                                 nid = m_idHelperSvc->stgcIdHelper().channelID(
                                     m_idHelperSvc->stgcIdHelper().stationName(id), -m_idHelperSvc->stgcIdHelper().stationEta(id),
                                     m_idHelperSvc->stgcIdHelper().stationPhi(id), m_idHelperSvc->stgcIdHelper().multilayer(id),
-                                    m_idHelperSvc->stgcIdHelper().gasGap(id), 1, 1);
+                                    m_idHelperSvc->stgcIdHelper().gasGap(id), 1, 1, is_valid);
                             } else if (m_idHelperSvc->isMM(id)) {
                                 nid = m_idHelperSvc->mmIdHelper().channelID(
                                     m_idHelperSvc->mmIdHelper().stationName(id), -m_idHelperSvc->mmIdHelper().stationEta(id),
                                     m_idHelperSvc->mmIdHelper().stationPhi(id), m_idHelperSvc->mmIdHelper().multilayer(id),
-                                    m_idHelperSvc->mmIdHelper().gasGap(id), 1);
+                                    m_idHelperSvc->mmIdHelper().gasGap(id), 1, is_valid);
                             }
+                            if (!is_valid) continue;
 
                             unsigned int nType = nid.get_identifier32().get_compact();
                             const_cast< Trk::Layer*>((*lays)[il])->setLayerType(nType);
@@ -478,17 +488,19 @@ Muon::MuonStationBuilderCond::buildDetachedTrackingVolumes(const EventContext& c
                             if (iType != 0) {
                                 Identifier id(iType);
                                 Identifier nid(0);
+                                bool is_valid{false};
                                 if (m_idHelperSvc->issTgc(id)) {
                                     nid = m_idHelperSvc->stgcIdHelper().channelID(
                                         m_idHelperSvc->stgcIdHelper().stationName(id), m_idHelperSvc->stgcIdHelper().stationEta(id),
                                         m_idHelperSvc->stgcIdHelper().stationPhi(id) + it, m_idHelperSvc->stgcIdHelper().multilayer(id),
-                                        m_idHelperSvc->stgcIdHelper().gasGap(id), 1, 1);
+                                        m_idHelperSvc->stgcIdHelper().gasGap(id), 1, 1, is_valid);
                                 } else if (m_idHelperSvc->isMM(id)) {
                                     nid = m_idHelperSvc->mmIdHelper().channelID(
                                         m_idHelperSvc->mmIdHelper().stationName(id), m_idHelperSvc->mmIdHelper().stationEta(id),
                                         m_idHelperSvc->mmIdHelper().stationPhi(id) + it, m_idHelperSvc->mmIdHelper().multilayer(id),
-                                        m_idHelperSvc->mmIdHelper().gasGap(id), 1);
+                                        m_idHelperSvc->mmIdHelper().gasGap(id), 1, is_valid);
                                 }
+                                if (!is_valid) continue;
 
                                 unsigned int nType = nid.get_identifier32().get_compact();
                                 const_cast<Trk::Layer*>((*lays)[il])->setLayerType(nType);
@@ -541,8 +553,9 @@ Muon::MuonStationBuilderCond::buildDetachedTrackingVolumes(const EventContext& c
                     if (msTV && gmStation) {
                         Amg::Transform3D transf = Amg::CLHEPTransformToEigen(gmStation->getTransform());
                         Identifier stId(0);
+                        bool is_valid{false};
                         if (m_idHelperSvc->hasCSC() && stName.compare(0, 1,"C") == 0) {
-                            stId = m_idHelperSvc->cscIdHelper().elementID(vname.substr(0, 3), eta, phi);
+                            stId = m_idHelperSvc->cscIdHelper().elementID(vname.substr(0, 3), eta, phi, is_valid);
                         }
                         // adjust eta,phi
                         if (msTypeName.compare(0, 1,"C") == 0) {
@@ -588,14 +601,16 @@ Muon::MuonStationBuilderCond::buildDetachedTrackingVolumes(const EventContext& c
                             else
                                 phi = static_cast<int>(phic < 0 ? 12 * phic / M_PI + 24 : 12 * phic / M_PI);
                             phi++;
-                            stId = m_idHelperSvc->tgcIdHelper().elementID(vname.substr(0, 3), etaSt, phi);
+                            stId = m_idHelperSvc->tgcIdHelper().elementID(vname.substr(0, 3), etaSt, phi, is_valid);
                         } else if (m_idHelperSvc->hasRPC() && stName.compare(0, 3, "BML") == 0) {
-                            stId = m_idHelperSvc->rpcIdHelper().elementID(vname.substr(0, 3), eta, phi, 1);
+                            stId = m_idHelperSvc->rpcIdHelper().elementID(vname.substr(0, 3), eta, phi, 1, is_valid);
                         } else if (m_idHelperSvc->hasMDT() && stName.compare(0, 1, "C") != 0) {
-                            stId = m_idHelperSvc->mdtIdHelper().elementID(vname.substr(0, 3), eta, phi);
+                            stId = m_idHelperSvc->mdtIdHelper().elementID(vname.substr(0, 3), eta, phi, is_valid);
                         }
-                        if (!(stId.get_compact()))
+                        if (!is_valid || !stId.get_compact()) {
                             ATH_MSG_WARNING("identifier of the station not found:" << vname << "," << eta << "," << phi);
+                            continue;
+                        }
                         unsigned int iD = stId.get_identifier32().get_compact();
                         // clone station from prototype
                         std::unique_ptr<const Trk::DetachedTrackingVolume> newStat{msTV->clone(vname, transf)};
@@ -838,18 +853,19 @@ void Muon::MuonStationBuilderCond::identifyLayers(const Trk::DetachedTrackingVol
     const std::string stationName = station->trackingVolume()->volumeName();
     ATH_MSG_VERBOSE(" in station " << station->name());
     const std::string stationStr = stationName.substr(0,3);
-    
+    bool is_valid{false};
     if (m_idHelperSvc->hasCSC() && stationStr[0] == 'C') {
         const int cscEtaSt = eta - MuonGM::MuonDetectorManager::NCscStEtaOffset;    
-        const Identifier readout_id = muonMgr->cscIdHelper()->channelID(stationStr, cscEtaSt, phi+1, 1, 1, 0, 1);
-        const MuonGM::CscReadoutElement* cscRE = muonMgr->getCscReadoutElement(readout_id);
+        const Identifier readout_id = muonMgr->cscIdHelper()->channelID(stationStr, cscEtaSt, phi+1, 1, 1, 0, 1, is_valid);
+        const MuonGM::CscReadoutElement* cscRE = is_valid ? muonMgr->getCscReadoutElement(readout_id) : nullptr;
         if (!cscRE){
-            const Identifier backup_id =  muonMgr->cscIdHelper()->channelID(stationStr, cscEtaSt, phi+1, 2, 1, 0, 1);
-            cscRE =  muonMgr->getCscReadoutElement(backup_id);
+            const Identifier backup_id =  muonMgr->cscIdHelper()->channelID(stationStr, cscEtaSt, phi+1, 2, 1, 0, 1, is_valid);
+            cscRE = is_valid ?  muonMgr->getCscReadoutElement(backup_id) : nullptr;
         }
         if (cscRE) {
             for (int gasgap = 0; gasgap < cscRE->Ngasgaps(); gasgap++) {
-                Identifier idi = m_idHelperSvc->cscIdHelper().channelID(cscRE->identify(), cscRE->ChamberLayer(), gasgap + 1, 0, 1);
+                Identifier idi = m_idHelperSvc->cscIdHelper().channelID(cscRE->identify(), cscRE->ChamberLayer(), gasgap + 1, 0, 1, is_valid);
+                if (!is_valid) continue;
                 const Trk::PlaneSurface* stripSurf = dynamic_cast<const Trk::PlaneSurface*>(&(cscRE->surface(idi)));
                 const Amg::Vector3D& gpi = stripSurf->center();
                 const Trk::TrackingVolume* assocVol = station->trackingVolume()->associatedSubVolume(gpi);
@@ -890,13 +906,15 @@ void Muon::MuonStationBuilderCond::identifyLayers(const Trk::DetachedTrackingVol
         const int stationEta = zi + (eta >= MuonGM::MuonDetectorManager::NTgcStEtaOffset);
         auto getReadout = [stationName, stationEta, muonMgr](int phi ) {
                 const int stationPhi  = phi + 1;
-                const Identifier id = muonMgr->tgcIdHelper()->elementID(stationName, stationEta, stationPhi) ;
-                return muonMgr->getTgcReadoutElement(id);
+                bool is_valid{false};     
+                const Identifier id = muonMgr->tgcIdHelper()->elementID(stationName, stationEta, stationPhi, is_valid) ;
+                return is_valid? muonMgr->getTgcReadoutElement(id): nullptr;
         };
         const MuonGM::TgcReadoutElement* tgc = getReadout(phi - 1);
 
         if (!tgc || !(station->trackingVolume()->inside(tgc->center(), 0.))) {
             unsigned int phit = 0;
+                    
             while (phit < 48) {
                 const MuonGM::TgcReadoutElement* tgct = getReadout(phit);
                 if (tgct && station->trackingVolume()->inside(tgct->center(), 0.)) {
@@ -906,7 +924,7 @@ void Muon::MuonStationBuilderCond::identifyLayers(const Trk::DetachedTrackingVol
                     Identifier oldId(station->layerRepresentation()->layerType());
                     int stationName = m_idHelperSvc->tgcIdHelper().stationName(oldId);
                     int stationEta = m_idHelperSvc->tgcIdHelper().stationEta(oldId);
-                    Identifier stId = m_idHelperSvc->tgcIdHelper().elementID(stationName, stationEta, phi);
+                    Identifier stId = m_idHelperSvc->tgcIdHelper().elementID(stationName, stationEta, phi, is_valid);
                     const_cast<Trk::Layer*>(station->layerRepresentation())->setLayerType(stId.get_identifier32().get_compact());
                     break;
                 }
@@ -958,13 +976,14 @@ void Muon::MuonStationBuilderCond::identifyLayers(const Trk::DetachedTrackingVol
                 if (cVols[i]->confinedLayers()) {
                     Trk::BinnedArraySpan<Trk::Layer const * const> cLays = cVols[i]->confinedLayers()->arrayObjects();
                     const MuonGM::MdtReadoutElement* mdtROE = nullptr;
+                    bool is_valid{false};
                     for (unsigned int il = 0; il < cLays.size(); ++il) {
                         Identifier id(cLays[il]->layerType());
                         if (id.get_compact() > 0 && m_idHelperSvc->isMdt(id)) {
                             Identifier newId = m_idHelperSvc->mdtIdHelper().channelID(
                                 nameIndex, eta, phi, m_idHelperSvc->mdtIdHelper().multilayer(id),
-                                m_idHelperSvc->mdtIdHelper().tubeLayer(id), m_idHelperSvc->mdtIdHelper().tube(id));
-                            if (!mdtROE) mdtROE = muonMgr->getMdtReadoutElement(newId);
+                                m_idHelperSvc->mdtIdHelper().tubeLayer(id), m_idHelperSvc->mdtIdHelper().tube(id), is_valid);
+                            if (!mdtROE) mdtROE = is_valid ? muonMgr->getMdtReadoutElement(newId) : nullptr;
                             unsigned int newid = newId.get_identifier32().get_compact();
                             const_cast< Trk::Layer*>(cLays[il])->setLayerType(newid);
                             // check reference position
@@ -991,11 +1010,12 @@ void Muon::MuonStationBuilderCond::identifyLayers(const Trk::DetachedTrackingVol
                     const std::vector<const Trk::Layer*>* cLays = cVols[i]->confinedArbitraryLayers();
                     for (unsigned int il = 0; il < cLays->size(); il++) {
                         Identifier id((*cLays)[il]->layerType());
+                        bool is_valid{false};
                         if (m_idHelperSvc->hasRPC() && id.get_compact() > 0 && m_idHelperSvc->isRpc(id)) {
                             Identifier newId = m_idHelperSvc->rpcIdHelper().channelID(
                                 nameIndex, eta, phi, m_idHelperSvc->rpcIdHelper().doubletR(id), m_idHelperSvc->rpcIdHelper().doubletZ(id),
                                 m_idHelperSvc->rpcIdHelper().doubletPhi(id), m_idHelperSvc->rpcIdHelper().gasGap(id),
-                                m_idHelperSvc->rpcIdHelper().measuresPhi(id), m_idHelperSvc->rpcIdHelper().strip(id));
+                                m_idHelperSvc->rpcIdHelper().measuresPhi(id), m_idHelperSvc->rpcIdHelper().strip(id), is_valid);
                             int newid = newId.get_identifier32().get_compact();
                             const_cast<Trk::Layer*>((*cLays)[il])->setLayerType(newid);
                         }
@@ -1042,12 +1062,13 @@ void Muon::MuonStationBuilderCond::identifyPrototype(const Trk::TrackingVolume* 
     ATH_MSG_VERBOSE(" for station " << stationName);
     const std::string stationNameShort = stationName.substr(0, 3);
     const char stationFirstChar = stationName[0];
-
+    bool is_valid{false};
+          
     if (m_idHelperSvc->hasMDT() && (stationFirstChar == 'B' || stationFirstChar == 'E')) {
         // MDT
         const int nameIndex = m_idHelperSvc->mdtIdHelper().stationNameIndex(stationNameShort);
-        for (int multi = 1; multi <= 2; ++multi) {           
-            const Identifier ele_id = m_idHelperSvc->mdtIdHelper().channelID(nameIndex, eta, phi, multi, 1, 1);
+        for (int multi = 1; multi <= 2; ++multi) {   
+            const Identifier ele_id = m_idHelperSvc->mdtIdHelper().channelID(nameIndex, eta, phi, multi, 1, 1, is_valid);
             const MuonGM::MdtReadoutElement* multilayer = muonMgr->getMdtReadoutElement(ele_id);
             if (!multilayer) {
                 continue;
@@ -1059,7 +1080,7 @@ void Muon::MuonStationBuilderCond::identifyPrototype(const Trk::TrackingVolume* 
             }
             int nLayers = multilayer->getNLayers();
             for (int layer = 1; layer <= nLayers; layer++) {
-                Identifier id = m_idHelperSvc->mdtIdHelper().channelID(nameIndex, eta, phi, multi, layer, 1);
+                Identifier id = m_idHelperSvc->mdtIdHelper().channelID(nameIndex, eta, phi, multi, layer, 1, is_valid);
                 if (id.get_compact() > 0) {
                     // retrieve associated layer
                     Amg::Vector3D gp = multilayer->tubePos(id);
@@ -1122,8 +1143,9 @@ void Muon::MuonStationBuilderCond::identifyPrototype(const Trk::TrackingVolume* 
                                 if (rpc) {
                                     if (doubletZ < rpc->getDoubletZ()) {
                                         for (int gasGap = 0; gasGap < 2; gasGap++) {
+                                            bool is_valid{false};
                                             Identifier etaId = m_idHelperSvc->rpcIdHelper().channelID(
-                                                nameIndex, eta, phi, doubletR + 1, doubletZ + 1, doubletPhi + 1, gasGap + 1, 0, 1);
+                                                nameIndex, eta, phi, doubletR + 1, doubletZ + 1, doubletPhi + 1, gasGap + 1, 0, 1, is_valid);
                                             for (unsigned int il = 0; il < layers->size(); il++) {
                                                 if ((*layers)[il]->layerType() != 0 &&
                                                     (*layers)[il]->surfaceRepresentation().isOnSurface(

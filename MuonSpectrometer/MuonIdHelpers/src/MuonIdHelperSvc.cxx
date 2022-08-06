@@ -44,8 +44,8 @@ namespace Muon {
         }
         if (m_hasSTgc) {
             if (m_detStore->retrieve(m_stgcIdHelper).isFailure()) {
-                ATH_MSG_WARNING(" Cannot retrieve sTgcIdHelper, please consider setting HasSTgc property to false "<<
-                                " in the future when running a layout without sTGC chambers");
+                ATH_MSG_WARNING(" Cannot retrieve sTgcIdHelper, please consider setting HasSTgc property to false "
+                                << " in the future when running a layout without sTGC chambers");
                 m_hasSTgc = false;
                 m_stgcIdHelper = nullptr;
                 m_runSTgc = false;
@@ -182,22 +182,23 @@ namespace Muon {
         // now, let's check if we are in the inner barrel layer, and if there are RPCs installed
         // if yes, the MDT chambers must be sMDTs
         m_BIS_stat = mdtIdHelper().stationNameIndex("BIS");
-        for (int eta = mdtIdHelper().stationEtaMin(true) ;  eta<= mdtIdHelper().stationEtaMax(true); ++eta){
-            for (int phi = 1; phi <= 8 ; ++phi) {
+        for (int eta = mdtIdHelper().stationEtaMin(true); eta <= mdtIdHelper().stationEtaMax(true); ++eta) {
+            for (int phi = 1; phi <= 8; ++phi) {
                 // now, let's check if we are in the inner barrel layer, and if there are RPCs installed
-                // if yes, the MDT chambers must be sMDTs       
-                 // now try to retrieve RPC identifier with the same station name/eta/phi and check if it is valid
+                // if yes, the MDT chambers must be sMDTs
+                // now try to retrieve RPC identifier with the same station name/eta/phi and check if it is valid
                 bool isValid = false;
-                m_rpcIdHelper->elementID(m_BIS_stat, eta, phi, 1,  isValid);            
-                                      // last 4 arguments are: doubletR, check, isValid          
+                m_rpcIdHelper->elementID(m_BIS_stat, eta, phi, 1, isValid);
+                // last 4 arguments are: doubletR, check, isValid
                 // there is a BI RPC in the same station, thus, this station was already upgraded and sMDTs are present
                 if (!isValid) continue;
-                m_smdt_stat.emplace(mdtIdHelper().elementID(m_BIS_stat,eta,phi));
+                m_smdt_stat.emplace(mdtIdHelper().elementID(m_BIS_stat, eta, phi));
             }
         }
 
-        ATH_MSG_DEBUG("Configured the service with the following flags --- hasCSC: "<<hasCSC()
-                    <<" recoCSC: "<<recoCSC()<<" hasSTGC: "<<hasSTgc()<<" recoSTGC: "<<recosTgc()<<" hasMicroMegas: "<<hasMM()<<" recoMM: "<<recoMM());
+        ATH_MSG_DEBUG("Configured the service with the following flags --- hasCSC: "
+                      << hasCSC() << " recoCSC: " << recoCSC() << " hasSTGC: " << hasSTgc() << " recoSTGC: " << recosTgc()
+                      << " hasMicroMegas: " << hasMM() << " recoMM: " << recoMM());
         return StatusCode::SUCCESS;
     }
 
@@ -266,7 +267,7 @@ namespace Muon {
         else if (!m_rpcIdHelper)
             return false;  // there must be RPCs in any layout
         else if (stationName(id) == m_BIS_stat) {
-            return m_smdt_stat.find(mdtIdHelper().elementID(id))!=m_smdt_stat.end();
+            return m_smdt_stat.find(mdtIdHelper().elementID(id)) != m_smdt_stat.end();
         }
         return false;
     }
@@ -346,7 +347,7 @@ namespace Muon {
                 index = MuonStationIndex::BI1;
             else
                 index = MuonStationIndex::BI2;
-        }else if (stIndex == MuonStationIndex::BM) {
+        } else if (stIndex == MuonStationIndex::BM) {
             if (rpcIdHelper().doubletR(id) == 1)
                 index = MuonStationIndex::BM1;
             else

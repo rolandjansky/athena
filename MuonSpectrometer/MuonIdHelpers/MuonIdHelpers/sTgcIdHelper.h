@@ -73,33 +73,34 @@ public:
     // Identifier builders
     Identifier elementID(int stationName, int stationEta, int stationPhi) const;
     Identifier elementID(int stationName, int stationEta, int stationPhi, bool& isValid) const;
-    
+
     Identifier elementID(const std::string& stationNameStr, int stationEta, int stationPhi) const;
     Identifier elementID(const std::string& stationNameStr, int stationEta, int stationPhi, bool& isValid) const;
-  
+
     Identifier elementID(const Identifier& channelID) const;
 
     Identifier channelID(int stationName, int stationEta, int stationPhi, int multilayer, int gasGap, int channelType, int channel) const;
     Identifier channelID(int stationName, int stationEta, int stationPhi, int multilayer, int gasGap, int channelType, int channel,
                          bool& isValid) const;
-    
+
     Identifier channelID(const std::string& stationNameStr, int stationEta, int stationPhi, int multilayer, int gasGap, int channelType,
                          int channel) const;
     Identifier channelID(const std::string& stationNameStr, int stationEta, int stationPhi, int multilayer, int gasGap, int channelType,
                          int channel, bool& isValid) const;
-                         
+
     Identifier channelID(const Identifier& id, int multilayer, int gasGap, int channelType, int channel) const;
     Identifier channelID(const Identifier& id, int multilayer, int gasGap, int channelType, int channel, bool& isValid) const;
 
-    Identifier padID(int stationName, int stationEta, int stationPhi, int multilayer, int gasGap, int channelType, int padEta, int padPhi) const;
+    Identifier padID(int stationName, int stationEta, int stationPhi, int multilayer, int gasGap, int channelType, int padEta,
+                     int padPhi) const;
     Identifier padID(int stationName, int stationEta, int stationPhi, int multilayer, int gasGap, int channelType, int padEta, int padPhi,
                      bool& isValid) const;
-    
+
     Identifier padID(const std::string& stationNameStr, int stationEta, int stationPhi, int multilayer, int gasGap, int channelType,
                      int padEta, int padPhi) const;
-     Identifier padID(const std::string& stationNameStr, int stationEta, int stationPhi, int multilayer, int gasGap, int channelType,
+    Identifier padID(const std::string& stationNameStr, int stationEta, int stationPhi, int multilayer, int gasGap, int channelType,
                      int padEta, int padPhi, bool& isValid) const;
-                     
+
     Identifier padID(const Identifier& id, int multilayer, int gasGap, int channelType, int padEta, int padPhi) const;
     Identifier padID(const Identifier& id, int multilayer, int gasGap, int channelType, int padEta, int padPhi, bool& isValid) const;
 
@@ -163,7 +164,7 @@ public:
     enum sTgcChannelTypes { Pad = 0, Strip = 1, Wire = 2 };
 
 private:
-   bool isStNameInTech(const std::string& stationName) const override;
+    bool isStNameInTech(const std::string& stationName) const override;
 
     int init_id_to_hashes();
     unsigned int m_module_hashes[60][20][48]{};             // ED Probably need to change this
